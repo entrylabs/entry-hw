@@ -9,6 +9,15 @@ function Module() {
 Module.prototype.init = function(handler, config) {
 };
 
+
+Module.prototype.requestInitialData = function() {
+	return null;
+};
+
+Module.prototype.checkInitialData = function(data, config) {
+	return true;
+};
+
 Module.prototype.validateLocalData = function(data) {
 	return true;
 };
