@@ -1,0 +1,23 @@
+{
+	"id": "030101",
+	"name": {
+		"en": "bitBrick",
+		"ko": "비트브릭"
+	},
+	"icon" : "bitbrick.png",
+	"module": "bitbrick.js",
+	"url": "http://hellogeeks.kr",
+	"driver": {
+		"win32-ia32": "arduino/dpinst-x86.exe",
+		"win32-x64": "arduino/dpinst-amd64.exe"
+	},
+	"entry": {
+		"protocol": "json"
+	},
+	"hardware": {
+		"type": "serial",
+		"control": "slave",
+		"duration": 20,
+		"baudRate": 38400
+	}
+}
