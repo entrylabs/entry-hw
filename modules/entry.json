@@ -11,6 +11,7 @@
 		"win32-ia32": "compat/SETUP.exe",
 		"win32-x64": "compat/SETUP.exe"
 	},
+    "reconnect" : true,
 	"firmware": "entry",
 	"entry": {
 		"protocol": "json"

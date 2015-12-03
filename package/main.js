@@ -11,9 +11,7 @@
 			options.debug = true;
 		}
 	});
-
-	 gui.Window.get().showDevTools();
-
+    
 	// show devtools if console
 	var win = gui.Window.get();
 	if(options.debug) {
@@ -23,7 +21,7 @@
 	// language
 	var translator = require('translator');
 	var lang = translator.getLanguage();
-	console.log('language: ' + lang);
+	// console.log('language: ' + lang);
 
 	// logger
 	var logger = {
@@ -64,6 +62,8 @@
 		countRobot: 0,
 		showRobotList: function() {
 			router.close();
+			router.stopScan();
+			delete window.currentConfig;
 			$('#title').text(translator.translate('Select hardware'));
 			$('#hwList').show();
 			$('#hwPanel').hide();
@@ -134,10 +134,11 @@
 //				}
 				ui.showConnecting();
 				router.startScan(config);
+				window.currentConfig = config;
 
 				var icon = '../modules/' + config.icon;
 				$('#selectedHWThumb').attr('src', icon);
-				
+
 				if(config.url) {
 					$('#url').text(config.url);
 					$('#url').show();
@@ -199,7 +200,7 @@
 				port,
 				function(error, stdout, stderr) {
 					$('#firmware').show();
-					console.log(error, stdout, stderr);
+					// console.log(error, stdout, stderr);
 					ui.showAlert(translator.translate("Firmware Uploaded!"));
 					router.startScan(config);
 				}
@@ -258,6 +259,18 @@
 
 	// state
 	router.on('state', function(state) {
+		if (state === "connect" && window.currentConfig.softwareReset) {
+			var sp = router.connector.sp;
+			sp.set({dtr: false}, function(){});
+			setTimeout(function() {sp.set({dtr: true}, function(){})}, 1000);
+			return;
+		}
+		if ((state === "lost" || state === "disconnected") && window.currentConfig.reconnect) {
+			router.close();
+			ui.showConnecting();
+			router.startScan(window.currentConfig);
+			return;
+		}
 		ui.setState(state);
 		server.setState(state);
 	});
