@@ -76,25 +76,24 @@ module.exports = new Module();
         "win32-ia32": "윈도우32비트 하드웨어 드라이버",
         "win32-x64": "윈도우64비트 하드웨어 드라이버"
     },
-    "reconnect" : 재접속 시도여부 (true | false),
+    "reconnect" : "재접속 시도여부 (true | false)",
     "firmware": "펌웨어(board)",
     "entry": {
         "protocol": "데이터규격(json)"
     },
-    //하드웨어 정보
     "hardware": {
         "type": "타입(serial)",
         "control": "동작방식(slave | master)",
-        "duration": duration(32 ...),
+        "duration": "duration(32 ...)",
         "vendor": "하드웨어 벤더명(ex.Arduino)",
-        "firmwarecheck": 펌웨어 자동체크여부 (true | false),
-        "baudRate": baudRate(115200, 57600, 38400, 19200, 9600, 4800, 2400, 1800, 1200, 600, 300, 200, 150, 134, 110, 75, 50),
-        "parity" : parity('none', 'even', 'mark', 'odd', 'space'),
-        "dataBits" : dataBits(8, 7, 6, 5),
-        "stopBits" : stopBits(1, 2),
-        "bufferSize" : bufferSize(255 ...),
-        "delimiter" : delimiter(ex '\r'),
-        "flowControl" : flowControl(ex. 'hardware')
+        "firmwarecheck": "펌웨어 자동체크여부 (true | false)",
+        "baudRate": "baudRate(115200, 57600, 38400, 19200, 9600, 4800, 2400, 1800, 1200, 600, 300, 200, 150, 134, 110, 75, 50)",
+        "parity" : "parity('none', 'even', 'mark', 'odd', 'space')",
+        "dataBits" : "dataBits(8, 7, 6, 5)",
+        "stopBits" : "stopBits(1, 2)",
+        "bufferSize" : "bufferSize(255 ...)",
+        "delimiter" : "delimiter(ex '\r')",
+        "flowControl" : "flowControl(ex. 'hardware')"
     }
 }
 ```
