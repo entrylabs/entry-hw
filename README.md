@@ -87,11 +87,11 @@ entry-hw의 핵심기능 구현을 위해 몇가지 오픈소스 라이브러리
             "duration": duration(32 ...),
             "vendor": "하드웨어 벤더명(ex.Arduino)",
             "firmwarecheck": 펌웨어 자동체크여부 (true | false),
-            "baudRate": baudRate(115200, 57600, 38400, 19200, **9600**, 4800, 2400, 1800, 1200, 600, 300, 200, 150, 134, 110, 75, 50),
-            "parity" : parity(**'none'**, 'even', 'mark', 'odd', 'space'),
-            "dataBits" : dataBits(**8**, 7, 6, 5),
-            "stopBits" : stopBits(**1**, 2),
-            "bufferSize" : bufferSize(**255** ...),
+            "baudRate": baudRate(115200, 57600, 38400, 19200, 9600, 4800, 2400, 1800, 1200, 600, 300, 200, 150, 134, 110, 75, 50),
+            "parity" : parity('none', 'even', 'mark', 'odd', 'space'),
+            "dataBits" : dataBits(8, 7, 6, 5),
+            "stopBits" : stopBits(1, 2),
+            "bufferSize" : bufferSize(255 ...),
             "delimiter" : delimiter(ex '\r'),
             "flowControl" : flowControl(ex. 'hardware')
         }
