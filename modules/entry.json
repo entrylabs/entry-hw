@@ -21,6 +21,7 @@
 		"control": "slave",
 		"duration": 32,
 		"vendor": "wch.cn",
-		"baudRate": 9600
+		"baudRate": 9600,
+		"firmwarecheck" : true
 	}
 }

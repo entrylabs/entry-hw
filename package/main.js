@@ -11,7 +11,7 @@
 			options.debug = true;
 		}
 	});
-    
+
 	// show devtools if console
 	var win = gui.Window.get();
 	if(options.debug) {
@@ -195,16 +195,18 @@
 			ui.showAlert(translator.translate("Firmware Uploading..."));
 			var port = router.connector.sp.path;
 			router.close();
-			flasher.flash(
-				firmware,
-				port,
-				function(error, stdout, stderr) {
-					$('#firmware').show();
-					// console.log(error, stdout, stderr);
-					ui.showAlert(translator.translate("Firmware Uploaded!"));
-					router.startScan(config);
-				}
-			);
+            setTimeout(function () {
+    			flasher.flash(
+    				firmware,
+    				port,
+    				function(error, stdout, stderr) {
+    					// console.log(error, stdout, stderr);
+    					$('#firmware').show();
+    					ui.showAlert(translator.translate("Firmware Uploaded!"));
+    					router.startScan(config);
+    				}
+    			);
+            }, 200);
 		},
 		setState: function(state) {
 			if(state == 'connected') {
@@ -259,6 +261,10 @@
 
 	// state
 	router.on('state', function(state) {
+        if (state === "flash") {
+			console.log('flash');
+            $('#firmware').trigger('click');
+		}
 		if (state === "connect" && window.currentConfig.softwareReset) {
 			var sp = router.connector.sp;
 			sp.set({dtr: false}, function(){});
