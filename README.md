@@ -1,4 +1,101 @@
 # 엔트리 하드웨어 연결 프로그램(entry-hw)
+entry-hw는 엔트리 교육연구소에서 개발한 엔트리와 하드웨어를 연동하기 위한 프로그램  입니다. 엔트리 사이트에 접속하시면 엔트리를 사용한 블록코딩 환경과 하드웨어를 연동하는 모습을 확인해 볼 수 있습니다.
+
+## 시작하기
+entry-hw는 nwjs기반의 멀티플랫폼 어플리케이션 입니다.
+entry-hw의 핵심기능 구현을 위해 몇가지 오픈소스 라이브러리를 사용합니다.
+
+### 써드파티 라이브러리
+ * jQuery : http://jquery.com/download/ (MIT)
+ * Node Serialport : https://github.com/voodootikigod/node-serialport (MIT)
+ * WebSocket : https://github.com/theturtle32/WebSocket-Node (Apacahe 2.0)
+ * Node localize : https://github.com/dfellis/node-localize (MIT)
+
+### 하드웨어 추가하기
+	1. .js 파일생성
+	2. .json 파일생성
+	3. 이미지 삽입
+	4. 실행
+
+`.js` 파일생성
+
+	// 모듈 생성
+    function Module() {
+    	//초기설정
+    }
+    
+    // 초기설정
+    Module.prototype.init = function(handler, config) {
+	};
+
+	// 초기 송신데이터(필수)
+    Module.prototype.requestInitialData = function() {
+    };
+    
+	// 초기 수신데이터 체크(필수)
+    Module.prototype.checkInitialData = function(data, config) {
+    };
+
+	// 하드웨어에 전달할 데이터
+    Module.prototype.requestLocalData = function() {
+    };
+
+	// 하드웨어 데이터 처리
+    Module.prototype.handleLocalData = function(data) {
+    };
+    
+	// Web Socket 데이터 처리
+    Module.prototype.handleRemoteData = function(handler) {
+    };
+    
+    // Web Socket(에트리)에 전달할 데이터
+    Module.prototype.requestRemoteData = function(handler) {
+    };
+
+	// Web Socket 종료후 처리
+    Module.prototype.reset = function() {
+    };
+	
+    // 이외 필요한 모듈이 있을경우 임의로 추가 가능
+    ...
+
+    module.exports = new Module();
+
+`.json` 파일생성
+
+	{
+        "id": "하드웨어ID(엔트리와 사전규약 필요. ex.'010101')",
+        "name": {
+            "en": "English Name",
+            "ko": "한글명"
+        },
+        "icon" : "이미지(.png | .jpg | .gif ...)",
+        "module": "모듈(.js)",
+        "driver": {
+            "win32-ia32": "윈도우32비트 하드웨어 드라이버",
+            "win32-x64": "윈도우64비트 하드웨어 드라이버"
+        },
+        "reconnect" : 재접속 시도여부 (true | false),
+        "firmware": "펌웨어(board)",
+        "entry": {
+            "protocol": "데이터규격(json)"
+        },
+        //하드웨어 정보
+        "hardware": {
+            "type": "타입(serial)",
+            "control": "동작방식(slave | master)",
+            "duration": duration(32 ...),
+            "vendor": "하드웨어 벤더명(ex.Arduino)",
+            "baudRate": baudRate(9600 ...),
+            "firmwarecheck": 펌웨어 자동체크여부 (true | false)
+        }
+    }
+
+실행
+
+	nw.exe .
+    // 디버그 모드로 열고 싶을 경우엔
+    nw.exe . -debug
 
 ## Copyright and License
 
