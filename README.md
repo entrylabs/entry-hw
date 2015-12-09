@@ -18,90 +18,92 @@ entry-hw의 핵심기능 구현을 위해 몇가지 오픈소스 라이브러리
 	4. 실행
 
 `.js` 파일생성
+```js
+// 모듈 생성
+function Module() {
+    //초기설정
+}
 
-	// 모듈 생성
-    function Module() {
-    	//초기설정
-    }
-    
-    // 초기설정
-    Module.prototype.init = function(handler, config) {
-	};
+// 초기설정
+Module.prototype.init = function(handler, config) {
+};
 
-	// 초기 송신데이터(필수)
-    Module.prototype.requestInitialData = function() {
-    };
-    
-	// 초기 수신데이터 체크(필수)
-    Module.prototype.checkInitialData = function(data, config) {
-    };
+// 초기 송신데이터(필수)
+Module.prototype.requestInitialData = function() {
+};
 
-	// 하드웨어에 전달할 데이터
-    Module.prototype.requestLocalData = function() {
-    };
+// 초기 수신데이터 체크(필수)
+Module.prototype.checkInitialData = function(data, config) {
+};
 
-	// 하드웨어 데이터 처리
-    Module.prototype.handleLocalData = function(data) {
-    };
-    
-	// Web Socket 데이터 처리
-    Module.prototype.handleRemoteData = function(handler) {
-    };
-    
-    // Web Socket(에트리)에 전달할 데이터
-    Module.prototype.requestRemoteData = function(handler) {
-    };
+// 하드웨어에 전달할 데이터
+Module.prototype.requestLocalData = function() {
+};
 
-	// Web Socket 종료후 처리
-    Module.prototype.reset = function() {
-    };
-	
-    // 이외 필요한 모듈이 있을경우 임의로 추가 가능
-    ...
+// 하드웨어 데이터 처리
+Module.prototype.handleLocalData = function(data) {
+};
 
-    module.exports = new Module();
+// Web Socket 데이터 처리
+Module.prototype.handleRemoteData = function(handler) {
+};
+
+// Web Socket(에트리)에 전달할 데이터
+Module.prototype.requestRemoteData = function(handler) {
+};
+
+// Web Socket 종료후 처리
+Module.prototype.reset = function() {
+};
+
+// 이외 필요한 모듈이 있을경우 임의로 추가 가능
+...
+
+module.exports = new Module();
+```
 
 `.json` 파일생성
-
-	{
-        "id": "하드웨어ID(엔트리와 사전규약 필요. ex.'010101')",
-        "name": {
-            "en": "English Name",
-            "ko": "한글명"
-        },
-        "icon" : "이미지(.png | .jpg | .gif ...)",
-        "module": "모듈(.js)",
-        "driver": {
-            "win32-ia32": "윈도우32비트 하드웨어 드라이버",
-            "win32-x64": "윈도우64비트 하드웨어 드라이버"
-        },
-        "reconnect" : 재접속 시도여부 (true | false),
-        "firmware": "펌웨어(board)",
-        "entry": {
-            "protocol": "데이터규격(json)"
-        },
-        //하드웨어 정보
-        "hardware": {
-            "type": "타입(serial)",
-            "control": "동작방식(slave | master)",
-            "duration": duration(32 ...),
-            "vendor": "하드웨어 벤더명(ex.Arduino)",
-            "firmwarecheck": 펌웨어 자동체크여부 (true | false),
-            "baudRate": baudRate(115200, 57600, 38400, 19200, 9600, 4800, 2400, 1800, 1200, 600, 300, 200, 150, 134, 110, 75, 50),
-            "parity" : parity('none', 'even', 'mark', 'odd', 'space'),
-            "dataBits" : dataBits(8, 7, 6, 5),
-            "stopBits" : stopBits(1, 2),
-            "bufferSize" : bufferSize(255 ...),
-            "delimiter" : delimiter(ex '\r'),
-            "flowControl" : flowControl(ex. 'hardware')
-        }
+```json
+{
+    "id": "하드웨어ID(엔트리와 사전규약 필요. ex.'010101')",
+    "name": {
+        "en": "English Name",
+        "ko": "한글명"
+    },
+    "icon" : "이미지(.png | .jpg | .gif ...)",
+    "module": "모듈(.js)",
+    "driver": {
+        "win32-ia32": "윈도우32비트 하드웨어 드라이버",
+        "win32-x64": "윈도우64비트 하드웨어 드라이버"
+    },
+    "reconnect" : 재접속 시도여부 (true | false),
+    "firmware": "펌웨어(board)",
+    "entry": {
+        "protocol": "데이터규격(json)"
+    },
+    //하드웨어 정보
+    "hardware": {
+        "type": "타입(serial)",
+        "control": "동작방식(slave | master)",
+        "duration": duration(32 ...),
+        "vendor": "하드웨어 벤더명(ex.Arduino)",
+        "firmwarecheck": 펌웨어 자동체크여부 (true | false),
+        "baudRate": baudRate(115200, 57600, 38400, 19200, 9600, 4800, 2400, 1800, 1200, 600, 300, 200, 150, 134, 110, 75, 50),
+        "parity" : parity('none', 'even', 'mark', 'odd', 'space'),
+        "dataBits" : dataBits(8, 7, 6, 5),
+        "stopBits" : stopBits(1, 2),
+        "bufferSize" : bufferSize(255 ...),
+        "delimiter" : delimiter(ex '\r'),
+        "flowControl" : flowControl(ex. 'hardware')
     }
-
+}
+```
 실행
-
-	nw.exe .
-    // 디버그 모드로 열고 싶을 경우엔
-    nw.exe . -debug
+```bash
+nw.exe .
+// 디버그 모드로 열고 싶을 경우엔
+nw.exe . -debug
+```
 
 ## Copyright and License
 
