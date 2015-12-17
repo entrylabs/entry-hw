@@ -48,7 +48,7 @@ Module.prototype.handleLocalData = function(data) {
 Module.prototype.handleRemoteData = function(handler) {
 };
 
-// Web Socket(에트리)에 전달할 데이터
+// Web Socket(엔트리)에 전달할 데이터
 Module.prototype.requestRemoteData = function(handler) {
 };
 
