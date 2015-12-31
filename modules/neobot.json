@@ -1,23 +1,21 @@
 {
-	"id": "060101",
+	"id": "050101",
 	"name": {
-		"en": "Entry Sensor board",
+		"en": "Neo Bot",
 		"ko": "네오봇"
 	},
 	"icon" : "neobot.png",
 	"module": "neobot.js",
-	"url": "http://www.neweducation.co.kr",
+	"url": "http://neobot.co.kr/",
     "reconnect" : true,
 	"entry": {
 		"protocol": "json"
 	},
 	"hardware": {
-		"pnpId" : "BTHENUM\\{00001101-0000-1000-8000-00805F9B34FB}_VID&00010039_PID&5035\\8&18C974B&0&8CDE520158B0_C00000000",
+		"pnpId" : "PID",
 		"type": "bluetooth",
-		"control": "slave",
-		"duration": 3200,
+		"control": "master",
 		"vendor": "neobot",
-		"baudRate": 57600,
-		"firmwarecheck" : true
+		"baudRate": 57600
 	}
 }
