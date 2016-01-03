@@ -8,6 +8,7 @@
 	"module": "neobot.js",
 	"url": "http://neobot.co.kr/",
     "reconnect" : true,
+    "select_com_port" : false,
 	"entry": {
 		"protocol": "json"
 	},

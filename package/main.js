@@ -127,6 +127,13 @@
 					'<h2 class="hwTitle">' + name + '</h2></div>');
 
 			$('#' + config.id).click(function() {
+
+				if(config.select_com_port) {
+					var com_port = prompt('사용하실 COM 포트를 적어주세요.');
+					if(!com_port)
+						return;
+					config.this_com_port = com_port;
+				}
 				ui.hardware = config.id.substring(0, 4);
 				ui.numLevel = 1;
 //				if(config.level) {
