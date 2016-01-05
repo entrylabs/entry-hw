@@ -14,7 +14,9 @@ function Module() {
 		"note" : 0,
 		"octave" : 0,
 		"duration" : 0,
-		"sound_check" : 0
+		"sound_check" : 0,
+		"O_1": 0,
+		"O_2": 0
 	};
 	this.send_cnt = 0;
 
@@ -22,6 +24,7 @@ function Module() {
 	this.motorSended = true;
 	this.servo1Sended = true;
 	this.servo2Sended = true;
+	this.outputSended = true;
 }
 
 
@@ -38,7 +41,9 @@ Module.prototype.PORT_MAP = [
 	"note",
 	"octave",
 	"duration",
-	"sound_check"
+	"sound_check",
+	"O_1",
+	"O_2"
 ];
 
 Module.prototype.NOTE_MAP = [
@@ -61,6 +66,10 @@ Module.prototype.SERVO1_MAP = [
 Module.prototype.SERVO2_MAP = [
     "SERVO2",
     "SERVO2_SPEED"
+];
+Module.prototype.OUT_PORT_MAP = [
+    "O_1",
+    "O_2"
 ];
 
 
@@ -106,6 +115,10 @@ Module.prototype.handleRemoteData = function(handler) {
 		if(this.SERVO2_MAP.indexOf(port) > -1) {
 			if (buffer[port] !== value)
 				this.servo2Sended = false;
+		}
+		if(this.OUT_PORT_MAP.indexOf(port) > -1) {
+			if (buffer[port] !== value)
+				this.outputSended = false;
 		}
 		buffer[port] = value;
 	}
@@ -171,6 +184,12 @@ Module.prototype.requestLocalData = function() {
 		this.servo2Sended = true;
 	}
 
+	if (!this.outputSended) {
+		send_data.push(0x20 + buffer.O_1);
+		send_data.push(16 * buffer.O_2);
+		this.outputSended = true;
+	}
+
 	if(send_data.length > 0) {
 		send_data.unshift(send_data.length);
 		send_data.unshift(0xaa);
@@ -207,7 +226,9 @@ Module.prototype.reset = function() {
 		"note" : 0,
 		"octave" : 0,
 		"duration" : 0,
-		"sound_check" : 0
+		"sound_check" : 0,
+		"O_1": 0,
+		"O_2": 0
 	};
 };
 
