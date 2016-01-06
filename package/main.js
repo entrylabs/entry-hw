@@ -127,13 +127,18 @@
 					'<h2 class="hwTitle">' + name + '</h2></div>');
 
 			$('#' + config.id).click(function() {
+				if(config.hardware.type === 'bluetooth') {
+					is_select_port = true;
+				}
 
+				
 				if(config.select_com_port) {
 					var com_port = prompt('사용하실 COM 포트를 적어주세요.');
 					if(!com_port)
 						return;
 					config.this_com_port = com_port;
 				}
+
 				ui.hardware = config.id.substring(0, 4);
 				ui.numLevel = 1;
 //				if(config.level) {
@@ -242,7 +247,9 @@
 	};
 
 	$('#back.navigate_button').click(function(e) {
+		delete window.currentConfig.this_com_port;
 		ui.showRobotList();
+		router.close();
 	});
 
 	$('.chromeButton').click(function(e) {
@@ -266,19 +273,71 @@
 		this.close(true);
 	});
 
+
+	$('#select_port').dblclick(function () {
+		$('#btn_select_port').trigger('click');
+	});
+
+	$('#btn_select_port').click(function(e) {
+		var com_port = $("#select_port").val();
+		if(!com_port) {
+			alert('연결할 COM PORT를 선택하세요.');
+		} else {
+			window.currentConfig.this_com_port = com_port;
+			clear_select_port();
+		}
+	});
+
+	$('#btn_select_port_cancel').click(function(e) {
+		clearTimeout(select_port_connection);
+		clear_select_port();
+		ui.showRobotList();
+	});
+
+	function clear_select_port() {
+		is_select_port = false;
+		_cache_object = '';
+		$('#select_port_box').css('display', 'none');
+	}
+
+
+	var _cache_object = '';
+	var _com_port = '';
+	var is_select_port = true;
+	var select_port_connection;
 	// state
-	router.on('state', function(state) {
-        if (state === "flash") {
+	router.on('state', function(state, data) {
+		if (state === "select_port") {
+			router.close();
+			var _temp = JSON.stringify(data);
+			if(_temp !== _cache_object) {
+				var port_html = '';
+				data.forEach(function (port) {
+					port_html += '<option>' + port.comName + '</option>';
+				});				
+
+				$('#select_port_box').css('display', 'flex');
+				$('#select_port_box select').html(port_html);
+
+				_cache_object = _temp;		
+			}		
+			if(is_select_port) {
+				select_port_connection = setTimeout(function () {
+					router.startScan(window.currentConfig);
+				}, 300);
+			} else {
+				is_select_port = true;
+			}
+			return;
+		} else if (state === "flash") {
 			console.log('flash');
             $('#firmware').trigger('click');
-		}
-		if (state === "connect" && window.currentConfig.softwareReset) {
+		} else if (state === "connect" && window.currentConfig.softwareReset) {
 			var sp = router.connector.sp;
 			sp.set({dtr: false}, function(){});
 			setTimeout(function() {sp.set({dtr: true}, function(){})}, 1000);
 			return;
-		}
-		if ((state === "lost" || state === "disconnected") && window.currentConfig.reconnect) {
+		} else if ((state === "lost" || state === "disconnected") && window.currentConfig.reconnect) {
 			router.close();
 			ui.showConnecting();
 			router.startScan(window.currentConfig);

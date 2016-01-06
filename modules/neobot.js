@@ -19,7 +19,6 @@ function Module() {
 		"O_2": 0
 	};
 	this.send_cnt = 0;
-
 	this.melodySended = true;
 	this.motorSended = true;
 	this.servo1Sended = true;
@@ -63,16 +62,16 @@ Module.prototype.SERVO1_MAP = [
     "SERVO1_SPEED",
 
 ];
+
 Module.prototype.SERVO2_MAP = [
     "SERVO2",
     "SERVO2_SPEED"
 ];
+
 Module.prototype.OUT_PORT_MAP = [
     "O_1",
     "O_2"
 ];
-
-
 
 Module.prototype.init = function(handler, config) {
 };
