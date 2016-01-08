@@ -283,7 +283,7 @@
 		if(!com_port) {
 			alert('연결할 COM PORT를 선택하세요.');
 		} else {
-			window.currentConfig.this_com_port = com_port;
+			window.currentConfig.this_com_port = com_port[0];
 			clear_select_port();
 		}
 	});
