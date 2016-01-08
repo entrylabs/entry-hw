@@ -14,7 +14,7 @@ function Module() {
 		battery: 0,
 		inputA: 0,
 		inputB: 0,
-		lineTracerState: 0,
+		lineFollowingState: 0,
 		leftWheel: 0,
 		rightWheel: 0,
 		buzzer: 0,
@@ -31,24 +31,20 @@ function Module() {
 		leftLed: 0,
 		rightLed: 0,
 		note: 0,
-		lineTracerMode: 0,
-		lineTracerSpeed: 4,
+		lineFollowingMode: 0,
+		lineFollowingSpeed: 4,
 		ioModeA: 0,
 		ioModeB: 0,
 		configProximity: 2,
 		configGravity: 0,
 		configBandWidth: 3
 	};
-	this.battery = {
-		sum: 0,
-		data: undefined,
-		count: 0,
-		initial: true
-	};
-	this.lineTracer = {
-		mode: false,
+	this.lineFollowing = {
+		active: false,
 		flag: 0,
-		state: -1
+		event: 0,
+		state: 0,
+		oldState: 0
 	};
 }
 
@@ -62,8 +58,8 @@ var Hamster = {
 	LEFT_LED: 'leftLed',
 	RIGHT_LED: 'rightLed',
 	NOTE: 'note',
-	LINE_TRACER_MODE: 'lineTracerMode',
-	LINE_TRACER_SPEED: 'lineTracerSpeed',
+	LINE_FOLLOWING_MODE: 'lineFollowingMode',
+	LINE_FOLLOWING_SPEED: 'lineFollowingSpeed',
 	IO_MODE_A: 'ioModeA',
 	IO_MODE_B: 'ioModeB',
 	CONFIG_PROXIMITY: 'configProximity',
@@ -82,7 +78,7 @@ var Hamster = {
 	BATTERY: 'battery',
 	INPUT_A: 'inputA',
 	INPUT_B: 'inputB',
-	LINE_TRACER_STATE: 'lineTracerState'
+	LINE_FOLLOWING_STATE: 'lineFollowingState'
 };
 
 Module.prototype.toHex = function(number) {
@@ -201,20 +197,35 @@ Module.prototype.handleLocalData = function(data) { // data: string
 	str = data.slice(36, 38);
 	value = parseInt(str, 16);
 	sensory.inputB = value;
-	// line tracer state
+	// line following state
 	str = data.slice(38, 40);
 	value = parseInt(str, 16);
-	if(value != this.lineTracer.state) {
-		sensory.lineTracerState = value;
+	var lineFollowing = this.lineFollowing;
+	if(lineFollowing.event == 1) {
+		if(value != 0x40)
+			lineFollowing.event = 2;
+	}
+	if(lineFollowing.event == 2) {
+		if(value != lineFollowing.oldState) {
+			lineFollowing.oldState = value;
+			if(value == 0x40) {
+				lineFollowing.event = 0;
+				lineFollowing.state = value;
+			}
+		}
 	}
 };
 
 Module.prototype.requestRemoteData = function(handler) {
 	var sensory = this.sensory;
+	if(this.lineFollowing.state == 0x40) {
+		sensory.lineFollowingState = 0x40;
+		this.lineFollowing.state = 0;
+	}
 	for(var key in sensory) {
 		handler.write(key, sensory[key]);
 	}
-	sensory.lineTracerState = undefined;
+	sensory.lineFollowingState = 0;
 };
 
 Module.prototype.handleRemoteData = function(handler) {
@@ -244,6 +255,8 @@ Module.prototype.handleRemoteData = function(handler) {
 		else if(t > 167772.15) t = 167772.15;
 		motoring.buzzer = t;
 		sensory.buzzer = t;
+		if(t > 0)
+			motoring.note = 0;
 	}
 	// output a
 	if(handler.e(Hamster.OUTPUT_A)) {
@@ -290,20 +303,21 @@ Module.prototype.handleRemoteData = function(handler) {
 		motoring.buzzer = 0;
 		motoring.note = t;
 	}
-	// line tracer mode
-	if(handler.e(Hamster.LINE_TRACER_MODE)) {
-		t = handler.read(Hamster.LINE_TRACER_MODE);
+	// line following mode
+	if(handler.e(Hamster.LINE_FOLLOWING_MODE)) {
+		t = handler.read(Hamster.LINE_FOLLOWING_MODE);
 		if(t < 0) t = 0;
 		else if(t > 15) t = 15;
-		motoring.lineTracerMode = t;
-		this.lineTracer.mode = true;
+		motoring.lineFollowingMode = t;
+		if(t > 0)
+			this.lineFollowing.active = true;
 	}
-	// line tracer speed
-	if(handler.e(Hamster.LINE_TRACER_SPEED)) {
-		t = handler.read(Hamster.LINE_TRACER_SPEED);
+	// line following speed
+	if(handler.e(Hamster.LINE_FOLLOWING_SPEED)) {
+		t = handler.read(Hamster.LINE_FOLLOWING_SPEED) - 1;
 		if(t < 0) t = 0;
 		else if(t > 7) t = 7;
-		motoring.lineTracerSpeed = t;
+		motoring.lineFollowingSpeed = t;
 	}
 	// io mode a
 	if(handler.e(Hamster.IO_MODE_A)) {
@@ -344,6 +358,7 @@ Module.prototype.handleRemoteData = function(handler) {
 
 Module.prototype.requestLocalData = function() {
 	var motoring = this.motoring;
+	var lineFollowing = this.lineFollowing;
 	var str = this.toHex(motoring.topology & 0x0f);
 	str += '0010';
 	str += this.toHex(motoring.leftWheel);
@@ -352,13 +367,14 @@ Module.prototype.requestLocalData = function() {
 	str += this.toHex(motoring.rightLed);
 	str += this.toHex3(motoring.buzzer * 100);
 	str += this.toHex(motoring.note);
-	if(this.lineTracer.mode) {
-		this.lineTracer.mode = false;
-		this.lineTracer.flag ^= 0x80;
+	if(lineFollowing.active) {
+		lineFollowing.active = false;
+		lineFollowing.flag ^= 0x80;
+		lineFollowing.event = 1;
 	}
-	var tmp = (motoring.lineTracerMode & 0x0f) << 3;
-	tmp |= (motoring.lineTracerSpeed & 0x07);
-	tmp |= this.lineTracer.flag;
+	var tmp = (motoring.lineFollowingMode & 0x0f) << 3;
+	tmp |= (motoring.lineFollowingSpeed & 0x07);
+	tmp |= lineFollowing.flag;
 	str += this.toHex(tmp);
 	str += this.toHex(motoring.configProximity);
 	tmp = (motoring.configGravity & 0x0f) << 4;
@@ -386,14 +402,26 @@ Module.prototype.reset = function() {
 	motoring.leftLed = 0;
 	motoring.rightLed = 0;
 	motoring.note = 0;
-	motoring.lineTracerMode = 0;
-	motoring.lineTracerSpeed = 4;
+	motoring.lineFollowingMode = 0;
+	motoring.lineFollowingSpeed = 4;
 	motoring.ioModeA = 0;
 	motoring.ioModeB = 0;
 	motoring.configProximity = 2;
 	motoring.configGravity = 0;
 	motoring.configBandWidth = 3;
-	this.lineTracer.mode = false;
+	var sensory = this.sensory;
+	sensory.lineFollowingState = 0;
+	sensory.leftWheel = 0;
+	sensory.rightWheel = 0;
+	sensory.buzzer = 0;
+	sensory.outputA = 0;
+	sensory.outputB = 0;
+	var lineFollowing = this.lineFollowing;
+	lineFollowing.active = false;
+	lineFollowing.flag = 0;
+	lineFollowing.event = 0;
+	lineFollowing.state = 0;
+	lineFollowing.oldState = 0;
 };
 
 module.exports = new Module();
