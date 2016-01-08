@@ -132,12 +132,12 @@
 				}
 
 				
-				if(config.select_com_port) {
-					var com_port = prompt('사용하실 COM 포트를 적어주세요.');
-					if(!com_port)
-						return;
-					config.this_com_port = com_port;
-				}
+				// if(config.select_com_port) {
+				// 	var com_port = prompt('사용하실 COM 포트를 적어주세요.');
+				// 	if(!com_port)
+				// 		return;
+				// 	config.this_com_port = com_port;
+				// }
 
 				ui.hardware = config.id.substring(0, 4);
 				ui.numLevel = 1;
@@ -289,8 +289,8 @@
 	});
 
 	$('#btn_select_port_cancel').click(function(e) {
-		clearTimeout(select_port_connection);
 		clear_select_port();
+		clearTimeout(select_port_connection);
 		ui.showRobotList();
 	});
 
@@ -324,7 +324,7 @@
 			if(is_select_port) {
 				select_port_connection = setTimeout(function () {
 					router.startScan(window.currentConfig);
-				}, 300);
+				}, 1000);
 			} else {
 				is_select_port = true;
 			}
