@@ -310,7 +310,7 @@
 		if (state === "select_port") {
 			router.close();
 			var _temp = JSON.stringify(data);
-			if(_temp !== _cache_object) {
+			if(_temp !== _cache_object && is_select_port) {
 				var port_html = '';
 				data.forEach(function (port) {
 					port_html += '<option>' + port.comName + '</option>';
