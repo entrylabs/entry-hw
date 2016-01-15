@@ -18,6 +18,8 @@
 	"hardware": {
 		"type": "serial",
 		"control": "master",
+		"scanType": "data",
+		"vendor": "Silicon Lab",
 		"baudRate": 115200,
 		"flowControl": "hardware",
 		"delimiter": "\r"

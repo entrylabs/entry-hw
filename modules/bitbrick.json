@@ -19,6 +19,8 @@
 		"type": "serial",
 		"control": "slave",
 		"duration": 20,
+		"scanType": "data",
+		"vendor": "Silicon Lab",
 		"baudRate": 38400
 	}
 }

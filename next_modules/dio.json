@@ -19,6 +19,8 @@
 		"type": "serial",
 		"control": "slave",
 		"duration": 32,
+		"scanType": "data",
+		"vendor": "FTDI",
 		"baudRate": 57600
 	}
 }
