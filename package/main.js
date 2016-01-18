@@ -263,16 +263,22 @@
 
 	// close
 	win.on('close', function() {
-		this.hide();
-		router.close();
-		server.close();
-		if(ui.winEntry) {
-			ui.winEntry.close(true);
-			ui.winEntry = undefined;
-		}
-		this.close(true);
-	});
+		var isQuit = true;
+		if(router.connector && router.connector.connected) {
+			isQuit = confirm('하드웨어와 연결중 입니다. 이대로 종료 하시겠습니까?');
+		}		
 
+		if(isQuit) {
+			this.hide();
+			router.close();
+			server.close();
+			if(ui.winEntry) {
+				ui.winEntry.close(true);
+				ui.winEntry = undefined;
+			}
+			this.close(true);
+		}
+	});
 
 	$('#select_port').dblclick(function () {
 		$('#btn_select_port').trigger('click');
