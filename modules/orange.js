@@ -4,6 +4,7 @@ function Module() {
 
 	this.remoteDigitalValue = new Array(14);
 	this.readablePorts = null;
+	this.remainValue = null;
 }
 
 Module.prototype.init = function(handler, config) {
@@ -49,17 +50,27 @@ Module.prototype.requestLocalData = function() {
 };
 
 Module.prototype.handleLocalData = function(data) { // data: Native Buffer
-	var remainValue = null;
 	var pointer = 0;
-
 	for (var i = 0; i < 32; i++) {
-		var chunk = data[i];
+		var chunk;
+		if(!this.remainValue) {
+			chunk = data[i];
+		} else {			
+			chunk = this.remainValue;
+			i--;
+		}
 		if (chunk >> 7) {
 			if ((chunk >> 6) & 1) {
 				var nextChunk = data[i + 1];
-				var port = (chunk >> 3) & 7;
-				this.analogValue[port] = ((chunk & 7) << 7) +
-					(nextChunk & 127);
+				if(!nextChunk) {
+					this.remainValue = chunk;
+				} else {
+					this.remainValue = null;
+
+					var port = (chunk >> 3) & 7;
+					this.analogValue[port] = ((chunk & 7) << 7) +
+						(nextChunk & 127);
+				}				
 		    	i++;
 			} else {
 				var port = (chunk >> 2) & 15;

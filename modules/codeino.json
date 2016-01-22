@@ -1,5 +1,5 @@
 {
-	"id": "070101",
+	"id": "010101",
 	"name": {
 		"en": "CODEino",
 		"ko": "코드이노"
@@ -13,6 +13,7 @@
 	},
     "reconnect" : true,
 	"firmware": "codeino",
+	"firmwareBaudRate": 57600,
 	"entry": {
 		"protocol": "json"
 	},

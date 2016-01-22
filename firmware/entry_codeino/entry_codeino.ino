@@ -28,11 +28,10 @@ void loop() {
 
 void sendPinValues() {
   int pinNumber = 0;
-  for (pinNumber = 0; pinNumber < 8; pinNumber++) { // A7 ÇÉÀº »ç¿ëÇÏÁö ¾ÊÀ½.
-    sendAnalogValue(pinNumber);
+  for (pinNumber = 0; pinNumber < 6; pinNumber++) { // A7 ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½.
+      sendAnalogValue(pinNumber);
   }
   for (pinNumber = 0; pinNumber < 14; pinNumber++) {
-    if (!isPortWritable(pinNumber))
       sendDigitalValue(pinNumber);
   }
 }
