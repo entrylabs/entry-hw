@@ -206,11 +206,14 @@
 			}
 			ui.showAlert(translator.translate("Firmware Uploading..."));
 			var port = router.connector.sp.path;
+			var baudRate = config.firmwareBaudRate;
 			router.close();
             setTimeout(function () {
     			flasher.flash(
     				firmware,
     				port,
+    				baudRate
+    				,
     				function(error, stdout, stderr) {
     					// console.log(error, stdout, stderr);
     					$('#firmware').show();
