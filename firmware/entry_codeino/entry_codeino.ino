@@ -28,7 +28,7 @@ void loop() {
 
 void sendPinValues() {
   int pinNumber = 0;
-  for (pinNumber = 0; pinNumber < 6; pinNumber++) { // A7 ���� ������� ����.
+  for (pinNumber = 0; pinNumber < 7; pinNumber++) { // A7 ���� ������� ����.
       sendAnalogValue(pinNumber);
   }
   for (pinNumber = 0; pinNumber < 14; pinNumber++) {

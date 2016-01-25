@@ -70,7 +70,7 @@ Module.prototype.handleLocalData = function(data) { // data: Native Buffer
 		if (chunk >> 7) {
 			if ((chunk >> 6) & 1) {
 				var nextChunk = data[i + 1];
-				if(!nextChunk) {
+				if(!nextChunk && nextChunk !== 0) {
 					this.remainValue = chunk;
 				} else {
 					this.remainValue = null;
