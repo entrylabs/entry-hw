@@ -10,10 +10,7 @@ function Module() {
 		light: 0,
 		battery: 0,
 		frontOid: -1,
-		backOid: -1,
-		leftWheel: 0,
-		rightWheel: 0,
-		buzzer: 0
+		backOid: -1
 	};
 	this.motoring = {
 		leftWheel: 0,
@@ -51,17 +48,7 @@ var Albert = {
 	BODY_LED: 'bodyLed',
 	FRONT_LED: 'frontLed',
 	PAD_WIDTH: 'padWidth',
-	PAD_HEIGHT: 'padHeight',
-	SIGNAL_STRENGTH: 'signalStrength',
-	LEFT_PROXIMITY: 'leftProximity',
-	RIGHT_PROXIMITY: 'rightProximity',
-	POSITION_X: 'positionX',
-	POSITION_Y: 'positionY',
-	ORIENTATION: 'orientation',
-	LIGHT: 'light',
-	BATTERY: 'battery',
-	FRONT_OID: 'frontOid',
-	BACK_OID: 'backOid'
+	PAD_HEIGHT: 'padHeight'
 };
 
 Module.prototype.toHex = function(number) {
@@ -79,8 +66,9 @@ Module.prototype.toHex3 = function(number) {
 	
 	value = value.toString(16).toUpperCase();
 	var result = '';
-	for(var i = value.length; i < 6; ++i)
+	for(var i = value.length; i < 6; ++i) {
 		result += '0';
+	}
 	return result + value;
 };
 
@@ -110,10 +98,8 @@ Module.prototype.validateLocalData = function(data) {
 Module.prototype.calculateBattery = function(value) {
 	var battery = this.battery;
 	var calculate = function(data) {
-		if(data >= 165)
-			data = (data - 165) * 1.889 + 15.0;
-		else
-			data = data - 150;
+		if(data >= 165) data = (data - 165) * 1.889 + 15.0;
+		else data = data - 150;
 		if(data > 100) data = 100;
 		else if(data < 0) data = 0;
 		return parseInt(data);
@@ -154,20 +140,16 @@ Module.prototype.calculateOid = function(low, mid, high) {
 	if((low & 0x40) != 0 && (low & 0x20) == 0)
 	{
 		var value = ((low & 0x03) << 16) | ((mid & 0xff) << 8) | (high & 0xff);
-		if(value < 0x010000) // index
-			data = value;
-		else if(value < 0x03fff0)
-			data = -1;
-		else if(value > 0x03fffb && value < 0x040000)
-			data = -1;
+		if(value < 0x010000) data = value; // index
+		else if(value < 0x03fff0) data = -1;
+		else if(value > 0x03fffb && value < 0x040000) data = -1;
 	}
 	return data;
 };
 
 Module.prototype.handleLocalData = function(data) { // data: string
-	if(data.length != 53) {
-		return;
-	}
+	if(data.length != 53) return;
+
 	var sensory = this.sensory;
 	var str = data.slice(4, 5);
 	if(str == '1') {
@@ -202,10 +184,8 @@ Module.prototype.handleLocalData = function(data) { // data: string
 		var v1 = this.calculateOid(low, mid, high);
 		var oid = this.oid;
 		if(v1 == -2) {
-			if(oid.front == -2)
-				v1 = -1;
-			else
-				v1 = oid.front;
+			if(oid.front == -2) v1 = -1;
+			else v1 = oid.front;
 		} else {
 			if(v1 != oid.front) {
 				oid.front = v1;
@@ -220,26 +200,21 @@ Module.prototype.handleLocalData = function(data) { // data: string
 		high = parseInt(str, 16);
 		var v2 = this.calculateOid(low, mid, high);
 		if(v2 == -2) {
-			if(oid.back == -2)
-				v2 = -1;
-			else
-				v2 = oid.back;
+			if(oid.back == -2) v2 = -1;
+			else v2 = oid.back;
 		} else {
 			if(v2 != oid.back) {
 				oid.back = v2;
 				sensory.backOid = v2;
 			}
 		}
-		
 		var motoring = this.motoring;
 		if(motoring.padWidth > 0 && motoring.padHeight > 0) {
 			if(v1 > 0 && v1 <= 40000) {
 				var x = (v1 - 1) % motoring.padWidth; // x
 				var y = parseInt(motoring.padHeight - (v1 - 1) / motoring.padWidth - 1); // y
-				if(x >= 0 && x < motoring.padWidth)
-					sensory.positionX = x;
-				if(y >= 0 && y < motoring.padHeight)
-					sensory.positionY = y;
+				if(x >= 0 && x < motoring.padWidth) sensory.positionX = x;
+				if(y >= 0 && y < motoring.padHeight) sensory.positionY = y;
 			}
 			if(v2 > 0 && v2 <= 40000 && sensory.positionX >= 0 && sensory.positionY >= 0)
 			{
@@ -264,7 +239,6 @@ Module.prototype.requestRemoteData = function(handler) {
 
 Module.prototype.handleRemoteData = function(handler) {
 	var motoring = this.motoring;
-	var sensory = this.sensory;
 	var t;
 	// left wheel
 	if(handler.e(Albert.LEFT_WHEEL)) {
@@ -272,7 +246,6 @@ Module.prototype.handleRemoteData = function(handler) {
 		if(t < -100) t = -100;
 		else if(t > 100) t = 100;
 		motoring.leftWheel = t;
-		sensory.leftWheel = t;
 	}
 	// right wheel
 	if(handler.e(Albert.RIGHT_WHEEL)) {
@@ -280,7 +253,6 @@ Module.prototype.handleRemoteData = function(handler) {
 		if(t < -100) t = -100;
 		else if(t > 100) t = 100;
 		motoring.rightWheel = t;
-		sensory.rightWheel = t;
 	}
 	// buzzer
 	if(handler.e(Albert.BUZZER)) {
@@ -288,9 +260,6 @@ Module.prototype.handleRemoteData = function(handler) {
 		if(t < 0) t = 0;
 		else if(t > 167772.15) t = 167772.15;
 		motoring.buzzer = t;
-		sensory.buzzer = t;
-		if(t > 0)
-			motoring.note = 0;
 	}
 	// topology
 	if(handler.e(Albert.TOPOLOGY)) {
@@ -318,7 +287,6 @@ Module.prototype.handleRemoteData = function(handler) {
 		t = handler.read(Albert.NOTE);
 		if(t < 0) t = 0;
 		else if(t > 88) t = 88;
-		motoring.buzzer = 0;
 		motoring.note = t;
 	}
 	// body led
@@ -382,12 +350,6 @@ Module.prototype.reset = function() {
 	motoring.frontLed = 0;
 	motoring.padWidth = 0;
 	motoring.padHeight = 0;
-	var sensory = this.sensory;
-	sensory.frontOid = -1;
-	sensory.backOid = -1;
-	sensory.leftWheel = 0;
-	sensory.rightWheel = 0;
-	sensory.buzzer = 0;
 	var battery = this.battery;
 	battery.sum = 0;
 	battery.data = undefined;

@@ -11,15 +11,10 @@ function Module() {
 		accelerationZ: 0,
 		light: 0,
 		temperature: 0,
-		battery: 0,
 		inputA: 0,
 		inputB: 0,
-		lineFollowingState: 0,
-		leftWheel: 0,
-		rightWheel: 0,
-		buzzer: 0,
-		outputA: 0,
-		outputB: 0
+		lineTracerState: 0,
+		lineTracerStateId: 0
 	};
 	this.motoring = {
 		leftWheel: 0,
@@ -31,20 +26,20 @@ function Module() {
 		leftLed: 0,
 		rightLed: 0,
 		note: 0,
-		lineFollowingMode: 0,
-		lineFollowingSpeed: 4,
+		lineTracerMode: 0,
+		lineTracerModeId: -1,
+		lineTracerSpeed: 5,
 		ioModeA: 0,
 		ioModeB: 0,
 		configProximity: 2,
 		configGravity: 0,
 		configBandWidth: 3
 	};
-	this.lineFollowing = {
-		active: false,
+	this.lineTracer = {
+		written: false,
 		flag: 0,
 		event: 0,
-		state: 0,
-		oldState: 0
+		state: 0
 	};
 }
 
@@ -58,27 +53,14 @@ var Hamster = {
 	LEFT_LED: 'leftLed',
 	RIGHT_LED: 'rightLed',
 	NOTE: 'note',
-	LINE_FOLLOWING_MODE: 'lineFollowingMode',
-	LINE_FOLLOWING_SPEED: 'lineFollowingSpeed',
+	LINE_TRACER_MODE: 'lineTracerMode',
+	LINE_TRACER_MODE_ID: 'lineTracerModeId',
+	LINE_TRACER_SPEED: 'lineTracerSpeed',
 	IO_MODE_A: 'ioModeA',
 	IO_MODE_B: 'ioModeB',
 	CONFIG_PROXIMITY: 'configProximity',
 	CONFIG_GRAVITY: 'configGravity',
-	CONFIG_BAND_WIDTH: 'configBandWidth',
-	SIGNAL_STRENGTH: 'signalStrength',
-	LEFT_PROXIMITY: 'leftProximity',
-	RIGHT_PROXIMITY: 'rightProximity',
-	LEFT_FLOOR: 'leftFloor',
-	RIGHT_FLOOR: 'rightFloor',
-	ACCELERATION_X: 'accelerationX',
-	ACCELERATION_Y: 'accelerationY',
-	ACCELERATION_Z: 'accelerationZ',
-	LIGHT: 'light',
-	TEMPERATURE: 'temperature',
-	BATTERY: 'battery',
-	INPUT_A: 'inputA',
-	INPUT_B: 'inputB',
-	LINE_FOLLOWING_STATE: 'lineFollowingState'
+	CONFIG_BAND_WIDTH: 'configBandWidth'
 };
 
 Module.prototype.toHex = function(number) {
@@ -96,8 +78,9 @@ Module.prototype.toHex3 = function(number) {
 	
 	value = value.toString(16).toUpperCase();
 	var result = '';
-	for(var i = value.length; i < 6; ++i)
+	for(var i = value.length; i < 6; ++i) {
 		result += '0';
+	}
 	return result + value;
 };
 
@@ -125,14 +108,11 @@ Module.prototype.validateLocalData = function(data) {
 };
 
 Module.prototype.handleLocalData = function(data) { // data: string
-	if(data.length != 53) {
-		return;
-	}
+	if(data.length != 53) return;
+
 	var str = data.slice(4, 5);
 	var value = parseInt(str, 16);
-	if(value != 1) {
-		return; // invalid data
-	}
+	if(value != 1) return; // invalid data
 	
 	var sensory = this.sensory;
 	// signal strength
@@ -197,20 +177,24 @@ Module.prototype.handleLocalData = function(data) { // data: string
 	str = data.slice(36, 38);
 	value = parseInt(str, 16);
 	sensory.inputB = value;
-	// line following state
+	// line tracer state
 	str = data.slice(38, 40);
 	value = parseInt(str, 16);
-	var lineFollowing = this.lineFollowing;
-	if(lineFollowing.event == 1) {
-		if(value != 0x40)
-			lineFollowing.event = 2;
-	}
-	if(lineFollowing.event == 2) {
-		if(value != lineFollowing.oldState) {
-			lineFollowing.oldState = value;
-			if(value == 0x40) {
-				lineFollowing.event = 0;
-				lineFollowing.state = value;
+	if((value & 0x40) != 0) {
+		var lineTracer = this.lineTracer;
+		if(lineTracer.event == 1) {
+			if(value != 0x40) {
+				lineTracer.event = 2;
+			}
+		}
+		if(lineTracer.event == 2) {
+			if(value != lineTracer.state) {
+				lineTracer.state = value;
+				sensory.lineTracerState = value;
+				sensory.lineTracerStateId = (sensory.lineTracerStateId + 1) & 0xff;
+				if(value == 0x40) {
+					lineTracer.event = 0;
+				}
 			}
 		}
 	}
@@ -218,19 +202,14 @@ Module.prototype.handleLocalData = function(data) { // data: string
 
 Module.prototype.requestRemoteData = function(handler) {
 	var sensory = this.sensory;
-	if(this.lineFollowing.state == 0x40) {
-		sensory.lineFollowingState = 0x40;
-		this.lineFollowing.state = 0;
-	}
 	for(var key in sensory) {
 		handler.write(key, sensory[key]);
 	}
-	sensory.lineFollowingState = 0;
+	sensory.lineTracerState = 0;
 };
 
 Module.prototype.handleRemoteData = function(handler) {
 	var motoring = this.motoring;
-	var sensory = this.sensory;
 	var t;
 	// left wheel
 	if(handler.e(Hamster.LEFT_WHEEL)) {
@@ -238,7 +217,6 @@ Module.prototype.handleRemoteData = function(handler) {
 		if(t < -100) t = -100;
 		else if(t > 100) t = 100;
 		motoring.leftWheel = t;
-		sensory.leftWheel = t;
 	}
 	// right wheel
 	if(handler.e(Hamster.RIGHT_WHEEL)) {
@@ -246,7 +224,6 @@ Module.prototype.handleRemoteData = function(handler) {
 		if(t < -100) t = -100;
 		else if(t > 100) t = 100;
 		motoring.rightWheel = t;
-		sensory.rightWheel = t;
 	}
 	// buzzer
 	if(handler.e(Hamster.BUZZER)) {
@@ -254,9 +231,6 @@ Module.prototype.handleRemoteData = function(handler) {
 		if(t < 0) t = 0;
 		else if(t > 167772.15) t = 167772.15;
 		motoring.buzzer = t;
-		sensory.buzzer = t;
-		if(t > 0)
-			motoring.note = 0;
 	}
 	// output a
 	if(handler.e(Hamster.OUTPUT_A)) {
@@ -264,7 +238,6 @@ Module.prototype.handleRemoteData = function(handler) {
 		if(t < 0) t = 0;
 		else if(t > 255) t = 255;
 		motoring.outputA = t;
-		sensory.outputA = t;
 	}
 	// output b
 	if(handler.e(Hamster.OUTPUT_B)) {
@@ -272,7 +245,6 @@ Module.prototype.handleRemoteData = function(handler) {
 		if(t < 0) t = 0;
 		else if(t > 255) t = 255;
 		motoring.outputB = t;
-		sensory.outputB = t;
 	}
 	// topology
 	if(handler.e(Hamster.TOPOLOGY)) {
@@ -300,24 +272,29 @@ Module.prototype.handleRemoteData = function(handler) {
 		t = handler.read(Hamster.NOTE);
 		if(t < 0) t = 0;
 		else if(t > 88) t = 88;
-		motoring.buzzer = 0;
 		motoring.note = t;
 	}
-	// line following mode
-	if(handler.e(Hamster.LINE_FOLLOWING_MODE)) {
-		t = handler.read(Hamster.LINE_FOLLOWING_MODE);
-		if(t < 0) t = 0;
-		else if(t > 15) t = 15;
-		motoring.lineFollowingMode = t;
-		if(t > 0)
-			this.lineFollowing.active = true;
+	// line tracer mode
+	if(handler.e(Hamster.LINE_TRACER_MODE_ID)) {
+		t = handler.read(Hamster.LINE_TRACER_MODE_ID);
+		if(t != motoring.lineTracerModeId) {
+			motoring.lineTracerModeId = t;
+			
+			if(handler.e(Hamster.LINE_TRACER_MODE)) {
+				t = handler.read(Hamster.LINE_TRACER_MODE);
+				if(t < 0) t = 0;
+				else if(t > 15) t = 15;
+				motoring.lineTracerMode = t;
+				this.lineTracer.written = true;
+			}
+		}
 	}
-	// line following speed
-	if(handler.e(Hamster.LINE_FOLLOWING_SPEED)) {
-		t = handler.read(Hamster.LINE_FOLLOWING_SPEED) - 1;
-		if(t < 0) t = 0;
-		else if(t > 7) t = 7;
-		motoring.lineFollowingSpeed = t;
+	// line tracer speed
+	if(handler.e(Hamster.LINE_TRACER_SPEED)) {
+		t = handler.read(Hamster.LINE_TRACER_SPEED);
+		if(t < 1) t = 1;
+		else if(t > 8) t = 8;
+		motoring.lineTracerSpeed = t;
 	}
 	// io mode a
 	if(handler.e(Hamster.IO_MODE_A)) {
@@ -358,7 +335,7 @@ Module.prototype.handleRemoteData = function(handler) {
 
 Module.prototype.requestLocalData = function() {
 	var motoring = this.motoring;
-	var lineFollowing = this.lineFollowing;
+	var lineTracer = this.lineTracer;
 	var str = this.toHex(motoring.topology & 0x0f);
 	str += '0010';
 	str += this.toHex(motoring.leftWheel);
@@ -367,14 +344,16 @@ Module.prototype.requestLocalData = function() {
 	str += this.toHex(motoring.rightLed);
 	str += this.toHex3(motoring.buzzer * 100);
 	str += this.toHex(motoring.note);
-	if(lineFollowing.active) {
-		lineFollowing.active = false;
-		lineFollowing.flag ^= 0x80;
-		lineFollowing.event = 1;
+	if(lineTracer.written) {
+		lineTracer.written = false;
+		if(motoring.lineTracerMode > 0) {
+			lineTracer.flag ^= 0x80;
+			lineTracer.event = 1;
+		}
 	}
-	var tmp = (motoring.lineFollowingMode & 0x0f) << 3;
-	tmp |= (motoring.lineFollowingSpeed & 0x07);
-	tmp |= lineFollowing.flag;
+	var tmp = (motoring.lineTracerMode & 0x0f) << 3;
+	tmp |= ((motoring.lineTracerSpeed - 1) & 0x07);
+	tmp |= lineTracer.flag;
 	str += this.toHex(tmp);
 	str += this.toHex(motoring.configProximity);
 	tmp = (motoring.configGravity & 0x0f) << 4;
@@ -402,26 +381,22 @@ Module.prototype.reset = function() {
 	motoring.leftLed = 0;
 	motoring.rightLed = 0;
 	motoring.note = 0;
-	motoring.lineFollowingMode = 0;
-	motoring.lineFollowingSpeed = 4;
+	motoring.lineTracerMode = 0;
+	motoring.lineTracerModeId = -1;
+	motoring.lineTracerSpeed = 5;
 	motoring.ioModeA = 0;
 	motoring.ioModeB = 0;
 	motoring.configProximity = 2;
 	motoring.configGravity = 0;
 	motoring.configBandWidth = 3;
 	var sensory = this.sensory;
-	sensory.lineFollowingState = 0;
-	sensory.leftWheel = 0;
-	sensory.rightWheel = 0;
-	sensory.buzzer = 0;
-	sensory.outputA = 0;
-	sensory.outputB = 0;
-	var lineFollowing = this.lineFollowing;
-	lineFollowing.active = false;
-	lineFollowing.flag = 0;
-	lineFollowing.event = 0;
-	lineFollowing.state = 0;
-	lineFollowing.oldState = 0;
+	sensory.lineTracerState = 0;
+	sensory.lineTracerStateId = 0;
+	var lineTracer = this.lineTracer;
+	lineTracer.written = false;
+	lineTracer.flag = 0;
+	lineTracer.event = 0;
+	lineTracer.state = 0;
 };
 
 module.exports = new Module();
