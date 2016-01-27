@@ -50,7 +50,6 @@
 
 	// flasher
 	var flasher = require('flasher');
-
 	// ui & control
 	$('#driver').text(translator.translate('Install Device Driver'));
 	$('#firmware').text(translator.translate('Install Firmware'));

@@ -1,16 +1,20 @@
 {
 	"name": "entry-server",
-	"version": "1.1.0",
+	"version": "1.1.1",
 	"description": "The Entry server is an application that connects your robot to the Entry web page.",
 	"contributors": [
 		{
 			"name": "Kwang-Hyun Park",
 			"email": "akaii@kw.ac.kr"
+		},
+		{
+			"name": "JY Kim",
+			"email": "usbsync@entrylabs.org"
 		}
 	],
 	"main": "package/index.html",
 	"window": {
-		"title": "Entry Server v1.1",
+		"title": "Entry Server v1.1.1",
 		"toolbar": false,
 		"resizable": false,
 		"width": 800,
