@@ -12,7 +12,13 @@
 		"win32-x64": "compat/SETUP.exe"
 	},
     "reconnect" : true,
-	"firmware": "entry",
+	"firmware": [{
+		"name": "entry",
+		"translate": "Install Firmware(Sensor Board)"
+	}, {
+		"name": "board",
+		"translate": "Install Firmware(Extension Project)"
+	}],
 	"entry": {
 		"protocol": "json"
 	},
@@ -21,7 +27,6 @@
 		"control": "slave",
 		"duration": 32,
 		"vendor": "wch.cn",
-		"baudRate": 9600,
-		"firmwarecheck" : true
+		"baudRate": 9600
 	}
 }

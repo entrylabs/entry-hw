@@ -169,6 +169,14 @@
 
 				$('#driver').hide();
 				$('#firmware').hide();
+				$('#extFirmware').hide();				
+				$('#firmware').on('click', function () {
+					ui.flashFirmware(this.firmware, config);
+				});
+				$('#extFirmware').on('click', function () {
+					ui.flashFirmware(this.firmware, config);
+				});
+
 				if(config.driver) {
 					var os = process.platform + '-' + (isOSWin64() ? 'x64' : process.arch);
 					var driverPath = config.driver[os];
@@ -182,11 +190,18 @@
 					}
 					if (config.firmware) {
 						$('#firmware').show();
-						$('#firmware').unbind('click');
+						if(typeof config.firmware === 'string') {
+							$('#firmware').text(translator.translate('Install Firmware'));
+							$('#firmware').prop('firmware', config.firmware);
+						} else if(Array.isArray(config.firmware)) {
+							var firmware = config.firmware[0];
+							var extFirmware = config.firmware[1];
+							$('#extFirmware').show().text(translator.translate(extFirmware.translate));
+							$('#extFirmware').prop('firmware', extFirmware.name);
+							$('#firmware').text(translator.translate(firmware.translate));
+							$('#firmware').prop('firmware', firmware.name);
+						}
 
-						$('#firmware').click(function() {
-							ui.flashFirmware(config.firmware, config);
-						});
 					}
 				}
 //				if(config.description) {
@@ -199,7 +214,7 @@
 			});
 		},
 		flashFirmware: function(firmware, config) {
-			$('#firmware').hide();
+			$('#firmwareButtonSet').hide();
 			if (!router.connector) {
 				alert(translator.translate('Hardware Device Is Not Connected'));
 				return;
@@ -216,7 +231,7 @@
     				,
     				function(error, stdout, stderr) {
     					// console.log(error, stdout, stderr);
-    					$('#firmware').show();
+    					$('#firmwareButtonSet').show();
     					ui.showAlert(translator.translate("Firmware Uploaded!"));
     					router.startScan(config);
     				}
