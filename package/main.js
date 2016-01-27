@@ -283,7 +283,7 @@
 	win.on('close', function() {
 		var isQuit = true;
 		if(router.connector && router.connector.connected) {
-			isQuit = confirm('하드웨어와 연결중 입니다. 이대로 종료 하시겠습니까?');
+			isQuit = confirm(translator.translate('Connection to the hardware will terminate once program is closed.'));
 		}		
 
 		if(isQuit) {
