@@ -69,5 +69,8 @@
 	},
 	"Hardware device is disconnected. Please restart this program.": {
 		"ko": "하드웨어 연결이 끊어졌습니다. 연결 프로그램을 다시 시작해 주세요."
+	},
+	"Connection to the hardware will terminate once program is closed.": {
+		"ko": "프로그램 종료 시 하드웨어와 연결이 끊어집니다."
 	}
 }
