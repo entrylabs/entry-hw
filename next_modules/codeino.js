@@ -1,6 +1,6 @@
 function Module() {
 	this.digitalValue = new Array(14);
-	this.analogValue = new Array(6);
+	this.analogValue = new Array(8);
 
 	this.remoteDigitalValue = new Array(14);
 	this.readablePorts = null;
@@ -9,7 +9,6 @@ function Module() {
 
 Module.prototype.init = function(handler, config) {
 };
-
 
 Module.prototype.requestInitialData = function() {
 	return null;
