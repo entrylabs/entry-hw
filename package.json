@@ -14,7 +14,7 @@
 	],
 	"main": "package/index.html",
 	"window": {
-		"title": "Entry Server v1.1.2",
+		"title": "엔트리 하드웨어 v1.1.2",
 		"toolbar": false,
 		"resizable": false,
 		"width": 800,
