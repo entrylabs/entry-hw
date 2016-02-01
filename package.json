@@ -1,6 +1,6 @@
 {
 	"name": "entry-server",
-	"version": "1.1.1",
+	"version": "1.1.2",
 	"description": "The Entry server is an application that connects your robot to the Entry web page.",
 	"contributors": [
 		{
@@ -14,7 +14,7 @@
 	],
 	"main": "package/index.html",
 	"window": {
-		"title": "Entry Server v1.1.1",
+		"title": "Entry Server v1.1.2",
 		"toolbar": false,
 		"resizable": false,
 		"width": 800,

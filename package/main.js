@@ -365,6 +365,8 @@
 			ui.showConnecting();
 			router.startScan(window.currentConfig);
 			return;
+		} else if(state === 'before_connect' && window.currentConfig.firmware) {
+			ui.showAlert(translator.translate('Connecting to hardware device.') + ' 펌웨어를 선택해 주세요.');
 		}
 		ui.setState(state);
 		server.setState(state);
