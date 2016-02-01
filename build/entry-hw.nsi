@@ -126,7 +126,7 @@ Section $(TEXT_START_MENU_TITLE) SectionStartMenu
 
   CreateDirectory "$SMPROGRAMS\엔트리_하드웨어"
   CreateShortCut "$SMPROGRAMS\엔트리_하드웨어\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
-  CreateShortCut "$SMPROGRAMS\엔트리_하드웨어\엔트리_하드웨어연결_프로그램.lnk" "$INSTDIR\nw.exe" "" "$INSTDIR\icon.ico" 0
+  CreateShortCut "$SMPROGRAMS\엔트리_하드웨어\엔트리_하드웨어.lnk" "$INSTDIR\nw.exe" "" "$INSTDIR\icon.ico" 0
   
 SectionEnd
 
