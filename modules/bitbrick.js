@@ -26,6 +26,8 @@ Module.prototype.SENSOR_MAP = {
 	2: "IR", 
 	3: "touch", 
 	4: "potentiometer",
+    5: "MIC",
+    21: "UserSensor",
 	20: "LED",
 	19: "SERVO",
 	18: "DC"
