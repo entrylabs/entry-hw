@@ -1,0 +1,20 @@
+{
+	"id": "070101",
+	"name": {
+		"en": "ROBOTIS CAR ROBOT",
+		"ko": "로보티즈 자동차 로봇"
+	},
+	"icon" : "robotis_carCont.png",
+	"module": "robotis_carCont.js",
+	"url": "http://www.robotis.com",
+	"entry": {
+		"protocol": "json"
+	},
+	"hardware": {
+		"type": "bluetooth",
+		"control": "slave",
+		"vendor": "Microsoft",
+		"duration": 40,
+		"baudRate": 57600
+	}
+}
