@@ -169,7 +169,8 @@ Module.prototype.requestLocalData = function() {
 	/////////////////
 	var data = this.robotisBuffer.shift();
 	if (data == null) {
-		return sendBuffer;
+		// return sendBuffer;
+		return this.readPacket(200, 87, 1);
 	}
 	
 	var instruction = data[0];	
@@ -209,15 +210,15 @@ Module.prototype.requestLocalData = function() {
 			
 			this.varTimeout = setTimeout(function() {
 				isReadDataArrived = true;
-				console.log('!! ' + new Date().getHours() + ':' + new Date().getMinutes() + ':' + new Date().getMilliseconds() + ' !!' + '\n'
-					+ isReadDataArrived);
+				// console.log('!! ' + new Date().getHours() + ':' + new Date().getMinutes() + ':' + new Date().getMilliseconds() + ' !!' + '\n'
+					// + isReadDataArrived);
 			}, 100);
 		}
 	}
 	
 	if (sendBuffer != null) {
-		console.log('>> ' + new Date().getHours() + ':' + new Date().getMinutes() + ':' + new Date().getMilliseconds() + '\n' 
-			 + sendBuffer + '(' + this.robotisBuffer.length + ')');
+		// console.log('>> ' + new Date().getHours() + ':' + new Date().getMinutes() + ':' + new Date().getMilliseconds() + '\n' 
+			 // + sendBuffer + '(' + this.robotisBuffer.length + ')');
 	}
 
 	return sendBuffer;
@@ -229,7 +230,7 @@ Module.prototype.handleLocalData = function(data) { // data: Native Buffer
 	}
 	
 	if (this.receiveBuffer.length >= 11 + this.receiveLength) {
-		console.log('<< 1 : ' + this.receiveLength + ' : ' + this.receiveBuffer);
+		// console.log('<< 1 : ' + this.receiveLength + ' : ' + this.receiveBuffer);
 		
 		// while (this.receiveBuffer.length > 0) {
 		while (this.receiveBuffer.length >= 11 + this.receiveLength) {
@@ -268,10 +269,10 @@ Module.prototype.handleLocalData = function(data) { // data: Native Buffer
 										}
 										
 										isReadDataArrived = true;
-										console.log('<- ' + new Date().getHours() + ':' + new Date().getMinutes() + ':' + new Date().getMilliseconds() + '\n' 
-										 + this.receiveAddress + ' : ' + returnValue);
+										// console.log('<- ' + new Date().getHours() + ':' + new Date().getMinutes() + ':' + new Date().getMilliseconds() + '\n' 
+										 // + this.receiveAddress + ' : ' + returnValue);
 									} else {
-										console.log('<- ' + new Date().getHours() + ':' + new Date().getMinutes() + ':' + new Date().getMilliseconds() + '\n' + '-1');
+										// console.log('<- ' + new Date().getHours() + ':' + new Date().getMinutes() + ':' + new Date().getMilliseconds() + '\n' + '-1');
 									}
 									
 									this.receiveBuffer.shift(); // take crc check byte
