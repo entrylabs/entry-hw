@@ -23,6 +23,7 @@ body {
 	outline: 0;
 	font-family: Arial, Dotum;
 	font-size:10pt;
+  	overflow: hidden;
 }
 
 #header {
@@ -69,6 +70,8 @@ body {
 	padding-left: 50px;
 	padding-top: 40px;
 	padding-bottom: 40px;
+ 	overflow-y: auto;
+	height: 365px;
 }
 
 #hwPanel {
