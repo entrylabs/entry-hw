@@ -28,7 +28,7 @@
 Name "Entry-Hw"
 
 ; The file to write
-OutFile "Entry_HW_v1.1.2.exe"
+OutFile "Entry_HW_v1.1.3.exe"
 
 ; The default installation directory
 InstallDir "$PROGRAMFILES64\Entry_Hw"
