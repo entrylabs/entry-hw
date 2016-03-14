@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<link href="css/main.css" rel="stylesheet" type="text/css" />
+	<script src="js/jquery-1.11.3.min.js" type="text/javascript"></script>
+</head>
+<body>
+	<div id="header">
+		<div id="navigator">
+			<button class="navigate_button" id="back"></button>
+			<button class="navigate_button" id="forward"></button>
+		</div>
+		<h1 id="title">하드웨어 선택</h1>
+	</div>
+	<div id="ieGuide">
+		<span class='ieTitle'>Internet Explorer에서는 하드웨어 연결이 되지 않습니다.</span>
+		<button class='chromeButton'>chrome 다운로드 바로가기</button>
+	</div>
+	
+	<div id="alert">Message message message!</div>
+
+	<div id="hwList" class="content"></div>
+
+	<div id="hwPanel" class="content">
+		<div id="reference">
+			<h2 id="url"></h2>
+		</div>
+		<div id="client" class="hwPanelElement">
+			<img src="images/computer.png"/>
+			<button id="driver" class="hwPanelBtn"></button>
+		</div>
+		<div id="progress" class="hwPanelElement">
+			<div class="progressDot"></div>
+			<div class="progressDot"></div>
+			<div class="progressDot"></div>
+			<div class="progressDot"></div>
+			<div class="progressDot"></div>
+			<div class="progressDot"></div>
+			<div class="progressDot"></div>
+			<div class="progressDot"></div>
+			<div class="progressDot"></div>
+			<div class="progressDot"></div>
+			<div class="progressDot"></div>
+			<div class="progressDot"></div>
+			<div class="progressDot"></div>
+			<div class="progressDot"></div>
+		</div>
+		<div id="hardware" class="hwPanelElement">
+			<img id="selectedHWThumb"/>
+			<div id="firmwareButtonSet">
+				<button id="firmware" class="hwPanelBtn"></button>
+				<button id="extFirmware" class="hwPanelBtn"></button>
+			</div>
+		</div>
+	</div>
+
+	<div id="select_port_box">
+		<div class="select_port_child">
+			<div>
+				연결할 COM PORT를 선택하세요.
+			</div>
+			<select multiple size="10" id="select_port">
+			</select>
+			<div>
+				<button id="btn_select_port">선택</button>
+				<button id="btn_select_port_cancel">취소</button>
+			</div>
+		</div>
+	</div>
+
+	<div id="footer">
+	</div>
+</body>
+<script src="main.js" type="text/javascript"></script>
+</html>
