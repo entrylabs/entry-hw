@@ -1,0 +1,65 @@
+version: 1.1.0-build.0{build}
+
+branches:
+  only:
+  - build
+
+platform:
+  - x64
+
+cache:
+  - node_modules
+  - app\node_modules
+  - '%APPDATA%\npm-cache'
+  - '%USERPROFILE%\.electron'
+
+environment:
+  GH_TOKEN:
+    secure: +sYL7dvMYAqkqjswuvxZW4vS4Tpy5pc5p6vsdrLWt757ljOMwm2tVNLifIV2qHgx
+
+init:
+  - git config --global core.autocrlf input
+
+install:
+  - ps: Install-Product node 5 x64
+  - git reset --hard HEAD
+  - npm install npm -g
+  - npm prune
+  - npm update
+
+before_build:
+- cmd: copy /Y build\install-spinner.gif node_modules\electron-winstaller-temp-fork\resources\install-spinner.gif
+
+build_script:
+  - node --version
+  - npm --version
+  - npm run dist
+
+test: off
+
+artifacts:
+  - path: 'dist\win-x64\*.exe'
+    name: setup64
+  # - path: 'dist\win\*.exe'
+    # name: setup32
+  # - path: '**\*.nupkg'
+    # name: package
+
+deploy:
+  - provider: FTP
+    protocol: sftp
+    host: play04.play-entry.com
+    username: entry
+    password:
+      secure: AAMMJ21gGJ9i2Bhd7eCzeg==
+    folder: build/win/$(appveyor_build_version)
+    artifact: 
+
+notifications:
+  - provider: Slack
+    auth_token:
+      secure: mYDrSd0Et60MGIq5qI8C5S7lcFuI5zFcEPR1n2f+zr3UacYCPKqt6ASn/1rEZBcd9FkYV8aKdo0bT4TfYBUrIw==
+    channel: '#build-app'
+
+on_failure:
+  - ps: Get-EventLog AppVeyor -newest 10 | Format-List

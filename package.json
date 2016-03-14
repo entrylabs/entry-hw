@@ -1,0 +1,22 @@
+{
+  "private": true,
+  "scripts": {
+    "clean": "rimraf dist",
+    "pack": "build",
+    "dist": "build"
+  },
+  "build": {
+    "win64": {
+      "appDirectory": "./dist/Entry-win32-x64",
+      "title": "Entry",
+      "icon": "./icon/app.ico",
+      "authors": "EntryLabs",
+      "exe": "Entry_HW.exe"
+    }
+  },
+  "devDependencies": {
+    "electron-builder": "^2.9.5",
+    "electron-prebuilt": "0.36.10",
+    "rimraf": "^2.5.2"
+  }
+}

@@ -5,18 +5,6 @@
 
 	// initialize options
 	var options = {};
-	var gui = require('nw.gui');
-	gui.App.argv.forEach(function(item, index) {
-		if(item == '-debug') {
-			options.debug = true;
-		}
-	});
-
-	// show devtools if console
-	var win = gui.Window.get();
-	if(options.debug) {
-		win.showDevTools();
-	}
 
 	// language
 	var translator = require('translator');
