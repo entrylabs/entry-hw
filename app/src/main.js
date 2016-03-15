@@ -7,7 +7,7 @@
 	var options = {};
 
 	// language
-	var translator = require('translator');
+	var translator = require('./custom_modules/translator');
 	var lang = translator.getLanguage();
 	// console.log('language: ' + lang);
 
@@ -26,18 +26,18 @@
 			console.error('%c' + str, 'color: red');
 		}
 	};
-	require('logger').set(logger);
+	require('./custom_modules/logger').set(logger);
 
 	// server
-	var server = require('entry');
+	var server = require('./custom_modules/entry');
 	server.open(logger);
 
 	// router
-	var router = require('router').init(server);
+	var router = require('./custom_modules/router').init(server);
 	window.router = router;
 
 	// flasher
-	var flasher = require('flasher');
+	var flasher = require('./custom_modules/flasher');
 	// ui & control
 	$('#driver').text(translator.translate('Install Device Driver'));
 	$('#firmware').text(translator.translate('Install Firmware'));

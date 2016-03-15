@@ -4,16 +4,18 @@
   "description": "entry hardware connect program",
   "main": "index.js",
   "dependencies": {
-    "router": "^1.0.0",
     "entry": "^1.0.0",
     "flasher": "^1.0.0",
-    "logger": "^1.0.0",
     "localize": "^0.4.7",
-    "serialport": "^1.7.4",
-    "websocket": "^1.0.21",
-    "translator": "^1.0.0"
+    "logger": "^1.0.0",
+    "router": "^1.0.0",
+    "serialport": "^2.0.6",
+    "translator": "^1.0.0",
+    "websocket": "^1.0.21"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "electron-rebuild": "^1.1.3"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -24,7 +26,7 @@
     "url": "git+https://kimorkim@github.com/entrylabs/entry-hw.git"
   },
   "build": {
-    "asar" : false,
+    "asar": false,
     "version": "0.36.10",
     "name": "entry-hw",
     "app-bundle-id": "entry-hw",
