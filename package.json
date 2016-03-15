@@ -8,7 +8,7 @@
   "build": {
     "win64": {
       "appDirectory": "./dist/Entry-win32-x64",
-      "title": "Entry",
+      "title": "Entry-HW",
       "icon": "./icon/app.ico",
       "authors": "EntryLabs",
       "exe": "Entry_HW.exe"
@@ -17,6 +17,7 @@
   "devDependencies": {
     "electron-builder": "^2.9.5",
     "electron-prebuilt": "0.36.10",
+    "electron-rebuild": "^1.1.3",
     "rimraf": "^2.5.2"
   }
 }

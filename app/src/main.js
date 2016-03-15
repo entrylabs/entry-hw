@@ -110,7 +110,7 @@
 
 			$('#hwList').append(
 					'<div class="hardwareType" id="' + config.id + '">' +
-					'<img class="hwThumb" src="../modules/' + config.icon + '">' +
+					'<img class="hwThumb" src="./modules/' + config.icon + '">' +
 					'<h2 class="hwTitle">' + name + '</h2></div>');
 
 			$('#' + config.id).click(function() {
@@ -135,7 +135,7 @@
 				router.startScan(config);
 				window.currentConfig = config;
 
-				var icon = '../modules/' + config.icon;
+				var icon = './modules/' + config.icon;
 				$('#selectedHWThumb').attr('src', icon);
 
 				if(config.url) {
@@ -143,7 +143,7 @@
 					$('#url').show();
 					$('#url').unbind('click');
 					$('#url').click(function() {
-						gui.Shell.openItem(config.url);
+						shell.openItem(config.url);
 					});
 				} else {
 					$('#url').hide();
@@ -172,7 +172,7 @@
 						$('#driver').unbind('click');
 						$('#driver').click(function() {
 							var path = require('path');
-							gui.Shell.openItem(path.join(process.cwd() + '/drivers/', driverPath));
+							shell.openItem(path.join(__dirname, 'drivers', driverPath));
 						});
 					}
 					if (config.firmware) {
@@ -241,7 +241,7 @@
 			}
 		},
 		quit: function() {
-			win.close();
+			// win.close();
 		},
 		showIeGuide: function() {
 			$('#ieGuide').show();
@@ -267,23 +267,23 @@
 	};
 
 	// close
-	win.on('close', function() {
-		var isQuit = true;
-		if(router.connector && router.connector.connected) {
-			isQuit = confirm(translator.translate('Connection to the hardware will terminate once program is closed.'));
-		}		
+	// win.on('close', function() {
+	// 	var isQuit = true;
+	// 	if(router.connector && router.connector.connected) {
+	// 		isQuit = confirm(translator.translate('Connection to the hardware will terminate once program is closed.'));
+	// 	}		
 
-		if(isQuit) {
-			this.hide();
-			router.close();
-			server.close();
-			if(ui.winEntry) {
-				ui.winEntry.close(true);
-				ui.winEntry = undefined;
-			}
-			this.close(true);
-		}
-	});
+	// 	if(isQuit) {
+	// 		this.hide();
+	// 		router.close();
+	// 		server.close();
+	// 		if(ui.winEntry) {
+	// 			ui.winEntry.close(true);
+	// 			ui.winEntry = undefined;
+	// 		}
+	// 		this.close(true);
+	// 	}
+	// });
 
 	$('#select_port').dblclick(function () {
 		$('#btn_select_port').trigger('click');
@@ -362,7 +362,8 @@
 
 	// configuration
 	var fs = require('fs');
-	fs.readdir('./modules', function(error, files) {
+	var path = require('path');
+	fs.readdir(path.join(__dirname, 'modules'), function(error, files) {
 		if(error) {
 			logger.e(error);
 			return;
@@ -371,7 +372,7 @@
 			return /(?:\.([^.]+))?$/.exec(file)[1] == 'json';
 		}).forEach(function(file) {
 			try {
-				var config = fs.readFileSync('./modules/' + file);
+				var config = fs.readFileSync(path.join(__dirname, 'modules', file));
 				ui.addRobot(JSON.parse(config));
 			} catch(e) {}
 		});

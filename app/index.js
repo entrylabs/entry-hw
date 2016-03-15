@@ -5,7 +5,8 @@ const app = electron.app;  // 어플리케이션 기반을 조작 하는 모듈.
 const BrowserWindow = electron.BrowserWindow;  // 네이티브 브라우저 창을 만드는 모듈.
 const path = require('path');
 const Menu     = electron.Menu;
-console.log('dasdasdas');
+const packageJson     = require('./package.json');
+
 function run(args, done) {
     const updateExe = path.resolve(path.dirname(process.execPath), "..", "Update.exe")
     log("Spawning `%s` with args `%s`", updateExe, args)
@@ -77,12 +78,19 @@ for (var i = 0; i < argv.length; i++) {
 
 app.once('ready', function() {
 
-    mainWindow = new BrowserWindow({width: 1024, height: 700});
+    mainWindow = new BrowserWindow({
+        width: 800, 
+        height: 650, 
+        resizable: false, 
+        title: '엔트리 하드웨어 v' + packageJson.version
+    });
     mainWindow.loadURL('file:///' + path.join(__dirname, 'index.html'));
 
     if(option.debug) {
         mainWindow.webContents.openDevTools();
     }
+
+    mainWindow.setMenu(null);
 
     mainWindow.on('closed', function() {
         mainWindow = null;
