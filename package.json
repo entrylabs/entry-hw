@@ -7,8 +7,8 @@
   },
   "build": {
     "win64": {
-      "appDirectory": "./dist/Entry-win32-x64",
-      "title": "Entry-HW",
+      "appDirectory": "./dist/entry_hw-win32-ia32",
+      "title": "Entry_HW",
       "icon": "./icon/app.ico",
       "authors": "EntryLabs",
       "exe": "Entry_HW.exe"

@@ -1,5 +1,5 @@
 {
-  "name": "entry-hw",
+  "name": "Entry_HW",
   "version": "1.2.0",
   "description": "entry hardware connect program",
   "main": "index.js",
@@ -28,9 +28,9 @@
   "build": {
     "asar": false,
     "version": "0.36.10",
-    "name": "entry-hw",
-    "app-bundle-id": "entry-hw",
-    "app-category-type": "org.play-entry.entry-hw",
+    "name": "Entry_HW",
+    "app-bundle-id": "Entry_HW",
+    "app-category-type": "org.play-entry.entry_hw",
     "icon": "app/icon/app"
   }
 }
