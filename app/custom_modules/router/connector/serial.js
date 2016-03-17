@@ -3,7 +3,7 @@ function Connector() {
 }
 
 Connector.prototype.open = function(port, options, callback) {
-	var serialport = require('serialport');
+	var serialport = require('../../serialport');
 
 	// options
 	var _options = {};
