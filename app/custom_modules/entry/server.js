@@ -11,13 +11,12 @@ function Server() {
 util.inherits(Server, EventEmitter);
 
 Server.prototype.open = function(logger) {
-	var WebSocketServer = require('../websocket').server;
 	var http = require('http');
-	var PORT = 23518;
+	var PORT = 23517;
 	var self = this;
 	
 	var httpServer = http.createServer(function(request, response) {
-		response.writeHead(404);
+		response.writeHead(200);
 		response.end();
 	});
 	self.httpServer = httpServer;
@@ -27,26 +26,30 @@ Server.prototype.open = function(logger) {
 		}
 	});
 
-	var server = new WebSocketServer({
-		httpServer: httpServer,
-		autoAcceptConnections: false
-	});
-	self.server = server;
-	server.on('request', function(request) {
-		var connection = request.accept();
+	httpServer.on('request', function (req, res) {
+		// console.log('response');
+	})
+
+	var server = require('socket.io')(httpServer);
+	server.set('transports', ['websocket', 
+	    'flashsocket', 
+      	'htmlfile', 
+      	'xhr-polling', 
+      	'jsonp-polling', 
+      	'polling']);
+	self.server = server;	
+	server.on('connection', function (socket) {
+		var connection = socket;
 		self.connections.push(connection);
 		if(logger) {
 			logger.i('Entry connected.');
 		}
-		
-		connection.on('message', function(message) {
-			if(message.type === 'utf8') {
-				self.emit('data', message.utf8Data, message.type);
-			} else if (message.type === 'binary') {
-				self.emit('data', message.binaryData, message.type);
-			}
+
+		socket.on('message', function(message) {
+			self.emit('data', message, 'utf8');
 		});
-		connection.on('close', function(reasonCode, description) {
+
+		socket.on('close', function(reasonCode, description) {
 			if(logger) {
 				logger.w('Entry disconnected.');
 			}
@@ -54,8 +57,11 @@ Server.prototype.open = function(logger) {
 			self.emit('close');
 			self.closeSingleConnection(this);
 		});
+
+
 		self.setState(self.state);
 	});
+
 };
 
 Server.prototype.closeSingleConnection = function(connection) {
@@ -68,7 +74,7 @@ Server.prototype.closeSingleConnection = function(connection) {
 Server.prototype.send = function(data) {
 	if(this.connections.length !== 0) {
 		this.connections.map(function(connection){
-			connection.send(data);
+			connection.emit('message', data);
 		});
 	}
 };
@@ -95,7 +101,7 @@ Server.prototype.setState = function(state) {
 	
 Server.prototype.close = function() {
 	if(this.server) {
-		this.server.shutDown();
+		this.server.close();
 		this.server = undefined;
 	}
 	if(this.httpServer) {
