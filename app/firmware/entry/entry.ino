@@ -63,8 +63,7 @@ void sendPinValues() {
     sendAnalogValue(pinNumber);
   }
   for (pinNumber = 0; pinNumber < 14; pinNumber++) {
-    if (!isPortWritable(pinNumber))
-      sendDigitalValue(pinNumber);
+    sendDigitalValue(pinNumber);
   }
 }
 
