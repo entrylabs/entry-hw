@@ -4,15 +4,7 @@
   "description": "entry hardware connect program",
   "main": "index.js",
   "dependencies": {
-    "entry": "^1.0.0",
-    "flasher": "^1.0.0",
-    "localize": "^0.4.7",
-    "logger": "^1.0.0",
-    "router": "^1.0.0",
-    "serialport": "^2.0.6",
-    "socket.io": "^1.4.5",
-    "translator": "^1.0.0",
-    "websocket": "^1.0.21"
+    "socket.io": "^1.4.5"
   },
   "devDependencies": {
     "electron-rebuild": "^1.1.3"
