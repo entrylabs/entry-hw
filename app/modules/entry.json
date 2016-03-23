@@ -1,8 +1,8 @@
 {
 	"id": "010201",
 	"name": {
-		"en": "Entry Sensor board",
-		"ko": "엔트리 센서 보드"
+		"en": "E-Sensor board",
+		"ko": "E-센서보드"
 	},
 	"icon" : "entry.png",
 	"module": "entry.js",

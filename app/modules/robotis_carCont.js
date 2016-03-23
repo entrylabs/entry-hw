@@ -168,6 +168,7 @@ Module.prototype.requestLocalData = function() {
 	/////////////////
 	var data = this.robotisBuffer.shift();
 	if (data == null) {
+		this.receiveAddress = -1;
 		// return sendBuffer;
 		return this.readPacket(200, 87, 1);
 	}

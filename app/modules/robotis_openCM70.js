@@ -169,6 +169,7 @@ Module.prototype.requestLocalData = function() {
 	/////////////////
 	var data = this.robotisBuffer.shift();
 	if (data == null) {
+		this.receiveAddress = -1;
 		// return sendBuffer;
 		return this.readPacket(200, 87, 1);
 	}
@@ -216,10 +217,10 @@ Module.prototype.requestLocalData = function() {
 		}
 	}
 	
-	if (sendBuffer != null) {
+	// if (sendBuffer != null) {
 		// console.log('>> ' + new Date().getHours() + ':' + new Date().getMinutes() + ':' + new Date().getMilliseconds() + '\n' 
 			 // + sendBuffer + '(' + this.robotisBuffer.length + ')');
-	}
+	// }
 
 	return sendBuffer;
 };
