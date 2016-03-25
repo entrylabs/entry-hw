@@ -2,7 +2,7 @@
 	"id": "010101",
 	"name": {
 		"en": "Arduino",
-		"ko": "아두이노"
+		"ko": "아두이노 정품보드"
 	},
 	"icon" : "arduino.png",
 	"module": "arduino.js",
