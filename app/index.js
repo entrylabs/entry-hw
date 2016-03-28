@@ -90,10 +90,18 @@ function run(command, done) {
     child.on('close', done);
 }
 
-function createShortcut(locations) {
+function createShortcut(locations, done) {
     var updateExe = path.resolve(path.dirname(process.execPath), "..", "Update.exe"); 
     var target = path.basename(process.execPath);
     var args = ['--createShortcut', target, '-l', locations];
+    var child = ChildProcess.spawn(updateExe, args, { detached: true });
+    child.on('close', done);
+}
+
+function removeShortcut(locations, done) {
+    var updateExe = path.resolve(path.dirname(process.execPath), "..", "Update.exe"); 
+    var target = path.basename(process.execPath);
+    var args = ['--removeShortcut', target, '-l', locations];
     var child = ChildProcess.spawn(updateExe, args, { detached: true });
     child.on('close', done);
 }
@@ -110,10 +118,9 @@ var handleStartupEvent = function() {
         case '--squirrel-install':
         case '--squirrel-updated':
             createShortcut(defaultLocations, app.quit);
-            //run('--createShortcut', app.quit);
             return true;
         case '--squirrel-uninstall':
-            run('--removeShortcut', app.quit);
+            removeShortcut(defaultLocations, app.quit);
             return true;
         case '--squirrel-obsolete':
             app.quit();
