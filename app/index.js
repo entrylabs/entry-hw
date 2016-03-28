@@ -90,17 +90,27 @@ function run(command, done) {
     child.on('close', done);
 }
 
+function createShortcut(locations) {
+    var updateExe = path.resolve(path.dirname(process.execPath), "..", "Update.exe"); 
+    var target = path.basename(process.execPath);
+    var args = ['--createShortcut', target, '-l', locations];
+    var child = ChildProcess.spawn(updateExe, args, { detached: true });
+    child.on('close', done);
+}
+
 var handleStartupEvent = function() {
     if (process.platform !== 'win32') {
         return false;
     }
 
+    var defaultLocations = 'Desktop,StartMenu';
     const target = path.basename(process.execPath);
     var squirrelCommand = process.argv[1];
     switch (squirrelCommand) {
         case '--squirrel-install':
         case '--squirrel-updated':
-            run('--createShortcut', app.quit);
+            createShortcut(defaultLocations, app.quit);
+            //run('--createShortcut', app.quit);
             return true;
         case '--squirrel-uninstall':
             run('--removeShortcut', app.quit);

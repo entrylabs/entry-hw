@@ -26,9 +26,16 @@ install:
   - npm install npm -g
   - npm prune
   - npm update
+  - cd app
+  - npm install
+  - npm dedupe
+  - cd ..
 
 before_build:
 - cmd: copy /Y build\install-spinner.gif node_modules\electron-winstaller-fixed\resources\install-spinner.gif
+
+build:
+  verbosity: minimal
 
 build_script:
   - node --version
