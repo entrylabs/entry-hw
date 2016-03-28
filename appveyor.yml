@@ -28,7 +28,7 @@ install:
   - npm update
 
 before_build:
-- cmd: copy /Y build\install-spinner.gif node_modules\electron-winstaller-temp-fork\resources\install-spinner.gif
+- cmd: copy /Y build\install-spinner.gif node_modules\electron-winstaller-fixed\resources\install-spinner.gif
 
 build_script:
   - node --version
