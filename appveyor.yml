@@ -45,8 +45,10 @@ build_script:
 test: off
 
 artifacts:
-  - path: 'dist\win-x64\*.exe'
-    name: setup64
+  - path: 'dist\win\*.exe'
+    name: setup32
+  #- path: 'dist\win-x64\*.exe'
+    # name: setup64
   # - path: 'dist\win\*.exe'
     # name: setup32
   # - path: '**\*.nupkg'
