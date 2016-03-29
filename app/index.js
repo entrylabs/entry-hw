@@ -142,12 +142,12 @@ function removeShortcut(locations, done) {
     child.on('close', function () {
         var desktopEng = path.resolve(process.env.USERPROFILE, 'Desktop', 'Entry_HW.lnk');
         var desktopKo = path.resolve(process.env.USERPROFILE, 'Desktop', '엔트리 하드웨어.lnk');
-
-        console.log(desktopKo);
-        var startMenu = path.resolve(process.env.APPDATA, 'Microsoft', 'Windows', 'Start Menu', 'Programs', 'EntryLabs');
+        var startMenuEng = path.resolve(process.env.APPDATA, 'Microsoft', 'Windows', 'Start Menu', 'Programs', 'EntryLabs', 'Entry_HW.lnk');
+        var startMenuKo = path.resolve(process.env.APPDATA, 'Microsoft', 'Windows', 'Start Menu', 'Programs', 'EntryLabs', '엔트리 하드웨어.lnk');
         deleteRecursiveSync(desktopEng);
         deleteRecursiveSync(desktopKo);
-        deleteRecursiveSync(startMenu);
+        deleteRecursiveSync(startMenuEng);
+        deleteRecursiveSync(startMenuKo);
 
         if(done) {
             done();
