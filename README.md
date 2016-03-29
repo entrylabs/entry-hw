@@ -12,7 +12,7 @@ entry-hw의 핵심기능 구현을 위해 몇가지 오픈소스 라이브러리
  * WebSocket : https://github.com/theturtle32/WebSocket-Node (Apacahe 2.0)
  * Node localize : https://github.com/dfellis/node-localize (MIT)
 
-### 하드웨어 추가하기
+### 하드웨어 추가하기321321
 	1. .js 파일생성
 	2. .json 파일생성
 	3. 이미지 삽입
