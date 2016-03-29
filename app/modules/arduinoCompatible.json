@@ -1,8 +1,8 @@
 {
-	"id": "010101",
+	"id": "010199",
 	"name": {
-		"en": "Arduino",
-		"ko": "아두이노 정품보드"
+		"en": "Arduino Compatible",
+		"ko": "아두이노 호환보드"
 	},
 	"icon" : "arduino.png",
 	"module": "arduino.js",
@@ -19,8 +19,7 @@
 		"type": "serial",
 		"control": "slave",
 		"duration": 32,
-		"vendor": "Arduino",
-		"baudRate": 9600,
-		"firmwarecheck": true
+		"vendor": "",
+		"baudRate": 9600
 	}
 }
