@@ -81,6 +81,26 @@ function unInstallRegistry() {
 
 }
 
+var deleteRecursiveSync = function(target) {
+    try{
+        var exists = fs.existsSync(target);
+        console.log(target);
+        console.log(exists);
+        if (exists) {
+            if(fs.lstatSync(target).isDirectory()) { // recurse
+                fs.readdirSync(target).forEach(function(file) {
+                    var curPath = path.join(target, file);
+                    deleteRecursiveSync(curPath);
+                });
+                fs.rmdirSync(target);
+            } else { // delete file
+                fs.unlinkSync(target);
+            }           
+        }
+    } catch(e) {}
+};
+
+
 var mainWindow = null;
 var isClose = true;
 
@@ -110,7 +130,7 @@ function createShortcut(locations, done) {
                     }
                 });
             });
-        }        
+        }
     });
 }
 
@@ -119,7 +139,20 @@ function removeShortcut(locations, done) {
     var target = path.basename(process.execPath);
     var args = ['--removeShortcut', target, '-l', locations];
     var child = ChildProcess.spawn(updateExe, args, { detached: true });
-    child.on('close', done);
+    child.on('close', function () {
+        var desktopEng = path.resolve(process.env.USERPROFILE, 'Desktop', 'Entry_HW.lnk');
+        var desktopKo = path.resolve(process.env.USERPROFILE, 'Desktop', '엔트리 하드웨어.lnk');
+
+        console.log(desktopKo);
+        var startMenu = path.resolve(process.env.APPDATA, 'Microsoft', 'Windows', 'Start Menu', 'Programs', 'EntryLabs');
+        deleteRecursiveSync(desktopEng);
+        deleteRecursiveSync(desktopKo);
+        deleteRecursiveSync(startMenu);
+
+        if(done) {
+            done();
+        }
+    });
 }
 
 var handleStartupEvent = function() {
@@ -128,7 +161,7 @@ var handleStartupEvent = function() {
     }
 
     var defaultLocations = 'Desktop,StartMenu';
-    // createShortcut(defaultLocations, function () {
+    // removeShortcut(defaultLocations, function () {
 
     // });
     const target = path.basename(process.execPath);
@@ -213,7 +246,6 @@ app.once('ready', function() {
     mainWindow = new BrowserWindow({
         width: 800, 
         height: 650, 
-        resizable: false, 
         title: title + packageJson.version
     });
     
