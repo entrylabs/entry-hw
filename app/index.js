@@ -104,7 +104,7 @@ function createShortcut(locations, done) {
             fs.rename(sourcePath, destPath, function (err) {
                 sourcePath = path.resolve(process.env.APPDATA, 'Microsoft', 'Windows', 'Start Menu', 'Programs', 'EntryLabs', 'Entry_HW.lnk');
                 destPath = path.resolve(process.env.APPDATA, 'Microsoft', 'Windows', 'Start Menu', 'Programs', 'EntryLabs', '엔트리 하드웨어.lnk');
-                fs.rename('/tmp/hello', '/tmp/world', function (err) {
+                fs.rename(sourcePath, destPath, function (err) {
                     if(done) {
                         done();
                     }
@@ -128,9 +128,9 @@ var handleStartupEvent = function() {
     }
 
     var defaultLocations = 'Desktop,StartMenu';
-    createShortcut(defaultLocations, function () {
+    // createShortcut(defaultLocations, function () {
 
-    });
+    // });
     const target = path.basename(process.execPath);
     var squirrelCommand = process.argv[1];
     switch (squirrelCommand) {
