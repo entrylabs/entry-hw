@@ -4,9 +4,11 @@ const electron = require('electron');
 const app = electron.app;  // 어플리케이션 기반을 조작 하는 모듈.
 const BrowserWindow = electron.BrowserWindow;  // 네이티브 브라우저 창을 만드는 모듈.
 const path = require('path');
+const fs = require('fs');
 const Menu     = electron.Menu;
 const packageJson     = require('./package.json');
-const ChildProcess = require('child_process');    
+const ChildProcess = require('child_process'); 
+var language;
 
 function spawn(command, args, callback) {
     var error, spawnedProcess, stdout;
@@ -79,7 +81,6 @@ function unInstallRegistry() {
 
 }
 
-
 var mainWindow = null;
 var isClose = true;
 
@@ -95,7 +96,22 @@ function createShortcut(locations, done) {
     var target = path.basename(process.execPath);
     var args = ['--createShortcut', target, '-l', locations];
     var child = ChildProcess.spawn(updateExe, args, { detached: true });
-    child.on('close', done);
+    child.on('close', function () {
+        language = app.getLocale();
+        if(language === 'ko') {
+            var sourcePath = path.resolve(process.env.USERPROFILE, 'Desktop', 'Entry_HW.lnk');
+            var destPath = path.resolve(process.env.USERPROFILE, 'Desktop', '엔트리 하드웨어.lnk');
+            fs.rename(sourcePath, destPath, function (err) {
+                sourcePath = path.resolve(process.env.APPDATA, 'Microsoft', 'Windows', 'Start Menu', 'Programs', 'EntryLabs', 'Entry_HW.lnk');
+                destPath = path.resolve(process.env.APPDATA, 'Microsoft', 'Windows', 'Start Menu', 'Programs', 'EntryLabs', '엔트리 하드웨어.lnk');
+                fs.rename('/tmp/hello', '/tmp/world', function (err) {
+                    if(done) {
+                        done();
+                    }
+                });
+            });
+        }        
+    });
 }
 
 function removeShortcut(locations, done) {
@@ -112,6 +128,9 @@ var handleStartupEvent = function() {
     }
 
     var defaultLocations = 'Desktop,StartMenu';
+    createShortcut(defaultLocations, function () {
+
+    });
     const target = path.basename(process.execPath);
     var squirrelCommand = process.argv[1];
     switch (squirrelCommand) {
@@ -181,11 +200,21 @@ if (shouldQuit) {
 }
 
 app.once('ready', function() {
+    language = app.getLocale();
+
+    var title;
+
+    if(language === 'ko') {
+        title = '엔트리 하드웨어 v';
+    } else {
+        title = 'Entry Hardware v'
+    }
+
     mainWindow = new BrowserWindow({
         width: 800, 
         height: 650, 
         resizable: false, 
-        title: '엔트리 하드웨어 v' + packageJson.version
+        title: title + packageJson.version
     });
     
     mainWindow.loadURL('file:///' + path.join(__dirname, 'index.html'));
