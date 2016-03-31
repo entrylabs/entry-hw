@@ -360,6 +360,12 @@
 		server.setState(state);
 	});
 
+	//ipcEvent
+	ipcRenderer.on('update-message', function (e, message) {
+		console.log(message);
+
+	});
+
 	// configuration
 	var fs = require('fs');
 	var path = require('path');

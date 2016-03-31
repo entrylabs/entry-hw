@@ -14,13 +14,5 @@
   "repository": {
     "type": "git",
     "url": "git+https://kimorkim@github.com/entrylabs/entry-hw.git"
-  },
-  "build": {
-    "asar": false,
-    "version": "0.36.10",
-    "name": "Entry_HW",
-    "app-bundle-id": "Entry_HW",
-    "app-category-type": "org.play-entry.entry_hw",
-    "icon": "app/icon/app"
   }
 }

@@ -7,7 +7,12 @@ const path = require('path');
 const fs = require('fs');
 const Menu     = electron.Menu;
 const packageJson     = require('./package.json');
-const ChildProcess = require('child_process'); 
+const ChildProcess = require('child_process');
+var mainWindow = null;
+var isClose = true;
+var EntryUpdater;
+
+var NODE_ENV = process.env.NODE_ENV || 'production';
 var language;
 
 function spawn(command, args, callback) {
@@ -100,10 +105,6 @@ var deleteRecursiveSync = function(target) {
     } catch(e) {}
 };
 
-
-var mainWindow = null;
-var isClose = true;
-
 function run(command, done) {
     var updateExe = path.resolve(path.dirname(process.execPath), "..", "Update.exe"); 
     var target = path.basename(process.execPath);
@@ -162,7 +163,6 @@ var handleStartupEvent = function() {
 
     var defaultLocations = 'Desktop,StartMenu';
     // removeShortcut(defaultLocations, function () {
-
     // });
     const target = path.basename(process.execPath);
     var squirrelCommand = process.argv[1];
@@ -216,7 +216,6 @@ for (var i = 0; i < argv.length; i++) {
     }
 }
 
-
 var shouldQuit = app.makeSingleInstance(function(commandLine, workingDirectory) {
 // 어플리케이션을 중복 실행했습니다. 주 어플리케이션 인스턴스를 활성화 합니다.
     if (mainWindow) {
@@ -248,8 +247,16 @@ app.once('ready', function() {
         height: 650, 
         title: title + packageJson.version
     });
-    
+
     mainWindow.loadURL('file:///' + path.join(__dirname, 'index.html'));
+
+    if(NODE_ENV === 'production') {
+        EntryUpdater = require('./update.js')(mainWindow);
+
+        mainWindow.webContents.once('did-finish-load', function() {
+            EntryUpdater.checkForUpdates();
+        });            
+    }
 
     if(option.debug) {
         mainWindow.webContents.openDevTools();
