@@ -1,5 +1,6 @@
 'use strict';
 var util = require('util');
+var fs = require('fs');
 var EventEmitter = require('events').EventEmitter;
 
 function Server() {
@@ -11,14 +12,25 @@ function Server() {
 util.inherits(Server, EventEmitter);
 
 Server.prototype.open = function(logger) {
-	var http = require('http');
-	var PORT = 23517;
+	var WebSocketServer = require('../websocket').server;
+	var http = require('https');
+	var PORT = 23518;
 	var self = this;
+
+	var appPath = 'app';
+	if(NODE_ENV === 'production') {
+		appPath = 'resources/app.asar';
+	}
 	
-	var httpServer = http.createServer(function(request, response) {
-		response.writeHead(200);
-		response.end();
+	var httpServer = http.createServer({
+	    key: fs.readFileSync('./' + appPath + '/ssl/new-play-entry.key'),
+	    cert: fs.readFileSync('./' + appPath + '/ssl/cert.pem'),
+	    ca: fs.readFileSync('./' + appPath + '/ssl/chain_sha2.pem')
 	});
+	// var httpServer = http.createServer(function(request, response) {
+	// 	response.writeHead(404);
+	// 	response.end();
+	// });
 	self.httpServer = httpServer;
 	httpServer.listen(PORT, function() {
 		if(logger) {
@@ -26,30 +38,26 @@ Server.prototype.open = function(logger) {
 		}
 	});
 
-	httpServer.on('request', function (req, res) {
-		// console.log('response');
-	})
-
-	var server = require('socket.io')(httpServer);
-	server.set('transports', ['websocket', 
-	    'flashsocket', 
-      	'htmlfile', 
-      	'xhr-polling', 
-      	'jsonp-polling', 
-      	'polling']);
-	self.server = server;	
-	server.on('connection', function (socket) {
-		var connection = socket;
+	var server = new WebSocketServer({
+		httpServer: httpServer,
+		autoAcceptConnections: false
+	});
+	self.server = server;
+	server.on('request', function(request) {
+		var connection = request.accept();
 		self.connections.push(connection);
 		if(logger) {
 			logger.i('Entry connected.');
 		}
-
-		socket.on('message', function(message) {
-			self.emit('data', message, 'utf8');
+		
+		connection.on('message', function(message) {
+			if(message.type === 'utf8') {
+				self.emit('data', message.utf8Data, message.type);
+			} else if (message.type === 'binary') {
+				self.emit('data', message.binaryData, message.type);
+			}
 		});
-
-		socket.on('close', function(reasonCode, description) {
+		connection.on('close', function(reasonCode, description) {
 			if(logger) {
 				logger.w('Entry disconnected.');
 			}
@@ -57,11 +65,8 @@ Server.prototype.open = function(logger) {
 			self.emit('close');
 			self.closeSingleConnection(this);
 		});
-
-
 		self.setState(self.state);
 	});
-
 };
 
 Server.prototype.closeSingleConnection = function(connection) {
@@ -74,7 +79,7 @@ Server.prototype.closeSingleConnection = function(connection) {
 Server.prototype.send = function(data) {
 	if(this.connections.length !== 0) {
 		this.connections.map(function(connection){
-			connection.emit('message', data);
+			connection.send(data);
 		});
 	}
 };
@@ -101,7 +106,7 @@ Server.prototype.setState = function(state) {
 	
 Server.prototype.close = function() {
 	if(this.server) {
-		this.server.close();
+		this.server.shutDown();
 		this.server = undefined;
 	}
 	if(this.httpServer) {
