@@ -36,6 +36,10 @@ module.exports = function (window){
     that.checkForUpdates = function () {
         autoUpdater.checkForUpdates();
     }
+    
+    that.checkForUpdates = function () {
+        autoUpdater.checkForUpdates();
+    }
 
     return that;
 };

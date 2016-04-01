@@ -1,6 +1,6 @@
 {
   "name": "Entry_HW",
-  "version": "1.2.0",
+  "version": "1.5.1",
   "description": "entry hardware connect program",
   "main": "index.js",
   "dependencies": {
@@ -10,7 +10,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "EntryLabs",
-  "license": "ISC",
+  "license": "Apache 2.0",
   "repository": {
     "type": "git",
     "url": "git+https://kimorkim@github.com/entrylabs/entry-hw.git"
