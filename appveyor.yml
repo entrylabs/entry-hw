@@ -1,4 +1,4 @@
-version: 1.2.0-build.0{build}
+version: 1.5.0-build.0{build}
 
 branches:
   only:
@@ -35,9 +35,9 @@ before_build:
 - cmd: copy /Y build\install-spinner.gif node_modules\electron-winstaller-fixed\resources\install-spinner.gif
 - ps: mkdir app/ssl
 - cd app/ssl
-- ps: curl -H "Authorization\: token kFHTqZNKfBFqDQh/WA5Cb18/6+pJhRzPj3ZDZQVQPZjzlWqbATIpDqcai/CMyr7f" -H "Accept\: application/vnd.github.v3.raw" -O -L https://api.github.com/repos/boolgom/Entry/dist/stage/ssl/cert.pem
-- ps: curl -H "Authorization\: token kFHTqZNKfBFqDQh/WA5Cb18/6+pJhRzPj3ZDZQVQPZjzlWqbATIpDqcai/CMyr7f" -H "Accept\: application/vnd.github.v3.raw" -O -L https://api.github.com/repos/boolgom/Entry/dist/stage/ssl/new-play-entry.key
-- ps: curl -H "Authorization\: token kFHTqZNKfBFqDQh/WA5Cb18/6+pJhRzPj3ZDZQVQPZjzlWqbATIpDqcai/CMyr7f" -H "Accept\: application/vnd.github.v3.raw" -O -L https://api.github.com/repos/boolgom/Entry/dist/stage/ssl/chain_sha2.pem
+- curl -H "Authorization:token kFHTqZNKfBFqDQh/WA5Cb18/6+pJhRzPj3ZDZQVQPZjzlWqbATIpDqcai/CMyr7f" -H "Accept:application/vnd.github.v3.raw" -O -L https://api.github.com/repos/boolgom/Entry/dist/stage/ssl/cert.pem
+- curl -H "Authorization:token kFHTqZNKfBFqDQh/WA5Cb18/6+pJhRzPj3ZDZQVQPZjzlWqbATIpDqcai/CMyr7f" -H "Accept:application/vnd.github.v3.raw" -O -L https://api.github.com/repos/boolgom/Entry/dist/stage/ssl/new-play-entry.key
+- curl -H "Authorization:token kFHTqZNKfBFqDQh/WA5Cb18/6+pJhRzPj3ZDZQVQPZjzlWqbATIpDqcai/CMyr7f" -H "Accept:application/vnd.github.v3.raw" -O -L https://api.github.com/repos/boolgom/Entry/dist/stage/ssl/chain_sha2.pem
 - cd ../..
 
 build:
