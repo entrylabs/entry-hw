@@ -61,7 +61,8 @@ artifacts:
     # name: package
 
 deploy:
-  release: $(appveyor_build_version)
+  tag: $(appveyor_build_version)
+  release: Entry_HW_$(appveyor_build_version)
   description: 'Release description'
   provider: GitHub
   auth_token:
