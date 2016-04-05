@@ -1,4 +1,4 @@
-version: 1.5.0-build.0{build}
+version: 1.5.{build}
 
 branches:
   only:
@@ -9,7 +9,7 @@ platform:
 
 cache:
   - node_modules
-  - app\node_modules
+  #- app\node_modules
   - '%APPDATA%\npm-cache'
   - '%USERPROFILE%\.electron'
 
@@ -51,7 +51,7 @@ build_script:
 test: off
 
 artifacts:
-  - path: 'dist\win\*.exe'
+  - path: 'dist\win\*'
     name: setup32
   #- path: 'dist\win-x64\*.exe'
     # name: setup64
@@ -61,7 +61,7 @@ artifacts:
     # name: package
 
 deploy:
-  release: Entry-HW-v$(appveyor_build_version)
+  release: $(appveyor_build_version)
   description: 'Release description'
   provider: GitHub
   auth_token:
