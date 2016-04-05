@@ -362,8 +362,13 @@
 
 	//ipcEvent
 	ipcRenderer.on('update-message', function (e, message) {
-		console.log(message);
+		// console.log(message);
 
+		// if(message.type === 'update-downloaded') {
+		// 	if(confirm('업데이트?')) {
+		// 		ipcRenderer.send('entry-update', {type:'update-start'});
+		// 	}
+		// }
 	});
 
 	// configuration

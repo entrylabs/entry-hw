@@ -1,11 +1,10 @@
 {
   "name": "Entry_HW",
-  "version": "1.5.1",
+  "version": "1.5.0",
   "description": "entry hardware connect program",
   "main": "index.js",
-  "dependencies": {
-    "socket.io": "^1.4.5"
-  },
+  "updateServer": "play02.play-entry.com:4001",
+  "dependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
