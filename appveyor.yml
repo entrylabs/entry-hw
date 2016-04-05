@@ -70,7 +70,6 @@ deploy:
   prerelease: true
   on:
     branch: build                 # release from master branch only
-    appveyor_repo_tag: true        # deploy on tag push only
   #- provider: FTP
     #protocol: sftp
     #host: play04.play-entry.com
