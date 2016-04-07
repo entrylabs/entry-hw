@@ -23,6 +23,7 @@ init:
 install:
   - ps: Install-Product node 5 x64
   - git reset --hard HEAD
+  - git fetch --tags
   - npm install npm -g
   - npm prune
   - npm update
@@ -61,7 +62,7 @@ artifacts:
     # name: package
 
 deploy:
-  tag: $(appveyor_build_version)
+  tag: 1.5.0
   release: Entry_HW_$(appveyor_build_version)
   description: 'Release description'
   provider: GitHub
@@ -71,6 +72,7 @@ deploy:
   prerelease: true
   on:
     branch: build                 # release from master branch only
+    appveyor_repo_tag: true
   #- provider: FTP
     #protocol: sftp
     #host: play04.play-entry.com

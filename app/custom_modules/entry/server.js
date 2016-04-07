@@ -13,7 +13,8 @@ util.inherits(Server, EventEmitter);
 
 Server.prototype.open = function(logger) {
 	var WebSocketServer = require('../websocket').server;
-	var http = require('https');
+	// var http = require('https');
+	var http = require('http');
 	var PORT = 23518;
 	var self = this;
 
@@ -22,15 +23,15 @@ Server.prototype.open = function(logger) {
 		appPath = 'resources/app.asar';
 	}
 	
-	var httpServer = http.createServer({
-	    key: fs.readFileSync('./' + appPath + '/ssl/new-play-entry.key'),
-	    cert: fs.readFileSync('./' + appPath + '/ssl/cert.pem'),
-	    ca: fs.readFileSync('./' + appPath + '/ssl/chain_sha2.pem')
-	});
-	// var httpServer = http.createServer(function(request, response) {
-	// 	response.writeHead(404);
-	// 	response.end();
+	// var httpServer = http.createServer({
+	//     key: fs.readFileSync('./' + appPath + '/ssl/localhost_key.pem'),
+	//     cert: fs.readFileSync('./' + appPath + '/ssl/localhost_cert.pem'),
+	//     ca: fs.readFileSync('./' + appPath + '/ssl/localhost_ca.pem')
 	// });
+	var httpServer = http.createServer(function(request, response) {
+		response.writeHead(404);
+		response.end();
+	});
 	self.httpServer = httpServer;
 	httpServer.listen(PORT, function() {
 		if(logger) {
