@@ -6,6 +6,7 @@
 	},
 	"icon" : "littlebits.png",
 	"module": "littlebits.js",
+	"url": "http://littlebits.cc",
 	"driver": {
 		"win32-ia32": "arduino/dpinst-x86.exe",
 		"win32-x64": "arduino/dpinst-amd64.exe"
