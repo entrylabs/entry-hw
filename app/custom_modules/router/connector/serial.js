@@ -103,8 +103,8 @@ Connector.prototype.close = function() {
 };
 
 Connector.prototype.send = function(data) {
-    console.log('send');
-	if(this.sp && this.sp.isOpen()) {
+	if(this.sp && this.sp.isOpen() && data) {
+	    // console.log('send');
 		this.sp.write(data);
 	}
 };
