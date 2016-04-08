@@ -210,15 +210,15 @@ Module.prototype.requestLocalData = function() {
 			
 			this.varTimeout = setTimeout(function() {
 				isReadDataArrived = true;
-				// console.log('!! ' + new Date().getHours() + ':' + new Date().getMinutes() + ':' + new Date().getMilliseconds() + ' !!' + '\n'
-					// + isReadDataArrived);
+				console.log('!! ' + new Date().getHours() + ':' + new Date().getMinutes() + ':' + new Date().getMilliseconds() + ' !!' + '\n'
+					+ isReadDataArrived);
 			}, 100);
 		}
 	}
 	
 	if (sendBuffer != null) {
-		// console.log('>> ' + new Date().getHours() + ':' + new Date().getMinutes() + ':' + new Date().getMilliseconds() + '\n' 
-			 // + sendBuffer + '(' + this.robotisBuffer.length + ')');
+		console.log('>> ' + new Date().getHours() + ':' + new Date().getMinutes() + ':' + new Date().getMilliseconds() + '\n' 
+			 + sendBuffer + '(' + this.robotisBuffer.length + ')');
 	}
 
 	return sendBuffer;

@@ -4,7 +4,7 @@
 		"en": "Little Bits",
 		"ko": "리틀비츠"
 	},
-	"icon" : "littlebits.jpg",
+	"icon" : "littlebits.png",
 	"module": "littlebits.js",
 	"driver": {
 		"win32-ia32": "arduino/dpinst-x86.exe",
