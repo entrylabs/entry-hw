@@ -9,6 +9,7 @@ void setup(){
   Serial.begin(9600);
   Serial.flush();
   initPorts();
+  delay(200);
 }
 
 void initPorts () {

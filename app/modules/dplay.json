@@ -1,26 +1,26 @@
 {
-	"id": "030101",
+	"id": "010501",
 	"name": {
-		"en": "bitBrick",
-		"ko": "비트브릭"
+		"en": "DPLAY",
+		"ko": "디플레이"
 	},
-	"icon" : "bitbrick.png",
-	"module": "bitbrick.js",
-	"url": "http://bitbrick.cc/",
+	"icon" : "dplay.png",
+	"module": "dplay.js",
 	"driver": {
         "win32-ia32": "CP210x_VCP_Windows/CP210xVCPInstaller_x86.exe",
         "win32-x64": "CP210x_VCP_Windows/CP210xVCPInstaller_x64.exe"
 	},
-    "reconnect" : false,
+    "reconnect" : true,
+    "firmware": "board",
 	"entry": {
 		"protocol": "json"
 	},
 	"hardware": {
 		"type": "serial",
 		"control": "slave",
-		"duration": 20,
-		"scanType": "data",
-		"vendor": "Silicon Lab",
-		"baudRate": 38400
+		"duration": 32,
+		"vendor": "IntegriSys",
+		"baudRate": 9600,
+		"firmwarecheck": true
 	}
 }

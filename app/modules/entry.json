@@ -18,6 +18,9 @@
 	}, {
 		"name": "board",
 		"translate": "Install Firmware(Extension Project)"
+	}, {
+		"name": "board",
+		"translate": "Install Firmware(Extension Project)"
 	}],
 	"entry": {
 		"protocol": "json"
