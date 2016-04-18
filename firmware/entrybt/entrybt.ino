@@ -1,4 +1,3 @@
-
 #include <SoftwareServo.h>
 #include <SoftwareSerial.h>
 
@@ -6,6 +5,7 @@
 #define sTX 12
 
 SoftwareServo servo1;
+SoftwareSerial SerialB(sTX,sRX);
 
 int servoPin = 6;
 char remainData;
@@ -23,11 +23,21 @@ void setup(){
   initPorts();
   cal_offset();
   servo1.attach(servoPin);
+ 
+  SerialB.begin(9600);
+  
+  delay(1000);
+  SerialB.print("AT\r\n");
+  delay(1000);
+  SerialB.print("AT+NAMESensorRobot\r\n");
+  delay(1000);
+  SerialB.print("AT+BAUD7\r\n");
+  delay(100);
 
-  Serial.begin(57600);
+  SerialB.begin(57600);
   
   while(1){
-    if (Serial.read()) break;
+    if (SerialB.read()) break;
   }
 }
 
@@ -43,18 +53,19 @@ void initPorts () {
 }
 
 void loop() {
-  while (Serial.available()) {
-      char c = Serial.read();
+
+  while (SerialB.available()) {
+      char c = SerialB.read();
       updateDigitalPort(c);
   } 
 
- if(rotation>1000){
+  if(rotation>1000){
     rotation=0;
     sendPinValues();
-    Serial.flush();
-    servo1.refresh();
- }
- rotation++;
+    SerialB.flush();
+    servo1.refresh(); 
+  }
+  rotation++;
 }
 
 void cal_offset(){
@@ -63,8 +74,8 @@ void cal_offset(){
     aaa=cal_sound();
   }
   sound_offset=cal_sound(); //Calculate the Offset from 300
-  cds1_offset=analogRead(A1);
-  cds2_offset=analogRead(A4);
+  cds1_offset= analogRead(A1);
+  cds2_offset= analogRead(A4);
 }
 
 //Made by Sang Bin Yim 20150423
@@ -129,12 +140,11 @@ void updateDigitalPort (char c) {
     }
   } else {
     int port = (remainData >> 1) & B1111;
-    int value = ((remainData & 1) << 7) + (c & B1111111);
+    int value = ((remainData & 1) << 7) + (c & B1111111);    
     setPortWritable(port);
     if(port==servoPin){
       servo1.write(value);
-    }
-    else if(port==3 || port==9 || port==10 || port==11) 
+    }else if(port==3 || port==9 || port==10 || port==11) 
     {
       if(value>150) analogWrite(port, 150);
       else  analogWrite(port, value);
@@ -151,20 +161,20 @@ void sendAnalogValue(int pinNumber) {
   else if(pinNumber==4) {value=analogRead(pinNumber); value=abs(value-cds2_offset)+20;}
   else value = analogRead(pinNumber); //Modified by Sang Bin Yim 20150423
   
-  Serial.write(B11000000
+  SerialB.write(B11000000
                | ((pinNumber & B111)<<3)
                | ((value>>7) & B111));
-  Serial.write(value & B1111111);
+  SerialB.write(value & B1111111);
 }
 
 void sendDigitalValue(int pinNumber) {
   if (digitalRead(pinNumber) == HIGH) {
-    Serial.write(B10000000
-                 | ((pinNumber & B1111)<<2)
-                 | (B1));
-  } else {
-    Serial.write(B10000000
-               | ((pinNumber & B1111)<<2));
+      SerialB.write(B10000000
+                   | ((pinNumber & B1111)<<2)
+                   | (B1));
+   } else {
+      SerialB.write(B10000000
+                 | ((pinNumber & B1111)<<2));
   }
 }
 
@@ -179,7 +189,7 @@ void setPortWritable (int port) {
   if((DC_ON==0) && (port==3 || port==8 || port==9 || port==10 || port==11)) return;
   if(port>13) return;
   if(port==6) return;
-
+  
   if (!isPortWritable(port)) {
     pinMode(port, OUTPUT);
   }
@@ -191,7 +201,6 @@ boolean isPortWritable (int port) {
   else
     return bitRead(DDRD, port);
 }
-
 void mydelay_us(unsigned int time_us)
 {
     register unsigned int i;
@@ -206,3 +215,4 @@ void mydelay_us(unsigned int time_us)
       asm volatile(" POP   R0 ");       /* 2 cycle    =  16 cycle   */
     }
 }
+

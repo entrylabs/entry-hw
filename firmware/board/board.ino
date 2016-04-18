@@ -1,13 +1,16 @@
+
 char remainData;
 
 void setup(){
-  Serial.begin(9600);
-  Serial.flush();
   initPorts();
+  Serial.begin(57600);
+  while(1){
+    if (Serial.read()) break;
+  }
 }
 
 void initPorts () {
-  for (int pinNumber = 0; pinNumber < 14; pinNumber++) {
+  for (int pinNumber = 0; pinNumber < 12; pinNumber++) {
     pinMode(pinNumber, OUTPUT);
     digitalWrite(pinNumber, LOW);
   }
@@ -16,7 +19,9 @@ void initPorts () {
 void loop() {
   while (Serial.available()) {
     if (Serial.available() > 0) {
+      
       char c = Serial.read();
+      if(c == -1) break;
       updateDigitalPort(c);
     }
   } 
@@ -27,13 +32,14 @@ void loop() {
 
 void sendPinValues() {
   int pinNumber = 0;
-  for (pinNumber = 0; pinNumber < 14; pinNumber++) {
+  for (pinNumber = 0; pinNumber < 6; pinNumber++) {
+    sendAnalogValue(pinNumber);
+    mydelay_us(500);
+  }
+  for (pinNumber = 0; pinNumber < 12; pinNumber++) {
+    if (!isPortWritable(pinNumber))
       sendDigitalValue(pinNumber);
   }
-  for (pinNumber = 0; pinNumber < 6; pinNumber++) {
-      sendAnalogValue(pinNumber);
-  }
-  
 }
 
 void updateDigitalPort (char c) {
@@ -67,7 +73,10 @@ void updateDigitalPort (char c) {
 }
 
 void sendAnalogValue(int pinNumber) {
-  int value = analogRead(pinNumber);
+  int value;
+  
+  value = analogRead(pinNumber); //Modified by Sang Bin Yim 20150423
+  
   Serial.write(B11000000
                | ((pinNumber & B111)<<3)
                | ((value>>7) & B111));
@@ -102,4 +111,19 @@ boolean isPortWritable (int port) {
     return bitRead(DDRB, port - 8);
   else
     return bitRead(DDRD, port);
+}
+
+void mydelay_us(unsigned int time_us)
+{
+    register unsigned int i;
+ 
+    for(i = 0; i < time_us; i++)          /* 4 cycle +        */
+    {
+      asm volatile(" PUSH  R0 ");       /* 2 cycle +        */
+      asm volatile(" POP   R0 ");       /* 2 cycle +        */
+      asm volatile(" PUSH  R0 ");       /* 2 cycle +        */
+      asm volatile(" POP   R0 ");       /* 2 cycle +        */
+      asm volatile(" PUSH  R0 ");       /* 2 cycle +        */
+      asm volatile(" POP   R0 ");       /* 2 cycle    =  16 cycle   */
+    }
 }

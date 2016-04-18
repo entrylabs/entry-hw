@@ -2,12 +2,13 @@
 	"id": "010201",
 	"name": {
 		"en": "Entry Sensor board",
-		"ko": "엔트리 센서 보드"
+		"en": "E-Sensor board",
+		"ko": "E-센서보드(유선연결)"
 	},
 	"icon" : "entry.png",
 	"module": "entry.js",
 	"url": "http://www.neweducation.co.kr",
-	"driver": {
+		"driver": {
 		"win32-ia32": "compat/SETUP.exe",
 		"win32-x64": "compat/SETUP.exe"
 	},
@@ -16,6 +17,9 @@
 		"name": "entry",
 		"translate": "Install Firmware(Sensor Board)"
 	}, {
+		"name": "entrybt",
+		"translate": "Install Firmware(Sensor Board Bluetooth)"
+	}, {
 		"name": "board",
 		"translate": "Install Firmware(Extension Project)"
 	}],
@@ -23,10 +27,10 @@
 		"protocol": "json"
 	},
 	"hardware": {
-		"type": "serial",
-		"control": "slave",
-		"duration": 32,
-		"vendor": "wch.cn",
-		"baudRate": 9600
+			"type": "serial",
+			"control": "slave",
+			"duration": 32,
+			"vendor": "wch.cn",
+			"baudRate": 57600
 	}
 }
