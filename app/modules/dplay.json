@@ -11,7 +11,7 @@
         "win32-x64": "CP210x_VCP_Windows/CP210xVCPInstaller_x64.exe"
 	},
     "reconnect" : true,
-    "firmware": "board",
+    "firmware": "dplay",
 	"entry": {
 		"protocol": "json"
 	},
@@ -20,7 +20,7 @@
 		"control": "slave",
 		"duration": 32,
 		"vendor": "IntegriSys",
-		"baudRate": 9600,
+		"baudRate": 115200,
 		"firmwarecheck": true
 	}
 }
