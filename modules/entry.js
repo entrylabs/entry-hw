@@ -1,9 +1,8 @@
 function Module() {
-	this.digitalValue = new Array(12);
+	this.digitalValue = new Array(14);
 	this.analogValue = new Array(6);
 
-	//this.remoteDigitalValue = new Array(12);
-	this.remoteDigitalValue = [0,0,0,0,0,0,0,0,0,0,0,0];
+	this.remoteDigitalValue = new Array(14);
 	this.readablePorts = null;
 	this.remainValue = null;
 }
@@ -27,7 +26,7 @@ Module.prototype.validateLocalData = function(data) {
 Module.prototype.handleRemoteData = function(handler) {
 	this.readablePorts = handler.read('readablePorts');
 	var digitalValue = this.remoteDigitalValue;
-	for (var port = 0; port < 12; port++) {
+	for (var port = 0; port < 14; port++) {
 		digitalValue[port] = handler.read(port);
 	}
 };
@@ -44,7 +43,7 @@ Module.prototype.requestLocalData = function() {
 	}
 
 	var digitalValue = this.remoteDigitalValue;
-	for (var port = 0; port < 12; port++) {
+	for (var port = 0; port < 14; port++) {
 		var value = digitalValue[port];
 		if (value === 255 || value === 0) {
 			var query = (7 << 5) + (port << 1) + (value == 255 ? 1 : 0);
@@ -56,7 +55,6 @@ Module.prototype.requestLocalData = function() {
 			queryString.push(query);
 		}
 	}
-	//console.log(queryString);
 	return queryString;
 };
 

@@ -147,8 +147,8 @@ void updateDigitalPort (char c) {
 void sendAnalogValue(int pinNumber) {
   int value;
   if(pinNumber==0) value = cal_sound(); //Modified by Sang Bin Yim 20150423
-  else if(pinNumber==1) {value=analogRead(pinNumber); value=abs(value-cds1_offset)+20;}
-  else if(pinNumber==4) {value=analogRead(pinNumber); value=abs(value-cds2_offset)+20;}
+  else if(pinNumber==1) {value=analogRead(pinNumber); value=value-cds1_offset+100;}
+  else if(pinNumber==4) {value=analogRead(pinNumber); value=value-cds2_offset+100;}
   else value = analogRead(pinNumber); //Modified by Sang Bin Yim 20150423
   
   Serial.write(B11000000
