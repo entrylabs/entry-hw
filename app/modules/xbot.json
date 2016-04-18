@@ -1,0 +1,24 @@
+{
+	"id": "080101",
+	"name": {
+		"en": "XBOT EDGE USB",
+		"ko": "엑스봇 엣지 USB"
+	},
+	"icon" : "xbot.png",
+	"module": "xbot.js",
+	"url": "http://www.xbot.co.kr",
+	"driver": {
+		"win32-ia32": "compat/SETUP.exe",
+		"win32-x64": "compat/SETUP.exe"
+	},	
+	"entry": {
+		"protocol": "json"
+	},
+	"hardware": {
+		"type": "serial",
+		"control": "slave",
+		"duration": 32,
+		"vendor": "wch.cn",
+		"baudRate": 115200
+	}
+}
