@@ -21,6 +21,6 @@
 		"duration": 32,
 		"vendor": "Silicon Lab",
 		"baudRate": 115200,
-		"firmwarecheck": true
+		"firmwarecheck": false
 	}
 }
