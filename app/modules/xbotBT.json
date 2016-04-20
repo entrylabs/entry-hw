@@ -1,5 +1,5 @@
 {
-	"id": "080102",
+	"id": "010702",
 	"name": {
 		"en": "XBOT EPOR and EDGE Bluetooth",
 		"ko": "엑스봇 에뽀/엣지 블투투스"
@@ -14,6 +14,7 @@
 	"entry": {
 		"protocol": "json"
 	},
+	"select_com_port" : true,
 	"hardware": {
 		"type": "bluetooth",
 		"control": "slave",

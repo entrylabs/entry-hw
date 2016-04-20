@@ -57,7 +57,20 @@ Scanner.prototype.scan = function(serialport, extension, config, callback) {
 			if(self.scanCount < 5) self.scanCount ++;
 			else {
 				if(devices.some(function(device) {
-					return device.manufacturer && device.manufacturer.indexOf(vendor) != -1;
+					var isVendor = false;
+					if(Array.isArray(vendor)) {
+						vendor.forEach(function (v) {
+							if(device.manufacturer.indexOf(v) >= 0) {
+								isVendor = true;
+							}
+						});
+					} else {
+						if(device.manufacturer.indexOf(vendor) >= 0) {
+							isVendor = true;
+						}
+					}
+
+					return device.manufacturer && isVendor;
 				}) == false) {
 					vendor = undefined;
 				}
@@ -66,7 +79,22 @@ Scanner.prototype.scan = function(serialport, extension, config, callback) {
 
 		devices.forEach(function(device) {
 			if(self.config != config) return;
-			if(!vendor || (device.manufacturer && device.manufacturer.indexOf(vendor) != -1) || (device.pnpId && device.pnpId.indexOf(pnpId) >= 0) || checkComPort) {
+
+			var isVendor = false;
+
+			if(Array.isArray(vendor)) {
+				vendor.forEach(function (v) {
+					if(device.manufacturer.indexOf(v) >= 0) {
+						isVendor = true;
+					}
+				});
+			} else {
+				if(device.manufacturer.indexOf(vendor) >= 0) {
+					isVendor = true;
+				}
+			}
+
+			if(!vendor || (device.manufacturer && isVendor) || (device.pnpId && device.pnpId.indexOf(pnpId) >= 0) || checkComPort) {
 				var comName = device.comName || config.hardware.name;
 
 				if(checkComPort) {

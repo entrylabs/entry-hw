@@ -19,7 +19,7 @@
 		"type": "serial",
 		"control": "master",
 		"scanType": "data",
-		"vendor": "Silicon Lab",
+		"vendor": ["Silicon Lab", "IntegriSys S.A."],
 		"baudRate": 115200,
 		"flowControl": "hardware",
 		"delimiter": "\r"
