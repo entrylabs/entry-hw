@@ -56,6 +56,7 @@ Module.prototype.requestLocalData = function() {
 			queryString.push(query);
 		}
 	}
+	//console.log(queryString);
 	return queryString;
 };
 

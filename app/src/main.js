@@ -157,13 +157,17 @@
 				$('#driver').hide();
 				$('#firmware').hide();
 				$('#extFirmware').hide();				
+				$('#extFirmwarea').hide();	
 				$('#firmware').on('click', function () {
 					ui.flashFirmware(this.firmware, config);
 				});
 				$('#extFirmware').on('click', function () {
 					ui.flashFirmware(this.firmware, config);
 				});
-
+				$('#extFirmwarea').on('click', function () {
+					ui.flashFirmware(this.firmware, config);
+				});
+				
 				if(config.driver) {
 					var os = process.platform + '-' + (isOSWin64() ? 'x64' : process.arch);
 					var driverPath = config.driver[os];
@@ -183,8 +187,11 @@
 						} else if(Array.isArray(config.firmware)) {
 							var firmware = config.firmware[0];
 							var extFirmware = config.firmware[1];
+							var extFirmwarea = config.firmware[2];
 							$('#extFirmware').show().text(translator.translate(extFirmware.translate));
 							$('#extFirmware').prop('firmware', extFirmware.name);
+							$('#extFirmwarea').show().text(translator.translate(extFirmwarea.translate));
+							$('#extFirmwarea').prop('firmware', extFirmwarea.name);
 							$('#firmware').text(translator.translate(firmware.translate));
 							$('#firmware').prop('firmware', firmware.name);
 						}
