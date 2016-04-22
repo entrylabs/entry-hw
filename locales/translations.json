@@ -20,7 +20,10 @@
 		"ko": "펌웨어 설치 가능"
 	},
 	"Install Firmware(Sensor Board)": {
-		"ko": "펌웨어 설치(센서보드)"
+		"ko": "펌웨어 설치(센서보드 유선)"
+	},
+	"Install Firmware(Sensor Board Bluetooth)": {
+		"ko": "펌웨어 설치(센서보드 무선)"
 	},
 	"Install Firmware(Extension Project)": {
 		"ko": "펌웨어 설치(확장프로젝트)"
