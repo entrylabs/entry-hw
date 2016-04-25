@@ -1,0 +1,92 @@
+version: 1.5.0_{build}
+
+branches:
+  only:
+  - build
+
+platform:
+  - x64
+
+cache:
+  - node_modules
+  #- app\node_modules
+  - '%APPDATA%\npm-cache'
+  - '%USERPROFILE%\.electron'
+
+environment:
+  GH_TOKEN:
+    secure: kFHTqZNKfBFqDQh/WA5Cb18/6+pJhRzPj3ZDZQVQPZjzlWqbATIpDqcai/CMyr7f
+
+init:
+  - git config --global core.autocrlf input
+
+install:
+  - ps: Install-Product node 5 x64
+  - git reset --hard HEAD
+  - git fetch --tags
+  - npm install npm -g
+  - npm prune
+  - npm update
+  - cd app
+  - npm install
+  - npm dedupe
+  - cd ..
+
+before_build:
+- cmd: copy /Y build\install-spinner.gif node_modules\electron-winstaller-fixed\resources\install-spinner.gif
+- ps: mkdir app/ssl
+- cd app/ssl
+- curl -H "Authorization:token kFHTqZNKfBFqDQh/WA5Cb18/6+pJhRzPj3ZDZQVQPZjzlWqbATIpDqcai/CMyr7f" -H "Accept:application/vnd.github.v3.raw" -O -L https://api.github.com/repos/boolgom/Entry/dist/stage/ssl/cert.pem
+- curl -H "Authorization:token kFHTqZNKfBFqDQh/WA5Cb18/6+pJhRzPj3ZDZQVQPZjzlWqbATIpDqcai/CMyr7f" -H "Accept:application/vnd.github.v3.raw" -O -L https://api.github.com/repos/boolgom/Entry/dist/stage/ssl/new-play-entry.key
+- curl -H "Authorization:token kFHTqZNKfBFqDQh/WA5Cb18/6+pJhRzPj3ZDZQVQPZjzlWqbATIpDqcai/CMyr7f" -H "Accept:application/vnd.github.v3.raw" -O -L https://api.github.com/repos/boolgom/Entry/dist/stage/ssl/chain_sha2.pem
+- cd ../..
+
+build:
+  verbosity: minimal
+
+build_script:
+  - node --version
+  - npm --version
+  - npm run dist
+
+test: off
+
+artifacts:
+  - path: 'dist\win\*'
+    name: setup32
+  #- path: 'dist\win-x64\*.exe'
+    # name: setup64
+  # - path: 'dist\win\*.exe'
+    # name: setup32
+  # - path: '**\*.nupkg'
+    # name: package
+
+deploy:
+  #tag: 1.5.0
+  #release: Entry_HW_$(appveyor_build_version)
+  #description: 'Release description'
+  #provider: GitHub
+  #auth_token:
+    #secure: kFHTqZNKfBFqDQh/WA5Cb18/6+pJhRzPj3ZDZQVQPZjzlWqbATIpDqcai/CMyr7f # your encrypted token from GitHub
+  #draft: false
+  #prerelease: true
+  #on:
+    #branch: build                 # release from master branch only
+    #appveyor_repo_tag: true
+  #- provider: FTP
+    #protocol: sftp
+    #host: play04.play-entry.com
+    #username: entry
+    #password:
+      #secure: AAMMJ21gGJ9i2Bhd7eCzeg==
+    #folder: build/Entry_HW/win/$(appveyor_build_version)
+    #artifact: 
+
+notifications:
+  - provider: Slack
+    auth_token:
+      secure: mYDrSd0Et60MGIq5qI8C5S7lcFuI5zFcEPR1n2f+zr3UacYCPKqt6ASn/1rEZBcd9FkYV8aKdo0bT4TfYBUrIw==
+    channel: '#build-app'
+
+on_failure:
+  - ps: Get-EventLog AppVeyor -newest 10 | Format-List

@@ -1,0 +1,25 @@
+{
+	"id": "010702",
+	"name": {
+		"en": "XBOT EPOR and EDGE Bluetooth",
+		"ko": "엑스봇 에뽀/엣지 블투투스"
+	},
+	"icon" : "xbotBT.png",
+	"module": "xbot.js",
+	"url": "http://www.xbot.co.kr",
+	"driver": {
+		"win32-ia32": "XBOT/XBOT Monitor V3.msi",
+		"win32-x64": "XBOT/XBOT Monitor V3.msi"
+	},
+	"entry": {
+		"protocol": "json"
+	},
+	"select_com_port" : true,
+	"hardware": {
+		"type": "bluetooth",
+		"control": "slave",
+		"vendor": "Microsoft",
+		"duration": 32,
+		"baudRate": 115200
+	}
+}
