@@ -1,0 +1,21 @@
+{
+	"id": "990102",
+	"name": {
+		"en": "EV3",
+		"ko": "EV3"
+	},
+	"icon" : "ev3.png",
+	"module": "ev3.js",
+	"url": "http://www.ev3.co.kr",
+	"entry": {
+		"protocol": "json"
+	},
+	"select_com_port" : true,
+	"hardware": {
+		"type": "bluetooth",
+		"control": "slave",
+		"vendor": "Microsoft",
+		"duration": 32,
+		"baudRate": 115200
+	}
+}
