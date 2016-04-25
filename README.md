@@ -4,9 +4,40 @@
 entry-hw는 엔트리 교육연구소에서 개발한 엔트리와 하드웨어를 연동하기 위한 프로그램  입니다. 엔트리 사이트에 접속하시면 엔트리를 사용한 블록코딩 환경과 하드웨어를 연동하는 모습을 확인해 볼 수 있습니다.
 
 ## 시작하기
-entry-hw는 nwjs기반의 멀티플랫폼 어플리케이션 입니다.
-entry-hw의 핵심기능 구현을 위해 몇가지 오픈소스 라이브러리를 사용합니다.
+~~entry-hw는 nwjs기반의 멀티플랫폼 어플리케이션 입니다.~~  
+~~entry-hw의 핵심기능 구현을 위해 몇가지 오픈소스 라이브러리를 사용합니다.~~  
+Entry-HW는 1.5.0 부터 [Electron](https://github.com/electron/electron/tree/master/docs-translations/ko-KR)기반으로 동작 합니다.  
+정확한 사용법은 Electron 사이트를 참조 하시기 바랍니다.  
 현재 엔트리 하드웨어 연결 프로그램은 Windows만 지원합니다.
+
+클론
+```
+git clone https://github.com/entrylabs/entry-hw.git
+```
+
+의존설 모듈 설치
+
+```bash
+npm install
+//Electron을 사용하기 위해 아래 패키지를 -g 옵션으로 설치.
+npm install -g electron-prebuilt
+```
+
+실행
+```bash
+//디버그 모드로 실행됨.
+npm start
+
+//또는 
+electron -d app
+
+//-d 옵션을 제거하면 디버그 모드 없이 실행가능
+```
+
+#### Nwjs -> Electron 변경
+기존의 Nw.js 환경에서 Electron 환경으로 변경함.  
+프레임워크 교체에 따라 초기 실행 및 소스 세팅등의 일부 사항이 변경되었으나 기본적인 개발방식인  
+모듈추가는 기존과 똑같이 되도록 변경하였음.  
 
 ### 써드파티 라이브러리
  * jQuery : http://jquery.com/download/ (MIT)
@@ -99,12 +130,6 @@ module.exports = new Module();
         "flowControl" : "flowControl(ex. 'hardware')"
     }
 }
-```
-실행
-```bash
-nw.exe .
-// 디버그 모드로 열고 싶을 경우엔
-nw.exe . -debug
 ```
 
 ## Copyright and License
