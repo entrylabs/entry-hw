@@ -17,12 +17,6 @@ Server.prototype.open = function(logger) {
 	var http = require('http');
 	var PORT = 23518;
 	var self = this;
-
-	var appPath = 'app';
-	if(NODE_ENV === 'production') {
-		appPath = 'resources/app.asar';
-	}
-	
 	// var httpServer = http.createServer({
 	//     key: fs.readFileSync('./' + appPath + '/ssl/localhost_key.pem'),
 	//     cert: fs.readFileSync('./' + appPath + '/ssl/localhost_cert.pem'),
