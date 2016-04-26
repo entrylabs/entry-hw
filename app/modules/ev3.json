@@ -1,12 +1,12 @@
 {
-	"id": "990102",
+	"id": "080101",
 	"name": {
 		"en": "EV3",
 		"ko": "EV3"
 	},
 	"icon" : "ev3.png",
 	"module": "ev3.js",
-	"url": "http://www.ev3.co.kr",
+	"url": "http://www.lego.com/ko-kr/mindstorms/about-ev3",
 	"entry": {
 		"protocol": "json"
 	},

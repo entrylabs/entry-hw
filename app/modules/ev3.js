@@ -28,17 +28,61 @@ function Module() {
 	this.SM_COL_RINTENSITY = 0;
 	this.SM_COL_AINTENSITY = 1;
 	this.SM_COL_COLOR = 2;
+
+	this.sp = null;
+	this.sensors = [];
+	this.PORT_MAP = {
+		A: 0,
+		B: 0,
+		C: 0,
+		D: 0
+	}	
+	this.SENSOR_MAP = {
+		'1': undefined,
+		'2': undefined,
+		'3': undefined,
+		'4': undefined
+	}
+
+
+	this.CHECK_PORT_MAP = {
+	}
+
+	this.CHECK_SENSOR_MAP = {
+	}
+
+	this.returnData = {};
+
+	var that = this;
+	this.sensing;
 }
 
 var counter = 0;
 
 Module.prototype.init = function(handler, config) {
-	//console.log(this.motoring.lcdTxt);
-	// TouchSensor(4, this.S_TYPE_TOUCH, 0);
 };
 
-Module.prototype.requestInitialData = function() {
-	return this.INIT_DATA.shift(); 
+Module.prototype.setSerialPort = function (sp) {
+	this.sp = sp;
+};
+
+Module.prototype.requestInitialData = function(sp) {
+	var that = this;
+	// return this.INIT_DATA.shift();
+	sp.write(this.INIT_SEQ, function () {
+		sp.write(that.INIT_DOWNLOAD_SEQ, function () {
+			sp.write(that.PROGRAM_SEQ, function () {
+				sp.write(that.STOP_DOWNLOAD_SEQ, function () {
+					sp.write(that.RUN_PROGRAM_SEQ, function () {
+						console.log('RUN_PROGRAM_SEQ');
+
+						
+					});
+				});
+			});
+		});
+	});
+	return null;
 };
 
 Module.prototype.checkInitialData = function(data, config) {
@@ -47,30 +91,79 @@ Module.prototype.checkInitialData = function(data, config) {
 
 // 하드웨어 데이터 처리
 Module.prototype.handleLocalData = function(data) { // data: Native Buffer
-	// this.sensorResponse();
 	this.sensorResponse(data.toString('hex').substr(4,4),data.toString('hex'));
 };
 
 // Web Socket(엔트리)에 전달할 데이터
 Module.prototype.requestRemoteData = function(handler) {
-	console.log(this.sensors);
+	// console.log(this.sensors);
+	// 
+	// console.log(this.returnData);
+	var that = this;
+	Object.keys(this.returnData).forEach(function (key) {
+		if(that.returnData[key] != undefined) {
+			handler.write(key, that.returnData[key]);			
+		}
+	})
 };
 
 // Web Socket 데이터 처리
 Module.prototype.handleRemoteData = function(handler) {
+	var that = this;
+	// console.log(handler);
+	// var  readablePorts = handler.read('readablePorts');
+	Object.keys(this.PORT_MAP).forEach(function (port) {
+		that.PORT_MAP[port] = Number(handler.read(port));
+	});	
 
+	// var isReadSensor = false;
+	// Object.keys(this.SENSOR_MAP).forEach(function (port) {
+	// 	that.SENSOR_MAP[port] = handler.read(port);
+	// 	if(!that.SENSOR_MAP[port]) {
+	// 		that.returnData[port] = undefined;
+	// 		that.unRegisterSensor(port);
+	// 	} else if(that.CHECK_SENSOR_MAP[port] !== that.SENSOR_MAP[port]) {
+	// 		(function (port) {
+	// 			that.registerSensor(port, that.S_TYPE_TOUCH, 0);
+	// 			that.registerSensorListener(port, function(result){
+	// 				that.returnData[port] = result;
+	// 		  	});
+	// 		})(port);
+	// 	}
+
+	// 	that.CHECK_SENSOR_MAP[port] = that.SENSOR_MAP[port];
+	// });
+
+
+	// console.log(that.SENSOR_MAP);
+	// var a= that.getCounter();
+	// this.sp.write(new Buffer("0B00"+a+"0001009A000"+ 3 + this.S_TYPE_TOUCH +"0"+ 0 +"60","hex"));
 };
 
 
-var a = 0;
 // 하드웨어에 전달할 데이터
 Module.prototype.requestLocalData = function() {
-	a++;
-	if(a % 2 === 0) {
-		return this.getOutputSequence(0, 0, 0, 0);
+	var isSendData = false;
+	var that = this;
+
+	Object.keys(this.PORT_MAP).forEach(function (port) {
+		if(that.PORT_MAP[port] !== that.CHECK_PORT_MAP[port]) {
+			isSendData = true;
+		}
+		that.CHECK_PORT_MAP[port] = that.PORT_MAP[port];
+	});
+
+	if(isSendData) {
+		return this.getOutputSequence(this.PORT_MAP.A, this.PORT_MAP.B, this.PORT_MAP.C, this.PORT_MAP.D);
 	} else {
-		return new Buffer("0B00"+this.getCounter()+"0001009A000"+ 3 + this.S_TYPE_TOUCH +"0"+ 0 +"60","hex");
+		return null;
 	}
+	// a++;
+	// if(a % 2 === 0) {
+	// 	// return this.getOutputSequence(20, 0, 0, 20);
+	// } else {
+		// return new Buffer("0B00"+this.getCounter()+"0001009A000"+ 3 + this.S_TYPE_TOUCH +"0"+ 0 +"60","hex");
+	// }
 	// return [255,255,5,0,0,94,0,153,5,129,0,129,0,225,0,225,1,153,29,129,0,129,0,129,0,129,0,129,1,225,2,153,28,129,0,129,0,129,0,129,0,129,1,225,6,153,27,129,0,129,0,129,0,129,0,129,1,225,10,153,5,129,0,129,1,225,11,225,12,153,29,129,0,129,1,129,0,129,0,129,1,225,13,153,28,129,0,129,1,129,0,129,0,129,1,225,17,153,27,129,0,129,1,129,0,129,0,129,1,225,21,153,5,129,0,129,2,225,22,225,23,153,29,129,0,129,2,129,0,129,0,129,1,225,24,153,28,129,0,129,2,129,0,129,0,129,1,225,28,153,27,129,0,129,2,129,0,129,0,129,1,225,32,153,5,129,0,129,3,225,33,225,34,153,29,129,0,129,3,129,0,129,0,129,1,225,35,153,28,129,0,129,3,129,0,129,0,129,1,225,39,153,27,129,0,129,3,129,0,129,0,129,1,225,43,153,5,129,0,129,16,225,44,225,45,153,29,129,0,129,16,129,0,129,0,129,1,225,46,153,28,129,0,129,16,129,0,129,0,129,1,225,50,153,27,129,0,129,16,129,0,129,0,129,1,225,54,153,5,129,0,129,17,225,55,225,56,153,29,129,0,129,17,129,0,129,0,129,1,225,57,153,28,129,0,129,17,129,0,129,0,129,1,225,61,153,27,129,0,129,17,129,0,129,0,129,1,225,65,153,5,129,0,129,18,225,66,225,67,153,29,129,0,129,18,129,0,129,0,129,1,225,68,153,28,129,0,129,18,129,0,129,0,129,1,225,72,153,27,129,0,129,18,129,0,129,0,129,1,225,76,153,5,129,0,129,19,225,77,225,78,153,29,129,0,129,19,129,0,129,0,129,1,225,79,153,28,129,0,129,19,129,0,129,0,129,1,225,83,153,27,129,0,129,19,129,0,129,0,129,1,225,87,131,9,129,6,225,88,131,9,129,5,225,89,131,9,129,1,225,90,131,9,129,4,225,91,131,9,129,3,225,92,131,9,129,2,225,93];
 };
 
@@ -96,14 +189,6 @@ Module.prototype.getOutputSequence = function(a,b,c,d){
 	var body = prefix + body_a + body_b + body_c + body_d; 
 	// console.log(body.toUpperCase());
 	return  new Buffer( body.toUpperCase(), "hex");
-};
-
-Module.prototype.sensorResponse = function(counter, value){
-	// for (i =0 ; i<this.sensors.length; i++){
-	// 	this.sensors[i].processData(counter,value);
-	// }
-	// 
-	console.log(TouchSensor(value));
 };
 
 Module.prototype.getCounter = function(){
@@ -149,13 +234,156 @@ Module.prototype.getHexOutput = function(output){
 	return res;
 }
 
-var TouchSensor = function(value){
-	var payload = value.substr(10,2);
-	var result = false;
-	if(payload == "00") { result = false; } else if(payload == "64") { result=true; }
-	return result;
+
+Module.prototype.sensorResponse = function(counter, value){
+	this.sensors.forEach(function (sensor) {
+		if(sensor) {
+			sensor.processData(counter,value);
+		}
+	})
+};
+
+Module.prototype.unRegisterSensor = function(port, type, mode){
+	port = Number(port);
+	if(port>4 || port<1) {return; }//should return error
+	this.sensors[port-1] = undefined;
+};
+
+Module.prototype.registerSensor = function(port, type, mode){
+	port = Number(port);
+	if(port>4 || port<1) {return; }//should return error
+	if(type == this.S_TYPE_COLOR){
+		this.sensors[port-1] = new ColorSensor(port,type,mode);
+	}
+
+	if(type == this.S_TYPE_TOUCH){
+		this.sensors[port-1] = new TouchSensor(port,type,mode);
+	}	
 }
 
+Module.prototype.registerSensorListener = function(port,callback){
+	this.sensors[port-1].pushCallback(callback);
+}
+
+Module.prototype.pullReadings = function(){
+	var that = this;
+	this.sensors.forEach(function (sensor) {
+		if(sensor) {
+			sensor.pullReading(that.getCounter(), that.sp);
+		}
+	})
+	// for (i =0 ; i<this.sensors.length; i++){
+	// 	this.sensors[i].pullReading(this.getCounter(),this.sp);
+	// }
+}
+
+var Sensor = function(port,type,mode){
+	var port = port;
+	var type = type;
+	this.mode = mode;
+	this.callbacks = [];
+	var pull_command =  null; 
+	this.request_counter = -1;
+
+	this.pushCallback = function(callback){
+		this.callbacks.push(callback);
+	};
+
+	this.pullReading = function(counter,sp){
+		this.request_counter = counter;
+		//construct buffer
+		pull_command = new Buffer("0B00"+counter+"0001009A000"+ (port-1) + type +"0"+ mode +"60","hex");
+		//console.log(pull_command.toString("hex"));
+		sp.write(pull_command);
+	}
+}
+
+Sensor.prototype.processData = function(counter){
+	if(counter != this.request_counter){
+		return
+	}
+}
+
+
+//inherited sensors
+var ColorSensor = function(port,type,mode){
+	//paratistic inheritance
+	//http://www.crockford.com/javascript/inheritance.html
+	var sensor = new Sensor(port,type,mode);
+	sensor.processData =function(counter,value){
+		if(counter != this.request_counter){
+			return
+		}
+		var payload = value.substr(10,2);
+
+		//if mode is light intensity, change the result to numeric value
+		if(this.mode == 0 || this.mode ==1 ){
+			payload = parseInt(payload,16);
+		}
+
+		for(i=0; i < this.callbacks.length ; i++){
+			this.callbacks[i](payload);
+		}
+	}
+
+	return sensor;
+}
+
+var TouchSensor = function(port,type,mode){
+	//paratistic inheritance
+	//http://www.crockford.com/javascript/inheritance.html
+	var sensor = new Sensor(port,type,mode);
+	sensor.processData = function(counter,value){
+		if(counter != this.request_counter){
+			return
+		}
+
+		var payload = value.substr(10,2);
+		var result = false;
+		if(payload == "00") { result = false; } else if(payload == "64") { result=true; }
+		for(i=0; i < this.callbacks.length ; i++){
+			this.callbacks[i](result);
+		}
+	}
+
+	return sensor;
+}
+
+var responseSize = 11;
+var mode = 0;
+var sensorCheck = function () {
+	var that = this;
+	Object.keys(this.SENSOR_MAP).forEach(function(p) {
+		var port = that.SENSOR_MAP[p];
+		var index = Number(p) - 1;
+
+
+		var modeSet = [153, 5, 129, 0, 129, port, 225, index, 225, index+1]
+		var readySi = [153, 29, 129, 0, 129, port, 129, 0, 129, mode, 129, 1, 225, index+2];
+		var readyRaw = [153, 28, 129, 0, 129, port, 129, 0, 129, mode, 129, 1, 225, index+6];
+		var readyPercent = [153, 27, 129, 0, 129, port, 129, 0, 129, mode, 129, 1, 225, index+6];
+
+	});
+	
+}
+
+Module.prototype.connect = function() {
+	var that = this;
+	this.sensing = setInterval(function(){
+		that.pullReadings();
+	}, 200);
+};
+
+Module.prototype.disconnect = function(connect) {
+	clearInterval(this.sensing);
+	this.sp.write(this.TERMINATE_SEQ,function(err){
+		if(err) {
+			console.log(err);
+		}
+		 // if(callback != null) callback(err);		
+		connect.close();
+	}); 
+};
 
 Module.prototype.reset = function() {
 };
