@@ -353,11 +353,13 @@ var responseSize = 11;
 var mode = 0;
 var sensorCheck = function () {
 	var that = this;
+	var counterChanger = new Buffer(2);
+	var size = [255, 255];
+	var counter = counterChanger.writeInt16LE('0x' + this.getCounter(), 0);
 	Object.keys(this.SENSOR_MAP).forEach(function(p) {
 		var port = that.SENSOR_MAP[p];
 		var index = Number(p) - 1;
-
-
+		var header = [255, 255, 1, 0, 0, 94, 0]
 		var modeSet = [153, 5, 129, 0, 129, port, 225, index, 225, index+1]
 		var readySi = [153, 29, 129, 0, 129, port, 129, 0, 129, mode, 129, 1, 225, index+2];
 		var readyRaw = [153, 28, 129, 0, 129, port, 129, 0, 129, mode, 129, 1, 225, index+6];
