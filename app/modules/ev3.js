@@ -44,17 +44,35 @@ function Module() {
 		'4': undefined
 	}
 
-
 	this.CHECK_PORT_MAP = {
 	}
 
 	this.CHECK_SENSOR_MAP = {
 	}
 
+	this.SENSOR_COUNTER_LIST = {};
+
 	this.returnData = {};
 
-	var that = this;
-	this.sensing;
+	this.deviceType = {
+		NxtTouch: 1,
+		NxtLight: 2,
+		NxtSound: 3,
+		NxtColor: 4,
+		NxtUltrasonic: 5,
+		NxtTemperature: 6,
+		LMotor: 7,
+		MMotor: 8,
+		Touch: 16,
+		Color: 29,
+		Ultrasonic: 30,
+		Gyroscope: 32,
+		Infrared: 33,
+		Initializing: 0x7d,
+		Empty: 0x7e,
+		WrongPort: 0x7f,
+		Unknown: 0xff
+	}
 }
 
 var counter = 0;
@@ -68,21 +86,24 @@ Module.prototype.setSerialPort = function (sp) {
 
 Module.prototype.requestInitialData = function(sp) {
 	var that = this;
+
+	var initMotor = [255,255, this.getCounter(), 128, 0, 0, 163, 129, 0, 129, 15, 129, 0];
+	checkByteSize(initMotor);
 	// return this.INIT_DATA.shift();
-	sp.write(this.INIT_SEQ, function () {
-		sp.write(that.INIT_DOWNLOAD_SEQ, function () {
-			sp.write(that.PROGRAM_SEQ, function () {
-				sp.write(that.STOP_DOWNLOAD_SEQ, function () {
-					sp.write(that.RUN_PROGRAM_SEQ, function () {
-						console.log('RUN_PROGRAM_SEQ');
+	// sp.write(this.INIT_SEQ, function () {
+	// 	sp.write(that.INIT_DOWNLOAD_SEQ, function () {
+	// 		sp.write(that.PROGRAM_SEQ, function () {
+	// 			sp.write(that.STOP_DOWNLOAD_SEQ, function () {
+	// 				sp.write(that.RUN_PROGRAM_SEQ, function () {
+	// 					console.log('RUN_PROGRAM_SEQ');
 
 						
-					});
-				});
-			});
-		});
-	});
-	return null;
+	// 				});
+	// 			});
+	// 		});
+	// 	});
+	// });
+	return initMotor;
 };
 
 Module.prototype.checkInitialData = function(data, config) {
@@ -91,7 +112,38 @@ Module.prototype.checkInitialData = function(data, config) {
 
 // 하드웨어 데이터 처리
 Module.prototype.handleLocalData = function(data) { // data: Native Buffer
-	this.sensorResponse(data.toString('hex').substr(4,4),data.toString('hex'));
+	var that = this;
+	if(data[0] === 97 && data[1] === 0) {
+		var countKey = data.readInt16LE(2);
+
+		if(countKey in this.SENSOR_COUNTER_LIST) {
+			delete this.SENSOR_COUNTER_LIST[countKey];
+			data = data.slice(5);
+			var index = 0;
+			Object.keys(this.SENSOR_MAP).forEach(function(p) {
+				var port = Number(p) - 1;
+				index = port * responseSize;
+
+				var type = data[index];
+				var mode = data[index + 1];;
+				var siValue = data.readFloatLE(index + 2).toFixed(1);
+				var readyRaw = data.readInt32LE(index + 6);
+				var readyPercent = data[index + 10];
+
+				that.returnData[p] = {
+					'type': type,
+					'mode': mode,
+					'siValue': siValue,
+					'readyRaw': readyRaw,
+					'readyPercent': readyPercent
+				}
+			});
+
+		}
+	}
+
+	
+	// this.sensorResponse(data.toString('hex').substr(4,4),data.toString('hex'));
 };
 
 // Web Socket(엔트리)에 전달할 데이터
@@ -200,6 +252,9 @@ Module.prototype.getCounter = function(){
 		cstring = "00" + cstring;
 	} else if (cstring.length ==  3){
 		cstring = "0" + cstring;
+	}
+	if(counter>=65535) {
+		counter = 0;
 	}
 	counter++;
 	return cstring;
@@ -349,42 +404,65 @@ var TouchSensor = function(port,type,mode){
 	return sensor;
 }
 
+var checkByteSize = function (buffer) {
+	buffer[0] = buffer.length;
+	buffer[1] = buffer.length >> 8;
+}
+
 var responseSize = 11;
 var mode = 0;
-var sensorCheck = function () {
+Module.prototype.sensorCheck = function () {
 	var that = this;
-	var counterChanger = new Buffer(2);
-	var size = [255, 255];
-	var counter = counterChanger.writeInt16LE('0x' + this.getCounter(), 0);
+	var counter = new Buffer(2);
+	var size = new Buffer([255, 255]);
+	counter.writeInt16LE('0x' + this.getCounter(), 0);
+	this.SENSOR_COUNTER_LIST[counter.readInt16LE()] = true;
+	var sensorReady = new Buffer([0, 94, 0]);
+	var sensorBody;
+	var index = 0;
 	Object.keys(this.SENSOR_MAP).forEach(function(p) {
-		var port = that.SENSOR_MAP[p];
-		var index = Number(p) - 1;
-		var header = [255, 255, 1, 0, 0, 94, 0]
-		var modeSet = [153, 5, 129, 0, 129, port, 225, index, 225, index+1]
-		var readySi = [153, 29, 129, 0, 129, port, 129, 0, 129, mode, 129, 1, 225, index+2];
-		var readyRaw = [153, 28, 129, 0, 129, port, 129, 0, 129, mode, 129, 1, 225, index+6];
-		var readyPercent = [153, 27, 129, 0, 129, port, 129, 0, 129, mode, 129, 1, 225, index+6];
+		var port = Number(p) - 1;;
+		index = port * responseSize;
+		var modeSet = new Buffer([153, 5, 129, 0, 129, port, 225, index, 225, index+1]);
+		var readySi = new Buffer([153, 29, 129, 0, 129, port, 129, 0, 129, mode, 129, 1, 225, index+2]);
+		var readyRaw = new Buffer([153, 28, 129, 0, 129, port, 129, 0, 129, mode, 129, 1, 225, index+6]);
+		var readyPercent = new Buffer([153, 27, 129, 0, 129, port, 129, 0, 129, mode, 129, 1, 225, index+10]);
 
+		if(!sensorBody) {
+			sensorBody = Buffer.concat([modeSet, readySi, readyRaw, readyPercent]);
+		} else {
+			sensorBody = Buffer.concat([sensorBody, modeSet, readySi, readyRaw, readyPercent]);
+		}
 	});
+
+	var totalLength = size.length +  counter.length +  sensorReady.length +  sensorBody.length;
+	size[0] = totalLength - 2;
+	size[1] = (totalLength-2) >> 8;
+	var sendBuffer = Buffer.concat([size, counter, sensorReady, sensorBody], totalLength);
+	that.sp.write(sendBuffer);
 	
 }
 
 Module.prototype.connect = function() {
 	var that = this;
 	this.sensing = setInterval(function(){
-		that.pullReadings();
+		that.sensorCheck();
 	}, 200);
 };
 
 Module.prototype.disconnect = function(connect) {
 	clearInterval(this.sensing);
-	this.sp.write(this.TERMINATE_SEQ,function(err){
-		if(err) {
-			console.log(err);
-		}
-		 // if(callback != null) callback(err);		
+	if(this.sp) {
+		this.sp.write(this.TERMINATE_SEQ,function(err){
+			if(err) {
+				console.log(err);
+			}
+			 // if(callback != null) callback(err);		
+			connect.close();
+		}); 
+	} else {
 		connect.close();
-	}); 
+	}
 };
 
 Module.prototype.reset = function() {
