@@ -175,8 +175,13 @@
 						$('#driver').show();
 						$('#driver').unbind('click');
 						$('#driver').click(function() {
-							var path = require('path');
-							shell.openItem(path.join(__dirname, 'drivers', driverPath));
+							var driversPath;
+							if(__dirname.indexOf('.asar') >= 0) {
+								driversPath = path.join(__dirname, '..', 'drivers', driverPath);
+							} else {
+								driversPath = path.join(__dirname, 'drivers', driverPath);
+							}
+							shell.openItem(driversPath);
 						});
 					}
 					if (config.firmware) {
