@@ -44,16 +44,10 @@ function Module() {
 		'4': undefined
 	}
 
-	this.CHECK_PORT_MAP = {
-	}
-
-	this.CHECK_SENSOR_MAP = {
-	}
-
+	this.CHECK_PORT_MAP = {};
+	this.CHECK_SENSOR_MAP = {};
 	this.SENSOR_COUNTER_LIST = {};
-
 	this.returnData = {};
-
 	this.deviceType = {
 		NxtTouch: 1,
 		NxtLight: 2,
@@ -73,9 +67,43 @@ function Module() {
 		WrongPort: 0x7f,
 		Unknown: 0xff
 	}
+	this.outputPort = {
+		A: 1,
+		B: 2,
+		C: 4,
+		D: 8,
+		ALL: 15
+	}
 }
 
 var counter = 0;
+var mode = 0;
+var responseSize = 11;
+var isSendInitData = false;
+var isSensorCheck = false;
+
+var makeInitBuffer = function(mode) {
+	var size = new Buffer([255,255]);
+	var counter = getCounter();
+	var reply = new Buffer(mode);
+	return Buffer.concat([size, counter, reply]);
+}
+
+var getCounter = function(){
+	var counterBuf = new Buffer(2);
+	counterBuf.writeInt16LE(counter);
+	if(counter>=65535) {
+		counter = 0;
+	}
+	counter++;
+	return counterBuf;
+}
+
+var checkByteSize = function (buffer) {
+	var bufferLength = buffer.length - 2;
+	buffer[0] = bufferLength;
+	buffer[1] = bufferLength >> 8;
+}
 
 Module.prototype.init = function(handler, config) {
 };
@@ -87,10 +115,20 @@ Module.prototype.setSerialPort = function (sp) {
 Module.prototype.requestInitialData = function(sp) {
 	var that = this;
 
-	var initMotor = [255,255, this.getCounter(), 128, 0, 0, 163, 129, 0, 129, 15, 129, 0];
-	checkByteSize(initMotor);
-	// return this.INIT_DATA.shift();
-	// sp.write(this.INIT_SEQ, function () {
+	if(!this.sp) {
+		this.sp = sp;
+	}
+	
+	if(!isSendInitData) {
+		var initBuf = makeInitBuffer([128, 0, 0]);
+		var motorStop = new Buffer([163, 129, 0, 129, 15, 129, 0]);
+		var initMotor = Buffer.concat([initBuf, motorStop]);
+		checkByteSize(initMotor);
+		// return this.INIT_DATA.shift();
+		sp.write(initMotor, function () {
+			sensorChecking(that);
+		});
+	}
 	// 	sp.write(that.INIT_DOWNLOAD_SEQ, function () {
 	// 		sp.write(that.PROGRAM_SEQ, function () {
 	// 			sp.write(that.STOP_DOWNLOAD_SEQ, function () {
@@ -103,7 +141,7 @@ Module.prototype.requestInitialData = function(sp) {
 	// 		});
 	// 	});
 	// });
-	return initMotor;
+	return null;
 };
 
 Module.prototype.checkInitialData = function(data, config) {
@@ -182,7 +220,6 @@ Module.prototype.handleRemoteData = function(handler) {
 	// 		  	});
 	// 		})(port);
 	// 	}
-
 	// 	that.CHECK_SENSOR_MAP[port] = that.SENSOR_MAP[port];
 	// });
 
@@ -195,18 +232,45 @@ Module.prototype.handleRemoteData = function(handler) {
 
 // 하드웨어에 전달할 데이터
 Module.prototype.requestLocalData = function() {
-	var isSendData = false;
 	var that = this;
-
+	var isSendData = false;
+	var initBuf = makeInitBuffer([128, 0, 0]);
+	var time = 0;
+	var sendBody;
 	Object.keys(this.PORT_MAP).forEach(function (port) {
 		if(that.PORT_MAP[port] !== that.CHECK_PORT_MAP[port]) {
 			isSendData = true;
 		}
+
+		var power = Number(that.PORT_MAP[port]);
+		var brake = 0;
+		if(power > 100) {
+			power = 100;
+		} else if(power < -100) {
+			power = -100;
+		} else if(power == 0) {
+			brake = 1;
+		}
+		//timeset mode 232, 3 === 1000ms
+		// var portOut = new Buffer([173, 129, 0, 129, that.outputPort[port], 129, power, 131, 0, 0, 0, 0, 131, 232, 3, 0, 0, 131, 0, 0, 0, 0, 129, brake]);
+		// ifinity output port mode
+		var portOut = new Buffer([164, 129, 0, 129, that.outputPort[port], 129, power, 166, 129, 0, 129, that.outputPort[port]]);
+
+		if(!sendBody) {
+			sendBody = new Buffer(portOut);
+		} else {
+			sendBody = Buffer.concat([sendBody, portOut]);
+		}
+
 		that.CHECK_PORT_MAP[port] = that.PORT_MAP[port];
 	});
 
 	if(isSendData) {
-		return this.getOutputSequence(this.PORT_MAP.A, this.PORT_MAP.B, this.PORT_MAP.C, this.PORT_MAP.D);
+		var totalLength = initBuf.length + sendBody.length;
+		var sendBuffer = Buffer.concat([initBuf, sendBody], totalLength);
+		checkByteSize(sendBuffer);
+		console.log(sendBuffer);
+		return sendBuffer;
 	} else {
 		return null;
 	}
@@ -219,205 +283,11 @@ Module.prototype.requestLocalData = function() {
 	// return [255,255,5,0,0,94,0,153,5,129,0,129,0,225,0,225,1,153,29,129,0,129,0,129,0,129,0,129,1,225,2,153,28,129,0,129,0,129,0,129,0,129,1,225,6,153,27,129,0,129,0,129,0,129,0,129,1,225,10,153,5,129,0,129,1,225,11,225,12,153,29,129,0,129,1,129,0,129,0,129,1,225,13,153,28,129,0,129,1,129,0,129,0,129,1,225,17,153,27,129,0,129,1,129,0,129,0,129,1,225,21,153,5,129,0,129,2,225,22,225,23,153,29,129,0,129,2,129,0,129,0,129,1,225,24,153,28,129,0,129,2,129,0,129,0,129,1,225,28,153,27,129,0,129,2,129,0,129,0,129,1,225,32,153,5,129,0,129,3,225,33,225,34,153,29,129,0,129,3,129,0,129,0,129,1,225,35,153,28,129,0,129,3,129,0,129,0,129,1,225,39,153,27,129,0,129,3,129,0,129,0,129,1,225,43,153,5,129,0,129,16,225,44,225,45,153,29,129,0,129,16,129,0,129,0,129,1,225,46,153,28,129,0,129,16,129,0,129,0,129,1,225,50,153,27,129,0,129,16,129,0,129,0,129,1,225,54,153,5,129,0,129,17,225,55,225,56,153,29,129,0,129,17,129,0,129,0,129,1,225,57,153,28,129,0,129,17,129,0,129,0,129,1,225,61,153,27,129,0,129,17,129,0,129,0,129,1,225,65,153,5,129,0,129,18,225,66,225,67,153,29,129,0,129,18,129,0,129,0,129,1,225,68,153,28,129,0,129,18,129,0,129,0,129,1,225,72,153,27,129,0,129,18,129,0,129,0,129,1,225,76,153,5,129,0,129,19,225,77,225,78,153,29,129,0,129,19,129,0,129,0,129,1,225,79,153,28,129,0,129,19,129,0,129,0,129,1,225,83,153,27,129,0,129,19,129,0,129,0,129,1,225,87,131,9,129,6,225,88,131,9,129,5,225,89,131,9,129,1,225,90,131,9,129,4,225,91,131,9,129,3,225,92,131,9,129,2,225,93];
 };
 
-Module.prototype.getOutputSequence = function(a,b,c,d){
-	//modify header
-	var header = this.OUTPUT_HEADER_SEQ; 
-
-	var body_a =  "";
-	if(a != null) body_a = this.OUTPUT_DELIMITER_SEQ + this.getHexOutput(a) + this.OUTPUT_BODY_SEQ + "301000000830100000040";
-
-	var body_b =  "";
-	if(b != null) body_b = this.OUTPUT_DELIMITER_SEQ + this.getHexOutput(b) + this.OUTPUT_BODY_SEQ + "302000000830200000040";
-
-	var body_c =  "";
-	if(c != null) body_c = this.OUTPUT_DELIMITER_SEQ + this.getHexOutput(c) + this.OUTPUT_BODY_SEQ + "303000000830300000040";
-
-	var body_d =  "";
-	if(d != null) body_d = this.OUTPUT_DELIMITER_SEQ + this.getHexOutput(d) + this.OUTPUT_BODY_SEQ + "304000000830400000040";
-
-	//get counter
-	var size = ((this.getCounter()+header+body_a+body_b+body_c+body_d).length/2).toString(16); //check this 
-	var prefix = size + "00" + this.getCounter() + header ;
-	var body = prefix + body_a + body_b + body_c + body_d; 
-	// console.log(body.toUpperCase());
-	return  new Buffer( body.toUpperCase(), "hex");
-};
-
-Module.prototype.getCounter = function(){
-	var cstring = counter.toString(16);
-	if(cstring.length ==  1){
-		cstring = "000"+ cstring ;
-		//console.log(cstring);
-	} else if (cstring.length ==  2){
-		cstring = "00" + cstring;
-	} else if (cstring.length ==  3){
-		cstring = "0" + cstring;
-	}
-	if(counter>=65535) {
-		counter = 0;
-	}
-	counter++;
-	return cstring;
-}
-
-Module.prototype.getHexOutput = function(output){
-	var res = "";
-    if(output < 0 && output >= -32) {
-		output = 256 + output;
-		res =  output.toString(16);
-		
-	}
-	else if ( output < -32 ){
-		output = 256 + output;
-		res =  output.toString(16);
-		res = "81" + res;
-	}
-	
-	if (output >= 0 && output < 32) {
-		res =  output.toString(16);
-	}
-	else if ( output >= 32 ) {
-		res =  output.toString(16);
-		res = "81" + res;
-	}
-	
-	//one digit
-	if (res.length == 1){
-		res = "0" +res;
-	}	
-	
-	return res;
-}
-
-
-Module.prototype.sensorResponse = function(counter, value){
-	this.sensors.forEach(function (sensor) {
-		if(sensor) {
-			sensor.processData(counter,value);
-		}
-	})
-};
-
-Module.prototype.unRegisterSensor = function(port, type, mode){
-	port = Number(port);
-	if(port>4 || port<1) {return; }//should return error
-	this.sensors[port-1] = undefined;
-};
-
-Module.prototype.registerSensor = function(port, type, mode){
-	port = Number(port);
-	if(port>4 || port<1) {return; }//should return error
-	if(type == this.S_TYPE_COLOR){
-		this.sensors[port-1] = new ColorSensor(port,type,mode);
-	}
-
-	if(type == this.S_TYPE_TOUCH){
-		this.sensors[port-1] = new TouchSensor(port,type,mode);
-	}	
-}
-
-Module.prototype.registerSensorListener = function(port,callback){
-	this.sensors[port-1].pushCallback(callback);
-}
-
-Module.prototype.pullReadings = function(){
-	var that = this;
-	this.sensors.forEach(function (sensor) {
-		if(sensor) {
-			sensor.pullReading(that.getCounter(), that.sp);
-		}
-	})
-	// for (i =0 ; i<this.sensors.length; i++){
-	// 	this.sensors[i].pullReading(this.getCounter(),this.sp);
-	// }
-}
-
-var Sensor = function(port,type,mode){
-	var port = port;
-	var type = type;
-	this.mode = mode;
-	this.callbacks = [];
-	var pull_command =  null; 
-	this.request_counter = -1;
-
-	this.pushCallback = function(callback){
-		this.callbacks.push(callback);
-	};
-
-	this.pullReading = function(counter,sp){
-		this.request_counter = counter;
-		//construct buffer
-		pull_command = new Buffer("0B00"+counter+"0001009A000"+ (port-1) + type +"0"+ mode +"60","hex");
-		//console.log(pull_command.toString("hex"));
-		sp.write(pull_command);
-	}
-}
-
-Sensor.prototype.processData = function(counter){
-	if(counter != this.request_counter){
-		return
-	}
-}
-
-
-//inherited sensors
-var ColorSensor = function(port,type,mode){
-	//paratistic inheritance
-	//http://www.crockford.com/javascript/inheritance.html
-	var sensor = new Sensor(port,type,mode);
-	sensor.processData =function(counter,value){
-		if(counter != this.request_counter){
-			return
-		}
-		var payload = value.substr(10,2);
-
-		//if mode is light intensity, change the result to numeric value
-		if(this.mode == 0 || this.mode ==1 ){
-			payload = parseInt(payload,16);
-		}
-
-		for(i=0; i < this.callbacks.length ; i++){
-			this.callbacks[i](payload);
-		}
-	}
-
-	return sensor;
-}
-
-var TouchSensor = function(port,type,mode){
-	//paratistic inheritance
-	//http://www.crockford.com/javascript/inheritance.html
-	var sensor = new Sensor(port,type,mode);
-	sensor.processData = function(counter,value){
-		if(counter != this.request_counter){
-			return
-		}
-
-		var payload = value.substr(10,2);
-		var result = false;
-		if(payload == "00") { result = false; } else if(payload == "64") { result=true; }
-		for(i=0; i < this.callbacks.length ; i++){
-			this.callbacks[i](result);
-		}
-	}
-
-	return sensor;
-}
-
-var checkByteSize = function (buffer) {
-	buffer[0] = buffer.length;
-	buffer[1] = buffer.length >> 8;
-}
-
-var responseSize = 11;
-var mode = 0;
 Module.prototype.sensorCheck = function () {
 	var that = this;
-	var counter = new Buffer(2);
-	var size = new Buffer([255, 255]);
-	counter.writeInt16LE('0x' + this.getCounter(), 0);
-	this.SENSOR_COUNTER_LIST[counter.readInt16LE()] = true;
-	var sensorReady = new Buffer([0, 94, 0]);
+	var initBuf = makeInitBuffer([0, 94, 0]);
+	var counter = initBuf.readInt16LE(2);
+	this.SENSOR_COUNTER_LIST[counter] = true;
 	var sensorBody;
 	var index = 0;
 	Object.keys(this.SENSOR_MAP).forEach(function(p) {
@@ -435,19 +305,24 @@ Module.prototype.sensorCheck = function () {
 		}
 	});
 
-	var totalLength = size.length +  counter.length +  sensorReady.length +  sensorBody.length;
-	size[0] = totalLength - 2;
-	size[1] = (totalLength-2) >> 8;
-	var sendBuffer = Buffer.concat([size, counter, sensorReady, sensorBody], totalLength);
+	var totalLength = initBuf.length + sensorBody.length;
+	var sendBuffer = Buffer.concat([initBuf, sensorBody], totalLength);
+	checkByteSize(sendBuffer);
 	that.sp.write(sendBuffer);
 	
 }
 
+
+var sensorChecking = function(that) {
+	if(!isSensorCheck) {
+		that.sensing = setInterval(function(){
+			that.sensorCheck();
+		}, 200);
+		isSensorCheck = true;
+	}
+}
+
 Module.prototype.connect = function() {
-	var that = this;
-	this.sensing = setInterval(function(){
-		that.sensorCheck();
-	}, 200);
 };
 
 Module.prototype.disconnect = function(connect) {
@@ -457,7 +332,6 @@ Module.prototype.disconnect = function(connect) {
 			if(err) {
 				console.log(err);
 			}
-			 // if(callback != null) callback(err);		
 			connect.close();
 		}); 
 	} else {
