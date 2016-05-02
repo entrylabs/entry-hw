@@ -26,9 +26,9 @@ void setup(){
 
   Serial.begin(57600);
   
-  while(1){
-    if (Serial.read()) break;
-  }
+//  while(1){
+//    if (Serial.read()) break;
+//  }
 }
 
 void initPorts () {
@@ -123,7 +123,8 @@ void updateDigitalPort (char c) {
       }
     } else {
       int port = (c >> 1) & B1111;
-      if((DC_ON==0) || (port!=3 && port!=9 && port!=10 && port!=11)) setPortReadable(port);
+      //if((DC_ON==0) || (port!=3 && port!=9 && port!=10 && port!=11)) setPortReadable(port);
+      if((DC_ON==0) && (port==8 || port==9 || port==10 || port==11)) setPortReadable(port);
       else setPortWritable(port);
 
     }

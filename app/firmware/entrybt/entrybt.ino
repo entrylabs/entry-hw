@@ -26,19 +26,19 @@ void setup(){
  
   SerialB.begin(9600);
   
-  delay(1000);
+  delay(500);
   SerialB.print("AT\r\n");
-  delay(1000);
+  delay(500);
   SerialB.print("AT+NAMESensorRobot\r\n");
-  delay(1000);
+  delay(500);
   SerialB.print("AT+BAUD7\r\n");
-  delay(100);
+  delay(500);
 
   SerialB.begin(57600);
   
-  while(1){
-    if (SerialB.read()) break;
-  }
+//  while(1){
+//    if (SerialB.read()) break;
+//  }
 }
 
 void initPorts () {
@@ -134,7 +134,8 @@ void updateDigitalPort (char c) {
       }
     } else {
       int port = (c >> 1) & B1111;
-      if((DC_ON==0) || (port!=3 && port!=9 && port!=10 && port!=11)) setPortReadable(port);
+      //if((DC_ON==0) || (port!=3 && port!=9 && port!=10 && port!=11)) setPortReadable(port);
+      if((DC_ON==0) && (port==8 || port==9 || port==10 || port==11)) setPortReadable(port);
       else setPortWritable(port);
 
     }
@@ -179,7 +180,7 @@ void sendDigitalValue(int pinNumber) {
 }
 
 void setPortReadable (int port) {
-  if(port==6) return;
+  if(port==6 ||port==12||port==13) return;
   if (isPortWritable(port)) {
     pinMode(port, INPUT);
   }
@@ -187,7 +188,7 @@ void setPortReadable (int port) {
 
 void setPortWritable (int port) {
   if((DC_ON==0) && (port==3 || port==8 || port==9 || port==10 || port==11)) return;
-  if(port>13) return;
+  if(port>11) return;
   if(port==6) return;
   
   if (!isPortWritable(port)) {
