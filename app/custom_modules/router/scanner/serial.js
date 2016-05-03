@@ -112,6 +112,7 @@ Scanner.prototype.scan = function(serialport, extension, config, callback) {
 								callback(error);
 							}
 						} else {
+							// sp.flush();
 							self.setConnector(connector);
 							self.connectors[comName] = connector;
 							if(control) {

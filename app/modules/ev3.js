@@ -71,6 +71,7 @@ var counter = 0;
 var responseSize = 11;
 var isSendInitData = false;
 var isSensorCheck = false;
+var isConnect = false;
 
 var makeInitBuffer = function(mode) {
 	var size = new Buffer([255,255]);
@@ -124,7 +125,7 @@ Module.prototype.setSerialPort = function (sp) {
 
 Module.prototype.requestInitialData = function(sp) {
 	var that = this;
-
+	isConnect = true;
 	if(!this.sp) {
 		this.sp = sp;
 	}
@@ -195,6 +196,7 @@ Module.prototype.handleRemoteData = function(handler) {
 	Object.keys(this.PORT_MAP).forEach(function (port) {
 		that.PORT_MAP[port] = handler.read(port);
 	});	
+
 };
 
 
@@ -207,7 +209,6 @@ Module.prototype.requestLocalData = function() {
 	var sendBody;
 	Object.keys(this.PORT_MAP).forEach(function (port) {
 		var portMap = that.PORT_MAP[port];
-		console.log(portMap.id);
 		var checkPortMap = that.CHECK_PORT_MAP[port];
 		if((!checkPortMap) || (portMap.id !== checkPortMap.id)) {
 			isSendData = true;
@@ -305,18 +306,27 @@ Module.prototype.connect = function() {
 };
 
 Module.prototype.disconnect = function(connect) {
-	clearInterval(this.sensing);
-	connect.close();
-	return;
-	if(this.sp) {
-		this.sp.write(this.TERMINATE_SEQ,function(err){
-			if(err) {
-				console.log(err);
-			}
+	if(isConnect) {
+		clearInterval(this.sensing);
+		counter = 0;
+		responseSize = 11;
+		isSendInitData = false;
+		isSensorCheck = false;
+		// this.sp.flush();
+		isConnect = false;
+
+		if(this.sp) {
+			var that = this;
+			this.sp.write(new Buffer("070055008000000201","hex"), function(err){
+				that.sp = null;
+				if(err) {
+					console.log(err);
+				}
+				connect.close();
+			}); 
+		} else {
 			connect.close();
-		}); 
-	} else {
-		connect.close();
+		}
 	}
 };
 
