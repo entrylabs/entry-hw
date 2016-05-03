@@ -147,11 +147,92 @@
 
 <hr />
 
-<p>위와 같이 설치를 완료하시면 기본적인 개발황경 설정이 끝나게 됩니다. 다음은 각 프로젝트별 환경세팅하는법을 설명합니다.</p>
+<h3 id="git-">Git 설치하기</h3>
+<p>Git은 소스코드를 관리하기 위한 버전관리 도구 입니다. 일반적으로 많은 오픈소스들이 <a href="https://www.github.com">Github</a>를 통해서 소스가 공개되어 지고 관리가 되고 있습니다. 저희의 Entry-HW와 EntryJS의 경우에도 Github를 통해서 관리되고 있는 상태입니다. Github의 소스를 다운받고 수정한 소스를 반영하기위해서 Git Client 설치가 필수적입니다.</p>
+
+<h4 id="git-terminal-">Git terminal 설치</h4>
+<p>Git terminal은 다음 <a href="https://git-scm.com/book/ko/v2/%EC%8B%9C%EC%9E%91%ED%95%98%EA%B8%B0-Git-%EC%84%A4%EC%B9%98">설치방법</a>을 참조 바랍니다.</p>
+
+<h4 id="git-gui-tool">Git GUI Tool</h4>
+<p>Git사용이 익숙치 않은 사용자들을 위해 GUI툴들이 제공되고 있습니다. 이 중에서 사용하기 괜찮은 툴은 Github Desktop과 SourceTree 두가지가 존재합니다. 멀티 플렛폼을 지원하니 한번 확인보길 바랍니다.</p>
+
+<blockquote>
+  <p><a href="https://desktop.github.com/">Github Desktop</a><br />
+<a href="https://www.sourcetreeapp.com/">SourceTree</a></p>
+</blockquote>
+
+<h4 id="git--1">Git 자료</h4>
+<p>Git에 익숙하지 않는 분들을 위해 Git정보를 얻을수 있는 사이트를 알려드립니다.</p>
+
+<blockquote>
+  <p><a href="https://rogerdudler.github.io/git-guide/index.ko.html">Git 간편 안내서</a></p>
+</blockquote>
+
+<hr />
+
+<p>위와 같이 설치를 완료하시면 기본적인 개발환경 설정이 끝나게 됩니다. 다음은 각 프로젝트별 환경세팅하는법을 설명합니다.</p>
+
+<p><br />
+<br />
+<br /></p>
+
+<hr />
+
+<h2 id="entryjs-">EntryJS 세팅하기</h2>
+<p>EntryJS는 Entry의 Main 서비스는 블록 조립소를 만들기 위한 기능을 제공하는 라이브러리 입니다. 해당 라이브러리는 현재 실제 엔트리와 엔트리 오프라인에서 사용하고 있습니다. 하드웨어 블럭을 추가하기 위해서는 해당 라이브 러리를 수정해야 합니다.</p>
+
+<h3 id="entryjs-fork">EntryJS Fork하기</h3>
+<p>EntryJS를 수정하고 차후에 반영하기 위해서는 Fork하는 과정이 필요합니다.</p>
+
+<blockquote>
+  <p>소스를 직접 다운로드하고 해당 파일을 저희 쪽에 보내주는 방법도 있으나 이 방법의 경우 원본과 수정본의 Diff 작업을 수동으로 수행해야 하는 만큼 작업 시간이 오래 걸리고 검증하는데에도 시간이 걸리게 됩니다. 될수 있으면 Fork &amp; Pull request를 활용해 주세요.</p>
+</blockquote>
+
+<p>먼저, EntryJS GitHub 페이지에 접속 합니다.</p>
+
+<blockquote>
+  <p><a href="https://github.com/entrylabs/entryjs">https://github.com/entrylabs/entryjs</a></p>
+</blockquote>
+
+<p>사이트 접속 후 우측 상단에 있는 Fork 버튼을 클릭합니다.
+<img src="/entry-hw/wiki-image/environment/fork.png" alt="Fork" /></p>
+
+<p>Fork를 통하여 본인 계정으로 해당 Repository를 복사합니다. 복사한 레포지토리를 git clone으로 내 로컬 컴퓨터에 다운 받아 개발 가능한 상태로 만듭니다.</p>
+
+<hr />
+
+<h4 id="entryjs---">EntryJS 의존성 모듈 설치</h4>
+<p>EntryJS를 사용하기위해 여러가지 라이브러리를 사용하고있습니다. 사용하는 모듈들은 최상위폴더의 package.json에 devDependencies에 정의되어 있습니다. 이를 설치하기 위해서 <code class="highlighter-rouge">npm</code>을 사용하면 매우 쉽게 설치할수 있습니다.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="gp">$ </span>npm install</code></pre></figure>
+
+<p>위의 명령어를 EntryJS의 최상위 폴더에서 실행시키면 곧바로 모듈을 설치하기 시작합니다.
+몇분이 지나면 모든 모듈설치가 종료됩니다.</p>
+
+<hr />
+
+<h4 id="entryjs--1">EntryJS 빌드하기</h4>
+<p>이제 EntryJS의 개발 가능한 환경 설정이 완료되었습니다. 이제 <a href="/entry-hw/2016/05/03/base_guide/">기본적인 하드웨어 등록 절차 및 방법</a>이나 <a href="/entry-hw/2016/05/03/add_blocks/">엔트리 블록추가</a>에 설명드렸던 대로 블록을 수정 또는 추가 하신후 빌드만 수행하며 됩니다. 수행방법은 EntryJS의 최상위 폴더에서 아래와 같이 명령어를 입력하기만 하면됩니다.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">// 해당 명령어를 수행하기 위해선 java sdk설치가 필요합니다.
+<span class="gp">$ </span>grunt</code></pre></figure>
+
+<p>위의 명령어가 잘 수행되었다면 EntryJS의 최상위 폴더에 dist라는 폴더가 생성되고 dist폴더 안에 entry.css, entry.js, entry.min.js의 3가지 파일이 생성됩니다.</p>
+
+<hr />
+
+<p>EntryJS는 위와 같은 과정으로 환경 설정이 마무리 됩니다.<br />
+다음은 Entry-HW 의 환경 설정 입니다.</p>
+
+<p><br />
+<br />
+<br /></p>
+
+<hr />
 
 <h2 id="entry-hw-">Entry-HW 세팅하기</h2>
 
-<h2 id="entryjs-">EntryJS 세팅하기</h2>
+<h3 id="entry">Entry</h3>
 
 </div>
 
