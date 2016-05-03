@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
  <title>Entry-HW</title>
- <link href="http://www.play-entry.org/atom.xml" rel="self"/>
- <link href="http://www.play-entry.org/"/>
- <updated>2016-05-03T14:49:59+09:00</updated>
- <id>http://www.play-entry.org</id>
+ <link href="http://entrylabs.github.io/atom.xml" rel="self"/>
+ <link href="http://entrylabs.github.io/"/>
+ <updated>2016-05-03T15:14:13+09:00</updated>
+ <id>http://entrylabs.github.io</id>
  <author>
    <name>JY. KIM</name>
    <email></email>
@@ -14,9 +14,9 @@
  
  <entry>
    <title>기본적인 하드웨어 등록 절차 및 방법</title>
-   <link href="http://www.play-entry.org/2016/05/03/base_guide/"/>
+   <link href="http://entrylabs.github.io/2016/05/03/base_guide/"/>
    <updated>2016-05-03T00:00:00+09:00</updated>
-   <id>http://www.play-entry.org/2016/05/03/base_guide</id>
+   <id>http://entrylabs.github.io/2016/05/03/base_guide</id>
    <content type="html">&lt;h4 id=&quot;section&quot;&gt;엔트리 하드웨어 추가 순서&lt;/h4&gt;
 &lt;ol&gt;
   &lt;li&gt;엔트리에 문의하여 하드웨어 ID발급 받기&lt;/li&gt;
@@ -166,9 +166,9 @@
  
  <entry>
    <title>Example content</title>
-   <link href="http://www.play-entry.org/2012/02/07/test/"/>
+   <link href="http://entrylabs.github.io/2012/02/07/test/"/>
    <updated>2012-02-07T00:00:00+09:00</updated>
-   <id>http://www.play-entry.org/2012/02/07/test</id>
+   <id>http://entrylabs.github.io/2012/02/07/test</id>
    <content type="html">&lt;div class=&quot;message&quot;&gt;
   Howdy! This is an example blog post that shows several types of HTML content supported in this theme.
 &lt;/div&gt;
