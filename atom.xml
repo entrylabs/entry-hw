@@ -4,13 +4,33 @@
  <title>Entry-HW</title>
  <link href="http://entrylabs.github.io/atom.xml" rel="self"/>
  <link href="http://entrylabs.github.io/"/>
- <updated>2016-05-03T15:14:13+09:00</updated>
+ <updated>2016-05-03T16:48:11+09:00</updated>
  <id>http://entrylabs.github.io</id>
  <author>
-   <name>JY. KIM</name>
+   <name>kimorkim</name>
    <email></email>
  </author>
 
+ 
+ <entry>
+   <title>Git Fork 방법</title>
+   <link href="http://entrylabs.github.io/2016/05/03/git_fork/"/>
+   <updated>2016-05-03T00:00:00+09:00</updated>
+   <id>http://entrylabs.github.io/2016/05/03/git_fork</id>
+   <content type="html">&lt;h4 id=&quot;git-fork&quot;&gt;Git Fork방법&lt;/h4&gt;
+
+&lt;p&gt;기본적으로는 GitHub의 Fork기능을 사용하여 저장소를 복사 하신뒤 본인의 Repo에서 작업하신 후 origin에 pull request를 보내는 것을 권장 합니다. 하지만, 해당 기능을 잘모를 실경우에는 repo를 clone하시고 작업하신후 작업본을 저희쪽에 전달해 주시면 됩니다.&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;h5 id=&quot;github-&quot;&gt;GitHub 기본사용법&lt;/h5&gt;
+&lt;ol&gt;
+  &lt;li&gt;&lt;a href=&quot;http://blog.outsider.ne.kr/865&quot;&gt;깃허브를 이용하는 전체 흐름 이해하기 #1&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://blog.outsider.ne.kr/866&quot;&gt;깃허브를 이용하는 전체 흐름 이해하기 #2&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://dogfeet.github.io/articles/2012/how-to-github.html&quot;&gt;깃허브로 남의 프로젝트에 감놓고 배놓기&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+</content>
+ </entry>
  
  <entry>
    <title>기본적인 하드웨어 등록 절차 및 방법</title>
@@ -158,6 +178,303 @@
     &lt;ul&gt;
       &lt;li&gt;구성하신 상황에 따라 javascript path의 구성이 바뀔수 있습니다. &lt;/li&gt;
       &lt;li&gt;ko.js / static.js / entry.min.js / entry.css 의 4가지 요소에 대해 path를 변경하시면 됩니다.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+</content>
+ </entry>
+ 
+ <entry>
+   <title>모듈 추가 방법</title>
+   <link href="http://entrylabs.github.io/2016/05/03/add_module/"/>
+   <updated>2016-05-03T00:00:00+09:00</updated>
+   <id>http://entrylabs.github.io/2016/05/03/add_module</id>
+   <content type="html">&lt;h4 id=&quot;section&quot;&gt;모듈추가&lt;/h4&gt;
+&lt;p&gt;엔트리에 하드웨어를 추가하기 위해서 수반되는 가장 기본적인 단계 입니다.&lt;/p&gt;
+
+&lt;h4 id=&quot;section-1&quot;&gt;모듈의 위치&lt;/h4&gt;
+&lt;p&gt;엔트리가 Electron이 적용됨에 따라 모듈의 위치도 변경되었습니다.&lt;br /&gt;
+기존 상위폴더/modules에서 상위폴더/app/modules로 변경되었습니다.&lt;/p&gt;
+
+&lt;h4 id=&quot;section-2&quot;&gt;모듈의 구성&lt;/h4&gt;
+&lt;p&gt;모듈은 모듈명.js, 모듈명.json, 모듈명.png의 3가지로 구성됩니다.&lt;br /&gt;
+&lt;img src=&quot;https://raw.githubusercontent.com/entrylabs/entry-hw/gh-pages/wiki-image/module/default.PNG&quot; alt=&quot;모듈의 구성&quot; /&gt;&lt;/p&gt;
+
+&lt;h5 id=&quot;json-&quot;&gt;모듈명.json 구조&lt;/h5&gt;
+&lt;div class=&quot;language-json highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;id&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;하드웨어ID(엔트리와 사전규약 필요. ex.&#39;010101&#39;)&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;name&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;en&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;English Name&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;ko&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;한글명&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;icon&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;이미지(.png | .jpg | .gif ...)&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;module&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;모듈(.js)&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;driver&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;win32-ia32&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;윈도우32비트 하드웨어 드라이버&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;win32-x64&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;윈도우64비트 하드웨어 드라이버&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;reconnect&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;재접속 시도여부 (true | false)&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;firmware&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;펌웨어(board)&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;firmwareBaudRate&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Flash baud rate(57600 ...)&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;entry&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;protocol&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;데이터규격(json)&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;hardware&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;type&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;타입(serial)&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;control&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;동작방식(slave | master)&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;duration&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;duration(32 ...)&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;vendor&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;하드웨어 벤더명(ex.Arduino)&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;firmwarecheck&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;펌웨어 자동체크여부 (true | false)&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;baudRate&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;baudRate(115200, 57600, 38400, 19200, 9600, 4800, 2400, 1800, 1200, 600, 300, 200, 150, 134, 110, 75, 50)&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;parity&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;parity(&#39;none&#39;, &#39;even&#39;, &#39;mark&#39;, &#39;odd&#39;, &#39;space&#39;)&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;dataBits&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;dataBits(8, 7, 6, 5)&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;stopBits&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;stopBits(1, 2)&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;bufferSize&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;bufferSize(255 ...)&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;delimiter&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;delimiter(ex &#39;\r&#39;)&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+        &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;flowControl&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;flowControl(ex. &#39;hardware&#39;)&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h5 id=&quot;js-&quot;&gt;모듈명.js의 구조&lt;/h5&gt;
+&lt;div class=&quot;language-js highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;Module&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;//모듈의 constructor&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;//필요시 Handler Data 초기값 설정&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;Module&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;prototype&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;init&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;handler&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;config&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;//필요시 연결직후 Hardware에 보내는 초기값 설정&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;Module&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;prototype&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;requestInitialData&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;//연결직후 Hardware에서보내는 Inital데이터의 Vaildation&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;Module&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;prototype&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;checkInitialData&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;config&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;//Hardware에서 보내는 모든 데이터의 Vaildation&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;Module&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;prototype&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;validateLocalData&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;// 서버에서 보내온 데이터 세팅&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;Module&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;prototype&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;handleRemoteData&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;handler&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;// Hardware에서 보내온 데이터 세팅&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;Module&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;prototype&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;handleLocalData&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// data: Native Buffer&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;// 서버에 보낼 데이터 세팅&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;Module&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;prototype&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;requestRemoteData&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;handler&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;// Hardware에 보낼 데이터 세팅&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;Module&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;prototype&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;requestLocalData&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;// 서버 Connect 종료시 값 세팅&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;Module&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;prototype&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;reset&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+
+&lt;span class=&quot;nx&quot;&gt;module&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;exports&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;Module&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+</content>
+ </entry>
+ 
+ <entry>
+   <title>엔트리 블록추가</title>
+   <link href="http://entrylabs.github.io/2016/05/03/add_blocks/"/>
+   <updated>2016-05-03T00:00:00+09:00</updated>
+   <id>http://entrylabs.github.io/2016/05/03/add_blocks</id>
+   <content type="html">&lt;h3 id=&quot;section&quot;&gt;엔트리 블록추가 하기&lt;/h3&gt;
+
+&lt;p&gt;엔트리에 블록을 추가하는 과정은 간단하게&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;ol&gt;
+    &lt;li&gt;블록 모양 정의&lt;/li&gt;
+    &lt;li&gt;블록 기능 정의&lt;/li&gt;
+    &lt;li&gt;블록 삽입&lt;/li&gt;
+  &lt;/ol&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;위의 3단계 과정으로 요약할수 있습니다.&lt;/p&gt;
+
+&lt;h3 id=&quot;section-1&quot;&gt;데이터 블록&lt;/h3&gt;
+
+&lt;h4 id=&quot;section-2&quot;&gt;블록 모양 정의&lt;/h4&gt;
+&lt;ul&gt;
+  &lt;li&gt;블록 모양은 Blockly.Blocks 에 선언하도록 되어 있습니다.&lt;/li&gt;
+  &lt;li&gt;예 ) &lt;img src=&quot;https://raw.githubusercontent.com/entrylabs/entry-hw/gh-pages/wiki-image/module/block_create/Image.png&quot; alt=&quot;기본블록&quot; /&gt; = &lt;img src=&quot;https://raw.githubusercontent.com/entrylabs/entry-hw/gh-pages/wiki-image/module/block_create/Image%20%5B1%5D.png&quot; alt=&quot;더하기블록&quot; /&gt;&lt;/li&gt;
+  &lt;li&gt;Blockly.Blocks 에 더하기 블록의 경우 위과 같이 작성하도록 되어 있습니다.&lt;/li&gt;
+  &lt;li&gt;setColour 는 블록의 색을 정의 합니다. (calcBlockColor 의 기본색상은 #FFD974 입니다.)&lt;/li&gt;
+  &lt;li&gt;appendValueInput은 입력받을수 있는 영역을 나타 냅니다.&lt;/li&gt;
+  &lt;li&gt;setCheck는 입력 받을 값에 대한 데이터를 정의합니다.&lt;/li&gt;
+  &lt;li&gt;appendDummyInput은 더미를 만들어 추가로 블록을 넣는 공간을 확보하는 역할을 수행합니다.&lt;/li&gt;
+  &lt;li&gt;setOutput은 이 블록의 결과값을 정의 합니다.(true = 결과값이 있다. ‘Number’ = 숫자 타입이다.)&lt;/li&gt;
+  &lt;li&gt;setInputsInline의 경우 입력 값을 한줄로 받겠다는 내용입니다.&lt;/li&gt;
+  &lt;li&gt;블록정의의 경우 현재 구글의 Blockly를 사용하고 있습니다. 블록의 모양은 다르지만 사용법은 유사하므로&lt;/li&gt;
+  &lt;li&gt;https://developers.google.com/blockly/custom-blocks/defining-blocks#init_function&lt;/li&gt;
+  &lt;li&gt;Blockly의 Defining Blocks 섹션을 참고하시면 도움이 되실것 같습니다.
+#### 블록 기능 정의&lt;/li&gt;
+  &lt;li&gt;블록 기능 정의는 Entry.block 에 선언하도록 되어 있습니다.&lt;/li&gt;
+  &lt;li&gt;예) &lt;img src=&quot;https://raw.githubusercontent.com/entrylabs/entry-hw/gh-pages/wiki-image/module/block_create/Image%20%5B2%5D.png&quot; alt=&quot;엔트리블록예제&quot; /&gt;&lt;/li&gt;
+  &lt;li&gt;Entry.block에 더하기 블록의 경우 위와 같이 작성하도록 되어 있습니다.&lt;/li&gt;
+  &lt;li&gt;일단 Blockly에서 작성하였던 이름 그대로 calc_plus로 정의를 하고 사용합니다.&lt;/li&gt;
+  &lt;li&gt;Blockly 에서 입력 필드로  LEFTHAND와 RIGHTHAND 2가지를 정의해 놓았기 때문에 script.getNumberValue 로 접근해 해당 값을 가져올수 있습니다.&lt;/li&gt;
+  &lt;li&gt;덧셈 블록이므로 두 값을 더해 return 하는것을 볼수 있습니다.
+#### 블록 삽입&lt;/li&gt;
+  &lt;li&gt;블록 삽입의 경우에는 EntryStatic.getAllBlocks와 EntryStatic.blockInfo 두곳에 정의를 하도록 되어 있습니다.&lt;/li&gt;
+  &lt;li&gt;getAllBLocks의 경우는 category와 사용할 블록의 이름을 적도록 되어 있습니다. 해당 이름은 Blockly.Blocks에 선언 했던 이름과 같은것을 사용합니다.&lt;/li&gt;
+  &lt;li&gt;예) &lt;img src=&quot;https://raw.githubusercontent.com/entrylabs/entry-hw/gh-pages/wiki-image/module/block_create/Image%20%5B3%5D.png&quot; alt=&quot;getAllBlocks&quot; /&gt;&lt;/li&gt;
+  &lt;li&gt;위와 같은 방법으로 작성되어 있으며 해당 내용은 entryjs에 static.js 라는 이름의 파일 안에서 관리되고 있습니다.&lt;/li&gt;
+  &lt;li&gt;calc_plus의 경우 category가 calc인 블록 모임에 포함되어 있으므로 categoryt: “calc”에 추가 하도록 합니다.&lt;/li&gt;
+  &lt;li&gt;예) &lt;img src=&quot;https://raw.githubusercontent.com/entrylabs/entry-hw/gh-pages/wiki-image/module/block_create/Image%20%5B4%5D.png&quot; alt=&quot;static value&quot; /&gt;&lt;/li&gt;
+  &lt;li&gt;카테고리는 엔트리 워크 스페이스 상에서 탭으로 관리 되고 있습니다.&lt;/li&gt;
+  &lt;li&gt;&lt;img src=&quot;https://raw.githubusercontent.com/entrylabs/entry-hw/gh-pages/wiki-image/module/block_create/Image%20%5B5%5D.png&quot; alt=&quot;workspace&quot; /&gt;&lt;/li&gt;
+  &lt;li&gt;calc category는 실제로는 계산 이라는 탭으로 보여지게 됩니다.&lt;/li&gt;
+  &lt;li&gt;blockInfo에는 블록에 대한 초기 값 세팅과 기타 속성들을 세팅하도록 되어 있습니다.&lt;/li&gt;
+  &lt;li&gt;예) &lt;img src=&quot;https://raw.githubusercontent.com/entrylabs/entry-hw/gh-pages/wiki-image/module/block_create/Image%20%5B6%5D.png&quot; alt=&quot;static value&quot; /&gt;&lt;/li&gt;
+  &lt;li&gt;xml : 블록의 내부의 모양과 초기값등을 설정할수 있습니다.
+    &lt;ul&gt;
+      &lt;li&gt;설정할 내용이 없을경우 “&lt;block type=&quot;calc_plus&quot;&gt;&lt;/block&gt;“와 같이 작성하면 됩니다.&lt;/li&gt;
+      &lt;li&gt;스크린샷의 설정값의 경우는 LEFTHAND와 RIGHTHAND에 기본값이 10을 넣는 XML입니다.&lt;/li&gt;
+      &lt;li&gt;작성된 xml은 아래와 같습니다.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-xml&quot; data-lang=&quot;xml&quot;&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;block&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;type=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&#39;calc_plus&#39;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;value&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;name=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&#39;LEFTHAND&#39;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;block&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;type=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&#39;number&#39;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+            &lt;span class=&quot;nt&quot;&gt;&amp;lt;field&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;name=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&#39;NUM&#39;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;0&lt;span class=&quot;nt&quot;&gt;&amp;lt;/field&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;/block&amp;gt;&lt;/span&gt; 
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;/value&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;value&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;name=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&#39;RIGHTHAND&#39;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;block&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;type=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&#39;number&#39;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+            &lt;span class=&quot;nt&quot;&gt;&amp;lt;field&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;name=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&#39;NUM&#39;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;10&lt;span class=&quot;nt&quot;&gt;&amp;lt;/field&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;/block&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;/value&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/block&amp;gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;class: 블록 간의 구분선을 만들기 위한 속성 입니다.
+    &lt;ul&gt;
+      &lt;li&gt;&lt;img src=&quot;https://raw.githubusercontent.com/entrylabs/entry-hw/gh-pages/wiki-image/module/block_create/Image%20%5B7%5D.png&quot; alt=&quot;class function&quot; /&gt;&lt;/li&gt;
+      &lt;li&gt;해당 속성 사용법은 소스상에서 위에서 아래로 순차적으로 탐색하면서 변화가 있을때마다 구분선을 작성합니다.&lt;/li&gt;
+      &lt;li&gt;즉, 이름이 똑같은 것을이 모여서 구분되는것이 아니라 값이 변경되는 순간에 구분선이 만들어 지도록 되어 있습니다.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;isNotFor: 조건에 따라 블록을 보이거나 보이지 않도록 하는 기능을 수행합니다.
+    &lt;ul&gt;
+      &lt;li&gt;예) 변수가 생기면 변수를 감추거나 보이게 하는 블록이 보이게 된다.&lt;/li&gt;
+      &lt;li&gt;&lt;img src=&quot;https://raw.githubusercontent.com/entrylabs/entry-hw/gh-pages/wiki-image/module/block_create/Image%20%5B8%5D.png&quot; alt=&quot;static value&quot; /&gt;&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;usage: 강의 분석 용도.(일반적으로 비워 두시거나 class와 똑같이 이름 사용하시면 됩니다.)&lt;/li&gt;
+  &lt;li&gt;description: 블록에 대한 설명입니다.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;section-3&quot;&gt;일반블록&lt;/h3&gt;
+
+&lt;h4 id=&quot;section-4&quot;&gt;블록 모양 정의&lt;/h4&gt;
+&lt;ul&gt;
+  &lt;li&gt;일반 블록의 경우는 일반적으로 위아래로 추가로 블록이 붙는 설정이 필요합니다.&lt;/li&gt;
+  &lt;li&gt;&lt;img src=&quot;https://raw.githubusercontent.com/entrylabs/entry-hw/gh-pages/wiki-image/module/block_create/Image%20%5B9%5D.png&quot; alt=&quot;일반블록 샘플&quot; /&gt; = &lt;img src=&quot;https://raw.githubusercontent.com/entrylabs/entry-hw/gh-pages/wiki-image/module/block_create/Image%20%5B10%5D.png&quot; alt=&quot;반복하기 블록&quot; /&gt;&lt;/li&gt;
+  &lt;li&gt;위의 예제는 반복 블록 예제입니다.&lt;/li&gt;
+  &lt;li&gt;기본적인 작성법은 데이터 블록과 같습니다.&lt;/li&gt;
+  &lt;li&gt;Entry경우에는 전부 InputsInline 블록이기 떄문에 setInputsInline 블록의 경우는 항상 true입니다.&lt;/li&gt;
+  &lt;li&gt;appendStatemenInput(‘DO’)와 같이 작성하면 블록 안에 블록을 작성할수 있는 형태가 됩니다.&lt;/li&gt;
+  &lt;li&gt;setPreviousStatement 값이 true인 경우 어떤 블록 밑에 붙일수 있도록 블럭이 생성됩니다.&lt;/li&gt;
+  &lt;li&gt;&lt;img src=&quot;https://raw.githubusercontent.com/entrylabs/entry-hw/gh-pages/wiki-image/module/block_create/Image%20%5B11%5D.png&quot; alt=&quot;상단 연결&quot; /&gt;&lt;/li&gt;
+  &lt;li&gt;setNextStatement 값이 true인 경우 어떤 블록을 밑에 붙일수 있도록 블럭이 생성됩니다.&lt;/li&gt;
+  &lt;li&gt;&lt;img src=&quot;https://raw.githubusercontent.com/entrylabs/entry-hw/gh-pages/wiki-image/module/block_create/Image%20%5B12%5D.png&quot; alt=&quot;하단 연결&quot; /&gt;&lt;/li&gt;
+  &lt;li&gt;이외 기타 사용법은 위에 언급드린대로 Blockly의 Defining Block섹션을 확인하시면 될것 같습니다.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;section-5&quot;&gt;블록 기능 정의&lt;/h4&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;img src=&quot;https://raw.githubusercontent.com/entrylabs/entry-hw/gh-pages/wiki-image/module/block_create/Image%20%5B13%5D.png&quot; alt=&quot;블록 정의&quot; /&gt;&lt;/li&gt;
+  &lt;li&gt;일반 블록은 기본적으로 data블록과 같은 방식으로 작성이 됩니다.&lt;/li&gt;
+  &lt;li&gt;다만 리턴값이 data가 아닌 script.callReturn();이 일반적으로 작성됩니다.&lt;/li&gt;
+  &lt;li&gt;callReturn()의 경우는 다음 블록을 수행하도록 작동합니다.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;section-6&quot;&gt;블록 삽입&lt;/h4&gt;
+&lt;ul&gt;
+  &lt;li&gt;블록 삽입의 방식은 위의 데이터 블록과 똑같습니다.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;section-7&quot;&gt;오프라인 버전을 이용하여 간단한 블록 만들어 보기&lt;/h3&gt;
+&lt;ul&gt;
+  &lt;li&gt;node.js 설치 및 npm의존성 툴 등의 설치를 제외한 Entry offline 버전에서 블록을 간단하게 추가하는 법을 소개합니다.&lt;/li&gt;
+  &lt;li&gt;먼저 http://play-entry.com/#!/offlineEditor 사이트에 들어가 오프라인 버전을 다운 받아 설치를 진행합니다.&lt;/li&gt;
+  &lt;li&gt;기본 폴더의 위치는 c:\Entry 입니다.(이하 c:\Entry 에 엔트리가 설치되었다는 가정하에 진행합니다.)&lt;/li&gt;
+  &lt;li&gt;C:\Entry\entry 폴더에 example.js 라는 자바스크립트 파일을 하나 생성합니다.&lt;/li&gt;
+  &lt;li&gt;C:\Entry\entry\entry_offline.html 파일을 문서 편집기에서 열어 example.js를 추가합니다.(entry.js 이후에 작성해야 합니다.)&lt;/li&gt;
+  &lt;li&gt;&lt;img src=&quot;https://raw.githubusercontent.com/entrylabs/entry-hw/gh-pages/wiki-image/module/block_create/Image%20%5B14%5D.png&quot; alt=&quot;자바스크립트 등록&quot; /&gt;&lt;/li&gt;
+  &lt;li&gt;example.js에 적당한 블록을 추가합니다.(에제 파일 첨부해 보내드립니다.)&lt;/li&gt;
+  &lt;li&gt;&lt;img src=&quot;https://raw.githubusercontent.com/entrylabs/entry-hw/gh-pages/wiki-image/module/block_create/Image%20%5B15%5D.png&quot; alt=&quot;예제&quot; /&gt;&lt;/li&gt;
+  &lt;li&gt;위의 예제는 이동방향으로 value만큼 이동시키는 블럭과 LEFTHAND에서 RIGHTHAND값을 빼는 블록 2가지 예를 만들었습니다.&lt;/li&gt;
+  &lt;li&gt;해당 블록을 static.js에 추가합니다.&lt;/li&gt;
+  &lt;li&gt;getAllBlocks
+    &lt;ul&gt;
+      &lt;li&gt;&lt;img src=&quot;https://raw.githubusercontent.com/entrylabs/entry-hw/gh-pages/wiki-image/module/block_create/Image%20%5B16%5D.png&quot; alt=&quot;이동&quot; /&gt; &lt;img src=&quot;https://raw.githubusercontent.com/entrylabs/entry-hw/gh-pages/wiki-image/module/block_create/Image%20%5B17%5D.png&quot; alt=&quot;계산&quot; /&gt;&lt;/li&gt;
+      &lt;li&gt;simple_example은 moving category에 data_example은 calc category에 넣었습니다.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;blockInfo
+    &lt;ul&gt;
+      &lt;li&gt;&lt;img src=&quot;https://raw.githubusercontent.com/entrylabs/entry-hw/gh-pages/wiki-image/module/block_create/Image%20%5B18%5D.png&quot; alt=&quot;블록정보&quot; /&gt;&lt;/li&gt;
+      &lt;li&gt;필요한 가장 기본적인 블록 속성을 입력하였습니다.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;나온 결과
+    &lt;ul&gt;
+      &lt;li&gt;&lt;img src=&quot;https://raw.githubusercontent.com/entrylabs/entry-hw/gh-pages/wiki-image/module/block_create/Image%20%5B19%5D.png&quot; alt=&quot;예제 실패블록1&quot; /&gt; &lt;img src=&quot;https://raw.githubusercontent.com/entrylabs/entry-hw/gh-pages/wiki-image/module/block_create/Image%20%5B20%5D.png&quot; alt=&quot;예제 실패블록2&quot; /&gt;&lt;/li&gt;
+      &lt;li&gt;blockInfo xml에 서 기본값을 정의 하지 않아 실제 값이 들어 가는 부분이 비어 있게 됬습니다.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;기본 값 세팅
+    &lt;ul&gt;
+      &lt;li&gt;data_example 의 경우 xml을 아래와 같이 작성합니다.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-xml&quot; data-lang=&quot;xml&quot;&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;block&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;type=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&#39;data_example&#39;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;value&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;name=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&#39;LEFTHAND&#39;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;block&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;type=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&#39;text&#39;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+            &lt;span class=&quot;nt&quot;&gt;&amp;lt;field&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;name=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&#39;NAME&#39;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;99&lt;span class=&quot;nt&quot;&gt;&amp;lt;/field&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;/block&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;/value&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;value&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;name=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&#39;RIGHTHAND&#39;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;block&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;type=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&#39;text&#39;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+            &lt;span class=&quot;nt&quot;&gt;&amp;lt;field&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;name=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&#39;NAME&#39;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;1&lt;span class=&quot;nt&quot;&gt;&amp;lt;/field&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;/block&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;/value&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/block&amp;gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;simple_example의 경우 아래와 같이 xml을 작성합니다.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-xml&quot; data-lang=&quot;xml&quot;&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;block&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;type=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&#39;simple_example&#39;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;value&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;name=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&#39;VALUE&#39;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;block&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;type=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&#39;number&#39;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+            &lt;span class=&quot;nt&quot;&gt;&amp;lt;field&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;name=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&#39;NUM&#39;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;100&lt;span class=&quot;nt&quot;&gt;&amp;lt;/field&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;/block&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;/value&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/block&amp;gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;결과
+    &lt;ul&gt;
+      &lt;li&gt;&lt;img src=&quot;https://raw.githubusercontent.com/entrylabs/entry-hw/gh-pages/wiki-image/module/block_create/Image%20%5B21%5D.png&quot; alt=&quot;예제 성공블록1&quot; /&gt; &lt;img src=&quot;https://raw.githubusercontent.com/entrylabs/entry-hw/gh-pages/wiki-image/module/block_create/Image%20%5B22%5D.png&quot; alt=&quot;예제 성공블록2&quot; /&gt;
+ 	위와 같이 나오게 되었습니다.&lt;/li&gt;
     &lt;/ul&gt;
   &lt;/li&gt;
 &lt;/ul&gt;
