@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+ <title>Entry-HW</title>
+ <link href="http://www.play-entry.org/atom.xml" rel="self"/>
+ <link href="http://www.play-entry.org/"/>
+ <updated>2016-05-03T14:49:59+09:00</updated>
+ <id>http://www.play-entry.org</id>
+ <author>
+   <name>JY. KIM</name>
+   <email></email>
+ </author>
+
+ 
+ <entry>
+   <title>기본적인 하드웨어 등록 절차 및 방법</title>
+   <link href="http://www.play-entry.org/2016/05/03/base_guide/"/>
+   <updated>2016-05-03T00:00:00+09:00</updated>
+   <id>http://www.play-entry.org/2016/05/03/base_guide</id>
+   <content type="html">&lt;h4 id=&quot;section&quot;&gt;엔트리 하드웨어 추가 순서&lt;/h4&gt;
+&lt;ol&gt;
+  &lt;li&gt;엔트리에 문의하여 하드웨어 ID발급 받기&lt;/li&gt;
+  &lt;li&gt;엔트리 하드웨어 프로그램에 해당 하드웨어 모듈 추가하기&lt;/li&gt;
+  &lt;li&gt;엔트리 서비스에 해당 블록 만들기&lt;/li&gt;
+  &lt;li&gt;실행하여 테스트 하기&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h4 id=&quot;section-1&quot;&gt;엔트리 하드웨어 연결프로그램에 하드웨어 추가&lt;/h4&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/entrylabs/entry-hw/wiki/Git-Fork-%EB%B0%A9%EB%B2%95&quot;&gt;Git Fork&lt;/a&gt; (https://github.com/entrylabs/entry-hw)&lt;/li&gt;
+  &lt;li&gt;System Dependencies 추가
+    &lt;ul&gt;
+      &lt;li&gt;bower.json 확인&lt;/li&gt;
+      &lt;li&gt;package.json 확인&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/entrylabs/entry-hw/wiki/%EB%AA%A8%EB%93%88-%EC%B6%94%EA%B0%80&quot;&gt;모듈 추가&lt;/a&gt;
+    &lt;ul&gt;
+      &lt;li&gt;기본적인 방법은 README.md 참고&lt;/li&gt;
+      &lt;li&gt;(your path)/modules 내에 있는 파일 참고&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;하드웨어 프로그램 실행하여 단말이 연결되는지 확인.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;httpsgithubcomentrylabsentry-hwwikiebb894eba19decb694eab080&quot;&gt;엔트리 서비스에 블록추가(&lt;a href=&quot;https://github.com/entrylabs/entry-hw/wiki/%EB%B8%94%EB%A1%9D%EC%B6%94%EA%B0%80&quot;&gt;상세방법&lt;/a&gt;)&lt;/h4&gt;
+&lt;ul&gt;
+  &lt;li&gt;Git Fork(https://github.com/entrylabs/entryjs)&lt;/li&gt;
+  &lt;li&gt;System Dependencies 추가
+    &lt;ul&gt;
+      &lt;li&gt;bower.json 확인&lt;/li&gt;
+      &lt;li&gt;package.json 확인&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Entryjs의 기본적인 정보는 README.md 참고&lt;/li&gt;
+  &lt;li&gt;workspace확인 (디버깅)
+    &lt;ul&gt;
+      &lt;li&gt;(your path)/example/example.html 확인 및 실행&lt;/li&gt;
+      &lt;li&gt;로컬로 간단히 확인가능하나 Cross Domain 문제로 일부 기능이 정상작동하지 않습니다.
+        &lt;ul&gt;
+          &lt;li&gt;하드웨어 연결 테스트는 문제 없습니다.&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+      &lt;li&gt;모든 기능을 확인하고 싶으시면 간단한 웹서버로 띄워서 확인하시기 바랍니다.(권장)
+        &lt;ul&gt;
+          &lt;li&gt;간단한 웹서버로는 locally가 있고, apache나 nginx와 같은 통상적 웹서버도 관계없습니다.&lt;/li&gt;
+          &lt;li&gt;locally를 이용한 웹서버 테스트 항목은 하단의 다. 항목을 참고 해주시기 바랍니다.&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;block javascript 추가
+    &lt;ul&gt;
+      &lt;li&gt;(your path)/src/blocks 에 자바스크립트 추가(빌드시 자동 반영됨)&lt;/li&gt;
+      &lt;li&gt;해당 소스들 참고&lt;/li&gt;
+      &lt;li&gt;Blocky.Blocks과 Entry.block 1:1 매칭 되도록 블록 추가
+        &lt;ul&gt;
+          &lt;li&gt;해당 블록들은 아래의 static.js에 추가되어 있어야 합니다.&lt;/li&gt;
+          &lt;li&gt;Blocky.Blocks은 사용자에게 보여지는 블록 모양을 정의 합니다.&lt;/li&gt;
+          &lt;li&gt;Entry.block은 해당 블록의 동작을 정의 합니다.&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+      &lt;li&gt;블록에 사용되는 언어는 일반적으로 Lang이라는 다국어로 관리합니다.
+        &lt;ul&gt;
+          &lt;li&gt;Lang.Blocks 으로 시작되는 부분으로 테스트시에는 하드코딩으로 확인가능합니다.&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;block 매칭 작업
+    &lt;ul&gt;
+      &lt;li&gt;(your path)/src/hw.js 확인&lt;/li&gt;
+      &lt;li&gt;this.hwInfo 부분에 해당 기기 추가 (30 Lines)&lt;/li&gt;
+      &lt;li&gt;왼쪽의 숫자 (ex. ’11’)
+        &lt;ul&gt;
+          &lt;li&gt;엔트리 하드웨어 추가 할때의 하드웨어ID&lt;/li&gt;
+          &lt;li&gt;‘010201’ 으로 설정했을 경우 앞의 4개를 확인하여 ’12’가 됩니다.&lt;/li&gt;
+          &lt;li&gt;마찬 가지로 ’61’ 과 같은 경우를 만들고 싶은경우 하드웨어 연결프로그램에서 JSON생성이 060101과 같은 형식으로 만듭니다.&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+      &lt;li&gt;오른쪽 오브젝트 (ex. Entry.Arduino)
+        &lt;ul&gt;
+          &lt;li&gt;block javascript에서 추가했던 오브젝트를 넣습니다.&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;static.js 블럭모양 추가
+    &lt;ul&gt;
+      &lt;li&gt;(your path)/extern/util.static.js&lt;/li&gt;
+      &lt;li&gt;EntryStatic.getAllBlocks 의 category가 arduino 인 요소에 해당 블록명 추가&lt;/li&gt;
+      &lt;li&gt;EntryStatic.blockInfo 에 블록명에 해당하는 실제 블록 모양추가
+        &lt;ul&gt;
+          &lt;li&gt;xml = 실제 블럭모양&lt;/li&gt;
+          &lt;li&gt;isNotFor = 블록 Alias&lt;/li&gt;
+          &lt;li&gt;usage = 하드웨어의 경우 arduino 고정&lt;/li&gt;
+          &lt;li&gt;class = 블록타입 설정(엔트리 화면에서 블록구분선을 만들때 사용.)&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;언어추가
+    &lt;ul&gt;
+      &lt;li&gt;(your path)/extern/util/ 확인&lt;/li&gt;
+      &lt;li&gt;ko, en, vn, code 4개의 js파일 로 구성됩니다.&lt;/li&gt;
+      &lt;li&gt;example.html의 기본 요소는 ko.js 로 설정되어 있습니다.
+        &lt;ul&gt;
+          &lt;li&gt;언어 변경시 해당언어로 변환 됩니다.&lt;/li&gt;
+          &lt;li&gt;example.html에는 해당 기능 구현되어 있지 않습니다.&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+      &lt;li&gt;해당 파일에 원하는 값을 추가하면 전역변수 Lang에 언어 데이터 들어감.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;빌드하기
+    &lt;ul&gt;
+      &lt;li&gt;grunt 실행&lt;/li&gt;
+      &lt;li&gt;빌드 output은 dist폴더에 있습니다.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;locally--&quot;&gt;locally로 서비스 실행하기&lt;/h4&gt;
+&lt;ul&gt;
+  &lt;li&gt;locally설치
+    &lt;ul&gt;
+      &lt;li&gt;npm install -g locally 로 설치가능합니다.&lt;/li&gt;
+      &lt;li&gt;자세한 사항은 &lt;a href=&quot;https://github.com/rhiokim/locally&quot;&gt;https://github.com/rhiokim/locally&lt;/a&gt; 를 참고해 주시기 바랍니다.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;locally 실행
+    &lt;ul&gt;
+      &lt;li&gt;원하는 위치에서 locally수행하시면 해당 path가 root가 되는 간단한 웹서버가 구동됩니다.&lt;/li&gt;
+      &lt;li&gt;Entry를 init과정에서 entryjs가 prefix된 경로가 들어가니 locally를 수행해 주실때 꼭 entryjs의 폴더내가 아닌 상위폴더에서 실행하시기 바랍니다.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;example.html 소스 수정.
+    &lt;ul&gt;
+      &lt;li&gt;구성하신 상황에 따라 javascript path의 구성이 바뀔수 있습니다. &lt;/li&gt;
+      &lt;li&gt;ko.js / static.js / entry.min.js / entry.css 의 4가지 요소에 대해 path를 변경하시면 됩니다.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+</content>
+ </entry>
+ 
+ <entry>
+   <title>Example content</title>
+   <link href="http://www.play-entry.org/2012/02/07/test/"/>
+   <updated>2012-02-07T00:00:00+09:00</updated>
+   <id>http://www.play-entry.org/2012/02/07/test</id>
+   <content type="html">&lt;div class=&quot;message&quot;&gt;
+  Howdy! This is an example blog post that shows several types of HTML content supported in this theme.
+&lt;/div&gt;
+
+&lt;p&gt;Cum sociis natoque penatibus et magnis &lt;a href=&quot;#&quot;&gt;dis parturient montes&lt;/a&gt;, nascetur ridiculus mus. &lt;em&gt;Aenean eu leo quam.&lt;/em&gt; Pellentesque ornare sem lacinia quam venenatis vestibulum. Sed posuere consectetur est at lobortis. Cras mattis consectetur purus sit amet fermentum.&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Curabitur blandit tempus porttitor. Nullam quis risus eget urna mollis ornare vel eu leo. Nullam id dolor id nibh ultricies vehicula ut id elit.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;Etiam porta &lt;strong&gt;sem malesuada magna&lt;/strong&gt; mollis euismod. Cras mattis consectetur purus sit amet fermentum. Aenean lacinia bibendum nulla sed consectetur.&lt;/p&gt;
+
+&lt;h2 id=&quot;inline-html-elements&quot;&gt;Inline HTML elements&lt;/h2&gt;
+
+&lt;p&gt;HTML defines a long list of available inline tags, a complete list of which can be found on the &lt;a href=&quot;https://developer.mozilla.org/en-US/docs/Web/HTML/Element&quot;&gt;Mozilla Developer Network&lt;/a&gt;.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;To bold text&lt;/strong&gt;, use &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;strong&amp;gt;&lt;/code&gt;.&lt;/li&gt;
+  &lt;li&gt;&lt;em&gt;To italicize text&lt;/em&gt;, use &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;em&amp;gt;&lt;/code&gt;.&lt;/li&gt;
+  &lt;li&gt;Abbreviations, like &lt;abbr title=&quot;HyperText Markup Langage&quot;&gt;HTML&lt;/abbr&gt; should use &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;abbr&amp;gt;&lt;/code&gt;, with an optional &lt;code class=&quot;highlighter-rouge&quot;&gt;title&lt;/code&gt; attribute for the full phrase.&lt;/li&gt;
+  &lt;li&gt;Citations, like &lt;cite&gt;— Mark otto&lt;/cite&gt;, should use &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;cite&amp;gt;&lt;/code&gt;.&lt;/li&gt;
+  &lt;li&gt;&lt;del&gt;Deleted&lt;/del&gt; text should use &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;del&amp;gt;&lt;/code&gt; and &lt;ins&gt;inserted&lt;/ins&gt; text should use &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;ins&amp;gt;&lt;/code&gt;.&lt;/li&gt;
+  &lt;li&gt;Superscript &lt;sup&gt;text&lt;/sup&gt; uses &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;sup&amp;gt;&lt;/code&gt; and subscript &lt;sub&gt;text&lt;/sub&gt; uses &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;sub&amp;gt;&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Most of these elements are styled by browsers with few modifications on our part.&lt;/p&gt;
+
+&lt;h2 id=&quot;heading&quot;&gt;Heading&lt;/h2&gt;
+
+&lt;p&gt;Vivamus sagittis lacus vel augue rutrum faucibus dolor auctor. Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit. Morbi leo risus, porta ac consectetur ac, vestibulum at eros.&lt;/p&gt;
+
+&lt;h3 id=&quot;code&quot;&gt;Code&lt;/h3&gt;
+
+&lt;p&gt;Cum sociis natoque penatibus et magnis dis &lt;code class=&quot;highlighter-rouge&quot;&gt;code element&lt;/code&gt; montes, nascetur ridiculus mus.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-js&quot; data-lang=&quot;js&quot;&gt;&lt;span class=&quot;c1&quot;&gt;// Example can be run directly in your JavaScript console&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;// Create a function that takes two arguments and returns the sum of those arguments&lt;/span&gt;
+&lt;span class=&quot;kd&quot;&gt;var&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;adder&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;Function&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;a&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;b&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;return a + b&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;// Call the function&lt;/span&gt;
+&lt;span class=&quot;nx&quot;&gt;adder&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;6&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;// &amp;gt; 8&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Aenean lacinia bibendum nulla sed consectetur. Etiam porta sem malesuada magna mollis euismod. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa.&lt;/p&gt;
+
+&lt;h3 id=&quot;gists-via-github-pages&quot;&gt;Gists via GitHub Pages&lt;/h3&gt;
+
+&lt;p&gt;Vestibulum id ligula porta felis euismod semper. Nullam quis risus eget urna mollis ornare vel eu leo. Donec sed odio dui.&lt;/p&gt;
+
+&lt;p&gt;Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Nullam quis risus eget urna mollis ornare vel eu leo. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec sed odio dui. Vestibulum id ligula porta felis euismod semper.&lt;/p&gt;
+
+&lt;h3 id=&quot;lists&quot;&gt;Lists&lt;/h3&gt;
+
+&lt;p&gt;Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Aenean lacinia bibendum nulla sed consectetur. Etiam porta sem malesuada magna mollis euismod. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Praesent commodo cursus magna, vel scelerisque nisl consectetur et.&lt;/li&gt;
+  &lt;li&gt;Donec id elit non mi porta gravida at eget metus.&lt;/li&gt;
+  &lt;li&gt;Nulla vitae elit libero, a pharetra augue.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Donec ullamcorper nulla non metus auctor fringilla. Nulla vitae elit libero, a pharetra augue.&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Vestibulum id ligula porta felis euismod semper.&lt;/li&gt;
+  &lt;li&gt;Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.&lt;/li&gt;
+  &lt;li&gt;Maecenas sed diam eget risus varius blandit sit amet non magna.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Cras mattis consectetur purus sit amet fermentum. Sed posuere consectetur est at lobortis.&lt;/p&gt;
+
+&lt;dl&gt;
+  &lt;dt&gt;HyperText Markup Language (HTML)&lt;/dt&gt;
+  &lt;dd&gt;The language used to describe and define the content of a Web page&lt;/dd&gt;
+
+  &lt;dt&gt;Cascading Style Sheets (CSS)&lt;/dt&gt;
+  &lt;dd&gt;Used to describe the appearance of Web content&lt;/dd&gt;
+
+  &lt;dt&gt;JavaScript (JS)&lt;/dt&gt;
+  &lt;dd&gt;The programming language used to build advanced Web sites and applications&lt;/dd&gt;
+&lt;/dl&gt;
+
+&lt;p&gt;Integer posuere erat a ante venenatis dapibus posuere velit aliquet. Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Nullam quis risus eget urna mollis ornare vel eu leo.&lt;/p&gt;
+
+&lt;h3 id=&quot;images&quot;&gt;Images&lt;/h3&gt;
+
+&lt;p&gt;Quisque consequat sapien eget quam rhoncus, sit amet laoreet diam tempus. Aliquam aliquam metus erat, a pulvinar turpis suscipit at.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://placehold.it/800x400&quot; alt=&quot;placeholder&quot; title=&quot;Large example image&quot; /&gt;
+&lt;img src=&quot;http://placehold.it/400x200&quot; alt=&quot;placeholder&quot; title=&quot;Medium example image&quot; /&gt;
+&lt;img src=&quot;http://placehold.it/200x200&quot; alt=&quot;placeholder&quot; title=&quot;Small example image&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;tables&quot;&gt;Tables&lt;/h3&gt;
+
+&lt;p&gt;Aenean lacinia bibendum nulla sed consectetur. Lorem ipsum dolor sit amet, consectetur adipiscing elit.&lt;/p&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;Name&lt;/th&gt;
+      &lt;th&gt;Upvotes&lt;/th&gt;
+      &lt;th&gt;Downvotes&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tfoot&gt;
+    &lt;tr&gt;
+      &lt;td&gt;Totals&lt;/td&gt;
+      &lt;td&gt;21&lt;/td&gt;
+      &lt;td&gt;23&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tfoot&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;Alice&lt;/td&gt;
+      &lt;td&gt;10&lt;/td&gt;
+      &lt;td&gt;11&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;Bob&lt;/td&gt;
+      &lt;td&gt;4&lt;/td&gt;
+      &lt;td&gt;3&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;Charlie&lt;/td&gt;
+      &lt;td&gt;7&lt;/td&gt;
+      &lt;td&gt;9&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;Nullam id dolor id nibh ultricies vehicula ut id elit. Sed posuere consectetur est at lobortis. Nullam quis risus eget urna mollis ornare vel eu leo.&lt;/p&gt;
+
+&lt;hr /&gt;
+
+&lt;p&gt;Want to see something else added? &lt;a href=&quot;https://github.com/poole/poole/issues/new&quot;&gt;Open an issue.&lt;/a&gt;&lt;/p&gt;
+</content>
+ </entry>
+ 
+
+</feed>
