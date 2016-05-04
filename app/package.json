@@ -1,6 +1,6 @@
 {
   "name": "Entry_HW",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "description": "entry hardware connect program",
   "main": "index.js",
   "updateServer": "play02.play-entry.com:4001",

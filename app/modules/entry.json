@@ -19,7 +19,7 @@
 		"name": "entrybt",
 		"translate": "Install Firmware(Sensor Board Bluetooth)"
 	}, {
-		"name": "board",
+		"name": "entryext",
 		"translate": "Install Firmware(Extension Project)"
 	}],
 	"entry": {
