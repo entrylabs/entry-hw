@@ -28,7 +28,7 @@
 Name "엔트리"
 
 ; The file to write
-OutFile "Entry_HW_1.5.0_Setup.exe"
+OutFile "Entry_HW_1.5.0_Setup_With_EV3.exe"
 
 ; The default installation directory
 InstallDir "C:\Entry_HW"
@@ -107,7 +107,7 @@ Section $(TEXT_ENTRY_TITLE) SectionEntry
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Entry_HW" "DisplayIcon" '"$INSTDIR\icon.ico"'
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Entry_HW" "NoModify" 1
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Entry_HW" "NoRepair" 1
-  WriteUninstaller "uninstall.exe"
+  WriteUninstaller "\엔트리 하드웨어 제거.exe"
   
 SectionEnd
 

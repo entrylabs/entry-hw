@@ -279,23 +279,20 @@
 	};
 
 	// close
-	// win.on('close', function() {
-	// 	var isQuit = true;
-	// 	if(router.connector && router.connector.connected) {
-	// 		isQuit = confirm(translator.translate('Connection to the hardware will terminate once program is closed.'));
-	// 	}		
+	window.onbeforeunload = function(e) {
+		var isQuit = true;
+		if(router.connector && router.connector.connected) {
+			isQuit = confirm(translator.translate('Connection to the hardware will terminate once program is closed.'));
+		}		
 
-	// 	if(isQuit) {
-	// 		this.hide();
-	// 		router.close();
-	// 		server.close();
-	// 		if(ui.winEntry) {
-	// 			ui.winEntry.close(true);
-	// 			ui.winEntry = undefined;
-	// 		}
-	// 		this.close(true);
-	// 	}
-	// });
+		if(isQuit) {
+			router.close();
+			server.close();
+		} else {
+			e.preventDefault();
+			e.returnValue = false;
+		}
+	};
 
 	$('#select_port').dblclick(function () {
 		$('#btn_select_port').trigger('click');

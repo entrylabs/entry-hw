@@ -102,7 +102,11 @@ Router.prototype.close = function() {
 		this.scanner.stopScan();
 	}
 	if(this.connector) {
-		this.connector.close();
+		if(this.extension.disconnect) {
+			this.extension.disconnect(this.connector);
+		} else {
+			this.connector.close();
+		}
 	}
 	if(this.timer) {
 		clearInterval(this.timer);

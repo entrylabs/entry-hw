@@ -101,6 +101,8 @@ Scanner.prototype.scan = function(serialport, extension, config, callback) {
 					comName = myComPort;
 				}
 
+				// comName = '/dev/tty.EV3-SerialPort';
+
 				var connector = self.connectors[comName];
 				if(connector == undefined) {
 					connector = require('../connector/serial').create();
@@ -110,6 +112,7 @@ Scanner.prototype.scan = function(serialport, extension, config, callback) {
 								callback(error);
 							}
 						} else {
+							// sp.flush();
 							self.setConnector(connector);
 							self.connectors[comName] = connector;
 							if(control) {
@@ -132,6 +135,11 @@ Scanner.prototype.scan = function(serialport, extension, config, callback) {
 												sp.removeAllListeners('data');
 												clearTimeout(flashFirmware);
 												if(result === true) {
+
+													if(extension.setSerialPort) {
+														extension.setSerialPort(sp);
+													}
+
 													self.finalizeScan(comName, connector, callback);
 												} else if(callback) {
 													callback(new Error('Invalid hardware'));
@@ -147,6 +155,9 @@ Scanner.prototype.scan = function(serialport, extension, config, callback) {
 												sp.removeAllListeners('data');
 												clearTimeout(flashFirmware);
 												if(result === true) {
+													if(extension.setSerialPort) {
+														extension.setSerialPort(sp);
+													}
 													self.finalizeScan(comName, connector, callback);
 												} else if(callback) {
 													callback(new Error('Invalid hardware'));
@@ -162,7 +173,7 @@ Scanner.prototype.scan = function(serialport, extension, config, callback) {
 												clearInterval(slaveTimer);
 												return;
 											}
-											connector.send(extension.requestInitialData());
+											connector.send(extension.requestInitialData(sp));
 										}, duration);
 										self.slaveTimers[comName] = slaveTimer;
 									}

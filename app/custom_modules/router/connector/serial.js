@@ -36,7 +36,10 @@ Connector.prototype.open = function(port, options, callback) {
 };
 
 Connector.prototype.connect = function(extension, callback) {
-	console.log('connect!')
+	console.log('connect!');
+	if(extension.connect) {
+		extension.connect();
+	}
 	var self = this;
 	if(self.sp) {
 		self.connected = false;
