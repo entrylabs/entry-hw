@@ -24,12 +24,12 @@ var copyRecursiveSync = function(src, dest) {
 var Module = {
 	flash : function(firmware, port, baudRate, callBack) {
 		var appPath = '';
-		if(NODE_ENV === 'production') {
-			var asarPath = path.join('.', 'resources', 'app.asar', 'custom_modules', 'flasher');
-			copyRecursiveSync(asarPath, path.join('.', 'resources', 'flasher'));
+		if(__dirname.indexOf('app.asar') >= 0) {
+			var asarPath = __dirname;
+			copyRecursiveSync(asarPath, path.join(__dirname, '..', '..', '..', 'resources', 'flasher'));
 			appPath = 'resources';
 		} else {
-			appPath = path.join('app', 'custom_modules');
+			appPath = path.join(__dirname, '..');
 		}
 
 		var rate = baudRate || '115200';
