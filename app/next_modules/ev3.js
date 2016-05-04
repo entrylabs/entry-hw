@@ -1,403 +1,333 @@
 function Module() {
-	this.sensory = {
-		D2: 0,
-		D3: 0,
-		D11: 0,
-		light: 0,
-		mic: 0,
-		adc0: 0,
-		adc1: 0,
-		adc2: 0,
-		adc3: 0
+	this.sp = null;
+	this.sensors = [];
+	this.SENSOR_MAP = {
+		'1': undefined,
+		'2': undefined,
+		'3': undefined,
+		'4': undefined
+	}
+	this.CHECK_PORT_MAP = {};
+	this.CHECK_SENSOR_MAP = {};
+	this.SENSOR_COUNTER_LIST = {};
+	this.returnData = {};
+	this.motorMovementTypes = {
+		Degrees: 0,
+		Power: 1
 	};
-	
-	this.motoring = {
-		rightWheel: 0,
-		leftWheel: 0,
-		head: 90,
-		armR: 90,
-		armL: 90,
-		analogD5: 127,
-		analogD6: 127,
-		D4: 0,
-		D7: 0,
-		D12: 0,
-		D13: 0,
-		ledR: 0,
-		ledG: 0,
-		ledB: 0,
-		lcdNum: 0,
-		lcdTxt: '                ',
-		note: 262,
-		duration: 0
-	};
-
-	this.flagCmdSend = {
-		wheelCmd: false,
-		servoCmd: false,
-		analogCmd: false,
-		digitalCmd: false,
-		rgbCmd: false,
-		lcdCmd: false,
-		toneCmd: false		
-	};
-
-	this.rxHeader = [0x52,0x58, 0x3D];
-
-	this.sendBuffer = [];
-	this.tmpBuffer = new Array(9);
-
-	this.lcdState = 0;		
+	this.deviceTypes = {
+		NxtTouch: 1,
+		NxtLight: 2,
+		NxtSound: 3,
+		NxtColor: 4,
+		NxtUltrasonic: 5,
+		NxtTemperature: 6,
+		LMotor: 7,
+		MMotor: 8,
+		Touch: 16,
+		Color: 29,
+		Ultrasonic: 30,
+		Gyroscope: 32,
+		Infrared: 33,
+		Initializing: 0x7d,
+		Empty: 0x7e,
+		WrongPort: 0x7f,
+		Unknown: 0xff
+	}
+	this.outputPort = {
+		A: 1,
+		B: 2,
+		C: 4,
+		D: 8,
+		ALL: 15
+	}
+	this.sensorMode = {
+		Touch: 0,
+		Color: 2,
+		Ultrasonic: 0,
+		Gyroscope: 0
+	}
+	this.PORT_MAP = {
+		A: {
+			type: this.motorMovementTypes.Power,
+			power: 0
+		},
+		B: {
+			type: this.motorMovementTypes.Power,
+			power: 0
+		},
+		C: {
+			type: this.motorMovementTypes.Power,
+			power: 0
+		},
+		D: {
+			type: this.motorMovementTypes.Power,
+			power: 0
+		}
+	}	
 }
 
-var XBOT = {
-	RIGHT_WHEEL: 'rightWheel',
-	LEFT_WHEEL: 'leftWheel',
-	HEAD: 'head',
-	ARMR: 'armR',
-	ARML: 'armL',
-	ANALOG_D5: 'analogD5',
-	ANALOG_D6: 'analogD6',
-	D4: 'D4',
-	D7: 'D7',
-	D12: 'D12',
-	D13: 'D13',
-	LED_R: 'ledR',
-	LED_G: 'ledG',
-	LED_B: 'ledB',
-	LCD_NUM: 'lcdNum',
-	LCD_TXT: 'lcdTxt',
-	NOTE: 'note',
-	DURATION: 'duration'
+var counter = 0;
+var responseSize = 11;
+var isSendInitData = false;
+var isSensorCheck = false;
+var isConnect = false;
+
+var makeInitBuffer = function(mode) {
+	var size = new Buffer([255,255]);
+	var counter = getCounter();
+	var reply = new Buffer(mode);
+	return Buffer.concat([size, counter, reply]);
+}
+
+var getCounter = function(){
+	var counterBuf = new Buffer(2);
+	counterBuf.writeInt16LE(counter);
+	if(counter >= 32767) {
+		counter = 0;
+	}
+	counter++;
+	return counterBuf;
+}
+
+var checkByteSize = function (buffer) {
+	var bufferLength = buffer.length - 2;
+	buffer[0] = bufferLength;
+	buffer[1] = bufferLength >> 8;
+}
+
+
+var sensorChecking = function(that) {
+	if(!isSensorCheck) {
+		that.sensing = setInterval(function(){
+			that.sensorCheck();
+		}, 200);
+		isSensorCheck = true;
+	}
+}
+
+var getSensorType = function(that, type) {
+	var returnType;
+	for(var key in that.deviceTypes) {
+		if(that.deviceTypes[key] == type) {
+			returnType = key;
+			break;
+		}
+	}
+	return returnType;
+}
+Module.prototype.init = function(handler, config) {
 };
 
-Module.prototype.init = function(handler, config) {
-	//console.log(this.motoring.lcdTxt);
+Module.prototype.setSerialPort = function (sp) {
+	this.sp = sp;
 };
-var i = 0;
-Module.prototype.requestInitialData = function() {
-	return [255,255,5,0,0,94,0,153,5,129,0,129,0,225,0,225,1,153,29,129,0,129,0,129,0,129,0,129,1,225,2,153,28,129,0,129,0,129,0,129,0,129,1,225,6,153,27,129,0,129,0,129,0,129,0,129,1,225,10,153,5,129,0,129,1,225,11,225,12,153,29,129,0,129,1,129,0,129,0,129,1,225,13,153,28,129,0,129,1,129,0,129,0,129,1,225,17,153,27,129,0,129,1,129,0,129,0,129,1,225,21,153,5,129,0,129,2,225,22,225,23,153,29,129,0,129,2,129,0,129,0,129,1,225,24,153,28,129,0,129,2,129,0,129,0,129,1,225,28,153,27,129,0,129,2,129,0,129,0,129,1,225,32,153,5,129,0,129,3,225,33,225,34,153,29,129,0,129,3,129,0,129,0,129,1,225,35,153,28,129,0,129,3,129,0,129,0,129,1,225,39,153,27,129,0,129,3,129,0,129,0,129,1,225,43,153,5,129,0,129,16,225,44,225,45,153,29,129,0,129,16,129,0,129,0,129,1,225,46,153,28,129,0,129,16,129,0,129,0,129,1,225,50,153,27,129,0,129,16,129,0,129,0,129,1,225,54,153,5,129,0,129,17,225,55,225,56,153,29,129,0,129,17,129,0,129,0,129,1,225,57,153,28,129,0,129,17,129,0,129,0,129,1,225,61,153,27,129,0,129,17,129,0,129,0,129,1,225,65,153,5,129,0,129,18,225,66,225,67,153,29,129,0,129,18,129,0,129,0,129,1,225,68,153,28,129,0,129,18,129,0,129,0,129,1,225,72,153,27,129,0,129,18,129,0,129,0,129,1,225,76,153,5,129,0,129,19,225,77,225,78,153,29,129,0,129,19,129,0,129,0,129,1,225,79,153,28,129,0,129,19,129,0,129,0,129,1,225,83,153,27,129,0,129,19,129,0,129,0,129,1,225,87,131,9,129,6,225,88,131,9,129,5,225,89,131,9,129,1,225,90,131,9,129,4,225,91,131,9,129,3,225,92,131,9,129,2,225,93];
+
+Module.prototype.requestInitialData = function(sp) {
+	var that = this;
+	isConnect = true;
+	if(!this.sp) {
+		this.sp = sp;
+	}
+	
+	if(!isSendInitData) {
+		var initBuf = makeInitBuffer([128, 0, 0]);
+		var motorStop = new Buffer([163, 129, 0, 129, 15, 129, 0]);
+		var initMotor = Buffer.concat([initBuf, motorStop]);
+		checkByteSize(initMotor);
+		sp.write(initMotor, function () {
+			sensorChecking(that);
+		});
+	}
+	return null;
 };
 
 Module.prototype.checkInitialData = function(data, config) {
 	return true;
 };
 
-Module.prototype.ByteIndexOf = function(searched, find, start, end) {
-	var matched = false;
-
-	for (var index = start; index <= end - find.length; ++index)
-    {
-        // Assume the values matched.
-        matched = true;
-
-        // Search in the values to be found.
-        for (var subIndex = 0; subIndex < find.length; ++subIndex)
-        {
-            // Check the value in the searched array vs the value
-            // in the find array.
-            if (find[subIndex] != searched[index + subIndex])
-            {
-                // The values did not match.
-                matched = false;
-                break;
-            }
-        }
-
-        // If the values matched, return the index.
-        if (matched)
-        {
-            // Return the index.
-            return index;
-        }
-    }
-
-    // None of the values matched, return -1.
-    return -1;
-};
-
 // 하드웨어 데이터 처리
 Module.prototype.handleLocalData = function(data) { // data: Native Buffer
-	var buff = data;
-	var fSize = data.length;
+	var that = this;
+	if(data[0] === 97 && data[1] === 0) {
+		var countKey = data.readInt16LE(2);
 
-	var sensory = this.sensory;
+		if(countKey in this.SENSOR_COUNTER_LIST) {
+			delete this.SENSOR_COUNTER_LIST[countKey];
+			data = data.slice(5);
+			var index = 0;
+			Object.keys(this.SENSOR_MAP).forEach(function(p) {
+				var port = Number(p) - 1;
+				index = port * responseSize;
 
-	if(fSize >= 15) 
-	{
-		var index = this.ByteIndexOf(buff, this.rxHeader, 0, fSize);
-		if (index != -1)
-		{
-		    var imageSize = this.makeWord(buff[index+3], buff[index+4]);
-    
-		    var imageBase = index + 5;
-			
-			//console.log('fSize' + fSize + ' imageBase ' + imageBase +' index ' + index +' imageSize ' + imageSize);			    
+				var type = data[index];
+				var mode = data[index + 1];
+				var siValue = data.readFloatLE(index + 2) || 0;
+				siValue = Number(siValue.toFixed(1));
+				var readyRaw = data.readInt32LE(index + 6);
+				var readyPercent = data[index + 10];
 
-			if(imageSize == 10 && buff[imageBase+9] == 0x30) {
-				sensory.adc0 = buff[imageBase];
-				sensory.adc1 = buff[imageBase+1];
-				sensory.adc2 = buff[imageBase+2];
-				sensory.adc3 = buff[imageBase+3];
-				sensory.light = buff[imageBase+4];
-			    sensory.mic = buff[imageBase+5];
+				that.returnData[p] = {
+					'type': type,
+					'mode': mode,
+					'siValue': siValue,
+					'readyRaw': readyRaw,
+					'readyPercent': readyPercent
+				}
+			});
 
-			    //console.log('Got adc data ! ' + sensory.adc0 + ' ' + sensory.adc1 + ' ' + sensory.adc2 + ' ' + sensory.adc3 + ' ' + sensory.light + ' ' + sensory.mic);
-
-			    sensory.D2 = buff[imageBase+6];
-			    sensory.D3 = buff[imageBase+7];
-			    sensory.D11 = buff[imageBase+8];
-			    //console.log('Got RX serial data ! ' + sensory.D2 + ' ' + sensory.D3 + ' ' + sensory.D11);
-			}
-		}		
+		}
 	}
-
 };
 
 // Web Socket(엔트리)에 전달할 데이터
 Module.prototype.requestRemoteData = function(handler) {
-	var sensory = this.sensory;
-	for(var key in sensory) {
-		handler.write(key, sensory[key]);
-	}
+	var that = this;
+	Object.keys(this.returnData).forEach(function (key) {
+		if(that.returnData[key] != undefined) {
+			handler.write(key, that.returnData[key]);			
+		}
+	})
 };
 
 // Web Socket 데이터 처리
 Module.prototype.handleRemoteData = function(handler) {
-	var motoring = this.motoring;
-	var flagCmdSend = this.flagCmdSend;	
-	var newValue;
+	var that = this;
+	Object.keys(this.PORT_MAP).forEach(function (port) {
+		that.PORT_MAP[port] = handler.read(port);
+	});	
 
-	if(handler.e(XBOT.RIGHT_WHEEL)) {
-		newValue = handler.read(XBOT.RIGHT_WHEEL);
-		if(newValue < -255) newValue = -255;
-		else if(newValue > 255) newValue = 255;
-		if(motoring.rightWheel != newValue)
-		{
-			motoring.rightWheel = newValue;
-			flagCmdSend.wheelCmd = true;
-		}
-	}
-
-	if(handler.e(XBOT.LEFT_WHEEL)) {
-		newValue = handler.read(XBOT.LEFT_WHEEL);
-		if(newValue < -255) newValue = -255;
-		else if(newValue > 255) newValue = 255;
-		if(motoring.leftWheel != newValue)
-		{
-			motoring.leftWheel = newValue;
-			flagCmdSend.wheelCmd = true;
-		}
-	}
-
-	if(handler.e(XBOT.HEAD)) {
-		newValue = handler.read(XBOT.HEAD);
-		if(newValue < 10) newValue = 10;
-		else if(newValue > 170) newValue = 170;
-		if(motoring.head != newValue)
-		{
-			motoring.head = newValue;
-			flagCmdSend.servoCmd = true;
-		}
-	}
-
-	if(handler.e(XBOT.ARMR)) {
-		newValue = handler.read(XBOT.ARMR);
-		if(newValue < 10) newValue = 10;
-		else if(newValue > 170) newValue = 170;
-		if(motoring.armR != newValue)
-		{
-			motoring.armR = newValue;
-			flagCmdSend.servoCmd = true;
-		}
-	}	
-
-	if(handler.e(XBOT.ARML)) {
-		newValue = handler.read(XBOT.ARML);
-		if(newValue < 10) newValue = 10;
-		else if(newValue > 170) newValue = 170;
-		if(motoring.armL != newValue)
-		{
-			motoring.armL = newValue;
-			flagCmdSend.servoCmd = true;
-		}
-	}
-
-	if(handler.e(XBOT.ANALOG_D5)) {
-		newValue = handler.read(XBOT.ANALOG_D5);
-		if(newValue < 0) newValue = 0;
-		else if(newValue > 255) newValue = 255;
-		if(motoring.analogD5 != newValue)
-		{
-			motoring.analogD5 = newValue;
-			flagCmdSend.analogCmd = true;
-		}
-	}
-
-	if(handler.e(XBOT.ANALOG_D6)) {
-		newValue = handler.read(XBOT.ANALOG_D6);
-		if(newValue < 0) newValue = 0;
-		else if(newValue > 255) newValue = 255;
-		if(motoring.analogD6 != newValue)
-		{
-			motoring.analogD6 = newValue;
-			flagCmdSend.analogCmd = true;
-		}
-	}
-
-	if(handler.e(XBOT.D4)) {
-		newValue = handler.read(XBOT.D4);
-		if(newValue < 0) newValue = 0;
-		else if(newValue > 1) newValue = 1;
-		if(motoring.D4 != newValue)
-		{
-			motoring.D4 = newValue;
-			flagCmdSend.digitalCmd = true;
-		}
-	}
-
-	if(handler.e(XBOT.D7)) {
-		newValue = handler.read(XBOT.D7);
-		if(newValue < 0) newValue = 0;
-		else if(newValue > 1) newValue = 1;
-		if(motoring.D7 != newValue)
-		{
-			motoring.D7 = newValue;
-			flagCmdSend.digitalCmd = true;
-		}
-	}	
-
-	if(handler.e(XBOT.D12)) {
-		newValue = handler.read(XBOT.D12);
-		if(newValue < 0) newValue = 0;
-		else if(newValue > 1) newValue = 1;
-		if(motoring.D12 != newValue)
-		{
-			motoring.D12 = newValue;
-			flagCmdSend.digitalCmd = true;
-		}
-	}	
-
-	if(handler.e(XBOT.D13)) {
-		newValue = handler.read(XBOT.D13);
-		if(newValue < 0) newValue = 0;
-		else if(newValue > 1) newValue = 1;
-		if(motoring.D13 != newValue)
-		{
-			motoring.D13 = newValue;
-			flagCmdSend.digitalCmd = true;
-		}
-	}	
-
-
-	if(handler.e(XBOT.LED_R)) {
-		newValue = handler.read(XBOT.LED_R);
-		if(newValue < 0) newValue = 0;
-		else if(newValue > 255) newValue = 255;
-		if(motoring.ledR != newValue)
-		{
-			motoring.ledR = newValue;
-			flagCmdSend.rgbCmd = true;
-		}
-	}
-
-	if(handler.e(XBOT.LED_G)) {
-		newValue = handler.read(XBOT.LED_G);
-		if(newValue < 0) newValue = 0;
-		else if(newValue > 255) newValue = 255;
-		if(motoring.ledG != newValue)
-		{
-			motoring.ledG = newValue;
-			flagCmdSend.rgbCmd = true;
-		}
-	}
-
-	if(handler.e(XBOT.LED_B)) {
-		newValue = handler.read(XBOT.LED_B);
-		if(newValue < 0) newValue = 0;
-		else if(newValue > 255) newValue = 255;
-		if(motoring.ledB != newValue)
-		{
-			motoring.ledB = newValue;
-			flagCmdSend.rgbCmd = true;
-		}
-	}
-
-	if(handler.e(XBOT.LCD_NUM)) {
-		newValue = handler.read(XBOT.LCD_NUM);
-		if(newValue < 0) newValue = 0;		
-		else if(newValue > 1)  newValue = 1;
-		if(motoring.lcdNum != newValue)
-		{
-			motoring.lcdNum = newValue;
-			flagCmdSend.lcdCmd = true;
-			this.lcdState = 0;
-		}
-	}
-
-	if(handler.e(XBOT.LCD_TXT)) {
-		newValue = handler.read(XBOT.LCD_TXT)+ '                ';
-		if(motoring.lcdTxt != newValue)
-		{
-			motoring.lcdTxt = newValue;
-			flagCmdSend.lcdCmd = true;
-			this.lcdState = 0;			
-		}
-	}
-
-	if(handler.e(XBOT.NOTE)) {
-		newValue = handler.read(XBOT.NOTE);
-		if(newValue < 65) newValue = 65;
-		else if(newValue > 4186)  newValue = 4186;
-		if(motoring.note != newValue)
-		{
-			motoring.note = newValue;
-			flagCmdSend.toneCmd = true;			
-		}
-	}
-
-	if(handler.e(XBOT.DURATION)) {
-		newValue = handler.read(XBOT.DURATION);
-		if(newValue < 0) newValue = 0;
-		else if(newValue > 250)  newValue = 250;
-		if(motoring.duration != newValue)
-		{
-			motoring.duration = newValue;
-			flagCmdSend.toneCmd = true;
-		}
-	}
-
-	//console.log('handleRemoteData');
 };
 
 
 // 하드웨어에 전달할 데이터
 Module.prototype.requestLocalData = function() {
-	return [255,255,5,0,0,94,0,153,5,129,0,129,0,225,0,225,1,153,29,129,0,129,0,129,0,129,0,129,1,225,2,153,28,129,0,129,0,129,0,129,0,129,1,225,6,153,27,129,0,129,0,129,0,129,0,129,1,225,10,153,5,129,0,129,1,225,11,225,12,153,29,129,0,129,1,129,0,129,0,129,1,225,13,153,28,129,0,129,1,129,0,129,0,129,1,225,17,153,27,129,0,129,1,129,0,129,0,129,1,225,21,153,5,129,0,129,2,225,22,225,23,153,29,129,0,129,2,129,0,129,0,129,1,225,24,153,28,129,0,129,2,129,0,129,0,129,1,225,28,153,27,129,0,129,2,129,0,129,0,129,1,225,32,153,5,129,0,129,3,225,33,225,34,153,29,129,0,129,3,129,0,129,0,129,1,225,35,153,28,129,0,129,3,129,0,129,0,129,1,225,39,153,27,129,0,129,3,129,0,129,0,129,1,225,43,153,5,129,0,129,16,225,44,225,45,153,29,129,0,129,16,129,0,129,0,129,1,225,46,153,28,129,0,129,16,129,0,129,0,129,1,225,50,153,27,129,0,129,16,129,0,129,0,129,1,225,54,153,5,129,0,129,17,225,55,225,56,153,29,129,0,129,17,129,0,129,0,129,1,225,57,153,28,129,0,129,17,129,0,129,0,129,1,225,61,153,27,129,0,129,17,129,0,129,0,129,1,225,65,153,5,129,0,129,18,225,66,225,67,153,29,129,0,129,18,129,0,129,0,129,1,225,68,153,28,129,0,129,18,129,0,129,0,129,1,225,72,153,27,129,0,129,18,129,0,129,0,129,1,225,76,153,5,129,0,129,19,225,77,225,78,153,29,129,0,129,19,129,0,129,0,129,1,225,79,153,28,129,0,129,19,129,0,129,0,129,1,225,83,153,27,129,0,129,19,129,0,129,0,129,1,225,87,131,9,129,6,225,88,131,9,129,5,225,89,131,9,129,1,225,90,131,9,129,4,225,91,131,9,129,3,225,92,131,9,129,2,225,93];
+	var that = this;
+	var isSendData = false;
+	var initBuf = makeInitBuffer([128, 0, 0]);
+	var time = 0;
+	var sendBody;
+	Object.keys(this.PORT_MAP).forEach(function (port) {
+		var portMap = that.PORT_MAP[port];
+		var checkPortMap = that.CHECK_PORT_MAP[port];
+		if((!checkPortMap) || (portMap.id !== checkPortMap.id)) {
+			isSendData = true;
+
+			var portOut;
+			var power = Number(portMap.power);
+			if(portMap.type == that.motorMovementTypes.Power) {
+				var time = Number(portMap.time) || 0;
+				var brake = 0;
+				if(power > 100) {
+					power = 100;
+				} else if(power < -100) {
+					power = -100;
+				} else if(power == 0) {
+					brake = 1;
+				}
+
+				if(time <= 0) {
+					// ifinity output port mode
+					portOut = new Buffer([164, 129, 0, 129, that.outputPort[port], 129, power, 166, 129, 0, 129, that.outputPort[port]]);
+				} else {
+					// timeset mode 232, 3 === 1000ms
+					var frontBuffer = new Buffer([173, 129, 0, 129, that.outputPort[port], 129, power, 131, 0, 0, 0, 0, 131]);
+					var backBuffer = new Buffer([131, 0, 0, 0, 0, 129, brake]);
+					var timeBuffer = new Buffer(4);
+					timeBuffer.writeInt32LE(time);
+					portOut = Buffer.concat([ frontBuffer, timeBuffer, backBuffer]);
+				}
+			} else {
+				var degree = Number(portMap.degree) || 0;
+				var frontBuffer = new Buffer([172, 129, 0, 129, that.outputPort[port], 129, power, 131, 0, 0, 0, 0, 131]);
+				var backBuffer = new Buffer([131, 0, 0, 0, 0, 129, brake]);
+				var degreeBuffer = new Buffer(4);
+				degreeBuffer.writeInt32LE(degree);
+				portOut = Buffer.concat([ frontBuffer, degreeBuffer, backBuffer]);
+			}
+
+			if(portOut) {
+				if(!sendBody) {
+					sendBody = new Buffer(portOut);
+				} else {
+					sendBody = Buffer.concat([sendBody, portOut]);
+				}	
+			}
+
+			that.CHECK_PORT_MAP[port] = that.PORT_MAP[port];
+		}	
+	});
+
+	if(isSendData && sendBody) {
+		var totalLength = initBuf.length + sendBody.length;
+		var sendBuffer = Buffer.concat([initBuf, sendBody], totalLength);
+		checkByteSize(sendBuffer);
+		return sendBuffer;
+	} else {
+		return null;
+	}
 };
 
-Module.prototype.XBOTcmdBuild = function(cmd, d0, d1, d2, d3, d4) {
-	this.tmpBuffer[0] = 0x58; // header1
-	this.tmpBuffer[1] = 0x52; // header2
-	this.tmpBuffer[2] = cmd & 0xff;
-	this.tmpBuffer[3] = d0 & 0xff;
-	this.tmpBuffer[4] = d1 & 0xff;
-	this.tmpBuffer[5] = d2 & 0xff;
-	this.tmpBuffer[6] = d3 & 0xff;
-	this.tmpBuffer[7] = d4 & 0xff;	
-	this.tmpBuffer[8] = 0x53; // tail
+Module.prototype.sensorCheck = function () {
+	var that = this;
+	var initBuf = makeInitBuffer([0, 94, 0]);
+	var counter = initBuf.readInt16LE(2);
+	this.SENSOR_COUNTER_LIST[counter] = true;
+	var sensorBody;
+	var index = 0;
+	Object.keys(this.SENSOR_MAP).forEach(function(p) {
+		var mode = 0;
+		if(that.returnData[p] && that.returnData[p]['type']) {
+			var type = getSensorType(that, that.returnData[p]['type']);
+			mode = that.sensorMode[type] || 0;
+		}
+		var port = Number(p) - 1;
+		index = port * responseSize;
+		var modeSet = new Buffer([153, 5, 129, 0, 129, port, 225, index, 225, index+1]);
+		var readySi = new Buffer([153, 29, 129, 0, 129, port, 129, 0, 129, mode, 129, 1, 225, index+2]);
+		var readyRaw = new Buffer([153, 28, 129, 0, 129, port, 129, 0, 129, mode, 129, 1, 225, index+6]);
+		var readyPercent = new Buffer([153, 27, 129, 0, 129, port, 129, 0, 129, mode, 129, 1, 225, index+10]);
+
+		if(!sensorBody) {
+			sensorBody = Buffer.concat([modeSet, readySi, readyRaw, readyPercent]);
+		} else {
+			sensorBody = Buffer.concat([sensorBody, modeSet, readySi, readyRaw, readyPercent]);
+		}
+	});
+
+	var totalLength = initBuf.length + sensorBody.length;
+	var sendBuffer = Buffer.concat([initBuf, sensorBody], totalLength);
+	checkByteSize(sendBuffer);
+	that.sp.write(sendBuffer);
+	
+}
+
+Module.prototype.connect = function() {
 };
 
-Module.prototype.makeWord = function(hi, lo) {
-	return (((hi & 0xff) << 8) | (lo & 0xff));
-};
+Module.prototype.disconnect = function(connect) {
+	if(isConnect) {
+		clearInterval(this.sensing);
+		counter = 0;
+		responseSize = 11;
+		isSendInitData = false;
+		isSensorCheck = false;
+		// this.sp.flush();
+		isConnect = false;
 
-Module.prototype.getLowByte = function(a) {
-	return (a & 0xff);
-};
-
-Module.prototype.getHighByte = function(a) {
-	return ((a >> 8) & 0xff);
+		if(this.sp) {
+			var that = this;
+			this.sp.write(new Buffer("070055008000000201","hex"), function(err){
+				that.sp = null;
+				if(err) {
+					console.log(err);
+				}
+				connect.close();
+			}); 
+		} else {
+			connect.close();
+		}
+	}
 };
 
 Module.prototype.reset = function() {
