@@ -36,13 +36,10 @@ void setup(){
   SerialB.begin(57600);
   mydelay_us(05000);
   
-//  while(1){
-//    if (SerialB.read()) break;
-//  }
 }
 
 void initPorts () {
-  for (int pinNumber = 0; pinNumber < 12; pinNumber++) {
+  for (int pinNumber = 2; pinNumber < 12; pinNumber++) {
     pinMode(pinNumber, OUTPUT);
     digitalWrite(pinNumber, LOW);
   }

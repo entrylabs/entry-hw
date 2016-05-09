@@ -25,19 +25,13 @@ void setup(){
   servo1.attach(servoPin);
 
   Serial.begin(57600);
-  
-//  while(1){
-//    if (Serial.read()) break;
-//  }
 }
 
 void initPorts () {
-  for (int pinNumber = 0; pinNumber < 12; pinNumber++) {
+  for (int pinNumber = 2; pinNumber < 12; pinNumber++) {
     pinMode(pinNumber, OUTPUT);
     digitalWrite(pinNumber, LOW);
   }
-  digitalWrite(0, HIGH);
-  digitalWrite(1, HIGH);
   pinMode(12,INPUT);
   pinMode(13,OUTPUT);
 }
