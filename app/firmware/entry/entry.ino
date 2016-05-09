@@ -26,9 +26,9 @@ void setup(){
 
   Serial.begin(57600);
   
-  while(1){
-    if (Serial.read()) break;
-  }
+//  while(1){
+//    if (Serial.read()) break;
+//  }
 }
 
 void initPorts () {
@@ -123,9 +123,7 @@ void updateDigitalPort (char c) {
       }
     } else {
       int port = (c >> 1) & B1111;
-      if((DC_ON==0) || (port!=3 && port!=9 && port!=10 && port!=11)) setPortReadable(port);
-      else setPortWritable(port);
-
+      if((DC_ON==0) && (port==8 || port==9 || port==10 || port==11)) setPortReadable(port);
     }
   } else {
     int port = (remainData >> 1) & B1111;
@@ -139,7 +137,6 @@ void updateDigitalPort (char c) {
       if(value>150) analogWrite(port, 150);
       else  analogWrite(port, value);
     }
-
     remainData = 0;
   }
 }
@@ -169,17 +166,15 @@ void sendDigitalValue(int pinNumber) {
 }
 
 void setPortReadable (int port) {
-  if(port==6) return;
+  if(port>11 || port==6) return;
   if (isPortWritable(port)) {
     pinMode(port, INPUT);
   }
 }
 
 void setPortWritable (int port) {
+  if(port>11 || port==6) return;
   if((DC_ON==0) && (port==3 || port==8 || port==9 || port==10 || port==11)) return;
-  if(port>13) return;
-  if(port==6) return;
-
   if (!isPortWritable(port)) {
     pinMode(port, OUTPUT);
   }
