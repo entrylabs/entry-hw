@@ -11,7 +11,7 @@ int servoPin = 6;
 char remainData;
 const int M_SIZE=20;
 int iii=0;
-int rotation=2000;
+int rotation=1000;
 int DC_ON=0; // if DC motor is use or not use:1, not;0
 int mdata[M_SIZE];
 
@@ -26,28 +26,23 @@ void setup(){
  
   SerialB.begin(9600);
   
-  delay(1000);
+  mydelay_us(50000);
   SerialB.print("AT\r\n");
-  delay(1000);
+  mydelay_us(50000);
   SerialB.print("AT+NAMESensorRobot\r\n");
-  delay(1000);
+  mydelay_us(50000);
   SerialB.print("AT+BAUD7\r\n");
-  delay(100);
-
+  mydelay_us(50000);
   SerialB.begin(57600);
+  mydelay_us(05000);
   
-  while(1){
-    if (SerialB.read()) break;
-  }
 }
 
 void initPorts () {
-  for (int pinNumber = 0; pinNumber < 12; pinNumber++) {
+  for (int pinNumber = 2; pinNumber < 12; pinNumber++) {
     pinMode(pinNumber, OUTPUT);
     digitalWrite(pinNumber, LOW);
   }
-  digitalWrite(0, HIGH);
-  digitalWrite(1, HIGH);
   pinMode(12,INPUT);
   pinMode(13,OUTPUT);
 }
@@ -62,7 +57,7 @@ void loop() {
   if(rotation>1000){
     rotation=0;
     sendPinValues();
-    SerialB.flush();
+    //SerialB.flush();
     servo1.refresh(); 
   }
   rotation++;
@@ -101,7 +96,7 @@ void sendPinValues() {
     sendAnalogValue(pinNumber);
     mydelay_us(500);
   }
-  for (pinNumber = 0; pinNumber < 12; pinNumber++) {
+  for (pinNumber = 8; pinNumber < 12; pinNumber++) {
     if (!isPortWritable(pinNumber))  sendDigitalValue(pinNumber);
   }
 }
@@ -134,9 +129,7 @@ void updateDigitalPort (char c) {
       }
     } else {
       int port = (c >> 1) & B1111;
-      if((DC_ON==0) || (port!=3 && port!=9 && port!=10 && port!=11)) setPortReadable(port);
-      else setPortWritable(port);
-
+      if((DC_ON==0) && (port==8 || port==9 || port==10 || port==11)) setPortReadable(port);
     }
   } else {
     int port = (remainData >> 1) & B1111;
@@ -149,7 +142,6 @@ void updateDigitalPort (char c) {
       if(value>150) analogWrite(port, 150);
       else  analogWrite(port, value);
     }
-
     remainData = 0;
   }
 }
@@ -179,17 +171,15 @@ void sendDigitalValue(int pinNumber) {
 }
 
 void setPortReadable (int port) {
-  if(port==6) return;
+  if(port>11 || port==6) return;
   if (isPortWritable(port)) {
     pinMode(port, INPUT);
   }
 }
 
 void setPortWritable (int port) {
+  if(port>11 || port==6) return;
   if((DC_ON==0) && (port==3 || port==8 || port==9 || port==10 || port==11)) return;
-  if(port>13) return;
-  if(port==6) return;
-  
   if (!isPortWritable(port)) {
     pinMode(port, OUTPUT);
   }
