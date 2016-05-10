@@ -26,7 +26,7 @@ var Module = {
 		var appPath = '';
 		if(__dirname.indexOf('app.asar') >= 0) {
 			var asarPath = __dirname;
-			copyRecursiveSync(asarPath, path.join(__dirname, '..', '..', '..', 'resources', 'flasher'));
+			copyRecursiveSync(asarPath, path.join(__dirname, '..', '..', '..', 'flasher'));
 			appPath = 'resources';
 		} else {
 			appPath = path.join(__dirname, '..');

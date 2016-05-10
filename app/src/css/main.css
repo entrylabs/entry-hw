@@ -16,7 +16,7 @@
 	font-family: NanumGothic;
 }
 
-body {
+html, body {
 	margin: 0;
 	padding: 0;
 	border: 0;
@@ -24,9 +24,14 @@ body {
 	font-family: Arial, Dotum;
 	font-size:10pt;
   	overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
 }
 
 #header {
+	flex: none;
 	width: 100%;
 	height: 78px;
 	background-color: #5096f5;
@@ -67,26 +72,24 @@ body {
 }
 
 #hwList {
-	padding-left: 50px;
-	padding-top: 40px;
-	padding-bottom: 40px;
+	padding: 40px;
  	overflow-y: auto;
-	height: 365px;
+ 	height: 100%;
 }
 
 #hwPanel {
-	padding-left: 120px;
-	padding-top: 55px;
+	display: flex;
+	flex-grow: 1;
 }
 
 #footer {
-	position: fixed;
-	bottom: 0;
+	flex: none;
 	width: 100%;
-	height: 45px;
-	background-position: 30px 0px;
+	height: 60px;
+	background-position: 30px 15px;
 	background-repeat: no-repeat;
 	background-image: url('../images/logo.png');
+	background-color: white;
 }
 
 #reference {
@@ -185,6 +188,7 @@ body {
 }
 
 #ieGuide {
+	flex: none;
 	width: 100%;
 	height: 100px;
 	background-color: #0e68e3;
@@ -245,4 +249,7 @@ body {
 	width: 200px;
 }
 
-
+.middleDiv {
+	margin: auto;
+    height: 100%;
+}
