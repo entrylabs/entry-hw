@@ -72,22 +72,18 @@ html, body {
 }
 
 #hwList {
-	padding-left: 50px;
-	padding-top: 40px;
-	padding-bottom: 40px;
+	padding: 40px;
  	overflow-y: auto;
  	height: 100%;
 }
 
 #hwPanel {
+	display: flex;
 	flex-grow: 1;
-	padding-left: 120px;
-	padding-top: 55px;
 }
 
 #footer {
 	flex: none;
-	/*position: fixed;*/
 	width: 100%;
 	height: 60px;
 	background-position: 30px 15px;
@@ -253,4 +249,7 @@ html, body {
 	width: 200px;
 }
 
-
+.middleDiv {
+	margin: auto;
+    height: 100%;
+}
