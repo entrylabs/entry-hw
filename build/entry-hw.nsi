@@ -28,7 +28,7 @@
 Name "엔트리"
 
 ; The file to write
-OutFile "Entry_HW_1.5.0_Setup_With_EV3.exe"
+OutFile "Entry_HW_1.5.1_Setup.exe"
 
 ; The default installation directory
 InstallDir "C:\Entry_HW"
@@ -62,6 +62,7 @@ LangString TEXT_DESKTOP_TITLE ${LANG_KOREAN} "바탕화면에 바로가기"
 LangString DESC_ENTRY ${LANG_KOREAN} "엔트리 하드웨어"
 LangString DESC_START_MENU ${LANG_KOREAN} "시작메뉴에 바로가기 아이콘이 생성됩니다."
 LangString DESC_DESKTOP ${LANG_KOREAN} "바탕화면에 바로가기 아이콘이 생성됩니다."
+LangString SETUP_UNINSTALL_MSG ${LANG_ENGLISTH} "엔트리 하드웨어가 이미 설치되어 있습니다. $\n$\r'확인' 버튼을 누르면 이전 버전을 삭제 후 재설치하고 '취소' 버튼을 누르면 업그레이드를 취소합니다."
 
 
 !insertmacro MUI_LANGUAGE "English"
@@ -72,6 +73,7 @@ LangString TEXT_DESKTOP_TITLE ${LANG_ENGLISTH} "Desktop shortcut"
 LangString DESC_ENTRY ${LANG_ENGLISTH} "Entry HW Program"
 LangString DESC_START_MENU ${LANG_ENGLISTH} "Create shortcut on start menu"
 LangString DESC_DESKTOP ${LANG_ENGLISTH} "Create shortcut on desktop"
+LangString SETUP_UNINSTALL_MSG ${LANG_ENGLISTH} "Entry_HW is already installed. $\n$\nClick 'OK' to remove the previous version or 'Cancel' to cancel this upgrade."
 
 
 ; The stuff to install
@@ -114,9 +116,10 @@ SectionEnd
 ; Optional section (can be disabled by the user)
 Section $(TEXT_START_MENU_TITLE) SectionStartMenu
 
-  CreateDirectory "$SMPROGRAMS\EntryLabs"
-  CreateShortCut "$SMPROGRAMS\EntryLabs\엔트리 하드웨어 제거.lnk" "$INSTDIR\엔트리 하드웨어 제거.exe" "" "$INSTDIR\엔트리 하드웨어 제거.exe" 0
-  CreateShortCut "$SMPROGRAMS\EntryLabs\엔트리 하드웨어.lnk" "$INSTDIR\Entry_HW.exe" "" "$INSTDIR\icon.ico" 0
+  SetShellVarContext all
+  CreateDirectory "$SMPROGRAMS\EntryLabs\Entry_HW"
+  CreateShortCut "$SMPROGRAMS\EntryLabs\Entry_HW\엔트리 하드웨어 제거.lnk" "$INSTDIR\엔트리 하드웨어 제거.exe" "" "$INSTDIR\엔트리 하드웨어 제거.exe" 0
+  CreateShortCut "$SMPROGRAMS\EntryLabs\Entry_HW\엔트리 하드웨어.lnk" "$INSTDIR\Entry_HW.exe" "" "$INSTDIR\icon.ico" 0
   
 SectionEnd
 
@@ -125,6 +128,7 @@ SectionEnd
 ; Optional section (can be disabled by the user)
 Section $(TEXT_DESKTOP_TITLE) SectionDesktop
 
+	SetShellVarContext all
     CreateShortCut "$DESKTOP\엔트리 하드웨어.lnk" "$INSTDIR\Entry_HW.exe" "" "$INSTDIR\icon.ico" 0
   
 SectionEnd
@@ -150,12 +154,40 @@ Section "Uninstall"
   Delete $INSTDIR\*
 
   ; Remove shortcuts, if any
-  Delete "$SMPROGRAMS\EntryLabs\*.*"
+  Delete "$SMPROGRAMS\EntryLabs\Entry_HW\*.*"
   
   Delete "$DESKTOP\엔트리 하드웨어.lnk"
 
   ; Remove directories used
-  RMDir "$SMPROGRAMS\EntryLabs"
+  RMDir "$SMPROGRAMS\EntryLabs\Entry_HW"
   RMDir /r "$INSTDIR"
 
 SectionEnd
+
+Function .onInit
+ 
+  ReadRegStr $R0 HKLM \
+  "Software\Microsoft\Windows\CurrentVersion\Uninstall\Entry_HW" \
+  "UninstallString"
+  StrCmp $R0 "" done
+ 
+  MessageBox MB_OKCANCEL|MB_ICONEXCLAMATION \
+  $(SETUP_UNINSTALL_MSG) \
+  IDOK uninst
+  Abort
+ 
+;Run the uninstaller
+uninst:
+  ClearErrors
+  ExecWait '$R0 _?=$INSTDIR'
+  ;ExecWait '$R0 _?=$R1'
+ 
+  ;IfErrors no_remove_uninstaller done
+  ;no_remove_uninstaller:
+  IfErrors 0 +2
+	Abort
+	RMDir /r /REBOOTOK $R1
+ 
+done:
+ 
+FunctionEnd
