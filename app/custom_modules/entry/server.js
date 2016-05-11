@@ -14,24 +14,30 @@ util.inherits(Server, EventEmitter);
 Server.prototype.open = function(logger) {
 	var WebSocketServer = require('../websocket').server;
 	// var http = require('https');
-	var http = require('http');
+	var http;
 	var PORT = 23518;
 	var self = this;
-
-	var appPath = 'app';
-	if(NODE_ENV === 'production') {
-		appPath = 'resources/app.asar';
-	}
+	var httpServer;
+	// var appPath = 'app';
+	// if(NODE_ENV === 'production') {
+	// 	appPath = 'resources/app.asar';
+	// }
 	
-	// var httpServer = http.createServer({
-	//     key: fs.readFileSync('./' + appPath + '/ssl/localhost_key.pem'),
-	//     cert: fs.readFileSync('./' + appPath + '/ssl/localhost_cert.pem'),
-	//     ca: fs.readFileSync('./' + appPath + '/ssl/localhost_ca.pem')
-	// });
-	var httpServer = http.createServer(function(request, response) {
-		response.writeHead(404);
-		response.end();
-	});
+	if(fs.existsSync(path.resolve(global.__dirname, 'ssl', 'cert.pem'))) {
+		http = require('https');
+		httpServer = http.createServer({
+		    key: fs.readFileSync(path.resolve(global.__dirname, 'ssl', 'hardware.play-entry.key')),
+		    cert: fs.readFileSync(path.resolve(global.__dirname, 'ssl', 'cert.pem')),
+		    ca: fs.readFileSync(path.resolve(global.__dirname, 'ssl', 'Symantec-Chain_sha2.pem'))
+		});
+	} else {
+		http = require('http');
+		httpServer = http.createServer(function(request, response) {
+			response.writeHead(404);
+			response.end();
+		});
+	}
+
 	self.httpServer = httpServer;
 	httpServer.listen(PORT, function() {
 		if(logger) {
