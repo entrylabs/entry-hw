@@ -214,28 +214,33 @@
 		},
 		flashFirmware: function(firmware, config) {
 			$('#firmwareButtonSet').hide();
-			if (!router.connector) {
-				alert(translator.translate('Hardware Device Is Not Connected'));
-				return;
+			try{
+				if (!router.connector) {
+					alert(translator.translate('Hardware Device Is Not Connected'));
+					$('#firmwareButtonSet').show();
+					return;
+				}
+				ui.showAlert(translator.translate("Firmware Uploading..."));
+				var port = router.connector.sp.path;
+				var baudRate = config.firmwareBaudRate;
+				router.close();
+	            setTimeout(function () {
+	    			flasher.flash(
+	    				firmware,
+	    				port,
+	    				baudRate
+	    				,
+	    				function(error, stdout, stderr) {
+	    					// console.log(error, stdout, stderr);
+	    					$('#firmwareButtonSet').show();
+	    					ui.showAlert(translator.translate("Firmware Uploaded!"));
+	    					router.startScan(config);
+	    				}
+	    			);
+	            }, 200);
+			} catch(e) {
+				$('#firmwareButtonSet').show();
 			}
-			ui.showAlert(translator.translate("Firmware Uploading..."));
-			var port = router.connector.sp.path;
-			var baudRate = config.firmwareBaudRate;
-			router.close();
-            setTimeout(function () {
-    			flasher.flash(
-    				firmware,
-    				port,
-    				baudRate
-    				,
-    				function(error, stdout, stderr) {
-    					// console.log(error, stdout, stderr);
-    					$('#firmwareButtonSet').show();
-    					ui.showAlert(translator.translate("Firmware Uploaded!"));
-    					router.startScan(config);
-    				}
-    			);
-            }, 200);
 		},
 		setState: function(state) {
 			if(state == 'connected') {
@@ -388,13 +393,33 @@
 			logger.e(error);
 			return;
 		}
+		var hardwareList = [];
 		files.filter(function(file) {
 			return /(?:\.([^.]+))?$/.exec(file)[1] == 'json';
 		}).forEach(function(file) {
 			try {
 				var config = fs.readFileSync(path.join(__dirname, 'modules', file));
-				ui.addRobot(JSON.parse(config));
+				hardwareList.push(JSON.parse(config));
 			} catch(e) {}
+		});
+		hardwareList.sort(function (left, right) {
+			var lName = left.name.ko.trim();
+			var rName = right.name.ko.trim();
+			var engRegex = /^[A-z]/;
+			if(engRegex.test(lName) && !engRegex.test(rName)) {
+				return 1;
+			} else if(!engRegex.test(lName) && engRegex.test(rName)) {
+				return -1;
+			} else if(lName > rName) {
+				return 1;
+			} else if(lName < right.name.ko) {
+				return -1;
+			} else {
+				return 0;
+			}
+		});
+		hardwareList.forEach(function (config) {
+			ui.addRobot(config);
 		});
 	});
 }());

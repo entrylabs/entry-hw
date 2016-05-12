@@ -26,10 +26,10 @@
 		"protocol": "json"
 	},
 	"hardware": {
-			"type": "serial",
-			"control": "slave",
-			"duration": 32,
-			"vendor": "wch.cn",
-			"baudRate": 57600
+		"type": "serial",
+		"control": "slave",
+		"duration": 32,
+		"vendor": "wch.cn",
+		"baudRate": 57600
 	}
 }
