@@ -16,7 +16,7 @@ Scanner.prototype.startScan = function(extension, config, callback, router) {
 	self.scan(serialport, extension, config, callback);
 	self.timer = setInterval(function() {
 		self.scan(serialport, extension, config, callback);
-	}, 1000);
+	}, 2000);
 };
 
 Scanner.prototype.stopScan = function() {
@@ -97,8 +97,8 @@ Scanner.prototype.scan = function(serialport, extension, config, callback) {
 			if(!vendor || (device.manufacturer && isVendor) || (device.pnpId && device.pnpId.indexOf(pnpId) >= 0) || checkComPort) {
 				var comName = device.comName || config.hardware.name;
 
-				if(checkComPort) {
-					comName = myComPort;
+				if(checkComPort && comName != myComPort) {
+					return;
 				}
 
 				// comName = '/dev/tty.EV3-SerialPort';

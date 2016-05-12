@@ -13,5 +13,8 @@
   "repository": {
     "type": "git",
     "url": "git+https://kimorkim@github.com/entrylabs/entry-hw.git"
+  },
+  "devDependencies": {
+    "devtron": "^1.0.0"
   }
 }
