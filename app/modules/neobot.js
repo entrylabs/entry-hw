@@ -1,81 +1,35 @@
 function Module() {
-	this.digitalValue = new Array(14);
-	this.remoteBuffer = new Array(8);
-	this.localBuffer = {
-		"1" : 0,
-	    "2" : 0,
-	    "3" : 0,
-	    "SERVO1" : 0,
-	    "SERVO2" : 0,
-	    "SERVO1_SPEED" : 0,
-	    "SERVO2_SPEED" : 0,
-	    "LMOT" : 0,
-	    "RMOT" : 0,
-		"note" : 0,
-		"octave" : 0,
-		"duration" : 0,
-		"sound_check" : 0,
-		"O_1": 0,
-		"O_2": 0
-	};
+	this.localBuffer = new Array(8);
+	this.remoteBuffer = new Array(5);
+
 	this.send_cnt = 0;
 	this.melodySended = true;
 	this.motorSended = true;
 	this.servo1Sended = true;
 	this.servo2Sended = true;
 	this.outputSended = true;
+
+	this.LOCAL_MAP = [
+		'IN1',
+		'IN2',
+		'IN3',
+		'IR',
+		'BAT'
+	];	
+	this.REMOTE_MAP = [
+		'OUT1',
+		'OUT2',
+		'OUT3',
+		'DCL',
+		'DCR',
+		'SND',
+		'FND',
+		'OPT'
+	];
 }
-
-
-Module.prototype.PORT_MAP = [
-    "1",
-    "2",
-    "3",
-    "SERVO1",
-    "SERVO2",
-    "SERVO1_SPEED",
-    "SERVO2_SPEED",
-    "LMOT",
-    "RMOT",
-	"note",
-	"octave",
-	"duration",
-	"sound_check",
-	"O_1",
-	"O_2"
-];
-
-Module.prototype.NOTE_MAP = [
-    "note",
-	"octave",
-	"duration",
-	"sound_check"
-];
-
-Module.prototype.MOTOR_MAP = [
-    "LMOT",
-	"RMOT"
-];
-
-Module.prototype.SERVO1_MAP = [
-    "SERVO1",
-    "SERVO1_SPEED",
-
-];
-
-Module.prototype.SERVO2_MAP = [
-    "SERVO2",
-    "SERVO2_SPEED"
-];
-
-Module.prototype.OUT_PORT_MAP = [
-    "O_1",
-    "O_2"
-];
 
 Module.prototype.init = function(handler, config) {
 };
-
 
 Module.prototype.requestInitialData = function() {
 	return null;
@@ -86,149 +40,95 @@ Module.prototype.checkInitialData = function(data, config) {
 };
 
 Module.prototype.validateLocalData = function(data) {
-	return true;
-};
+	var state = false;
 
-Module.prototype.handleRemoteData = function(handler) {
-	// console.log('hhh');
-	var buffer = this.localBuffer;
-
-	for (var i = 0; i < this.PORT_MAP.length; i++ ) {
-		var port = this.PORT_MAP[i];
-		var value = Number(handler.read(port));
-		if (value === undefined)
-			continue;
-
-		if(this.NOTE_MAP.indexOf(port) > -1) {
-			if (buffer[port] !== value)
-				this.melodySended = false;
-		}
-		if(this.MOTOR_MAP.indexOf(port) > -1) {
-			if (buffer[port] !== value)
-				this.motorSended = false;
-		}
-		if(this.SERVO1_MAP.indexOf(port) > -1) {
-			if (buffer[port] !== value)
-				this.servo1Sended = false;
-		}
-		if(this.SERVO2_MAP.indexOf(port) > -1) {
-			if (buffer[port] !== value)
-				this.servo2Sended = false;
-		}
-		if(this.OUT_PORT_MAP.indexOf(port) > -1) {
-			if (buffer[port] !== value)
-				this.outputSended = false;
-		}
-		buffer[port] = value;
-	}
-};
-
-Module.prototype.requestRemoteData = function(handler) {
-	// console.log('rr');
-	var buffer = this.remoteBuffer;
-	for(var i = 0; i < 8; i = i + 2) {
-		handler.write(buffer[i], buffer[i + 1]);
-	}
-};
-
-Module.prototype.requestLocalData = function() {
-	var send_data = [];
-	var buffer = this.localBuffer;
-
-	if (!this.melodySended) {
-		send_data.push(0x90 + buffer.note);
-		send_data.push(16 * buffer.duration + buffer.octave);
-		this.melodySended = true;
-	}
-
-	if (!this.motorSended) {
-		if(buffer.LMOT > 0 && buffer.RMOT > 0) {
-			send_data.push(0x41); 
-			send_data.push(16 * buffer.LMOT + buffer.RMOT);
-		} else if(buffer.LMOT < 0 && buffer.RMOT < 0){
-			send_data.push(0x42); 
-			send_data.push(- 16 * buffer.LMOT - buffer.RMOT);
-		} else if (buffer.LMOT === 0) {
-			send_data.push(0x40 + (buffer.RMOT > 0 ? 1 : 2));
-			send_data.push(Math.abs(buffer.RMOT));
-		} else if (buffer.RMOT === 0) {
-			send_data.push(0x40 + (buffer.LMOT > 0 ? 1 : 2));
-			send_data.push(16 * Math.abs(buffer.LMOT));
-		} else {
-			var direction = 0;
-			var speed = 0;
-			if(buffer.LMOT > buffer.RMOT) 
-			{
-				direction = 4;
-				speed = buffer.LMOT;
-			} else {
-				direction = 3;
-				speed = buffer.RMOT;
+	for(var i = 0; i < data.length - 1; i++) {
+		if(data[i] === 171 && data[i + 1] === 205 ) {
+			var dataSet = data.slice(i, i + 8);
+			var dataSum = dataSet.reduce(function (result, value, idx) {
+				if(idx < 2 || idx >= dataSet.length-1) {
+					return result;
+				}
+				return result + value;
+			}, 0);
+			if((dataSum & 255) === dataSet[dataSet.length-1]) {
+				state = true;
 			}
-			send_data.push(16 * 5 + direction); 
-			send_data.push(16 * speed);
+			break;
 		}
-		this.motorSended = true;
 	}
-
-	if (!this.servo1Sended) {
-		send_data.push(0x60 + buffer.SERVO1_SPEED);
-		send_data.push(buffer.SERVO1);
-		this.servo1Sended = true;
-	}
-
-	if (!this.servo2Sended) {
-		send_data.push(0x70 + buffer.SERVO2_SPEED);
-		send_data.push(buffer.SERVO2);
-		this.servo2Sended = true;
-	}
-
-	if (!this.outputSended) {
-		send_data.push(0x20 + buffer.O_1);
-		send_data.push(16 * buffer.O_2);
-		this.outputSended = true;
-	}
-
-	if(send_data.length > 0) {
-		send_data.unshift(send_data.length);
-		send_data.unshift(0xaa);
-	} else {
-		send_data = null;	
-	}
-
-	return send_data;
+	
+	return state;
 };
 
-Module.prototype.handleLocalData = function(data) { // data: Native Buffer
-	// console.log('hh');
-
+//로컬 데이터 처리
+// data: Native Buffer
+Module.prototype.handleLocalData = function(data) {
 	var buffer = this.remoteBuffer;
+	for(var i = 0; i < data.length - 1; i++) {
+		if(data[i] === 171 && data[i + 1] === 205 ) {
+			var dataSet = data.slice(i + 2, i + 7);
 
-	if(data && data.length == 8) {
-		for(var i = 0; i < 8; ++i) {
-			buffer[i] = data[i];
+			dataSet.forEach(function (value, idx) {
+				buffer[idx] = value;
+			});
+
+			break;
 		}
 	}
+};
+
+//리모트 데이터 전송
+Module.prototype.requestRemoteData = function(handler) {
+	var buffer = this.remoteBuffer;
+	for(var i = 0; i < 5; i++) {
+		handler.write(this.LOCAL_MAP[i], buffer[i]);
+	}
+};
+
+//리모트 데이처 처리
+Module.prototype.handleRemoteData = function(handler) {
+	console.log(handler);
+	var hhandler = {
+		'OUT1': 0,
+		'OUT2': 0,
+		'OUT3': 0,
+		'DCR': 0,
+		'DCL': 0x1F,
+		'SND': 0,
+		'FND': 0,
+		'OPT': 0
+	}
+	var buffer = this.localBuffer;
+
+	this.REMOTE_MAP.forEach(function (key, idx) {
+		buffer[idx] = hhandler[key];
+	});
+};
+
+//로컬 데이터 전송
+Module.prototype.requestLocalData = function() {
+	var requestData = [];
+	var buffer = this.localBuffer;
+
+	// 시작 바이트
+	requestData.push(0xCD);
+	requestData.push(0xAB);
+
+	var checksum = 0;
+	buffer.forEach(function (value) {
+		requestData.push(value);
+		checksum += value;
+	});
+
+	checksum = checksum & 255;
+	//체크썸
+	requestData.push(checksum);
+
+	return requestData;
 };
 
 Module.prototype.reset = function() {
-	this.localBuffer = {
-		"1" : 0,
-	    "2" : 0,
-	    "3" : 0,
-	    "SERVO1" : 0,
-	    "SERVO2" : 0,
-	   	"SERVO1_SPEED" : 0,
-	    "SERVO2_SPEED" : 0,
-	    "LMOT" : 0,
-	    "RMOT" : 0,
-		"note" : 0,
-		"octave" : 0,
-		"duration" : 0,
-		"sound_check" : 0,
-		"O_1": 0,
-		"O_2": 0
-	};
 };
 
 module.exports = new Module();
