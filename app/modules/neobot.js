@@ -2,26 +2,20 @@ function Module() {
 	this.localBuffer = new Array(8);
 	this.remoteBuffer = new Array(5);
 
-	this.send_cnt = 0;
-	this.melodySended = true;
-	this.motorSended = true;
-	this.servo1Sended = true;
-	this.servo2Sended = true;
-	this.outputSended = true;
-
 	this.LOCAL_MAP = [
 		'IN1',
 		'IN2',
 		'IN3',
 		'IR',
 		'BAT'
-	];	
+	];
+
 	this.REMOTE_MAP = [
 		'OUT1',
 		'OUT2',
 		'OUT3',
-		'DCL',
 		'DCR',
+		'DCL',
 		'SND',
 		'FND',
 		'OPT'
@@ -88,21 +82,10 @@ Module.prototype.requestRemoteData = function(handler) {
 
 //리모트 데이처 처리
 Module.prototype.handleRemoteData = function(handler) {
-	console.log(handler);
-	var hhandler = {
-		'OUT1': 0,
-		'OUT2': 0,
-		'OUT3': 0,
-		'DCR': 0,
-		'DCL': 0x1F,
-		'SND': 0,
-		'FND': 0,
-		'OPT': 0
-	}
 	var buffer = this.localBuffer;
 
 	this.REMOTE_MAP.forEach(function (key, idx) {
-		buffer[idx] = hhandler[key];
+		buffer[idx] = handler.read(key);
 	});
 };
 
