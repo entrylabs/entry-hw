@@ -232,7 +232,7 @@
 			}
 		},
 		quit: function() {
-			// win.close();
+
 		},
 		showIeGuide: function() {
 			$('#ieGuide').show();
