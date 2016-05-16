@@ -13,7 +13,6 @@ util.inherits(Server, EventEmitter);
 
 Server.prototype.open = function(logger) {
 	var WebSocketServer = require('../websocket').server;
-	// var http = require('https');
 	var http;
 	var PORT = 23518;
 	var self = this;
