@@ -9,7 +9,6 @@
 	// language
 	var translator = require('./custom_modules/translator');
 	var lang = translator.getLanguage();
-	// console.log('language: ' + lang);
 
 	// logger
 	var logger = {
@@ -43,7 +42,6 @@
 	$('#firmware').text(translator.translate('Install Firmware'));
 	$('#other-robot .text').text(translator.translate('Connect Other Hardware'));
 	$('#entry .text').text(translator.translate('Show Entry Web Page'));
-//	$('#reconnect .text').text(translator.translate('Reconnect Hardware'));
 
 	var ui = {
 		countRobot: 0,
@@ -118,19 +116,14 @@
 					is_select_port = true;
 				}
 
-				
-				// if(config.select_com_port) {
-				// 	var com_port = prompt('사용하실 COM 포트를 적어주세요.');
-				// 	if(!com_port)
-				// 		return;
-				// 	config.this_com_port = com_port;
-				// }
-
+				var newSelectList = selectedList.filter(function (item) {
+					return item !== config.name.ko;
+				});
+				newSelectList.push(config.name.ko);
+				localStorage.setItem('hardwareList', JSON.stringify(newSelectList));
+				selectedList = newSelectList;
 				ui.hardware = config.id.substring(0, 4);
 				ui.numLevel = 1;
-//				if(config.level) {
-//					ui.numLevel = parseInt(config.level);
-//				}
 				ui.showConnecting();
 				router.startScan(config);
 				window.currentConfig = config;
@@ -148,11 +141,6 @@
 				} else {
 					$('#url').hide();
 				}
-
-//				$('#reconnect').click(function() {
-//					ui.showConnecting();
-//					router.startScan(config);
-//				});
 
 				$('#driver').hide();
 				$('#firmware').hide();
@@ -203,13 +191,6 @@
 
 					}
 				}
-//				if(config.description) {
-//					var connection = config.description.connection;
-//					if(connection) {
-//						var description = connection[lang] || connection['en'];
-//						$('#description').text(description);
-//					}
-//				}
 			});
 		},
 		flashFirmware: function(firmware, config) {
@@ -231,7 +212,6 @@
 	    				baudRate
 	    				,
 	    				function(error, stdout, stderr) {
-	    					// console.log(error, stdout, stderr);
 	    					$('#firmwareButtonSet').show();
 	    					ui.showAlert(translator.translate("Firmware Uploaded!"));
 	    					router.startScan(config);
@@ -245,16 +225,10 @@
 		setState: function(state) {
 			if(state == 'connected') {
 				ui.showConnected();
-//				if(ui.numLevel > 1) {
-//					ui.showLevelPanel();
-//				} else {
-//					ui.level = 1;
-//				}
 			} else if(state == 'lost') {
 				$('#message').text(translator.translate('Connecting...'));
 			} else if(state == 'disconnected') {
 				ui.showDisconnected();
-//				ui.showReconnectButton(true);
 			}
 		},
 		quit: function() {
@@ -376,13 +350,7 @@
 
 	//ipcEvent
 	ipcRenderer.on('update-message', function (e, message) {
-		// console.log(message);
 
-		// if(message.type === 'update-downloaded') {
-		// 	if(confirm('업데이트?')) {
-		// 		ipcRenderer.send('entry-update', {type:'update-start'});
-		// 	}
-		// }
 	});
 
 	// configuration
@@ -402,22 +370,25 @@
 				hardwareList.push(JSON.parse(config));
 			} catch(e) {}
 		});
+
 		hardwareList.sort(function (left, right) {
 			var lName = left.name.ko.trim();
 			var rName = right.name.ko.trim();
-			var engRegex = /^[A-z]/;
-			if(engRegex.test(lName) && !engRegex.test(rName)) {
+			var lIndex = (Array.isArray(selectedList)) ? selectedList.indexOf(lName) : 0;
+			var rIndex = (Array.isArray(selectedList)) ? selectedList.indexOf(rName) : 0;
+			if(lIndex < rIndex) {
 				return 1;
-			} else if(!engRegex.test(lName) && engRegex.test(rName)) {
+			} else if (lIndex > rIndex) {
 				return -1;
 			} else if(lName > rName) {
 				return 1;
-			} else if(lName < right.name.ko) {
+			} else if(lName < rName) {
 				return -1;
 			} else {
 				return 0;
 			}
 		});
+
 		hardwareList.forEach(function (config) {
 			ui.addRobot(config);
 		});

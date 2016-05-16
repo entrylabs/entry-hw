@@ -1,6 +1,6 @@
 {
   "name": "Entry_HW",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "description": "entry hardware connect program",
   "main": "index.js",
   "updateServer": "play02.play-entry.com:4001",
@@ -15,6 +15,6 @@
     "url": "git+https://kimorkim@github.com/entrylabs/entry-hw.git"
   },
   "devDependencies": {
-    "devtron": "^1.0.0"
+    "devtron": "^1.1.0"
   }
 }
