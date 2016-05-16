@@ -53,28 +53,28 @@
 			delete window.currentConfig;
 			$('#title').text(translator.translate('Select hardware'));
 			$('#hwList').show();
-			$('#hwPanel').hide();
+			$('#hwPanel').css('display', 'none');
 			ui.showIeGuide();
 			this.hideAlert();
 		},
 		showConnecting: function() {
 			$('#title').text(translator.translate('hardware > connecting'));
 			$('#hwList').hide();
-			$('#hwPanel').show();
+			$('#hwPanel').css('display', 'flex');
 			ui.hideIeGuide();
 			this.showAlert(translator.translate('Connecting to hardware device.'));
 		},
 		showConnected: function() {
 			$('#title').text(translator.translate('hardware > connected'));
 			$('#hwList').hide();
-			$('#hwPanel').show();
+			$('#hwPanel').css('display', 'flex');
 			ui.hideIeGuide();
 			this.showAlert(translator.translate('Connected to hardware device.'), 2000);
 		},
 		showDisconnected: function() {
 			$('#title').text(translator.translate('hardware > disconnected'));
 			$('#hwList').hide();
-			$('#hwPanel').show();
+			$('#hwPanel').css('display', 'flex');
 			ui.hideIeGuide();
 			this.showAlert(translator.translate('Hardware device is disconnected. Please restart this program.'));
 		},
@@ -275,7 +275,7 @@
 	});
 
 	$('.chromeButton').click(function(e) {
-		window.open("https://www.google.com/chrome/browser/desktop/index.html");
+		shell.openItem("https://www.google.com/chrome/browser/desktop/index.html");
 	});
 
 

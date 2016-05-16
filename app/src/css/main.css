@@ -78,7 +78,7 @@ html, body {
 }
 
 #hwPanel {
-	display: flex;
+	display: none;
 	flex-grow: 1;
 }
 

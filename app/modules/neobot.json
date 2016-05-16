@@ -17,6 +17,6 @@
 		"type": "bluetooth",
 		"control": "master",
 		"vendor": "neobot",
-		"baudRate": 57600
+		"baudRate": 115200
 	}
 }
