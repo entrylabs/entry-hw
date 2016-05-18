@@ -116,12 +116,17 @@
 					is_select_port = true;
 				}
 
-				var newSelectList = selectedList.filter(function (item) {
-					return item !== config.name.ko;
-				});
-				newSelectList.push(config.name.ko);
-				localStorage.setItem('hardwareList', JSON.stringify(newSelectList));
-				selectedList = newSelectList;
+				if(Array.isArray(selectedList)) {
+					var newSelectList = selectedList.filter(function (item) {
+						return item !== config.name.ko;
+					});
+					newSelectList.push(config.name.ko);
+					localStorage.setItem('hardwareList', JSON.stringify(newSelectList));
+					selectedList = newSelectList;
+				} else {
+					selectedList = [config.name.ko];
+					localStorage.setItem('hardwareList', JSON.stringify(selectedList));
+				}
 				ui.hardware = config.id.substring(0, 4);
 				ui.numLevel = 1;
 				ui.showConnecting();

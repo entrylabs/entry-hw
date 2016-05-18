@@ -151,7 +151,7 @@ SectionEnd
 ; Uninstaller
 
 Section "Uninstall"
-
+  SetShellVarContext all
   ; Remove registry keys
   DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
   DeleteRegKey HKLM "SOFTWARE\${PRODUCT_NAME}"
