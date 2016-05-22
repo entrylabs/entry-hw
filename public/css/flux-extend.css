@@ -1,0 +1,17 @@
+img {
+	max-width: 650px;
+}
+
+.related {
+	font-size: 14px;
+}
+
+.related h2{
+	line-height: 20px;
+	font-size: 16px;
+}
+
+.related h3{
+	line-height: 18px;
+	font-size: 14px;
+}

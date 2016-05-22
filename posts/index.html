@@ -1,7 +1,6 @@
 <!DOCTYPE html>
-<html lang="en-us">
-
-  <head>
+<html lang="ko-kr">
+	<head>
   <link href="http://gmpg.org/xfn/11" rel="profile">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
@@ -11,14 +10,18 @@
 
   <title>
     
-      문서들 &middot; Entry-HW
+      문서들 &middot; Entry Docs
     
   </title>
 
   <!-- CSS -->
-  <link rel="stylesheet" href="/entry-hw/public/css/poole.css">
-  <link rel="stylesheet" href="/entry-hw/public/css/syntax.css">
+  <!--
   <link rel="stylesheet" href="/entry-hw/public/css/hyde.css">
+  -->
+  <link rel="stylesheet" href="/entry-hw/public/css/flux.css">
+  <link rel="stylesheet" href="/entry-hw/public/css/flux-extend.css">
+  <link rel="stylesheet" href="/entry-hw/public/css/syntax.css">
+  <link rel="stylesheet" href="/entry-hw/public/css/poole.css">
   <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
 
   <!-- Icons -->
@@ -29,74 +32,148 @@
   <link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
 </head>
 
-
-  <body>
-
-    <div class="sidebar">
-    <div class="container sidebar-sticky">
-        <div class="sidebar-about">
-            <h1>
-                <a href="/entry-hw/">
-                    Entry-HW
+	<body>
+		<div class="container">
+			<div class="nav-main">
+    <div class="wrap">
+        <a href="/entry-hw/" class="nav-home">
+            <img src="/entry-hw/public/image/logo.png"/>
+            <span>
+                Entry Docs
+            </span>
+        </a>
+        <ul class="nav-site">
+            <li>
+                <a class="active">
+                    DOCS
                 </a>
-            </h1>
-            <p class="lead">엔트리 하드웨어 개발 가이드</p>
-        </div>
-
-        <nav class="sidebar-nav">
-            <a class="sidebar-nav-item" href="/entry-hw/">인덱스</a>
-            <a class="sidebar-nav-item active" href="/entry-hw/posts">문서들</a>
-            
-
-            
-            
-                
-                    
-                
-            
-                
-                    
-                        <a class="sidebar-nav-item" href="/entry-hw/GettingStarted/">시작하기</a>
-                    
-                
-            
-                
-                    
-                        <a class="sidebar-nav-item" href="/entry-hw/SettingEnvironments/">개발환경 세팅</a>
-                    
-                
-            
-                
-                    
-                
-            
-                
-            
-                
-                    
-                
-            
-                
-                    
-                
-            
-                
-                    
-                
-            
-
-            <a class="sidebar-nav-item" href="https://github.com/entrylabs/entry-hw/zipball/master">다운로드</a>
-            <a class="sidebar-nav-item" href="https://github.com/entrylabs/entry-hw" target="_blank">GitHub</a>
-            <span class="sidebar-nav-item">Currently v1.5.1</span>
-        </nav>
-
-        <p>&copy; 2016. All rights reserved.</p>
+            </li>
+            <li>
+                <a class="">
+                    SUPPORT
+                </a>
+            </li>
+            <li>
+                <a href="https://github.com/entrylabs/entry-hw" target="_blank">
+                    GITHUB
+                </a>
+            </li>
+        </ul>
     </div>
 </div>
 
+			<div class="content wrap documentationContent">
+				<div class="nav-docs posts">
+    <div class="nav-docs-section">
+        <h3>Quick Start</h3>
+        <ul>
+            
+            
+                
+                    
+                        <li><a class="" href="/entry-hw/page/1_GettingStarted/">시작하기</a></li>
+                    
+                
+            
+                
+                    
+                        <li><a class="" href="/entry-hw/page/2_SettingEnvironments/">개발환경 세팅</a></li>
+                    
+                
+            
+                
+                    
+                        <li><a class="" href="/entry-hw/page/3_BaseGuide/">기본 개발 절차</a></li>
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+        </ul>
+    </div>
+    <div class="nav-docs-section">
+        <h3>하드웨어 모듈 개발</h3>
+        <ul>
+            
+                
+            
+                
+            
+                
+                    <li><a class="" href="/entry-hw/2016/05/03/add_module/">모듈 추가 방법</a></li>
+                
+            
+        </ul>
+    </div>
+    <div class="nav-docs-section">
+        <h3>엔트리 블록 개발</h3>
+        <ul>
+            
+                
+                    <li><a class="" href="/entry-hw/2016/05/22/add_new_blocks/">엔트리 신규 블록추가</a></li>
+                
+            
+                
+            
+                
+            
+        </ul>
+    </div>
+    <div class="nav-docs-section">
+        <h3>Tip & Tech</h3>
+        <ul>
+            
+                
+            
+                
+                    <li><a class="" href="/entry-hw/2016/05/03/git_fork/">Git Fork 방법</a></li>
+                
+            
+                
+            
+        </ul>
+    </div>
+    
+</div>
 
-    <div class="content container">
-      <div class="posts">
+				<div class="inner-content">
+
+					<div class="posts">
+  
+  <div class="post">
+    <h1 class="post-title">
+      <a href="/entry-hw/2016/05/22/add_new_blocks/">
+        엔트리 신규 블록추가
+      </a>
+    </h1>
+
+    <span class="post-date">22 May 2016</span>
+
+    <p>엔트리 블록 라이브러리가 변경되었습니다.</p>
+
+<p>해당 문서로 새로 작성중 입니다.</p>
+
+  </div>
   
   <div class="post">
     <h1 class="post-title">
@@ -119,162 +196,6 @@
   <li><a href="http://blog.outsider.ne.kr/866">깃허브를 이용하는 전체 흐름 이해하기 #2</a></li>
   <li><a href="http://dogfeet.github.io/articles/2012/how-to-github.html">깃허브로 남의 프로젝트에 감놓고 배놓기</a></li>
 </ol>
-
-  </div>
-  
-  <div class="post">
-    <h1 class="post-title">
-      <a href="/entry-hw/2016/05/03/base_guide/">
-        기본적인 하드웨어 등록 절차 및 방법
-      </a>
-    </h1>
-
-    <span class="post-date">03 May 2016</span>
-
-    <h4 id="section">엔트리 하드웨어 추가 순서</h4>
-<ol>
-  <li>엔트리에 문의하여 하드웨어 ID발급 받기</li>
-  <li>엔트리 하드웨어 프로그램에 해당 하드웨어 모듈 추가하기</li>
-  <li>엔트리 서비스에 해당 블록 만들기</li>
-  <li>실행하여 테스트 하기</li>
-</ol>
-
-<h4 id="section-1">엔트리 하드웨어 연결프로그램에 하드웨어 추가</h4>
-<ul>
-  <li><a href="https://github.com/entrylabs/entry-hw/wiki/Git-Fork-%EB%B0%A9%EB%B2%95">Git Fork</a> (https://github.com/entrylabs/entry-hw)</li>
-  <li>System Dependencies 추가
-    <ul>
-      <li>bower.json 확인</li>
-      <li>package.json 확인</li>
-    </ul>
-  </li>
-  <li><a href="https://github.com/entrylabs/entry-hw/wiki/%EB%AA%A8%EB%93%88-%EC%B6%94%EA%B0%80">모듈 추가</a>
-    <ul>
-      <li>기본적인 방법은 README.md 참고</li>
-      <li>(your path)/modules 내에 있는 파일 참고</li>
-    </ul>
-  </li>
-  <li>하드웨어 프로그램 실행하여 단말이 연결되는지 확인.</li>
-</ul>
-
-<h4 id="httpsgithubcomentrylabsentry-hwwikiebb894eba19decb694eab080">엔트리 서비스에 블록추가(<a href="https://github.com/entrylabs/entry-hw/wiki/%EB%B8%94%EB%A1%9D%EC%B6%94%EA%B0%80">상세방법</a>)</h4>
-<ul>
-  <li>Git Fork(https://github.com/entrylabs/entryjs)</li>
-  <li>System Dependencies 추가
-    <ul>
-      <li>bower.json 확인</li>
-      <li>package.json 확인</li>
-    </ul>
-  </li>
-  <li>Entryjs의 기본적인 정보는 README.md 참고</li>
-  <li>workspace확인 (디버깅)
-    <ul>
-      <li>(your path)/example/example.html 확인 및 실행</li>
-      <li>로컬로 간단히 확인가능하나 Cross Domain 문제로 일부 기능이 정상작동하지 않습니다.
-        <ul>
-          <li>하드웨어 연결 테스트는 문제 없습니다.</li>
-        </ul>
-      </li>
-      <li>모든 기능을 확인하고 싶으시면 간단한 웹서버로 띄워서 확인하시기 바랍니다.(권장)
-        <ul>
-          <li>간단한 웹서버로는 locally가 있고, apache나 nginx와 같은 통상적 웹서버도 관계없습니다.</li>
-          <li>locally를 이용한 웹서버 테스트 항목은 하단의 다. 항목을 참고 해주시기 바랍니다.</li>
-        </ul>
-      </li>
-    </ul>
-  </li>
-  <li>block javascript 추가
-    <ul>
-      <li>(your path)/src/blocks 에 자바스크립트 추가(빌드시 자동 반영됨)</li>
-      <li>해당 소스들 참고</li>
-      <li>Blocky.Blocks과 Entry.block 1:1 매칭 되도록 블록 추가
-        <ul>
-          <li>해당 블록들은 아래의 static.js에 추가되어 있어야 합니다.</li>
-          <li>Blocky.Blocks은 사용자에게 보여지는 블록 모양을 정의 합니다.</li>
-          <li>Entry.block은 해당 블록의 동작을 정의 합니다.</li>
-        </ul>
-      </li>
-      <li>블록에 사용되는 언어는 일반적으로 Lang이라는 다국어로 관리합니다.
-        <ul>
-          <li>Lang.Blocks 으로 시작되는 부분으로 테스트시에는 하드코딩으로 확인가능합니다.</li>
-        </ul>
-      </li>
-    </ul>
-  </li>
-  <li>block 매칭 작업
-    <ul>
-      <li>(your path)/src/hw.js 확인</li>
-      <li>this.hwInfo 부분에 해당 기기 추가 (30 Lines)</li>
-      <li>왼쪽의 숫자 (ex. ’11’)
-        <ul>
-          <li>엔트리 하드웨어 추가 할때의 하드웨어ID</li>
-          <li>‘010201’ 으로 설정했을 경우 앞의 4개를 확인하여 ’12’가 됩니다.</li>
-          <li>마찬 가지로 ’61’ 과 같은 경우를 만들고 싶은경우 하드웨어 연결프로그램에서 JSON생성이 060101과 같은 형식으로 만듭니다.</li>
-        </ul>
-      </li>
-      <li>오른쪽 오브젝트 (ex. Entry.Arduino)
-        <ul>
-          <li>block javascript에서 추가했던 오브젝트를 넣습니다.</li>
-        </ul>
-      </li>
-    </ul>
-  </li>
-  <li>static.js 블럭모양 추가
-    <ul>
-      <li>(your path)/extern/util.static.js</li>
-      <li>EntryStatic.getAllBlocks 의 category가 arduino 인 요소에 해당 블록명 추가</li>
-      <li>EntryStatic.blockInfo 에 블록명에 해당하는 실제 블록 모양추가
-        <ul>
-          <li>xml = 실제 블럭모양</li>
-          <li>isNotFor = 블록 Alias</li>
-          <li>usage = 하드웨어의 경우 arduino 고정</li>
-          <li>class = 블록타입 설정(엔트리 화면에서 블록구분선을 만들때 사용.)</li>
-        </ul>
-      </li>
-    </ul>
-  </li>
-  <li>언어추가
-    <ul>
-      <li>(your path)/extern/util/ 확인</li>
-      <li>ko, en, vn, code 4개의 js파일 로 구성됩니다.</li>
-      <li>example.html의 기본 요소는 ko.js 로 설정되어 있습니다.
-        <ul>
-          <li>언어 변경시 해당언어로 변환 됩니다.</li>
-          <li>example.html에는 해당 기능 구현되어 있지 않습니다.</li>
-        </ul>
-      </li>
-      <li>해당 파일에 원하는 값을 추가하면 전역변수 Lang에 언어 데이터 들어감.</li>
-    </ul>
-  </li>
-  <li>빌드하기
-    <ul>
-      <li>grunt 실행</li>
-      <li>빌드 output은 dist폴더에 있습니다.</li>
-    </ul>
-  </li>
-</ul>
-
-<h4 id="locally--">locally로 서비스 실행하기</h4>
-<ul>
-  <li>locally설치
-    <ul>
-      <li>npm install -g locally 로 설치가능합니다.</li>
-      <li>자세한 사항은 <a href="https://github.com/rhiokim/locally">https://github.com/rhiokim/locally</a> 를 참고해 주시기 바랍니다.</li>
-    </ul>
-  </li>
-  <li>locally 실행
-    <ul>
-      <li>원하는 위치에서 locally수행하시면 해당 path가 root가 되는 간단한 웹서버가 구동됩니다.</li>
-      <li>Entry를 init과정에서 entryjs가 prefix된 경로가 들어가니 locally를 수행해 주실때 꼭 entryjs의 폴더내가 아닌 상위폴더에서 실행하시기 바랍니다.</li>
-    </ul>
-  </li>
-  <li>example.html 소스 수정.
-    <ul>
-      <li>구성하신 상황에 따라 javascript path의 구성이 바뀔수 있습니다. </li>
-      <li>ko.js / static.js / entry.min.js / entry.css 의 4가지 요소에 대해 path를 변경하시면 됩니다.</li>
-    </ul>
-  </li>
-</ul>
 
   </div>
   
@@ -382,218 +303,18 @@
 
   </div>
   
-  <div class="post">
-    <h1 class="post-title">
-      <a href="/entry-hw/2016/05/03/add_blocks/">
-        엔트리 블록추가
-      </a>
-    </h1>
-
-    <span class="post-date">03 May 2016</span>
-
-    <h3 id="section">엔트리 블록추가 하기</h3>
-
-<p>엔트리에 블록을 추가하는 과정은 간단하게</p>
-
-<blockquote>
-  <ol>
-    <li>블록 모양 정의</li>
-    <li>블록 기능 정의</li>
-    <li>블록 삽입</li>
-  </ol>
-</blockquote>
-
-<p>위의 3단계 과정으로 요약할수 있습니다.</p>
-
-<h3 id="section-1">데이터 블록</h3>
-
-<h4 id="section-2">블록 모양 정의</h4>
-<ul>
-  <li>블록 모양은 Blockly.Blocks 에 선언하도록 되어 있습니다.</li>
-  <li>예 ) <img src="https://raw.githubusercontent.com/entrylabs/entry-hw/gh-pages/wiki-image/module/block_create/Image.png" alt="기본블록" /> = <img src="https://raw.githubusercontent.com/entrylabs/entry-hw/gh-pages/wiki-image/module/block_create/Image%20%5B1%5D.png" alt="더하기블록" /></li>
-  <li>Blockly.Blocks 에 더하기 블록의 경우 위과 같이 작성하도록 되어 있습니다.</li>
-  <li>setColour 는 블록의 색을 정의 합니다. (calcBlockColor 의 기본색상은 #FFD974 입니다.)</li>
-  <li>appendValueInput은 입력받을수 있는 영역을 나타 냅니다.</li>
-  <li>setCheck는 입력 받을 값에 대한 데이터를 정의합니다.</li>
-  <li>appendDummyInput은 더미를 만들어 추가로 블록을 넣는 공간을 확보하는 역할을 수행합니다.</li>
-  <li>setOutput은 이 블록의 결과값을 정의 합니다.(true = 결과값이 있다. ‘Number’ = 숫자 타입이다.)</li>
-  <li>setInputsInline의 경우 입력 값을 한줄로 받겠다는 내용입니다.</li>
-  <li>블록정의의 경우 현재 구글의 Blockly를 사용하고 있습니다. 블록의 모양은 다르지만 사용법은 유사하므로</li>
-  <li>https://developers.google.com/blockly/custom-blocks/defining-blocks#init_function</li>
-  <li>Blockly의 Defining Blocks 섹션을 참고하시면 도움이 되실것 같습니다.
-#### 블록 기능 정의</li>
-  <li>블록 기능 정의는 Entry.block 에 선언하도록 되어 있습니다.</li>
-  <li>예) <img src="https://raw.githubusercontent.com/entrylabs/entry-hw/gh-pages/wiki-image/module/block_create/Image%20%5B2%5D.png" alt="엔트리블록예제" /></li>
-  <li>Entry.block에 더하기 블록의 경우 위와 같이 작성하도록 되어 있습니다.</li>
-  <li>일단 Blockly에서 작성하였던 이름 그대로 calc_plus로 정의를 하고 사용합니다.</li>
-  <li>Blockly 에서 입력 필드로  LEFTHAND와 RIGHTHAND 2가지를 정의해 놓았기 때문에 script.getNumberValue 로 접근해 해당 값을 가져올수 있습니다.</li>
-  <li>덧셈 블록이므로 두 값을 더해 return 하는것을 볼수 있습니다.
-#### 블록 삽입</li>
-  <li>블록 삽입의 경우에는 EntryStatic.getAllBlocks와 EntryStatic.blockInfo 두곳에 정의를 하도록 되어 있습니다.</li>
-  <li>getAllBLocks의 경우는 category와 사용할 블록의 이름을 적도록 되어 있습니다. 해당 이름은 Blockly.Blocks에 선언 했던 이름과 같은것을 사용합니다.</li>
-  <li>예) <img src="https://raw.githubusercontent.com/entrylabs/entry-hw/gh-pages/wiki-image/module/block_create/Image%20%5B3%5D.png" alt="getAllBlocks" /></li>
-  <li>위와 같은 방법으로 작성되어 있으며 해당 내용은 entryjs에 static.js 라는 이름의 파일 안에서 관리되고 있습니다.</li>
-  <li>calc_plus의 경우 category가 calc인 블록 모임에 포함되어 있으므로 categoryt: “calc”에 추가 하도록 합니다.</li>
-  <li>예) <img src="https://raw.githubusercontent.com/entrylabs/entry-hw/gh-pages/wiki-image/module/block_create/Image%20%5B4%5D.png" alt="static value" /></li>
-  <li>카테고리는 엔트리 워크 스페이스 상에서 탭으로 관리 되고 있습니다.</li>
-  <li><img src="https://raw.githubusercontent.com/entrylabs/entry-hw/gh-pages/wiki-image/module/block_create/Image%20%5B5%5D.png" alt="workspace" /></li>
-  <li>calc category는 실제로는 계산 이라는 탭으로 보여지게 됩니다.</li>
-  <li>blockInfo에는 블록에 대한 초기 값 세팅과 기타 속성들을 세팅하도록 되어 있습니다.</li>
-  <li>예) <img src="https://raw.githubusercontent.com/entrylabs/entry-hw/gh-pages/wiki-image/module/block_create/Image%20%5B6%5D.png" alt="static value" /></li>
-  <li>xml : 블록의 내부의 모양과 초기값등을 설정할수 있습니다.
-    <ul>
-      <li>설정할 내용이 없을경우 “<block type="calc_plus"></block>“와 같이 작성하면 됩니다.</li>
-      <li>스크린샷의 설정값의 경우는 LEFTHAND와 RIGHTHAND에 기본값이 10을 넣는 XML입니다.</li>
-      <li>작성된 xml은 아래와 같습니다.</li>
-    </ul>
-  </li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;block</span> <span class="na">type=</span><span class="s">'calc_plus'</span><span class="nt">&gt;</span>
-    <span class="nt">&lt;value</span> <span class="na">name=</span><span class="s">'LEFTHAND'</span><span class="nt">&gt;</span>
-        <span class="nt">&lt;block</span> <span class="na">type=</span><span class="s">'number'</span><span class="nt">&gt;</span>
-            <span class="nt">&lt;field</span> <span class="na">name=</span><span class="s">'NUM'</span><span class="nt">&gt;</span>0<span class="nt">&lt;/field&gt;</span>
-        <span class="nt">&lt;/block&gt;</span> 
-    <span class="nt">&lt;/value&gt;</span>
-    <span class="nt">&lt;value</span> <span class="na">name=</span><span class="s">'RIGHTHAND'</span><span class="nt">&gt;</span>
-        <span class="nt">&lt;block</span> <span class="na">type=</span><span class="s">'number'</span><span class="nt">&gt;</span>
-            <span class="nt">&lt;field</span> <span class="na">name=</span><span class="s">'NUM'</span><span class="nt">&gt;</span>10<span class="nt">&lt;/field&gt;</span>
-        <span class="nt">&lt;/block&gt;</span>
-    <span class="nt">&lt;/value&gt;</span>
-<span class="nt">&lt;/block&gt;</span></code></pre></figure>
-
-<ul>
-  <li>class: 블록 간의 구분선을 만들기 위한 속성 입니다.
-    <ul>
-      <li><img src="https://raw.githubusercontent.com/entrylabs/entry-hw/gh-pages/wiki-image/module/block_create/Image%20%5B7%5D.png" alt="class function" /></li>
-      <li>해당 속성 사용법은 소스상에서 위에서 아래로 순차적으로 탐색하면서 변화가 있을때마다 구분선을 작성합니다.</li>
-      <li>즉, 이름이 똑같은 것을이 모여서 구분되는것이 아니라 값이 변경되는 순간에 구분선이 만들어 지도록 되어 있습니다.</li>
-    </ul>
-  </li>
-  <li>isNotFor: 조건에 따라 블록을 보이거나 보이지 않도록 하는 기능을 수행합니다.
-    <ul>
-      <li>예) 변수가 생기면 변수를 감추거나 보이게 하는 블록이 보이게 된다.</li>
-      <li><img src="https://raw.githubusercontent.com/entrylabs/entry-hw/gh-pages/wiki-image/module/block_create/Image%20%5B8%5D.png" alt="static value" /></li>
-    </ul>
-  </li>
-  <li>usage: 강의 분석 용도.(일반적으로 비워 두시거나 class와 똑같이 이름 사용하시면 됩니다.)</li>
-  <li>description: 블록에 대한 설명입니다.</li>
-</ul>
-
-<h3 id="section-3">일반블록</h3>
-
-<h4 id="section-4">블록 모양 정의</h4>
-<ul>
-  <li>일반 블록의 경우는 일반적으로 위아래로 추가로 블록이 붙는 설정이 필요합니다.</li>
-  <li><img src="https://raw.githubusercontent.com/entrylabs/entry-hw/gh-pages/wiki-image/module/block_create/Image%20%5B9%5D.png" alt="일반블록 샘플" /> = <img src="https://raw.githubusercontent.com/entrylabs/entry-hw/gh-pages/wiki-image/module/block_create/Image%20%5B10%5D.png" alt="반복하기 블록" /></li>
-  <li>위의 예제는 반복 블록 예제입니다.</li>
-  <li>기본적인 작성법은 데이터 블록과 같습니다.</li>
-  <li>Entry경우에는 전부 InputsInline 블록이기 떄문에 setInputsInline 블록의 경우는 항상 true입니다.</li>
-  <li>appendStatemenInput(‘DO’)와 같이 작성하면 블록 안에 블록을 작성할수 있는 형태가 됩니다.</li>
-  <li>setPreviousStatement 값이 true인 경우 어떤 블록 밑에 붙일수 있도록 블럭이 생성됩니다.</li>
-  <li><img src="https://raw.githubusercontent.com/entrylabs/entry-hw/gh-pages/wiki-image/module/block_create/Image%20%5B11%5D.png" alt="상단 연결" /></li>
-  <li>setNextStatement 값이 true인 경우 어떤 블록을 밑에 붙일수 있도록 블럭이 생성됩니다.</li>
-  <li><img src="https://raw.githubusercontent.com/entrylabs/entry-hw/gh-pages/wiki-image/module/block_create/Image%20%5B12%5D.png" alt="하단 연결" /></li>
-  <li>이외 기타 사용법은 위에 언급드린대로 Blockly의 Defining Block섹션을 확인하시면 될것 같습니다.</li>
-</ul>
-
-<h4 id="section-5">블록 기능 정의</h4>
-<ul>
-  <li><img src="https://raw.githubusercontent.com/entrylabs/entry-hw/gh-pages/wiki-image/module/block_create/Image%20%5B13%5D.png" alt="블록 정의" /></li>
-  <li>일반 블록은 기본적으로 data블록과 같은 방식으로 작성이 됩니다.</li>
-  <li>다만 리턴값이 data가 아닌 script.callReturn();이 일반적으로 작성됩니다.</li>
-  <li>callReturn()의 경우는 다음 블록을 수행하도록 작동합니다.</li>
-</ul>
-
-<h4 id="section-6">블록 삽입</h4>
-<ul>
-  <li>블록 삽입의 방식은 위의 데이터 블록과 똑같습니다.</li>
-</ul>
-
-<h3 id="section-7">오프라인 버전을 이용하여 간단한 블록 만들어 보기</h3>
-<ul>
-  <li>node.js 설치 및 npm의존성 툴 등의 설치를 제외한 Entry offline 버전에서 블록을 간단하게 추가하는 법을 소개합니다.</li>
-  <li>먼저 http://play-entry.com/#!/offlineEditor 사이트에 들어가 오프라인 버전을 다운 받아 설치를 진행합니다.</li>
-  <li>기본 폴더의 위치는 c:\Entry 입니다.(이하 c:\Entry 에 엔트리가 설치되었다는 가정하에 진행합니다.)</li>
-  <li>C:\Entry\entry 폴더에 example.js 라는 자바스크립트 파일을 하나 생성합니다.</li>
-  <li>C:\Entry\entry\entry_offline.html 파일을 문서 편집기에서 열어 example.js를 추가합니다.(entry.js 이후에 작성해야 합니다.)</li>
-  <li><img src="https://raw.githubusercontent.com/entrylabs/entry-hw/gh-pages/wiki-image/module/block_create/Image%20%5B14%5D.png" alt="자바스크립트 등록" /></li>
-  <li>example.js에 적당한 블록을 추가합니다.(에제 파일 첨부해 보내드립니다.)</li>
-  <li><img src="https://raw.githubusercontent.com/entrylabs/entry-hw/gh-pages/wiki-image/module/block_create/Image%20%5B15%5D.png" alt="예제" /></li>
-  <li>위의 예제는 이동방향으로 value만큼 이동시키는 블럭과 LEFTHAND에서 RIGHTHAND값을 빼는 블록 2가지 예를 만들었습니다.</li>
-  <li>해당 블록을 static.js에 추가합니다.</li>
-  <li>getAllBlocks
-    <ul>
-      <li><img src="https://raw.githubusercontent.com/entrylabs/entry-hw/gh-pages/wiki-image/module/block_create/Image%20%5B16%5D.png" alt="이동" /> <img src="https://raw.githubusercontent.com/entrylabs/entry-hw/gh-pages/wiki-image/module/block_create/Image%20%5B17%5D.png" alt="계산" /></li>
-      <li>simple_example은 moving category에 data_example은 calc category에 넣었습니다.</li>
-    </ul>
-  </li>
-  <li>blockInfo
-    <ul>
-      <li><img src="https://raw.githubusercontent.com/entrylabs/entry-hw/gh-pages/wiki-image/module/block_create/Image%20%5B18%5D.png" alt="블록정보" /></li>
-      <li>필요한 가장 기본적인 블록 속성을 입력하였습니다.</li>
-    </ul>
-  </li>
-  <li>나온 결과
-    <ul>
-      <li><img src="https://raw.githubusercontent.com/entrylabs/entry-hw/gh-pages/wiki-image/module/block_create/Image%20%5B19%5D.png" alt="예제 실패블록1" /> <img src="https://raw.githubusercontent.com/entrylabs/entry-hw/gh-pages/wiki-image/module/block_create/Image%20%5B20%5D.png" alt="예제 실패블록2" /></li>
-      <li>blockInfo xml에 서 기본값을 정의 하지 않아 실제 값이 들어 가는 부분이 비어 있게 됬습니다.</li>
-    </ul>
-  </li>
-  <li>기본 값 세팅
-    <ul>
-      <li>data_example 의 경우 xml을 아래와 같이 작성합니다.</li>
-    </ul>
-  </li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;block</span> <span class="na">type=</span><span class="s">'data_example'</span><span class="nt">&gt;</span>
-    <span class="nt">&lt;value</span> <span class="na">name=</span><span class="s">'LEFTHAND'</span><span class="nt">&gt;</span>
-        <span class="nt">&lt;block</span> <span class="na">type=</span><span class="s">'text'</span><span class="nt">&gt;</span>
-            <span class="nt">&lt;field</span> <span class="na">name=</span><span class="s">'NAME'</span><span class="nt">&gt;</span>99<span class="nt">&lt;/field&gt;</span>
-        <span class="nt">&lt;/block&gt;</span>
-    <span class="nt">&lt;/value&gt;</span>
-    <span class="nt">&lt;value</span> <span class="na">name=</span><span class="s">'RIGHTHAND'</span><span class="nt">&gt;</span>
-        <span class="nt">&lt;block</span> <span class="na">type=</span><span class="s">'text'</span><span class="nt">&gt;</span>
-            <span class="nt">&lt;field</span> <span class="na">name=</span><span class="s">'NAME'</span><span class="nt">&gt;</span>1<span class="nt">&lt;/field&gt;</span>
-        <span class="nt">&lt;/block&gt;</span>
-    <span class="nt">&lt;/value&gt;</span>
-<span class="nt">&lt;/block&gt;</span></code></pre></figure>
-
-<ul>
-  <li>simple_example의 경우 아래와 같이 xml을 작성합니다.</li>
-</ul>
-
-<figure class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;block</span> <span class="na">type=</span><span class="s">'simple_example'</span><span class="nt">&gt;</span>
-    <span class="nt">&lt;value</span> <span class="na">name=</span><span class="s">'VALUE'</span><span class="nt">&gt;</span>
-        <span class="nt">&lt;block</span> <span class="na">type=</span><span class="s">'number'</span><span class="nt">&gt;</span>
-            <span class="nt">&lt;field</span> <span class="na">name=</span><span class="s">'NUM'</span><span class="nt">&gt;</span>100<span class="nt">&lt;/field&gt;</span>
-        <span class="nt">&lt;/block&gt;</span>
-    <span class="nt">&lt;/value&gt;</span>
-<span class="nt">&lt;/block&gt;</span></code></pre></figure>
-
-<ul>
-  <li>결과
-    <ul>
-      <li><img src="https://raw.githubusercontent.com/entrylabs/entry-hw/gh-pages/wiki-image/module/block_create/Image%20%5B21%5D.png" alt="예제 성공블록1" /> <img src="https://raw.githubusercontent.com/entrylabs/entry-hw/gh-pages/wiki-image/module/block_create/Image%20%5B22%5D.png" alt="예제 성공블록2" />
- 	위와 같이 나오게 되었습니다.</li>
-    </ul>
-  </li>
-</ul>
-
-  </div>
-  
 </div>
 
 <div class="pagination">
   
-    <span class="pagination-item older">Older</span>
+    <span class="pagination-item older">이전</span>
   
   
-    <span class="pagination-item newer">Newer</span>
+    <span class="pagination-item newer">다음</span>
   
 </div>
-    </div>
-
-  </body>
+				</div>
+			</div>
+		</div>
+	</body>
 </html>

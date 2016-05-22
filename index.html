@@ -1,7 +1,6 @@
 <!DOCTYPE html>
-<html lang="en-us">
-
-  <head>
+<html lang="ko-kr">
+	<head>
   <link href="http://gmpg.org/xfn/11" rel="profile">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
@@ -11,14 +10,18 @@
 
   <title>
     
-      인덱스 &middot; Entry-HW
+      인덱스 &middot; Entry Docs
     
   </title>
 
   <!-- CSS -->
-  <link rel="stylesheet" href="/entry-hw/public/css/poole.css">
-  <link rel="stylesheet" href="/entry-hw/public/css/syntax.css">
+  <!--
   <link rel="stylesheet" href="/entry-hw/public/css/hyde.css">
+  -->
+  <link rel="stylesheet" href="/entry-hw/public/css/flux.css">
+  <link rel="stylesheet" href="/entry-hw/public/css/flux-extend.css">
+  <link rel="stylesheet" href="/entry-hw/public/css/syntax.css">
+  <link rel="stylesheet" href="/entry-hw/public/css/poole.css">
   <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
 
   <!-- Icons -->
@@ -29,99 +32,136 @@
   <link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
 </head>
 
-
-  <body>
-
-    <div class="sidebar">
-    <div class="container sidebar-sticky">
-        <div class="sidebar-about">
-            <h1>
-                <a href="/entry-hw/">
-                    Entry-HW
+	<body>
+		<div class="container">
+			<div class="nav-main">
+    <div class="wrap">
+        <a href="/entry-hw/" class="nav-home">
+            <img src="/entry-hw/public/image/logo.png"/>
+            <span>
+                Entry Docs
+            </span>
+        </a>
+        <ul class="nav-site">
+            <li>
+                <a class="active">
+                    DOCS
                 </a>
-            </h1>
-            <p class="lead">엔트리 하드웨어 개발 가이드</p>
-        </div>
-
-        <nav class="sidebar-nav">
-            <a class="sidebar-nav-item active" href="/entry-hw/">인덱스</a>
-            <a class="sidebar-nav-item" href="/entry-hw/posts">문서들</a>
-            
-
-            
-            
-                
-                    
-                
-            
-                
-                    
-                        <a class="sidebar-nav-item" href="/entry-hw/GettingStarted/">시작하기</a>
-                    
-                
-            
-                
-                    
-                        <a class="sidebar-nav-item" href="/entry-hw/SettingEnvironments/">개발환경 세팅</a>
-                    
-                
-            
-                
-                    
-                
-            
-                
-            
-                
-                    
-                
-            
-                
-                    
-                
-            
-                
-                    
-                
-            
-
-            <a class="sidebar-nav-item" href="https://github.com/entrylabs/entry-hw/zipball/master">다운로드</a>
-            <a class="sidebar-nav-item" href="https://github.com/entrylabs/entry-hw" target="_blank">GitHub</a>
-            <span class="sidebar-nav-item">Currently v1.5.1</span>
-        </nav>
-
-        <p>&copy; 2016. All rights reserved.</p>
+            </li>
+            <li>
+                <a class="">
+                    SUPPORT
+                </a>
+            </li>
+            <li>
+                <a href="https://github.com/entrylabs/entry-hw" target="_blank">
+                    GITHUB
+                </a>
+            </li>
+        </ul>
     </div>
 </div>
 
-
-    <div class="content container">
-      <h2 id="section">인덱스</h2>
-
-<p>하드웨어 연결프로그램을 만들때 필요한 부분들이 문서화 했습니다.<br />
-잘모를실때는 아래의 문서들을 확인해 주세요.</p>
-
-<hr />
-
-<p><strong>Overview:</strong></p>
-
-<ul>
-  <li><a href="/entry-hw/SettingEnvironments/">개발환경 세팅</a></li>
-  <li><a href="/entry-hw/GettingStarted/">시작하기</a></li>
-  <li><a href="/entry-hw/2016/05/03/base_guide/">기본적인 하드웨어 등록 절차 및 방법</a></li>
-  <li><a href="/entry-hw/2016/05/03/git_fork/">Git Fork 방법</a></li>
-</ul>
-
-<hr />
-
-<p><strong>Advanced:</strong></p>
-
-<ul>
-  <li><a href="/entry-hw/2016/05/03/add_module/">모듈추가</a></li>
-  <li><a href="/entry-hw/2016/05/03/add_blocks/">블록추가</a></li>
-</ul>
-
+			<div class="content wrap documentationContent">
+				<div class="nav-docs posts">
+    <div class="nav-docs-section">
+        <h3>Quick Start</h3>
+        <ul>
+            
+            
+                
+                    
+                        <li><a class="" href="/entry-hw/page/1_GettingStarted/">시작하기</a></li>
+                    
+                
+            
+                
+                    
+                        <li><a class="" href="/entry-hw/page/2_SettingEnvironments/">개발환경 세팅</a></li>
+                    
+                
+            
+                
+                    
+                        <li><a class="" href="/entry-hw/page/3_BaseGuide/">기본 개발 절차</a></li>
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+        </ul>
     </div>
+    <div class="nav-docs-section">
+        <h3>하드웨어 모듈 개발</h3>
+        <ul>
+            
+                
+            
+                
+            
+                
+                    <li><a class="" href="/entry-hw/2016/05/03/add_module/">모듈 추가 방법</a></li>
+                
+            
+        </ul>
+    </div>
+    <div class="nav-docs-section">
+        <h3>엔트리 블록 개발</h3>
+        <ul>
+            
+                
+                    <li><a class="" href="/entry-hw/2016/05/22/add_new_blocks/">엔트리 신규 블록추가</a></li>
+                
+            
+                
+            
+                
+            
+        </ul>
+    </div>
+    <div class="nav-docs-section">
+        <h3>Tip & Tech</h3>
+        <ul>
+            
+                
+            
+                
+                    <li><a class="" href="/entry-hw/2016/05/03/git_fork/">Git Fork 방법</a></li>
+                
+            
+                
+            
+        </ul>
+    </div>
+    
+</div>
 
-  </body>
+				<div class="inner-content">
+
+					
+
+				</div>
+			</div>
+		</div>
+	</body>
 </html>
