@@ -43,6 +43,24 @@
 	$('#other-robot .text').text(translator.translate('Connect Other Hardware'));
 	$('#entry .text').text(translator.translate('Show Entry Web Page'));
 
+	var copyRecursiveSync = function(src, dest) {
+		var exists = fs.existsSync(src);
+		var stats = exists && fs.statSync(src);
+		var isDirectory = exists && stats.isDirectory();
+		if (exists && isDirectory) {
+			if(!fs.existsSync(dest)) {
+				fs.mkdirSync(dest);
+			}
+			fs.readdirSync(src).forEach(function(childItemName) {
+				copyRecursiveSync(path.join(src, childItemName),
+				            path.join(dest, childItemName));
+			});
+		} else {
+			var data = fs.readFileSync(src);
+			fs.writeFileSync(dest, data);
+		}
+	};
+
 	var ui = {
 		countRobot: 0,
 		showRobotList: function() {
@@ -170,10 +188,16 @@
 						$('#driver').click(function() {
 							var driversPath;
 							if(__dirname.indexOf('.asar') >= 0) {
-								driversPath = path.join(__dirname, '..', 'drivers', driverPath);
+								var sourcePath = path.join(__dirname, 'drivers');
+								driversPath = path.join(__dirname, '..', 'drivers');
+								if(!fs.existsSync(driversPath)) {
+									copyRecursiveSync(sourcePath, driversPath);
+								}
+								driversPath = path.resolve(driversPath, driverPath)
 							} else {
 								driversPath = path.join(__dirname, 'drivers', driverPath);
 							}
+
 							shell.openItem(driversPath);
 						});
 					}

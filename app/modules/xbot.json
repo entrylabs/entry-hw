@@ -8,8 +8,8 @@
 	"module": "xbot.js",
 	"url": "http://www.xbot.co.kr",
 	"driver": {
-		"win32-ia32": "compat/SETUP.exe",
-		"win32-x64": "compat/SETUP.exe"
+		"win32-ia32": "compat/SETUP.EXE",
+		"win32-x64": "compat/SETUP.EXE"
 	},	
 	"entry": {
 		"protocol": "json"

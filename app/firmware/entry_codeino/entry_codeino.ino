@@ -45,7 +45,7 @@ void updateDigitalPort (char c) {
       // is data end at this chunk
       if ((c>>5) & 1) {
         int port = (c >> 1) & B1111;
-        //setPortWritable(port);
+        setPortWritable(port);
         if (c & 1)
           digitalWrite(port, HIGH);
         else
@@ -61,7 +61,7 @@ void updateDigitalPort (char c) {
   } else {
     int port = (remainData >> 1) & B1111;
     int value = ((remainData & 1) << 7) + (c & B1111111);
-    //setPortWritable(port);
+    setPortWritable(port);
     analogWrite(port, value);
     remainData = 0;
   }
