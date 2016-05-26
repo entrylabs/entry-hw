@@ -120,6 +120,10 @@
                 
             
                 
+            
+                
+            
+                
                     <li><a class="" href="/entry-hw/2016/05/03/add_module/">모듈 추가 방법</a></li>
                 
             
@@ -129,12 +133,24 @@
         <h3>엔트리 블록 개발</h3>
         <ul>
             
+            
                 
-                    <li><a class="" href="/entry-hw/2016/05/22/add_new_blocks/">엔트리 신규 블록추가</a></li>
+            
                 
             
                 
             
+                    <li><a class="" href="/entry-hw/2016/05/22/add_new_blocks/">블록 명세 작성</a></li>
+                
+            
+                
+            
+                    <li><a class="" href="/entry-hw/2016/05/26/add_new_blocks2/">블록 사용 등록</a></li>
+                
+            
+                
+            
+                    <li><a class="" href="/entry-hw/2016/05/26/add_new_blocks3/">각 블록 모양별 생성 방법</a></li>
                 
             
         </ul>
@@ -142,6 +158,10 @@
     <div class="nav-docs-section">
         <h3>Tip & Tech</h3>
         <ul>
+            
+                
+            
+                
             
                 
             
@@ -162,8 +182,186 @@
   
   <div class="post">
     <h1 class="post-title">
+      <a href="/entry-hw/2016/05/26/add_new_blocks3/">
+        각 블록 모양별 생성 방법
+      </a>
+    </h1>
+
+    <span class="post-date">26 May 2016</span>
+
+    <h3 id="section">1. 값 블록</h3>
+
+<h4 id="section-1">ㄱ. 기본 블록</h4>
+<p><img src="/entry-hw/public/block_create/default_value.png" alt="기본 블록" /></p>
+
+<figure class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Entry</span><span class="p">.</span><span class="nx">block</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="na">default_value</span><span class="p">:</span> <span class="p">{</span>
+        <span class="c1">//블록 생상</span>
+        <span class="na">color</span><span class="p">:</span> <span class="s2">"#FFD974"</span><span class="p">,</span>
+        <span class="c1">// 폰트색상 basic_string_field는 기본 색상이 검정색(#000) 이다.</span>
+        <span class="na">fontColor</span><span class="p">:</span> <span class="s2">"#000"</span><span class="p">,</span>
+        <span class="c1">// 블록 모양 정의</span>
+        <span class="na">skeleton</span><span class="p">:</span> <span class="s2">"basic_string_field"</span><span class="p">,</span>
+        <span class="c1">// 블록 텍스트</span>
+        <span class="na">template</span><span class="p">:</span> <span class="s2">"test"</span><span class="p">,</span>
+        <span class="c1">// 보여질 블록 정의</span>
+        <span class="na">def</span><span class="p">:</span> <span class="p">{</span>
+            <span class="na">type</span><span class="p">:</span> <span class="s2">"default_value"</span>
+        <span class="p">},</span>
+        <span class="c1">// 블록 그룹 정의</span>
+        <span class="na">class</span><span class="p">:</span> <span class="s2">"test"</span><span class="p">,</span>
+        <span class="c1">// 블록 기능정의</span>
+        <span class="na">func</span><span class="p">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">sprite</span><span class="p">,</span> <span class="nx">script</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="s1">'value'</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>가장 기본적인 블록이다.<br />
+사용자에게 어떤한 입력도 받지 않고 단지 func정의한 return 값만 사용할수 있는 블록이다.<br />
+미리 정의된 변수를 호출하는 것이 가능하다.<br />
+skeleton이 “basic_string_field”로 정의된 블록의 모양이 이와 같다.<br />
+글자색이 제대로 보이지 않는다면 fontColor 프로퍼티를 통해 수정할수 있다.<br />
+template 프로퍼티에 정의한 텍스트가 그대로 나오게 된다.
+template 프로퍼티는 작성 되어 있지 않다면 Lang.template 에서 정의된 블록 명칭으로 값을 가져오게 된다.<br />
+<strong>다만, 정의된 블록 명칭이 없을경우 프로그램 자체가 로드되지 않는 버그 있으므로 주의!</strong></p>
+
+<blockquote>
+  <p>유사한 블록으로 초시계 값, 소릿값 블록이 있다.</p>
+</blockquote>
+
+<hr />
+
+<h4 id="section-2">ㄴ. 기본 사용자 입력 블록</h4>
+<p><img src="/entry-hw/public/block_create/default_input_value.png" alt="기본 블록" /></p>
+
+<figure class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Entry</span><span class="p">.</span><span class="nx">block</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="na">default_input_value</span><span class="p">:</span> <span class="p">{</span>
+        <span class="na">color</span><span class="p">:</span> <span class="s2">"#FFD974"</span><span class="p">,</span>
+        <span class="na">skeleton</span><span class="p">:</span> <span class="s2">"basic_string_field"</span><span class="p">,</span>
+        <span class="c1">// 블록 텍스트 - %1은 0번째 파라미터를 뜻한다.</span>
+        <span class="na">template</span><span class="p">:</span> <span class="s2">"%1"</span><span class="p">,</span>
+        <span class="c1">// 블록에 사용할 파라미터</span>
+        <span class="na">params</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="na">type</span><span class="p">:</span> <span class="s2">"TextInput"</span><span class="p">,</span>
+                <span class="na">value</span><span class="p">:</span> <span class="mi">0</span>
+            <span class="p">}</span>
+        <span class="p">],</span>
+        <span class="na">def</span><span class="p">:</span> <span class="p">{</span>
+            <span class="na">type</span><span class="p">:</span> <span class="s2">"default_input_value"</span>
+        <span class="p">},</span>
+        <span class="c1">// 파라미터를 사용 할때 쓰는 Key값 정의</span>
+        <span class="na">paramsKeyMap</span><span class="p">:</span> <span class="p">{</span>
+            <span class="c1">// VALUE라는 key에 0번째 파라미터를 정의 하였다.</span>
+            <span class="na">VALUE</span><span class="p">:</span> <span class="mi">0</span>
+        <span class="p">},</span>
+        <span class="na">class</span><span class="p">:</span> <span class="s2">"test"</span><span class="p">,</span>
+        <span class="na">func</span><span class="p">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">sprite</span><span class="p">,</span> <span class="nx">script</span><span class="p">)</span> <span class="p">{</span>            
+            <span class="c1">// 해당 값을 getField로 가져오고 </span>
+            <span class="c1">// 가져 올때 paramsKeyMap에서 </span>
+            <span class="c1">// 정의한 VALUE라는 키값으로 데이터를 가져온다.</span>
+            <span class="k">return</span> <span class="nx">script</span><span class="p">.</span><span class="nx">getField</span><span class="p">(</span><span class="s1">'VALUE'</span><span class="p">,</span> <span class="nx">script</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>가장 많이 사용되는 블록<br />
+단독으로 쓰이기 보단, 다른 블록의 파라미터로 사용되어지는 블록<br />
+사용자에게 직접 입력받는 블록이다.<br />
+여기서의 핵심은 template의 %1값이다. %1 이라고 정의한 값은 params의 0번째 param속성을 가져오고 
+해당 값을 세팅하도록 되어 있다.</p>
+
+<hr />
+
+<h4 id="section-3">ㄷ. 중첩 사용자 입력 블록</h4>
+
+<p><img src="/entry-hw/public/block_create/default_multi_input_value.png" alt="기본 블록" /></p>
+
+<figure class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Entry</span><span class="p">.</span><span class="nx">block</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="na">default_multi_input_value</span><span class="p">:</span> <span class="p">{</span>
+        <span class="na">color</span><span class="p">:</span> <span class="s2">"#FFD974"</span><span class="p">,</span>
+        <span class="na">skeleton</span><span class="p">:</span> <span class="s2">"basic_string_field"</span><span class="p">,</span>
+        <span class="c1">// 블록 텍스트</span>
+        <span class="c1">// 파라미터가 2개 사용되기 때문에 %1 %2 두개를 사용하였다.</span>
+        <span class="na">template</span><span class="p">:</span> <span class="s2">"%1 + %2"</span><span class="p">,</span>
+        <span class="na">params</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="c1">// 중첩되는 Value블록을 만들경우에는 </span>
+                <span class="c1">// TextInput이 아닌 Block타입으로 생성한다.</span>
+                <span class="c1">// Block type에는 string, boolean, param </span>
+                <span class="c1">// 3가지 종류의 accept가 존재 한다.</span>
+                <span class="na">type</span><span class="p">:</span> <span class="s2">"Block"</span><span class="p">,</span>
+                <span class="na">accept</span><span class="p">:</span> <span class="s2">"string"</span>
+            <span class="p">},</span>
+            <span class="p">{</span>
+                <span class="na">type</span><span class="p">:</span> <span class="s2">"Block"</span><span class="p">,</span>
+                <span class="na">accept</span><span class="p">:</span> <span class="s2">"string"</span>
+            <span class="p">}</span>
+        <span class="p">],</span>
+        <span class="na">events</span><span class="p">:</span> <span class="p">{},</span>
+        <span class="na">def</span><span class="p">:</span> <span class="p">{</span>
+            <span class="c1">// def의 params의 경우는 초기값을 지정할수 있다.</span>
+            <span class="c1">// TextInput의 경우에도 def &gt; params을 통해 값을 지정할수 있다.</span>
+            <span class="na">params</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span>
+                    <span class="na">type</span><span class="p">:</span> <span class="s2">"number"</span><span class="p">,</span>
+                    <span class="na">params</span><span class="p">:</span> <span class="p">[</span> <span class="s2">"0"</span> <span class="p">]</span>
+                <span class="p">},</span>
+                <span class="p">{</span>
+                    <span class="na">type</span><span class="p">:</span> <span class="s2">"number"</span><span class="p">,</span>
+                    <span class="na">params</span><span class="p">:</span> <span class="p">[</span> <span class="s2">"10"</span> <span class="p">]</span>
+                <span class="p">}</span>
+            <span class="p">],</span>
+            <span class="na">type</span><span class="p">:</span> <span class="s2">"default_multi_input_value"</span>
+        <span class="p">},</span>
+        <span class="na">paramsKeyMap</span><span class="p">:</span> <span class="p">{</span>
+            <span class="na">LEFTHAND</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="na">RIGHTHAND</span><span class="p">:</span> <span class="mi">1</span>
+        <span class="p">},</span>
+        <span class="na">class</span><span class="p">:</span> <span class="s2">"test"</span><span class="p">,</span>
+        <span class="na">func</span><span class="p">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">sprite</span><span class="p">,</span> <span class="nx">script</span><span class="p">)</span> <span class="p">{</span>
+            <span class="c1">// type이 Block의 경우에는 Field가 아닌 Value로 취급해서 가져온다.</span>
+            <span class="c1">// 일반적으로는 getValue로 값을 가져오고</span>
+            <span class="c1">// 명시적으로 숫자형으로 가져오고 싶을때에는 getNumberValue를 사용한다.</span>
+            <span class="kd">var</span> <span class="nx">leftValue</span> <span class="o">=</span> <span class="nx">script</span><span class="p">.</span><span class="nx">getNumberValue</span><span class="p">(</span><span class="s2">"LEFTHAND"</span><span class="p">,</span> <span class="nx">script</span><span class="p">);</span>
+            <span class="kd">var</span> <span class="nx">rightValue</span> <span class="o">=</span> <span class="nx">script</span><span class="p">.</span><span class="nx">getNumberValue</span><span class="p">(</span><span class="s2">"RIGHTHAND"</span><span class="p">,</span> <span class="nx">script</span><span class="p">);</span>
+            <span class="k">return</span>  <span class="nx">leftValue</span> <span class="o">+</span> <span class="nx">rightValue</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>자료 계산시 또는 하드웨어 아날로그 값을 처리할때 많이 사용하는 블록 형태이다.<br />
+해당 블록에서 핵심은 단일 입력 블록을 만들때와는 다르게 <code class="highlighter-rouge">type: "Block"</code>를 사용해서 
+값을 가져오는 것과 def &gt; params를 통해 초기값을 세팅한다는 점을 꼼꼼히 봐야한다.</p>
+
+<blockquote>
+  <p>유사한 블록은 계산 블록들과 하드웨어에서 아날로그 처리 블록들이다.</p>
+</blockquote>
+
+  </div>
+  
+  <div class="post">
+    <h1 class="post-title">
+      <a href="/entry-hw/2016/05/26/add_new_blocks2/">
+        블록 사용 등록
+      </a>
+    </h1>
+
+    <span class="post-date">26 May 2016</span>
+
+    <h3 id="section">블록 사용 등록</h3>
+<p>기존에는 static.js에 EntryStatic.getAllBlocks와 EntryStatic.blockInfo 두 가지를 설정했지만 
+blockInfo의 경우 block_entry.js에 포함되었습니다. getAllBlocks에만 사용 할 블록을 등록하면 해당 블록이 나오게 되어있습니다. 
+작성 방법은 기존과 같습니다.</p>
+
+
+  </div>
+  
+  <div class="post">
+    <h1 class="post-title">
       <a href="/entry-hw/2016/05/22/add_new_blocks/">
-        엔트리 신규 블록추가
+        블록 명세 작성
       </a>
     </h1>
 
@@ -263,8 +461,14 @@
 <h3 id="section-3">블록 사용 등록</h3>
 <p>기존에는 static.js에 EntryStatic.getAllBlocks와 EntryStatic.blockInfo 두 가지를 설정했지만 blockInfo의 경우 block_entry.js에 포함되었습니다. getAllBlocks에만 사용 할 블록을 등록하면 해당 블록이 나오게 되어있습니다. 작성 방법은 기존과 같습니다.</p>
 
+<hr />
+
 <h3 id="section-4">각 블록 모양별 생성 방법</h3>
-<p>작성 예정 입니다.</p>
+
+<h4 id="section-5">1. 값 블록</h4>
+
+<h5 id="section-6">ㄱ. 기본 블록</h5>
+<p><img src="/entry-hw/wiki-image/block_create/default_value.png" alt="기본 블록" /></p>
 
   </div>
   
