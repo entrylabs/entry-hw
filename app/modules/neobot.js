@@ -14,8 +14,8 @@ function Module() {
 		'OUT1',
 		'OUT2',
 		'OUT3',
-		'DCR',
 		'DCL',
+		'DCR',
 		'SND',
 		'FND',
 		'OPT'
@@ -99,7 +99,13 @@ Module.prototype.requestLocalData = function() {
 	requestData.push(0xAB);
 
 	var checksum = 0;
-	buffer.forEach(function (value) {
+	var isFnd = false;
+	buffer.forEach(function (value, idx) {
+		if(idx === 6 && value > 0) {
+			isFnd = true;
+		} else if(idx === 7 && isFnd) {
+			value = value | 8;
+		}
 		requestData.push(value);
 		checksum += value;
 	});

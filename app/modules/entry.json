@@ -8,8 +8,8 @@
 	"module": "entry.js",
 	"url": "http://www.neweducation.co.kr",
 	"driver": {
-		"win32-ia32": "compat/SETUP.exe",
-		"win32-x64": "compat/SETUP.exe"
+		"win32-ia32": "compat/SETUP.EXE",
+		"win32-x64": "compat/SETUP.EXE"
 	},
     "reconnect" : true,
 	"firmware": [{

@@ -24,11 +24,14 @@ Server.prototype.open = function(logger) {
 		    key: fs.readFileSync(path.resolve(global.__dirname, 'ssl', 'hardware.play-entry.key')),
 		    cert: fs.readFileSync(path.resolve(global.__dirname, 'ssl', 'cert.pem')),
 		    ca: fs.readFileSync(path.resolve(global.__dirname, 'ssl', 'Symantec-Chain_sha2.pem'))
+		}, function (req, res) {
+		    res.writeHead(200);
+		    res.end();
 		});
 	} else {
 		http = require('http');
 		httpServer = http.createServer(function(request, response) {
-			response.writeHead(404);
+			response.writeHead(200);
 			response.end();
 		});
 	}
