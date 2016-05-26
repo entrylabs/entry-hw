@@ -331,6 +331,226 @@ template 프로퍼티는 작성 되어 있지 않다면 Lang.template 에서 정
   <p>유사한 블록은 계산 블록들과 하드웨어에서 아날로그 처리 블록들이다.</p>
 </blockquote>
 
+<hr />
+
+<h4 id="section-4">ㄷ. 중첩 사용자 입력 블록 - 드롭다운 적용</h4>
+
+<p><img src="/entry-hw/public/image/block_create/default_dropdown_input_value.png" alt="기본 블록" /></p>
+
+<figure class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Entry</span><span class="p">.</span><span class="nx">block</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="na">default_dropdown_input_value</span><span class="p">:</span> <span class="p">{</span>
+        <span class="na">color</span><span class="p">:</span> <span class="s2">"#FFD974"</span><span class="p">,</span>
+        <span class="na">skeleton</span><span class="p">:</span> <span class="s2">"basic_string_field"</span><span class="p">,</span>
+        <span class="na">template</span><span class="p">:</span> <span class="s2">"%1 x %2"</span><span class="p">,</span>
+        <span class="na">params</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="na">type</span><span class="p">:</span> <span class="s2">"Block"</span><span class="p">,</span>
+                <span class="na">accept</span><span class="p">:</span> <span class="s2">"string"</span>
+            <span class="p">},</span>
+            <span class="p">{</span>
+                <span class="na">type</span><span class="p">:</span> <span class="s2">"Dropdown"</span><span class="p">,</span>
+                <span class="c1">// Dropdown 생성 기준은 </span>
+                <span class="c1">// [["key1", "value1"], ["key2", "value2"]]</span>
+                <span class="c1">// 처럼 구성이 된다.</span>
+                <span class="na">options</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="p">[</span><span class="s2">"1"</span><span class="p">,</span> <span class="s2">"1"</span><span class="p">],</span>
+                    <span class="p">[</span><span class="s2">"2"</span><span class="p">,</span> <span class="s2">"2"</span><span class="p">],</span>
+                    <span class="p">[</span><span class="s2">"3"</span><span class="p">,</span> <span class="s2">"3"</span><span class="p">],</span>
+                    <span class="p">[</span><span class="s2">"4"</span><span class="p">,</span> <span class="s2">"4"</span><span class="p">],</span>
+                    <span class="p">[</span><span class="s2">"5"</span><span class="p">,</span> <span class="s2">"5"</span><span class="p">],</span>
+                    <span class="p">[</span><span class="s2">"6"</span><span class="p">,</span> <span class="s2">"6"</span><span class="p">],</span>
+                    <span class="p">[</span><span class="s2">"7"</span><span class="p">,</span> <span class="s2">"7"</span><span class="p">],</span>
+                    <span class="p">[</span><span class="s2">"8"</span><span class="p">,</span> <span class="s2">"8"</span><span class="p">],</span>
+                    <span class="p">[</span><span class="s2">"9"</span><span class="p">,</span> <span class="s2">"9"</span><span class="p">]</span>
+                <span class="p">],</span>
+                <span class="na">fontSize</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span>
+                <span class="c1">// 기본 컬러는 EntryStatic.ARROW_COLOR_VARIABLE 이다.</span>
+                <span class="c1">// 드롭다운 버튼의 컬러를 커스텀하게 변경 할 수 있다.</span>
+                <span class="na">arrowColor</span><span class="p">:</span> <span class="s2">"#FFD974"</span>
+            <span class="p">}</span>
+        <span class="p">],</span>
+        <span class="na">def</span><span class="p">:</span> <span class="p">{</span>
+            <span class="na">params</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span>
+                    <span class="na">type</span><span class="p">:</span> <span class="s2">"number"</span><span class="p">,</span>
+                    <span class="na">params</span><span class="p">:</span> <span class="p">[</span> <span class="s2">"2"</span> <span class="p">]</span>
+                <span class="p">},</span>
+                <span class="c1">// Dropdown 값의 경우 Value를 세팅하면 초기값이 처리된다.</span>
+                <span class="s2">"1"</span>
+            <span class="p">],</span>
+            <span class="na">type</span><span class="p">:</span> <span class="s2">"test1"</span>
+        <span class="p">},</span>
+        <span class="na">paramsKeyMap</span><span class="p">:</span> <span class="p">{</span>
+            <span class="na">LEFTHAND</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="na">RIGHTHAND</span><span class="p">:</span> <span class="mi">1</span>
+        <span class="p">},</span>
+        <span class="na">class</span><span class="p">:</span> <span class="s2">"test"</span><span class="p">,</span>
+        <span class="na">func</span><span class="p">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">sprite</span><span class="p">,</span> <span class="nx">script</span><span class="p">)</span> <span class="p">{</span>
+            <span class="kd">var</span> <span class="nx">leftValue</span> <span class="o">=</span> <span class="nx">script</span><span class="p">.</span><span class="nx">getNumberValue</span><span class="p">(</span><span class="s2">"LEFTHAND"</span><span class="p">,</span> <span class="nx">script</span><span class="p">);</span>
+            <span class="c1">// Dropdown의 경우 getField로 값을 가져오고</span>
+            <span class="c1">// 명식적으로 숫자형으로 가져올땐 getNumberField를 사용해서 가져온다.</span>
+            <span class="c1">// 가져온 데이터는 Dropdown Option설정시에 지정하였던 Value값이다.</span>
+            <span class="kd">var</span> <span class="nx">rightValue</span> <span class="o">=</span> <span class="nx">script</span><span class="p">.</span><span class="nx">getNumberField</span><span class="p">(</span><span class="s2">"RIGHTHAND"</span><span class="p">,</span> <span class="nx">script</span><span class="p">);</span>
+            <span class="k">return</span>  <span class="nx">leftValue</span> <span class="o">*</span> <span class="nx">rightValue</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>사용자 키보드 타이핑 입력이 아닌 정해진 값을 선택해서 입력받는 방식으로 드롭다운 블록을 이용할수 있다. 
+기본적으로 드롭다운은 Key, Value방식으로 동작하고 Key는 사용자 에게 보여주는 값이며, Value는 내부적으로 사용되는 값이다.</p>
+
+<blockquote>
+  <p>유사한 블록은 계산블록의 날짜를 가져오는 블록과 하드웨어에서 센서를 골라서 값을 가져오는 기능이다.</p>
+</blockquote>
+
+<hr />
+
+<h3 id="section-5">2. 판단 블록</h3>
+
+<h4 id="section-6">ㄱ. 기본 판단 블록</h4>
+<p><img src="/entry-hw/public/image/block_create/default_boolean.png" alt="기본 판단 블록" /></p>
+
+<figure class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Entry</span><span class="p">.</span><span class="nx">block</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="na">default_boolean</span><span class="p">:</span> <span class="p">{</span>
+        <span class="c1">// 판단 블록 색생</span>
+        <span class="c1">// 기본 색상은 #AEB8FF</span>
+        <span class="na">color</span><span class="p">:</span> <span class="s2">"#AEB8FF"</span><span class="p">,</span>
+        <span class="c1">// 판단 블록은 skeleton이 basic_boolean_field이다.</span>
+        <span class="na">skeleton</span><span class="p">:</span> <span class="s2">"basic_boolean_field"</span><span class="p">,</span>
+        <span class="c1">// template에 기본적으로 텍스트를 작성하면 해당 바로 텍스트가 표현되나</span>
+        <span class="c1">// 아래와 같이 type: "Text" 로도 마찬가지로 설정할수 있다.</span>
+        <span class="na">template</span><span class="p">:</span> <span class="s2">"%1"</span><span class="p">,</span>
+        <span class="na">params</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="na">type</span><span class="p">:</span> <span class="s2">"Text"</span><span class="p">,</span>
+                <span class="c1">// 보여질 텍스트</span>
+                <span class="na">text</span><span class="p">:</span> <span class="s2">"판단 블록"</span><span class="p">,</span>
+                <span class="c1">// 텍스트의 색상</span>
+                <span class="na">color</span><span class="p">:</span> <span class="s2">"#3D3D3D"</span>
+            <span class="p">}</span>
+        <span class="p">],</span>
+        <span class="na">def</span><span class="p">:</span> <span class="p">{</span>
+            <span class="na">type</span><span class="p">:</span> <span class="s2">"default_boolean"</span>
+        <span class="p">},</span>
+        <span class="na">class</span><span class="p">:</span> <span class="s2">"test"</span><span class="p">,</span>
+        <span class="na">func</span><span class="p">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">sprite</span><span class="p">,</span> <span class="nx">script</span><span class="p">)</span> <span class="p">{</span>
+            <span class="c1">// 판단 블록은 리턴값이 true, false이어야 한다.</span>
+            <span class="k">return</span> <span class="kc">true</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>IF문을 사용할때 사용하는 파라미터 블럭 이다. 
+기본적으로 디지털 값 등 true, false두가지 형태로 나우어지는 데이터에 대해서 구성되어지는 블록이다.</p>
+
+<blockquote>
+  <p>유사한 블록으로는 판단에 마우스를 클릭했는가? 이다.</p>
+</blockquote>
+
+<hr />
+
+<h4 id="section-7">ㄴ. 중첩 사용자 입력 판단 블록</h4>
+<p><img src="/entry-hw/public/image/block_create/default_input_boolean.png" alt="기본 판단 블록" /></p>
+
+<figure class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Entry</span><span class="p">.</span><span class="nx">block</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="na">default_input_boolean</span><span class="p">:</span> <span class="p">{</span>
+        <span class="na">color</span><span class="p">:</span> <span class="s2">"#AEB8FF"</span><span class="p">,</span>
+        <span class="na">skeleton</span><span class="p">:</span> <span class="s2">"basic_boolean_field"</span><span class="p">,</span>
+        <span class="na">template</span><span class="p">:</span> <span class="s2">"%1 == %2"</span><span class="p">,</span>
+        <span class="na">params</span><span class="p">:</span> <span class="p">[{</span>
+            <span class="na">type</span><span class="p">:</span> <span class="s2">"Block"</span><span class="p">,</span>
+            <span class="na">accept</span><span class="p">:</span> <span class="s2">"string"</span>
+        <span class="p">},</span> <span class="p">{</span>
+            <span class="na">type</span><span class="p">:</span> <span class="s2">"Block"</span><span class="p">,</span>
+            <span class="na">accept</span><span class="p">:</span> <span class="s2">"string"</span>
+        <span class="p">}],</span>
+        <span class="na">def</span><span class="p">:</span> <span class="p">{</span>
+            <span class="na">params</span><span class="p">:</span> <span class="p">[{</span>
+                <span class="na">type</span><span class="p">:</span> <span class="s2">"number"</span><span class="p">,</span>
+                <span class="na">params</span><span class="p">:</span> <span class="p">[</span> <span class="s2">"10"</span> <span class="p">]</span>
+            <span class="p">},</span> <span class="p">{</span>
+                <span class="na">type</span><span class="p">:</span> <span class="s2">"number"</span><span class="p">,</span>
+                <span class="na">params</span><span class="p">:</span> <span class="p">[</span> <span class="s2">"33"</span> <span class="p">]</span>
+            <span class="p">}],</span>
+            <span class="na">type</span><span class="p">:</span> <span class="s2">"default_input_boolean"</span>
+        <span class="p">},</span>
+        <span class="na">paramsKeyMap</span><span class="p">:</span> <span class="p">{</span>
+            <span class="na">LEFTHAND</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="na">RIGHTHAND</span><span class="p">:</span> <span class="mi">1</span>
+        <span class="p">},</span>
+        <span class="na">class</span><span class="p">:</span> <span class="s2">"test"</span><span class="p">,</span>
+        <span class="na">func</span><span class="p">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">sprite</span><span class="p">,</span> <span class="nx">script</span><span class="p">)</span> <span class="p">{</span>
+            <span class="kd">var</span> <span class="nx">leftValue</span> <span class="o">=</span> <span class="nx">script</span><span class="p">.</span><span class="nx">getNumberValue</span><span class="p">(</span><span class="s1">'LEFTHAND'</span><span class="p">,</span> <span class="nx">script</span><span class="p">);</span>
+            <span class="kd">var</span> <span class="nx">rightValue</span> <span class="o">=</span> <span class="nx">script</span><span class="p">.</span><span class="nx">getNumberValue</span><span class="p">(</span><span class="s1">'RIGHTHAND'</span><span class="p">,</span> <span class="nx">script</span><span class="p">);</span>
+            <span class="k">return</span> <span class="p">(</span><span class="nx">leftValue</span> <span class="o">===</span> <span class="nx">rightValue</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>사용자에게 입력을 받아 값을 비교해 boolean값으로 반환 받는 블록이다. 
+하드웨어 센서 값들을 비교해서 처리하는데 이용할 수 있다. 
+다만 단순 값비교는 이미 존재하는 판단블록으로도 처리가 가능하다.</p>
+
+<blockquote>
+  <p>유사한 블록으로는 판단의 숫자 비교블록 이다.</p>
+</blockquote>
+
+<h4 id="section-8">ㄷ. 중첩 사용자 입력 판단 블록</h4>
+<p><img src="/entry-hw/public/image/block_create/default_dropdown_boolean.png" alt="중첩 사용자 입력 판단 블록" /></p>
+
+<figure class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Entry</span><span class="p">.</span><span class="nx">block</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="na">default_dropdown_boolean</span><span class="p">:</span> <span class="p">{</span>
+        <span class="na">color</span><span class="p">:</span> <span class="s2">"#AEB8FF"</span><span class="p">,</span>
+        <span class="na">skeleton</span><span class="p">:</span> <span class="s2">"basic_boolean_field"</span><span class="p">,</span>
+        <span class="na">template</span><span class="p">:</span> <span class="s2">"%1이 참이면"</span><span class="p">,</span>
+        <span class="na">params</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="na">type</span><span class="p">:</span> <span class="s2">"Dropdown"</span><span class="p">,</span>
+                <span class="na">options</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="p">[</span> <span class="s2">"첫번째"</span><span class="p">,</span> <span class="s2">"0"</span> <span class="p">],</span>
+                    <span class="p">[</span> <span class="s2">"두번째"</span><span class="p">,</span> <span class="s2">"1"</span> <span class="p">],</span>
+                    <span class="p">[</span> <span class="s2">"세번째"</span><span class="p">,</span> <span class="s2">"2"</span> <span class="p">]</span>
+                <span class="p">],</span>
+                <span class="na">fontSize</span><span class="p">:</span> <span class="mi">11</span>
+            <span class="p">}</span>
+        <span class="p">],</span>
+        <span class="na">def</span><span class="p">:</span> <span class="p">{</span>
+            <span class="na">params</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">"0"</span>
+            <span class="p">],</span>
+            <span class="na">type</span><span class="p">:</span> <span class="s2">"default_dropdown_boolean"</span>
+        <span class="p">},</span>
+        <span class="na">paramsKeyMap</span><span class="p">:</span> <span class="p">{</span>
+            <span class="na">VALUE</span><span class="p">:</span> <span class="mi">0</span>
+        <span class="p">},</span>
+        <span class="na">class</span><span class="p">:</span> <span class="s2">"test"</span><span class="p">,</span>
+        <span class="na">func</span><span class="p">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">sprite</span><span class="p">,</span> <span class="nx">script</span><span class="p">)</span> <span class="p">{</span>
+            <span class="kd">var</span> <span class="nx">value</span> <span class="o">=</span> <span class="nx">script</span><span class="p">.</span><span class="nx">getNumberValue</span><span class="p">(</span><span class="s1">'VALUE'</span><span class="p">,</span> <span class="nx">script</span><span class="p">);</span>
+            <span class="kd">var</span> <span class="nx">result</span><span class="p">;</span>
+            <span class="k">switch</span><span class="p">(</span><span class="nx">value</span><span class="p">)</span> <span class="p">{</span>
+                <span class="k">case</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="nx">result</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+                    <span class="k">break</span><span class="p">;</span>
+                <span class="k">case</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="nx">result</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
+                    <span class="k">break</span><span class="p">;</span>
+                <span class="k">case</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="nx">result</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
+                    <span class="k">break</span><span class="p">;</span>
+            <span class="p">}</span>
+
+            <span class="k">return</span> <span class="nx">result</span><span class="p">;</span>
+        <span class="p">}</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>정해진 목록내에서 입력 값을 받으려면 드롭다운을 사용할수 있다. 
+주로 하드웨어의 디지털 입력을 처리 할때 많이 사용한다.</p>
+
+<blockquote>
+  <p>유사한 블록으로는 하드웨어 디지털 입력 블록과 판단의 닿았는가 블록이 있다.</p>
+</blockquote>
+
+
 </div>
 
 <div class="related">
