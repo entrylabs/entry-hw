@@ -4,7 +4,7 @@
  <title>Entry Docs</title>
  <link href="http://entrylabs.github.io/atom.xml" rel="self"/>
  <link href="http://entrylabs.github.io/"/>
- <updated>2016-05-26T16:26:44+09:00</updated>
+ <updated>2016-05-26T17:19:25+09:00</updated>
  <id>http://entrylabs.github.io</id>
  <author>
    <name>kimorkim</name>
@@ -20,7 +20,7 @@
    <content type="html">&lt;h3 id=&quot;section&quot;&gt;1. 값 블록&lt;/h3&gt;
 
 &lt;h4 id=&quot;section-1&quot;&gt;ㄱ. 기본 블록&lt;/h4&gt;
-&lt;p&gt;&lt;img src=&quot;/entry-hw/public/block_create/default_value.png&quot; alt=&quot;기본 블록&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/entry-hw/public/image/block_create/default_value.png&quot; alt=&quot;기본 블록&quot; /&gt;&lt;/p&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-js&quot; data-lang=&quot;js&quot;&gt;&lt;span class=&quot;nx&quot;&gt;Entry&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;block&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
     &lt;span class=&quot;na&quot;&gt;default_value&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
@@ -61,7 +61,7 @@ template 프로퍼티는 작성 되어 있지 않다면 Lang.template 에서 정
 &lt;hr /&gt;
 
 &lt;h4 id=&quot;section-2&quot;&gt;ㄴ. 기본 사용자 입력 블록&lt;/h4&gt;
-&lt;p&gt;&lt;img src=&quot;/entry-hw/public/block_create/default_input_value.png&quot; alt=&quot;기본 블록&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/entry-hw/public/image/block_create/default_input_value.png&quot; alt=&quot;기본 블록&quot; /&gt;&lt;/p&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-js&quot; data-lang=&quot;js&quot;&gt;&lt;span class=&quot;nx&quot;&gt;Entry&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;block&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
     &lt;span class=&quot;na&quot;&gt;default_input_value&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
@@ -104,7 +104,7 @@ template 프로퍼티는 작성 되어 있지 않다면 Lang.template 에서 정
 
 &lt;h4 id=&quot;section-3&quot;&gt;ㄷ. 중첩 사용자 입력 블록&lt;/h4&gt;
 
-&lt;p&gt;&lt;img src=&quot;/entry-hw/public/block_create/default_multi_input_value.png&quot; alt=&quot;기본 블록&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/entry-hw/public/image/block_create/default_multi_input_value.png&quot; alt=&quot;기본 블록&quot; /&gt;&lt;/p&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-js&quot; data-lang=&quot;js&quot;&gt;&lt;span class=&quot;nx&quot;&gt;Entry&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;block&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
     &lt;span class=&quot;na&quot;&gt;default_multi_input_value&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
