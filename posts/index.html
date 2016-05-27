@@ -189,9 +189,36 @@
 
     <span class="post-date">26 May 2016</span>
 
-    <h3 id="section">1. 값 블록</h3>
+    <h3 id="section">목차</h3>
 
-<h4 id="section-1">ㄱ. 기본 블록</h4>
+<ol>
+  <li>값 블록
+    <ol>
+      <li>기본 블록</li>
+      <li>기본 사용자 입력 블록</li>
+      <li>중첩 사용자 입력 블록</li>
+      <li>중첩 사용자 입력 블록 - 드롭다운 적용</li>
+    </ol>
+  </li>
+  <li>판단 블록
+    <ol>
+      <li>기본 판단 블록</li>
+      <li>중첩 사용자 입력 판단 블록</li>
+      <li>중첩 사용자 드롭다운 판단 블록</li>
+    </ol>
+  </li>
+  <li>순차 블록
+    <ol>
+      <li>기본 순차 블록</li>
+      <li>사용자 입력 순차 블록</li>
+      <li>드롭다운 입력 순차 블록</li>
+    </ol>
+  </li>
+</ol>
+
+<h3 id="section-1">1. 값 블록</h3>
+
+<h4 id="section-2">ㄱ. 기본 블록</h4>
 <p><img src="/entry-hw/public/image/block_create/default_value.png" alt="기본 블록" /></p>
 
 <figure class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Entry</span><span class="p">.</span><span class="nx">block</span> <span class="o">=</span> <span class="p">{</span>
@@ -212,7 +239,7 @@
         <span class="na">class</span><span class="p">:</span> <span class="s2">"test"</span><span class="p">,</span>
         <span class="c1">// 블록 기능정의</span>
         <span class="na">func</span><span class="p">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">sprite</span><span class="p">,</span> <span class="nx">script</span><span class="p">)</span> <span class="p">{</span>
-            <span class="k">return</span> <span class="s1">'value'</span><span class="p">;</span>
+            <span class="k">return</span> <span class="s2">"value"</span><span class="p">;</span>
         <span class="p">}</span>
     <span class="p">}</span>
 <span class="p">}</span></code></pre></figure>
@@ -224,7 +251,7 @@ skeleton이 “basic_string_field”로 정의된 블록의 모양이 이와 같
 글자색이 제대로 보이지 않는다면 fontColor 프로퍼티를 통해 수정할수 있다.<br />
 template 프로퍼티에 정의한 텍스트가 그대로 나오게 된다.
 template 프로퍼티는 작성 되어 있지 않다면 Lang.template 에서 정의된 블록 명칭으로 값을 가져오게 된다.<br />
-<strong>다만, 정의된 블록 명칭이 없을경우 프로그램 자체가 로드되지 않는 버그 있으므로 주의!</strong></p>
+<strong>다만, 정의된 블록 명칭이 없을경우 프로그램 자체가 로드가 되지 않음으로 주의!</strong></p>
 
 <blockquote>
   <p>유사한 블록으로 초시계 값, 소릿값 블록이 있다.</p>
@@ -232,7 +259,7 @@ template 프로퍼티는 작성 되어 있지 않다면 Lang.template 에서 정
 
 <hr />
 
-<h4 id="section-2">ㄴ. 기본 사용자 입력 블록</h4>
+<h4 id="section-3">ㄴ. 기본 사용자 입력 블록</h4>
 <p><img src="/entry-hw/public/image/block_create/default_input_value.png" alt="기본 블록" /></p>
 
 <figure class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Entry</span><span class="p">.</span><span class="nx">block</span> <span class="o">=</span> <span class="p">{</span>
@@ -261,7 +288,7 @@ template 프로퍼티는 작성 되어 있지 않다면 Lang.template 에서 정
             <span class="c1">// 해당 값을 getField로 가져오고 </span>
             <span class="c1">// 가져 올때 paramsKeyMap에서 </span>
             <span class="c1">// 정의한 VALUE라는 키값으로 데이터를 가져온다.</span>
-            <span class="k">return</span> <span class="nx">script</span><span class="p">.</span><span class="nx">getField</span><span class="p">(</span><span class="s1">'VALUE'</span><span class="p">,</span> <span class="nx">script</span><span class="p">);</span>
+            <span class="k">return</span> <span class="nx">script</span><span class="p">.</span><span class="nx">getField</span><span class="p">(</span><span class="s2">"VALUE"</span><span class="p">,</span> <span class="nx">script</span><span class="p">);</span>
         <span class="p">}</span>
     <span class="p">}</span>
 <span class="p">}</span></code></pre></figure>
@@ -274,7 +301,7 @@ template 프로퍼티는 작성 되어 있지 않다면 Lang.template 에서 정
 
 <hr />
 
-<h4 id="section-3">ㄷ. 중첩 사용자 입력 블록</h4>
+<h4 id="section-4">ㄷ. 중첩 사용자 입력 블록</h4>
 
 <p><img src="/entry-hw/public/image/block_create/default_multi_input_value.png" alt="기본 블록" /></p>
 
@@ -341,7 +368,7 @@ template 프로퍼티는 작성 되어 있지 않다면 Lang.template 에서 정
 
 <hr />
 
-<h4 id="section-4">ㄷ. 중첩 사용자 입력 블록 - 드롭다운 적용</h4>
+<h4 id="section-5">ㄷ. 중첩 사용자 입력 블록 - 드롭다운 적용</h4>
 
 <p><img src="/entry-hw/public/image/block_create/default_dropdown_input_value.png" alt="기본 블록" /></p>
 
@@ -413,9 +440,9 @@ template 프로퍼티는 작성 되어 있지 않다면 Lang.template 에서 정
 
 <hr />
 
-<h3 id="section-5">2. 판단 블록</h3>
+<h3 id="section-6">2. 판단 블록</h3>
 
-<h4 id="section-6">ㄱ. 기본 판단 블록</h4>
+<h4 id="section-7">ㄱ. 기본 판단 블록</h4>
 <p><img src="/entry-hw/public/image/block_create/default_boolean.png" alt="기본 판단 블록" /></p>
 
 <figure class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Entry</span><span class="p">.</span><span class="nx">block</span> <span class="o">=</span> <span class="p">{</span>
@@ -457,8 +484,8 @@ template 프로퍼티는 작성 되어 있지 않다면 Lang.template 에서 정
 
 <hr />
 
-<h4 id="section-7">ㄴ. 중첩 사용자 입력 판단 블록</h4>
-<p><img src="/entry-hw/public/image/block_create/default_input_boolean.png" alt="기본 판단 블록" /></p>
+<h4 id="section-8">ㄴ. 중첩 사용자 입력 판단 블록</h4>
+<p><img src="/entry-hw/public/image/block_create/default_input_boolean.png" alt="중첩 사용자 입력 판단 블록" /></p>
 
 <figure class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Entry</span><span class="p">.</span><span class="nx">block</span> <span class="o">=</span> <span class="p">{</span>
     <span class="na">default_input_boolean</span><span class="p">:</span> <span class="p">{</span>
@@ -488,8 +515,8 @@ template 프로퍼티는 작성 되어 있지 않다면 Lang.template 에서 정
         <span class="p">},</span>
         <span class="na">class</span><span class="p">:</span> <span class="s2">"test"</span><span class="p">,</span>
         <span class="na">func</span><span class="p">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">sprite</span><span class="p">,</span> <span class="nx">script</span><span class="p">)</span> <span class="p">{</span>
-            <span class="kd">var</span> <span class="nx">leftValue</span> <span class="o">=</span> <span class="nx">script</span><span class="p">.</span><span class="nx">getNumberValue</span><span class="p">(</span><span class="s1">'LEFTHAND'</span><span class="p">,</span> <span class="nx">script</span><span class="p">);</span>
-            <span class="kd">var</span> <span class="nx">rightValue</span> <span class="o">=</span> <span class="nx">script</span><span class="p">.</span><span class="nx">getNumberValue</span><span class="p">(</span><span class="s1">'RIGHTHAND'</span><span class="p">,</span> <span class="nx">script</span><span class="p">);</span>
+            <span class="kd">var</span> <span class="nx">leftValue</span> <span class="o">=</span> <span class="nx">script</span><span class="p">.</span><span class="nx">getNumberValue</span><span class="p">(</span><span class="s2">"LEFTHAND"</span><span class="p">,</span> <span class="nx">script</span><span class="p">);</span>
+            <span class="kd">var</span> <span class="nx">rightValue</span> <span class="o">=</span> <span class="nx">script</span><span class="p">.</span><span class="nx">getNumberValue</span><span class="p">(</span><span class="s2">"RIGHTHAND"</span><span class="p">,</span> <span class="nx">script</span><span class="p">);</span>
             <span class="k">return</span> <span class="p">(</span><span class="nx">leftValue</span> <span class="o">===</span> <span class="nx">rightValue</span><span class="p">);</span>
         <span class="p">}</span>
     <span class="p">}</span>
@@ -503,8 +530,8 @@ template 프로퍼티는 작성 되어 있지 않다면 Lang.template 에서 정
   <p>유사한 블록으로는 판단의 숫자 비교블록 이다.</p>
 </blockquote>
 
-<h4 id="section-8">ㄷ. 중첩 사용자 입력 판단 블록</h4>
-<p><img src="/entry-hw/public/image/block_create/default_dropdown_boolean.png" alt="중첩 사용자 입력 판단 블록" /></p>
+<h4 id="section-9">ㄷ. 중첩 사용자 드롭다운 판단 블록</h4>
+<p><img src="/entry-hw/public/image/block_create/default_dropdown_boolean.png" alt="중첩 사용자 드롭다운 판단 블록" /></p>
 
 <figure class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Entry</span><span class="p">.</span><span class="nx">block</span> <span class="o">=</span> <span class="p">{</span>
     <span class="na">default_dropdown_boolean</span><span class="p">:</span> <span class="p">{</span>
@@ -533,7 +560,7 @@ template 프로퍼티는 작성 되어 있지 않다면 Lang.template 에서 정
         <span class="p">},</span>
         <span class="na">class</span><span class="p">:</span> <span class="s2">"test"</span><span class="p">,</span>
         <span class="na">func</span><span class="p">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">sprite</span><span class="p">,</span> <span class="nx">script</span><span class="p">)</span> <span class="p">{</span>
-            <span class="kd">var</span> <span class="nx">value</span> <span class="o">=</span> <span class="nx">script</span><span class="p">.</span><span class="nx">getNumberValue</span><span class="p">(</span><span class="s1">'VALUE'</span><span class="p">,</span> <span class="nx">script</span><span class="p">);</span>
+            <span class="kd">var</span> <span class="nx">value</span> <span class="o">=</span> <span class="nx">script</span><span class="p">.</span><span class="nx">getNumberValue</span><span class="p">(</span><span class="s2">"VALUE"</span><span class="p">,</span> <span class="nx">script</span><span class="p">);</span>
             <span class="kd">var</span> <span class="nx">result</span><span class="p">;</span>
             <span class="k">switch</span><span class="p">(</span><span class="nx">value</span><span class="p">)</span> <span class="p">{</span>
                 <span class="k">case</span> <span class="mi">0</span><span class="p">:</span>
@@ -549,6 +576,7 @@ template 프로퍼티는 작성 되어 있지 않다면 Lang.template 에서 정
 
             <span class="k">return</span> <span class="nx">result</span><span class="p">;</span>
         <span class="p">}</span>
+    <span class="p">}</span>
 <span class="p">}</span></code></pre></figure>
 
 <p>정해진 목록내에서 입력 값을 받으려면 드롭다운을 사용할수 있다. 
@@ -558,6 +586,131 @@ template 프로퍼티는 작성 되어 있지 않다면 Lang.template 에서 정
   <p>유사한 블록으로는 하드웨어 디지털 입력 블록과 판단의 닿았는가 블록이 있다.</p>
 </blockquote>
 
+<hr />
+
+<h3 id="section-10">3. 순차 블록</h3>
+
+<h4 id="section-11">ㄱ. 기본 순차 블록</h4>
+<p><img src="/entry-hw/public/image/block_create/default_block.png" alt="기본 순차 블록" /></p>
+
+<figure class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Entry</span><span class="p">.</span><span class="nx">block</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="na">default_block</span><span class="p">:</span> <span class="p">{</span>
+        <span class="c1">// 하드웨어 기본 색상</span>
+        <span class="na">color</span><span class="p">:</span> <span class="s2">"#00979D"</span><span class="p">,</span>
+        <span class="na">skeleton</span><span class="p">:</span> <span class="s2">"basic"</span><span class="p">,</span>
+        <span class="c1">// 순차블록은 마지막에 이미지가 들어가도록 되어 있다.</span>
+        <span class="c1">// 이미지도 parameter로 관리 됨으로 %1값이 마지막에 들어간다.</span>
+        <span class="na">template</span><span class="p">:</span> <span class="s2">"변수 A값에 1더하기 %1"</span><span class="p">,</span>
+        <span class="na">params</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="na">type</span><span class="p">:</span> <span class="s2">"Indicator"</span><span class="p">,</span>
+                <span class="c1">// hardware_03.png가 하드웨어 아이콘 이다.</span>
+                <span class="na">img</span><span class="p">:</span> <span class="s2">"block_icon/hardware_03.png"</span><span class="p">,</span>
+                <span class="na">size</span><span class="p">:</span> <span class="mi">12</span>
+            <span class="p">}</span>
+        <span class="p">],</span>
+        <span class="na">events</span><span class="p">:</span> <span class="p">{},</span>
+        <span class="na">def</span><span class="p">:</span> <span class="p">{</span>
+            <span class="na">type</span><span class="p">:</span> <span class="s2">"default_block"</span>
+        <span class="p">},</span>
+        <span class="na">class</span><span class="p">:</span> <span class="s2">"test"</span><span class="p">,</span>
+        <span class="na">isNotFor</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="na">func</span><span class="p">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">sprite</span><span class="p">,</span> <span class="nx">script</span><span class="p">)</span> <span class="p">{</span>
+            <span class="c1">// A라는 변수가 있다고 가정할때.</span>
+            <span class="nx">Entry</span><span class="p">.</span><span class="nx">test</span><span class="p">.</span><span class="nx">A</span><span class="o">++</span><span class="p">;</span>
+            <span class="c1">// 순차 블록은 기본적으로 return값이 value가 아닌</span>
+            <span class="c1">// script.callReturn();이다.</span>
+            <span class="c1">// script.callReturn()은 다음 블록을 실행하도록 한다.</span>
+            <span class="k">return</span> <span class="nx">script</span><span class="p">.</span><span class="nx">callReturn</span><span class="p">();</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>가장 많이 사용하는 블록이다. 순차로 실행되는 블록으로 정해진 기능을 수행하는 블록이다. 
+엔트리에서 가장 많이 사용되며 핵심블록으로 분류할수 있다.</p>
+
+<h4 id="section-12">ㄴ. 사용자 입력 순차 블록</h4>
+<p><img src="/entry-hw/public/image/block_create/default_input_block.png" alt="기본 순차 블록" /></p>
+
+<figure class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Entry</span><span class="p">.</span><span class="nx">block</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="na">default_input_block</span><span class="p">:</span> <span class="p">{</span>
+        <span class="na">color</span><span class="p">:</span> <span class="s2">"#00979D"</span><span class="p">,</span>
+        <span class="na">skeleton</span><span class="p">:</span> <span class="s2">"basic"</span><span class="p">,</span>
+        <span class="na">template</span><span class="p">:</span> <span class="s2">"변수 A값에 %1더하기 %2"</span><span class="p">,</span>
+        <span class="na">params</span><span class="p">:</span> <span class="p">[{</span>
+            <span class="na">type</span><span class="p">:</span> <span class="s2">"Block"</span><span class="p">,</span>
+            <span class="na">accept</span><span class="p">:</span> <span class="s2">"string"</span>
+        <span class="p">},</span> <span class="p">{</span>
+            <span class="na">type</span><span class="p">:</span> <span class="s2">"Indicator"</span><span class="p">,</span>
+            <span class="na">img</span><span class="p">:</span> <span class="s2">"block_icon/hardware_03.png"</span><span class="p">,</span>
+            <span class="na">size</span><span class="p">:</span> <span class="mi">12</span>
+        <span class="p">}],</span>
+        <span class="na">events</span><span class="p">:</span> <span class="p">{},</span>
+        <span class="na">def</span><span class="p">:</span> <span class="p">{</span>
+            <span class="na">params</span><span class="p">:</span> <span class="p">[{</span>
+                <span class="na">type</span><span class="p">:</span> <span class="s2">"number"</span><span class="p">,</span>
+                <span class="na">params</span><span class="p">:</span> <span class="p">[</span> <span class="s2">"1"</span> <span class="p">]</span>
+            <span class="p">},</span>
+                <span class="kc">null</span>
+            <span class="p">],</span>
+            <span class="na">type</span><span class="p">:</span> <span class="s2">"default_input_block"</span>
+        <span class="p">},</span>
+        <span class="na">class</span><span class="p">:</span> <span class="s2">"test"</span><span class="p">,</span>
+        <span class="na">paramsKeyMap</span><span class="p">:</span> <span class="p">{</span>
+            <span class="na">VALUE</span><span class="p">:</span> <span class="mi">0</span>
+        <span class="p">},</span>
+        <span class="na">func</span><span class="p">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">sprite</span><span class="p">,</span> <span class="nx">script</span><span class="p">)</span> <span class="p">{</span>
+            <span class="kd">var</span> <span class="nx">value</span> <span class="o">=</span> <span class="nx">script</span><span class="p">.</span><span class="nx">getNumberValue</span><span class="p">(</span><span class="s2">"VALUE"</span><span class="p">,</span> <span class="nx">script</span><span class="p">);</span>
+            <span class="c1">// A라는 변수가 있다고 가정할때.</span>
+            <span class="nx">Entry</span><span class="p">.</span><span class="nx">test</span><span class="p">.</span><span class="nx">A</span> <span class="o">+=</span> <span class="nx">value</span><span class="p">;</span>
+            <span class="k">return</span> <span class="nx">script</span><span class="p">.</span><span class="nx">callReturn</span><span class="p">();</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>유저 입력을 받아서 처리하는 순차 블록. 기본적인 생성방법은 기존의 블록들과 다르지 않다. 
+하드웨어를 처리할때 아날로그 센서값을 반아 처리하는 블록에 자주 사용된다.</p>
+
+<h4 id="section-13">ㄷ. 드롭다운 입력 순차 블록</h4>
+<p><img src="/entry-hw/public/image/block_create/default_dropdown_block.png" alt="드롭다운 입력 순차 블록  " /></p>
+
+<figure class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Entry</span><span class="p">.</span><span class="nx">block</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="na">default_dropdown_block</span><span class="p">:</span> <span class="p">{</span>
+        <span class="c1">// 하드웨어 기본 색상</span>
+        <span class="na">color</span><span class="p">:</span> <span class="s2">"#00979D"</span><span class="p">,</span>
+        <span class="s2">"skeleton"</span><span class="p">:</span> <span class="s2">"basic"</span><span class="p">,</span>
+        <span class="s2">"template"</span><span class="p">:</span> <span class="s2">"변수 A값에 %1더하기 %2"</span><span class="p">,</span>
+        <span class="s2">"params"</span><span class="p">:</span> <span class="p">[{</span>
+            <span class="na">type</span><span class="p">:</span> <span class="s2">"Dropdown"</span><span class="p">,</span>
+            <span class="na">options</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">[</span> <span class="s2">"1"</span><span class="p">,</span> <span class="s2">"1"</span> <span class="p">],</span>
+                <span class="p">[</span> <span class="s2">"2"</span><span class="p">,</span> <span class="s2">"2"</span> <span class="p">],</span>
+                <span class="p">[</span> <span class="s2">"3"</span><span class="p">,</span> <span class="s2">"3"</span> <span class="p">]</span>
+            <span class="p">],</span>
+            <span class="na">fontSize</span><span class="p">:</span> <span class="mi">11</span>
+        <span class="p">},</span> <span class="p">{</span>
+            <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"Indicator"</span><span class="p">,</span>
+            <span class="s2">"img"</span><span class="p">:</span> <span class="s2">"block_icon/hardware_03.png"</span><span class="p">,</span>
+            <span class="s2">"size"</span><span class="p">:</span> <span class="mi">12</span>
+        <span class="p">}],</span>
+        <span class="s2">"def"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"params"</span><span class="p">:</span> <span class="p">[</span> <span class="s2">"1"</span><span class="p">,</span> <span class="kc">null</span> <span class="p">],</span>
+            <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"default_dropdown_block"</span>
+        <span class="p">},</span>
+        <span class="s2">"class"</span><span class="p">:</span> <span class="s2">"test"</span><span class="p">,</span>
+        <span class="na">paramsKeyMap</span><span class="p">:</span> <span class="p">{</span>
+            <span class="na">VALUE</span><span class="p">:</span> <span class="mi">0</span>
+        <span class="p">},</span>
+        <span class="s2">"func"</span><span class="p">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">sprite</span><span class="p">,</span> <span class="nx">script</span><span class="p">)</span> <span class="p">{</span>
+            <span class="kd">var</span> <span class="nx">value</span> <span class="o">=</span> <span class="nx">script</span><span class="p">.</span><span class="nx">getNumberField</span><span class="p">(</span><span class="s2">"VALUE"</span><span class="p">,</span> <span class="nx">script</span><span class="p">);</span>
+            <span class="c1">// A라는 변수가 있다고 가정할때.</span>
+            <span class="nx">Entry</span><span class="p">.</span><span class="nx">test</span><span class="p">.</span><span class="nx">A</span> <span class="o">+=</span> <span class="nx">value</span><span class="p">;</span>
+            <span class="k">return</span> <span class="nx">script</span><span class="p">.</span><span class="nx">callReturn</span><span class="p">();</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>이것 또한 많이 사용되는 블록이다. 보통은 하드웨어 블록에서 특성 센서나 포트를 지정해서 값을 처리 할때 사용한다.</p>
 
   </div>
   
@@ -650,7 +803,7 @@ blockInfo의 경우 block_entry.js에 포함되었습니다. getAllBlocks에만 
 
 <figure class="highlight"><pre><code class="language-none" data-lang="none">"statement": []</code></pre></figure>
 
-<p>블록 안에 블록을 넣을수 있는 블록의 의 타입을 설정 합니다. 기본적으로 <code>"accept": "basic"</code>을 사용 합니다.</p>
+<p>블록 안에 블록을 넣을수 있는 블록의 타입을 설정 합니다. 기본적으로 <code>"accept": "basic"</code>을 사용 합니다.</p>
 
 <figure class="highlight"><pre><code class="language-none" data-lang="none">"params": ""</code></pre></figure>
 
@@ -675,20 +828,6 @@ blockInfo의 경우 block_entry.js에 포함되었습니다. getAllBlocks에만 
 <figure class="highlight"><pre><code class="language-none" data-lang="none">"func": ""</code></pre></figure>
 
 <p>블록의 기능을 정의 합니다. 실질적인 블록의 로직을 담당합니다. 사용방법은 기존의 블록 방식과 같습니다.</p>
-
-<hr />
-
-<h3 id="section-3">블록 사용 등록</h3>
-<p>기존에는 static.js에 EntryStatic.getAllBlocks와 EntryStatic.blockInfo 두 가지를 설정했지만 blockInfo의 경우 block_entry.js에 포함되었습니다. getAllBlocks에만 사용 할 블록을 등록하면 해당 블록이 나오게 되어있습니다. 작성 방법은 기존과 같습니다.</p>
-
-<hr />
-
-<h3 id="section-4">각 블록 모양별 생성 방법</h3>
-
-<h4 id="section-5">1. 값 블록</h4>
-
-<h5 id="section-6">ㄱ. 기본 블록</h5>
-<p><img src="/entry-hw/wiki-image/block_create/default_value.png" alt="기본 블록" /></p>
 
   </div>
   
