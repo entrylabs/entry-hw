@@ -16,7 +16,7 @@ Scanner.prototype.startScan = function(extension, config, callback, router) {
 	self.scan(serialport, extension, config, callback);
 	self.timer = setInterval(function() {
 		self.scan(serialport, extension, config, callback);
-	}, 2000);
+	}, 1500);
 };
 
 Scanner.prototype.stopScan = function() {
