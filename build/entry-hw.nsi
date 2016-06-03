@@ -12,7 +12,7 @@
 !define MUI_ICON "icon.ico"
 !define MUI_UNICON "icon.ico"
 !define PRODUCT_NAME "Entry_HW"
-!define PRODUCT_VERSION "1.5.2"
+!define PRODUCT_VERSION "1.5.3"
 !define PRODUCT_PUBLISHER "EntryLabs"
 !define PRODUCT_WEB_SITE "http://www.play-entry.org/"
  
@@ -91,13 +91,13 @@ Section $(TEXT_ENTRY_TITLE) SectionEntry
 
   ; Put file there
   SetOutPath "$INSTDIR\locales"
-  File "..\locales\*.*"
+  File "..\dist\Entry_HW-win32-ia32\locales\*.*"
   
   SetOutPath "$INSTDIR\resources"
-  File /r "..\resources\*.*"
+  File /r "..\dist\Entry_HW-win32-ia32\resources\*.*"
   
   SetOutPath "$INSTDIR"
-  File "..\*.*"
+  File "..\dist\Entry_HW-win32-ia32\*.*"
   File "icon.ico"
   
   WriteRegStr HKCR "${PRODUCT_NAME}\DefaultIcon" "" "$INSTDIR\icon.ico"
