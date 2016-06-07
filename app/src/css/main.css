@@ -253,3 +253,30 @@ html, body {
 	margin: auto;
     height: 100%;
 }
+
+#errorAlert {
+	height: 180px;
+	background: #f1f1f1;
+	padding: 24px 44px 21px;
+}
+
+#errorAlert img {
+	margin-right: 15px;
+}
+
+#errorAlert .alertMsg {
+    display: inline-block;
+    margin-bottom: 6px;
+}
+
+#errorAlert .alertMsg span{
+    display: block;
+    font-size: 17px;
+    font-weight: bold;
+    color: #fa5536;
+    margin-bottom: 6px;
+}
+
+#errorAlert .comment {
+	font-size: 11px;
+}

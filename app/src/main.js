@@ -264,10 +264,10 @@
 
 		},
 		showIeGuide: function() {
-			$('#ieGuide').show();
+			$('#errorAlert').show();
 		},
 		hideIeGuide: function() {
-			$('#ieGuide').hide();
+			$('#errorAlert').hide();
 		}
 	};
 
