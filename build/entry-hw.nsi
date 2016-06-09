@@ -12,7 +12,8 @@
 !define MUI_ICON "icon.ico"
 !define MUI_UNICON "icon.ico"
 !define PRODUCT_NAME "Entry_HW"
-!define PRODUCT_VERSION "1.5.3"
+!define APP_NAME "Entry_HW.exe"
+!define PRODUCT_VERSION "1.5.4"
 !define PRODUCT_PUBLISHER "EntryLabs"
 !define PRODUCT_WEB_SITE "http://www.play-entry.org/"
  
@@ -29,7 +30,7 @@
 ;--------------------------------
 
 ; The name of the installer
-Name "엔트리"
+Name "엔트리 하드웨어"
 
 ; The file to write
 OutFile "${PRODUCT_NAME}_${PRODUCT_VERSION}_Setup.exe"
@@ -52,7 +53,11 @@ RequestExecutionLevel admin
 !insertmacro MUI_PAGE_COMPONENTS
 !insertmacro MUI_PAGE_DIRECTORY
 !insertmacro MUI_PAGE_INSTFILES
+!define MUI_FINISHPAGE_NOAUTOCLOSE
+!define MUI_FINISHPAGE_RUN
+!define MUI_FINISHPAGE_RUN_FUNCTION "LaunchLink"
 
+!insertmacro MUI_PAGE_FINISH
 !insertmacro MUI_UNPAGE_CONFIRM
 !insertmacro MUI_UNPAGE_INSTFILES
 ;--------------------------------
@@ -64,6 +69,7 @@ LangString TEXT_ENTRY_TITLE ${LANG_KOREAN} "엔트리 하드웨어 (필수)"
 LangString TEXT_START_MENU_TITLE ${LANG_KOREAN} "시작메뉴에 바로가기"
 LangString TEXT_DESKTOP_TITLE ${LANG_KOREAN} "바탕화면에 바로가기"
 LangString DESC_ENTRY ${LANG_KOREAN} "엔트리 하드웨어"
+LangString START_ENTRY ${LANG_KOREAN} "엔트리 하드웨어 시작하기"
 LangString DESC_START_MENU ${LANG_KOREAN} "시작메뉴에 바로가기 아이콘이 생성됩니다."
 LangString DESC_DESKTOP ${LANG_KOREAN} "바탕화면에 바로가기 아이콘이 생성됩니다."
 LangString SETUP_UNINSTALL_MSG ${LANG_ENGLISTH} "엔트리 하드웨어가 이미 설치되어 있습니다. $\n$\r'확인' 버튼을 누르면 이전 버전을 삭제 후 재설치하고 '취소' 버튼을 누르면 업그레이드를 취소합니다."
@@ -75,6 +81,7 @@ LangString TEXT_ENTRY_TITLE ${LANG_ENGLISTH} "Entry HW (required)"
 LangString TEXT_START_MENU_TITLE ${LANG_ENGLISTH} "Start menu shortcut"
 LangString TEXT_DESKTOP_TITLE ${LANG_ENGLISTH} "Desktop shortcut"
 LangString DESC_ENTRY ${LANG_ENGLISTH} "Entry HW Program"
+LangString START_ENTRY ${LANG_ENGLISTH} "Start Entry HW Program"
 LangString DESC_START_MENU ${LANG_ENGLISTH} "Create shortcut on start menu"
 LangString DESC_DESKTOP ${LANG_ENGLISTH} "Create shortcut on desktop"
 LangString SETUP_UNINSTALL_MSG ${LANG_ENGLISTH} "Entry_HW is already installed. $\n$\nClick 'OK' to remove the previous version or 'Cancel' to cancel this upgrade."
@@ -82,7 +89,6 @@ LangString SETUP_UNINSTALL_MSG ${LANG_ENGLISTH} "Entry_HW is already installed. 
 
 ; The stuff to install
 Section $(TEXT_ENTRY_TITLE) SectionEntry
-
   SectionIn RO
   
   ; Set output path to the installation directory.
@@ -91,13 +97,13 @@ Section $(TEXT_ENTRY_TITLE) SectionEntry
 
   ; Put file there
   SetOutPath "$INSTDIR\locales"
-  File "..\dist\Entry_HW-win32-ia32\locales\*.*"
+  File "..\dist\win-ia32-unpacked\locales\*.*"
   
   SetOutPath "$INSTDIR\resources"
-  File /r "..\dist\Entry_HW-win32-ia32\resources\*.*"
+  File /r "..\dist\win-ia32-unpacked\resources\*.*"
   
   SetOutPath "$INSTDIR"
-  File "..\dist\Entry_HW-win32-ia32\*.*"
+  File "..\dist\win-ia32-unpacked\*.*"
   File "icon.ico"
   
   WriteRegStr HKCR "${PRODUCT_NAME}\DefaultIcon" "" "$INSTDIR\icon.ico"
@@ -171,7 +177,16 @@ Section "Uninstall"
 
 SectionEnd
 
+Function LaunchLink
+  Exec "${APP_NAME}"
+FunctionEnd
+
 Function .onInit
+  FindProcDLL::FindProc "${APP_NAME}"
+  StrCmp $R0 1 mfound notRunning
+  mfound:
+	KillProcDLL::KillProc "${APP_NAME}"
+  notRunning:
  
   ReadRegStr $R0 HKLM \
   "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}" \
