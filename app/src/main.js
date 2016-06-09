@@ -38,6 +38,13 @@
 	// flasher
 	var flasher = require('./custom_modules/flasher');
 	// ui & control
+	$('.alertMsg .alertMsg1').text(translator.translate('If unexpected problem occurs while operating,'));
+	$('.alertMsg .alertMsg2').text(translator.translate('contact the hardware company to resolve the problem.'));
+	$('#errorAlert .comment').text(translator.translate('* Entry Labs is not responsible for the extension program and hardware products on this site.'));
+
+	$('#reference .emailTitle').text(translator.translate('E-Mail : '));
+	$('#reference .urlTitle').text(translator.translate('WebSite : '));
+
 	$('#driver').text(translator.translate('Install Device Driver'));
 	$('#firmware').text(translator.translate('Install Firmware'));
 	$('#other-robot .text').text(translator.translate('Connect Other Hardware'));
@@ -156,13 +163,25 @@
 
 				if(config.url) {
 					$('#url').text(config.url);
-					$('#url').show();
+					$('#urlArea').show();
 					$('#url').unbind('click');
 					$('#url').click(function() {
 						shell.openItem(config.url);
 					});
 				} else {
-					$('#url').hide();
+					$('#urlArea').hide();
+				}
+
+				if(config.email) {
+					$('#email').text(config.email);
+					$('#emailArea').show();
+					$('#email').unbind('click');
+					$('#email').click(function() {
+						clipboard.writeText(config.email);
+						alert(translator.translate('Copied to clipboard'));
+					});
+				} else {
+					$('#emailArea').hide();
 				}
 
 				$('#driver').hide();

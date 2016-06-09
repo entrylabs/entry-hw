@@ -8,6 +8,7 @@
 	"select_com_port": true,
 	"icon" : "entrybt.png",
 	"url": "http://www.neweducation.co.kr",
+	"email": "join@neweducation.co.kr",
 	"module": "entrybt.js",
     "reconnect" : true,
 	"entry": {

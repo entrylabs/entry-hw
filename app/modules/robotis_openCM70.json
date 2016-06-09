@@ -7,6 +7,7 @@
 	"icon" : "robotis_openCM70.png",
 	"module": "robotis_openCM70.js",
 	"url": "http://www.robotis.com",
+	"email": "kigate@robotis.com",
 	"entry": {
 		"protocol": "json"
 	},

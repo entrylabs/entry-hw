@@ -4,6 +4,15 @@
 		"en-US": "en",
 		"ko": "ko"
 	},
+	"If unexpected problem occurs while operating,": {
+		"ko": "하드웨어 연결과 작동 시 예기치 못한 문제가 발생할 수 있습니다."
+	},
+	"contact the hardware company to resolve the problem.": {
+		"ko": "문제 발생 시 해당 하드웨어 업체에 문의해주세요."
+	},
+	"* Entry Labs is not responsible for the extension program and hardware products on this site.": {
+		"ko": "* 하드웨어 연결 프로그램에 등록된 하드웨어들은 각 업체가 제공하고 개발한 것이며, 엔트리교육연구소는 본 프로그램 이외에는 책임지지 않습니다."
+	},
 	"Choose a hardware to connect.": {
 		"ko": "연결할 하드웨어를 선택해 주세요."
 	},
@@ -78,5 +87,14 @@
 	},
 	"Connection to the hardware will terminate once program is closed.": {
 		"ko": "프로그램 종료 시 하드웨어와 연결이 끊어집니다."
+	},
+	"E-Mail : ": {
+		"ko": "이메일 : "
+	},
+	"WebSite : ": {
+		"ko": "홈페이지 : "
+	},
+	"Copied to clipboard": {
+		"ko": "이메일 주소가 복사되었습니다."
 	}
 }
