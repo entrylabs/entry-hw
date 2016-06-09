@@ -266,7 +266,7 @@ html, body {
 }
 
 #errorAlert {
-	height: 180px;
+    min-height: 118px;
 	background: #f1f1f1;
 	padding: 24px 44px 21px;
 }
