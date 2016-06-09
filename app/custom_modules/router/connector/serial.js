@@ -70,17 +70,21 @@ Connector.prototype.connect = function(extension, callback) {
 				callback('disconnected');
 			}
 		});
-		self.timer = setInterval(function() {
-			if(self.connected) {
-				if(self.received == false) {
-					self.connected = false;
-					if(callback) {
-						callback('lost');
+		if(extension.lostController) {
+			extension.lostController(self, callback);
+		} else {
+			self.timer = setInterval(function() {
+				if(self.connected) {
+					if(self.received == false) {
+						self.connected = false;
+						if(callback) {
+							callback('lost');
+						}
 					}
+					self.received = false;
 				}
-				self.received = false;
-			}
-		}, 500);
+			}, 500);
+		}
 	}
 };
 
