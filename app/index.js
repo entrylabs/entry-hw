@@ -243,7 +243,10 @@ app.once('ready', function() {
     mainWindow = new BrowserWindow({
         width: 800, 
         height: 650, 
-        title: title + packageJson.version
+        title: title + packageJson.version,
+        webPreferences: {
+            backgroundThrottling: false
+        }
     });
 
     mainWindow.loadURL('file:///' + path.join(__dirname, 'index.html'));
