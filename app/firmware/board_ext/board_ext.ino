@@ -75,7 +75,7 @@ void loop(){
         index=0;
      }
   }
-  callOK();
+  //callOK();
 }
 
 unsigned char readBuffer(int index){

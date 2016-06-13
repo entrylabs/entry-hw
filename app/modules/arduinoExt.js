@@ -69,6 +69,8 @@ function Module() {
     }
 
     this.sendBuffers = [];
+
+    this.lastTime = 0;
 }
 
 var sensorIdx = 0;
@@ -116,27 +118,34 @@ Module.prototype.handleRemoteData = function(handler) {
     var getDatas = handler.read('GET');
     var setDatas = handler.read('SET');
     var resetDatas = handler.read('RESET');
+    var time = handler.read('TIME');
 
-    if(getDatas) {
-        this.sp.write(that.makeSensorReadBuffer(getDatas.type, getDatas.port, getDatas.data));
-    }
-
-    if(setDatas && Array.isArray(setDatas)) {
-        setDatas.forEach(function (item) {
+    if(this.lastTime < time) {
+        console.log(time - this.lastTime);
+        this.lastTime = time;
+        this.sensorData.TIME = this.lastTime;
+        if(getDatas) {
+            this.sp.write(that.makeSensorReadBuffer(getDatas.type, getDatas.port, getDatas.data));
             // that.sendBuffers.push(that.makeSensorReadBuffer(item.type, item.port, item.data));
-        });
-    }
+        }
 
-    if(resetDatas && Array.isArray(resetDatas)) {
-        resetDatas.forEach(function (item) {
-            // that.sendBuffers.push(that.makeSensorReadBuffer(item.type, item.port, item.data));
-        });
+        if(setDatas && Array.isArray(setDatas)) {
+            setDatas.forEach(function (item) {
+                // that.sendBuffers.push(that.makeSensorReadBuffer(item.type, item.port, item.data));
+            });
+        }
+
+        if(resetDatas && Array.isArray(resetDatas)) {
+            resetDatas.forEach(function (item) {
+                // that.sendBuffers.push(that.makeSensorReadBuffer(item.type, item.port, item.data));
+            });
+        }
     }
 };
 
 Module.prototype.requestLocalData = function() {
-    var buffer = this.makeSensorReadBuffer(this.sensorTypes.ANALOG, 0);
-    return buffer;
+    // var buffer = this.makeSensorReadBuffer(this.sensorTypes.ANALOG, 0);
+    return null;
 };
 
 /*
@@ -190,7 +199,7 @@ Module.prototype.handleLocalData = function(data) { // data: Native Buffer
             break;
         }
     }
-    console.log(value);
+    // console.log(value);
 };
 
 /*
