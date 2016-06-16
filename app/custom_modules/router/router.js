@@ -30,7 +30,8 @@ Router.prototype.stopScan = function() {
 Router.prototype.connect = function(connector, config) {
 	var self = this;
 	var control = config.hardware.control;
-	var duration = config.hardware.duration;
+    var duration = config.hardware.duration;
+	var advertise = config.hardware.advertise;
 	var extension = this.extension;
 	var server = this.server;
     var type = config.hardware.type;
@@ -60,6 +61,7 @@ Router.prototype.connect = function(connector, config) {
 		});
         connector.connect(extension, function(state, data) {
 			if(state) {
+                console.log(state);
 				self.emit('state', state);
 			} else if(m_drain_check) {
 				if(extension.handleLocalData) {
@@ -99,6 +101,15 @@ Router.prototype.connect = function(connector, config) {
                 }
             }, duration);
         }
+
+        if(advertise) {
+            self.advertise = setInterval(function () {
+                var data = handler.encode();
+                if(data) {
+                    server.send(data);
+                }
+            }, advertise);
+        }
 	}
 };
 
@@ -116,9 +127,13 @@ Router.prototype.close = function() {
 			this.connector.close();
 		}
 	}
-	if(this.timer) {
-		clearInterval(this.timer);
-		this.timer = undefined;
+    if(this.timer) {
+        clearInterval(this.timer);
+        this.timer = undefined;
+    }
+	if(this.advertise) {
+		clearInterval(this.advertise);
+		this.advertise = undefined;
 	}
 };
 

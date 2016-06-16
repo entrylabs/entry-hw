@@ -21,6 +21,7 @@
 		"duration": 32,
 		"vendor": "",
 		"baudRate": 115200,
-		"firmwarecheck": false
+		"firmwarecheck": false,
+		"advertise": 2000
 	}
 }

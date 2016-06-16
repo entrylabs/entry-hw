@@ -38,6 +38,7 @@ int analogs[6]={A0,A1,A2,A3,A4,A5};
 int servo_pins[8]={0,0,0,0,0,0,0,0};
 double lastTime = 0.0;
 double currentTime = 0.0;
+uint8_t command_index = 0;
 
 void setup(){
   Serial.begin(115200);
@@ -106,12 +107,15 @@ void readSerial(){
 void parseData(){
   isStart = false;
   int idx = readBuffer(3);
+  command_index = (uint8_t)idx;
   int action = readBuffer(4);
   int device = readBuffer(5);
   switch(action){
     case GET:{
-      writeHead();
-      writeSerial(idx);
+      if(device != ULTRASONIC){
+        writeHead();
+        writeSerial(idx);
+      }
       readSensor(device);
       writeEnd();
     }
@@ -169,7 +173,7 @@ void runModule(int device){
       int hz = readShort(7);
       int ms = readShort(9);
       if(ms>0){
-         tone(pin, hz, ms);
+        tone(pin, hz, ms);
       }else{
         noTone(pin);
       }
@@ -280,7 +284,10 @@ void readSensor(int device){
       delayMicroseconds(10);
       digitalWrite(trig,LOW);
       pinMode(echo, INPUT);
-      sendFloat(pulseIn(echo,HIGH,30000)/58.0);
+      float value = pulseIn(echo,HIGH,30000)/58.0;
+      writeHead();
+      writeSerial(command_index);
+      sendFloat(value);
       writeSerial(trig);
       writeSerial(echo);
       writeSerial(device);

@@ -71,6 +71,7 @@ function Module() {
     this.sendBuffers = [];
 
     this.lastTime = 0;
+    this.lastSendTime = 0;
 }
 
 var sensorIdx = 0;
@@ -106,6 +107,7 @@ Module.prototype.lostController = function(that, cb) {
 
 Module.prototype.requestRemoteData = function(handler) {
     var that = this;
+    this.lastSendTime = this.lastTime;
     Object.keys(this.sensorData).forEach(function (key) {
         if(that.sensorData[key] != undefined) {
             handler.write(key, that.sensorData[key]);           
@@ -119,28 +121,28 @@ Module.prototype.handleRemoteData = function(handler) {
     var setDatas = handler.read('SET');
     var resetDatas = handler.read('RESET');
     var time = handler.read('TIME');
+    var key = handler.read('KEY');
 
-    if(this.lastTime < time) {
-        console.log(time - this.lastTime);
+    if((this.lastTime < time && this.lastTime == this.lastSendTime)) {
         this.lastTime = time;
         this.sensorData.TIME = this.lastTime;
-        if(getDatas) {
+
+        if(getDatas && $.isPlainObject(getDatas) && getDatas.type) {
             this.sp.write(that.makeSensorReadBuffer(getDatas.type, getDatas.port, getDatas.data));
-            // that.sendBuffers.push(that.makeSensorReadBuffer(item.type, item.port, item.data));
-        }
-
-        if(setDatas && Array.isArray(setDatas)) {
-            setDatas.forEach(function (item) {
-                // that.sendBuffers.push(that.makeSensorReadBuffer(item.type, item.port, item.data));
-            });
-        }
-
-        if(resetDatas && Array.isArray(resetDatas)) {
-            resetDatas.forEach(function (item) {
-                // that.sendBuffers.push(that.makeSensorReadBuffer(item.type, item.port, item.data));
-            });
         }
     }
+
+    if(this.lastKey != key && setDatas) {
+        this.lastKey = key;
+        var setKeys = Object.keys(setDatas);
+        setKeys.forEach(function (port) {
+            var data = setDatas[port];
+            if(data) {
+                that.sp.write(that.makeOutputBuffer(data.type, port, data.data));
+            }
+        });
+    }
+
 };
 
 Module.prototype.requestLocalData = function() {
@@ -152,54 +154,57 @@ Module.prototype.requestLocalData = function() {
 ff 55 idx size data a
 */
 Module.prototype.handleLocalData = function(data) { // data: Native Buffer
-    // console.log(data);
-    var readData = data.subarray(3, data.length-2);
-    var value;
-    switch(readData[0]) {
-        case this.sensorValueSize.FLOAT: {
-            value = new Buffer(readData.subarray(1, 5)).readFloatLE();
-            value = Math.round(value * 100) / 100;
-            break;
-        }
-        case this.sensorValueSize.SHORT: {
-            value = new Buffer(readData.subarray(1, 3)).readInt16LE();
-            break;
-        }
-        default: {
-            value = 0;
-            break;
-        }
-    }
+    var self = this;
+    var datas = this.getDataByBuffer(data);
 
-    var type = readData[readData.length - 1];
-    var port = readData[readData.length - 2];
+    datas.forEach(function (data) {
+        var readData = data.subarray(3, data.length);
+        var value;
+        switch(readData[0]) {
+            case self.sensorValueSize.FLOAT: {
+                value = new Buffer(readData.subarray(1, 5)).readFloatLE();
+                value = Math.round(value * 100) / 100;
+                break;
+            }
+            case self.sensorValueSize.SHORT: {
+                value = new Buffer(readData.subarray(1, 3)).readInt16LE();
+                break;
+            }
+            default: {
+                value = 0;
+                break;
+            }
+        }
 
-    switch(type) {
-        case this.sensorTypes.DIGITAL: {
-            this.sensorData.DIGITAL[port] = value;
-            break;
+        var type = readData[readData.length - 1];
+        var port = readData[readData.length - 2];
+
+        switch(type) {
+            case self.sensorTypes.DIGITAL: {
+                self.sensorData.DIGITAL[port] = value;
+                break;
+            }
+            case self.sensorTypes.ANALOG: {
+                self.sensorData.ANALOG[port - 14] = value;
+                break;
+            }
+            case self.sensorTypes.PULSEIN: {
+                self.sensorData.PULSEIN[port] = value;
+                break;
+            }
+            case self.sensorTypes.ULTRASONIC: {
+                self.sensorData.ULTRASONIC = value;
+                break;
+            }
+            case self.sensorTypes.TIMER: {
+                self.sensorData.TIMER = value;
+                break;
+            }
+            default: {
+                break;
+            }
         }
-        case this.sensorTypes.ANALOG: {
-            this.sensorData.ANALOG[port - 14] = value;
-            break;
-        }
-        case this.sensorTypes.PULSEIN: {
-            this.sensorData.PULSEIN[port] = value;
-            break;
-        }
-        case this.sensorTypes.ULTRASONIC: {
-            this.sensorData.ULTRASONIC = value;
-            break;
-        }
-        case this.sensorTypes.TIMER: {
-            this.sensorData.TIMER = value;
-            break;
-        }
-        default: {
-            break;
-        }
-    }
-    // console.log(value);
+    });
 };
 
 /*
@@ -210,13 +215,13 @@ ff 55 len idx action device port  slot  data a
 Module.prototype.makeSensorReadBuffer = function(device, port, data) {
     var buffer;
     if(device == this.sensorTypes.ULTRASONIC) {
-        buffer = new Buffer([255, 85, 9, sensorIdx, this.actionTypes.GET, device, port[0], port[1], 10]);
+        buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port[0], port[1], 10]);
     } else if(!data) {
-        buffer = new Buffer([255, 85, 8, sensorIdx, this.actionTypes.GET, device, port, 10]);
+        buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.GET, device, port, 10]);
     } else {
         value = new Buffer(2);
         value.writeInt16LE(data);
-        buffer = new Buffer([255, 85, 10, sensorIdx, this.actionTypes.GET, device, port, 10]);
+        buffer = new Buffer([255, 85, 7, sensorIdx, this.actionTypes.GET, device, port, 10]);
         buffer = Buffer.concat([buffer, value, 10]);
     }
     sensorIdx++;
@@ -227,7 +232,64 @@ Module.prototype.makeSensorReadBuffer = function(device, port, data) {
     return buffer;
 };
 
+//0xff 0x55 0x6 0x0 0x1 0xa 0x9 0x0 0x0 0xa
+Module.prototype.makeOutputBuffer = function(device, port, data) {
+    var buffer;
+    var value = new Buffer(2);
+    var dummy = new Buffer([10]);
+    switch(device) {
+        case this.sensorTypes.SERVO_PIN:
+        case this.sensorTypes.DIGITAL:
+        case this.sensorTypes.PWM: {
+            value.writeInt16LE(data);
+            buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.SET, device, port]);
+            buffer = Buffer.concat([buffer, value, dummy]);
+            break;
+        }
+        case this.sensorTypes.TONE: {
+            var time = new Buffer(2);
+            if($.isPlainObject(data)) {
+                value.writeInt16LE(data.value);
+                time.writeInt16LE(data.duration);
+            } else {
+                value.writeInt16LE(0);
+                time.writeInt16LE(0);
+            }
+            buffer = new Buffer([255, 85, 8, sensorIdx, this.actionTypes.SET, device, port]);
+            buffer = Buffer.concat([buffer, value, time, dummy]);
+            break;
+        }
+        case this.sensorTypes.TONE: {
+        }
+    }
+
+    return buffer;
+};
+
+Module.prototype.getDataByBuffer = function(buffer) {
+    var datas = [];
+    var lastIndex = 0;
+    buffer.forEach(function (value, idx) {
+        if(value == 13 && buffer[idx + 1] == 10) {
+            datas.push(buffer.subarray(lastIndex, idx));
+            lastIndex = idx + 2;
+        }
+    });
+
+    return datas;
+};
+
+
+Module.prototype.disconnect = function(connect) {
+    if(this.sp) {
+        delete this.sp;
+    }
+    connect.close();
+};
+
 Module.prototype.reset = function() {
+    this.lastTime = 0;
+    this.lastSendTime = 0;
 };
 
 module.exports = new Module();
