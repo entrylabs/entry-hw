@@ -32,7 +32,7 @@ var Module = {
 			appPath = path.join(__dirname, '..');
 		}
 
-		var rate = baudRate || '57600';
+		var rate = baudRate || '115200';
 		var cmd = 'avr.exe -p m328p -P\\\\.\\' +
 			port +
 			' -b' + rate + ' -Uflash:w:\"' +

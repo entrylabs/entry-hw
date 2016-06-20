@@ -47,7 +47,7 @@ Scanner.prototype.scan = function(serialport, extension, config, callback) {
 		var myComPort = config.this_com_port;
 		var type = config.hardware.type;
 
-		if(type === 'bluetooth' && !myComPort)  {
+		if((type === 'bluetooth' || checkComPort) && !myComPort)  {
 			self.router.emit('state', 'select_port', devices);
 			callback('select_port');
 			return;

@@ -36,8 +36,6 @@ Router.prototype.connect = function(connector, config) {
 	var server = this.server;
     var type = config.hardware.type;
     var h_type = type;
-    var m_drain_check = true;
-    var s_drain_check = true;
 
 	self.connector = connector;
     if(self.connector['executeFlash']) {
@@ -63,7 +61,7 @@ Router.prototype.connect = function(connector, config) {
 			if(state) {
                 console.log(state);
 				self.emit('state', state);
-			} else if(m_drain_check) {
+			} else {
 				if(extension.handleLocalData) {
 					extension.handleLocalData(data);
 				}
@@ -78,10 +76,7 @@ Router.prototype.connect = function(connector, config) {
 					if(extension.requestLocalData) {
 						var data = extension.requestLocalData();
 						if(data) {
-							m_drain_check = false;
-							connector.send(data, function () {
-								m_drain_check = true;
-							});
+							connector.send(data);
 						}
 					}
 				}
@@ -90,13 +85,10 @@ Router.prototype.connect = function(connector, config) {
 
         if(duration && control !== 'master') {
             self.timer = setInterval(function() {
-                if(extension.requestLocalData && s_drain_check) {
+                if(extension.requestLocalData) {
                     var data = extension.requestLocalData();
                     if(data) {
-                    	s_drain_check = false;
-                        connector.send(data, function () {
-                        	s_drain_check = true;
-                        });
+                        connector.send(data);
                     }
                 }
             }, duration);

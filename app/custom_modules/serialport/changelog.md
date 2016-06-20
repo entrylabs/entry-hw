@@ -1,7 +1,57 @@
-Version 2.0.7-beta1
+Version 3.1.2
 -------------
-- Remove deprecated BuildCommDCB for windows support
-- Cleanup callback handling
+ - Documentation around "Illegal Instruction" errors
+ - Resolve some ambiguities around publishing that was causing some issues on some versions and platforms of npm and node
+ - [linux] bug fix in `.list()` where we weren't filtering out non block devices that are named like serial ports
+ - [unix] Better unix error messages
+ - [unix] Refactor `setBaudrate` for Unix making it easier for custom baudRate support
+ - [unix] Update now has less memory leaks, documentation and better error messages
+ - [windows] Better error messages for opening ports
+
+Version 3.1.1
+-------------
+ - fix an issue with bundled deps for node-pre-gyp on npm
+
+Version 3.1.0
+-------------
+ - Upgrade nan and fix warnings for node 6.0
+ - Update the cli tools. serialport-term can now list ports, serialport-list can now output in different formats
+
+Version 3.0.1
+-------------
+ - Change from BlueBird to es6-promise to save 9.5MB from the package size (19M -> 9.5) and 130k bundle size (186.1kb -> 55.2kb)
+ - Experimental node 6 support
+
+Version 3.0.0
+-------------
+- `close` and `disconnect` events no longer call `removeAllListeners` and removes your event listeners. This was particularly bad for the `error` event. This is the only change and if you didn't have a special code to deal with this behavior you should probably upgrade from v2.1.2
+
+Version 2.1.2
+-------------
+- Start bundling node-pre-gyp but upgrade it to the latest as the previous version doesn't install
+
+Version 2.1.1
+-------------
+- `.list` errors are consistent across platforms and no longer has blocking `statSync` calls
+- Stop bundling node-pre-gyp to prevent issues when it's already installed
+- Internal restructuring
+
+Version 2.1.0
+-------------
+- Major refactor, bug fixes and docs improvements thanks to @ecksun, @fivdi, @gfcittolin, @jacobrosenthal, @mhart, @nebrius, @pabigot, @paulkaplan, @reconbot, @rodovich, @rwaldron, @sayanee, @tigoe and everyone who reported and helped debug issues!
+- Fix binary paths to confirm with modern standards
+- Integration tests on CI's that support it or for the folks at home with an arduino handy
+- Upgrade to nan-2.2.1 for memory leak fixes and node 6 compatibility (still not supported)
+- Confirm nw.js and electron compatibility
+- Make the outpout of `.list` consistent between platforms and docs
+- Define ambiguous flow control flags and document them
+- Fix support systems who provide 0 as a valid file descriptor
+- Fix race conditions when opening and closing ports that led to errors while reading and writing while closing or opening the port.
+- [unix] Fix a double open bug on unix that would cause opening and closing ports repetitively to error.
+- [unix] Listing serialports on linux now include more ports (including bluetooth devices eg. `/dev/rfcommXX`) and have less bugs in the output
+- [windows] Remove deprecated BuildCommDCB for windows 10 support
+- [windows] Fix a memory leak on windows
+- [windows] Fix a 100% cpu and possible hang bug when ports were disconnected on windows.
 
 Version 2.0.6
 -------------

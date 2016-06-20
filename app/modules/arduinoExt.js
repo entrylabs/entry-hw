@@ -50,20 +50,6 @@ function Module() {
             '5': 0
         },
         PULSEIN: {
-            '0': 0,
-            '1': 0,
-            '2': 0,
-            '3': 0,
-            '4': 0,
-            '5': 0,
-            '6': 0,
-            '7': 0,
-            '8': 0,
-            '9': 0,
-            '10': 0,
-            '11': 0,
-            '12': 0,
-            '13': 0
         },
         TIMER: 0,
     }
@@ -80,7 +66,7 @@ Module.prototype.init = function(handler, config) {
 };
 
 Module.prototype.setSerialPort = function (sp) {
-    var that = this;
+    var self = this;
     this.sp = sp;
 };
 
@@ -92,6 +78,13 @@ Module.prototype.checkInitialData = function(data, config) {
     return true;
 };
 
+Module.prototype.afterConnect = function(that, cb) {
+    that.connected = true;
+    if(cb) {
+        cb('connected');
+    }
+};
+
 Module.prototype.validateLocalData = function(data) {
     if(data[0] == 255 && data[1] == 85 && data[data.length-1] == 10) {
         return true;
@@ -100,23 +93,24 @@ Module.prototype.validateLocalData = function(data) {
     }
 };
 
-Module.prototype.lostController = function(that, cb) {
+Module.prototype.lostController = function(self, cb) {
     // console.log(this.sp);
 
 };
 
 Module.prototype.requestRemoteData = function(handler) {
-    var that = this;
+    var self = this;
     this.lastSendTime = this.lastTime;
     Object.keys(this.sensorData).forEach(function (key) {
-        if(that.sensorData[key] != undefined) {
-            handler.write(key, that.sensorData[key]);           
+        if(self.sensorData[key] != undefined) {
+            handler.write(key, self.sensorData[key]);           
+            self.canSendData = false;
         }
     })
 };
 
 Module.prototype.handleRemoteData = function(handler) {
-    var that = this;
+    var self = this;
     var getDatas = handler.read('GET');
     var setDatas = handler.read('SET');
     var resetDatas = handler.read('RESET');
@@ -127,8 +121,10 @@ Module.prototype.handleRemoteData = function(handler) {
         this.lastTime = time;
         this.sensorData.TIME = this.lastTime;
 
-        if(getDatas && $.isPlainObject(getDatas) && getDatas.type) {
-            this.sp.write(that.makeSensorReadBuffer(getDatas.type, getDatas.port, getDatas.data));
+        if(getDatas && $.isPlainObject(getDatas) && getDatas.type ) {
+            // this.sp.write(self.makeSensorReadBuffer(getDatas.type, getDatas.port));
+            this.sp.write(self.makeSensorReadBuffer(getDatas.type, getDatas.port, getDatas.data));
+        } else {
         }
     }
 
@@ -138,11 +134,11 @@ Module.prototype.handleRemoteData = function(handler) {
         setKeys.forEach(function (port) {
             var data = setDatas[port];
             if(data) {
-                that.sp.write(that.makeOutputBuffer(data.type, port, data.data));
+                console.log(data.data);
+                self.sp.write(self.makeOutputBuffer(data.type, port, data.data));
             }
         });
     }
-
 };
 
 Module.prototype.requestLocalData = function() {
@@ -158,6 +154,9 @@ Module.prototype.handleLocalData = function(data) { // data: Native Buffer
     var datas = this.getDataByBuffer(data);
 
     datas.forEach(function (data) {
+        if(data.length == 2) {
+            return;
+        }
         var readData = data.subarray(3, data.length);
         var value;
         switch(readData[0]) {
@@ -189,6 +188,7 @@ Module.prototype.handleLocalData = function(data) { // data: Native Buffer
                 break;
             }
             case self.sensorTypes.PULSEIN: {
+                console.log(value);
                 self.sensorData.PULSEIN[port] = value;
                 break;
             }
@@ -214,6 +214,7 @@ ff 55 len idx action device port  slot  data a
 
 Module.prototype.makeSensorReadBuffer = function(device, port, data) {
     var buffer;
+    var dummy = new Buffer([10]);
     if(device == this.sensorTypes.ULTRASONIC) {
         buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port[0], port[1], 10]);
     } else if(!data) {
@@ -222,7 +223,7 @@ Module.prototype.makeSensorReadBuffer = function(device, port, data) {
         value = new Buffer(2);
         value.writeInt16LE(data);
         buffer = new Buffer([255, 85, 7, sensorIdx, this.actionTypes.GET, device, port, 10]);
-        buffer = Buffer.concat([buffer, value, 10]);
+        buffer = Buffer.concat([buffer, value, dummy]);
     }
     sensorIdx++;
     if(sensorIdx > 254) {
@@ -281,8 +282,13 @@ Module.prototype.getDataByBuffer = function(buffer) {
 
 
 Module.prototype.disconnect = function(connect) {
-    if(this.sp) {
-        delete this.sp;
+    var self = this;
+    if(self.sp) {
+        // this.sp.flush(function (e) {
+        //     console.log('flush');
+        //     console.log(e);
+        // });
+        delete self.sp;
     }
     connect.close();
 };
@@ -290,6 +296,9 @@ Module.prototype.disconnect = function(connect) {
 Module.prototype.reset = function() {
     this.lastTime = 0;
     this.lastSendTime = 0;
+
+     this.sensorData.PULSEIN = {
+    }
 };
 
 module.exports = new Module();
