@@ -18,8 +18,8 @@
 		<div>
 			<img src="./src/images/alert.png" />
 			<span class="alertMsg">
-				<span>하드웨어 연결과 작동 시 예기치 못한 문제가 발생할 수 있습니다.</span>
-				<span>문제 발생 시 해당 하드웨어 업체에 문의해주세요.</span>
+				<span class="alertMsg1">하드웨어 연결과 작동 시 예기치 못한 문제가 발생할 수 있습니다.</span>
+				<span class="alertMsg2">문제 발생 시 해당 하드웨어 업체에 문의해주세요.</span>
 			</span>
 		</div>
 		<div class="comment">
@@ -32,14 +32,21 @@
 		<button class='chromeButton'>chrome 다운로드 바로가기</button>
 	</div>
 	-->
-	<div id="alert">Message message message!</div>
+	<div id="alert"></div>
 
 	<div id="hwList" class="content"></div>
 
 	<div id="hwPanel" class="content">
 		<div class="middleDiv">
 			<div id="reference">
-				<h2 id="url"></h2>
+				<div id="emailArea">
+					<span class="emailTitle"></span>
+					<span id="email"></span>
+				</div>
+				<div id="urlArea">
+					<span class="urlTitle"></span>
+					<span id="url"></span>
+				</div>
 			</div>
 			<div id="client" class="hwPanelElement">
 				<img src="src/images/computer.png"/>

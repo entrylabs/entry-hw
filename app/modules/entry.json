@@ -7,6 +7,7 @@
 	"icon" : "entry.png",
 	"module": "entry.js",
 	"url": "http://www.neweducation.co.kr",
+	"email": "join@neweducation.co.kr",
 	"driver": {
 		"win32-ia32": "compat/SETUP.EXE",
 		"win32-x64": "compat/SETUP.EXE"

@@ -1,0 +1,25 @@
+{
+	"id": "010401",
+	"name": {
+		"en": "joystick sensor shield",
+		"ko": "조이스틱 센서 쉴드"
+	},
+	"icon" : "joystick.png",
+	"module": "joystick.js",
+	"url": "http://kocoafab.cc",
+	"email": "contact@kocoa.or.kr",
+	"driver": {
+	},
+	"firmware": "JS_Shield",
+	"entry": {
+		"protocol": "json"
+	},
+	"hardware": {
+		"type": "serial",
+		"control": "slave",
+		"duration": 32,
+		"vendor": "",
+		"baudRate": 9600,
+		"firmwarecheck" : true
+	}
+}

@@ -93,18 +93,29 @@ html, body {
 }
 
 #reference {
-	margin-left: 347px;
-	width: 210px;
+	margin-bottom: 30px;
+    text-align: right;
+    font-weight: bold;
 	height: 30px;
+	line-height: 25px;
+	font-size: 14px;
+	color: #595757;
 }
 
 #url {
 	width: 100%;
 	height: 100%;
-	text-align: center;
-	font-size: 14px;
-	color: #595757;
+	text-align: left;
 	cursor: pointer;
+	text-decoration: underline;
+}
+
+#email {
+	width: 100%;
+	height: 100%;
+	text-align: left;
+	cursor: pointer;
+	text-decoration: underline;
 }
 
 .hardwareType {
@@ -255,7 +266,7 @@ html, body {
 }
 
 #errorAlert {
-	height: 180px;
+    min-height: 118px;
 	background: #f1f1f1;
 	padding: 24px 44px 21px;
 }

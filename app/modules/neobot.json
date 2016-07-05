@@ -7,6 +7,7 @@
 	"icon" : "neobot.png",
 	"module": "neobot.js",
 	"url": "http://neobot.co.kr/",
+	"email": "neobot@neobot.co.kr",
     "reconnect" : true,
     "select_com_port" : true,
 	"entry": {

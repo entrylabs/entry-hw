@@ -15,7 +15,6 @@
       "exe": "Entry_HW.exe"
     },
     "asar": true,
-    "name": "Entry_HW",
     "app-bundle-id": "entry_hw",
     "app-category-type": "org.play-entry.entry_hw",
     "icon": "app/icon/app"
