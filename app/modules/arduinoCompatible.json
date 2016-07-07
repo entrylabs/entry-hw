@@ -1,8 +1,8 @@
 {
 	"id": "010199",
 	"name": {
-		"en": "Arduino Compatible",
-		"ko": "아두이노 호환보드"
+		"en": "Arduino Uno Compatible",
+		"ko": "아두이노 Uno 호환보드"
 	},
 	"icon" : "arduino.png",
 	"module": "arduino.js",

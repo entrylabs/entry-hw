@@ -1,3 +1,14 @@
+/**********************************************************************************
+ * The following software may be included in this software : orion_firmware.ino
+ * from http://www.makeblock.cc/
+ * This software contains the following license and notice below:
+ * CC-BY-SA 3.0 (https://creativecommons.org/licenses/by-sa/3.0/)
+ * Author : Ander, Mark Yan
+ * Updated : Ander, Mark Yan
+ * Date : 01/09/2016
+ * Description : Firmware for Makeblock Electronic modules with Scratch.
+ * Copyright (C) 2013 - 2016 Maker Works Technology Co., Ltd. All right reserved. 
+ **********************************************************************************/
 #include <Servo.h>
 
 Servo servos[8];  

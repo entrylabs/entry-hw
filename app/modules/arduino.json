@@ -1,8 +1,8 @@
 {
 	"id": "010101",
 	"name": {
-		"en": "Arduino",
-		"ko": "아두이노 정품보드"
+		"en": "Arduino Uno",
+		"ko": "아두이노 Uno 정품보드"
 	},
 	"icon" : "arduino.png",
 	"module": "arduino.js",

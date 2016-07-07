@@ -54,6 +54,23 @@ function Module() {
         TIMER: 0,
     }
 
+    this.defaultOutput = {
+        '0': { type: this.sensorTypes.DIGITAL, data: 0 },
+        '1': { type: this.sensorTypes.DIGITAL, data: 0 },
+        '2': { type: this.sensorTypes.DIGITAL, data: 0 },
+        '3': { type: this.sensorTypes.DIGITAL, data: 0 },
+        '4': { type: this.sensorTypes.DIGITAL, data: 0 },
+        '5': { type: this.sensorTypes.DIGITAL, data: 0 },
+        '6': { type: this.sensorTypes.DIGITAL, data: 0 },
+        '7': { type: this.sensorTypes.DIGITAL, data: 0 },
+        '8': { type: this.sensorTypes.DIGITAL, data: 0 },
+        '9': { type: this.sensorTypes.DIGITAL, data: 0 },
+        '10': { type: this.sensorTypes.DIGITAL, data: 0 },
+        '11': { type: this.sensorTypes.DIGITAL, data: 0 },
+        '12': { type: this.sensorTypes.DIGITAL, data: 0 },
+        '13': { type: this.sensorTypes.DIGITAL, data: 0 }
+    }
+
     this.sendBuffers = [];
 
     this.lastTime = 0;
@@ -112,7 +129,7 @@ Module.prototype.requestRemoteData = function(handler) {
 Module.prototype.handleRemoteData = function(handler) {
     var self = this;
     var getDatas = handler.read('GET');
-    var setDatas = handler.read('SET');
+    var setDatas = handler.read('SET') || this.defaultOutput;
     var resetDatas = handler.read('RESET');
     var time = handler.read('TIME');
     var key = handler.read('KEY');
@@ -134,7 +151,6 @@ Module.prototype.handleRemoteData = function(handler) {
         setKeys.forEach(function (port) {
             var data = setDatas[port];
             if(data) {
-                console.log(data.data);
                 self.sp.write(self.makeOutputBuffer(data.type, port, data.data));
             }
         });
@@ -142,14 +158,13 @@ Module.prototype.handleRemoteData = function(handler) {
 };
 
 Module.prototype.requestLocalData = function() {
-    // var buffer = this.makeSensorReadBuffer(this.sensorTypes.ANALOG, 0);
     return null;
 };
 
 /*
 ff 55 idx size data a
 */
-Module.prototype.handleLocalData = function(data) { // data: Native Buffer
+Module.prototype.handleLocalData = function(data) {
     var self = this;
     var datas = this.getDataByBuffer(data);
 
@@ -188,7 +203,6 @@ Module.prototype.handleLocalData = function(data) { // data: Native Buffer
                 break;
             }
             case self.sensorTypes.PULSEIN: {
-                console.log(value);
                 self.sensorData.PULSEIN[port] = value;
                 break;
             }
@@ -284,10 +298,6 @@ Module.prototype.getDataByBuffer = function(buffer) {
 Module.prototype.disconnect = function(connect) {
     var self = this;
     if(self.sp) {
-        // this.sp.flush(function (e) {
-        //     console.log('flush');
-        //     console.log(e);
-        // });
         delete self.sp;
     }
     connect.close();

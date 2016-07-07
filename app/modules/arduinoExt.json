@@ -1,8 +1,8 @@
 {
 	"id": "010901",
 	"name": {
-		"en": "ArduinoExt",
-		"ko": "아두이노 확장모드"
+		"en": "ArduinoExt Uno",
+		"ko": "아두이노 Uno 확장모드"
 	},
 	"icon" : "arduinoExt.png",
 	"module": "arduinoExt.js",
@@ -19,7 +19,7 @@
 		"type": "serial",
 		"control": "slave",
 		"duration": 32,
-		"vendor": "",
+		"vendor": ["Arduino", "wch.cn", "FTDI"],
 		"baudRate": 115200,
 		"firmwarecheck": false,
 		"advertise": 2000
