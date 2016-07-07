@@ -30,13 +30,12 @@ Router.prototype.stopScan = function() {
 Router.prototype.connect = function(connector, config) {
 	var self = this;
 	var control = config.hardware.control;
-	var duration = config.hardware.duration;
+    var duration = config.hardware.duration;
+	var advertise = config.hardware.advertise;
 	var extension = this.extension;
 	var server = this.server;
     var type = config.hardware.type;
     var h_type = type;
-    var m_drain_check = true;
-    var s_drain_check = true;
 
 	self.connector = connector;
     if(self.connector['executeFlash']) {
@@ -60,8 +59,9 @@ Router.prototype.connect = function(connector, config) {
 		});
         connector.connect(extension, function(state, data) {
 			if(state) {
+                console.log(state);
 				self.emit('state', state);
-			} else if(m_drain_check) {
+			} else {
 				if(extension.handleLocalData) {
 					extension.handleLocalData(data);
 				}
@@ -76,10 +76,7 @@ Router.prototype.connect = function(connector, config) {
 					if(extension.requestLocalData) {
 						var data = extension.requestLocalData();
 						if(data) {
-							m_drain_check = false;
-							connector.send(data, function () {
-								m_drain_check = true;
-							});
+							connector.send(data);
 						}
 					}
 				}
@@ -88,16 +85,22 @@ Router.prototype.connect = function(connector, config) {
 
         if(duration && control !== 'master') {
             self.timer = setInterval(function() {
-                if(extension.requestLocalData && s_drain_check) {
+                if(extension.requestLocalData) {
                     var data = extension.requestLocalData();
                     if(data) {
-                    	s_drain_check = false;
-                        connector.send(data, function () {
-                        	s_drain_check = true;
-                        });
+                        connector.send(data);
                     }
                 }
             }, duration);
+        }
+
+        if(advertise) {
+            self.advertise = setInterval(function () {
+                var data = handler.encode();
+                if(data) {
+                    server.send(data);
+                }
+            }, advertise);
         }
 	}
 };
@@ -116,9 +119,13 @@ Router.prototype.close = function() {
 			this.connector.close();
 		}
 	}
-	if(this.timer) {
-		clearInterval(this.timer);
-		this.timer = undefined;
+    if(this.timer) {
+        clearInterval(this.timer);
+        this.timer = undefined;
+    }
+	if(this.advertise) {
+		clearInterval(this.advertise);
+		this.advertise = undefined;
 	}
 };
 
