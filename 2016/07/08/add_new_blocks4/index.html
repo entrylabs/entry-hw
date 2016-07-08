@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="ko-kr">
+	<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+  <!-- Enable responsiveness on mobile devices-->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+  <title>
+    
+      하드웨어 블록 만들기 &middot; Entry Docs
+    
+  </title>
+
+  <!-- CSS -->
+  <!--
+  <link rel="stylesheet" href="/entry-hw/public/css/hyde.css">
+  -->
+  <link rel="stylesheet" href="/entry-hw/public/css/flux.css">
+  <link rel="stylesheet" href="/entry-hw/public/css/flux-extend.css">
+  <link rel="stylesheet" href="/entry-hw/public/css/syntax.css">
+  <link rel="stylesheet" href="/entry-hw/public/css/poole.css">
+  <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+
+  <!-- Icons -->
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/entry-hw/public/apple-touch-icon-144-precomposed.png">
+                                 <link rel="shortcut icon" href="/entry-hw/public/favicon.ico">
+
+  <!-- RSS -->
+  <link rel="alternate" type="application/rss+xml" title="RSS" href="/atom.xml">
+</head>
+
+	<body>
+		<div class="container">
+			<div class="nav-main">
+    <div class="wrap">
+        <a href="/entry-hw/" class="nav-home">
+            <img src="/entry-hw/public/image/logo.png"/>
+            <span>
+                Entry Docs
+            </span>
+        </a>
+        <ul class="nav-site">
+            <li>
+                <a class="active">
+                    DOCS
+                </a>
+            </li>
+            <li>
+                <a class="">
+                    SUPPORT
+                </a>
+            </li>
+            <li>
+                <a href="https://github.com/entrylabs/entry-hw" target="_blank">
+                    GITHUB
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+
+			<div class="content wrap documentationContent">
+				<div class="nav-docs posts">
+    <div class="nav-docs-section">
+        <h3>Quick Start</h3>
+        <ul>
+            
+            
+                
+                    
+                        <li><a class="" href="/entry-hw/page/1_GettingStarted/">시작하기</a></li>
+                    
+                
+            
+                
+                    
+                        <li><a class="" href="/entry-hw/page/2_SettingEnvironments/">개발환경 세팅</a></li>
+                    
+                
+            
+                
+                    
+                        <li><a class="" href="/entry-hw/page/3_BaseGuide/">기본 개발 절차</a></li>
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+        </ul>
+    </div>
+    <div class="nav-docs-section">
+        <h3>하드웨어 모듈 개발</h3>
+        <ul>
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                
+                    <li><a class="" href="/entry-hw/2016/05/03/add_module/">모듈 추가 방법</a></li>
+                
+            
+        </ul>
+    </div>
+    <div class="nav-docs-section">
+        <h3>엔트리 블록 개발</h3>
+        <ul>
+            
+            
+                
+            
+                
+            
+                
+            
+                
+            
+                    <li><a class="" href="/entry-hw/2016/05/22/add_new_blocks/">블록 명세 작성</a></li>
+                
+            
+                
+            
+                    <li><a class="" href="/entry-hw/2016/05/26/add_new_blocks2/">블록 사용 등록</a></li>
+                
+            
+                
+            
+                    <li><a class="" href="/entry-hw/2016/05/26/add_new_blocks3/">각 블록 모양별 생성 방법</a></li>
+                
+            
+                
+            
+                    <li><a class="active" href="/entry-hw/2016/07/08/add_new_blocks4/">하드웨어 블록 만들기</a></li>
+                
+            
+        </ul>
+    </div>
+    <div class="nav-docs-section">
+        <h3>Tip & Tech</h3>
+        <ul>
+            
+                
+            
+                
+                    <li><a class="" href="/entry-hw/2016/07/07/faq/">FAQ</a></li>
+                
+            
+                
+            
+                
+            
+                
+            
+                
+                    <li><a class="" href="/entry-hw/2016/05/03/git_fork/">Git Fork 방법</a></li>
+                
+            
+                
+            
+        </ul>
+    </div>
+    
+</div>
+
+				<div class="inner-content">
+
+					<div class="post">
+    <h1 class="post-title">하드웨어 블록 만들기</h1>
+    <span class="post-date">08 Jul 2016</span>
+    <p>하드웨어 블록은 기본적으로 일반 블록과 생성 및 사용법이 같으나 아래와 같은 몇가지 특징이 있습니다.</p>
+
+<ol>
+  <li>블록색상 고정(#00979D)</li>
+  <li>하드웨어 연결 프로그램에 값 읽고 쓰기
+    <ol>
+      <li>Entry.hw.sendQueue (값 보내기)</li>
+      <li>Entry.hw.portData (값 읽기)</li>
+    </ol>
+  </li>
+  <li>하드웨어 초기값 설정
+    <ol>
+      <li>Entry.(하드웨어이름).setZero</li>
+    </ol>
+  </li>
+  <li>isNorFor와 Class의 활용
+    <ol>
+      <li>isNotFor</li>
+      <li>Class</li>
+    </ol>
+  </li>
+</ol>
+
+<p>위의 내용에 대한 설명은 다음과 같습니다.</p>
+
+<hr />
+
+<h3 id="section">블록생상 고정</h3>
+
+<p>하드웨어 블록은 현재는 <code class="highlighter-rouge">#00979D</code>로 고정해서 사용하도록 강제하고 있습니다. 이점 양해부탁드리며 앞으로 소스 개발시 해당 부분 변동 없이 처리 부탁드립니다.</p>
+
+<h3 id="section-1">하드웨어 연결프로그램에 값 읽고 쓰기</h3>
+
+<h4 id="entryhwsendqueue--">1. Entry.hw.sendQueue (값 보내기)</h4>
+
+<p>블록 명세를 보면 func에 블록의 기본 행동을 정의하도록 되어 있습니다. 엔트리 프로그램에서는 정의된 주기대로 websocket을 통해 하드웨어에 데이터를 전달하는데 이때 전달하는 값이 Entry.hw.sendQueue의 값입니다. text형태의 어떠한 값이라고 sendQueue를 통해 전달할수 있고 적절하게 하드웨어에서 받아서 처리 한다면 어떠한 형태의 text도 전달 가능합니다. 다만, 성능이슈가 발생할수 있으므로 최대한 적은 데이터를 보내주시고 JSON형태의 데이터를 권장합니다.</p>
+
+<h5 id="section-2">사용 예</h5>
+
+<figure class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="p">(</span><span class="nx">sprite</span><span class="p">,</span> <span class="nx">script</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// Port 라는 key에 '1'이라는 데이터를 하드웨어 프로그램에 보냄.</span>
+    <span class="nx">Entry</span><span class="p">.</span><span class="nx">hw</span><span class="p">.</span><span class="nx">sendQueue</span><span class="p">[</span><span class="s1">'Port'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'1'</span><span class="p">;</span>
+    <span class="c1">// 다음 블록으로 진행</span>
+    <span class="k">return</span> <span class="nx">script</span><span class="p">.</span><span class="nx">callRetrurn</span><span class="p">();</span>
+<span class="p">}</span></code></pre></figure>
+
+<h4 id="entryhwportdata--">2. Entry.hw.portData (값 읽기)</h4>
+
+<p>똑같이 func에 사용하는 값으로 주기적으로 하드웨어에서 들어오는 data값 입니다. 값을 읽어서 화면에 표기해야 하는 블록의 경우 해당 값을 읽어서 처리해야 합니다. 기본적으로 text정보 또는 JSON정보가 포함되어 들어 오게 되어 있습니다. 하드웨어 프로그램에서 처리하여 보내준 데이터가 그대로 들어오도록 구성되어 있으니 하드웨어 모듈을 작성하실때 해당 부분을 염두해 두고 만드시면 좋을 것 같습니다.</p>
+
+<h5 id="section-3">사용 예</h5>
+
+<figure class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="p">(</span><span class="nx">sprite</span><span class="p">,</span> <span class="nx">script</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// Port 라는 key값을 가진 정보를 읽는다.</span>
+    <span class="kd">var</span> <span class="nx">result</span> <span class="o">=</span> <span class="nx">Entry</span><span class="p">.</span><span class="nx">hw</span><span class="p">.</span><span class="nx">portData</span><span class="p">[</span><span class="s1">'Port'</span><span class="p">];</span>
+    <span class="c1">// 값을 전달함.</span>
+    <span class="k">return</span> <span class="nx">result</span><span class="p">;</span>
+<span class="p">}</span></code></pre></figure>
+
+<h3 id="section-4">하드웨어 초기값 설정</h3>
+
+<p>엔트리 프로그램을 주기적으로 시작하기와 정지하기를 사용자가 수행하게 되고 정지하는 순간 엔트리 작품의 상태가 초기로 돌아가도록 되어 있습니다. 이에 맞춰서 하드웨어도 초기값(아무것도 동작하지 않았던 최초의 상태)으로 설정해줘야 합니다. 물론, 개발방향에 따라 해당기능이 필요 없을수도 있습니다. 이것은 개발자 본인이 판단하시고 작성해 주시면 됩니다.</p>
+
+<h4 id="entrysetzero">Entry.(하드웨어명).setZero</h4>
+
+<p>기본적으로 entryjs/src/blocks/(작성하신 하드웨어 오브젝트 정의 스크립트).js 이곳에 작성한 자바스크립에서 setZero를 정의하도록 합니다. (block_arduino.js롤 참고해 보시는것도 좋습니다.) 해당 소스에는 Entry.hw.sendQueue에 초기값을로 동작할 데이터를 세팅 하고 Entry.hw.update()를 실행시켜서 하드웨어쪽으로 데이터를 보내도록 정의하면 됩니다.</p>
+
+<h5 id="section-5">사용예</h5>
+
+<figure class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">setZero</span><span class="err">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// Port라는 key값을 가진데이터의 초기값은 0</span>
+    <span class="nx">Entry</span><span class="p">.</span><span class="nx">hw</span><span class="p">.</span><span class="nx">sendQueue</span><span class="p">[</span><span class="s1">'Port'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'0'</span><span class="p">;</span>
+    <span class="c1">// 해당 데이터를 하드웨어 전달한다.</span>
+    <span class="nx">Entry</span><span class="p">.</span><span class="nx">hw</span><span class="p">.</span><span class="nx">update</span><span class="p">();</span>
+<span class="p">}</span></code></pre></figure>
+
+<h3 id="isnorfor-class-">isNorFor와 Class의 활용</h3>
+
+<p>isNotFor와 Class는 사용자에게 블록을 알맞게 보여주는 역할을 합니다.</p>
+
+<h4 id="isnotfor">isNotFor</h4>
+
+<p>isNotFor의 역할은 해당 하드웨어가 연결되었을때 해당 하드웨어를 사용자에게 보여주는 역할을 하게 되어있습니다. isNotFor에 적힐 데이터는 Entry.(적성한 하드웨어 오브젝트).name 이 매칭되도록 되어 있습니다. 해당 몇칭이 대소문자 까지 정확히 매칭되어야 해당 하드웨어가 연결되었을때 정확히 표현 할수 있습니다. 다만 해당 내용을 작성하지 않을 경우 항상 표시되도록 되는데 이렇게 작성하시면 저희쪽 반영이 Reject사유가 되니 빠짐없이 채워주시기 바랍니다.</p>
+
+<h4 id="class">Class</h4>
+
+<p>Class의 경우에는 블록들간의 구분선을 보여주는 역할을 합니다. 기본적으로 데이터 get과 set정도의 구분이나 특정 상황에서만 쓰는 블록들간의 그룹핑을 해주는 역할이라고 보시면 됩니다. 기본적으로 (entryjs)/extren/util/static.js category에 등록된 블록 순서대로 블록이 표현되며 해당 class가 변경될때마다 구분선이 생기므로 static.js에 category를 넣어주실때 순서를 잘 생각하고 작성해주시면 됩니다.</p>
+
+</div>
+
+<div class="related">
+    <h2>Related Posts</h2>
+    <ul class="related-posts">
+        
+            <li>
+                <h3>
+                    <a href="/entry-hw/2016/07/07/faq/">
+                        FAQ
+                        <small>07 Jul 2016</small>
+                    </a>
+                </h3>
+            </li>
+        
+            <li>
+                <h3>
+                    <a href="/entry-hw/2016/05/26/add_new_blocks3/">
+                        각 블록 모양별 생성 방법
+                        <small>26 May 2016</small>
+                    </a>
+                </h3>
+            </li>
+        
+            <li>
+                <h3>
+                    <a href="/entry-hw/2016/05/26/add_new_blocks2/">
+                        블록 사용 등록
+                        <small>26 May 2016</small>
+                    </a>
+                </h3>
+            </li>
+        
+    </ul>
+</div>
+
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
