@@ -4,13 +4,51 @@
  <title>Entry Docs</title>
  <link href="http://entrylabs.github.io/atom.xml" rel="self"/>
  <link href="http://entrylabs.github.io/"/>
- <updated>2016-05-27T14:06:32+09:00</updated>
+ <updated>2016-07-08T14:45:06+09:00</updated>
  <id>http://entrylabs.github.io</id>
  <author>
    <name>kimorkim</name>
    <email></email>
  </author>
 
+ 
+ <entry>
+   <title>FAQ</title>
+   <link href="http://entrylabs.github.io/2016/07/07/faq/"/>
+   <updated>2016-07-07T00:00:00+09:00</updated>
+   <id>http://entrylabs.github.io/2016/07/07/faq</id>
+   <content type="html">&lt;p&gt;&lt;strong&gt;개발환경에 필요한게 일단 NodeJS이고, NodeJS를 깔면 npm 설치가 가능해지니 npm 설치로 grunt, grunt-cli, Electron-prebuilt 이 세가지의 패키지만 설치하면는 건가요?&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;개발환경은 그렇습니다. 혹시 패키징(빌드) 까지 필요하시다면 C++ 컴파일러(보통 VS 2015 Comunity), python 2.7.11 버전이 필요합니다.&lt;/p&gt;
+
+&lt;p&gt;&lt;br /&gt;
+&lt;strong&gt;개발환경 세팅할때 환경변수 설정은 따로 필요없나요?&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;기본적으로 자동으로 환경변수 세팅이 완료됩니다. 하지만 개발자 PC의 세팅여부에 따라 따로 지정해야 동작할 여지도 있습니다.&lt;/p&gt;
+
+&lt;p&gt;&lt;br /&gt;
+&lt;strong&gt;블록을 개발할때 쓸 IDE환경은 자바가 지원된다는 전제하에 아무거나 상관없습니까? &lt;br /&gt;(ex. eclipse) 추천하는 것이 있다면 추천해주세요&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;자바스크립트 어시스트를 잘해 줄 수 있는 가볍운 텍스트 에디터를 추천합니다. 저희쪽에서 사용하는 에디터는 vim, sublime text, atom등이 있으며 개인적으로 sublime text를 추천합니다.&lt;/p&gt;
+
+&lt;p&gt;&lt;br /&gt;
+&lt;strong&gt;하드웨어기기가 연결되어 있는 상태에서 소스 코딩작업을 한 후 git에 올리고, 펌웨어 다운을하면 실시간으로 개발한 블럭이 보여지나요?&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;블럭이 보여지는것과 git하고는 별개 라고 생각하시면 됩니다.
+git에 소스를 올리는 것은 실제 운영에 반영하기 위함 이구요.
+블록확인은 entryjs repository에 example/example.html 파일을 크롬에 띄워서 간편하게 확인하실수 있습니다.&lt;/p&gt;
+
+&lt;p&gt;&lt;br /&gt;
+&lt;strong&gt;아두이노 계열 보드에 펌웨어 업로드 어떻게 하나요?&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;아두이노 우노 계열의 보드는 flasher폴더 하위에 하드웨어명.hex로 올려 놓고 하드웨어명.json 에서 하드웨어 명을 firmware로 지정하면 펌웨어 업로드가 가능합니다.&lt;/p&gt;
+
+&lt;p&gt;&lt;br /&gt;
+&lt;strong&gt;블록 개발하는 소스의 위치가 어디인가요?&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;블록의 메인소스는 entryjs/src/workspace/block_entry.js 입니다.&lt;/p&gt;
+</content>
+ </entry>
  
  <entry>
    <title>각 블록 모양별 생성 방법</title>

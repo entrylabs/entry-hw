@@ -109,11 +109,17 @@
                     
                 
             
+                
+                    
+                
+            
         </ul>
     </div>
     <div class="nav-docs-section">
         <h3>하드웨어 모듈 개발</h3>
         <ul>
+            
+                
             
                 
             
@@ -133,6 +139,8 @@
         <h3>엔트리 블록 개발</h3>
         <ul>
             
+            
+                
             
                 
             
@@ -160,6 +168,10 @@
         <ul>
             
                 
+                    <li><a class="" href="/entry-hw/2016/07/07/faq/">FAQ</a></li>
+                
+            
+                
             
                 
             
@@ -179,6 +191,48 @@
 				<div class="inner-content">
 
 					<div class="posts">
+  
+  <div class="post">
+    <h1 class="post-title">
+      <a href="/entry-hw/2016/07/07/faq/">
+        FAQ
+      </a>
+    </h1>
+
+    <span class="post-date">07 Jul 2016</span>
+
+    <p><strong>개발환경에 필요한게 일단 NodeJS이고, NodeJS를 깔면 npm 설치가 가능해지니 npm 설치로 grunt, grunt-cli, Electron-prebuilt 이 세가지의 패키지만 설치하면는 건가요?</strong></p>
+
+<p>개발환경은 그렇습니다. 혹시 패키징(빌드) 까지 필요하시다면 C++ 컴파일러(보통 VS 2015 Comunity), python 2.7.11 버전이 필요합니다.</p>
+
+<p><br />
+<strong>개발환경 세팅할때 환경변수 설정은 따로 필요없나요?</strong></p>
+
+<p>기본적으로 자동으로 환경변수 세팅이 완료됩니다. 하지만 개발자 PC의 세팅여부에 따라 따로 지정해야 동작할 여지도 있습니다.</p>
+
+<p><br />
+<strong>블록을 개발할때 쓸 IDE환경은 자바가 지원된다는 전제하에 아무거나 상관없습니까? <br />(ex. eclipse) 추천하는 것이 있다면 추천해주세요</strong></p>
+
+<p>자바스크립트 어시스트를 잘해 줄 수 있는 가볍운 텍스트 에디터를 추천합니다. 저희쪽에서 사용하는 에디터는 vim, sublime text, atom등이 있으며 개인적으로 sublime text를 추천합니다.</p>
+
+<p><br />
+<strong>하드웨어기기가 연결되어 있는 상태에서 소스 코딩작업을 한 후 git에 올리고, 펌웨어 다운을하면 실시간으로 개발한 블럭이 보여지나요?</strong></p>
+
+<p>블럭이 보여지는것과 git하고는 별개 라고 생각하시면 됩니다.
+git에 소스를 올리는 것은 실제 운영에 반영하기 위함 이구요.
+블록확인은 entryjs repository에 example/example.html 파일을 크롬에 띄워서 간편하게 확인하실수 있습니다.</p>
+
+<p><br />
+<strong>아두이노 계열 보드에 펌웨어 업로드 어떻게 하나요?</strong></p>
+
+<p>아두이노 우노 계열의 보드는 flasher폴더 하위에 하드웨어명.hex로 올려 놓고 하드웨어명.json 에서 하드웨어 명을 firmware로 지정하면 펌웨어 업로드가 가능합니다.</p>
+
+<p><br />
+<strong>블록 개발하는 소스의 위치가 어디인가요?</strong></p>
+
+<p>블록의 메인소스는 entryjs/src/workspace/block_entry.js 입니다.</p>
+
+  </div>
   
   <div class="post">
     <h1 class="post-title">
@@ -855,115 +909,11 @@ blockInfo의 경우 block_entry.js에 포함되었습니다. getAllBlocks에만 
 
   </div>
   
-  <div class="post">
-    <h1 class="post-title">
-      <a href="/entry-hw/2016/05/03/add_module/">
-        모듈 추가 방법
-      </a>
-    </h1>
-
-    <span class="post-date">03 May 2016</span>
-
-    <h4 id="section">모듈추가</h4>
-<p>엔트리에 하드웨어를 추가하기 위해서 수반되는 가장 기본적인 단계 입니다.</p>
-
-<h4 id="section-1">모듈의 위치</h4>
-<p>엔트리가 Electron이 적용됨에 따라 모듈의 위치도 변경되었습니다.<br />
-기존 상위폴더/modules에서 상위폴더/app/modules로 변경되었습니다.</p>
-
-<h4 id="section-2">모듈의 구성</h4>
-<p>모듈은 모듈명.js, 모듈명.json, 모듈명.png의 3가지로 구성됩니다.<br />
-<img src="https://raw.githubusercontent.com/entrylabs/entry-hw/gh-pages/wiki-image/module/default.PNG" alt="모듈의 구성" /></p>
-
-<h5 id="json-">모듈명.json 구조</h5>
-<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
-    </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"하드웨어ID(엔트리와 사전규약 필요. ex.'010101')"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"en"</span><span class="p">:</span><span class="w"> </span><span class="s2">"English Name"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"ko"</span><span class="p">:</span><span class="w"> </span><span class="s2">"한글명"</span><span class="w">
-    </span><span class="p">},</span><span class="w">
-    </span><span class="nt">"icon"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"이미지(.png | .jpg | .gif ...)"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"module"</span><span class="p">:</span><span class="w"> </span><span class="s2">"모듈(.js)"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"driver"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"win32-ia32"</span><span class="p">:</span><span class="w"> </span><span class="s2">"윈도우32비트 하드웨어 드라이버"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"win32-x64"</span><span class="p">:</span><span class="w"> </span><span class="s2">"윈도우64비트 하드웨어 드라이버"</span><span class="w">
-    </span><span class="p">},</span><span class="w">
-    </span><span class="nt">"reconnect"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"재접속 시도여부 (true | false)"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"firmware"</span><span class="p">:</span><span class="w"> </span><span class="s2">"펌웨어(board)"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"firmwareBaudRate"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Flash baud rate(57600 ...)"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"entry"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"protocol"</span><span class="p">:</span><span class="w"> </span><span class="s2">"데이터규격(json)"</span><span class="w">
-    </span><span class="p">},</span><span class="w">
-    </span><span class="nt">"hardware"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"타입(serial)"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"control"</span><span class="p">:</span><span class="w"> </span><span class="s2">"동작방식(slave | master)"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"duration"</span><span class="p">:</span><span class="w"> </span><span class="s2">"duration(32 ...)"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"vendor"</span><span class="p">:</span><span class="w"> </span><span class="s2">"하드웨어 벤더명(ex.Arduino)"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"firmwarecheck"</span><span class="p">:</span><span class="w"> </span><span class="s2">"펌웨어 자동체크여부 (true | false)"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"baudRate"</span><span class="p">:</span><span class="w"> </span><span class="s2">"baudRate(115200, 57600, 38400, 19200, 9600, 4800, 2400, 1800, 1200, 600, 300, 200, 150, 134, 110, 75, 50)"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"parity"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"parity('none', 'even', 'mark', 'odd', 'space')"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"dataBits"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"dataBits(8, 7, 6, 5)"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"stopBits"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"stopBits(1, 2)"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"bufferSize"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"bufferSize(255 ...)"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"delimiter"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"delimiter(ex '\r')"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"flowControl"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"flowControl(ex. 'hardware')"</span><span class="w">
-    </span><span class="p">}</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre>
-</div>
-
-<h5 id="js-">모듈명.js의 구조</h5>
-<div class="language-js highlighter-rouge"><pre class="highlight"><code><span class="kd">function</span> <span class="nx">Module</span><span class="p">()</span> <span class="p">{</span>
-<span class="c1">//모듈의 constructor</span>
-<span class="p">}</span>
-
-<span class="c1">//필요시 Handler Data 초기값 설정</span>
-<span class="nx">Module</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">init</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">handler</span><span class="p">,</span> <span class="nx">config</span><span class="p">)</span> <span class="p">{</span>
-<span class="p">};</span>
-
-<span class="c1">//필요시 연결직후 Hardware에 보내는 초기값 설정</span>
-<span class="nx">Module</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">requestInitialData</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-<span class="p">};</span>
-
-<span class="c1">//연결직후 Hardware에서보내는 Inital데이터의 Vaildation</span>
-<span class="nx">Module</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">checkInitialData</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">data</span><span class="p">,</span> <span class="nx">config</span><span class="p">)</span> <span class="p">{</span>
-<span class="p">};</span>
-
-<span class="c1">//Hardware에서 보내는 모든 데이터의 Vaildation</span>
-<span class="nx">Module</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">validateLocalData</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
-<span class="p">};</span>
-
-<span class="c1">// 서버에서 보내온 데이터 세팅</span>
-<span class="nx">Module</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">handleRemoteData</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">handler</span><span class="p">)</span> <span class="p">{</span>
-<span class="p">};</span>
-
-<span class="c1">// Hardware에서 보내온 데이터 세팅</span>
-<span class="nx">Module</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">handleLocalData</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span> <span class="c1">// data: Native Buffer</span>
-<span class="p">};</span>
-
-<span class="c1">// 서버에 보낼 데이터 세팅</span>
-<span class="nx">Module</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">requestRemoteData</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">handler</span><span class="p">)</span> <span class="p">{</span>
-<span class="p">};</span>
-
-<span class="c1">// Hardware에 보낼 데이터 세팅</span>
-<span class="nx">Module</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">requestLocalData</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-<span class="p">};</span>
-
-<span class="c1">// 서버 Connect 종료시 값 세팅</span>
-<span class="nx">Module</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">reset</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
-<span class="p">};</span>
-
-<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Module</span><span class="p">();</span>
-</code></pre>
-</div>
-
-  </div>
-  
 </div>
 
 <div class="pagination">
   
-    <span class="pagination-item older">이전</span>
+    <a class="pagination-item older" href="/entry-hw/posts/page2">이전</a>
   
   
     <span class="pagination-item newer">다음</span>
