@@ -4,7 +4,7 @@
  <title>Entry Docs</title>
  <link href="http://entrylabs.github.io/atom.xml" rel="self"/>
  <link href="http://entrylabs.github.io/"/>
- <updated>2016-07-08T15:55:19+09:00</updated>
+ <updated>2016-07-11T07:17:00+00:00</updated>
  <id>http://entrylabs.github.io</id>
  <author>
    <name>kimorkim</name>
@@ -15,7 +15,7 @@
  <entry>
    <title>하드웨어 블록 만들기</title>
    <link href="http://entrylabs.github.io/2016/07/08/add_new_blocks4/"/>
-   <updated>2016-07-08T00:00:00+09:00</updated>
+   <updated>2016-07-08T00:00:00+00:00</updated>
    <id>http://entrylabs.github.io/2016/07/08/add_new_blocks4</id>
    <content type="html">&lt;p&gt;하드웨어 블록은 기본적으로 일반 블록과 생성 및 사용법이 같으나 아래와 같은 몇가지 특징이 있습니다.&lt;/p&gt;
 
@@ -110,7 +110,7 @@
  <entry>
    <title>FAQ</title>
    <link href="http://entrylabs.github.io/2016/07/07/faq/"/>
-   <updated>2016-07-07T00:00:00+09:00</updated>
+   <updated>2016-07-07T00:00:00+00:00</updated>
    <id>http://entrylabs.github.io/2016/07/07/faq</id>
    <content type="html">&lt;p&gt;&lt;strong&gt;개발환경에 필요한게 일단 NodeJS이고, NodeJS를 깔면 npm 설치가 가능해지니 npm 설치로 grunt, grunt-cli, Electron-prebuilt 이 세가지의 패키지만 설치하면는 건가요?&lt;/strong&gt;&lt;/p&gt;
 
@@ -148,7 +148,7 @@ git에 소스를 올리는 것은 실제 운영에 반영하기 위함 이구요
  <entry>
    <title>각 블록 모양별 생성 방법</title>
    <link href="http://entrylabs.github.io/2016/05/26/add_new_blocks3/"/>
-   <updated>2016-05-26T00:00:00+09:00</updated>
+   <updated>2016-05-26T00:00:00+00:00</updated>
    <id>http://entrylabs.github.io/2016/05/26/add_new_blocks3</id>
    <content type="html">&lt;h3 id=&quot;section&quot;&gt;목차&lt;/h3&gt;
 
@@ -678,7 +678,7 @@ template 프로퍼티는 작성 되어 있지 않다면 Lang.template 에서 정
  <entry>
    <title>블록 사용 등록</title>
    <link href="http://entrylabs.github.io/2016/05/26/add_new_blocks2/"/>
-   <updated>2016-05-26T00:00:00+09:00</updated>
+   <updated>2016-05-26T00:00:00+00:00</updated>
    <id>http://entrylabs.github.io/2016/05/26/add_new_blocks2</id>
    <content type="html">&lt;h3 id=&quot;section&quot;&gt;블록 사용 등록&lt;/h3&gt;
 &lt;p&gt;기존에는 static.js에 EntryStatic.getAllBlocks와 EntryStatic.blockInfo 두 가지를 설정했지만 
@@ -691,7 +691,7 @@ blockInfo의 경우 block_entry.js에 포함되었습니다. getAllBlocks에만 
  <entry>
    <title>블록 명세 작성</title>
    <link href="http://entrylabs.github.io/2016/05/22/add_new_blocks/"/>
-   <updated>2016-05-22T00:00:00+09:00</updated>
+   <updated>2016-05-22T00:00:00+00:00</updated>
    <id>http://entrylabs.github.io/2016/05/22/add_new_blocks</id>
    <content type="html">&lt;h3 id=&quot;section&quot;&gt;신규 엔트리 블록&lt;/h3&gt;
 &lt;p&gt;엔트리 블록 라이브러리가 변경되었습니다. 기존에 사용하던 구글 Blockly에서 자체개발 Block라이브러리로 변경 되었고 변경과 함께 개발 방법또한 변경되었습니다. 이 문서에서는 변경된 블록 라이브러리를 이용하여 개발을 수행하는 방법에 대해서 설명합니다.&lt;/p&gt;
@@ -787,7 +787,7 @@ blockInfo의 경우 block_entry.js에 포함되었습니다. getAllBlocks에만 
  <entry>
    <title>Git Fork 방법</title>
    <link href="http://entrylabs.github.io/2016/05/03/git_fork/"/>
-   <updated>2016-05-03T00:00:00+09:00</updated>
+   <updated>2016-05-03T00:00:00+00:00</updated>
    <id>http://entrylabs.github.io/2016/05/03/git_fork</id>
    <content type="html">&lt;h4 id=&quot;git-fork&quot;&gt;Git Fork방법&lt;/h4&gt;
 
@@ -807,7 +807,7 @@ blockInfo의 경우 block_entry.js에 포함되었습니다. getAllBlocks에만 
  <entry>
    <title>모듈 추가 방법</title>
    <link href="http://entrylabs.github.io/2016/05/03/add_module/"/>
-   <updated>2016-05-03T00:00:00+09:00</updated>
+   <updated>2016-05-03T00:00:00+00:00</updated>
    <id>http://entrylabs.github.io/2016/05/03/add_module</id>
    <content type="html">&lt;h4 id=&quot;section&quot;&gt;모듈추가&lt;/h4&gt;
 &lt;p&gt;엔트리에 하드웨어를 추가하기 위해서 수반되는 가장 기본적인 단계 입니다.&lt;/p&gt;
