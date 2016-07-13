@@ -1,12 +1,6 @@
 function Module() {
 	this.sp = null;
 	this.sensors = [];
-	this.SENSOR_MAP = {
-		'1': undefined,
-		'2': undefined,
-		'3': undefined,
-		'4': undefined
-	}
 	this.CHECK_PORT_MAP = {};
 	this.CHECK_SENSOR_MAP = {};
 	this.SENSOR_COUNTER_LIST = {};
@@ -65,6 +59,26 @@ function Module() {
 			power: 0
 		}
 	}	
+	this.SENSOR_MAP = {
+		'1': {
+			type: this.deviceTypes.Touch,
+			mode: 0
+		},
+		'2': {
+			type: this.deviceTypes.Touch,
+			mode: 0
+		},
+		'3': {
+			type: this.deviceTypes.Touch,
+			mode: 0
+		},
+		'4': {
+			type: this.deviceTypes.Touch,
+			mode: 0
+		}
+	}
+	this.isSensing = false;
+	this.LAST_PORT_MAP = null;
 }
 
 var counter = 0;
@@ -101,6 +115,7 @@ var sensorChecking = function(that) {
 	if(!isSensorCheck) {
 		that.sensing = setInterval(function(){
 			that.sensorCheck();
+			that.isSensing = false;
 		}, 200);
 		isSensorCheck = true;
 	}
@@ -118,6 +133,14 @@ var getSensorType = function(that, type) {
 }
 Module.prototype.init = function(handler, config) {
 };
+
+Module.prototype.lostController = function () {}
+
+Module.prototype.evevtContoller = function (state) {
+	if(state === 'connected') {
+		clearInterval(this.sensing);
+	}
+}
 
 Module.prototype.setSerialPort = function (sp) {
 	this.sp = sp;
@@ -151,8 +174,8 @@ Module.prototype.handleLocalData = function(data) { // data: Native Buffer
 	var that = this;
 	if(data[0] === 97 && data[1] === 0) {
 		var countKey = data.readInt16LE(2);
-
 		if(countKey in this.SENSOR_COUNTER_LIST) {
+			this.isSensing = false;
 			delete this.SENSOR_COUNTER_LIST[countKey];
 			data = data.slice(5);
 			var index = 0;
@@ -175,7 +198,6 @@ Module.prototype.handleLocalData = function(data) { // data: Native Buffer
 					'readyPercent': readyPercent
 				}
 			});
-
 		}
 	}
 };
@@ -193,10 +215,13 @@ Module.prototype.requestRemoteData = function(handler) {
 // Web Socket 데이터 처리
 Module.prototype.handleRemoteData = function(handler) {
 	var that = this;
+	
 	Object.keys(this.PORT_MAP).forEach(function (port) {
 		that.PORT_MAP[port] = handler.read(port);
 	});	
-
+	Object.keys(this.SENSOR_MAP).forEach(function (port) {
+		that.SENSOR_MAP[port] = handler.read(port);
+	});
 };
 
 
@@ -207,6 +232,26 @@ Module.prototype.requestLocalData = function() {
 	var initBuf = makeInitBuffer([128, 0, 0]);
 	var time = 0;
 	var sendBody;
+	this.sensorCheck();
+	var skipOutput = false;
+	if(this.LAST_PORT_MAP) {
+		var arr = Object.keys(this.PORT_MAP).filter((function (port) {
+			var map1 = this.PORT_MAP[port];
+			var map2 = this.LAST_PORT_MAP[port];
+			if(map1.type == map2.type && map1.power == map2.power) {
+				return false;
+			} else {
+				return true;
+			}
+		}).bind(this));
+		skipOutput = (arr.length === 0);
+	}
+	
+	if(skipOutput) {
+		return null;
+	}
+
+	this.LAST_PORT_MAP = $.extend(true, {}, this.PORT_MAP);
 	Object.keys(this.PORT_MAP).forEach(function (port) {
 		var portMap = that.PORT_MAP[port];
 		var checkPortMap = that.CHECK_PORT_MAP[port];
@@ -262,44 +307,47 @@ Module.prototype.requestLocalData = function() {
 		var totalLength = initBuf.length + sendBody.length;
 		var sendBuffer = Buffer.concat([initBuf, sendBody], totalLength);
 		checkByteSize(sendBuffer);
+		this.lastMotorData = sendBuffer;
 		return sendBuffer;
-	} else {
-		return null;
 	}
+
+	return null;
 };
 
 Module.prototype.sensorCheck = function () {
-	var that = this;
-	var initBuf = makeInitBuffer([0, 94, 0]);
-	var counter = initBuf.readInt16LE(2);
-	this.SENSOR_COUNTER_LIST[counter] = true;
-	var sensorBody;
-	var index = 0;
-	Object.keys(this.SENSOR_MAP).forEach(function(p) {
-		var mode = 0;
-		if(that.returnData[p] && that.returnData[p]['type']) {
-			var type = getSensorType(that, that.returnData[p]['type']);
-			mode = that.sensorMode[type] || 0;
-		}
-		var port = Number(p) - 1;
-		index = port * responseSize;
-		var modeSet = new Buffer([153, 5, 129, 0, 129, port, 225, index, 225, index+1]);
-		var readySi = new Buffer([153, 29, 129, 0, 129, port, 129, 0, 129, mode, 129, 1, 225, index+2]);
-		var readyRaw = new Buffer([153, 28, 129, 0, 129, port, 129, 0, 129, mode, 129, 1, 225, index+6]);
-		var readyPercent = new Buffer([153, 27, 129, 0, 129, port, 129, 0, 129, mode, 129, 1, 225, index+10]);
+	if(!this.isSensing) {
+		this.isSensing = true;
+		var that = this;
+		var initBuf = makeInitBuffer([0, 94, 0]);
+		var counter = initBuf.readInt16LE(2);
+		this.SENSOR_COUNTER_LIST[counter] = true;
+		var sensorBody;
+		var index = 0; 
+		Object.keys(this.SENSOR_MAP).forEach(function(p) {
+			var mode = 0;
+			if(that.returnData[p] && that.returnData[p]['type']) {
+				var type = getSensorType(that, that.returnData[p]['type']);
+				mode = that.SENSOR_MAP[p]['mode'] || 0;
+			}
+			var port = Number(p) - 1;
+			index = port * responseSize;
+			var modeSet = new Buffer([153, 5, 129, 0, 129, port, 225, index, 225, index+1]);
+			var readySi = new Buffer([153, 29, 129, 0, 129, port, 129, 0, 129, mode, 129, 1, 225, index+2]);
+			var readyRaw = new Buffer([153, 28, 129, 0, 129, port, 129, 0, 129, mode, 129, 1, 225, index+6]);
+			var readyPercent = new Buffer([153, 27, 129, 0, 129, port, 129, 0, 129, mode, 129, 1, 225, index+10]);
 
-		if(!sensorBody) {
-			sensorBody = Buffer.concat([modeSet, readySi, readyRaw, readyPercent]);
-		} else {
-			sensorBody = Buffer.concat([sensorBody, modeSet, readySi, readyRaw, readyPercent]);
-		}
-	});
+			if(!sensorBody) {
+				sensorBody = Buffer.concat([modeSet, readySi, readyRaw, readyPercent]);
+			} else {
+				sensorBody = Buffer.concat([sensorBody, modeSet, readySi, readyRaw, readyPercent]);
+			}
+		});
 
-	var totalLength = initBuf.length + sensorBody.length;
-	var sendBuffer = Buffer.concat([initBuf, sensorBody], totalLength);
-	checkByteSize(sendBuffer);
-	that.sp.write(sendBuffer);
-	
+		var totalLength = initBuf.length + sensorBody.length;
+		var sendBuffer = Buffer.concat([initBuf, sensorBody], totalLength);
+		checkByteSize(sendBuffer);
+		that.sp.write(sendBuffer);
+	}
 }
 
 Module.prototype.connect = function() {
