@@ -13,7 +13,7 @@
 !define MUI_UNICON "icon.ico"
 !define PRODUCT_NAME "Entry_HW"
 !define APP_NAME "Entry_HW.exe"
-!define PRODUCT_VERSION "1.5.6"
+!define PRODUCT_VERSION "1.5.7"
 !define PRODUCT_PUBLISHER "EntryLabs"
 !define PRODUCT_WEB_SITE "http://www.play-entry.org/"
  
