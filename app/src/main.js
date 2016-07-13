@@ -291,6 +291,7 @@
 	};
 
 	$('#back.navigate_button').click(function(e) {
+		is_select_port = true;
 		delete window.currentConfig.this_com_port;
 		ui.showRobotList();
 		router.close();
