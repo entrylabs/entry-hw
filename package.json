@@ -20,10 +20,11 @@
     "icon": "app/icon/app"
   },
   "devDependencies": {
+    "electron-builder": "^3.25.0",
     "electron-packager": "^7.0.2",
     "electron-prebuilt": "1.1.1",
-    "electron-builder": "^3.25.0",
     "rimraf": "^2.5.2"
   },
-  "dependencies": {}
+  "dependencies": {
+  }
 }

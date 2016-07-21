@@ -4,7 +4,12 @@
   "description": "entry hardware connect program",
   "main": "index.js",
   "updateServer": "play02.play-entry.com:4001",
-  "dependencies": {},
+  "dependencies": {
+    "es6-promise": "^3.2.1",
+    "object.assign": "^4.0.4",
+    "bindings": "^1.2.1",
+    "debug": "^2.2.0"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
