@@ -444,21 +444,21 @@ Module.prototype.requestRemoteData = function(handler) {
 	}
 
 
-	handler.write("irread1", (1023 - this.analogValue[0]));
-	handler.write("irread2", (1023 - this.analogValue[1]));
-	handler.write("joyx", (this.analogValue[0] < 300 ? -1 : this.analogValue[0] > 800 ? 1 : 0));
-	handler.write("joyy", (this.analogValue[1] < 300 ? -1 : this.analogValue[1] > 800 ? 1 : 0));
-	handler.write("sens1", (1023 - this.analogValue[2]));
-	handler.write("sens2", (1023 - this.analogValue[3]));
-	handler.write("potenmeter", (this.analogValue[4]));
-	handler.write("touch", (this.analogValue[8]));
-	handler.write("ultrason", (this.analogValue[6]));
-	handler.write("temps1",  (21.5 + ((1023 - this.analogValue[2]) - 410) * 0.094));
-	handler.write("temps2",  (21.5 + ((1023 - this.analogValue[3]) - 410) * 0.094));
-	handler.write("btn1",  (this.analogValue[2] < 500 ? true : false));
-	handler.write("btn2",  (this.analogValue[3] < 500 ? true : false));
-	handler.write("light1",  (this.analogValue[2] / 100));
-	handler.write("light2",  (this.analogValue[3] / 100));
+	handler.write("airread1", (1023 - this.analogValue[0]));
+	handler.write("airread2", (1023 - this.analogValue[1]));
+	handler.write("ajoyx", (this.analogValue[0] < 300 ? -1 : this.analogValue[0] > 800 ? 1 : 0));
+	handler.write("ajoyy", (this.analogValue[1] < 300 ? -1 : this.analogValue[1] > 800 ? 1 : 0));
+	handler.write("asens1", (1023 - this.analogValue[2]));
+	handler.write("asens2", (1023 - this.analogValue[3]));
+	handler.write("apotenmeter", (this.analogValue[4]));
+	handler.write("atouch", (this.analogValue[8]));
+	handler.write("aultrason", (this.analogValue[6]));
+	handler.write("atemps1",  (21.5 + ((1023 - this.analogValue[2]) - 410) * 0.094));
+	handler.write("atemps2",  (21.5 + ((1023 - this.analogValue[3]) - 410) * 0.094));
+	handler.write("abtn1",  (this.analogValue[2] < 500 ? true : false));
+	handler.write("abtn2",  (this.analogValue[3] < 500 ? true : false));
+	handler.write("alight1",  (this.analogValue[2] / 100));
+	handler.write("alight2",  (this.analogValue[3] / 100));
 
 	var tiltval = this.analogValue[7];
 	if((tiltval & 0x2000) == 0x2000) tiltval = 1;
@@ -467,7 +467,7 @@ Module.prototype.requestRemoteData = function(handler) {
 	else if((tiltval & 0x400) == 0x400) tiltval = 2;
 	else tiltval = 0;
 
-	handler.write("tilt", tiltval);
+	handler.write("atilt", tiltval);
 };
 
 Module.prototype.reset = function() {
