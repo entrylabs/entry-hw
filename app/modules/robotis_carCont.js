@@ -181,9 +181,11 @@ Module.prototype.requestLocalData = function() {
 	if (instruction == INST_WRITE) {
 		if (length == 1) {
 			sendBuffer = this.writeBytePacket(200, address, value);
-		} else {
-			sendBuffer = this.writeWordPacket(200, address, value);
-		}
+		} else if (length == 2) {
+            sendBuffer = this.writeWordPacket(200, address, value);
+	    } else {
+            sendBuffer = this.writeDWordPacket(200, address, value);
+	    }
 		
 	} else if (instruction == INST_READ) {
 		this.addressToRead[address] = 0;
@@ -367,6 +369,28 @@ Module.prototype.writeWordPacket = function(id, address, value) {
 	return packet;
 };
 
+Module.prototype.writeDWordPacket = function(id, address, value) {
+	var packet = [];
+	packet.push(0xff);
+	packet.push(0xff);
+	packet.push(0xfd);
+	packet.push(0x00);
+	packet.push(id);
+	packet.push(0x09);
+	packet.push(0x00);
+	packet.push(INST_WRITE);
+	packet.push(this.getLowByte(address));
+	packet.push(this.getHighByte(address));
+	packet.push(this.getLowByte(this.getLowWord(value)));
+	packet.push(this.getHighByte(this.getLowWord(value)));
+	packet.push(this.getLowByte(this.getHighWord(value)));
+	packet.push(this.getHighByte(this.getHighWord(value)));
+    var crc = this.updateCRC(0, packet, packet.length);
+    packet.push(this.getLowByte(crc));
+    packet.push(this.getHighByte(crc));
+	return packet;
+};
+
 Module.prototype.readPacket = function(id, address, lengthToRead) {
 	var packet = [];
 	packet.push(0xff);
@@ -436,6 +460,14 @@ Module.prototype.getLowByte = function(a) {
 
 Module.prototype.getHighByte = function(a) {
 	return ((a >> 8) & 0xff);
+};
+
+Module.prototype.getLowWord = function(a) {
+	return (a & 0xffff);
+};
+ 
+Module.prototype.getHighWord = function(a) {
+	return ((a >> 16) & 0xffff);
 };
 		
 Module.prototype.updateCRC = function(crc_accum, data_blk_ptr, data_blk_size) {
