@@ -12,7 +12,6 @@
 	},
     "reconnect" : false,
 	"softwareReset": true,
-	"firmware": "board",
 	"entry": {
 		"protocol": "json"
 	},
