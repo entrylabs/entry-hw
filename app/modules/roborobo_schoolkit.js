@@ -19,10 +19,9 @@ var OUTPUT = 1;
 var PWM = 3;
 var SERVO = 4;
 
-// constructor
 function Module() {
-	this.digitalValue = new Array(7);
-	this.remoteDigitalValue = new Array(14);
+    this.digitalValue = new Array(7);
+    this.remoteDigitalValue = new Array(14);
     this.sendFlag = false;
     this.ports = Array(14).fill(0);
     this.digitalPinMode = [ 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ];
@@ -32,36 +31,30 @@ function Module() {
     this.packet = [ 0, 0, 0 ];
 };
 
-// 필요시 Handler Data 초기값 설정
 Module.prototype.init = function(handler, config) {    
 };
 
-// 필요시 연결직후 Hardware에 보내는 초기값 설정
 Module.prototype.requestInitialData = function() {
     return this.schoolkitInit();
 };
 
-// 연결직후 Hardware에서보내는 Inital데이터의 Vaildation
 Module.prototype.checkInitialData = function(data, config) {
-	return true;
+    return true;
 };
 
-// Hardware에서 보내는 모든 데이터의 Vaildation
 Module.prototype.validateLocalData = function(data) {
-	return true;
+    return true;
 };
 
-// 서버에서 보내온 데이터 세팅
 Module.prototype.handleRemoteData = function(handler) {
     var digitalValue = this.remoteDigitalValue;
     for (var i = 0; i < 5; i++) {
-		digitalValue[i] = handler.read(i);
-	}
+        digitalValue[i] = handler.read(i);
+    }
 };
 
-// Hardware에 보낼 데이터 세팅
 Module.prototype.requestLocalData = function() {
-	var query = [];
+    var query = [];
     var temp = [];
     
     // 1 : digital_read, 2 : digital_write, 3 : motor(PWM), 4 : color, 5 : servo
@@ -108,10 +101,9 @@ Module.prototype.requestLocalData = function() {
             }
         break;
     }
-	return query;
+    return query;
 };
 
-// Hardware에서 보내온 데이터 세팅
 Module.prototype.handleLocalData = function(data) { // data: Native Buffer
     for(var i = 0; i < data.length; i++) {
         var packet = data[i];
@@ -172,15 +164,13 @@ Module.prototype.handleLocalData = function(data) { // data: Native Buffer
     }
 };
 
-// 서버에 보낼 데이터 세팅
 Module.prototype.requestRemoteData = function(handler) {
-	for (var i = 0; i < this.digitalValue.length; i++) {
-		var value = this.digitalValue[i];
-		handler.write(i, value);
-	}
+    for (var i = 0; i < this.digitalValue.length; i++) {
+        var value = this.digitalValue[i];
+        handler.write(i, value);
+    }
 };
 
-// 서버 Connect 종료시 값 세팅
 Module.prototype.reset = function() {
 };
 
@@ -236,7 +226,7 @@ Module.prototype.setPinMode = function(pin, mode) {
 
 Module.prototype.digitalWrite = function() {
     var queryString = [];
-	var ChannelData = [0, 0];
+    var ChannelData = [0, 0];
     var pin = this.remoteDigitalValue[1];
     var value = this.remoteDigitalValue[2];
     var port = pin >> 3;
@@ -365,7 +355,6 @@ Module.prototype.motor = function() {
         queryString.push(ANALOG_MESSAGE | pin);
         queryString.push(ChannelData[0]);
         queryString.push(ChannelData[1]);
-        //console.log("pin : " + pin + ", value : " + value);
     }
     return queryString;
 };
@@ -375,7 +364,6 @@ Module.prototype.setColor = function() {
     var temp = null;
     
     for(var i = 1; i < 4; i++) {
-        //console.log("color_pin : " + this.remoteDigitalValue[i]);
         temp = this.setPinMode(this.remoteDigitalValue[i], INPUT);
         if(temp != null) {
             for(var j = 0; j < temp.length; j++) {
