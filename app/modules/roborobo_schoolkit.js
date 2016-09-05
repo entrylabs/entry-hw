@@ -97,7 +97,6 @@ Module.prototype.requestLocalData = function() {
             if(this.sendFlag == true) {
                 this.sendFlag = false;                
                 query = this.sendReset();
-                console.log("Reset");
             }
         break;
     }
@@ -216,7 +215,6 @@ Module.prototype.setPinMode = function(pin, mode) {
         queryString.push(pin);
         queryString.push(mode);
         this.digitalPinMode[pin] = mode;
-        console.log("pin : " + pin + ", mode : " + mode);
         
         return queryString;
     }
@@ -282,7 +280,6 @@ Module.prototype.motor = function() {
                     this.motorValue[2] = 0;
                     this.motorValue[3] = 0;
                 }
-                //console.log("Stop");   
             }            
         }
         break;
