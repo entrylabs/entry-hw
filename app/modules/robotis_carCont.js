@@ -88,6 +88,10 @@ Module.prototype.handleRemoteData = function(handler) {
 	var data = handler.read('ROBOTIS_DATA');
 	var setZero = handler.read('setZero');
 
+	if (setZero[0] == 1) {
+		this.robotisBuffer = [];
+	}
+
 	for (var index = 0; index < data.length; index++) {
 		var instruction = data[index][0];
 		var address = data[index][1];
@@ -135,11 +139,6 @@ Module.prototype.handleRemoteData = function(handler) {
 					}
 				}
 			// }
-		}
-
-		if (setZero[0] == 1) {
-			doSend = true;
-			this.robotisBuffer = [];
 		}
 
 		// console.log('=> ' + new Date().getHours() + ':' + new Date().getMinutes() + ':' + new Date().getMilliseconds() + '\n'
