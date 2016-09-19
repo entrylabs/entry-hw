@@ -234,14 +234,14 @@ Module.prototype.handleLocalData = function(data) { // data: string
 		if(motoring.padWidth > 0 && motoring.padHeight > 0) {
 			if(v1 > 0 && v1 <= 40000) {
 				var x = (v1 - 1) % motoring.padWidth; // x
-				var y = parseInt(motoring.padHeight - (v1 - 1) / motoring.padWidth - 1); // y
+				var y = motoring.padHeight - parseInt((v1 - 1) / motoring.padWidth) - 1; // y
 				if(x >= 0 && x < motoring.padWidth) sensory.positionX = x;
 				if(y >= 0 && y < motoring.padHeight) sensory.positionY = y;
 			}
 			if(v2 > 0 && v2 <= 40000 && sensory.positionX >= 0 && sensory.positionY >= 0)
 			{
 				var x = (v2 - 1) % motoring.padWidth;
-				var y = parseInt(motoring.padHeight - (v2 - 1) / motoring.padWidth - 1);
+				var y = motoring.padHeight - parseInt((v2 - 1) / motoring.padWidth) - 1;
 				if(x >= 0 && x < motoring.padWidth && y >= 0 && y < motoring.padHeight) {
 					x = sensory.positionX - x;
 					y = sensory.positionY - y;
