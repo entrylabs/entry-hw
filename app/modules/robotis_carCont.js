@@ -87,11 +87,11 @@ Module.prototype.requestRemoteData = function(handler) {
 Module.prototype.handleRemoteData = function(handler) {
 	var data = handler.read('ROBOTIS_DATA');
 	var setZero = handler.read('setZero');
-
+/*
 	if (setZero[0] == 1) {
 		this.robotisBuffer = [];
 	}
-
+*/
 	for (var index = 0; index < data.length; index++) {
 		var instruction = data[index][0];
 		var address = data[index][1];
@@ -125,10 +125,11 @@ Module.prototype.handleRemoteData = function(handler) {
 			}
 		}
 
-		if (doSend) {
+		//if (doSend) {
 			// if (this.robotisBuffer.length > 10) {
 				// doSend = false;
 			// } else {
+            /*
 				for (var indexA = 0; indexA < this.robotisBuffer.length; indexA++) {
 					if (data[index][0] == this.robotisBuffer[indexA][0] &&
 						data[index][1] == this.robotisBuffer[indexA][1] &&
@@ -138,9 +139,13 @@ Module.prototype.handleRemoteData = function(handler) {
 						break;
 					}
 				}
+                */
 			// }
-		}
+		//}
 
+        if (setZero[0] == 1) {
+            doSend = true;
+        }
 		// console.log('=> ' + new Date().getHours() + ':' + new Date().getMinutes() + ':' + new Date().getMilliseconds() + '\n'
 				  // + instruction + ', ' +
 					// address + ', ' +
