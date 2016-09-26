@@ -63,7 +63,7 @@ Module.prototype.handleLocalData = function(data) { // data: Native Buffer
 		var chunk;
 		if(!this.remainValue) {
 			chunk = data[i];
-		} else {			
+		} else {
 			chunk = this.remainValue;
 			i--;
 		}
@@ -78,7 +78,7 @@ Module.prototype.handleLocalData = function(data) { // data: Native Buffer
 					var port = (chunk >> 3) & 7;
 					this.analogValue[port] = ((chunk & 7) << 7) +
 						(nextChunk & 127);
-				}				
+				}
 		    	i++;
 			} else {
 				var port = (chunk >> 2) & 15;
