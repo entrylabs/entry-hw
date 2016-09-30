@@ -2,7 +2,7 @@
   "name": "Entry_HW",
   "version": "1.5.11",
   "description": "entry hardware connect program",
-  "main": "index.js",
+  "main": "es6-init.js",
   "updateServer": "play02.play-entry.com:4001",
   "dependencies": {
     "es6-promise": "^3.2.1",
