@@ -7,12 +7,15 @@ function Server() {
 	EventEmitter.call(this);
 	this.packet = new Buffer([0x01, 0x00, 0x00, 0x00]);
 	this.connections = [];
+	this.connectionSet = {};
+	this.roomCnt = 0;
 }
 
 util.inherits(Server, EventEmitter);
 
 Server.prototype.open = function(logger) {
 	var WebSocketServer = require('../websocket').server;
+	var WebSocketClient = require('../websocket').client;
 	var http;
 	var PORT = 23518;
 	var self = this;
@@ -37,41 +40,55 @@ Server.prototype.open = function(logger) {
 	}
 
 	self.httpServer = httpServer;
-	httpServer.listen(PORT, function() {
+	httpServer.on('error', function(e) {
+		console.log('error set client');
+	});
+	httpServer.on('listening', function(e) {
 		if(logger) {
 			logger.i('Listening on port ' + PORT);
 		}
-	});
 
-	var server = new WebSocketServer({
-		httpServer: httpServer,
-		autoAcceptConnections: false
-	});
-	self.server = server;
-	server.on('request', function(request) {
-		var connection = request.accept();
-		self.connections.push(connection);
-		if(logger) {
-			logger.i('Entry connected.');
-		}
-		
-		connection.on('message', function(message) {
-			if(message.type === 'utf8') {
-				self.emit('data', message.utf8Data, message.type);
-			} else if (message.type === 'binary') {
-				self.emit('data', message.binaryData, message.type);
-			}
+		var server = new WebSocketServer({
+			httpServer: httpServer,
+			autoAcceptConnections: false
 		});
-		connection.on('close', function(reasonCode, description) {
+		self.server = server;
+		server.on('request', function(request) {
+
+			console.log('request', request);
+			var room = 'room_' + self.roomCnt++;
+			var connection = request.accept();
+			if(!self.connectionSet[room]) {
+				self.connectionSet[room] = [];
+			}
+			self.connectionSet[room].push(connection);
+			self.connections.push(connection);
+			connection.rid = room;
 			if(logger) {
-				logger.w('Entry disconnected.');
-			}
+				logger.i('Entry connected.');
+			}		
+			connection.on('message', function(message) {
+				console.log(this);
+				console.log(connection);
+				console.log(arguments);
+				if(message.type === 'utf8') {
+					self.emit('data', message.utf8Data, message.type);
+				} else if (message.type === 'binary') {
+					self.emit('data', message.binaryData, message.type);
+				}
+			});
+			connection.on('close', function(reasonCode, description) {
+				if(logger) {
+					logger.w('Entry disconnected.');
+				}
 
-			self.emit('close');
-			self.closeSingleConnection(this);
+				self.emit('close');
+				self.closeSingleConnection(this);
+			});
+			self.setState(self.state);
 		});
-		self.setState(self.state);
 	});
+	httpServer.listen(PORT);
 };
 
 Server.prototype.closeSingleConnection = function(connection) {

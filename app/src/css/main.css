@@ -192,7 +192,7 @@ html, body {
 	background-color: #ffc800;
 	color: white;
 	font-size:10pt;
-	position: absolute;
+	position: relative;
 	text-align: center;
 	height: 0px;
 	line-height: 35px;

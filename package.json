@@ -2,7 +2,7 @@
   "name": "Entry_HW",
   "version": "1.5.11",
   "description": "entry hardware connect program",
-  "main": "./src/es6-init.js",
+  "main": "./app/index.js",
   "scripts": {
     "clean": "rimraf dist",
     "pack": "build",
@@ -16,12 +16,10 @@
     "babel-preset-es2016-node5": "^1.1.2",
     "babel-preset-react": "^6.16.0",
     "babel-preset-stage-0": "^6.16.0",
-    "electron-builder": "^7.9.0",
-    "electron-packager": "^8.0.0",
-    "electron-prebuilt": "^1.4.1",
+    "electron-builder": "^7.10.2",
+    "electron-packager": "^8.1.0",
+    "electron-prebuilt": "^1.4.2",
     "rimraf": "^2.5.4"
   },
-  "dependencies": {
-    "electron-compile": "^3.3.5"
-  }
+  "dependencies": {}
 }
