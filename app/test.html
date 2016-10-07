@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+	<script src="./node_modules/socket.io-client/socket.io.js"></script>
+</head>
+<body>
+	<a href="entryhw://test">엔트리 하드웨어 연결하기</a>
+	<a href="entryhw2://test">엔트리 하드웨어 연결하기</a>
+	<button id="gogo">엔트리 고고</button>
+	<button id="gogo2">엔트리 고고</button>
+	<iframe id="gogojang" width="1" height="1" style="visibility:hidden"
+	onload="console.log('aa');" onerror="console.log('bb');"></iframe>
+</body>
+<script type="text/javascript">
+	var socket = io('https://hardware.play-entry.org:23518', {query: 'webClient'});
+	socket.on('message', function (data) {
+		console.log(data);
+		socket.emit('my other event', { my: 'data' });
+	});
+	var ifr = $('#gogojang')[0];
+	$('#gogo').on('click', function() {
+		// $.ajax('entryhw://test');
+		// _httpGet('entryhw://test', function() {})
+
+		ifr.onabort = function () {
+			console.log('abort');
+		}
+		ifr.onerror = function () {
+			console.log('onerror');
+		}
+		ifr.onload = function () {
+			console.log('onload');
+		}
+		ifr.src = 'entryhw://test';
+	});	
+	$('#gogo2').on('click', function() {
+		socket.emit('message', { my: 'data' });
+	});
+
+
+</script>
+</html>

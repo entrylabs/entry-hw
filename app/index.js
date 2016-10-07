@@ -9,11 +9,25 @@ const ChildProcess = require('child_process');
 var mainWindow = null;
 var isClose = true;
 
+console.fslog = function (text) {    
+    var log_path = path.join(__dirname, '..');
+    if(!fs.existsSync(log_path)) {
+        fs.mkdirSync(log_path);
+    }
+    if(!fs.existsSync(path.join(log_path, 'debug.log'))) {
+        fs.writeFileSync(path.join(log_path, 'debug.log'), '', 'utf8');
+    }
+    var data = fs.readFileSync(path.join(log_path, 'debug.log'), 'utf8');
+    data += '\n\r' + new Date() + ' : ' + text;
+    fs.writeFileSync(path.join(log_path, 'debug.log'), data, 'utf8');
+};
+
 app.on('window-all-closed', function() {
     app.quit();
 });
 
 var argv = process.argv.slice(1);
+console.fslog(argv);
 var option = { file: null, help: null, version: null, webdriver: null, modules: [] };
 for (var i = 0; i < argv.length; i++) {
     if (argv[i] == '--version' || argv[i] == '-v') {
@@ -54,6 +68,10 @@ for (var i = 0; i < argv.length; i++) {
 // if (shouldQuit) {
 //     app.quit();
 // }
+
+ipcMain.on('reload', function(event, arg) {
+    mainWindow.reload(true);
+});
 
 app.once('ready', function() {
     let language = app.getLocale();

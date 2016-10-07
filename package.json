@@ -9,6 +9,18 @@
     "dist": "build --arch ia32",
     "start": "set NODE_ENV=development&&electron -d ./"
   },
+  "build": {
+    "win": {
+      "loadingGif": "build/install-spinner.gif",
+      "title": "Entry-HW",
+      "icon": "./build/icon.ico",
+      "authors": "EntryLabs"
+    },
+    "app-bundle-id": "entry-hw",
+    "app-category-type": "org.playentry.entry-hw",
+    "iconUrl": "https://raw.githubusercontent.com/entrylabs/entry-hw/feature/electron/build/icon.ico",
+    "icon": "app/icon"
+  },
   "devDependencies": {
     "babel-cli": "^6.16.0",
     "babel-eslint": "^7.0.0",
