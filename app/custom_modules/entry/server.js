@@ -11,14 +11,13 @@ function Server() {
 	this.connections = [];
 	this.connectionSet = {};
 	this.roomCnt = 0;
-	this.childServerList = [];
+	this.childServerList = {};
 }
 
 util.inherits(Server, EventEmitter);
 
 Server.prototype.open = function(logger) {
-	// var WebSocketServer = require('../websocket').server;
-	// var WebSocketClient = require('../websocket').client;
+	var clientId = ipcRenderer.sendSync('clientId');
 	var http;
 	var PORT = 23518;
 	var self = this;
@@ -44,19 +43,26 @@ Server.prototype.open = function(logger) {
 	
 	httpServer.on('error', function(e) {
 		console.log('%cI`M CLIENT', 'background:black;color:yellow;font-size: 30px');
-		var socket = client('https://hardware.play-entry.org:23518', {query:{'childServer': true}});
-		socket.on('message', function (data) {
+		var socket = client('https://hardware.play-entry.org:23518', {query:{'childServer': true, 'targetClient': clientId}});
+		socket.on('message', function (message) {
 			console.log(data);
+			if(message.type === 'utf8') {
+				self.emit('data', message.utf8Data, message.type);
+			} else if (message.type === 'binary') {
+				self.emit('data', message.binaryData, message.type);
+			}
+		});		
+		socket.on('mode', function (data) {
+			socket.mode = data;
 		});
 		socket.on('disconnect', function() {
-			// ipcRenderer.send('reload');
 			socket.close();
 			socket = null;
 			self.open();
 		});
-		// setInterval(function() {
-		// 	socket.emit('message', {data: 'dasdasdasd'});
-		// }, 1000);
+		setInterval(function() {
+			socket.emit('message', {type: 'utf8', mode: socket.mode, utf8Data: 'serverSend'});
+		}, 3000);
 	});
 	httpServer.on('listening', function(e) {
 		console.log('%cI`M SERVER', 'background:orange; font-size: 30px');
@@ -73,39 +79,70 @@ Server.prototype.open = function(logger) {
 	      	'jsonp-polling', 
 	      	'polling']);
 
-		console.log('server');
 		self.server = server;
 		server.on('connection', function(socket) {
 			var connection = socket;
 			if(connection.handshake.query.childServer === 'true') {
-				self.childServerList.push(connection.id);
-				server.emit('message', 'multiModeChange');
+				// Child 서버 접속 일때
+				var clientId = connection.handshake.query.targetClient;
+				self.childServerList[clientId] = connection.id;
+				server.emit('mode', 'multiMode');
+				server.to(connection.id).emit('matched', {client: clientId});
+				server.to(clientId).emit('matched', {server: connection.id});
+			} else {
+				// Client 접속 일때
+				if(self.childServerList[connection.id]) {
+					server.to(self.childServerList[connection.id]).emit('matched', {client: connection.id});
+					server.to(connection.id).emit('matched', {server: self.childServerList[connection.id]});
+				}
 			}
+			
 			self.connections.push(connection);
 			if(logger) {
 				logger.i('Entry connected.');
 			}
 
-			if(self.childServerList.length > 0) {
-				connection.emit('message', 'multiMode');
+			var childServerListCnt = Object.keys(self.childServerList).length;
+			if(childServerListCnt > 0) {
+				connection.emit('mode', 'multiMode');
 			} else {
-				connection.emit('message', 'singleMode');
+				connection.emit('mode', 'singleMode');
 			}
+
 			connection.on('disconnect', function(socket) {
-				self.childServerList = self.childServerList.filter(function(id) {
-					return (id !== connection.id);
-				});
-				if(self.childServerList.length === 0) {
-					server.emit('message', 'singleModeChange');
+				var clientId = '';
+				if(connection.handshake.query.targetClient) {
+					clientId = connection.handshake.query.targetClient;
+					server.to(connection.id).emit('matching', {client: clientId});
+					server.to(clientId).emit('matching', {server: connection.id});
+				} else {
+					clientId = connection.id;
+					server.to(self.childServerList[connection.id]).emit('matching', {client: connection.id});
+					server.to(connection.id).emit('matching', {server: self.childServerList[connection.id]});
 				}
-				console.log(arguments, connection, self.childServerList);
+
+				delete self.childServerList[clientId];
+
+				// TODO: 미아가 되는 Client 관리가 필요함. cloud pc 와야함..
+
+				var childServerListCnt = Object.keys(self.childServerList).length;
+				if(childServerListCnt === 0) {
+					server.emit('mode', 'singleMode');
+				}
 			});
 			connection.on('message', function(message) {
-				console.log(message);
-				if(message.type === 'utf8') {
-					self.emit('data', message.utf8Data, message.type);
-				} else if (message.type === 'binary') {
-					self.emit('data', message.binaryData, message.type);
+				if(message.mode === 'singleMode') {
+					if(message.type === 'utf8') {
+						self.emit('data', message.utf8Data, message.type);
+					} else if (message.type === 'binary') {
+						self.emit('data', message.binaryData, message.type);
+					}
+				} else {
+					if(connection.handshake.query.childServer === 'true') {
+						server.to(connection.handshake.query.targetClient).emit('message', message);
+					} else {
+						server.to(self.childServerList[connection.id]).emit('message', message);
+					}
 				}
 			});
 
@@ -113,7 +150,6 @@ Server.prototype.open = function(logger) {
 				if(logger) {
 					logger.w('Entry disconnected.');
 				}
-
 				self.emit('close');
 				self.closeSingleConnection(this);
 			});

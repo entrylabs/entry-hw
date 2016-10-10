@@ -8,6 +8,7 @@ const packageJson     = require('./package.json');
 const ChildProcess = require('child_process');
 var mainWindow = null;
 var isClose = true;
+var roomid = '';
 
 console.fslog = function (text) {    
     var log_path = path.join(__dirname, '..');
@@ -28,8 +29,19 @@ app.on('window-all-closed', function() {
 
 var argv = process.argv.slice(1);
 console.fslog(argv);
+
+if(argv.indexOf('entryhw:')) {
+    var regexRoom = /roomid:(.*)\//;
+    var arrRoom = regexRoom.exec(argv) || ['', ''];
+    roomid = arrRoom[1];
+    if(roomid === 'undefined') {
+        roomid = '';
+    }
+}
+
 var option = { file: null, help: null, version: null, webdriver: null, modules: [] };
 for (var i = 0; i < argv.length; i++) {
+    console.fslog(argv[i]);
     if (argv[i] == '--version' || argv[i] == '-v') {
         option.version = true;
         break;
@@ -73,6 +85,10 @@ ipcMain.on('reload', function(event, arg) {
     mainWindow.reload(true);
 });
 
+ipcMain.on('clientId', function(event, arg) {
+    event.returnValue = roomid;
+});
+
 app.once('ready', function() {
     let language = app.getLocale();
 
@@ -96,8 +112,8 @@ app.once('ready', function() {
     mainWindow.loadURL('file:///' + path.join(__dirname, 'index.html'));
 
     if(option.debug) {
-        mainWindow.webContents.openDevTools();
     }
+    mainWindow.webContents.openDevTools();
 
     mainWindow.setMenu(null);
 
