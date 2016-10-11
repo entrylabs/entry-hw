@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+	<meta charset="UTF-8">
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 	<script src="./node_modules/socket.io-client/socket.io.js"></script>
 </head>
@@ -43,7 +44,8 @@
 		// $.ajax('entryhw://test');
 		// _httpGet('entryhw://test', function() {})
 
-		ifr.src = 'entryhw://-roomid:' + socket.id;
+		ifr.src = 'entryhw://-clientId:' + socket.id;
+		console.log(socket.id);
 	});	
 	$('#gogo2').on('click', function() {
 		socket.emit('message', {type: 'utf8', mode: socket.mode, utf8Data: 'clientSend'});

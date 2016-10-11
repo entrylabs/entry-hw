@@ -8,7 +8,7 @@ const packageJson     = require('./package.json');
 const ChildProcess = require('child_process');
 var mainWindow = null;
 var isClose = true;
-var roomid = '';
+var clientId = '';
 
 console.fslog = function (text) {    
     var log_path = path.join(__dirname, '..');
@@ -31,11 +31,11 @@ var argv = process.argv.slice(1);
 console.fslog(argv);
 
 if(argv.indexOf('entryhw:')) {
-    var regexRoom = /roomid:(.*)\//;
-    var arrRoom = regexRoom.exec(argv) || ['', ''];
-    roomid = arrRoom[1];
-    if(roomid === 'undefined') {
-        roomid = '';
+    var regexClient = /clientId:(.*)\//;
+    var arrClient = regexClient.exec(argv) || ['', ''];
+    clientId = arrClient[1];
+    if(clientId === 'undefined') {
+        clientId = '';
     }
 }
 
@@ -67,26 +67,42 @@ for (var i = 0; i < argv.length; i++) {
     }
 }
 
-// // 어플리케이션을 중복 실행했습니다. 주 어플리케이션 인스턴스를 활성화 합니다.
-// var shouldQuit = app.makeSingleInstance(function(commandLine, workingDirectory) {
-//     if (mainWindow) {
-//         if (mainWindow.isMinimized()) 
-//             mainWindow.restore();
-//         mainWindow.focus();
-//     }
-//     return true;
-// });
+// 어플리케이션을 중복 실행했습니다. 주 어플리케이션 인스턴스를 활성화 합니다.
+var shouldQuit = app.makeSingleInstance(function(argv, workingDirectory) {
+    if(argv.indexOf('entryhw:')) {
+        var regexClient = /clientId:(.*)\//;
+        var arrClient = regexClient.exec(argv) || ['', ''];
+        clientId = arrClient[1];
+        if(clientId === 'undefined') {
+            clientId = '';
+        }
+    }
+    
+    if (mainWindow) {
+        if (mainWindow.isMinimized()) 
+            mainWindow.restore();
+        mainWindow.focus();
 
-// if (shouldQuit) {
-//     app.quit();
-// }
+        if(mainWindow.webContents) {
+            console.fslog('2');
+            console.fslog(clientId);
+            mainWindow.webContents.send('clientId', clientId);
+        }
+    }
+
+    return true;
+});
+
+if (shouldQuit) {
+    app.quit();
+}
 
 ipcMain.on('reload', function(event, arg) {
     mainWindow.reload(true);
 });
 
 ipcMain.on('clientId', function(event, arg) {
-    event.returnValue = roomid;
+    event.returnValue = clientId;
 });
 
 app.once('ready', function() {
