@@ -5,12 +5,16 @@ var _ = require('lodash');
 var EventEmitter = require('events').EventEmitter;
 var client = require('socket.io-client');
 const {ipcRenderer} = require('electron');
-var clientId = '';
-var runningMode = 'parent';
-var masterClient = '';
-var socketServer;
+var masterClientIds = [];
 var socketClient;
-var server;
+
+var serverModeTypes = {
+	single: 0,
+	multi: 1,
+	parent: 2,
+	child: 3,
+}
+var runningMode = serverModeTypes.parent;
 
 function Server() {
 	EventEmitter.call(this);
@@ -24,16 +28,15 @@ function Server() {
 util.inherits(Server, EventEmitter);
 
 ipcRenderer.on('clientId', function(e, id) {
-	clientId = id;
-	if(runningMode === 'parent') {
-		masterClient = id;
+	if(runningMode === serverModeTypes.parent) {
+		masterClientIds.push(id);
 	} else {
-		socketClient.emit('matchTarget', { id : clientId });
+		socketClient.emit('matchTarget', { id : id });
 	}
 });
 
 Server.prototype.open = function(logger) {
-	clientId = ipcRenderer.sendSync('clientId');
+	var clientId = ipcRenderer.sendSync('clientId');
 	var http;
 	var PORT = 23518;
 	var self = this;
@@ -58,7 +61,7 @@ Server.prototype.open = function(logger) {
 	}
 	
 	httpServer.on('error', function(e) {
-		runningMode = 'child';
+		runningMode = serverModeTypes.child;
 		console.log('%cI`M CLIENT', 'background:black;color:yellow;font-size: 30px');
 		var socket = client('https://hardware.play-entry.org:23518', {query:{'childServer': true}});
 		if(clientId) {
@@ -67,16 +70,13 @@ Server.prototype.open = function(logger) {
 		socketClient = socket;
 		self.connections.push(socket);
 		socket.on('message', function (message) {
-			if(message.type === 'utf8') {
-				self.emit('data', message.utf8Data, message.type);
-			} else if (message.type === 'binary') {
-				self.emit('data', message.binaryData, message.type);
-			}
+			self.emit('data', message.data, message.type);
 		});		
 		socket.on('mode', function (data) {
 			socket.mode = data;
 		});
 		socket.on('disconnect', function() {
+			// masterClientIds.push(socket.target);
 			socket.close();
 			socket = null;
 			self.open();
@@ -86,7 +86,7 @@ Server.prototype.open = function(logger) {
 		// }, 3000);
 	});
 	httpServer.on('listening', function(e) {
-		runningMode = 'parent';
+		runningMode = serverModeTypes.parent;
 		console.log('%cI`M SERVER', 'background:orange; font-size: 30px');
 		self.httpServer = httpServer;
 		if(logger) {
@@ -103,8 +103,8 @@ Server.prototype.open = function(logger) {
 
 		self.server = server;
 		server.on('connection', function(socket) {
-			var connection = socket;
-			
+			var connection = socket;			
+			self.connectionSet[connection.id] = connection;
 			self.connections.push(connection);
 			if(logger) {
 				logger.i('Entry connected.');
@@ -112,65 +112,46 @@ Server.prototype.open = function(logger) {
 
 			var childServerListCnt = Object.keys(self.childServerList).length;
 			if(childServerListCnt > 0) {
-				connection.emit('mode', 'multiMode');
+				connection.emit('mode', serverModeTypes.multi);
 			} else {
-				connection.emit('mode', 'singleMode');
+				connection.emit('mode', serverModeTypes.single);
 			}
 
 			connection.on('matchTarget', function(target) {
 				if(connection.handshake.query.childServer === 'true') {
 					// Child 서버 접속 일때
-					var clientId = target.id;
-					self.childServerList[clientId] = connection.id;
-					server.emit('mode', 'multiMode');
-					server.to(connection.id).emit('matched', {client: clientId});
-					server.to(clientId).emit('matched', {server: connection.id});
-				} else {
-					// Client 접속 일때
-					if(self.childServerList[connection.id]) {
-						server.to(self.childServerList[connection.id]).emit('matched', {client: connection.id});
-						server.to(connection.id).emit('matched', {server: self.childServerList[connection.id]});
-					}
+					var clientSocket = self.connectionSet[target.id];
+					clientSocket.join(connection.id + ' room');
+					clientSocket.target = connection.id;
+					self.childServerList[connection.id] = true;
+					server.emit('mode', serverModeTypes.multi);
 				}
 			});
 
 			connection.on('disconnect', function(socket) {
-				var clientId = '';
 				if(connection.handshake.query.childServer === 'true') {
-					clientId = _.findLastKey(self.childServerList, function (set) {
-						return connection.id === id;
-					});
-					server.to(connection.id).emit('matching', {client: clientId});
-					server.to(clientId).emit('matching', {server: connection.id});
+					server.to(connection.id + ' room').emit('matching');
+					delete self.connectionSet[connection.id];
+					delete self.childServerList[connection.id];
 				} else {
-					clientId = connection.id;
-					server.to(self.childServerList[connection.id]).emit('matching', {client: connection.id});
-					server.to(connection.id).emit('matching', {server: self.childServerList[connection.id]});
+					delete self.connectionSet[connection.id];
 				}
-
-				delete self.childServerList[clientId];
-				// TODO: 미아가 되는 Client 관리가 필요함. cloud pc 와야함..
+				
 				var childServerListCnt = Object.keys(self.childServerList).length;
-				if(childServerListCnt === 0) {
-					server.emit('mode', 'singleMode');
+				if(childServerListCnt <= 0) {
+					server.emit('mode', serverModeTypes.single);
 				}
 			});
 
 			connection.on('message', function(message) {
-				if(message.mode === 'singleMode' || connection.id === masterClient) {
-					if(message.type === 'utf8') {
-						self.emit('data', message.utf8Data, message.type);
-					} else if (message.type === 'binary') {
-						self.emit('data', message.binaryData, message.type);
-					}
+				if(message.mode === serverModeTypes.single || masterClientIds.indexOf(connection.id) >= 0 ) {
+					self.emit('data', message.data, message.type);
 				} else {
 					if(connection.handshake.query.childServer === 'true') {
-						var clientId = _.findLastKey(self.childServerList, function (id) {
-							return connection.id === id;
-						});
-						server.to(clientId).emit('message', message);
+						server.to(connection.id + ' room').emit('message', message);
 					} else {
-						server.to(self.childServerList[connection.id]).emit('message', message);
+						var target = self.connectionSet[connection.id].target;
+						server.to(target).emit('message', message);
 					}
 				}
 			});
@@ -193,19 +174,23 @@ Server.prototype.closeSingleConnection = function(connection) {
 	var index = connections.indexOf(connection);
 	if (index > -1) {
 		this.connections.slice(index, 1);
+		connection.close();
 	}
 };
 	
 Server.prototype.send = function(data) {
+	var self = this;
 	var childServerListCnt = Object.keys(this.childServerList).length;
-	if((runningMode === 'parent' && childServerListCnt === 0) || runningMode === 'child') {
+	if((runningMode === serverModeTypes.parent && childServerListCnt === 0) || runningMode === serverModeTypes.child) {
 		if(this.connections.length !== 0) {
 			this.connections.map(function(connection){
-				connection.emit('message', data);
+				connection.emit('message', {data : data});
 			});
 		}
-	} else if(masterClient){
-		this.server.to(masterClient).emit('message', data);
+	} else if(masterClientIds.length > 0){
+		masterClientIds.forEach(function(masterClientId) {
+			self.server.to(masterClientId).emit('message', {data : data});
+		})
 	}
 };
 
@@ -231,7 +216,6 @@ Server.prototype.setState = function(state) {
 	
 Server.prototype.close = function() {
 	if(this.server) {
-		// this.server.shutDown();
 		this.server.close();
 		this.server = undefined;
 	}
@@ -243,5 +227,4 @@ Server.prototype.close = function() {
 	this.emit('closed');
 };
 
-server = new Server();
-module.exports = server;
+module.exports = new Server();
