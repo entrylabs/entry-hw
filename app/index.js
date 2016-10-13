@@ -8,7 +8,7 @@ const packageJson     = require('./package.json');
 const ChildProcess = require('child_process');
 var mainWindow = null;
 var isClose = true;
-var clientId = '';
+var roomId = '';
 
 console.fslog = function (text) {    
     var log_path = path.join(__dirname, '..');
@@ -23,6 +23,20 @@ console.fslog = function (text) {
     fs.writeFileSync(path.join(log_path, 'debug.log'), data, 'utf8');
 };
 
+function getArgsParseData(argv) {
+    var regexRoom = /roomId:(.*)/;
+    var arrRoom = regexRoom.exec(argv) || ['', ''];
+    var roomId = arrRoom[1];
+
+    if(roomId === 'undefined') {
+        roomId = '';
+    }
+
+    return {
+        roomId: roomId.replace(/\//g, '')
+    };
+}
+
 app.on('window-all-closed', function() {
     app.quit();
 });
@@ -31,12 +45,8 @@ var argv = process.argv.slice(1);
 console.fslog(argv);
 
 if(argv.indexOf('entryhw:')) {
-    var regexClient = /clientId:(.*)\//;
-    var arrClient = regexClient.exec(argv) || ['', ''];
-    clientId = arrClient[1];
-    if(clientId === 'undefined') {
-        clientId = '';
-    }
+    var data = getArgsParseData(argv);
+    roomId = data.roomId;
 }
 
 var option = { file: null, help: null, version: null, webdriver: null, modules: [] };
@@ -69,13 +79,9 @@ for (var i = 0; i < argv.length; i++) {
 
 // 어플리케이션을 중복 실행했습니다. 주 어플리케이션 인스턴스를 활성화 합니다.
 var shouldQuit = app.makeSingleInstance(function(argv, workingDirectory) {
+    var parseData = {};
     if(argv.indexOf('entryhw:')) {
-        var regexClient = /clientId:(.*)\//;
-        var arrClient = regexClient.exec(argv) || ['', ''];
-        clientId = arrClient[1];
-        if(clientId === 'undefined') {
-            clientId = '';
-        }
+        parseData = getArgsParseData(argv);
     }
     
     if (mainWindow) {
@@ -85,8 +91,8 @@ var shouldQuit = app.makeSingleInstance(function(argv, workingDirectory) {
 
         if(mainWindow.webContents) {
             console.fslog('2');
-            console.fslog(clientId);
-            mainWindow.webContents.send('clientId', clientId);
+            console.fslog(parseData);
+            mainWindow.webContents.send('customArgs', parseData);
         }
     }
 
@@ -101,8 +107,8 @@ ipcMain.on('reload', function(event, arg) {
     mainWindow.reload(true);
 });
 
-ipcMain.on('clientId', function(event, arg) {
-    event.returnValue = clientId;
+ipcMain.on('roomId', function(event, arg) {
+    event.returnValue = roomId;
 });
 
 app.once('ready', function() {

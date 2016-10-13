@@ -5,7 +5,7 @@ var _ = require('lodash');
 var EventEmitter = require('events').EventEmitter;
 var client = require('socket.io-client');
 const {ipcRenderer} = require('electron');
-var masterClientIds = [];
+var masterRoomId = '';
 var socketClient;
 
 var serverModeTypes = {
@@ -27,16 +27,15 @@ function Server() {
 
 util.inherits(Server, EventEmitter);
 
-ipcRenderer.on('clientId', function(e, id) {
+ipcRenderer.on('customArgs', function(e, data) {
 	if(runningMode === serverModeTypes.parent) {
-		masterClientIds.push(id);
+		masterRoomId = data.roomId;
 	} else {
-		socketClient.emit('matchTarget', { id : id });
+		socketClient.emit('matchTarget', { roomId : data.roomId });
 	}
 });
 
 Server.prototype.open = function(logger) {
-	var clientId = ipcRenderer.sendSync('clientId');
 	var http;
 	var PORT = 23518;
 	var self = this;
@@ -61,14 +60,15 @@ Server.prototype.open = function(logger) {
 	}
 	
 	httpServer.on('error', function(e) {
+		var roomId = ipcRenderer.sendSync('roomId');
 		runningMode = serverModeTypes.child;
 		console.log('%cI`M CLIENT', 'background:black;color:yellow;font-size: 30px');
 		var socket = client('https://hardware.play-entry.org:23518', {query:{'childServer': true}});
-		if(clientId) {
-			socket.emit('matchTarget', { id : clientId });
-		}
 		socketClient = socket;
 		self.connections.push(socket);
+		socket.on('connect', function() {
+			socket.emit('matchTarget', { roomId : roomId });
+		});
 		socket.on('message', function (message) {
 			self.emit('data', message.data, message.type);
 		});		
@@ -76,16 +76,13 @@ Server.prototype.open = function(logger) {
 			socket.mode = data;
 		});
 		socket.on('disconnect', function() {
-			// masterClientIds.push(socket.target);
 			socket.close();
 			socket = null;
 			self.open();
 		});
-		// setInterval(function() {
-		// 	socket.emit('message', {type: 'utf8', mode: socket.mode, utf8Data: 'serverSend'});
-		// }, 3000);
 	});
 	httpServer.on('listening', function(e) {
+		masterRoomId = ipcRenderer.sendSync('roomId');
 		runningMode = serverModeTypes.parent;
 		console.log('%cI`M SERVER', 'background:orange; font-size: 30px');
 		self.httpServer = httpServer;
@@ -110,27 +107,34 @@ Server.prototype.open = function(logger) {
 				logger.i('Entry connected.');
 			}
 
-			var childServerListCnt = Object.keys(self.childServerList).length;
-			if(childServerListCnt > 0) {
-				connection.emit('mode', serverModeTypes.multi);
+			var roomId = connection.handshake.query.roomId;
+			if(connection.handshake.query.childServer === 'true') {
+				self.childServerList[connection.id] = true;
 			} else {
-				connection.emit('mode', serverModeTypes.single);
+				connection.join(roomId);
+				connection.roomId = roomId;
 			}
 
-			connection.on('matchTarget', function(target) {
-				if(connection.handshake.query.childServer === 'true') {
-					// Child 서버 접속 일때
-					var clientSocket = self.connectionSet[target.id];
-					clientSocket.join(connection.id + ' room');
-					clientSocket.target = connection.id;
-					self.childServerList[connection.id] = true;
-					server.emit('mode', serverModeTypes.multi);
+			var childServerListCnt = Object.keys(self.childServerList).length;
+			if(childServerListCnt > 0) {
+				server.emit('mode', serverModeTypes.multi);
+			} else {
+				server.emit('mode', serverModeTypes.single);
+			}
+
+			connection.on('matchTarget', function(data) {
+				if(connection.handshake.query.childServer === 'true' && data.roomId) {
+					connection.roomId = data.roomId;
+					server.to(data.roomId).emit('matched', connection.id);
+				} else {
+					connection.target = data.target;
+					server.to(data.target).emit('matched', connection.id);
 				}
 			});
 
 			connection.on('disconnect', function(socket) {
 				if(connection.handshake.query.childServer === 'true') {
-					server.to(connection.id + ' room').emit('matching');
+					server.to(connection.roomId).emit('matching');
 					delete self.connectionSet[connection.id];
 					delete self.childServerList[connection.id];
 				} else {
@@ -144,11 +148,11 @@ Server.prototype.open = function(logger) {
 			});
 
 			connection.on('message', function(message) {
-				if(message.mode === serverModeTypes.single || masterClientIds.indexOf(connection.id) >= 0 ) {
+				if(message.mode === serverModeTypes.single || masterRoomId === connection.roomId ) {
 					self.emit('data', message.data, message.type);
 				} else {
 					if(connection.handshake.query.childServer === 'true') {
-						server.to(connection.id + ' room').emit('message', message);
+						server.to(connection.roomId).emit('message', message);
 					} else {
 						var target = self.connectionSet[connection.id].target;
 						server.to(target).emit('message', message);
@@ -187,10 +191,8 @@ Server.prototype.send = function(data) {
 				connection.emit('message', {data : data});
 			});
 		}
-	} else if(masterClientIds.length > 0){
-		masterClientIds.forEach(function(masterClientId) {
-			self.server.to(masterClientId).emit('message', {data : data});
-		})
+	} else if(masterRoomId){
+		self.server.to(masterRoomId).emit('message', {data : data});
 	}
 };
 
