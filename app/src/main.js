@@ -102,25 +102,27 @@
 			this.showAlert(translator.translate('Hardware device is disconnected. Please restart this program.'));
 		},
 		showAlert: function(message, duration) {
-			$('#alert').text(message);
+			// console.log('showAlert');
+			if(!$('#hwList').is(':visible')) {
+				$('#alert').text(message);
 
-			$('#alert').css({
-				height: '0px'
-			});
-			$('#alert').animate({
-				height: '35px'
-			});
-
-			if (duration) {
-				setTimeout(function(){
-					$('#alert').animate({
-						height: '0px'
-					});
-				}, duration);
+				$('#alert').css({
+					height: '0px'
+				});
+				$('#alert').animate({
+					height: '35px'
+				});
+				if (duration) {
+					setTimeout(function(){
+						$('#alert').animate({
+							height: '0px'
+						});
+					}, duration);
+				}
 			}
 		},
 		hideAlert: function(message) {
-			$('#alert').animate({
+			$('#alert').stop(true, true).animate({
 				height: '0px'
 			});
 		},
@@ -290,11 +292,16 @@
 		}
 	};
 
+	$('body').on('keyup', function(e) {
+		if(e.keyCode === 8) {
+			$('#back.navigate_button').trigger('click');
+		}
+	});	
+
 	$('#back.navigate_button').click(function(e) {
 		is_select_port = true;
 		delete window.currentConfig.this_com_port;
 		ui.showRobotList();
-		router.close();
 	});
 
 	$('.chromeButton').click(function(e) {
@@ -355,6 +362,7 @@
 	var select_port_connection;
 	// state
 	router.on('state', function(state, data) {
+		console.log(state);
 		if (state === "select_port") {
 			router.close();
 			var _temp = JSON.stringify(data);

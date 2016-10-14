@@ -5,7 +5,7 @@ var _ = require('lodash');
 var EventEmitter = require('events').EventEmitter;
 var client = require('socket.io-client');
 const {ipcRenderer} = require('electron');
-var masterRoomId = '';
+var masterRoomIds = [];
 var socketClient;
 
 var serverModeTypes = {
@@ -29,7 +29,7 @@ util.inherits(Server, EventEmitter);
 
 ipcRenderer.on('customArgs', function(e, data) {
 	if(runningMode === serverModeTypes.parent) {
-		masterRoomId = data.roomId;
+		masterRoomIds.push(data.roomId);
 	} else {
 		socketClient.emit('matchTarget', { roomId : data.roomId });
 	}
@@ -82,7 +82,8 @@ Server.prototype.open = function(logger) {
 		});
 	});
 	httpServer.on('listening', function(e) {
-		masterRoomId = ipcRenderer.sendSync('roomId');
+		var mRoomId = ipcRenderer.sendSync('roomId');
+		masterRoomIds.push(mRoomId);
 		runningMode = serverModeTypes.parent;
 		console.log('%cI`M SERVER', 'background:orange; font-size: 30px');
 		self.httpServer = httpServer;
@@ -124,7 +125,10 @@ Server.prototype.open = function(logger) {
 
 			connection.on('matchTarget', function(data) {
 				if(connection.handshake.query.childServer === 'true' && data.roomId) {
-					connection.roomId = data.roomId;
+					if(!connection.roomIds) {
+						connection.roomIds = [];
+					}
+					connection.roomIds.push(data.roomId);
 					server.to(data.roomId).emit('matched', connection.id);
 				} else {
 					connection.target = data.target;
@@ -134,7 +138,11 @@ Server.prototype.open = function(logger) {
 
 			connection.on('disconnect', function(socket) {
 				if(connection.handshake.query.childServer === 'true') {
-					server.to(connection.roomId).emit('matching');
+					if(connection.roomIds && connection.roomIds.length > 0) {
+						connection.roomIds.forEach(function (roomId) {
+							server.to(roomId).emit('matching');
+						});
+					}
 					delete self.connectionSet[connection.id];
 					delete self.childServerList[connection.id];
 				} else {
@@ -148,14 +156,18 @@ Server.prototype.open = function(logger) {
 			});
 
 			connection.on('message', function(message) {
-				if(message.mode === serverModeTypes.single || masterRoomId === connection.roomId ) {
+				if(message.mode === serverModeTypes.single || masterRoomIds.indexOf(connection.id) >= 0 ) {
 					self.emit('data', message.data, message.type);
 				} else {
 					if(connection.handshake.query.childServer === 'true') {
-						server.to(connection.roomId).emit('message', message);
-					} else {
-						var target = self.connectionSet[connection.id].target;
-						server.to(target).emit('message', message);
+						if(connection.roomIds && connection.roomIds.length > 0) {
+							connection.roomIds.forEach(function(roomId) {
+								server.to(roomId).emit('message', message);
+							});
+						}
+					} else if(connection.target) {
+						console.log(connection.target);
+						server.to(connection.target).emit('message', message);
 					}
 				}
 			});
@@ -191,8 +203,10 @@ Server.prototype.send = function(data) {
 				connection.emit('message', {data : data});
 			});
 		}
-	} else if(masterRoomId){
-		self.server.to(masterRoomId).emit('message', {data : data});
+	} else if(masterRoomIds.length > 0){
+		masterRoomIds.forEach(function (masterRoomId) {
+			self.server.to(masterRoomId).emit('message', {data : data});
+		});
 	}
 };
 
@@ -216,6 +230,10 @@ Server.prototype.setState = function(state) {
 	}
 };
 	
+Server.prototype.disconnectHardware = function() {
+	this.send('disconnectHardware');
+}
+
 Server.prototype.close = function() {
 	if(this.server) {
 		this.server.close();

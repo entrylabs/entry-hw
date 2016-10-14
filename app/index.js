@@ -90,8 +90,6 @@ var shouldQuit = app.makeSingleInstance(function(argv, workingDirectory) {
         mainWindow.focus();
 
         if(mainWindow.webContents) {
-            console.fslog('2');
-            console.fslog(parseData);
             mainWindow.webContents.send('customArgs', parseData);
         }
     }

@@ -110,12 +110,14 @@ Router.prototype.connect = function(connector, config) {
 
 Router.prototype.close = function() {
 	if(this.server) {
+		this.server.disconnectHardware();
 		this.server.removeAllListeners();
 	}
 	if(this.scanner) {
 		this.scanner.stopScan();
 	}
 	if(this.connector) {
+		console.log('disconnect');
 		if(this.extension.disconnect) {
 			this.extension.disconnect(this.connector);
 		} else {
