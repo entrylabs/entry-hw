@@ -109,6 +109,12 @@ ipcMain.on('roomId', function(event, arg) {
     event.returnValue = roomId;
 });
 
+ipcMain.on('serverMode', function(event, mode) {
+    if(mainWindow && mainWindow.webContents) {
+        mainWindow.webContents.send('serverMode', mode);
+    }
+});
+
 app.once('ready', function() {
     let language = app.getLocale();
 

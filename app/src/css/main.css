@@ -291,3 +291,27 @@ html, body {
 #errorAlert .comment {
 	font-size: 11px;
 }
+
+#cloud_icon {
+    display: none;
+    float: right;
+    margin-top: -20px;
+    margin-right: 15px;
+    background: url('../images/cloud.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    content: " ";
+    width: 24px;
+    height: 24px;
+    animation: blink_image 2s linear infinite;
+}
+
+
+@keyframes blink_image {
+	0%, 100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.2;
+	}
+}

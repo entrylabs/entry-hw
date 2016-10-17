@@ -29,7 +29,9 @@ util.inherits(Server, EventEmitter);
 
 ipcRenderer.on('customArgs', function(e, data) {
 	if(runningMode === serverModeTypes.parent) {
-		masterRoomIds.push(data.roomId);
+		if(masterRoomIds.indexOf(data.roomId) === -1) {
+			masterRoomIds.push(data.roomId);
+		}
 	} else {
 		socketClient.emit('matchTarget', { roomId : data.roomId });
 	}
@@ -60,6 +62,7 @@ Server.prototype.open = function(logger) {
 	}
 	
 	httpServer.on('error', function(e) {
+		ipcRenderer.send('serverMode', serverModeTypes.multi);
 		var roomId = ipcRenderer.sendSync('roomId');
 		runningMode = serverModeTypes.child;
 		console.log('%cI`M CLIENT', 'background:black;color:yellow;font-size: 30px');
@@ -118,8 +121,10 @@ Server.prototype.open = function(logger) {
 
 			var childServerListCnt = Object.keys(self.childServerList).length;
 			if(childServerListCnt > 0) {
+				ipcRenderer.send('serverMode', serverModeTypes.multi);
 				server.emit('mode', serverModeTypes.multi);
 			} else {
+				ipcRenderer.send('serverMode', serverModeTypes.single);
 				server.emit('mode', serverModeTypes.single);
 			}
 
@@ -128,7 +133,11 @@ Server.prototype.open = function(logger) {
 					if(!connection.roomIds) {
 						connection.roomIds = [];
 					}
-					connection.roomIds.push(data.roomId);
+
+					if(connection.roomIds.indexOf(data.roomId) === -1) {
+						connection.roomIds.push(data.roomId);
+					}
+
 					server.to(data.roomId).emit('matched', connection.id);
 				} else {
 					connection.target = data.target;
@@ -152,11 +161,12 @@ Server.prototype.open = function(logger) {
 				var childServerListCnt = Object.keys(self.childServerList).length;
 				if(childServerListCnt <= 0) {
 					server.emit('mode', serverModeTypes.single);
+					ipcRenderer.send('serverMode', serverModeTypes.single);
 				}
 			});
 
 			connection.on('message', function(message) {
-				if(message.mode === serverModeTypes.single || masterRoomIds.indexOf(connection.id) >= 0 ) {
+				if(message.mode === serverModeTypes.single || masterRoomIds.indexOf(connection.roomId) >= 0 ) {
 					self.emit('data', message.data, message.type);
 				} else {
 					if(connection.handshake.query.childServer === 'true') {

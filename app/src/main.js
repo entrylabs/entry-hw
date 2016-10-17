@@ -157,6 +157,7 @@
 				ui.hardware = config.id.substring(0, 4);
 				ui.numLevel = 1;
 				ui.showConnecting();
+				config.serverMode = serverMode;
 				router.startScan(config);
 				window.currentConfig = config;
 
@@ -360,7 +361,22 @@
 	var _com_port = '';
 	var is_select_port = true;
 	var select_port_connection;
+	var serverMode = 0;
 	// state
+	router.on('serverMode', function(state, data) {
+		console.log(arguments);
+	});
+
+	ipcRenderer.on('serverMode', function(event, mode) {
+		serverMode = mode;
+		console.log('serverMode', mode);
+		if(mode === 1) {
+			$('#cloud_icon').show();
+		} else {
+			$('#cloud_icon').hide();
+		}
+	});
+
 	router.on('state', function(state, data) {
 		console.log(state);
 		if (state === "select_port") {

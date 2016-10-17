@@ -37,6 +37,7 @@ Scanner.prototype.scan = function(serialport, extension, config, callback) {
 			return;
 		}
 
+		var serverMode = config.serverMode;
 		var scanType = config.hardware.scanType;
 		var vendor = config.hardware.vendor;
 		var control = config.hardware.control;
@@ -47,7 +48,7 @@ Scanner.prototype.scan = function(serialport, extension, config, callback) {
 		var checkComPort = config.select_com_port || false;
 		var myComPort = config.this_com_port;
 
-		if((checkComPort || type === 'bluetooth') && !myComPort)  {
+		if((checkComPort || type === 'bluetooth' || serverMode === 1) && !myComPort)  {
 			self.router.emit('state', 'select_port', devices);
 			callback('select_port');
 			return;
