@@ -109,6 +109,10 @@ ipcMain.on('roomId', function(event, arg) {
     event.returnValue = roomId;
 });
 
+ipcMain.on('version', function(event, arg) {
+    event.returnValue = packageJson.version;
+});
+
 ipcMain.on('serverMode', function(event, mode) {
     if(mainWindow && mainWindow.webContents) {
         mainWindow.webContents.send('serverMode', mode);

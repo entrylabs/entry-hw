@@ -45,12 +45,12 @@ Scanner.prototype.scan = function(serialport, extension, config, callback) {
 		var firmwarecheck = config.hardware.firmwarecheck;
 		var pnpId = config.hardware.pnpId;
 		var type = config.hardware.type;
-		var checkComPort = config.select_com_port || false;
+		var checkComPort = (config.select_com_port || type === 'bluetooth' || serverMode === 1) || false;
 		var myComPort = config.this_com_port;
 
-		if((checkComPort || type === 'bluetooth' || serverMode === 1) && !myComPort)  {
+		if(checkComPort && !myComPort)  {
 			self.router.emit('state', 'select_port', devices);
-			callback('select_port');
+			callback();
 			return;
 		}
 

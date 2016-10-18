@@ -79,6 +79,7 @@
 			$('#hwPanel').css('display', 'none');
 			ui.showIeGuide();
 			this.hideAlert();
+			$('#back.navigate_button').removeClass('active');
 		},
 		showConnecting: function() {
 			$('#title').text(translator.translate('hardware > connecting'));
@@ -139,6 +140,7 @@
 					'<h2 class="hwTitle">' + name + '</h2></div>');
 
 			$('#' + config.id).click(function() {
+				$('#back.navigate_button').addClass('active');
 				if(config.hardware.type === 'bluetooth') {
 					is_select_port = true;
 				}
@@ -260,15 +262,14 @@
 	    			flasher.flash(
 	    				firmware,
 	    				port,
-	    				baudRate
-	    				,
+	    				baudRate,
 	    				function(error, stdout, stderr) {
 	    					$('#firmwareButtonSet').show();
 	    					ui.showAlert(translator.translate("Firmware Uploaded!"));
 	    					router.startScan(config);
 	    				}
 	    			);
-	            }, 200);
+	            }, 700);
 			} catch(e) {
 				$('#firmwareButtonSet').show();
 			}
@@ -295,14 +296,20 @@
 
 	$('body').on('keyup', function(e) {
 		if(e.keyCode === 8) {
-			$('#back.navigate_button').trigger('click');
+			$('#back.navigate_button.active').trigger('click');
 		}
 	});	
 
-	$('#back.navigate_button').click(function(e) {
+	$('body').on('click', '#back.navigate_button.active' ,function(e) {
 		is_select_port = true;
 		delete window.currentConfig.this_com_port;
 		ui.showRobotList();
+	});
+
+	$('body').on('click', '#refresh' ,function(e) {
+		if(confirm('프로그램을 재시작 하시겠습니까?')) {
+			ipcRenderer.send('reload');
+		}
 	});
 
 	$('.chromeButton').click(function(e) {
@@ -344,7 +351,7 @@
 		}
 	});
 
-	$('#btn_select_port_cancel').click(function(e) {
+	$('#select_port_box .cancel_event').click(function(e) {
 		clear_select_port();
 		clearTimeout(select_port_connection);
 		ui.showRobotList();

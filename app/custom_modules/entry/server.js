@@ -7,6 +7,7 @@ var client = require('socket.io-client');
 const {ipcRenderer} = require('electron');
 var masterRoomIds = [];
 var socketClient;
+var version = '';
 
 var serverModeTypes = {
 	single: 0,
@@ -23,6 +24,8 @@ function Server() {
 	this.connectionSet = {};
 	this.roomCnt = 0;
 	this.childServerList = {};
+	this.clientTargetList = {};
+	version = ipcRenderer.sendSync('version');
 }
 
 util.inherits(Server, EventEmitter);
@@ -140,7 +143,7 @@ Server.prototype.open = function(logger) {
 
 					server.to(data.roomId).emit('matched', connection.id);
 				} else {
-					connection.target = data.target;
+					self.clientTargetList[connection.roomId] = data.target;
 					server.to(data.target).emit('matched', connection.id);
 				}
 			});
@@ -175,9 +178,9 @@ Server.prototype.open = function(logger) {
 								server.to(roomId).emit('message', message);
 							});
 						}
-					} else if(connection.target) {
-						console.log(connection.target);
-						server.to(connection.target).emit('message', message);
+					} else if(self.clientTargetList[connection.roomId]) {
+						console.log(self.clientTargetList[connection.roomId]);
+						server.to(self.clientTargetList[connection.roomId]).emit('message', message);
 					}
 				}
 			});
@@ -210,12 +213,12 @@ Server.prototype.send = function(data) {
 	if((runningMode === serverModeTypes.parent && childServerListCnt === 0) || runningMode === serverModeTypes.child) {
 		if(this.connections.length !== 0) {
 			this.connections.map(function(connection){
-				connection.emit('message', {data : data});
+				connection.emit('message', {data : data, version: version});
 			});
 		}
 	} else if(masterRoomIds.length > 0){
 		masterRoomIds.forEach(function (masterRoomId) {
-			self.server.to(masterRoomId).emit('message', {data : data});
+			self.server.to(masterRoomId).emit('message', {data : data, version: version});
 		});
 	}
 };

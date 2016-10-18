@@ -59,7 +59,6 @@ Router.prototype.connect = function(connector, config) {
 		});
         connector.connect(extension, function(state, data) {
 			if(state) {
-                console.log(state);
 				self.emit('state', state);
                 if(extension.evevtContoller) {
                     extension.evevtContoller(state);
