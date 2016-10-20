@@ -13,8 +13,9 @@
 // 모듈 생성
 function Module()
 {
+
 	// -- JSON Objects ----------------------------------------------------------------
-    // LED Mode Color
+    // LedModeColor
 	this.ledModeColor =
 	{
 		mode: 0,
@@ -24,7 +25,7 @@ function Module()
 		interval: 0
 	}
 
-	// LED Event Color
+	// LedEventColor
 	this.ledEventColor =
 	{
 		mode: 0,
@@ -63,7 +64,7 @@ function Module()
 	this.indexReceiver		= 0;		// 수신 받는 데이터의 세션 내 위치
 	this.dataBlock			= [];		// 수신 받은 데이터 블럭
 	this.crc16Calculated	= 0;		// CRC16 계산 된 결과
-
+	this.crc16Received		= 0;		// CRC16 수신 받은 블럭
 }
 
 // 초기설정
@@ -71,12 +72,6 @@ Module.prototype.init = function(handler, config)
 {
 
 };
-
-// 리셋
-Module.prototype.reset = function()
-{
-	resetData();
-}
 
 // 초기 송신데이터(필수)
 Module.prototype.requestInitialData = function()
@@ -88,18 +83,6 @@ Module.prototype.requestInitialData = function()
 Module.prototype.checkInitialData = function(data, config)
 {
 
-};
-
-// 하드웨어에 전달할 데이터
-Module.prototype.requestLocalData = function()
-{
-	transferForDevice();
-};
-
-// 하드웨어 데이터 처리
-Module.prototype.handleLocalData = function(data)
-{
-	receiverForDevice(data);
 };
 
 // Web Socket(엔트리)에 전달할 데이터
@@ -114,11 +97,24 @@ Module.prototype.handleRemoteData = function(handler)
 	handlerForEntry(handler);
 };
 
+// 하드웨어에 전달할 데이터
+Module.prototype.requestLocalData = function()
+{
+	return transferForDevice();
+};
+
+// 하드웨어 데이터 처리
+Module.prototype.handleLocalData = function(data)
+{
+	receiverForDevice(data);
+};
+
 // Web Socket 종료후 처리
 Module.prototype.reset = function()
 {
+	resetData();
+}
 
-};
 
 module.exports = new Module();
 
@@ -132,14 +128,14 @@ Module.prototype.resetData = function()
 {
 	// -- JSON Objects ----------------------------------------------------------------
 	// Entry -> Device
-	var ledModeColor = this.ledModeColor;
+	var ledModeColor		= this.ledModeColor;
 	ledModeColor.mode		= 0;
 	ledModeColor.r			= 0;
 	ledModeColor.g			= 0;
 	ledModeColor.b			= 0;
 	ledModeColor.interval	= 0;
 	
-	var ledEvent = this.ledEventColor;
+	var ledEvent			= this.ledEventColor;
 	ledEventColor.mode		= 0;
 	ledEventColor.r			= 0;
 	ledEventColor.g			= 0;
@@ -147,18 +143,19 @@ Module.prototype.resetData = function()
 	ledEventColor.interval	= 0;
 	ledEventColor.repeat	= 0;
 
-	var control = this.control;
+	var control				= this.control;
 	control.roll			= 0;
 	control.pitch			= 0;
 	control.yaw				= 0;
 	control.throttle		= 0;
 	
 	// Device -> Entry 
-	var attitude = this.attitude;
+	var attitude			= this.attitude;
 	attitude._updated		= 0;
 	attitude.roll			= 0;
 	attitude.pitch			= 0;
 	attitude.yaw			= 0;
+
 
 	// -- Hardware ----------------------------------------------------------------
 	this.bufferReceive		= [];		// 데이터 수신 버퍼
@@ -170,6 +167,7 @@ Module.prototype.resetData = function()
 	this.indexReceiver		= 0;		// 수신 받은 데이터의 세션 내 위치
 	this.dataBlock			= [];		// 수신 받은 데이터 블럭
 	this.crc16Calculated	= 0;		// CRC16 계산 된 결과
+	this.crc16Received		= 0;		// CRC16 수신 받은 블럭
 }
 
 /***************************************************************************************
@@ -210,11 +208,12 @@ var DataType =
  ***************************************************************************************/
 
 // Entry에서 받은 데이터 블럭 처리
+// Entry에서 수신 받은 데이터는 bufferTransfer에 바로 등록
 Module.prototype.handlerForEntry = function(handler)
 {
 	this.bufferTransfer = [];
 
-	// Led Mode Color
+	// LedModeColor
 	if( handler.e(DataType.LEDMODECOLOR_MODE) == true )
 	{
 		// Start Code
@@ -244,8 +243,71 @@ Module.prototype.handlerForEntry = function(handler)
 		// CRC16
 		addCRC16(indexStart, dataLength);
 	}
+	
+	// LedEventColor
+	if( handler.e(DataType.LEDEVENTCOLOR_MODE) == true )
+	{
+		// Start Code
+		addStartCode();
+		
+		var ledEventColor = this.ledEventColor;
+		ledEventColor.mode		= handler.e(DataType.LEDEVENTCOLOR_MODE)		? handler.read(DataType.LEDEVENTCOLOR_MODE)		: 0;
+		ledEventColor.r			= handler.e(DataType.LEDEVENTCOLOR_R)			? handler.read(DataType.LEDEVENTCOLOR_R)		: 0;
+		ledEventColor.g			= handler.e(DataType.LEDEVENTCOLOR_G)			? handler.read(DataType.LEDEVENTCOLOR_G)		: 0;
+		ledEventColor.b			= handler.e(DataType.LEDEVENTCOLOR_B)			? handler.read(DataType.LEDEVENTCOLOR_B)		: 0;
+		ledEventColor.interval	= handler.e(DataType.LEDEVENTCOLOR_INTERVAL)	? handler.read(DataType.LEDEVENTCOLOR_INTERVAL)	: 0;
+		ledEventColor.repeat	= handler.e(DataType.LEDEVENTCOLOR_REPEAT)		? handler.read(DataType.LEDEVENTCOLOR_REPEAT)	: 0;
+
+		var indexStart = this.bufferTransfer.length - 1;	// 배열에서 데이터를 저장하기 시작하는 위치
+		var dataLength = 6;									// 데이터의 길이
+
+		// Header
+		this.bufferTransfer.push(0x2A);						// Data Type
+		this.bufferTransfer.push(dataLength);				// Data Length
+
+		// Data Array
+		this.bufferTransfer.push(ledEventColor.mode);
+		this.bufferTransfer.push(ledEventColor.r);
+		this.bufferTransfer.push(ledEventColor.g);
+		this.bufferTransfer.push(ledEventColor.b);
+		this.bufferTransfer.push(ledEventColor.interval);
+		this.bufferTransfer.push(ledEventColor.repeat);
+
+		// CRC16
+		addCRC16(indexStart, dataLength);
+	}
+	
+	// Control
+	if( handler.e(DataType.CONTROL_ROLL) == true )
+	{
+		// Start Code
+		addStartCode();
+		
+		var control = this.control;
+		control.roll			= handler.e(DataType.CONTROL_ROLL)				? handler.read(DataType.CONTROL_ROLL)			: 0;
+		control.pitch			= handler.e(DataType.CONTROL_PITCH)				? handler.read(DataType.CONTROL_PITCH)			: 0;
+		control.yaw				= handler.e(DataType.CONTROL_YAW)				? handler.read(DataType.CONTROL_YAW)			: 0;
+		control.throttle		= handler.e(DataType.CONTROL_THROTTLE)			? handler.read(DataType.CONTROL_THROTTLE)		: 0;
+
+		var indexStart = this.bufferTransfer.length - 1;	// 배열에서 데이터를 저장하기 시작하는 위치
+		var dataLength = 4;									// 데이터의 길이
+
+		// Header
+		this.bufferTransfer.push(0x10);						// Data Type
+		this.bufferTransfer.push(dataLength);				// Data Length
+
+		// Data Array
+		this.bufferTransfer.push(control.roll);
+		this.bufferTransfer.push(control.pitch);
+		this.bufferTransfer.push(control.yaw);
+		this.bufferTransfer.push(control.throttle);
+
+		// CRC16
+		addCRC16(indexStart, dataLength);
+	}
 }
 
+// 시작 코드 추가
 Module.prototype.addStartCode = function()
 {
 	// Start Code
@@ -253,11 +315,15 @@ Module.prototype.addStartCode = function()
 	this.bufferTransfer.push(0x55);
 }
 
+// CRC16을 계산해서 추가
 Module.prototype.addCRC16 = function(indexStart, dataLength)
 {
+	if( this.bufferTransfer.length < indexStart + 2 + dataLength )
+		return;
+	
 	// CRC16
 	var crc16 = 0;
-	var totalLength = dataLength + 2;
+	var totalLength = 2 + dataLength;
 	for(var i=0; i<totalLength; i++)
 	{
 		crc16 = calcCRC16(this.bufferTransfer[indexStart + i], crc16);
@@ -292,19 +358,152 @@ Module.prototype.tansferForEntry = function(handler)
 // 장치로부터 받은 데이터 배열 처리
 Module.prototype.receiverForDevice = function(data)
 {
+	// 수신 받은 데이터를 버퍼에 추가
+	for(var i=0; i<data.length; i++)
+	{
+		this.receiveBuffer.push(data[i]);
+	}
 
+	// 버퍼로부터 데이터를 읽어 하나의 완성된 데이터 블럭으로 변환
+	while(this.receiveBuffer.length > 0)
+	{
+		var data			= this.receiveBuffer.shift();
+		var flagContinue	= true;
+		var flagSessionNext	= false;
+		var flagComplete	= false;
+		
+		switch(this.indexSession)
+		{
+		case 0:
+			// Start Code
+			{				
+				switch( this.indexReceiver )
+				{
+				case 0:
+					if( data != 0x0A )
+						continue;
+					break;
+				
+				case 1:
+					if( data != 0x55 )
+						flagContinue = false;
+					else
+						flagSessionNext = true;
+					break;
+				}
+			}
+			break;
+
+		case 1:
+			// Header
+			{
+				switch( this.indexReceiver )
+				{
+				case 0:
+					this.dataType = data;
+					this.crc16Calculated = calcCRC16(data, 0);
+					break;
+				
+				case 1:
+					this.dataLength = data;
+					this.crc16Calculated = calcCRC16(data, this.crc16Calculated);
+					this.dataBlock = [];		// 수신 받은 데이터 블럭
+					flagSessionNext = true;
+					break;
+				}
+			}
+			break;
+
+		case 2:
+			// Data
+			{
+				this.dataBlock.push(data);
+				this.crc16Calculated = calcCRC16(data, this.crc16Calculated);
+				
+				if( this.dataBlock.length == this.dataLength )
+					flagSessionNext = true;
+			}
+			break;
+
+		case 3:
+			// CRC16
+			{
+				switch( this.indexReceiver )
+				{
+				case 0:
+					this.crc16Received = data;
+					break;
+				
+				case 1:
+					this.crc16Received = this.crc16Received + (data << 8);
+					flagComplete = true;
+					break;
+				}
+			}
+			break;
+
+		default:
+			flagContinue = false;
+			break;
+		}
+
+		// 데이터 전송 완료 처리
+		if( flagComplete == true )
+		{
+			if( this.crc16Calculated == this.crc16Received )
+				handlerForDevice();
+
+			flagContinue = false;
+		}
+
+		// 데이터 처리 결과에 따라 인덱스 변수 처리
+		if( flagContinue == true )
+		{
+			if( flagSessionNext == true )
+			{
+				this.indexSession++;
+				this.indexReceiver = 0;				
+			}
+			else
+			{
+				this.indexReceiver++;
+			}
+		}
+		else
+		{
+			this.indexSession		= 0;		// 수신 받는 데이터의 세션
+			this.indexReceiver		= 0;		// 수신 받는 데이터의 세션 내 위치
+		}
+	}
 }
 
 // 장치로부터 받은 데이터 블럭 처리
 Module.prototype.handlerForDevice = function()
 {
+	switch( this.dataType )
+	{
+	case 0x32:
+		// Attitude
+		if( this.dataBlock.length == 6 )
+		{
+			// Device -> Entry 
+			var attitude			= this.attitude;
+			attitude._updated		= true;
+			attitude.roll			= (this.dataBlock[1]) << 8 + this.dataBlock[0];
+			attitude.pitch			= (this.dataBlock[3]) << 8 + this.dataBlock[2];
+			attitude.yaw			= (this.dataBlock[5]) << 8 + this.dataBlock[4];
+		}
+		break;
 
+	default:
+		break;
+	}
 }
 
 // 장치에 데이터 전송
 Module.prototype.tansferForDevice = function()
 {
-
+	return bufferTransfer;
 }
 
 /***************************************************************************************
