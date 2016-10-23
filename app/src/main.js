@@ -42,6 +42,12 @@
 	$('.alertMsg .alertMsg2').text(translator.translate('contact the hardware company to resolve the problem.'));
 	$('#errorAlert .comment').text(translator.translate('* Entry Labs is not responsible for the extension program and hardware products on this site.'));
 
+
+	$('#select_port_box .title span').text(translator.translate('Select'));
+	$('#select_port_box .description').text(translator.translate('Select the COM PORT to connect'));
+	$('#select_port_box #btn_select_port_cancel').text(translator.translate('Cancel'));
+	$('#select_port_box #btn_select_port').text(translator.translate('Connect'));
+
 	$('#reference .emailTitle').text(translator.translate('E-Mail : '));
 	$('#reference .urlTitle').text(translator.translate('WebSite : '));
 
