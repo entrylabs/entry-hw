@@ -20,7 +20,8 @@
 		"type": "serial",
 		"control": "slave",
 		"scanType": "data",
-		"vendor": ["BYROBOT"],
+		"duration": 32,
+		"vendor": ["By Robot Co., Ltd."],
 		"baudRate": 115200,
 		"flowControl": "none"
 	}
