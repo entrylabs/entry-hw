@@ -79,12 +79,13 @@ function Module()
 	this.dataBlock			= [];		// 수신 받은 데이터 블럭
 	this.crc16Calculated	= 0;		// CRC16 계산 된 결과
 	this.crc16Received		= 0;		// CRC16 수신 받은 블럭
+
 }
 
 // 초기설정
 Module.prototype.init = function(handler, config)
 {
-	this.resetData();
+	//this.resetData();
 };
 
 // 초기 송신데이터(필수)
@@ -248,6 +249,27 @@ Module.prototype.lookupTarget = function()
 		this.addCRC16(indexStart, dataLength);
 	}
 
+	{
+		// Start Code
+		this.addStartCode();
+		
+		var indexStart = this.bufferTransfer.length;		// 배열에서 데이터를 저장하기 시작하는 위치
+		var dataLength = 4;		// 데이터의 길이
+
+		// Header
+		this.bufferTransfer.push(0x90);		// Data Type (UpdateLookupTarget)
+		this.bufferTransfer.push(0x04);		// Data Length
+
+		// Data Array
+		this.bufferTransfer.push(0x09);		// lookup (0x08:DroneFighter, 0x09:DroneFighter Controller, 0x0A DroneFighter Link)
+		this.bufferTransfer.push(0x00);
+		this.bufferTransfer.push(0x00);
+		this.bufferTransfer.push(0x00);
+
+		// CRC16
+		this.addCRC16(indexStart, dataLength);
+	}
+
 	return this.bufferTransfer;
 }
 
@@ -262,15 +284,15 @@ Module.prototype.checkUpdateInformation = function(data, config)
 		switch( updateInformation.deviceType )
 		{
 		case 0x08:	// 드론파이터와 연결된 경우(드론파이터와 직접 연결되거나 조종기와 연결한 상태에서 페어링 된 드론파이터가 켜진 경우)
-			config.id = '0F01';
+			config.id = '0F0101';
 			return true;
 
 		case 0x09:	// 컨트롤러와 연결된 경우(페어링 된 드론파이터가 없더라도 조종기만 연결하여 사용 가능한 상태)
-			config.id = '0F01';
+			config.id = '0F0101';
 			return true;
 
 		case 0x0A:	// LINK 모듈과 연결된 경우
-			config.id = '0F01';
+			config.id = '0F0101';
 			return true;
 
 		default:
@@ -599,6 +621,12 @@ Module.prototype.handlerForDevice = function()
 // 장치에 데이터 전송
 Module.prototype.transferForDevice = function()
 {
+	if( this.bufferTransfer == undefined )
+		this.bufferTransfer = [];
+
+	if( this.bufferTransfer.length == 0 )
+		return this.lookupTarget();
+	
 	return this.bufferTransfer;
 }
 
