@@ -1,13 +1,10 @@
 {
   "name": "Entry_HW",
-  "version": "1.5.11",
-  "description": "entry hardware connect program",
-  "main": "./app/index.js",
   "scripts": {
     "clean": "rimraf dist",
     "pack": "build",
     "dist": "build --arch ia32",
-    "start": "set NODE_ENV=development&&electron -d ./"
+    "start": "set NODE_ENV=development&&electron -d app"
   },
   "build": {
     "win": {

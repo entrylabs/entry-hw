@@ -42,7 +42,6 @@ app.on('window-all-closed', function() {
 });
 
 var argv = process.argv.slice(1);
-console.fslog(argv);
 
 if(argv.indexOf('entryhw:')) {
     var data = getArgsParseData(argv);
@@ -102,7 +101,8 @@ if (shouldQuit) {
 }
 
 ipcMain.on('reload', function(event, arg) {
-    mainWindow.reload(true);
+    app.relaunch({args: process.argv.slice(1).concat(['--relaunch'])});
+    app.exit(0);
 });
 
 ipcMain.on('roomId', function(event, arg) {
@@ -142,8 +142,8 @@ app.once('ready', function() {
     mainWindow.loadURL('file:///' + path.join(__dirname, 'index.html'));
 
     if(option.debug) {
+        mainWindow.webContents.openDevTools();
     }
-    mainWindow.webContents.openDevTools();
 
     mainWindow.setMenu(null);
 
