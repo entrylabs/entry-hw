@@ -6,6 +6,7 @@ var EventEmitter = require('events').EventEmitter;
 var client = require('socket.io-client');
 const {ipcRenderer} = require('electron');
 var masterRoomIds = [];
+var clientRoomId = '';
 var socketClient;
 var version = '';
 
@@ -32,11 +33,17 @@ util.inherits(Server, EventEmitter);
 
 ipcRenderer.on('customArgs', function(e, data) {
 	if(runningMode === serverModeTypes.parent) {
-		if(masterRoomIds.indexOf(data.roomId) === -1) {
-			masterRoomIds.push(data.roomId);
+		if(masterRoomIds.indexOf(data) === -1) {
+			masterRoomIds.push(data);
 		}
 	} else {
-		socketClient.emit('matchTarget', { roomId : data.roomId });
+		if(data) {
+			clientRoomId = data;
+			socketClient.emit('matchTarget', { roomId : clientRoomId });
+			if(masterRoomIds.indexOf(data) === -1) {
+				masterRoomIds.push(data);
+			}
+		}
 	}
 });
 
@@ -66,14 +73,23 @@ Server.prototype.open = function(logger) {
 	
 	httpServer.on('error', function(e) {
 		ipcRenderer.send('serverMode', serverModeTypes.multi);
-		var roomId = ipcRenderer.sendSync('roomId');
 		runningMode = serverModeTypes.child;
 		console.log('%cI`M CLIENT', 'background:black;color:yellow;font-size: 30px');
 		var socket = client('https://hardware.play-entry.org:23518', {query:{'childServer': true}});
 		socketClient = socket;
 		self.connections.push(socket);
 		socket.on('connect', function() {
-			socket.emit('matchTarget', { roomId : roomId });
+			var roomIds = ipcRenderer.sendSync('roomId');
+			if(roomIds.length > 0) {
+				roomIds.forEach(function(roomId) {
+					if(roomId) {
+						if(masterRoomIds.indexOf(roomId) === -1) {
+							masterRoomIds.push(roomId);
+						}
+						socket.emit('matchTarget', { roomId : roomId });				
+					}
+				});
+			}
 		});
 		socket.on('message', function (message) {
 			self.emit('data', message.data, message.type);
@@ -88,8 +104,14 @@ Server.prototype.open = function(logger) {
 		});
 	});
 	httpServer.on('listening', function(e) {
-		var mRoomId = ipcRenderer.sendSync('roomId');
-		masterRoomIds.push(mRoomId);
+		var mRoomIds = ipcRenderer.sendSync('roomId');
+		if(mRoomIds.length > 0) {
+			mRoomIds.forEach(function(mRoomId) {
+				if(masterRoomIds.indexOf(mRoomId) === -1 && mRoomId) {
+					masterRoomIds.push(mRoomId);
+				}
+			});
+		}
 		runningMode = serverModeTypes.parent;
 		console.log('%cI`M SERVER', 'background:orange; font-size: 30px');
 		self.httpServer = httpServer;
@@ -141,10 +163,8 @@ Server.prototype.open = function(logger) {
 						connection.roomIds.push(data.roomId);
 					}
 
+					self.clientTargetList[data.roomId] = connection.id;
 					server.to(data.roomId).emit('matched', connection.id);
-				} else {
-					self.clientTargetList[connection.roomId] = data.target;
-					server.to(data.target).emit('matched', connection.id);
 				}
 			});
 
@@ -157,14 +177,14 @@ Server.prototype.open = function(logger) {
 					}
 					delete self.connectionSet[connection.id];
 					delete self.childServerList[connection.id];
+
+					var childServerListCnt = Object.keys(self.childServerList).length;
+					if(childServerListCnt <= 0) {
+						server.emit('mode', serverModeTypes.single);
+						ipcRenderer.send('serverMode', serverModeTypes.single);
+					}
 				} else {
 					delete self.connectionSet[connection.id];
-				}
-				
-				var childServerListCnt = Object.keys(self.childServerList).length;
-				if(childServerListCnt <= 0) {
-					server.emit('mode', serverModeTypes.single);
-					ipcRenderer.send('serverMode', serverModeTypes.single);
 				}
 			});
 
@@ -179,7 +199,6 @@ Server.prototype.open = function(logger) {
 							});
 						}
 					} else if(self.clientTargetList[connection.roomId]) {
-						console.log(self.clientTargetList[connection.roomId]);
 						server.to(self.clientTargetList[connection.roomId]).emit('message', message);
 					}
 				}

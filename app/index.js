@@ -8,7 +8,7 @@ const packageJson     = require('./package.json');
 const ChildProcess = require('child_process');
 var mainWindow = null;
 var isClose = true;
-var roomId = '';
+var roomId = [];
 
 console.fslog = function (text) {    
     var log_path = path.join(__dirname, '..');
@@ -32,9 +32,7 @@ function getArgsParseData(argv) {
         roomId = '';
     }
 
-    return {
-        roomId: roomId.replace(/\//g, '')
-    };
+    return roomId.replace(/\//g, '');
 }
 
 app.on('window-all-closed', function() {
@@ -45,7 +43,9 @@ var argv = process.argv.slice(1);
 
 if(argv.indexOf('entryhw:')) {
     var data = getArgsParseData(argv);
-    roomId = data.roomId;
+    if(data) {
+        roomId.push(data);
+    }
 }
 
 var option = { file: null, help: null, version: null, webdriver: null, modules: [] };
@@ -89,6 +89,9 @@ var shouldQuit = app.makeSingleInstance(function(argv, workingDirectory) {
         mainWindow.focus();
 
         if(mainWindow.webContents) {
+            if(roomId.indexOf(parseData) === -1) {
+                roomId.push(parseData);
+            }
             mainWindow.webContents.send('customArgs', parseData);
         }
     }
