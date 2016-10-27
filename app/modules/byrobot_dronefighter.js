@@ -13,7 +13,6 @@
 // 모듈 생성
 function Module()
 {
-
 	// -- JSON Objects ----------------------------------------------------------------
     // LedModeColor
 	this.ledModeColor =
@@ -80,6 +79,7 @@ function Module()
 	this.crc16Calculated	= 0;		// CRC16 계산 된 결과
 	this.crc16Received		= 0;		// CRC16 수신 받은 블럭
 
+	this.countReqeustDevice	= 0;		// 장치에 데이터를 요청한 횟수 카운트 
 }
 
 // 초기설정
@@ -91,7 +91,8 @@ Module.prototype.init = function(handler, config)
 // 초기 송신데이터(필수)
 Module.prototype.requestInitialData = function()
 {
-	return this.lookupTarget();
+	this.reserveLookupTarget(0x09);
+	return this.transferForDevice();
 };
 
 // 초기 수신데이터 체크(필수)
@@ -143,14 +144,14 @@ Module.prototype.resetData = function()
 {
 	// -- JSON Objects ----------------------------------------------------------------
 	// Entry -> Device
-	var ledModeColor		= this.ledModeColor;
+	let ledModeColor		= this.ledModeColor;
 	ledModeColor.mode		= 0;
 	ledModeColor.r			= 0;
 	ledModeColor.g			= 0;
 	ledModeColor.b			= 0;
 	ledModeColor.interval	= 0;
 	
-	var ledEventColor		= this.ledEventColor;
+	let ledEventColor		= this.ledEventColor;
 	ledEventColor.event		= 0;
 	ledEventColor.r			= 0;
 	ledEventColor.g			= 0;
@@ -158,14 +159,14 @@ Module.prototype.resetData = function()
 	ledEventColor.interval	= 0;
 	ledEventColor.repeat	= 0;
 
-	var control				= this.control;
+	let control				= this.control;
 	control.roll			= 0;
 	control.pitch			= 0;
 	control.yaw				= 0;
 	control.throttle		= 0;
 	
 	// Device -> Entry 
-	var attitude			= this.attitude;
+	let attitude			= this.attitude;
 	attitude._updated		= 0;
 	attitude.roll			= 0;
 	attitude.pitch			= 0;
@@ -192,93 +193,42 @@ Module.prototype.resetData = function()
 var DataType =
 {
 	// Led Mode
-	LEDMODECOLOR_MODE:		'LedModeColor_Mode',
-	LEDMODECOLOR_R:			'LedModeColor_R',
-	LEDMODECOLOR_G:			'LedModeColor_G',
-	LEDMODECOLOR_B:			'LedModeColor_B',
-	LEDMODECOLOR_INTERVAL:	'LedModeColor_Interval',
+	LEDMODECOLOR_MODE:		'ledModeColor_mode',
+	LEDMODECOLOR_R:			'ledModeColor_r',
+	LEDMODECOLOR_G:			'ledModeColor_g',
+	LEDMODECOLOR_B:			'ledModeColor_b',
+	LEDMODECOLOR_INTERVAL:	'ledModeColor_interval',
 
 	// Led Event
-	LEDEVENTCOLOR_EVENT:	'LedEvent_Event',
-	LEDEVENTCOLOR_R:		'LedEvent_R',
-	LEDEVENTCOLOR_G:		'LedEvent_G',
-	LEDEVENTCOLOR_B:		'LedEvent_B',
-	LEDEVENTCOLOR_INTERVAL:	'LedEvent_Interval',
-	LEDEVENTCOLOR_REPEAT:	'LedEvent_Repeat',
+	LEDEVENTCOLOR_EVENT:	'ledEvent_event',
+	LEDEVENTCOLOR_R:		'ledEvent_r',
+	LEDEVENTCOLOR_G:		'ledEvent_g',
+	LEDEVENTCOLOR_B:		'ledEvent_b',
+	LEDEVENTCOLOR_INTERVAL:	'ledEvent_interval',
+	LEDEVENTCOLOR_REPEAT:	'ledEvent_repeat',
 
 	// Control
-	CONTROL_ROLL:			'Control_Roll',
-	CONTROL_PITCH:			'Control_Pitch',
-	CONTROL_YAW:			'Control_Yaw',
-	CONTROL_THROTTLE:		'Control_Throttle',
+	CONTROL_ROLL:			'control_roll',
+	CONTROL_PITCH:			'control_pitch',
+	CONTROL_YAW:			'control_yaw',
+	CONTROL_THROTTLE:		'control_throttle',
 
 	// Attitude
-	ATTITUDE_ROLL:			'Attitude_Roll',
-	ATTITUDE_PITCH:			'Attitude_Pitch',
-	ATTITUDE_YAW:			'Attitude_Yaw'
+	ATTITUDE_ROLL:			'attitude_roll',
+	ATTITUDE_PITCH:			'attitude_pitch',
+	ATTITUDE_YAW:			'attitude_yaw'
 }
 	
 /***************************************************************************************
  *	Communciation - 연결된 장치 확인
  ***************************************************************************************/
 
-// 장치 검색
-Module.prototype.lookupTarget = function()
-{
-	this.bufferTransfer = [];
-
-	// UpdateLookupTarget
-	{
-		// Start Code
-		this.addStartCode();
-		
-		var indexStart = this.bufferTransfer.length;		// 배열에서 데이터를 저장하기 시작하는 위치
-		var dataLength = 4;		// 데이터의 길이
-
-		// Header
-		this.bufferTransfer.push(0x90);		// Data Type (UpdateLookupTarget)
-		this.bufferTransfer.push(0x04);		// Data Length
-
-		// Data Array
-		this.bufferTransfer.push(0x09);		// lookup (0x08:DroneFighter, 0x09:DroneFighter Controller, 0x0A DroneFighter Link)
-		this.bufferTransfer.push(0x00);
-		this.bufferTransfer.push(0x00);
-		this.bufferTransfer.push(0x00);
-
-		// CRC16
-		this.addCRC16(indexStart, dataLength);
-	}
-
-	{
-		// Start Code
-		this.addStartCode();
-		
-		var indexStart = this.bufferTransfer.length;		// 배열에서 데이터를 저장하기 시작하는 위치
-		var dataLength = 4;		// 데이터의 길이
-
-		// Header
-		this.bufferTransfer.push(0x90);		// Data Type (UpdateLookupTarget)
-		this.bufferTransfer.push(0x04);		// Data Length
-
-		// Data Array
-		this.bufferTransfer.push(0x09);		// lookup (0x08:DroneFighter, 0x09:DroneFighter Controller, 0x0A DroneFighter Link)
-		this.bufferTransfer.push(0x00);
-		this.bufferTransfer.push(0x00);
-		this.bufferTransfer.push(0x00);
-
-		// CRC16
-		this.addCRC16(indexStart, dataLength);
-	}
-
-	return this.bufferTransfer;
-}
-
 // 수신 받은 UpdateInformation 처리
 Module.prototype.checkUpdateInformation = function(data, config)
 {
 	this.receiverForDevice(data);
 
-	var updateInformation = this.updateInformation;
+	let updateInformation = this.updateInformation;
 	if( updateInformation._updated == true )
 	{
 		switch( updateInformation.deviceType )
@@ -311,23 +261,21 @@ Module.prototype.checkUpdateInformation = function(data, config)
 // Entry에서 수신 받은 데이터는 bufferTransfer에 바로 등록
 Module.prototype.handlerForEntry = function(handler)
 {
-	this.bufferTransfer = [];
-
 	// LedModeColor
 	if( handler.e(DataType.LEDMODECOLOR_MODE) == true )
 	{
 		// Start Code
 		this.addStartCode();
 		
-		var ledModeColor = this.ledModeColor;
+		let ledModeColor = this.ledModeColor;
 		ledModeColor.mode		= handler.e(DataType.LEDMODECOLOR_MODE)			? handler.read(DataType.LEDMODECOLOR_MODE)		: 0;
 		ledModeColor.r			= handler.e(DataType.LEDMODECOLOR_R)			? handler.read(DataType.LEDMODECOLOR_R)			: 0;
 		ledModeColor.g			= handler.e(DataType.LEDMODECOLOR_G)			? handler.read(DataType.LEDMODECOLOR_G)			: 0;
 		ledModeColor.b			= handler.e(DataType.LEDMODECOLOR_B)			? handler.read(DataType.LEDMODECOLOR_B)			: 0;
 		ledModeColor.interval	= handler.e(DataType.LEDMODECOLOR_INTERVAL)		? handler.read(DataType.LEDMODECOLOR_INTERVAL)	: 0;
 
-		var indexStart = this.bufferTransfer.length;	// 배열에서 데이터를 저장하기 시작하는 위치
-		var dataLength = 5;									// 데이터의 길이
+		let indexStart = this.bufferTransfer.length;		// 배열에서 데이터를 저장하기 시작하는 위치
+		let dataLength = 5;									// 데이터의 길이
 
 		// Header
 		this.bufferTransfer.push(0x24);						// Data Type
@@ -350,7 +298,7 @@ Module.prototype.handlerForEntry = function(handler)
 		// Start Code
 		this.addStartCode();
 		
-		var ledEventColor = this.ledEventColor;
+		let ledEventColor = this.ledEventColor;
 		ledEventColor.event		= handler.e(DataType.LEDEVENTCOLOR_EVENT)		? handler.read(DataType.LEDEVENTCOLOR_EVENT)	: 0;
 		ledEventColor.r			= handler.e(DataType.LEDEVENTCOLOR_R)			? handler.read(DataType.LEDEVENTCOLOR_R)		: 0;
 		ledEventColor.g			= handler.e(DataType.LEDEVENTCOLOR_G)			? handler.read(DataType.LEDEVENTCOLOR_G)		: 0;
@@ -358,8 +306,8 @@ Module.prototype.handlerForEntry = function(handler)
 		ledEventColor.interval	= handler.e(DataType.LEDEVENTCOLOR_INTERVAL)	? handler.read(DataType.LEDEVENTCOLOR_INTERVAL)	: 0;
 		ledEventColor.repeat	= handler.e(DataType.LEDEVENTCOLOR_REPEAT)		? handler.read(DataType.LEDEVENTCOLOR_REPEAT)	: 0;
 
-		var indexStart = this.bufferTransfer.length;	// 배열에서 데이터를 저장하기 시작하는 위치
-		var dataLength = 6;									// 데이터의 길이
+		let indexStart = this.bufferTransfer.length;	// 배열에서 데이터를 저장하기 시작하는 위치
+		let dataLength = 6;									// 데이터의 길이
 
 		// Header
 		this.bufferTransfer.push(0x2A);						// Data Type
@@ -383,14 +331,14 @@ Module.prototype.handlerForEntry = function(handler)
 		// Start Code
 		this.addStartCode();
 		
-		var control = this.control;
+		let control = this.control;
 		control.roll			= handler.e(DataType.CONTROL_ROLL)				? handler.read(DataType.CONTROL_ROLL)			: 0;
 		control.pitch			= handler.e(DataType.CONTROL_PITCH)				? handler.read(DataType.CONTROL_PITCH)			: 0;
 		control.yaw				= handler.e(DataType.CONTROL_YAW)				? handler.read(DataType.CONTROL_YAW)			: 0;
 		control.throttle		= handler.e(DataType.CONTROL_THROTTLE)			? handler.read(DataType.CONTROL_THROTTLE)		: 0;
 
-		var indexStart = this.bufferTransfer.length;	// 배열에서 데이터를 저장하기 시작하는 위치
-		var dataLength = 4;									// 데이터의 길이
+		let indexStart = this.bufferTransfer.length;	// 배열에서 데이터를 저장하기 시작하는 위치
+		let dataLength = 4;									// 데이터의 길이
 
 		// Header
 		this.bufferTransfer.push(0x10);						// Data Type
@@ -405,11 +353,16 @@ Module.prototype.handlerForEntry = function(handler)
 		// CRC16
 		this.addCRC16(indexStart, dataLength);
 	}
+
+	this.log("Module.prototype.handlerForEntry()", this.bufferTransfer);
 }
 
 // 시작 코드 추가
 Module.prototype.addStartCode = function()
 {
+	if( this.bufferTransfer == undefined )
+		this.bufferTransfer = [];
+
 	// Start Code
 	this.bufferTransfer.push(0x0A);
 	this.bufferTransfer.push(0x55);
@@ -422,9 +375,9 @@ Module.prototype.addCRC16 = function(indexStart, dataLength)
 		return;
 	
 	// CRC16
-	var crc16 = 0;
-	var totalLength = 2 + dataLength;
-	for(var i=0; i<totalLength; i++)
+	let crc16 = 0;
+	let totalLength = 2 + dataLength;
+	for(let i=0; i<totalLength; i++)
 	{
 		crc16 = this.calcCRC16(this.bufferTransfer[indexStart + i], crc16);
 	}
@@ -437,15 +390,16 @@ Module.prototype.tansferForEntry = function(handler)
 {
 	// Attitude
 	{
-		var attitude = this.attitude;
+		let attitude = this.attitude;
 		if( attitude._updated == true )
 		{
-			for(var key in attitude)
+			for(let key in attitude)
 			{
 				handler.write(key, attitude[key]);
 			}
 
 			attitude._updated == false;
+			this.log("Module.prototype.tansferForEntry()", attitude);
 		}
 	}
 }
@@ -462,18 +416,20 @@ Module.prototype.receiverForDevice = function(data)
 		this.receiveBuffer = [];
 
 	// 수신 받은 데이터를 버퍼에 추가
-	for(var i=0; i<data.length; i++)
+	for(let i=0; i<data.length; i++)
 	{
 		this.receiveBuffer.push(data[i]);
 	}
 
+	this.log("Module.prototype.receiverForDevice()", this.receiveBuffer);
+
 	// 버퍼로부터 데이터를 읽어 하나의 완성된 데이터 블럭으로 변환
 	while(this.receiveBuffer.length > 0)
 	{
-		var data			= this.receiveBuffer.shift();
-		var flagContinue	= true;
-		var flagSessionNext	= false;
-		var flagComplete	= false;
+		let data			= this.receiveBuffer.shift();
+		let flagContinue	= true;
+		let flagSessionNext	= false;
+		let flagComplete	= false;
 		
 		switch(this.indexSession)
 		{
@@ -583,13 +539,15 @@ Module.prototype.receiverForDevice = function(data)
 // 장치로부터 받은 데이터 블럭 처리
 Module.prototype.handlerForDevice = function()
 {
+	this.log("Module.prototype.handlerForDevice()", this.dataBlock);
+
 	switch( this.dataType )
 	{
 	case 0x32:	// Attitude
 		if( this.dataBlock.length == 6 )
 		{
 			// Device -> Entry 
-			var attitude			= this.attitude;
+			let attitude			= this.attitude;
 			attitude._updated		= true;
 			attitude.roll			= ((this.dataBlock[1]) << 8) + this.dataBlock[0];
 			attitude.pitch			= ((this.dataBlock[3]) << 8) + this.dataBlock[2];
@@ -601,7 +559,7 @@ Module.prototype.handlerForDevice = function()
 		if( this.dataBlock.length == 11 )
 		{
 			// Device -> Entry 
-			var updateInformation	= this.updateInformation;
+			let updateInformation			= this.updateInformation;
 			updateInformation._updated		= true;
 			updateInformation.modeUpdate	= this.dataBlock[0];		// u8
 			updateInformation.deviceType	= ((this.dataBlock[4]) << 24) + ((this.dataBlock[3]) << 16) + ((this.dataBlock[2]) << 8) + this.dataBlock[1];		// u32
@@ -621,13 +579,77 @@ Module.prototype.handlerForDevice = function()
 // 장치에 데이터 전송
 Module.prototype.transferForDevice = function()
 {
-	if( this.bufferTransfer == undefined )
-		this.bufferTransfer = [];
+	// 예약된 요청이 없는 경우 데이터 요청 등록(현재는 자세 데이터 요청)
+	if( this.bufferTransfer == undefined || this.bufferTransfer.length == 0 )
+	{
+		switch( this.countReqeustDevice % 10 )
+		{
+		case 0:
+			this.reserveRequest(0x32);
+			break;
 
-	if( this.bufferTransfer.length == 0 )
-		return this.lookupTarget();
+		default:
+			this.reserveLookupTarget(0x09);
+			break;
+		}
+	}
+
+	let arrayTransfer = this.bufferTransfer.slice(0);	// 전송할 데이터 배열
+	this.bufferTransfer = [];							// 기존 버퍼 비우기
+
+	this.log("Module.prototype.transferForDevice()", arrayTransfer);
+
+	this.countReqeustDevice++;
+
+	return arrayTransfer;
+}
+
+// 데이터 요청
+Module.prototype.reserveRequest = function(dataType)
+{
+	// Start Code
+	this.addStartCode();
 	
-	return this.bufferTransfer;
+	let indexStart = this.bufferTransfer.length;		// 배열에서 데이터를 저장하기 시작하는 위치
+	let dataLength = 1;		// 데이터의 길이
+
+	// Header
+	this.bufferTransfer.push(0x04);			// Data Type (Request)
+	this.bufferTransfer.push(0x01);			// Data Length
+
+	// Data Array
+	this.bufferTransfer.push(dataType);		// Request DataType
+
+	// CRC16
+	this.addCRC16(indexStart, dataLength);
+
+	this.log("Module.prototype.reserveRequest()", this.bufferTransfer);
+}
+
+// 장치 검색
+// target (0x08:DroneFighter, 0x09:DroneFighter Controller, 0x0A:DroneFighter Link)
+Module.prototype.reserveLookupTarget = function(target)
+{
+	// Start Code
+	this.addStartCode();
+	
+	let indexStart = this.bufferTransfer.length;		// 배열에서 데이터를 저장하기 시작하는 위치
+	let dataLength = 4;		// 데이터의 길이
+
+	// Header
+	this.bufferTransfer.push(0x90);		// Data Type (UpdateLookupTarget)
+	this.bufferTransfer.push(0x04);		// Data Length
+
+	// Data Array
+	this.bufferTransfer.push(target);	// lookup Target
+	this.bufferTransfer.push(0x00);
+	this.bufferTransfer.push(0x00);
+	this.bufferTransfer.push(0x00);
+
+	// CRC16
+	this.addCRC16(indexStart, dataLength);
+
+	this.log("Module.prototype.reserveLookupTarget()", this.bufferTransfer);
 }
 
 /***************************************************************************************
@@ -703,9 +725,61 @@ Module.prototype.calcCRC16 = function(data, crc)
 		throw new RangeError();
 	}
 
-	var index	= ((crc>>8) ^ data) & 0x00FF;
-	var crcNext	= ((crc<<8) & 0xFFFF) ^ crc16table[index];
+	let index	= ((crc>>8) ^ data) & 0x00FF;
+	let crcNext	= ((crc<<8) & 0xFFFF) ^ crc16table[index];
 
 	return crcNext;
 };
+
+
+/***************************************************************************************
+ *	로그 출력
+ ***************************************************************************************/
+Module.prototype.log = function(location, data)
+{
+	// 로그를 출력하지 않으려면 아래 주석을 활성화 할 것
+	//*
+	let strInfo = "";
+
+	switch( typeof data )
+	{
+	case "object":
+		{
+			strInfo = " / [ " + this.convertByteArrayToHexString(data) + " ]";
+		}
+		break;
+
+	default:
+		break;
+	}
+
+	console.log(location + " / " + (typeof data) + strInfo);
+	// */
+}
+
+// 바이트 배열을 16진수 문자열로 변경 
+Module.prototype.convertByteArrayToHexString = function(data)
+{
+	let strHexArray = "";
+	let strHex;
+
+	if( typeof data == "object" && data.length > 1 )
+	{
+		for(let i=0; i<data.length; i++)
+		{
+			strHex = data[i].toString(16).toUpperCase();
+			strHexArray += " ";
+			if( strHex.length == 1 )
+				strHexArray += "0";
+			strHexArray += strHex;
+		}
+		strHexArray = strHexArray.substr(1, strHexArray.length - 1);
+	}
+	else
+	{
+		strHexArray = data.toString();
+	}
+	
+	return strHexArray;
+}
 
