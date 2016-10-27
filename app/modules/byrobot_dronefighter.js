@@ -14,43 +14,14 @@
 function Module()
 {
 	// -- JSON Objects ----------------------------------------------------------------
-    // LedModeColor
-	this.ledModeColor =
-	{
-		mode: 0,
-		r: 0,
-		g: 0,
-		b: 0,
-		interval: 0
-	}
-
-	// LedEventColor
-	this.ledEventColor =
-	{
-		event: 0,
-		r: 0,
-		g: 0,
-		b: 0,
-		interval: 0,
-		repeat: 0,
-	}
-
-	// Control
-	this.control =
-	{
-		roll: 0,
-		pitch: 0,
-		yaw: 0,
-		throttle: 0
-	}
 
 	// Attitude
 	this.attitude =
 	{
 		_updated: 0,
-		roll: 0,
-		pitch : 0,
-		yaw: 0
+		attitude_roll: 0,
+		attitude_pitch : 0,
+		attitude_yaw: 0
 	}
 
 	// UpdateInformation
@@ -143,35 +114,13 @@ module.exports = new Module();
 Module.prototype.resetData = function()
 {
 	// -- JSON Objects ----------------------------------------------------------------
-	// Entry -> Device
-	let ledModeColor		= this.ledModeColor;
-	ledModeColor.mode		= 0;
-	ledModeColor.r			= 0;
-	ledModeColor.g			= 0;
-	ledModeColor.b			= 0;
-	ledModeColor.interval	= 0;
-	
-	let ledEventColor		= this.ledEventColor;
-	ledEventColor.event		= 0;
-	ledEventColor.r			= 0;
-	ledEventColor.g			= 0;
-	ledEventColor.b			= 0;
-	ledEventColor.interval	= 0;
-	ledEventColor.repeat	= 0;
 
-	let control				= this.control;
-	control.roll			= 0;
-	control.pitch			= 0;
-	control.yaw				= 0;
-	control.throttle		= 0;
-	
 	// Device -> Entry 
 	let attitude			= this.attitude;
 	attitude._updated		= 0;
-	attitude.roll			= 0;
-	attitude.pitch			= 0;
-	attitude.yaw			= 0;
-
+	attitude.attitude_roll	= 0;
+	attitude.attitude_pitch	= 0;
+	attitude.attitude_yaw	= 0;
 
 	// -- Hardware ----------------------------------------------------------------
 	this.bufferReceive		= [];		// 데이터 수신 버퍼
@@ -211,12 +160,7 @@ var DataType =
 	CONTROL_ROLL:			'control_roll',
 	CONTROL_PITCH:			'control_pitch',
 	CONTROL_YAW:			'control_yaw',
-	CONTROL_THROTTLE:		'control_throttle',
-
-	// Attitude
-	ATTITUDE_ROLL:			'attitude_roll',
-	ATTITUDE_PITCH:			'attitude_pitch',
-	ATTITUDE_YAW:			'attitude_yaw'
+	CONTROL_THROTTLE:		'control_throttle'
 }
 	
 /***************************************************************************************
@@ -267,12 +211,11 @@ Module.prototype.handlerForEntry = function(handler)
 		// Start Code
 		this.addStartCode();
 		
-		let ledModeColor = this.ledModeColor;
-		ledModeColor.mode		= handler.e(DataType.LEDMODECOLOR_MODE)			? handler.read(DataType.LEDMODECOLOR_MODE)		: 0;
-		ledModeColor.r			= handler.e(DataType.LEDMODECOLOR_R)			? handler.read(DataType.LEDMODECOLOR_R)			: 0;
-		ledModeColor.g			= handler.e(DataType.LEDMODECOLOR_G)			? handler.read(DataType.LEDMODECOLOR_G)			: 0;
-		ledModeColor.b			= handler.e(DataType.LEDMODECOLOR_B)			? handler.read(DataType.LEDMODECOLOR_B)			: 0;
-		ledModeColor.interval	= handler.e(DataType.LEDMODECOLOR_INTERVAL)		? handler.read(DataType.LEDMODECOLOR_INTERVAL)	: 0;
+		let ledModeColor_mode		= handler.e(DataType.LEDMODECOLOR_MODE)			? handler.read(DataType.LEDMODECOLOR_MODE)		: 0;
+		let ledModeColor_r			= handler.e(DataType.LEDMODECOLOR_R)			? handler.read(DataType.LEDMODECOLOR_R)			: 0;
+		let ledModeColor_g			= handler.e(DataType.LEDMODECOLOR_G)			? handler.read(DataType.LEDMODECOLOR_G)			: 0;
+		let ledModeColor_b			= handler.e(DataType.LEDMODECOLOR_B)			? handler.read(DataType.LEDMODECOLOR_B)			: 0;
+		let ledModeColor_interval	= handler.e(DataType.LEDMODECOLOR_INTERVAL)		? handler.read(DataType.LEDMODECOLOR_INTERVAL)	: 0;
 
 		let indexStart = this.bufferTransfer.length;		// 배열에서 데이터를 저장하기 시작하는 위치
 		let dataLength = 5;									// 데이터의 길이
@@ -282,11 +225,11 @@ Module.prototype.handlerForEntry = function(handler)
 		this.bufferTransfer.push(dataLength);				// Data Length
 
 		// Data Array
-		this.bufferTransfer.push(ledModeColor.mode);
-		this.bufferTransfer.push(ledModeColor.r);
-		this.bufferTransfer.push(ledModeColor.g);
-		this.bufferTransfer.push(ledModeColor.b);
-		this.bufferTransfer.push(ledModeColor.interval);
+		this.bufferTransfer.push(ledModeColor_mode);
+		this.bufferTransfer.push(ledModeColor_r);
+		this.bufferTransfer.push(ledModeColor_g);
+		this.bufferTransfer.push(ledModeColor_b);
+		this.bufferTransfer.push(ledModeColor_interval);
 
 		// CRC16
 		this.addCRC16(indexStart, dataLength);
@@ -298,15 +241,14 @@ Module.prototype.handlerForEntry = function(handler)
 		// Start Code
 		this.addStartCode();
 		
-		let ledEventColor = this.ledEventColor;
-		ledEventColor.event		= handler.e(DataType.LEDEVENTCOLOR_EVENT)		? handler.read(DataType.LEDEVENTCOLOR_EVENT)	: 0;
-		ledEventColor.r			= handler.e(DataType.LEDEVENTCOLOR_R)			? handler.read(DataType.LEDEVENTCOLOR_R)		: 0;
-		ledEventColor.g			= handler.e(DataType.LEDEVENTCOLOR_G)			? handler.read(DataType.LEDEVENTCOLOR_G)		: 0;
-		ledEventColor.b			= handler.e(DataType.LEDEVENTCOLOR_B)			? handler.read(DataType.LEDEVENTCOLOR_B)		: 0;
-		ledEventColor.interval	= handler.e(DataType.LEDEVENTCOLOR_INTERVAL)	? handler.read(DataType.LEDEVENTCOLOR_INTERVAL)	: 0;
-		ledEventColor.repeat	= handler.e(DataType.LEDEVENTCOLOR_REPEAT)		? handler.read(DataType.LEDEVENTCOLOR_REPEAT)	: 0;
+		let ledEventColor_event		= handler.e(DataType.LEDEVENTCOLOR_EVENT)		? handler.read(DataType.LEDEVENTCOLOR_EVENT)	: 0;
+		let ledEventColor_r			= handler.e(DataType.LEDEVENTCOLOR_R)			? handler.read(DataType.LEDEVENTCOLOR_R)		: 0;
+		let ledEventColor_g			= handler.e(DataType.LEDEVENTCOLOR_G)			? handler.read(DataType.LEDEVENTCOLOR_G)		: 0;
+		let ledEventColor_b			= handler.e(DataType.LEDEVENTCOLOR_B)			? handler.read(DataType.LEDEVENTCOLOR_B)		: 0;
+		let ledEventColor_interval	= handler.e(DataType.LEDEVENTCOLOR_INTERVAL)	? handler.read(DataType.LEDEVENTCOLOR_INTERVAL)	: 0;
+		let ledEventColor_repeat	= handler.e(DataType.LEDEVENTCOLOR_REPEAT)		? handler.read(DataType.LEDEVENTCOLOR_REPEAT)	: 0;
 
-		let indexStart = this.bufferTransfer.length;	// 배열에서 데이터를 저장하기 시작하는 위치
+		let indexStart = this.bufferTransfer.length;		// 배열에서 데이터를 저장하기 시작하는 위치
 		let dataLength = 6;									// 데이터의 길이
 
 		// Header
@@ -314,12 +256,12 @@ Module.prototype.handlerForEntry = function(handler)
 		this.bufferTransfer.push(dataLength);				// Data Length
 
 		// Data Array
-		this.bufferTransfer.push(ledEventColor.event);
-		this.bufferTransfer.push(ledEventColor.r);
-		this.bufferTransfer.push(ledEventColor.g);
-		this.bufferTransfer.push(ledEventColor.b);
-		this.bufferTransfer.push(ledEventColor.interval);
-		this.bufferTransfer.push(ledEventColor.repeat);
+		this.bufferTransfer.push(ledEventColor_event);
+		this.bufferTransfer.push(ledEventColor_r);
+		this.bufferTransfer.push(ledEventColor_g);
+		this.bufferTransfer.push(ledEventColor_b);
+		this.bufferTransfer.push(ledEventColor_interval);
+		this.bufferTransfer.push(ledEventColor_repeat);
 
 		// CRC16
 		this.addCRC16(indexStart, dataLength);
@@ -331,13 +273,12 @@ Module.prototype.handlerForEntry = function(handler)
 		// Start Code
 		this.addStartCode();
 		
-		let control = this.control;
-		control.roll			= handler.e(DataType.CONTROL_ROLL)				? handler.read(DataType.CONTROL_ROLL)			: 0;
-		control.pitch			= handler.e(DataType.CONTROL_PITCH)				? handler.read(DataType.CONTROL_PITCH)			: 0;
-		control.yaw				= handler.e(DataType.CONTROL_YAW)				? handler.read(DataType.CONTROL_YAW)			: 0;
-		control.throttle		= handler.e(DataType.CONTROL_THROTTLE)			? handler.read(DataType.CONTROL_THROTTLE)		: 0;
+		let control_roll			= handler.e(DataType.CONTROL_ROLL)				? handler.read(DataType.CONTROL_ROLL)			: 0;
+		let control_pitch			= handler.e(DataType.CONTROL_PITCH)				? handler.read(DataType.CONTROL_PITCH)			: 0;
+		let control_yaw				= handler.e(DataType.CONTROL_YAW)				? handler.read(DataType.CONTROL_YAW)			: 0;
+		let control_throttle		= handler.e(DataType.CONTROL_THROTTLE)			? handler.read(DataType.CONTROL_THROTTLE)		: 0;
 
-		let indexStart = this.bufferTransfer.length;	// 배열에서 데이터를 저장하기 시작하는 위치
+		let indexStart = this.bufferTransfer.length;		// 배열에서 데이터를 저장하기 시작하는 위치
 		let dataLength = 4;									// 데이터의 길이
 
 		// Header
@@ -345,10 +286,10 @@ Module.prototype.handlerForEntry = function(handler)
 		this.bufferTransfer.push(dataLength);				// Data Length
 
 		// Data Array
-		this.bufferTransfer.push(control.roll);
-		this.bufferTransfer.push(control.pitch);
-		this.bufferTransfer.push(control.yaw);
-		this.bufferTransfer.push(control.throttle);
+		this.bufferTransfer.push(control_roll);
+		this.bufferTransfer.push(control_pitch);
+		this.bufferTransfer.push(control_yaw);
+		this.bufferTransfer.push(control_throttle);
 
 		// CRC16
 		this.addCRC16(indexStart, dataLength);
@@ -399,7 +340,7 @@ Module.prototype.tansferForEntry = function(handler)
 			}
 
 			attitude._updated == false;
-			this.log("Module.prototype.tansferForEntry()", attitude);
+			this.log("Module.prototype.tansferForEntry() / attitude", "");
 		}
 	}
 }
@@ -549,9 +490,11 @@ Module.prototype.handlerForDevice = function()
 			// Device -> Entry 
 			let attitude			= this.attitude;
 			attitude._updated		= true;
-			attitude.roll			= ((this.dataBlock[1]) << 8) + this.dataBlock[0];
-			attitude.pitch			= ((this.dataBlock[3]) << 8) + this.dataBlock[2];
-			attitude.yaw			= ((this.dataBlock[5]) << 8) + this.dataBlock[4];
+			attitude.attitude_roll	= this.extractInt16(this.dataBlock, 0);
+			attitude.attitude_pitch	= this.extractInt16(this.dataBlock, 2);
+			attitude.attitude_yaw	= this.extractInt16(this.dataBlock, 4);
+
+			console.log("handlerForDevice - attitude: " + attitude.attitude_roll + ", " + attitude.attitude_pitch + ", " + attitude.attitude_yaw);
 		}
 		break;
 
@@ -562,9 +505,9 @@ Module.prototype.handlerForDevice = function()
 			let updateInformation			= this.updateInformation;
 			updateInformation._updated		= true;
 			updateInformation.modeUpdate	= this.dataBlock[0];		// u8
-			updateInformation.deviceType	= ((this.dataBlock[4]) << 24) + ((this.dataBlock[3]) << 16) + ((this.dataBlock[2]) << 8) + this.dataBlock[1];		// u32
+			updateInformation.deviceType	= this.extractUInt32(this.dataBlock, 1);		// u32
 			updateInformation.imageType		= this.dataBlock[5];		// u8
-			updateInformation.imageVersion	= ((this.dataBlock[7]) << 8) + this.dataBlock[6];	// u16
+			updateInformation.imageVersion	= this.extractUInt16(this.dataBlock, 6);	// u16
 			updateInformation.year			= this.dataBlock[8];		// u8
 			updateInformation.month			= this.dataBlock[9];		// u8
 			updateInformation.day			= this.dataBlock[10];		// u8
@@ -574,6 +517,46 @@ Module.prototype.handlerForDevice = function()
 	default:
 		break;
 	}
+}
+
+// 자바스크립트에서 바이너리 핸들링
+// http://mohwa.github.io/blog/javascript/2015/08/31/binary-inJS/
+Module.prototype.extractInt16 = function(dataArray, startIndex)
+{
+	let value = this.extractUInt16(dataArray, startIndex);
+	if( (value & 0x8000) != 0)
+		value = -(0x10000 - value);
+	return value;
+}
+
+Module.prototype.extractUInt16 = function(dataArray, startIndex)
+{
+	if( dataArray.length >= startIndex + 2 )
+	{
+		let value = ((dataArray[startIndex + 1]) << 8) + dataArray[startIndex];
+		return value;
+	}
+	else
+		return 0;
+}
+
+Module.prototype.extractInt32 = function(dataArray, startIndex)
+{
+	let value = this.extractUInt32(dataArray, startIndex);
+	if( (value & 0x80000000) != 0)
+		value = -(0x100000000 - value);
+	return value;
+}
+
+Module.prototype.extractUInt32 = function(dataArray, startIndex)
+{
+	if( dataArray.length >= startIndex + 4 )
+	{
+		let value = ((dataArray[startIndex + 3]) << 24) + ((dataArray[startIndex + 2]) << 16) + ((dataArray[startIndex + 1]) << 8) + dataArray[startIndex];
+		return value;
+	}
+	else
+		return 0;
 }
 
 // 장치에 데이터 전송
@@ -738,7 +721,7 @@ Module.prototype.calcCRC16 = function(data, crc)
 Module.prototype.log = function(location, data)
 {
 	// 로그를 출력하지 않으려면 아래 주석을 활성화 할 것
-	//*
+	/*
 	let strInfo = "";
 
 	switch( typeof data )
