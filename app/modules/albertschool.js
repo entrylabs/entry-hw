@@ -4,10 +4,14 @@ function Module() {
 		signalStrength: 0,
 		leftProximity: 0,
 		rightProximity: 0,
+		accelerationX: 0,
+		accelerationY: 0,
+		accelerationZ: 0,
 		positionX: -1,
 		positionY: -1,
 		orientation: -200,
 		light: 0,
+		temperature: 0,
 		battery: 0,
 		frontOid: -1,
 		backOid: -1
@@ -59,11 +63,11 @@ Module.prototype.toHex = function(number) {
 	if(value.length > 1) return value;
 	else return '0' + value;
 };
-	
+
 Module.prototype.toHex3 = function(number) {
 	var value = parseInt(number);
 	if(value < 0) value += 0x1000000;
-	
+
 	value = value.toString(16).toUpperCase();
 	var result = '';
 	for(var i = value.length; i < 6; ++i) {
@@ -98,13 +102,14 @@ Module.prototype.validateLocalData = function(data) {
 Module.prototype.calculateBattery = function(value) {
 	var battery = this.battery;
 	var calculate = function(data) {
-		if(data >= 165) data = (data - 165) * 1.889 + 15.0;
-		else data = data - 150;
+		if(data >= 183) data = (data - 183) * 3.75 + 25.0;
+		else if(data >= 170) data = (data - 170) * 0.77 + 15.0;
+		else data = data - 155;
 		if(data > 100) data = 100;
 		else if(data < 0) data = 0;
 		return parseInt(data);
 	};
-	
+
 	if(!battery.data) {
 		battery.data = new Array(256);
 		for(var i = 0; i < 256; ++i) {
@@ -175,11 +180,11 @@ Module.prototype.handleLocalData = function(data) { // data: string
 		value = parseInt(str, 16);
 		sensory.light = value;
 		// oid
-		str = data.slice(19, 20);
+		str = data.slice(18, 20);
 		var low = parseInt(str, 16);
-		str = data.slice(20, 21);
+		str = data.slice(20, 22);
 		var mid = parseInt(str, 16);
-		str = data.slice(21, 22);
+		str = data.slice(22, 24);
 		var high = parseInt(str, 16);
 		var v1 = this.calculateOid(low, mid, high);
 		var oid = this.oid;
@@ -192,11 +197,11 @@ Module.prototype.handleLocalData = function(data) { // data: string
 				sensory.frontOid = v1;
 			}
 		}
-		str = data.slice(23, 24);
+		str = data.slice(24, 26);
 		low = parseInt(str, 16);
-		str = data.slice(24, 25);
+		str = data.slice(26, 28);
 		mid = parseInt(str, 16);
-		str = data.slice(25, 26);
+		str = data.slice(28, 30);
 		high = parseInt(str, 16);
 		var v2 = this.calculateOid(low, mid, high);
 		if(v2 == -2) {
@@ -208,18 +213,35 @@ Module.prototype.handleLocalData = function(data) { // data: string
 				sensory.backOid = v2;
 			}
 		}
+		// acceleration
+		str = data.slice(30, 32);
+		var flag = parseInt(str, 16);
+		str = data.slice(32, 36);
+		value = parseInt(str, 16);
+		if(value > 0x7fff) value -= 0x10000;
+		if(flag == 0) sensory.accelerationX = parseInt(value/4);
+		else if(flag == 1) sensory.accelerationY = parseInt(value/4);
+		else if(flag == 2) sensory.accelerationZ = parseInt(value/4);
+		// temperature
+		str = data.slice(36, 38);
+		value = parseInt(str, 16);
+		if(value > 0x7f) value -= 0x100;
+		value = value / 2.0 + 24;
+		value = value.toFixed(1);
+		sensory.temperature = value;
+
 		var motoring = this.motoring;
 		if(motoring.padWidth > 0 && motoring.padHeight > 0) {
 			if(v1 > 0 && v1 <= 40000) {
 				var x = (v1 - 1) % motoring.padWidth; // x
-				var y = parseInt(motoring.padHeight - (v1 - 1) / motoring.padWidth - 1); // y
+				var y = motoring.padHeight - parseInt((v1 - 1) / motoring.padWidth) - 1; // y
 				if(x >= 0 && x < motoring.padWidth) sensory.positionX = x;
 				if(y >= 0 && y < motoring.padHeight) sensory.positionY = y;
 			}
 			if(v2 > 0 && v2 <= 40000 && sensory.positionX >= 0 && sensory.positionY >= 0)
 			{
 				var x = (v2 - 1) % motoring.padWidth;
-				var y = parseInt(motoring.padHeight - (v2 - 1) / motoring.padWidth - 1);
+				var y = motoring.padHeight - parseInt((v2 - 1) / motoring.padWidth) - 1;
 				if(x >= 0 && x < motoring.padWidth && y >= 0 && y < motoring.padHeight) {
 					x = sensory.positionX - x;
 					y = sensory.positionY - y;
