@@ -1,0 +1,28 @@
+{
+	"id": "0A0101",
+	"name": {
+		"en": "Smart Board",
+		"ko": "스마트 보드"
+	},
+	"icon" : "smartboard.png",
+	"module": "smartboard.js",
+	"url": "http://www.jeilscience.co.kr",
+	"email": "webmaster@jeilscience.or.kr",
+	"driver": {
+		"win32-ia32": "CDM21218_Setup/CDM21218_Setup.exe",
+		"win32-x64": "CDM21218_Setup/CDM21218_Setup.exe"
+	},
+    "reconnect" : true,
+    "firmware": "smartboard",
+	"entry": {
+		"protocol": "json"
+	},
+	"hardware": {
+		"type": "serial",
+		"control": "slave",
+		"duration": 32,
+		"vendor": "FTDI",
+		"baudRate": 9600,
+		"firmwarecheck" : true
+	}
+}
