@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+	<script src="./node_modules/socket.io-client/socket.io.js"></script>
+</head>
+<body>
+	<div id="socketId"></div>
+	<div id="isMatched">연결중....</div>
+	<br/>
+	<br/>
+	<button id="gogo">엔트리 하드웨어 연결</button>
+	<button id="gogo2">엔트리 하드웨어에 데이터 전송</button>
+	<iframe id="gogojang" width="1" height="1" style="visibility:hidden" onload="console.log('aa');" onerror="console.log('bb');"></iframe>
+</body>
+<script type="text/javascript">
+	var socket = io('https://hardware.play-entry.org:23518', {query: 'webClient'});
+	window.socket = socket;
+	socket.on('connect', function () {
+		console.log('connect', arguments)
+		$('#socketId').text(socket.id);
+
+		socket.on('matched', function () {
+			console.log('matched');
+			$('#isMatched').text('연결됨');
+		});
+		socket.on('matching', function () {
+			console.log('matching');
+			$('#isMatched').text('연결중....');
+		});
+		socket.on('mode', function (mode) {
+			socket.mode = mode;
+		});
+		socket.on('message', function (data) {
+			console.log(data);
+			socket.emit('message', {type: 'utf8', mode: socket.mode, utf8Data: 'clientSend'});
+		});
+
+	});
+	
+	var ifr = $('#gogojang')[0];
+	$('#gogo').on('click', function() {
+		// $.ajax('entryhw://test');
+		// _httpGet('entryhw://test', function() {})
+
+		ifr.src = 'entryhw://-clientId:' + socket.id;
+		console.log(socket.id);
+	});	
+	$('#gogo2').on('click', function() {
+		socket.emit('message', {type: 'utf8', mode: socket.mode, utf8Data: 'clientSend'});
+	});
+
+
+</script>
+</html>

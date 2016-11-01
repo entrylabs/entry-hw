@@ -42,6 +42,12 @@
 	$('.alertMsg .alertMsg2').text(translator.translate('contact the hardware company to resolve the problem.'));
 	$('#errorAlert .comment').text(translator.translate('* Entry Labs is not responsible for the extension program and hardware products on this site.'));
 
+
+	$('#select_port_box .title span').text(translator.translate('Select'));
+	$('#select_port_box .description').text(translator.translate('Select the COM PORT to connect'));
+	$('#select_port_box #btn_select_port_cancel').text(translator.translate('Cancel'));
+	$('#select_port_box #btn_select_port').text(translator.translate('Connect'));
+
 	$('#reference .emailTitle').text(translator.translate('E-Mail : '));
 	$('#reference .urlTitle').text(translator.translate('WebSite : '));
 
@@ -79,6 +85,7 @@
 			$('#hwPanel').css('display', 'none');
 			ui.showIeGuide();
 			this.hideAlert();
+			$('#back.navigate_button').removeClass('active');
 		},
 		showConnecting: function() {
 			$('#title').text(translator.translate('hardware > connecting'));
@@ -102,25 +109,27 @@
 			this.showAlert(translator.translate('Hardware device is disconnected. Please restart this program.'));
 		},
 		showAlert: function(message, duration) {
-			$('#alert').text(message);
+			// console.log('showAlert');
+			if(!$('#hwList').is(':visible')) {
+				$('#alert').text(message);
 
-			$('#alert').css({
-				height: '0px'
-			});
-			$('#alert').animate({
-				height: '35px'
-			});
-
-			if (duration) {
-				setTimeout(function(){
-					$('#alert').animate({
-						height: '0px'
-					});
-				}, duration);
+				$('#alert').css({
+					height: '0px'
+				});
+				$('#alert').animate({
+					height: '35px'
+				});
+				if (duration) {
+					setTimeout(function(){
+						$('#alert').animate({
+							height: '0px'
+						});
+					}, duration);
+				}
 			}
 		},
 		hideAlert: function(message) {
-			$('#alert').animate({
+			$('#alert').stop(true, true).animate({
 				height: '0px'
 			});
 		},
@@ -137,6 +146,7 @@
 					'<h2 class="hwTitle">' + name + '</h2></div>');
 
 			$('#' + config.id).click(function() {
+				$('#back.navigate_button').addClass('active');
 				if(config.hardware.type === 'bluetooth') {
 					is_select_port = true;
 				}
@@ -155,6 +165,7 @@
 				ui.hardware = config.id.substring(0, 4);
 				ui.numLevel = 1;
 				ui.showConnecting();
+				config.serverMode = serverMode;
 				router.startScan(config);
 				window.currentConfig = config;
 
@@ -257,15 +268,14 @@
 	    			flasher.flash(
 	    				firmware,
 	    				port,
-	    				baudRate
-	    				,
+	    				baudRate,
 	    				function(error, stdout, stderr) {
 	    					$('#firmwareButtonSet').show();
 	    					ui.showAlert(translator.translate("Firmware Uploaded!"));
 	    					router.startScan(config);
 	    				}
 	    			);
-	            }, 200);
+	            }, 700);
 			} catch(e) {
 				$('#firmwareButtonSet').show();
 			}
@@ -290,11 +300,22 @@
 		}
 	};
 
-	$('#back.navigate_button').click(function(e) {
+	$('body').on('keyup', function(e) {
+		if(e.keyCode === 8) {
+			$('#back.navigate_button.active').trigger('click');
+		}
+	});	
+
+	$('body').on('click', '#back.navigate_button.active' ,function(e) {
 		is_select_port = true;
 		delete window.currentConfig.this_com_port;
 		ui.showRobotList();
-		router.close();
+	});
+
+	$('body').on('click', '#refresh' ,function(e) {
+		if(confirm('프로그램을 재시작 하시겠습니까?')) {
+			ipcRenderer.send('reload');
+		}
 	});
 
 	$('.chromeButton').click(function(e) {
@@ -336,7 +357,7 @@
 		}
 	});
 
-	$('#btn_select_port_cancel').click(function(e) {
+	$('#select_port_box .cancel_event').click(function(e) {
 		clear_select_port();
 		clearTimeout(select_port_connection);
 		ui.showRobotList();
@@ -353,8 +374,24 @@
 	var _com_port = '';
 	var is_select_port = true;
 	var select_port_connection;
+	var serverMode = 0;
 	// state
+	router.on('serverMode', function(state, data) {
+		console.log(arguments);
+	});
+
+	ipcRenderer.on('serverMode', function(event, mode) {
+		serverMode = mode;
+		console.log('serverMode', mode);
+		if(mode === 1) {
+			$('#cloud_icon').show();
+		} else {
+			$('#cloud_icon').hide();
+		}
+	});
+
 	router.on('state', function(state, data) {
+		console.log(state);
 		if (state === "select_port") {
 			router.close();
 			var _temp = JSON.stringify(data);
