@@ -149,12 +149,12 @@ var DataType =
 	LEDMODECOLOR_INTERVAL:	'ledModeColor_interval',
 
 	// Led Event
-	LEDEVENTCOLOR_EVENT:	'ledEvent_event',
-	LEDEVENTCOLOR_R:		'ledEvent_r',
-	LEDEVENTCOLOR_G:		'ledEvent_g',
-	LEDEVENTCOLOR_B:		'ledEvent_b',
-	LEDEVENTCOLOR_INTERVAL:	'ledEvent_interval',
-	LEDEVENTCOLOR_REPEAT:	'ledEvent_repeat',
+	LEDEVENTCOLOR_EVENT:	'ledEventColor_event',
+	LEDEVENTCOLOR_R:		'ledEventColor_r',
+	LEDEVENTCOLOR_G:		'ledEventColor_g',
+	LEDEVENTCOLOR_B:		'ledEventColor_b',
+	LEDEVENTCOLOR_INTERVAL:	'ledEventColor_interval',
+	LEDEVENTCOLOR_REPEAT:	'ledEventColor_repeat',
 
 	// Control
 	CONTROL_ROLL:			'control_roll',
@@ -203,6 +203,13 @@ Module.prototype.checkUpdateInformation = function(data, config)
 
 // Entry에서 받은 데이터 블럭 처리
 // Entry에서 수신 받은 데이터는 bufferTransfer에 바로 등록
+//
+// * entryjs에서 변수값을 entry-hw로 전송할 때 절차
+// 	 1. Entry.hw.setDigitalPortValue("", value) 명령을 사용하여 지정한 변수의 값을 등록
+//   2. Entry.hw.update() 를 사용하여 등록된 값 전체 전달
+//   3. delete Entry.hw.sendQueue[""] 를 사용하여 전달한 값을 삭제
+//   위와 같은 절차로 데이터를 전송해야 1회만 전송 됨.
+//   Entry.hw.update를 호출하면 등록된 값 전체를 한 번에 즉시 전송하는 것으로 보임
 Module.prototype.handlerForEntry = function(handler)
 {
 	// LedModeColor
@@ -293,9 +300,11 @@ Module.prototype.handlerForEntry = function(handler)
 
 		// CRC16
 		this.addCRC16(indexStart, dataLength);
+
+		this.log("Module.prototype.handlerForEntry() / Control / roll: " + control_roll + ", pitch: " + control_pitch + ", yaw: " + control_yaw + ", throttle: " + control_throttle, this.bufferTransfer);
 	}
 
-	this.log("Module.prototype.handlerForEntry()", this.bufferTransfer);
+	//this.log("Module.prototype.handlerForEntry()", this.bufferTransfer);
 }
 
 // 시작 코드 추가
@@ -340,7 +349,7 @@ Module.prototype.tansferForEntry = function(handler)
 			}
 
 			attitude._updated == false;
-			this.log("Module.prototype.tansferForEntry() / attitude", "");
+			//this.log("Module.prototype.tansferForEntry() / attitude", "");
 		}
 	}
 }
@@ -362,7 +371,7 @@ Module.prototype.receiverForDevice = function(data)
 		this.receiveBuffer.push(data[i]);
 	}
 
-	this.log("Module.prototype.receiverForDevice()", this.receiveBuffer);
+	//this.log("Module.prototype.receiverForDevice()", this.receiveBuffer);
 
 	// 버퍼로부터 데이터를 읽어 하나의 완성된 데이터 블럭으로 변환
 	while(this.receiveBuffer.length > 0)
@@ -480,7 +489,7 @@ Module.prototype.receiverForDevice = function(data)
 // 장치로부터 받은 데이터 블럭 처리
 Module.prototype.handlerForDevice = function()
 {
-	this.log("Module.prototype.handlerForDevice()", this.dataBlock);
+	//this.log("Module.prototype.handlerForDevice()", this.dataBlock);
 
 	switch( this.dataType )
 	{
@@ -505,7 +514,7 @@ Module.prototype.handlerForDevice = function()
 			let updateInformation			= this.updateInformation;
 			updateInformation._updated		= true;
 			updateInformation.modeUpdate	= this.dataBlock[0];		// u8
-			updateInformation.deviceType	= this.extractUInt32(this.dataBlock, 1);		// u32
+			updateInformation.deviceType	= this.extractUInt32(this.dataBlock, 1);	// u32
 			updateInformation.imageType		= this.dataBlock[5];		// u8
 			updateInformation.imageVersion	= this.extractUInt16(this.dataBlock, 6);	// u16
 			updateInformation.year			= this.dataBlock[8];		// u8
@@ -562,9 +571,9 @@ Module.prototype.extractUInt32 = function(dataArray, startIndex)
 // 장치에 데이터 전송
 Module.prototype.transferForDevice = function()
 {
-	// 예약된 요청이 없는 경우 데이터 요청 등록(현재는 자세 데이터 요청)
 	if( this.bufferTransfer == undefined || this.bufferTransfer.length == 0 )
 	{
+		// 예약된 요청이 없는 경우 데이터 요청 등록(현재는 자세 데이터 요청)
 		switch( this.countReqeustDevice % 10 )
 		{
 		case 0:
@@ -576,13 +585,25 @@ Module.prototype.transferForDevice = function()
 			break;
 		}
 	}
+	else
+	{
+		// 예약된 요청이 있는 경우에도 간헐적으로 장치 검색(연결 유지를 위해)
+		switch( this.countReqeustDevice % 10 )
+		{
+		case 0:
+			this.reserveLookupTarget(0x09);
+			break;
+
+		default:
+			break;
+		}
+	}
 
 	let arrayTransfer = this.bufferTransfer.slice(0);	// 전송할 데이터 배열
 	this.bufferTransfer = [];							// 기존 버퍼 비우기
-
-	this.log("Module.prototype.transferForDevice()", arrayTransfer);
-
 	this.countReqeustDevice++;
+
+	//this.log("Module.prototype.transferForDevice()", arrayTransfer);
 
 	return arrayTransfer;
 }
@@ -606,7 +627,7 @@ Module.prototype.reserveRequest = function(dataType)
 	// CRC16
 	this.addCRC16(indexStart, dataLength);
 
-	this.log("Module.prototype.reserveRequest()", this.bufferTransfer);
+	//this.log("Module.prototype.reserveRequest()", this.bufferTransfer);
 }
 
 // 장치 검색
@@ -632,7 +653,7 @@ Module.prototype.reserveLookupTarget = function(target)
 	// CRC16
 	this.addCRC16(indexStart, dataLength);
 
-	this.log("Module.prototype.reserveLookupTarget()", this.bufferTransfer);
+	//this.log("Module.prototype.reserveLookupTarget()", this.bufferTransfer);
 }
 
 /***************************************************************************************
@@ -721,7 +742,7 @@ Module.prototype.calcCRC16 = function(data, crc)
 Module.prototype.log = function(location, data)
 {
 	// 로그를 출력하지 않으려면 아래 주석을 활성화 할 것
-	/*
+	//*
 	let strInfo = "";
 
 	switch( typeof data )
