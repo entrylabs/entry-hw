@@ -11,7 +11,7 @@
 		"win32-x64": "arduino/dpinst-amd64.exe"
 	},
     "reconnect" : true,
-	"firmware": "board_ext",
+	"firmware": "arduino_ext",
 	"entry": {
 		"protocol": "json"
 	},
@@ -21,7 +21,6 @@
 		"duration": 32,
 		"vendor": ["Arduino", "wch.cn", "FTDI"],
 		"baudRate": 115200,
-		"firmwarecheck": false,
-		"advertise": 2000
+		"firmwarecheck": false
 	}
 }
