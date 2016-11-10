@@ -109,7 +109,6 @@
 			this.showAlert(translator.translate('Hardware device is disconnected. Please restart this program.'));
 		},
 		showAlert: function(message, duration) {
-			// console.log('showAlert');
 			if(!$('#hwList').is(':visible')) {
 				$('#alert').text(message);
 
@@ -377,12 +376,11 @@
 	var serverMode = 0;
 	// state
 	router.on('serverMode', function(state, data) {
-		console.log(arguments);
+		// console.log(arguments);
 	});
 
 	ipcRenderer.on('serverMode', function(event, mode) {
 		serverMode = mode;
-		console.log('serverMode', mode);
 		if(mode === 1) {
 			$('#cloud_icon').show();
 		} else {
