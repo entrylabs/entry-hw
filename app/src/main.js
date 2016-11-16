@@ -144,7 +144,7 @@
 					'<img class="hwThumb" src="./modules/' + config.icon + '">' +
 					'<h2 class="hwTitle">' + name + '</h2></div>');
 
-			$('#' + config.id).click(function() {
+			$('#' + config.id).off('click').on('click', function() {
 				$('#back.navigate_button').addClass('active');
 				if(config.hardware.type === 'bluetooth') {
 					is_select_port = true;
@@ -174,8 +174,8 @@
 				if(config.url) {
 					$('#url').text(config.url);
 					$('#urlArea').show();
-					$('#url').unbind('click');
-					$('#url').click(function() {
+					$('#url').off('click');
+					$('#url').on('click', function() {
 						shell.openItem(config.url);
 					});
 				} else {
@@ -185,8 +185,7 @@
 				if(config.email) {
 					$('#email').text(config.email);
 					$('#emailArea').show();
-					$('#email').unbind('click');
-					$('#email').click(function() {
+					$('#email').off('click').on('click', function() {
 						clipboard.writeText(config.email);
 						alert(translator.translate('Copied to clipboard'));
 					});
@@ -198,13 +197,13 @@
 				$('#firmware').hide();
 				$('#extFirmware').hide();				
 				$('#extFirmwarea').hide();	
-				$('#firmware').on('click', function () {
+				$('#firmware').off('click').on('click', function () {
 					ui.flashFirmware(this.firmware, config);
 				});
-				$('#extFirmware').on('click', function () {
+				$('#extFirmware').off('click').on('click', function () {
 					ui.flashFirmware(this.firmware, config);
 				});
-				$('#extFirmwarea').on('click', function () {
+				$('#extFirmwarea').off('click').on('click', function () {
 					ui.flashFirmware(this.firmware, config);
 				});
 				
@@ -252,13 +251,12 @@
 			});
 		},
 		flashFirmware: function(firmware, config) {
-			$('#firmwareButtonSet').hide();
 			try{
 				if (!router.connector) {
 					alert(translator.translate('Hardware Device Is Not Connected'));
-					$('#firmwareButtonSet').show();
 					return;
 				}
+				$('#firmwareButtonSet').hide();
 				ui.showAlert(translator.translate("Firmware Uploading..."));
 				var port = router.connector.sp.path;
 				var baudRate = config.firmwareBaudRate;
@@ -269,12 +267,18 @@
 	    				port,
 	    				baudRate,
 	    				function(error, stdout, stderr) {
-	    					$('#firmwareButtonSet').show();
-	    					ui.showAlert(translator.translate("Firmware Uploaded!"));
-	    					router.startScan(config);
+	    					if(error) {
+	    						setTimeout(function () {
+	    							ui.flashFirmware(firmware, config);
+	    						}, 100);
+	    					} else {
+		    					$('#firmwareButtonSet').show();
+		    					ui.showAlert(translator.translate("Firmware Uploaded!"));
+		    					router.startScan(config);
+	    					}
 	    				}
 	    			);
-	            }, 700);
+	            }, 500);
 			} catch(e) {
 				$('#firmwareButtonSet').show();
 			}
