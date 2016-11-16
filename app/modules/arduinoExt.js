@@ -85,11 +85,13 @@ Module.prototype.requestInitialData = function() {
 };
 
 Module.prototype.checkInitialData = function(data, config) {
-    var datas = this.getDataByBuffer(data);
-    var isValidData = datas.some(function (data) {
-        return (data.length > 4 && data[0] === 255 && data[1] === 85);
-    });
-    return isValidData;
+    return true;
+    // 이후에 체크 로직 개선되면 처리
+    // var datas = this.getDataByBuffer(data);
+    // var isValidData = datas.some(function (data) {
+    //     return (data.length > 4 && data[0] === 255 && data[1] === 85);
+    // });
+    // return isValidData;
 };
 
 Module.prototype.afterConnect = function(that, cb) {

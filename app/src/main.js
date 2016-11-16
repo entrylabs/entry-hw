@@ -250,15 +250,17 @@
 				}
 			});
 		},
-		flashFirmware: function(firmware, config) {
+		flashFirmware: function(firmware, config, prevPort) {
 			try{
-				if (!router.connector) {
+				if (!router.connector || (!router.connector.sp && !prevPort)) {
 					alert(translator.translate('Hardware Device Is Not Connected'));
+					ui.showConnecting();
+					$('#firmwareButtonSet').show();
 					return;
 				}
 				$('#firmwareButtonSet').hide();
 				ui.showAlert(translator.translate("Firmware Uploading..."));
-				var port = router.connector.sp.path;
+				var port = prevPort || router.connector.sp.path;
 				var baudRate = config.firmwareBaudRate;
 				router.close();
 	            setTimeout(function () {
@@ -269,7 +271,7 @@
 	    				function(error, stdout, stderr) {
 	    					if(error) {
 	    						setTimeout(function () {
-	    							ui.flashFirmware(firmware, config);
+	    							ui.flashFirmware(firmware, config, port);
 	    						}, 100);
 	    					} else {
 		    					$('#firmwareButtonSet').show();
