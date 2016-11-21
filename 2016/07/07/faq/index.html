@@ -201,73 +201,91 @@
 
 					<div class="post">
     <h1 class="post-title">FAQ</h1>
-    <span class="post-date">07 Jul 2016</span>
-    <p><strong>개발환경에 필요한게 일단 NodeJS이고, NodeJS를 깔면 npm 설치가 가능해지니 npm 설치로 grunt, grunt-cli, Electron-prebuilt 이 세가지의 패키지만 설치하면는 건가요?</strong></p>
+    <span class="post-date">07 Jul 2016</span> <p><strong>개발환경에 필요한게 일단 NodeJS이고, NodeJS를 깔면 npm 설치가 가능해지니 npm 설치로 grunt, grunt-cli, Electron-prebuilt 이 세가지의 패키지만 설치하면는 건가요?</strong></p>
 
 <p>개발환경은 그렇습니다. 혹시 패키징(빌드) 까지 필요하시다면 C++ 컴파일러(보통 VS 2015 Comunity), python 2.7.11 버전이 필요합니다.</p>
 
-<p><br />
+<p><br /><br />
 <strong>개발환경 세팅할때 환경변수 설정은 따로 필요없나요?</strong></p>
 
 <p>기본적으로 자동으로 환경변수 세팅이 완료됩니다. 하지만 개발자 PC의 세팅여부에 따라 따로 지정해야 동작할 여지도 있습니다.</p>
 
-<p><br />
+<p><br /><br />
 <strong>블록을 개발할때 쓸 IDE환경은 자바가 지원된다는 전제하에 아무거나 상관없습니까? <br />(ex. eclipse) 추천하는 것이 있다면 추천해주세요</strong></p>
 
 <p>자바스크립트 어시스트를 잘해 줄 수 있는 가볍운 텍스트 에디터를 추천합니다. 저희쪽에서 사용하는 에디터는 vim, sublime text, atom등이 있으며 개인적으로 sublime text를 추천합니다.</p>
 
-<p><br />
+<p><br /><br />
 <strong>하드웨어기기가 연결되어 있는 상태에서 소스 코딩작업을 한 후 git에 올리고, 펌웨어 다운을하면 실시간으로 개발한 블럭이 보여지나요?</strong></p>
 
-<p>블럭이 보여지는것과 git하고는 별개 라고 생각하시면 됩니다.
-git에 소스를 올리는 것은 실제 운영에 반영하기 위함 이구요.
+<p>블럭이 보여지는것과 git하고는 별개 라고 생각하시면 됩니다.<br />
+git에 소스를 올리는 것은 실제 운영에 반영하기 위함 이구요.<br />
 블록확인은 entryjs repository에 example/example.html 파일을 크롬에 띄워서 간편하게 확인하실수 있습니다.</p>
 
-<p><br />
+<p><br /><br />
 <strong>아두이노 계열 보드에 펌웨어 업로드 어떻게 하나요?</strong></p>
 
 <p>아두이노 우노 계열의 보드는 flasher폴더 하위에 하드웨어명.hex로 올려 놓고 하드웨어명.json 에서 하드웨어 명을 firmware로 지정하면 펌웨어 업로드가 가능합니다.</p>
 
-<p><br />
+<p><br /><br />
 <strong>블록 개발하는 소스의 위치가 어디인가요?</strong></p>
 
 <p>블록의 메인소스는 entryjs/src/workspace/block_entry.js 입니다.</p>
 
 </div>
-
 <div class="related">
     <h2>Related Posts</h2>
     <ul class="related-posts">
         
-            <li>
-                <h3>
+        <li>
+            <h3>
                     <a href="/entry-hw/2016/07/08/add_new_blocks4/">
                         하드웨어 블록 만들기
                         <small>08 Jul 2016</small>
                     </a>
                 </h3>
-            </li>
+        </li>
         
-            <li>
-                <h3>
+        <li>
+            <h3>
                     <a href="/entry-hw/2016/05/26/add_new_blocks3/">
                         각 블록 모양별 생성 방법
                         <small>26 May 2016</small>
                     </a>
                 </h3>
-            </li>
+        </li>
         
-            <li>
-                <h3>
+        <li>
+            <h3>
                     <a href="/entry-hw/2016/05/26/add_new_blocks2/">
                         블록 사용 등록
                         <small>26 May 2016</small>
                     </a>
                 </h3>
-            </li>
+        </li>
         
     </ul>
 </div>
+<div id="disqus_thread"></div>
+<script>
+/**
+ *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+ *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+/*
+var disqus_config = function () {
+this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+};
+*/
+(function() { // DON'T EDIT BELOW THIS LINE
+    var d = document,
+        s = d.createElement('script');
+    s.src = '//entryhw.disqus.com/embed.js';
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
 
 				</div>
 			</div>
