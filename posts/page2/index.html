@@ -210,13 +210,13 @@
 
     <span class="post-date">03 May 2016</span>
 
-    <h4 id="git-fork방법">Git Fork방법</h4>
+    <h4 id="git-fork">Git Fork방법</h4>
 
 <p>기본적으로는 GitHub의 Fork기능을 사용하여 저장소를 복사 하신뒤 본인의 Repo에서 작업하신 후 origin에 pull request를 보내는 것을 권장 합니다. 하지만, 해당 기능을 잘모를 실경우에는 repo를 clone하시고 작업하신후 작업본을 저희쪽에 전달해 주시면 됩니다.</p>
 
 <hr />
 
-<h5 id="github-기본사용법">GitHub 기본사용법</h5>
+<h5 id="github-">GitHub 기본사용법</h5>
 <ol>
   <li><a href="http://blog.outsider.ne.kr/865">깃허브를 이용하는 전체 흐름 이해하기 #1</a></li>
   <li><a href="http://blog.outsider.ne.kr/866">깃허브를 이용하는 전체 흐름 이해하기 #2</a></li>
@@ -234,18 +234,18 @@
 
     <span class="post-date">03 May 2016</span>
 
-    <h4 id="모듈추가">모듈추가</h4>
+    <h4 id="section">모듈추가</h4>
 <p>엔트리에 하드웨어를 추가하기 위해서 수반되는 가장 기본적인 단계 입니다.</p>
 
-<h4 id="모듈의-위치">모듈의 위치</h4>
-<p>엔트리가 Electron이 적용됨에 따라 모듈의 위치도 변경되었습니다.  <br />
+<h4 id="section-1">모듈의 위치</h4>
+<p>엔트리가 Electron이 적용됨에 따라 모듈의 위치도 변경되었습니다.<br />
 기존 상위폴더/modules에서 상위폴더/app/modules로 변경되었습니다.</p>
 
-<h4 id="모듈의-구성">모듈의 구성</h4>
-<p>모듈은 모듈명.js, 모듈명.json, 모듈명.png의 3가지로 구성됩니다.  <br />
+<h4 id="section-2">모듈의 구성</h4>
+<p>모듈은 모듈명.js, 모듈명.json, 모듈명.png의 3가지로 구성됩니다.<br />
 <img src="https://raw.githubusercontent.com/entrylabs/entry-hw/gh-pages/wiki-image/module/default.PNG" alt="모듈의 구성" /></p>
 
-<h5 id="모듈명json-구조">모듈명.json 구조</h5>
+<h5 id="json-">모듈명.json 구조</h5>
 <div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
     </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"하드웨어ID(엔트리와 사전규약 필요. ex.'010101')"</span><span class="p">,</span><span class="w">
     </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
@@ -282,7 +282,7 @@
 </span></code></pre>
 </div>
 
-<h5 id="모듈명js의-구조">모듈명.js의 구조</h5>
+<h5 id="js-">모듈명.js의 구조</h5>
 <div class="language-js highlighter-rouge"><pre class="highlight"><code><span class="kd">function</span> <span class="nx">Module</span><span class="p">()</span> <span class="p">{</span>
 <span class="c1">//모듈의 constructor</span>
 <span class="p">}</span>
