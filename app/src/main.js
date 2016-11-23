@@ -5,6 +5,10 @@
 
     // initialize options
     var options = {};
+    var viewMode = 'main';
+
+    var os = process.platform + '-' + (isOSWin64() ? 'x64' : process.arch);
+    var driverDefaultPath;
 
     // language
     var translator = require('./custom_modules/translator');
@@ -77,6 +81,7 @@
     var ui = {
         countRobot: 0,
         showRobotList: function() {
+            viewMode = 'main';
             router.close();
             router.stopScan();
             delete window.currentConfig;
@@ -145,6 +150,7 @@
                 '<h2 class="hwTitle">' + name + '</h2></div>');
 
             $('#' + config.id).off('click').on('click', function() {
+                viewMode = this.id;
                 $('#back.navigate_button').addClass('active');
 
                 var checkComPort = (config.select_com_port || config.hardware.type === 'bluetooth' || serverMode === 1) || false;
@@ -252,16 +258,30 @@
         },
         flashFirmware: function(firmware, config, prevPort) {
             try {
+                if(viewMode === 'main') {
+                    $('#firmwareButtonSet').show();
+                    return;
+                } else if(viewMode != config.id){
+                    $('#firmwareButtonSet').show();
+                    return;
+                }
+
                 if (!router.connector || (!router.connector.sp && !prevPort)) {
                     alert(translator.translate('Hardware Device Is Not Connected'));
                     ui.showConnecting();
                     $('#firmwareButtonSet').show();
                     return;
                 }
-                $('#firmwareButtonSet').hide();
-                ui.showAlert(translator.translate("Firmware Uploading..."));
+
+                if(prevPort && router.connector.sp && (prevPort != router.connector.sp.path)) {
+                    $('#firmwareButtonSet').show();
+                    return;
+                }
+
                 var port = prevPort || router.connector.sp.path;
                 var baudRate = config.firmwareBaudRate;
+                $('#firmwareButtonSet').hide();
+                ui.showAlert(translator.translate("Firmware Uploading..."));
                 router.close();
                 setTimeout(function() {
                     flasher.flash(
