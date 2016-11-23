@@ -146,9 +146,9 @@
 
 			$('#' + config.id).off('click').on('click', function() {
 				$('#back.navigate_button').addClass('active');
-				if(config.hardware.type === 'bluetooth') {
-					is_select_port = true;
-				}
+
+                var checkComPort = (config.select_com_port || config.hardware.type === 'bluetooth' || serverMode === 1) || false;
+                is_select_port = checkComPort;
 
 				if(Array.isArray(selectedList)) {
 					var newSelectList = selectedList.filter(function (item) {

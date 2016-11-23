@@ -297,10 +297,10 @@ Module.prototype.getDataByBuffer = function(buffer) {
 
 Module.prototype.disconnect = function(connect) {
     var self = this;
+    connect.close();
     if(self.sp) {
         delete self.sp;
     }
-    connect.close();
 };
 
 Module.prototype.reset = function() {
