@@ -1,7 +1,6 @@
 function Module() {
 	this.digitalValue = new Array(12);
 	this.analogValue = new Array(6);
-	console.log(A);
 	//this.remoteDigitalValue = new Array(12);
 	this.remoteDigitalValue = [0,0,0,0,0,0,0,0,0,0,0,0];
 	this.readablePorts = null;
