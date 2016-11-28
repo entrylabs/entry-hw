@@ -55,10 +55,28 @@
     $('#reference .emailTitle').text(translator.translate('E-Mail : '));
     $('#reference .urlTitle').text(translator.translate('WebSite : '));
 
-    $('#driver').text(translator.translate('Install Device Driver'));
     $('#firmware').text(translator.translate('Install Firmware'));
     $('#other-robot .text').text(translator.translate('Connect Other Hardware'));
     $('#entry .text').text(translator.translate('Show Entry Web Page'));
+
+    $('#driverButtonSet').on('click', 'button', function() {
+        if (!driverDefaultPath) {
+            var sourcePath = path.join(__dirname, 'drivers');
+            if (__dirname.indexOf('.asar') >= 0) {
+                driverDefaultPath = path.join(__dirname, '..', 'drivers');
+                if (!fs.existsSync(driverDefaultPath)) {
+                    copyRecursiveSync(sourcePath, driverDefaultPath);
+                }
+            } else {
+                driverDefaultPath = sourcePath;
+            }
+        }
+        shell.openItem(path.resolve(driverDefaultPath, this.driverPath));
+    });
+
+    $('#firmwareButtonSet').on('click', 'button', function() {
+        ui.flashFirmware(this.firmware, this.config);
+    });
 
     var copyRecursiveSync = function(src, dest) {
         var exists = fs.existsSync(src);
@@ -199,69 +217,51 @@
                     $('#emailArea').hide();
                 }
 
-                $('#driver').hide();
-                $('#firmware').hide();
-                $('#extFirmware').hide();
-                $('#extFirmwarea').hide();
-                $('#firmware').off('click').on('click', function() {
-                    ui.flashFirmware(this.firmware, config);
-                });
-                $('#extFirmware').off('click').on('click', function() {
-                    ui.flashFirmware(this.firmware, config);
-                });
-                $('#extFirmwarea').off('click').on('click', function() {
-                    ui.flashFirmware(this.firmware, config);
-                });
+                $('#driverButtonSet button').remove();
+                $('#firmwareButtonSet button').remove();
 
                 if (config.driver) {
-                    var os = process.platform + '-' + (isOSWin64() ? 'x64' : process.arch);
-                    var driverPath = config.driver[os];
-                    if (driverPath) {
-                        $('#driver').show();
-                        $('#driver').unbind('click');
-                        $('#driver').click(function() {
-                            var driversPath;
-                            if (__dirname.indexOf('.asar') >= 0) {
-                                var sourcePath = path.join(__dirname, 'drivers');
-                                driversPath = path.join(__dirname, '..', 'drivers');
-                                if (!fs.existsSync(driversPath)) {
-                                    copyRecursiveSync(sourcePath, driversPath);
-                                }
-                                driversPath = path.resolve(driversPath, driverPath)
-                            } else {
-                                driversPath = path.join(__dirname, 'drivers', driverPath);
-                            }
-
-                            shell.openItem(driversPath);
+                    if ($.isPlainObject(config.driver)) {
+                        var $dom = $('<button class="hwPanelBtn">');
+                        $dom.text(translator.translate('Install Device Driver'));
+                        $dom.prop('driverPath', config.driver[os]);
+                        $('#driverButtonSet').append($dom);
+                    } else if (Array.isArray(config.driver)) {
+                        config.driver.forEach(function(driver, idx) {
+                            var $dom = $('<button class="hwPanelBtn">');
+                            $dom.text(translator.translate(driver.translate));
+                            $dom.prop('driverPath', driver[os]);
+                            $('#driverButtonSet').append($dom);
                         });
                     }
-                    if (config.firmware) {
-                        $('#firmware').show();
-                        if (typeof config.firmware === 'string') {
-                            $('#firmware').text(translator.translate('Install Firmware'));
-                            $('#firmware').prop('firmware', config.firmware);
-                        } else if (Array.isArray(config.firmware)) {
-                            var firmware = config.firmware[0];
-                            var extFirmware = config.firmware[1];
-                            var extFirmwarea = config.firmware[2];
-                            $('#extFirmware').show().text(translator.translate(extFirmware.translate));
-                            $('#extFirmware').prop('firmware', extFirmware.name);
-                            $('#extFirmwarea').show().text(translator.translate(extFirmwarea.translate));
-                            $('#extFirmwarea').prop('firmware', extFirmwarea.name);
-                            $('#firmware').text(translator.translate(firmware.translate));
-                            $('#firmware').prop('firmware', firmware.name);
-                        }
-
+                }
+                if (config.firmware) {
+                    $('#firmware').show();
+                    if (typeof config.firmware === 'string') {
+                        var $dom = $('<button class="hwPanelBtn">');
+                        $dom.text(translator.translate('Install Firmware'));
+                        $dom.prop('firmware', config.firmware);
+                        $dom.prop('config', config);
+                        $('#firmwareButtonSet').append($dom);
+                    } else if (Array.isArray(config.firmware)) {
+                        config.firmware.forEach(function(firmware, idx) {
+                            var $dom = $('<button class="hwPanelBtn">');
+                            $dom.text(translator.translate(firmware.translate));
+                            $dom.prop('firmware', firmware.name);
+                            $dom.prop('config', config);
+                            $('#firmwareButtonSet').append($dom);
+                        });
                     }
                 }
             });
         },
         flashFirmware: function(firmware, config, prevPort) {
             try {
-                if(viewMode === 'main') {
+                // console.log(config);
+                if (viewMode === 'main') {
                     $('#firmwareButtonSet').show();
                     return;
-                } else if(viewMode != config.id){
+                } else if (viewMode != config.id) {
                     $('#firmwareButtonSet').show();
                     return;
                 }
@@ -273,11 +273,10 @@
                     return;
                 }
 
-                if(prevPort && router.connector.sp && (prevPort != router.connector.sp.path)) {
+                if (prevPort && router.connector.sp && (prevPort != router.connector.sp.path)) {
                     $('#firmwareButtonSet').show();
                     return;
                 }
-
                 var port = prevPort || router.connector.sp.path;
                 var baudRate = config.firmwareBaudRate;
                 $('#firmwareButtonSet').hide();

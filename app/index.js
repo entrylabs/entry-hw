@@ -50,7 +50,6 @@ if(argv.indexOf('entryhw:')) {
 
 var option = { file: null, help: null, version: null, webdriver: null, modules: [] };
 for (var i = 0; i < argv.length; i++) {
-    console.fslog(argv[i]);
     if (argv[i] == '--version' || argv[i] == '-v') {
         option.version = true;
         break;
