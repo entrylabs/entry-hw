@@ -7,6 +7,7 @@
     "icon": "robotori.png",
     "module": "robotori.js",
     "url": "http://www.robotori.com",
+    "email": "mot0908@lnsworld.co.kr",
     "driver": {
         "win32-ia32": "robotori/PL2303_Prolific_DriverInstaller_v1.5.0.exe",
         "win32-x64": "robotori/PL2303_Prolific_DriverInstaller_v1.5.0.exe"
