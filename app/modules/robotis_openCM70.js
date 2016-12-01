@@ -170,6 +170,12 @@ Module.prototype.handleRemoteData = function(handler) {
 			if (this.addressToRead[address] == undefined || this.addressToRead[address] == 0) {
 				this.addressToRead[address] = 1;
 				this.robotisBuffer.push(data[index]);
+			} else {
+				// 10번 이상 읽지 못한다면 에러이므로 강제로 읽을 수 있도록 처리
+				this.addressToRead[address] += 1;
+				if (this.addressToRead[address] >= 10) {
+					this.addressToRead[address] = 0;
+				}
 			}
 		}
 	}
