@@ -35,18 +35,21 @@ var Module = {
 
 		var rate = baudRate || '115200';
 		var avrName;
+		var avrConf;
 		var portPrefix;
 		switch(platform) {
 			case 'darwin': 
 				avrName = './avrdude';
+				avrConf = './avrdude-osx.conf';
 				portPrefix = '';
 				break;
 			default :
-				avrName = 'avr.exe';
+				avrName = 'avrdude.exe';
+				avrConf = './avrdude.conf';
 				portPrefix = '\\\\.\\';
 				break;
 		}
-		var cmd = [avrName, ' -p m328p -P', portPrefix, port, ' -b', rate, ' -Uflash:w:\"', firmware, '.hex\":i -C./avrdude-osx.conf -carduino -D'];
+		var cmd = [avrName, ' -p m328p -P', portPrefix, port, ' -b', rate, ' -Uflash:w:\"', firmware, '.hex\":i -C', avrConf, ' -carduino -D'];
 		
 		exec(
 			cmd.join(''),
