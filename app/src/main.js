@@ -421,7 +421,7 @@
             if (_temp !== _cache_object && is_select_port) {
                 var port_html = '';
                 data.forEach(function(port) {
-                    port_html += '<option>' + port.comName + '</option>';
+                    port_html += '<option title="' + port.comName + '">' + port.comName + '</option>';
                 });
 
                 $('#select_port_box').css('display', 'flex');
