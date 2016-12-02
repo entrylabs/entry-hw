@@ -2,6 +2,7 @@
 var exec = require('child_process').exec;
 var path = require('path');
 var fs = require('fs');
+var platform = process.platform;
 
 var copyRecursiveSync = function(src, dest) {
 	var exists = fs.existsSync(src);
@@ -33,14 +34,22 @@ var Module = {
 		}
 
 		var rate = baudRate || '115200';
-		var cmd = 'avr.exe -p m328p -P\\\\.\\' +
-			port +
-			' -b' + rate + ' -Uflash:w:\"' +
-			firmware +
-			'.hex\":i -C./avrdude.conf -carduino -D';
+		var avrName;
+		var portPrefix;
+		switch(platform) {
+			case 'darwin': 
+				avrName = './avrdude';
+				portPrefix = '';
+				break;
+			default :
+				avrName = 'avr.exe';
+				portPrefix = '\\\\.\\';
+				break;
+		}
+		var cmd = [avrName, ' -p m328p -P', portPrefix, port, ' -b', rate, ' -Uflash:w:\"', firmware, '.hex\":i -C./avrdude-osx.conf -carduino -D'];
 		
 		exec(
-			cmd,
+			cmd.join(''),
 			{
 				cwd: path.resolve(appPath, 'flasher')
 			},
