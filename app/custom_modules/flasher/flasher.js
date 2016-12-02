@@ -40,7 +40,7 @@ var Module = {
 		switch(platform) {
 			case 'darwin': 
 				avrName = './avrdude';
-				avrConf = './avrdude-osx.conf';
+				avrConf = './avrdude.conf';
 				portPrefix = '';
 				break;
 			default :
