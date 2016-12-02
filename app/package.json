@@ -1,6 +1,6 @@
 {
   "name": "Entry_HW",
-  "version": "1.6.2",
+  "version": "1.6.3",
   "description": "엔트리 하드웨어 연결 프로그램",
   "dependencies": {
     "bindings": "^1.2.1",

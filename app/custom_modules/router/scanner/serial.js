@@ -60,10 +60,8 @@ Scanner.prototype.scan = function(serialport, extension, config, callback) {
 				if(devices.some(function(device) {
 					var isVendor = false;
 					if(Array.isArray(vendor)) {
-						vendor.forEach(function (v) {
-							if(device.manufacturer.indexOf(v) >= 0) {
-								isVendor = true;
-							}
+						isVendor = vendor.some(function (v) {
+							return device.manufacturer && device.manufacturer.indexOf(v) >= 0;
 						});
 					} else {
 						if(device.manufacturer.indexOf(vendor) >= 0) {
@@ -84,15 +82,11 @@ Scanner.prototype.scan = function(serialport, extension, config, callback) {
 			var isVendor = false;
 
 			if(Array.isArray(vendor)) {
-				vendor.forEach(function (v) {
-					if(device.manufacturer.indexOf(v) >= 0) {
-						isVendor = true;
-					}
+				isVendor = vendor.some(function (v) {
+					return device.manufacturer && device.manufacturer.indexOf(v) >= 0;
 				});
-			} else {
-				if(device.manufacturer.indexOf(vendor) >= 0) {
-					isVendor = true;
-				}
+			} else if(vendor && device.manufacturer && device.manufacturer.indexOf(vendor) >= 0) {
+				isVendor = true;
 			}
 
 			if(!vendor || (device.manufacturer && isVendor) || (device.pnpId && device.pnpId.indexOf(pnpId) >= 0) || checkComPort) {
