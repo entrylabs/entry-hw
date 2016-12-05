@@ -39,7 +39,7 @@
     },
     "asar": true,
     "appId": "org.playentry.entryhw",
-    "productName": "EntryHW",
+    "productName": "Entry_HW",
     "extend-info": "build/build.plist",
     "iconUrl": "https://raw.githubusercontent.com/entrylabs/entry-hw/feature/electron/build/icon.ico"
   },
