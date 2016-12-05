@@ -18,7 +18,9 @@ var copyRecursiveSync = function(src, dest) {
 		});
 	} else {
 		var data = fs.readFileSync(src);
-		fs.writeFileSync(dest, data);
+		fs.writeFileSync(dest, data, {
+			mode: 0o755
+		});
 	}
 };
 

@@ -37,13 +37,13 @@
       "authors": "EntryLabs"
     },
     "asar": true,
-    "appId": "entry-hw",
-    "productName": "Entry-HW",
+    "appId": "org.playentry.entryhw",
+    "productName": "EntryHW",
     "extend-info": "build/build.plist",
     "iconUrl": "https://raw.githubusercontent.com/entrylabs/entry-hw/feature/electron/build/icon.ico"
   },
   "devDependencies": {
-    "electron-builder": "^7.10.2",
+    "electron-builder": "10.5.0",
     "electron-packager": "^8.1.0",
     "electron-prebuilt": "1.4.5",
     "rimraf": "^2.5.4"

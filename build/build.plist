@@ -2,36 +2,27 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
   <dict>
-    <key>CFBundleDocumentTypes</key>
+    <key>URL Types</key>
     <array>
-      <dict>
-        <key>CFBundleTypeExtensions</key>
-        <array>
-          <string>ent</string>
-        </array>
-        <key>CFBundleTypeIconFile</key>
-        <string>electron.icns</string>
-        <key>CFBundleTypeName</key>
-        <string>Entry File</string>
-        <key>CFBundleTypeRole</key>
-        <string>Editor</string>
-        <key>LSHandlerRank</key>
-        <string>Alternate</string>
-      </dict>
-      <dict>
-        <key>CFBundleTypeExtensions</key>
-        <array>
-          <string>entx</string>
-        </array>
-        <key>CFBundleTypeIconFile</key>
-        <string>electron.icns</string>
-        <key>CFBundleTypeName</key>
-        <string>Entry File</string>
-        <key>CFBundleTypeRole</key>
-        <string>Editor</string>
-        <key>LSHandlerRank</key>
-        <string>Alternate</string>
-      </dict>
+        <dict>
+            <key>URL Schemes</key>
+            <array>
+                <string>entryhw</string>
+            </array>
+            <key>URL Identifier</key>
+            <string>org.playentry.entryhw</string>
+        </dict>
+    </array>
+    <key>CFBundleURLTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleURLName</key>
+            <string>org.playentry.entryhw</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>entryhw</string>
+            </array>
+        </dict>
     </array>
   </dict>
 </plist>
