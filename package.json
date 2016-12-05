@@ -7,27 +7,45 @@
     "start": "set NODE_ENV=development&&electron -d app"
   },
   "build": {
+    "dmg": {
+      "icon": "build/icon.icns",
+      "iconSize": 80,
+      "background": "build/background.png",
+      "contents": [
+        {
+          "x": 240,
+          "y": 120
+        },
+        {
+          "x": 380,
+          "y": 250,
+          "type": "file",
+          "path": "./app/README.md"
+        },
+        {
+          "x": 240,
+          "y": 380,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
+    },
     "win": {
       "loadingGif": "build/install-spinner.gif",
       "title": "Entry-HW",
       "icon": "./build/icon.ico",
       "authors": "EntryLabs"
     },
-    "app-bundle-id": "entry-hw",
-    "app-category-type": "org.playentry.entry-hw",
-    "iconUrl": "https://raw.githubusercontent.com/entrylabs/entry-hw/feature/electron/build/icon.ico",
-    "icon": "app/icon"
+    "asar": true,
+    "appId": "entry-hw",
+    "productName": "Entry-HW",
+    "extend-info": "build/build.plist",
+    "iconUrl": "https://raw.githubusercontent.com/entrylabs/entry-hw/feature/electron/build/icon.ico"
   },
   "devDependencies": {
-    "babel-cli": "^6.16.0",
-    "babel-eslint": "^7.0.0",
-    "babel-preset-es2015": "^6.16.0",
-    "babel-preset-es2016-node5": "^1.1.2",
-    "babel-preset-react": "^6.16.0",
-    "babel-preset-stage-0": "^6.16.0",
     "electron-builder": "^7.10.2",
     "electron-packager": "^8.1.0",
-    "electron-prebuilt": "^1.4.5",
+    "electron-prebuilt": "1.4.5",
     "rimraf": "^2.5.4"
   },
   "dependencies": {}

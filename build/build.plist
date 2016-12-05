@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <key>CFBundleDocumentTypes</key>
+    <array>
+      <dict>
+        <key>CFBundleTypeExtensions</key>
+        <array>
+          <string>ent</string>
+        </array>
+        <key>CFBundleTypeIconFile</key>
+        <string>electron.icns</string>
+        <key>CFBundleTypeName</key>
+        <string>Entry File</string>
+        <key>CFBundleTypeRole</key>
+        <string>Editor</string>
+        <key>LSHandlerRank</key>
+        <string>Alternate</string>
+      </dict>
+      <dict>
+        <key>CFBundleTypeExtensions</key>
+        <array>
+          <string>entx</string>
+        </array>
+        <key>CFBundleTypeIconFile</key>
+        <string>electron.icns</string>
+        <key>CFBundleTypeName</key>
+        <string>Entry File</string>
+        <key>CFBundleTypeRole</key>
+        <string>Editor</string>
+        <key>LSHandlerRank</key>
+        <string>Alternate</string>
+      </dict>
+    </array>
+  </dict>
+</plist>
