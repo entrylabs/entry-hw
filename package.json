@@ -31,10 +31,11 @@
       ]
     },
     "win": {
-      "loadingGif": "build/install-spinner.gif",
+      "target": "dir",
       "title": "Entry-HW",
-      "icon": "./build/icon.ico",
-      "authors": "EntryLabs"
+      "authors": "EntryLabs",
+      "#certificateSubjectName": "my",
+      "#rfc3161TimeStampServer": "http://timestamp.geotrust.com/tsa"
     },
     "asar": true,
     "appId": "org.playentry.entryhw",
