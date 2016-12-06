@@ -48,10 +48,9 @@ ipcRenderer.on('customArgs', function(e, data) {
 });
 
 Server.prototype.open = function(logger) {
-	var http;
+	var http, httpServer, address;
 	var PORT = 23518;
 	var self = this;
-	var httpServer;
 	
 	if(fs.existsSync(path.resolve(global.__dirname, 'ssl', 'cert.pem'))) {
 		http = require('https');
@@ -63,19 +62,21 @@ Server.prototype.open = function(logger) {
 		    res.writeHead(200);
 		    res.end();
 		});
+		address = 'https://hardware.play-entry.org:23518';
 	} else {
 		http = require('http');
 		httpServer = http.createServer(function(request, response) {
 			response.writeHead(200);
 			response.end();
 		});
+		address = 'http://127.0.0.1:23518';
 	}
 	
 	httpServer.on('error', function(e) {
 		ipcRenderer.send('serverMode', serverModeTypes.multi);
 		runningMode = serverModeTypes.child;
 		console.log('%cI`M CLIENT', 'background:black;color:yellow;font-size: 30px');
-		var socket = client('https://hardware.play-entry.org:23518', {query:{'childServer': true}});
+		var socket = client(address, {query:{'childServer': true}});
 		socketClient = socket;
 		self.connections.push(socket);
 		socket.on('connect', function() {
