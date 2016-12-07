@@ -4,6 +4,7 @@
 		"en": "CODEino",
 		"ko": "코드이노"
 	},
+	"platform": ["win32"],
 	"icon" : "codeino.png",
 	"module": "codeino.js",
 	"url": "http://www.codable.co.kr",

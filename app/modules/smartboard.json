@@ -4,6 +4,7 @@
 		"en": "Smart Board",
 		"ko": "스마트 보드"
 	},
+	"platform": ["win32"],
 	"icon" : "smartboard.png",
 	"module": "smartboard.js",
 	"url": "http://www.jeilscience.co.kr",

@@ -5,6 +5,7 @@
 		"en": "Codestar",
 		"ko": "코드스타"
 	},
+	"platform": ["win32"],
 	"icon" : "codestar.png",
 	"module": "codestar.js",
 	"url": "http://codestar.co.kr",

@@ -4,6 +4,7 @@
         "en": "Roduino",
         "ko": "로두이노"
     },
+    "platform": ["win32"],
     "icon": "roborobo_roduino.png",
     "module": "roborobo_roduino.js",
     "url": "http://www.roborobo.co.kr",

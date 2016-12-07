@@ -4,6 +4,7 @@
         "en": "robotori",
         "ko": "로보토리"
     },
+    "platform": ["win32"],
     "icon": "robotori.png",
     "module": "robotori.js",
     "url": "http://www.robotori.com",
