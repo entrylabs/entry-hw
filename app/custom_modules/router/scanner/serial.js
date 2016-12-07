@@ -64,7 +64,7 @@ Scanner.prototype.scan = function(serialport, extension, config, callback) {
 							return device.manufacturer && device.manufacturer.indexOf(v) >= 0;
 						});
 					} else {
-						if(device.manufacturer.indexOf(vendor) >= 0) {
+						if(device.manufacturer && device.manufacturer.indexOf(vendor) >= 0) {
 							isVendor = true;
 						}
 					}
