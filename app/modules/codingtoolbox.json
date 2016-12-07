@@ -4,6 +4,7 @@
 		"en": "codingtoolbox",
 		"ko": "코딩툴박스 "
 	},
+	"platform": ["win32"],
 	"icon" : "codingtoolbox.png",
 	"module": "codingtoolbox.js",
 	"url": "http://www.codingtoolbox.co.kr",

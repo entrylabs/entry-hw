@@ -30,3 +30,4 @@ app/ssl/
 /node_modules/
 app/node_modules/
 /build/*.exe
+build/*.zip

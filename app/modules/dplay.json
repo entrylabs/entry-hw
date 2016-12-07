@@ -4,6 +4,7 @@
 		"en": "DPLAY",
 		"ko": "디플레이"
 	},
+	"platform": ["win32"],
 	"icon" : "dplay.png",
 	"module": "dplay.js",
 	"url": "http://dplay.cc",

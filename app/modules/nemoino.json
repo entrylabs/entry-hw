@@ -4,6 +4,7 @@
 		"en": "NEMOino",
 		"ko": "네모이노"
 	},
+	"platform": ["win32"],
 	"icon" : "nemoino.png",
 	"module": "nemoino.js",
 	"url": "http://www.nemodevice.co.kr",

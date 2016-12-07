@@ -4,6 +4,7 @@
 		"en": "bitBrick",
 		"ko": "비트브릭"
 	},
+	"platform": ["win32"],
 	"icon" : "bitbrick.png",
 	"module": "bitbrick.js",
 	"url": "http://bitbrick.cc/",

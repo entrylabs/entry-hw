@@ -71,7 +71,7 @@
                 driverDefaultPath = sourcePath;
             }
         }
-        shell.openItem(path.resolve(driverDefaultPath, this.driverPath));
+        shell.openExternal(path.resolve(driverDefaultPath, this.driverPath));
     });
 
     $('#firmwareButtonSet').on('click', 'button', function() {
@@ -157,9 +157,13 @@
         },
         addRobot: function(config) {
             ui.showRobotList();
-            var name;
+            var name, platform;
             if (config.name) {
                 name = config.name[lang] || config.name['en'];
+            }            
+
+            if ((config.platform && config.platform.indexOf(process.platform) === -1) || !config.platform) {
+                return;
             }
 
             $('#hwList').append(
@@ -200,7 +204,7 @@
                     $('#urlArea').show();
                     $('#url').off('click');
                     $('#url').on('click', function() {
-                        shell.openItem(config.url);
+                        shell.openExternal(config.url);
                     });
                 } else {
                     $('#urlArea').hide();
@@ -221,17 +225,19 @@
                 $('#firmwareButtonSet button').remove();
 
                 if (config.driver) {
-                    if ($.isPlainObject(config.driver)) {
+                    if ($.isPlainObject(config.driver) && config.driver[os]) {
                         var $dom = $('<button class="hwPanelBtn">');
                         $dom.text(translator.translate('Install Device Driver'));
                         $dom.prop('driverPath', config.driver[os]);
                         $('#driverButtonSet').append($dom);
                     } else if (Array.isArray(config.driver)) {
                         config.driver.forEach(function(driver, idx) {
-                            var $dom = $('<button class="hwPanelBtn">');
-                            $dom.text(translator.translate(driver.translate));
-                            $dom.prop('driverPath', driver[os]);
-                            $('#driverButtonSet').append($dom);
+                            if(driver[os]) {
+                                var $dom = $('<button class="hwPanelBtn">');
+                                $dom.text(translator.translate(driver.translate));
+                                $dom.prop('driverPath', driver[os]);
+                                $('#driverButtonSet').append($dom);
+                            }
                         });
                     }
                 }
@@ -343,7 +349,7 @@
     });
 
     $('.chromeButton').click(function(e) {
-        shell.openItem("https://www.google.com/chrome/browser/desktop/index.html");
+        shell.openExternal("https://www.google.com/chrome/browser/desktop/index.html");
     });
 
 

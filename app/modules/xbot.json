@@ -4,6 +4,7 @@
 		"en": "XBOT EDGE USB",
 		"ko": "엑스봇 엣지 USB"
 	},
+	"platform": ["win32", "darwin"],
 	"icon" : "xbot.png",
 	"module": "xbot.js",
 	"url": "http://www.xbot.co.kr",

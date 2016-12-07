@@ -4,6 +4,7 @@
 		"en": "EV3",
 		"ko": "EV3"
 	},
+	"platform": ["win32"],
 	"icon" : "ev3.png",
 	"module": "ev3.js",
 	"url": "http://www.lego.com/ko-kr/mindstorms/about-ev3",
