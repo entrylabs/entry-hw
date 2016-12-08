@@ -235,6 +235,10 @@ button {
 	line-height: 35px;
 }
 
+#alert.error {
+	background-color: #ffc800;
+}
+
 #ieGuide {
 	flex: none;
 	width: 100%;
