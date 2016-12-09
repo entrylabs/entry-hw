@@ -71,7 +71,7 @@
                 driverDefaultPath = sourcePath;
             }
         }
-        shell.openExternal(path.resolve(driverDefaultPath, this.driverPath));
+        shell.openItem(path.resolve(driverDefaultPath, this.driverPath));
     });
 
     $('#firmwareButtonSet').on('click', 'button', function() {
