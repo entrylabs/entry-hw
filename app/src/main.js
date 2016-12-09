@@ -6,6 +6,8 @@
     // initialize options
     var options = {};
     var viewMode = 'main';
+    var firmwareCount = 0;
+    var flasherProcess;
 
     var os = process.platform + '-' + (isOSWin64() ? 'x64' : process.arch);
     var driverDefaultPath;
@@ -100,6 +102,11 @@
         countRobot: 0,
         showRobotList: function() {
             viewMode = 'main';
+            if(flasherProcess) {
+                flasherProcess.kill();
+                flasherProcess = undefined;
+            }
+            $('#alert').stop().clearQueue();
             router.close();
             router.stopScan();
             delete window.currentConfig;
@@ -133,17 +140,38 @@
         },
         showAlert: function(message, duration) {
             if (!$('#hwList').is(':visible')) {
+                $('#alert').removeClass('error');
                 $('#alert').text(message);
 
                 $('#alert').css({
                     height: '0px'
                 });
-                $('#alert').animate({
+                $('#alert').stop().animate({
                     height: '35px'
                 });
                 if (duration) {
                     setTimeout(function() {
-                        $('#alert').animate({
+                        $('#alert').stop().animate({
+                            height: '0px'
+                        });
+                    }, duration);
+                }
+            }
+        },
+        showError: function(message, duration) {
+            if (!$('#hwList').is(':visible')) {
+                $('#alert').addClass('error');
+                $('#alert').text(message);
+
+                $('#alert').css({
+                    height: '0px'
+                });
+                $('#alert').stop().animate({
+                    height: '35px'
+                });
+                if (duration) {
+                    setTimeout(function() {
+                        $('#alert').stop().animate({
                             height: '0px'
                         });
                     }, duration);
@@ -263,41 +291,46 @@
         },
         flashFirmware: function(firmware, config, prevPort) {
             try {
-                // console.log(config);
-                if (viewMode === 'main') {
-                    $('#firmwareButtonSet').show();
-                    return;
-                } else if (viewMode != config.id) {
+                if (viewMode === 'main' || viewMode != config.id) {
                     $('#firmwareButtonSet').show();
                     return;
                 }
-
                 if (!router.connector || (!router.connector.sp && !prevPort)) {
                     alert(translator.translate('Hardware Device Is Not Connected'));
                     ui.showConnecting();
                     $('#firmwareButtonSet').show();
                     return;
                 }
-
                 if (prevPort && router.connector.sp && (prevPort != router.connector.sp.path)) {
                     $('#firmwareButtonSet').show();
                     return;
                 }
+
                 var port = prevPort || router.connector.sp.path;
                 var baudRate = config.firmwareBaudRate;
                 $('#firmwareButtonSet').hide();
                 ui.showAlert(translator.translate("Firmware Uploading..."));
                 router.close();
                 setTimeout(function() {
-                    flasher.flash(
+                    flasherProcess = flasher.flash(
                         firmware,
                         port,
                         baudRate,
                         function(error, stdout, stderr) {
                             if (error) {
-                                setTimeout(function() {
-                                    ui.flashFirmware(firmware, config, port);
-                                }, 100);
+                                if(firmwareCount > 10) {
+                                    firmwareCount = 0;
+                                    $('#firmwareButtonSet').show();
+                                    ui.showAlert(translator.translate("Failed Firmware Upload"));
+                                    router.startScan(config);
+                                } else if(error === 'exit') {
+                                    firmwareCount = 0;
+                                    $('#firmwareButtonSet').show();
+                                } else {
+                                    setTimeout(function() {
+                                        ui.flashFirmware(firmware, config, port);
+                                    }, 100);
+                                }
                             } else {
                                 $('#firmwareButtonSet').show();
                                 ui.showAlert(translator.translate("Firmware Uploaded!"));
@@ -424,7 +457,7 @@
         if (state === "select_port") {
             router.close();
             var _temp = JSON.stringify(data);
-            if (_temp !== _cache_object && is_select_port) {
+            if (_temp !== _cache_object && is_select_port && viewMode !== 'main') {
                 var port_html = '';
                 data.forEach(function(port) {
                     port_html += '<option title="' + port.comName + '">' + port.comName + '</option>';
@@ -437,7 +470,9 @@
             }
             if (is_select_port) {
                 select_port_connection = setTimeout(function() {
-                    router.startScan(window.currentConfig);
+                    if(viewMode !== 'main') {
+                        router.startScan(window.currentConfig);
+                    }
                 }, 1000);
             } else {
                 is_select_port = true;

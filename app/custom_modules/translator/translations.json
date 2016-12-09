@@ -64,6 +64,9 @@
 	"Firmware Uploaded!": {
 		"ko": "펌웨어가 업로드 되었습니다."
 	},
+	"Failed Firmware Upload": {
+		"ko": "펌웨어 업로드가 실패하였습니다."
+	},
 	"Firmware Uploading...": {
 		"ko": "펌웨어 업로드 중입니다..."
 	},
