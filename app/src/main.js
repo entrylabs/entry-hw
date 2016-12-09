@@ -43,6 +43,8 @@
 
     // flasher
     var flasher = require('./custom_modules/flasher');
+
+    $('html').addClass(process.platform);
     // ui & control
     $('.alertMsg .alertMsg1').text(translator.translate('If unexpected problem occurs while operating,'));
     $('.alertMsg .alertMsg2').text(translator.translate('contact the hardware company to resolve the problem.'));

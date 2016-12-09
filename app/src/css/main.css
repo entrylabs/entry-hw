@@ -3,14 +3,14 @@
 	src: url('../fonts/NanumGothic.woff');
 }
 
-::-webkit-scrollbar {
+.darwin ::-webkit-scrollbar {
     -webkit-appearance: none;
-    width: 10px;
+    width: 11px;
 }
-::-webkit-scrollbar-thumb {
-    border-radius: 5px;
-    background-color: rgba(0,0,0,.5);
-    box-shadow: inset 0px 0px 0 2px rgba(255,255,255, 1);
+.darwin ::-webkit-scrollbar-thumb {
+    border-radius: 8px;
+    border: 2px solid white; /* should match background, can't be transparent */
+    background-color: rgba(0, 0, 0, .5);
 }
 
 * {
