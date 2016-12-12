@@ -14,6 +14,7 @@
 function Module()
 {
 	// -- JSON Objects ----------------------------------------------------------------
+	// Device -> Entry 
 
 	// Ack
 	this.ack =
@@ -90,7 +91,7 @@ Module.prototype.init = function(handler, config)
 // 초기 송신데이터(필수)
 Module.prototype.requestInitialData = function()
 {
-	this.ping(0x09);
+	this.ping(0x11);
 	return this.transferForDevice();
 };
 
@@ -204,6 +205,7 @@ Module.prototype.resetData = function()
  *	드론파이터 / 컨트롤러에 전달하는 명령
  ***************************************************************************************/
 
+// Entry -> Device
 var DataType =
 {
 	// 전송 대상
@@ -250,7 +252,7 @@ Module.prototype.checkAck = function(data, config)
 	let ack = this.ack;
 	if( ack._updated == true )
 	{
-		switch( ack.ack_dataType )
+		switch( this.from )
 		{
 		case 0x10:	// 드론파이터와 연결된 경우(드론파이터와 직접 연결되거나 조종기와 연결한 상태에서 페어링 된 드론파이터가 켜진 경우)
 			config.id = '0F0101';
@@ -494,6 +496,36 @@ Module.prototype.addCRC16 = function(indexStart, dataLength)
 // Entry에 데이터 전송
 Module.prototype.tansferForEntry = function(handler)
 {
+	// Joystick
+	{
+		let joystick = this.joystick;
+		if( joystick._updated == true )
+		{
+			for(let key in joystick)
+			{
+				handler.write(key, joystick[key]);
+			}
+
+			joystick._updated == false;
+			//this.log("Module.prototype.tansferForEntry() / attitude", "");
+		}
+	}
+
+	// Button
+	{
+		let button = this.button;
+		if( button._updated == true )
+		{
+			for(let key in button)
+			{
+				handler.write(key, button[key]);
+			}
+
+			button._updated == false;
+			//this.log("Module.prototype.tansferForEntry() / attitude", "");
+		}
+	}
+
 	// Attitude
 	{
 		let attitude = this.attitude;
@@ -506,6 +538,21 @@ Module.prototype.tansferForEntry = function(handler)
 
 			attitude._updated == false;
 			//this.log("Module.prototype.tansferForEntry() / attitude", "");
+		}
+	}
+
+	// IR Message
+	{
+		let irmeessage = this.irmeessage;
+		if( irmeessage._updated == true )
+		{
+			for(let key in irmeessage)
+			{
+				handler.write(key, irmeessage[key]);
+			}
+
+			irmeessage._updated == false;
+			//this.log("Module.prototype.tansferForEntry() / irmeessage", "");
 		}
 	}
 }
@@ -527,7 +574,7 @@ Module.prototype.receiverForDevice = function(data)
 		this.receiveBuffer.push(data[i]);
 	}
 
-	//this.log("Module.prototype.receiverForDevice()", this.receiveBuffer);
+	this.log("Module.prototype.receiverForDevice()", this.receiveBuffer);
 
 	// 버퍼로부터 데이터를 읽어 하나의 완성된 데이터 블럭으로 변환
 	while(this.receiveBuffer.length > 0)
@@ -705,7 +752,7 @@ Module.prototype.handlerForDevice = function()
 			joystick.joystick_right_event		= this.extractUInt8(this.dataBlock, 8);
 			joystick.joystick_right_command		= this.extractUInt8(this.dataBlock, 9);
 
-			console.log("handlerForDevice - Joystick: " + joystick.joystick_left_x + ", " + joystick.joystick_left_y);
+			console.log("handlerForDevice - Joystick: " + joystick.joystick_left_x + ", " + joystick.joystick_left_y + ", " + joystick.joystick_right_x + ", " + joystick.joystick_right_y);
 		}
 		break;
 
@@ -825,7 +872,7 @@ Module.prototype.transferForDevice = function()
 	if( this.bufferTransfer == undefined || this.bufferTransfer.length == 0 )
 	{
 		// 예약된 요청이 없는 경우 데이터 요청 등록(현재는 자세 데이터 요청)
-		switch( this.countReqeustDevice % 10 )
+		switch( this.countReqeustDevice % 4 )
 		{
 		case 0:
 			this.ping(0x10);
@@ -845,11 +892,11 @@ Module.prototype.transferForDevice = function()
 		// 예약된 요청이 있는 경우에도 간헐적으로 장치 검색(연결 유지를 위해)
 		switch( this.countReqeustDevice % 10 )
 		{
-		case 0:
+		case 5:
 			this.ping(0x10);
 			break;
 
-		case 5:
+		case 9:
 			this.ping(0x11);
 			break;
 
@@ -877,13 +924,13 @@ Module.prototype.ping = function(target)
 	let dataLength = 4;		// 데이터의 길이
 
 	// Header
-	this.bufferTransfer.push(0x01);		// Data Type (UpdateLookupTarget)
-	this.bufferTransfer.push(0x04);		// Data Length
-	this.bufferTransfer.push(0x15);		// From
-	this.bufferTransfer.push(target);	// To
+	this.bufferTransfer.push(0x01);			// Data Type (UpdateLookupTarget)
+	this.bufferTransfer.push(dataLength);	// Data Length
+	this.bufferTransfer.push(0x15);			// From
+	this.bufferTransfer.push(target);		// To
 
 	// Data Array
-	this.bufferTransfer.push(0x00);		// systemTime
+	this.bufferTransfer.push(0x00);			// systemTime
 	this.bufferTransfer.push(0x00);
 	this.bufferTransfer.push(0x00);
 	this.bufferTransfer.push(0x00);
@@ -905,7 +952,7 @@ Module.prototype.reserveRequest = function(target, dataType)
 
 	// Header
 	this.bufferTransfer.push(0x04);			// Data Type (Request)
-	this.bufferTransfer.push(0x01);			// Data Length
+	this.bufferTransfer.push(dataLength);	// Data Length
 	this.bufferTransfer.push(0x15);			// From
 	this.bufferTransfer.push(target);		// To
 
