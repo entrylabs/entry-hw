@@ -66,20 +66,23 @@ function Module()
 
 
 	// -- Hardware ----------------------------------------------------------------
-	this.bufferReceive		= [];		// 데이터 수신 버퍼
-	this.bufferTransfer		= [];		// 데이터 송신 버퍼
+	this.bufferReceive			= [];		// 데이터 수신 버퍼
+	this.bufferTransfer			= [];		// 데이터 송신 버퍼
 
-	this.dataType			= 0;		// 수신 받은 데이터의 타입
-	this.dataLength			= 0;		// 수신 받은 데이터의 길이
-	this.from				= 0;		// 송신 장치 타입
-	this.to					= 0;		// 수신 장치 타입
-	this.indexSession		= 0;		// 수신 받는 데이터의 세션
-	this.indexReceiver		= 0;		// 수신 받는 데이터의 세션 내 위치
-	this.dataBlock			= [];		// 수신 받은 데이터 블럭
-	this.crc16Calculated	= 0;		// CRC16 계산 된 결과
-	this.crc16Received		= 0;		// CRC16 수신 받은 블럭
+	this.dataType				= 0;		// 수신 받은 데이터의 타입
+	this.dataLength				= 0;		// 수신 받은 데이터의 길이
+	this.from					= 0;		// 송신 장치 타입
+	this.to						= 0;		// 수신 장치 타입
+	this.indexSession			= 0;		// 수신 받는 데이터의 세션
+	this.indexReceiver			= 0;		// 수신 받는 데이터의 세션 내 위치
+	this.dataBlock				= [];		// 수신 받은 데이터 블럭
+	this.crc16Calculated		= 0;		// CRC16 계산 된 결과
+	this.crc16Received			= 0;		// CRC16 수신 받은 블럭
+	
+	this.timeTransferNext		= 0;		// 전송 가능한 다음 시간
+	this.timeTransferInterval	= 40;		// 최소 전송 시간 간격
 
-	this.countReqeustDevice	= 0;		// 장치에 데이터를 요청한 횟수 카운트 
+	this.countReqeustDevice		= 0;		// 장치에 데이터를 요청한 횟수 카운트 
 }
 
 // 초기설정
@@ -185,20 +188,23 @@ Module.prototype.resetData = function()
 
 
 	// -- Hardware ----------------------------------------------------------------
-	this.bufferReceive		= [];		// 데이터 수신 버퍼
-	this.bufferTransfer		= [];		// 데이터 송신 버퍼
+	this.bufferReceive			= [];		// 데이터 수신 버퍼
+	this.bufferTransfer			= [];		// 데이터 송신 버퍼
 
-	this.dataType			= 0;		// 수신 받은 데이터의 타입
-	this.dataLength			= 0;		// 수신 받은 데이터의 길이
-	this.from				= 0;		// 송신 장치 타입
-	this.to					= 0;		// 수신 장치 타입
-	this.indexSession		= 0;		// 수신 받은 데이터의 세션
-	this.indexReceiver		= 0;		// 수신 받은 데이터의 세션 내 위치
-	this.dataBlock			= [];		// 수신 받은 데이터 블럭
-	this.crc16Calculated	= 0;		// CRC16 계산 된 결과
-	this.crc16Received		= 0;		// CRC16 수신 받은 블럭
+	this.dataType				= 0;		// 수신 받은 데이터의 타입
+	this.dataLength				= 0;		// 수신 받은 데이터의 길이
+	this.from					= 0;		// 송신 장치 타입
+	this.to						= 0;		// 수신 장치 타입
+	this.indexSession			= 0;		// 수신 받은 데이터의 세션
+	this.indexReceiver			= 0;		// 수신 받은 데이터의 세션 내 위치
+	this.dataBlock				= [];		// 수신 받은 데이터 블럭
+	this.crc16Calculated		= 0;		// CRC16 계산 된 결과
+	this.crc16Received			= 0;		// CRC16 수신 받은 블럭
 
-	this.countReqeustDevice	= 0;		// 장치에 데이터를 요청한 횟수 카운트 
+	this.timeTransferNext		= 0;		// 전송 가능한 다음 시간
+	this.timeTransferInterval	= 30;		// 최소 전송 시간 간격
+
+	this.countReqeustDevice		= 0;		// 장치에 데이터를 요청한 횟수 카운트 
 }
 
 /***************************************************************************************
@@ -422,11 +428,13 @@ Module.prototype.handlerForEntry = function(handler)
 
 		// Data
 		this.bufferTransfer.push(buzzer_scale);
-		this.bufferTransfer.push(getByte0(buzzer_time));
-		this.bufferTransfer.push(getByte1(buzzer_time));
+		this.bufferTransfer.push(this.getByte0(buzzer_time));
+		this.bufferTransfer.push(this.getByte1(buzzer_time));
 
 		// CRC16
 		this.addCRC16(indexStart, dataLength);
+
+		this.log("Module.prototype.handlerForEntry() / BUZZER / buzzer_scale: " + buzzer_scale + ", buzzer_time: " + buzzer_time, this.bufferTransfer);
 	}
 
 	// Vibrator
@@ -450,12 +458,12 @@ Module.prototype.handlerForEntry = function(handler)
 		this.bufferTransfer.push(target);					// To
 
 		// Data
-		this.bufferTransfer.push(getByte0(vibrator_on));
-		this.bufferTransfer.push(getByte1(vibrator_on));
-		this.bufferTransfer.push(getByte0(vibrator_off));
-		this.bufferTransfer.push(getByte1(vibrator_off));
-		this.bufferTransfer.push(getByte0(vibrator_total));
-		this.bufferTransfer.push(getByte1(vibrator_total));
+		this.bufferTransfer.push(this.getByte0(vibrator_on));
+		this.bufferTransfer.push(this.getByte1(vibrator_on));
+		this.bufferTransfer.push(this.getByte0(vibrator_off));
+		this.bufferTransfer.push(this.getByte1(vibrator_off));
+		this.bufferTransfer.push(this.getByte0(vibrator_total));
+		this.bufferTransfer.push(this.getByte1(vibrator_total));
 
 		// CRC16
 		this.addCRC16(indexStart, dataLength);
@@ -869,6 +877,14 @@ Module.prototype.getByte3 = function(b)
 // 장치에 데이터 전송
 Module.prototype.transferForDevice = function()
 {
+	var date = new Date();
+    var now = date.getTime();
+
+	if( now < this.timeTransferNext )
+		return null;
+	
+	this.timeTransferNext = now + this.timeTransferInterval;
+
 	if( this.bufferTransfer == undefined || this.bufferTransfer.length == 0 )
 	{
 		// 예약된 요청이 없는 경우 데이터 요청 등록(현재는 자세 데이터 요청)
