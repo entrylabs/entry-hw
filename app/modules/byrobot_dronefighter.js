@@ -79,8 +79,14 @@ function Module()
 	this.crc16Calculated		= 0;		// CRC16 계산 된 결과
 	this.crc16Received			= 0;		// CRC16 수신 받은 블럭
 	
+	this.maxTransferRepeat		= 5;		// 최대 반복 전송 횟수
+	this.countTransferRepeat	= 0;		// 반복 전송 횟수
+	this.dataTypeLastTransfered	= 0;		// 마지막으로 전송한 데이터의 타입
+
+	this.timeReceive			= 0;		// 데이터를 전송 받은 시각
+	this.timeTransfer			= 0;		// 예약 데이터를 전송한 시각
 	this.timeTransferNext		= 0;		// 전송 가능한 다음 시간
-	this.timeTransferInterval	= 40;		// 최소 전송 시간 간격
+	this.timeTransferInterval	= 20;		// 최소 전송 시간 간격
 
 	this.countReqeustDevice		= 0;		// 장치에 데이터를 요청한 횟수 카운트 
 }
@@ -94,8 +100,7 @@ Module.prototype.init = function(handler, config)
 // 초기 송신데이터(필수)
 Module.prototype.requestInitialData = function()
 {
-	this.ping(0x11);
-	return this.transferForDevice();
+	return this.ping(0x11);
 };
 
 // 초기 수신데이터 체크(필수)
@@ -201,8 +206,14 @@ Module.prototype.resetData = function()
 	this.crc16Calculated		= 0;		// CRC16 계산 된 결과
 	this.crc16Received			= 0;		// CRC16 수신 받은 블럭
 
+	this.maxTransferRepeat		= 5;		// 최대 반복 전송 횟수
+	this.countTransferRepeat	= 0;		// 반복 전송 횟수
+	this.dataTypeLastTransfered	= 0;		// 마지막으로 전송한 데이터의 타입
+
+	this.timeReceive			= 0;		// 데이터를 전송 받은 시각
+	this.timeTransfer			= 0;		// 예약 데이터를 전송한 시각
 	this.timeTransferNext		= 0;		// 전송 가능한 다음 시간
-	this.timeTransferInterval	= 30;		// 최소 전송 시간 간격
+	this.timeTransferInterval	= 20;		// 최소 전송 시간 간격
 
 	this.countReqeustDevice		= 0;		// 장치에 데이터를 요청한 횟수 카운트 
 }
@@ -740,9 +751,51 @@ Module.prototype.receiverForDevice = function(data)
 Module.prototype.handlerForDevice = function()
 {
 	//this.log("Module.prototype.handlerForDevice()", this.dataBlock);
+    this.timeReceive = (new Date()).getTime();
+
+	// 상대측에 정상적으로 데이터를 전달했는지 확인
+	switch( this.dataType )
+	{
+	case 0x02:	// Ack
+		if( this.dataBlock.length == 5 )
+		{
+			// Device -> Entry 
+			let ack				= this.ack;
+			ack._updated		= true;
+			ack.ack_systemTime	= this.extractUInt32(this.dataBlock, 0);
+			ack.ack_dataType	= this.extractUInt8(this.dataBlock, 4);
+
+			console.log("handlerForDevice - Ack: " + ack.ack_systemTime + ", " + ack.ack_dataType + " / " + this.countTransferRepeat);
+
+			// 마지막으로 전송한 데이터에 대한 응답을 받았다면 
+			if( this.bufferTransfer != undefined &&
+				this.bufferTransfer.length > 0 &&
+				this.dataTypeLastTransfered == ack.ack_dataType )
+			{
+				this.bufferTransfer.shift();
+				this.countTransferRepeat = 0;
+			}
+		}
+		break;
+
+	default:
+		{
+			// 마지막으로 전송한 데이터에 대한 응답을 받았다면 
+			if( this.bufferTransfer != undefined &&
+				this.bufferTransfer.length > 0 &&
+				this.dataTypeLastTransfered == this.dataType )
+			{
+				this.bufferTransfer.shift();
+				this.countTransferRepeat = 0;
+			}
+		}
+		break;
+	}
+
 
 	switch( this.dataType )
 	{
+		/*
 	case 0x02:	// Ack
 		if( this.dataBlock.length == 5 )
 		{
@@ -755,6 +808,7 @@ Module.prototype.handlerForDevice = function()
 			console.log("handlerForDevice - Ack: " + ack.ack_systemTime + ", " + ack.ack_dataType);
 		}
 		break;
+		*/
 
 	case 0x31:	// Attitude
 		if( this.dataBlock.length == 6 )
@@ -904,8 +958,7 @@ Module.prototype.getByte3 = function(b)
 // 장치에 데이터 전송
 Module.prototype.transferForDevice = function()
 {
-	var date = new Date();
-    var now = date.getTime();
+    var now = (new Date()).getTime();
 
 	if( now < this.timeTransferNext )
 		return null;
@@ -915,22 +968,21 @@ Module.prototype.transferForDevice = function()
 	if( this.bufferTransfer == undefined )
 		this.bufferTransfer = [];
 
+	this.countReqeustDevice++;
+
 	if( this.bufferTransfer.length == 0 )
 	{
 		// 예약된 요청이 없는 경우 데이터 요청 등록(현재는 자세 데이터 요청)
 		switch( this.countReqeustDevice % 4 )
 		{
 		case 0:
-			this.ping(0x10);
-			break;
+			return this.ping(0x10);
 
 		case 2:
-			this.ping(0x11);
-			break;
+			return this.ping(0x11);
 
 		default:
-			this.reserveRequest(0x10, 0x31);
-			break;
+			return this.reserveRequest(0x10, 0x31);
 		}
 	}
 	else
@@ -939,20 +991,31 @@ Module.prototype.transferForDevice = function()
 		switch( this.countReqeustDevice % 10 )
 		{
 		case 5:
-			this.ping(0x10);
-			break;
+			return this.ping(0x10);
 
 		case 9:
-			this.ping(0x11);
-			break;
+			return this.ping(0x11);
 
 		default:
 			break;
 		}
 	}
 
-	let arrayTransfer = this.bufferTransfer.shift();	// 전송할 데이터 배열
-	this.countReqeustDevice++;
+	// 예약된 데이터 전송 처리
+	let arrayTransfer = this.bufferTransfer[0];				// 전송할 데이터 배열(첫 번째 데이터 블럭 전송)
+	if( arrayTransfer[2] == 0x04 )
+		this.dataTypeLastTransfered = arrayTransfer[6];		// 요청한 데이터의 타입(Request인 경우)
+	else
+		this.dataTypeLastTransfered = arrayTransfer[2];		// 전송한 데이터의 타입(이외의 모든 경우)
+	this.countTransferRepeat++;
+	this.timeTransfer = (new Date()).getTime();
+
+	// 3회 이상 전송했음애도 응답이 업는 경우엔 다음으로 넘어감
+	if( this.countTransferRepeat > this.maxTransferRepeat)
+	{
+		this.bufferTransfer.shift();
+		this.countTransferRepeat = 0;
+	}
 
 	//this.log("Module.prototype.transferForDevice()", arrayTransfer);
 
@@ -962,7 +1025,7 @@ Module.prototype.transferForDevice = function()
 // Ping
 Module.prototype.ping = function(target)
 {
-	var dataArray = [];
+	let dataArray = [];
 
 	// Start Code
 	this.addStartCode(dataArray);
@@ -987,13 +1050,13 @@ Module.prototype.ping = function(target)
 
 	//this.log("Module.prototype.ping()", dataArray);
 	
-	this.bufferTransfer.push(dataArray);
+	return dataArray;
 }
 
 // 데이터 요청
 Module.prototype.reserveRequest = function(target, dataType)
 {
-	var dataArray = [];
+	let dataArray = [];
 
 	// Start Code
 	this.addStartCode(dataArray);
@@ -1015,7 +1078,7 @@ Module.prototype.reserveRequest = function(target, dataType)
 
 	//this.log("Module.prototype.reserveRequest()", dataArray);
 	
-	this.bufferTransfer.push(dataArray);
+	return dataArray;
 }
 
 /***************************************************************************************
