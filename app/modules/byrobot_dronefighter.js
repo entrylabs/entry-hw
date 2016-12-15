@@ -241,11 +241,19 @@ var DataType =
 	LIGHT_MANUAL_FLAGS:			'light_manual_flags',
 	LIGHT_MANUAL_BRIGHTNESS:	'light_manual_brightness',
 
-	// Control
+	// Control - Quad
 	CONTROL_ROLL:				'control_roll',
 	CONTROL_PITCH:				'control_pitch',
 	CONTROL_YAW:				'control_yaw',
 	CONTROL_THROTTLE:			'control_throttle',
+
+	// Control - Double
+	CONTROL_WHEEL:				'control_wheel',
+	CONTROL_ACCEL:				'control_accel',
+	
+	// Command
+	COMMAND_COMMAND:			'command_command',
+	COMMAND_OPTIOIN:			'command_option',
 
 	// Buzzer
 	BUZZER_SCALE:				'buzzer_scale',
@@ -432,7 +440,73 @@ Module.prototype.handlerForEntry = function(handler)
 		// CRC16
 		this.addCRC16(dataArray, indexStart, dataLength);
 
-		this.log("Module.prototype.handlerForEntry() / Control / roll: " + control_roll + ", pitch: " + control_pitch + ", yaw: " + control_yaw + ", throttle: " + control_throttle, dataArray);
+		//this.log("Module.prototype.handlerForEntry() / Control / roll: " + control_roll + ", pitch: " + control_pitch + ", yaw: " + control_yaw + ", throttle: " + control_throttle, dataArray);
+
+		this.bufferTransfer.push(dataArray);
+	}
+
+	// Control
+	if( handler.e(DataType.CONTROL_WHEEL) == true )
+	{
+		var dataArray = [];
+
+		// Start Code
+		this.addStartCode(dataArray);
+		
+		let target					= handler.e(DataType.TARGET)					? handler.read(DataType.TARGET)					: 0xFF;
+		let control_wheel			= handler.e(DataType.CONTROL_WHEEL)				? handler.read(DataType.CONTROL_WHEEL)			: 0;
+		let control_accel			= handler.e(DataType.CONTROL_ACCEL)				? handler.read(DataType.CONTROL_ACCEL)			: 0;
+
+		let indexStart = dataArray.length;		// 배열에서 데이터를 저장하기 시작하는 위치
+		let dataLength = 2;						// 데이터의 길이
+
+		// Header
+		dataArray.push(0x10);					// Data Type
+		dataArray.push(dataLength);				// Data Length
+		dataArray.push(0x15);					// From
+		dataArray.push(target);					// To
+
+		// Data Array
+		dataArray.push(control_wheel);
+		dataArray.push(control_accel);
+
+		// CRC16
+		this.addCRC16(dataArray, indexStart, dataLength);
+
+		//this.log("Module.prototype.handlerForEntry() / Control Double / wheel: " + control_wheel + ", accel: " + control_accel, dataArray);
+
+		this.bufferTransfer.push(dataArray);
+	}
+
+	// Command
+	if( handler.e(DataType.COMMAND_COMMAND) == true )
+	{
+		var dataArray = [];
+
+		// Start Code
+		this.addStartCode(dataArray);
+		
+		let target					= handler.e(DataType.TARGET)					? handler.read(DataType.TARGET)					: 0xFF;
+		let command_comand			= handler.e(DataType.COMMAND_COMMAND)			? handler.read(DataType.COMMAND_COMMAND)		: 0;
+		let command_option			= handler.e(DataType.COMMAND_OPTIOIN)			? handler.read(DataType.COMMAND_OPTIOIN)		: 0;
+
+		let indexStart = dataArray.length;		// 배열에서 데이터를 저장하기 시작하는 위치
+		let dataLength = 2;						// 데이터의 길이
+
+		// Header
+		dataArray.push(0x11);					// Data Type
+		dataArray.push(dataLength);				// Data Length
+		dataArray.push(0x15);					// From
+		dataArray.push(target);					// To
+
+		// Data Array
+		dataArray.push(command_comand);
+		dataArray.push(command_option);
+
+		// CRC16
+		this.addCRC16(dataArray, indexStart, dataLength);
+
+		//this.log("Module.prototype.handlerForEntry() / Control Double / wheel: " + control_wheel + ", accel: " + control_accel, dataArray);
 
 		this.bufferTransfer.push(dataArray);
 	}
