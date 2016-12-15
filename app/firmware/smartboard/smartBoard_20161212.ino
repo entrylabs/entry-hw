@@ -7,33 +7,28 @@
 #define DC_B 6   //
 
 int remainData;
-int sound_offset = 0;
-int cds_offset = 0;
-int vr_offset = 0;
 const int M_SIZE=20;
 int iii=0;
 int mdata[M_SIZE];
 
-unsigned long previousMillis = 0;        // will store last time LED was updated
+unsigned long previousMillis = 0;   
 const long interval = 15;           // interval at which to blink (milliseconds)
 
 VarSpeedServo myServo[3];
-int myServoCurrentValue[3] = { 90, 90, 90 };
-int myServoPreviousValue[3] = { 90, 90, 90 };
 int myServoSpeed[3] = { 44, 44, 44 };
-int myServoState[3] = { 0, 0, 0 };   //0 is PWM. 1 is RC Servo Motor
+int myServoState[3] = { 0, 0, 0 };
+int myServoDelay = true;
 const int myServoPin[3] = { SERVO_A, SERVO_B, SERVO_C };
 
 void setup(){
+ // Serial.begin(9600);
+  Serial.flush();
+  delay(800);
+  initPorts();
+  delay(500);
+  delay(200);
   Serial.begin(9600);
   Serial.flush();
-  cal_offset();
-  delay(100);
-  initPorts();
-  delay(800);
-  analogWrite(DC_A, 0);   //DC motor stop. once more...
-  analogWrite(DC_B, 0);
-  delay(100);
 }
 
 void initPorts () {
@@ -47,51 +42,27 @@ void initPorts () {
 }
 
 void loop() {
-  unsigned long currentMillis = millis();
-  
-  while (Serial.available()) {
-    if (Serial.available() > 0) {
-      char c = Serial.read();
-      updateDigitalPort(c);
+//    unsigned long currentMillis = millis();
+    
+    while (Serial.available()) {
+      if (Serial.available() > 0) {
+        char c = Serial.read();
+        updateDigitalPort(c);
+      }
     }
-  }
-  if (currentMillis - previousMillis >= interval) {
-    previousMillis = currentMillis;
-    sendPinValues();
-  }
-}
-
-void cal_offset(){
-  int aaa=0;
-  for(int i=0;i<30;i++){
-    aaa=cal_sound();
-  }
-  sound_offset=cal_sound(); //Calculate the Offset from 300
-  cds_offset=analogRead(A4);
-  vr_offset=analogRead(A5);
-}
-
-//Made by Sang Bin Yim 20150423, Thx for your Coading...20160830
-int cal_sound(){ //calculate the moving average of the sound input 
-  if(sound_offset==0)  mdata[iii]= analogRead(A3);
-  else mdata[iii]=sound_offset-analogRead(A3);
-  iii++;
-  if(iii>=M_SIZE) iii=0;
-  
-  int sensorValue=0;
-  for(int i=0; i<M_SIZE; i++){
-    sensorValue+=abs(mdata[i]); //Moving Average
-  }
-  sensorValue=sensorValue/M_SIZE; 
-  
-  return sensorValue;  
+//   
+//    if (currentMillis - previousMillis >= interval) {
+//      previousMillis = currentMillis;
+    delay(10);
+      sendPinValues();
+//    }
 }
 
 void sendPinValues() {
   int pinNumber = 0;
   for (pinNumber = 0; pinNumber < 16; pinNumber++) {
       if ( pinNumber == SERVO_A || pinNumber == SERVO_B || pinNumber == SERVO_C );
-      else if( pinNumber == DC_A || pinNumber == DC_B );
+//      else if( pinNumber == DC_A || pinNumber == DC_B );
       else sendDigitalValue(pinNumber);
   }
   for (pinNumber = 2; pinNumber < 6; pinNumber++) {
@@ -116,7 +87,7 @@ void updateDigitalPort (char c) {
           }
         } else {
           if( c & 1 ) {
-            if( port == myServoPin[port-9] && myServoState[port-9] == 0 ) { myServo[port-9].attach(port); myServo[port-9].write(90, myServoSpeed[port-9]), myServoState[port-9] = 1; }
+//            if( port == myServoPin[port-9] && myServoState[port-9] == 0 ) { myServo[port-9].attach(port); myServo[port-9].write(90, myServoSpeed[port-9]), myServoState[port-9] = 1; }
           } else {
             if( port == myServoPin[port-9] && myServoState[port-9] == 0 ) digitalWrite(port, LOW);
           }
@@ -137,13 +108,15 @@ void updateDigitalPort (char c) {
       setPortWritable(port);
       analogWrite(port, value);
     } else {
-        if( port == myServoPin[port-9] && myServoState[port-9] == 0 ) {
+        VarSpeedServo sv = myServo[port-9];
+        if( port == myServoPin[port-9] && (value%2 == 0) ) {
             setPortWritable(port);
-            analogWrite(port, value);
-        } else if ( port == myServoPin[port-9] && myServoState[port-9] == 1 ) {
-          if( value > 0 && value < 185 ) { myServo[port-9].write(value, myServoSpeed[port-9]); }
-          else if( value > 185 && value < 253 ) myServoSpeed[port-9] = (value-180)<<2;
-          else if( value == 253 ) myServoSpeed[port-9] = 255;
+            if(value > 3) analogWrite(port, value);
+            else digitalWrite(port, LOW);
+        } else if ( port == myServoPin[port-9] && (value%2 == 1) ) {
+          if( value == 253 ) myServoSpeed[port-9] = 255;
+          if( value > 185 && value < 253 ) myServoSpeed[port-9] = (value-180)<<2;
+          if( value > 0 && value < 185 ) { sv.attach(port); sv.write(value, myServoSpeed[port-9]); myServoState[port-9] = 1; }
         }
     }
     remainData = 0;
@@ -152,15 +125,7 @@ void updateDigitalPort (char c) {
 
 void sendAnalogValue(int pinNumber) {
   int value;
-  //Modified by Sang Bin Yim 20150423, Thx for your Coading...
-  switch(pinNumber) {
-    case 3: value = cal_sound();  break;
-    default:
-      value = analogRead(pinNumber);
-    break;
-  }
-  if(pinNumber == 3 ) value = cal_sound();
-  else value = analogRead(pinNumber);
+  value = analogRead(pinNumber);
   
   Serial.write(B11000000
                | ((pinNumber & B111)<<3)
