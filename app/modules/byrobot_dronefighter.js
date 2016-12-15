@@ -291,94 +291,111 @@ Module.prototype.checkAck = function(data, config)
 //   Entry.hw.update를 호출하면 등록된 값 전체를 한 번에 즉시 전송하는 것으로 보임
 Module.prototype.handlerForEntry = function(handler)
 {
+	if( this.bufferTransfer == undefined )
+		this.bufferTransfer = [];
+
 	// Light Mode
 	if( handler.e(DataType.LIGHT_MODE_MODE) == true )
 	{
+		var dataArray = [];
+
 		// Start Code
-		this.addStartCode();
+		this.addStartCode(dataArray);
 		
 		let target					= handler.e(DataType.TARGET)					? handler.read(DataType.TARGET)					: 0xFF;
 		let lightMode_mode			= handler.e(DataType.LIGHT_MODE_MODE)			? handler.read(DataType.LIGHT_MODE_MODE)		: 0;
 		let lightMode_interval		= handler.e(DataType.LIGHT_MODE_INTERVAL)		? handler.read(DataType.LIGHT_MODE_INTERVAL)	: 0;
 
-		let indexStart = this.bufferTransfer.length;		// 배열에서 데이터를 저장하기 시작하는 위치
+		let indexStart = dataBlock.length;		// 배열에서 데이터를 저장하기 시작하는 위치
 		let dataLength = 2;									// 데이터의 길이
 
 		// Header
-		this.bufferTransfer.push(0x21);						// Data Type
-		this.bufferTransfer.push(dataLength);				// Data Length
-		this.bufferTransfer.push(0x15);						// From
-		this.bufferTransfer.push(target);					// To
+		dataArray.push(0x21);						// Data Type
+		dataArray.push(dataLength);				// Data Length
+		dataArray.push(0x15);						// From
+		dataArray.push(target);					// To
 
 		// Data
-		this.bufferTransfer.push(lightMode_mode);
-		this.bufferTransfer.push(lightMode_interval);
+		dataArray.push(lightMode_mode);
+		dataArray.push(lightMode_interval);
 
 		// CRC16
-		this.addCRC16(indexStart, dataLength);
+		this.addCRC16(dataArray, indexStart, dataLength);
+
+		this.bufferTransfer.push(dataArray);
 	}
 	
 	// Light Event
 	if( handler.e(DataType.LIGHT_EVENT_EVENT) == true )
 	{
+		var dataArray = [];
+
 		// Start Code
-		this.addStartCode();
+		this.addStartCode(dataArray);
 		
 		let target					= handler.e(DataType.TARGET)					? handler.read(DataType.TARGET)					: 0xFF;
 		let lightEvent_event		= handler.e(DataType.LIGHT_EVENT_EVENT)			? handler.read(DataType.LIGHT_EVENT_EVENT)		: 0;
 		let lightEvent_interval		= handler.e(DataType.LIGHT_EVENT_INTERVAL)		? handler.read(DataType.LIGHT_EVENT_INTERVAL)	: 0;
 		let lightEvent_repeat		= handler.e(DataType.LIGHT_EVENT_REPEAT)		? handler.read(DataType.LIGHT_EVENT_REPEAT)		: 0;
 
-		let indexStart = this.bufferTransfer.length;		// 배열에서 데이터를 저장하기 시작하는 위치
-		let dataLength = 3;									// 데이터의 길이
+		let indexStart = dataArray.length;		// 배열에서 데이터를 저장하기 시작하는 위치
+		let dataLength = 3;						// 데이터의 길이
 
 		// Header
-		this.bufferTransfer.push(0x26);						// Data Type
-		this.bufferTransfer.push(dataLength);				// Data Length
-		this.bufferTransfer.push(0x15);						// From
-		this.bufferTransfer.push(target);					// To
+		dataArray.push(0x26);					// Data Type
+		dataArray.push(dataLength);				// Data Length
+		dataArray.push(0x15);					// From
+		dataArray.push(target);					// To
 
 		// Data Array
-		this.bufferTransfer.push(lightEvent_event);
-		this.bufferTransfer.push(lightEvent_interval);
-		this.bufferTransfer.push(lightEvent_repeat);
+		dataArray.push(lightEvent_event);
+		dataArray.push(lightEvent_interval);
+		dataArray.push(lightEvent_repeat);
 
 		// CRC16
-		this.addCRC16(indexStart, dataLength);
+		this.addCRC16(dataArray, indexStart, dataLength);
+
+		this.bufferTransfer.push(dataArray);
 	}
 	
 	// Light Manaul
 	if( handler.e(DataType.LIGHT_MANUAL_FLAGS) == true )
 	{
+		var dataArray = [];
+
 		// Start Code
-		this.addStartCode();
+		this.addStartCode(dataArray);
 		
 		let target					= handler.e(DataType.TARGET)					? handler.read(DataType.TARGET)						: 0xFF;
 		let lightManual_flags		= handler.e(DataType.LIGHT_MANUAL_FLAGS)		? handler.read(DataType.LIGHT_MANUAL_FLAGS)			: 0;
 		let lightManual_brightness	= handler.e(DataType.LIGHT_MANUAL_BRIGHTNESS)	? handler.read(DataType.LIGHT_MANUAL_BRIGHTNESS)	: 0;
 
-		let indexStart = this.bufferTransfer.length;		// 배열에서 데이터를 저장하기 시작하는 위치
+		let indexStart = dataArray.length;		// 배열에서 데이터를 저장하기 시작하는 위치
 		let dataLength = 2;									// 데이터의 길이
 
 		// Header
-		this.bufferTransfer.push(0x20);						// Data Type
-		this.bufferTransfer.push(dataLength);				// Data Length
-		this.bufferTransfer.push(0x15);						// From
-		this.bufferTransfer.push(target);					// To
+		dataArray.push(0x20);						// Data Type
+		dataArray.push(dataLength);				// Data Length
+		dataArray.push(0x15);						// From
+		dataArray.push(target);					// To
 
 		// Data
-		this.bufferTransfer.push(lightManual_flags);
-		this.bufferTransfer.push(lightManual_brightness);
+		dataArray.push(lightManual_flags);
+		dataArray.push(lightManual_brightness);
 
 		// CRC16
-		this.addCRC16(indexStart, dataLength);
+		this.addCRC16(dataArray, indexStart, dataLength);
+
+		this.bufferTransfer.push(dataArray);
 	}
 
 	// Control
 	if( handler.e(DataType.CONTROL_ROLL) == true )
 	{
+		var dataArray = [];
+
 		// Start Code
-		this.addStartCode();
+		this.addStartCode(dataArray);
 		
 		let target					= handler.e(DataType.TARGET)					? handler.read(DataType.TARGET)					: 0xFF;
 		let control_roll			= handler.e(DataType.CONTROL_ROLL)				? handler.read(DataType.CONTROL_ROLL)			: 0;
@@ -386,108 +403,118 @@ Module.prototype.handlerForEntry = function(handler)
 		let control_yaw				= handler.e(DataType.CONTROL_YAW)				? handler.read(DataType.CONTROL_YAW)			: 0;
 		let control_throttle		= handler.e(DataType.CONTROL_THROTTLE)			? handler.read(DataType.CONTROL_THROTTLE)		: 0;
 
-		let indexStart = this.bufferTransfer.length;		// 배열에서 데이터를 저장하기 시작하는 위치
+		let indexStart = dataArray.length;		// 배열에서 데이터를 저장하기 시작하는 위치
 		let dataLength = 4;									// 데이터의 길이
 
 		// Header
-		this.bufferTransfer.push(0x10);						// Data Type
-		this.bufferTransfer.push(dataLength);				// Data Length
-		this.bufferTransfer.push(0x15);						// From
-		this.bufferTransfer.push(target);					// To
+		dataArray.push(0x10);						// Data Type
+		dataArray.push(dataLength);				// Data Length
+		dataArray.push(0x15);						// From
+		dataArray.push(target);					// To
 
 		// Data Array
-		this.bufferTransfer.push(control_roll);
-		this.bufferTransfer.push(control_pitch);
-		this.bufferTransfer.push(control_yaw);
-		this.bufferTransfer.push(control_throttle);
+		dataArray.push(control_roll);
+		dataArray.push(control_pitch);
+		dataArray.push(control_yaw);
+		dataArray.push(control_throttle);
 
 		// CRC16
-		this.addCRC16(indexStart, dataLength);
+		this.addCRC16(dataArray, indexStart, dataLength);
 
-		this.log("Module.prototype.handlerForEntry() / Control / roll: " + control_roll + ", pitch: " + control_pitch + ", yaw: " + control_yaw + ", throttle: " + control_throttle, this.bufferTransfer);
+		this.log("Module.prototype.handlerForEntry() / Control / roll: " + control_roll + ", pitch: " + control_pitch + ", yaw: " + control_yaw + ", throttle: " + control_throttle, dataArray);
+
+		this.bufferTransfer.push(dataArray);
 	}
 
 	// Buzzer
 	if( handler.e(DataType.BUZZER_SCALE) == true )
 	{
+		var dataArray = [];
+
 		// Start Code
-		this.addStartCode();
+		this.addStartCode(dataArray);
 		
 		let target					= handler.e(DataType.TARGET)					? handler.read(DataType.TARGET)						: 0xFF;
 		let buzzer_scale			= handler.e(DataType.BUZZER_SCALE)				? handler.read(DataType.BUZZER_SCALE)				: 0;
 		let buzzer_time				= handler.e(DataType.BUZZER_TIME)				? handler.read(DataType.BUZZER_TIME)				: 0;
 
-		let indexStart = this.bufferTransfer.length;		// 배열에서 데이터를 저장하기 시작하는 위치
+		let indexStart = dataArray.length;		// 배열에서 데이터를 저장하기 시작하는 위치
 		let dataLength = 3;									// 데이터의 길이
 
 		// Header
-		this.bufferTransfer.push(0x38);						// Data Type
-		this.bufferTransfer.push(dataLength);				// Data Length
-		this.bufferTransfer.push(0x15);						// From
-		this.bufferTransfer.push(target);					// To
+		dataArray.push(0x38);						// Data Type
+		dataArray.push(dataLength);				// Data Length
+		dataArray.push(0x15);						// From
+		dataArray.push(target);					// To
 
 		// Data
-		this.bufferTransfer.push(buzzer_scale);
-		this.bufferTransfer.push(this.getByte0(buzzer_time));
-		this.bufferTransfer.push(this.getByte1(buzzer_time));
+		dataArray.push(buzzer_scale);
+		dataArray.push(this.getByte0(buzzer_time));
+		dataArray.push(this.getByte1(buzzer_time));
 
 		// CRC16
-		this.addCRC16(indexStart, dataLength);
+		this.addCRC16(dataArray, indexStart, dataLength);
 
-		this.log("Module.prototype.handlerForEntry() / BUZZER / buzzer_scale: " + buzzer_scale + ", buzzer_time: " + buzzer_time, this.bufferTransfer);
+		//this.log("Module.prototype.handlerForEntry() / BUZZER / buzzer_scale: " + buzzer_scale + ", buzzer_time: " + buzzer_time, dataArray);
+
+		this.bufferTransfer.push(dataArray);
 	}
 
 	// Vibrator
 	if( handler.e(DataType.VIBRATOR_ON) == true )
 	{
+		var dataArray = [];
+
 		// Start Code
-		this.addStartCode();
+		this.addStartCode(dataArray);
 		
 		let target					= handler.e(DataType.TARGET)					? handler.read(DataType.TARGET)						: 0xFF;
 		let vibrator_on				= handler.e(DataType.VIBRATOR_ON)				? handler.read(DataType.VIBRATOR_ON)				: 0;
 		let vibrator_off			= handler.e(DataType.VIBRATOR_OFF)				? handler.read(DataType.VIBRATOR_OFF)				: 0;
 		let vibrator_total			= handler.e(DataType.VIBRATOR_TOTAL)			? handler.read(DataType.VIBRATOR_TOTAL)				: 0;
 
-		let indexStart = this.bufferTransfer.length;		// 배열에서 데이터를 저장하기 시작하는 위치
+		let indexStart = dataArray.length;		// 배열에서 데이터를 저장하기 시작하는 위치
 		let dataLength = 6;									// 데이터의 길이
 
 		// Header
-		this.bufferTransfer.push(0x39);						// Data Type
-		this.bufferTransfer.push(dataLength);				// Data Length
-		this.bufferTransfer.push(0x15);						// From
-		this.bufferTransfer.push(target);					// To
+		dataArray.push(0x39);						// Data Type
+		dataArray.push(dataLength);				// Data Length
+		dataArray.push(0x15);						// From
+		dataArray.push(target);					// To
 
 		// Data
-		this.bufferTransfer.push(this.getByte0(vibrator_on));
-		this.bufferTransfer.push(this.getByte1(vibrator_on));
-		this.bufferTransfer.push(this.getByte0(vibrator_off));
-		this.bufferTransfer.push(this.getByte1(vibrator_off));
-		this.bufferTransfer.push(this.getByte0(vibrator_total));
-		this.bufferTransfer.push(this.getByte1(vibrator_total));
+		dataArray.push(this.getByte0(vibrator_on));
+		dataArray.push(this.getByte1(vibrator_on));
+		dataArray.push(this.getByte0(vibrator_off));
+		dataArray.push(this.getByte1(vibrator_off));
+		dataArray.push(this.getByte0(vibrator_total));
+		dataArray.push(this.getByte1(vibrator_total));
 
 		// CRC16
-		this.addCRC16(indexStart, dataLength);
+		this.addCRC16(dataArray, indexStart, dataLength);
+
+		this.bufferTransfer.push(dataArray);
 	}
 
 	
-	//this.log("Module.prototype.handlerForEntry()", this.bufferTransfer);
+	//this.log("Module.prototype.handlerForEntry()", dataArray);
 }
 
 // 시작 코드 추가
-Module.prototype.addStartCode = function()
+Module.prototype.addStartCode = function(dataArray)
 {
-	if( this.bufferTransfer == undefined )
-		this.bufferTransfer = [];
+	if( dataArray == undefined )
+		dataArray = [];
 
 	// Start Code
-	this.bufferTransfer.push(0x0A);
-	this.bufferTransfer.push(0x55);
+	dataArray.push(0x0A);
+	dataArray.push(0x55);
 }
 
 // CRC16을 계산해서 추가
-Module.prototype.addCRC16 = function(indexStart, dataLength)
+Module.prototype.addCRC16 = function(dataArray, indexStart, dataLength)
 {
-	if( this.bufferTransfer.length < indexStart + 4 + dataLength )
+	if( dataArray.length < indexStart + 4 + dataLength )
 		return;
 	
 	// CRC16
@@ -495,10 +522,10 @@ Module.prototype.addCRC16 = function(indexStart, dataLength)
 	let totalLength = 4 + dataLength;
 	for(let i=0; i<totalLength; i++)
 	{
-		crc16 = this.calcCRC16(this.bufferTransfer[indexStart + i], crc16);
+		crc16 = this.calcCRC16(dataArray[indexStart + i], crc16);
 	}
-	this.bufferTransfer.push((crc16 & 0xff));
-	this.bufferTransfer.push(((crc16 >> 8) & 0xff));
+	dataArray.push((crc16 & 0xff));
+	dataArray.push(((crc16 >> 8) & 0xff));
 }
 
 // Entry에 데이터 전송
@@ -582,7 +609,7 @@ Module.prototype.receiverForDevice = function(data)
 		this.receiveBuffer.push(data[i]);
 	}
 
-	this.log("Module.prototype.receiverForDevice()", this.receiveBuffer);
+	//this.log("Module.prototype.receiverForDevice()", this.receiveBuffer);
 
 	// 버퍼로부터 데이터를 읽어 하나의 완성된 데이터 블럭으로 변환
 	while(this.receiveBuffer.length > 0)
@@ -739,7 +766,7 @@ Module.prototype.handlerForDevice = function()
 			attitude.attitude_pitch	= this.extractInt16(this.dataBlock, 2);
 			attitude.attitude_yaw	= this.extractInt16(this.dataBlock, 4);
 
-			console.log("handlerForDevice - attitude: " + attitude.attitude_roll + ", " + attitude.attitude_pitch + ", " + attitude.attitude_yaw);
+			//console.log("handlerForDevice - attitude: " + attitude.attitude_roll + ", " + attitude.attitude_pitch + ", " + attitude.attitude_yaw);
 		}
 		break;
 
@@ -760,7 +787,7 @@ Module.prototype.handlerForDevice = function()
 			joystick.joystick_right_event		= this.extractUInt8(this.dataBlock, 8);
 			joystick.joystick_right_command		= this.extractUInt8(this.dataBlock, 9);
 
-			console.log("handlerForDevice - Joystick: " + joystick.joystick_left_x + ", " + joystick.joystick_left_y + ", " + joystick.joystick_right_x + ", " + joystick.joystick_right_y);
+			//console.log("handlerForDevice - Joystick: " + joystick.joystick_left_x + ", " + joystick.joystick_left_y + ", " + joystick.joystick_right_x + ", " + joystick.joystick_right_y);
 		}
 		break;
 
@@ -773,7 +800,7 @@ Module.prototype.handlerForDevice = function()
 			button.button_button	= this.extractUInt16(this.dataBlock, 0);
 			button.button_event		= this.extractUInt8(this.dataBlock, 2);
 
-			console.log("handlerForDevice - Button: " + button.button_button + ", " + button.button_event);
+			//console.log("handlerForDevice - Button: " + button.button_button + ", " + button.button_event);
 		}
 		break;
 
@@ -785,7 +812,7 @@ Module.prototype.handlerForDevice = function()
 			irmeessage._updated			= true;
 			irmeessage.irmessage_irdata	= this.extractUInt32(this.dataBlock, 0);
 
-			console.log("handlerForDevice - IR Message: " + irmeessage.irmessage_irdata);
+			//console.log("handlerForDevice - IR Message: " + irmeessage.irmessage_irdata);
 		}
 		break;
 
@@ -885,7 +912,10 @@ Module.prototype.transferForDevice = function()
 	
 	this.timeTransferNext = now + this.timeTransferInterval;
 
-	if( this.bufferTransfer == undefined || this.bufferTransfer.length == 0 )
+	if( this.bufferTransfer == undefined )
+		this.bufferTransfer = [];
+
+	if( this.bufferTransfer.length == 0 )
 	{
 		// 예약된 요청이 없는 경우 데이터 요청 등록(현재는 자세 데이터 요청)
 		switch( this.countReqeustDevice % 4 )
@@ -921,8 +951,7 @@ Module.prototype.transferForDevice = function()
 		}
 	}
 
-	let arrayTransfer = this.bufferTransfer.slice(0);	// 전송할 데이터 배열
-	this.bufferTransfer = [];							// 기존 버퍼 비우기
+	let arrayTransfer = this.bufferTransfer.shift();	// 전송할 데이터 배열
 	this.countReqeustDevice++;
 
 	//this.log("Module.prototype.transferForDevice()", arrayTransfer);
@@ -933,52 +962,60 @@ Module.prototype.transferForDevice = function()
 // Ping
 Module.prototype.ping = function(target)
 {
+	var dataArray = [];
+
 	// Start Code
-	this.addStartCode();
+	this.addStartCode(dataArray);
 	
-	let indexStart = this.bufferTransfer.length;		// 배열에서 데이터를 저장하기 시작하는 위치
+	let indexStart = dataArray.length;		// 배열에서 데이터를 저장하기 시작하는 위치
 	let dataLength = 4;		// 데이터의 길이
 
 	// Header
-	this.bufferTransfer.push(0x01);			// Data Type (UpdateLookupTarget)
-	this.bufferTransfer.push(dataLength);	// Data Length
-	this.bufferTransfer.push(0x15);			// From
-	this.bufferTransfer.push(target);		// To
+	dataArray.push(0x01);			// Data Type (UpdateLookupTarget)
+	dataArray.push(dataLength);		// Data Length
+	dataArray.push(0x15);			// From
+	dataArray.push(target);			// To
 
 	// Data Array
-	this.bufferTransfer.push(0x00);			// systemTime
-	this.bufferTransfer.push(0x00);
-	this.bufferTransfer.push(0x00);
-	this.bufferTransfer.push(0x00);
+	dataArray.push(0x00);			// systemTime
+	dataArray.push(0x00);
+	dataArray.push(0x00);
+	dataArray.push(0x00);
 
 	// CRC16
-	this.addCRC16(indexStart, dataLength);
+	this.addCRC16(dataArray, indexStart, dataLength);
 
-	//this.log("Module.prototype.ping()", this.bufferTransfer);
+	//this.log("Module.prototype.ping()", dataArray);
+	
+	this.bufferTransfer.push(dataArray);
 }
 
 // 데이터 요청
 Module.prototype.reserveRequest = function(target, dataType)
 {
+	var dataArray = [];
+
 	// Start Code
-	this.addStartCode();
+	this.addStartCode(dataArray);
 	
-	let indexStart = this.bufferTransfer.length;		// 배열에서 데이터를 저장하기 시작하는 위치
+	let indexStart = dataArray.length;		// 배열에서 데이터를 저장하기 시작하는 위치
 	let dataLength = 1;		// 데이터의 길이
 
 	// Header
-	this.bufferTransfer.push(0x04);			// Data Type (Request)
-	this.bufferTransfer.push(dataLength);	// Data Length
-	this.bufferTransfer.push(0x15);			// From
-	this.bufferTransfer.push(target);		// To
+	dataArray.push(0x04);			// Data Type (Request)
+	dataArray.push(dataLength);		// Data Length
+	dataArray.push(0x15);			// From
+	dataArray.push(target);			// To
 
 	// Data Array
-	this.bufferTransfer.push(dataType);		// Request DataType
+	dataArray.push(dataType);		// Request DataType
 
 	// CRC16
-	this.addCRC16(indexStart, dataLength);
+	this.addCRC16(dataArray, indexStart, dataLength);
 
-	//this.log("Module.prototype.reserveRequest()", this.bufferTransfer);
+	//this.log("Module.prototype.reserveRequest()", dataArray);
+	
+	this.bufferTransfer.push(dataArray);
 }
 
 /***************************************************************************************
