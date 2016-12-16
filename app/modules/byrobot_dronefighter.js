@@ -48,6 +48,19 @@ function Module()
 		button_event: 0
 	}
 
+	// State
+	this.state = 
+	{
+		_updated: 0,
+		state_modeVehicle: 0,
+		state_modeSystem: 0,
+		state_modeFlight: 0,
+		state_modeDrive: 0,
+		state_sensorOrientation: 0,
+		state_coordinate: 0,
+		state_battery: 0,
+	}
+
 	// Attitude
 	this.attitude =
 	{
@@ -158,7 +171,7 @@ Module.prototype.resetData = function()
 	ack._updated				= 0;
 	ack.ack_systemTime			= 0;
 	ack.ack_dataType			= 0;
-
+	
 	// Joystick
 	let joystick						= this.joystick; 
 	joystick._updated					= 0;
@@ -178,6 +191,17 @@ Module.prototype.resetData = function()
 	button._updated				= 0;
 	button.button_button		= 0;
 	button.button_event			= 0;
+
+	// State
+	let state							= this.state;
+	state._updated						= 0;
+	state.state_modeVehicle				= 0;
+	state.state_modeSystem				= 0;
+	state.state_modeFlight				= 0;
+	state.state_modeDrive				= 0;
+	state.state_sensorOrientation		= 0;
+	state.state_coordinate				= 0;
+	state.state_battery					= 0;
 
 	// Attitude
 	let attitude				= this.attitude;
@@ -326,12 +350,12 @@ Module.prototype.handlerForEntry = function(handler)
 		let lightMode_interval		= handler.e(DataType.LIGHT_MODE_INTERVAL)		? handler.read(DataType.LIGHT_MODE_INTERVAL)	: 0;
 
 		let indexStart = dataBlock.length;		// 배열에서 데이터를 저장하기 시작하는 위치
-		let dataLength = 2;									// 데이터의 길이
+		let dataLength = 2;						// 데이터의 길이
 
 		// Header
-		dataArray.push(0x21);						// Data Type
+		dataArray.push(0x21);					// Data Type
 		dataArray.push(dataLength);				// Data Length
-		dataArray.push(0x15);						// From
+		dataArray.push(0x15);					// From
 		dataArray.push(target);					// To
 
 		// Data
@@ -390,12 +414,12 @@ Module.prototype.handlerForEntry = function(handler)
 		let lightManual_brightness	= handler.e(DataType.LIGHT_MANUAL_BRIGHTNESS)	? handler.read(DataType.LIGHT_MANUAL_BRIGHTNESS)	: 0;
 
 		let indexStart = dataArray.length;		// 배열에서 데이터를 저장하기 시작하는 위치
-		let dataLength = 2;									// 데이터의 길이
+		let dataLength = 2;						// 데이터의 길이
 
 		// Header
-		dataArray.push(0x20);						// Data Type
+		dataArray.push(0x20);					// Data Type
 		dataArray.push(dataLength);				// Data Length
-		dataArray.push(0x15);						// From
+		dataArray.push(0x15);					// From
 		dataArray.push(target);					// To
 
 		// Data
@@ -646,6 +670,21 @@ Module.prototype.tansferForEntry = function(handler)
 		}
 	}
 
+	// State
+	{
+		let state = this.state;
+		if( state._updated == true )
+		{
+			for(let key in state)
+			{
+				handler.write(key, state[key]);
+			}
+
+			state._updated == false;
+			//this.log("Module.prototype.tansferForEntry() / state", "");
+		}
+	}
+
 	// Attitude
 	{
 		let attitude = this.attitude;
@@ -841,7 +880,7 @@ Module.prototype.handlerForDevice = function()
 
 			// ping에 대한 ack는 로그 출력하지 않음
 			if( ack.ack_dataType != 0x01 )
-				console.log("handlerForDevice - Ack: " + ack.ack_systemTime + ", " + ack.ack_dataType + " / " + this.countTransferRepeat);
+				console.log("handlerForDevice - Ack: " + this.from + ", " + ack.ack_systemTime + ", " + ack.ack_dataType + " / " + this.countTransferRepeat);
 
 			// 마지막으로 전송한 데이터에 대한 응답을 받았다면 
 			if( this.bufferTransfer != undefined &&
@@ -871,20 +910,23 @@ Module.prototype.handlerForDevice = function()
 
 	switch( this.dataType )
 	{
-		/*
-	case 0x02:	// Ack
-		if( this.dataBlock.length == 5 )
+	case 0x30:	// State
+		if( this.dataBlock.length == 7 )
 		{
 			// Device -> Entry 
-			let ack				= this.ack;
-			ack._updated		= true;
-			ack.ack_systemTime	= this.extractUInt32(this.dataBlock, 0);
-			ack.ack_dataType	= this.extractUInt8(this.dataBlock, 4);
+			let state							= this.state;
+			state._updated						= true;
+			state.state_modeVehicle				= this.extractUInt8(this.dataBlock, 0);
+			state.state_modeSystem				= this.extractUInt8(this.dataBlock, 1);
+			state.state_modeFlight				= this.extractUInt8(this.dataBlock, 2);
+			state.state_modeDrive				= this.extractUInt8(this.dataBlock, 3);
+			state.state_sensorOrientation		= this.extractUInt8(this.dataBlock, 4);
+			state.state_coordinate				= this.extractUInt8(this.dataBlock, 5);
+			state.state_battery					= this.extractUInt8(this.dataBlock, 6);
 
-			console.log("handlerForDevice - Ack: " + ack.ack_systemTime + ", " + ack.ack_dataType);
+			//console.log("handlerForDevice - attitude: " + attitude.attitude_roll + ", " + attitude.attitude_pitch + ", " + attitude.attitude_yaw);
 		}
 		break;
-		*/
 
 	case 0x31:	// Attitude
 		if( this.dataBlock.length == 6 )
@@ -1049,13 +1091,16 @@ Module.prototype.transferForDevice = function()
 	if( this.bufferTransfer.length == 0 )
 	{
 		// 예약된 요청이 없는 경우 데이터 요청 등록(현재는 자세 데이터 요청)
-		switch( this.countReqeustDevice % 4 )
+		switch( this.countReqeustDevice % 6 )
 		{
 		case 0:
 			return this.ping(0x10);
 
 		case 2:
 			return this.ping(0x11);
+
+		case 4:
+			return this.reserveRequest(0x10, 0x30);
 
 		default:
 			return this.reserveRequest(0x10, 0x31);
@@ -1064,13 +1109,19 @@ Module.prototype.transferForDevice = function()
 	else
 	{
 		// 예약된 요청이 있는 경우에도 간헐적으로 장치 검색(연결 유지를 위해)
-		switch( this.countReqeustDevice % 10 )
+		switch( this.countReqeustDevice % 15 )
 		{
-		case 5:
+		case 3:
 			return this.ping(0x10);
 
-		case 9:
+		case 6:
 			return this.ping(0x11);
+
+		case 9:
+			return this.reserveRequest(0x10, 0x30);
+
+		case 12:
+			return this.reserveRequest(0x10, 0x31);
 
 		default:
 			break;
