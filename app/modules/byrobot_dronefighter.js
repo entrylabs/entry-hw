@@ -241,20 +241,6 @@ var DataType =
 	LIGHT_MANUAL_FLAGS:			'light_manual_flags',
 	LIGHT_MANUAL_BRIGHTNESS:	'light_manual_brightness',
 
-	// Control - Quad
-	CONTROL_ROLL:				'control_roll',
-	CONTROL_PITCH:				'control_pitch',
-	CONTROL_YAW:				'control_yaw',
-	CONTROL_THROTTLE:			'control_throttle',
-
-	// Control - Double
-	CONTROL_WHEEL:				'control_wheel',
-	CONTROL_ACCEL:				'control_accel',
-	
-	// Command
-	COMMAND_COMMAND:			'command_command',
-	COMMAND_OPTIOIN:			'command_option',
-
 	// Buzzer
 	BUZZER_SCALE:				'buzzer_scale',
 	BUZZER_TIME:				'buzzer_time',
@@ -262,7 +248,21 @@ var DataType =
 	// Vibrator
 	VIBRATOR_ON:				'vibrator_on',
 	VIBRATOR_OFF:				'vibrator_off',
-	VIBRATOR_TOTAL:				'vibrator_total'
+	VIBRATOR_TOTAL:				'vibrator_total',
+
+	// Control - Double
+	CONTROL_WHEEL:				'control_wheel',
+	CONTROL_ACCEL:				'control_accel',
+	
+	// Control - Quad
+	CONTROL_ROLL:				'control_roll',
+	CONTROL_PITCH:				'control_pitch',
+	CONTROL_YAW:				'control_yaw',
+	CONTROL_THROTTLE:			'control_throttle',
+
+	// Command
+	COMMAND_COMMAND:			'command_command',
+	COMMAND_OPTIOIN:			'command_option',
 }
 
 /***************************************************************************************
@@ -506,7 +506,7 @@ Module.prototype.handlerForEntry = function(handler)
 		// CRC16
 		this.addCRC16(dataArray, indexStart, dataLength);
 
-		//this.log("Module.prototype.handlerForEntry() / Control Double / wheel: " + control_wheel + ", accel: " + control_accel, dataArray);
+		this.log("Module.prototype.handlerForEntry() / COMMAND / command: " + command_comand + ", option: " + command_option, dataArray);
 
 		this.bufferTransfer.push(dataArray);
 	}
@@ -524,12 +524,12 @@ Module.prototype.handlerForEntry = function(handler)
 		let buzzer_time				= handler.e(DataType.BUZZER_TIME)				? handler.read(DataType.BUZZER_TIME)				: 0;
 
 		let indexStart = dataArray.length;		// 배열에서 데이터를 저장하기 시작하는 위치
-		let dataLength = 3;									// 데이터의 길이
+		let dataLength = 3;						// 데이터의 길이
 
 		// Header
-		dataArray.push(0x38);						// Data Type
+		dataArray.push(0x38);					// Data Type
 		dataArray.push(dataLength);				// Data Length
-		dataArray.push(0x15);						// From
+		dataArray.push(0x15);					// From
 		dataArray.push(target);					// To
 
 		// Data
@@ -839,7 +839,9 @@ Module.prototype.handlerForDevice = function()
 			ack.ack_systemTime	= this.extractUInt32(this.dataBlock, 0);
 			ack.ack_dataType	= this.extractUInt8(this.dataBlock, 4);
 
-			console.log("handlerForDevice - Ack: " + ack.ack_systemTime + ", " + ack.ack_dataType + " / " + this.countTransferRepeat);
+			// ping에 대한 ack는 로그 출력하지 않음
+			if( ack.ack_dataType != 0x01 )
+				console.log("handlerForDevice - Ack: " + ack.ack_systemTime + ", " + ack.ack_dataType + " / " + this.countTransferRepeat);
 
 			// 마지막으로 전송한 데이터에 대한 응답을 받았다면 
 			if( this.bufferTransfer != undefined &&
