@@ -4,6 +4,7 @@
 		"en": "dadublock",
 		"ko": "다두블럭"
 	},
+	"platform": ["win32", "darwin"],
 	"icon" : "dadublock.png",
 	"module": "dadublock.js",
 	"url": "http://www.dadublock.com",
@@ -24,6 +25,5 @@
 		"baudRate": 115200,
 		"duration": 32,
 		"firmwarecheck": false
-
     }
 }
