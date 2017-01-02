@@ -21,7 +21,8 @@ function Module()
 	{
 		_updated: 0,
 		ack_systemTime: 0,		// u32
-		ack_dataType: 0			// u8
+		ack_dataType: 0,		// u8
+		ack_crc16: 0			// u16
 	}
 
 	// Joystick
@@ -99,15 +100,16 @@ function Module()
 	this.dataBlock				= [];		// 수신 받은 데이터 블럭
 	this.crc16Calculated		= 0;		// CRC16 계산 된 결과
 	this.crc16Received			= 0;		// CRC16 수신 받은 블럭
+	this.crc16Transfered		= 0;		// 전송한 데이터의 crc16
 	
-	this.maxTransferRepeat		= 5;		// 최대 반복 전송 횟수
+	this.maxTransferRepeat		= 10;		// 최대 반복 전송 횟수
 	this.countTransferRepeat	= 0;		// 반복 전송 횟수
 	this.dataTypeLastTransfered	= 0;		// 마지막으로 전송한 데이터의 타입
 
 	this.timeReceive			= 0;		// 데이터를 전송 받은 시각
 	this.timeTransfer			= 0;		// 예약 데이터를 전송한 시각
 	this.timeTransferNext		= 0;		// 전송 가능한 다음 시간
-	this.timeTransferInterval	= 20;		// 최소 전송 시간 간격
+	this.timeTransferInterval	= 40;		// 최소 전송 시간 간격
 
 	this.countReqeustDevice		= 0;		// 장치에 데이터를 요청한 횟수 카운트 
 }
@@ -180,6 +182,7 @@ Module.prototype.resetData = function()
 	ack._updated						= 0;
 	ack.ack_systemTime					= 0;
 	ack.ack_dataType					= 0;
+	ack.ack_crc16						= 0;
 	
 	// Joystick
 	let joystick						= this.joystick; 
@@ -224,6 +227,13 @@ Module.prototype.resetData = function()
 	irmeessage._updated					= 0;
 	irmeessage.irmessage_irdata			= 0;
 
+	// -- Control -----------------------------------------------------------------
+	this.controlWheel					= 0;		// 
+	this.controlAccel					= 0;		// 
+	this.controlRoll					= 0;		// 
+	this.controlPitch					= 0;		// 
+	this.controlYaw						= 0;		// 
+	this.controlThrottle				= 0;		// 
 
 	// -- Hardware ----------------------------------------------------------------
 	this.bufferReceive					= [];		// 데이터 수신 버퍼
@@ -239,14 +249,14 @@ Module.prototype.resetData = function()
 	this.crc16Calculated				= 0;		// CRC16 계산 된 결과
 	this.crc16Received					= 0;		// CRC16 수신 받은 블럭
 
-	this.maxTransferRepeat				= 5;		// 최대 반복 전송 횟수
+	this.maxTransferRepeat				= 10;		// 최대 반복 전송 횟수
 	this.countTransferRepeat			= 0;		// 반복 전송 횟수
 	this.dataTypeLastTransfered			= 0;		// 마지막으로 전송한 데이터의 타입
 
 	this.timeReceive					= 0;		// 데이터를 전송 받은 시각
 	this.timeTransfer					= 0;		// 예약 데이터를 전송한 시각
 	this.timeTransferNext				= 0;		// 전송 가능한 다음 시간
-	this.timeTransferInterval			= 20;		// 최소 전송 시간 간격
+	this.timeTransferInterval			= 24;		// 최소 전송 시간 간격
 
 	this.countReqeustDevice				= 0;		// 장치에 데이터를 요청한 횟수 카운트 
 }
@@ -367,7 +377,7 @@ Module.prototype.handlerForEntry = function(handler)
 		let lightMode_mode			= handler.e(DataType.LIGHT_MODE_MODE)			? handler.read(DataType.LIGHT_MODE_MODE)		: 0;
 		let lightMode_interval		= handler.e(DataType.LIGHT_MODE_INTERVAL)		? handler.read(DataType.LIGHT_MODE_INTERVAL)	: 0;
 
-		let indexStart = dataBlock.length;		// 배열에서 데이터를 저장하기 시작하는 위치
+		let indexStart = dataArray.length;		// 배열에서 데이터를 저장하기 시작하는 위치
 		let dataLength = 2;						// 데이터의 길이
 
 		// Header
@@ -459,7 +469,7 @@ Module.prototype.handlerForEntry = function(handler)
 		this.addStartCode(dataArray);
 		
 		let target					= handler.e(DataType.TARGET)					? handler.read(DataType.TARGET)					: 0xFF;
-		let command_comand			= handler.e(DataType.COMMAND_COMMAND)			? handler.read(DataType.COMMAND_COMMAND)		: 0;
+		let command_command			= handler.e(DataType.COMMAND_COMMAND)			? handler.read(DataType.COMMAND_COMMAND)		: 0;
 		let command_option			= handler.e(DataType.COMMAND_OPTIOIN)			? handler.read(DataType.COMMAND_OPTIOIN)		: 0;
 
 		let indexStart = dataArray.length;		// 배열에서 데이터를 저장하기 시작하는 위치
@@ -472,30 +482,46 @@ Module.prototype.handlerForEntry = function(handler)
 		dataArray.push(target);					// To
 
 		// Data Array
-		dataArray.push(command_comand);
+		dataArray.push(command_command);
 		dataArray.push(command_option);
 
 		// CRC16
 		this.addCRC16(dataArray, indexStart, dataLength);
 
-		this.log("Module.prototype.handlerForEntry() / COMMAND / command: " + command_comand + ", option: " + command_option, dataArray);
+		this.log("Module.prototype.handlerForEntry() / COMMAND / command: " + command_command + ", option: " + command_option, dataArray);
 
 		this.bufferTransfer.push(dataArray);
+
+		switch( command_command )
+		{
+		case 0x24:	// CommandType::Stop
+			{
+				// 정지 명령 시 조종 입력 값 초기화
+				this.controlRoll		= 0;
+				this.controlPitch		= 0;
+				this.controlYaw			= 0;
+				this.controlThrottle	= 0;
+
+				this.controlWheel		= 0;
+				this.controlAccel		= 0;
+			}
+			break;
+		}
 	}
 
 	// Control
-	if( (handler.e(DataType.CONTROL_ROLL) == true) && (handler.e(DataType.CONTROL_PITCH) == true) )
+	if( (handler.e(DataType.CONTROL_ROLL) == true) || (handler.e(DataType.CONTROL_PITCH) == true) || (handler.e(DataType.CONTROL_YAW) == true) || (handler.e(DataType.CONTROL_THROTTLE) == true) )
 	{
 		var dataArray = [];
 
 		// Start Code
 		this.addStartCode(dataArray);
 		
-		let target					= handler.e(DataType.TARGET)					? handler.read(DataType.TARGET)					: 0xFF;
-		let controlRoll				= handler.e(DataType.CONTROL_ROLL)				? handler.read(DataType.CONTROL_ROLL)			: 0;
-		let controlPitch			= handler.e(DataType.CONTROL_PITCH)				? handler.read(DataType.CONTROL_PITCH)			: 0;
-		let controlYaw				= handler.e(DataType.CONTROL_YAW)				? handler.read(DataType.CONTROL_YAW)			: 0;
-		let controlThrottle			= handler.e(DataType.CONTROL_THROTTLE)			? handler.read(DataType.CONTROL_THROTTLE)		: 0;
+		let target					= handler.e(DataType.TARGET)					? handler.read(DataType.TARGET)					: 0x10;
+		let controlRoll				= handler.e(DataType.CONTROL_ROLL)				? handler.read(DataType.CONTROL_ROLL)			: this.controlRoll;
+		let controlPitch			= handler.e(DataType.CONTROL_PITCH)				? handler.read(DataType.CONTROL_PITCH)			: this.controlPitch;
+		let controlYaw				= handler.e(DataType.CONTROL_YAW)				? handler.read(DataType.CONTROL_YAW)			: this.controlYaw;
+		let controlThrottle			= handler.e(DataType.CONTROL_THROTTLE)			? handler.read(DataType.CONTROL_THROTTLE)		: this.controlThrottle;
 
 		let indexStart = dataArray.length;		// 배열에서 데이터를 저장하기 시작하는 위치
 		let dataLength = 4;						// 데이터의 길이
@@ -503,142 +529,6 @@ Module.prototype.handlerForEntry = function(handler)
 		this.controlRoll		= controlRoll;
 		this.controlPitch		= controlPitch;
 		this.controlYaw			= controlYaw;
-		this.controlThrottle	= controlThrottle;
-
-		// Header
-		dataArray.push(0x10);					// Data Type
-		dataArray.push(dataLength);				// Data Length
-		dataArray.push(0x15);					// From
-		dataArray.push(target);					// To
-
-		// Data Array
-		dataArray.push(this.controlRoll);
-		dataArray.push(this.controlPitch);
-		dataArray.push(this.controlYaw);
-		dataArray.push(this.controlThrottle);
-
-		// CRC16
-		this.addCRC16(dataArray, indexStart, dataLength);
-
-		//this.log("Module.prototype.handlerForEntry() / Control / roll: " + controlRoll + ", pitch: " + controlPitch + ", yaw: " + controlYaw + ", throttle: " + controlThrottle, dataArray);
-
-		this.bufferTransfer.push(dataArray);
-	}
-	else if( handler.e(DataType.CONTROL_ROLL) == true )
-	{
-		var dataArray = [];
-
-		// Start Code
-		this.addStartCode(dataArray);
-		
-		let target					= handler.e(DataType.TARGET)					? handler.read(DataType.TARGET)					: 0xFF;
-		let controlRoll				= handler.e(DataType.CONTROL_ROLL)				? handler.read(DataType.CONTROL_ROLL)			: 0;
-		
-		let indexStart = dataArray.length;		// 배열에서 데이터를 저장하기 시작하는 위치
-		let dataLength = 4;						// 데이터의 길이
-
-		this.controlRoll		= controlRoll;
-
-		// Header
-		dataArray.push(0x10);					// Data Type
-		dataArray.push(dataLength);				// Data Length
-		dataArray.push(0x15);					// From
-		dataArray.push(target);					// To
-
-		// Data Array
-		dataArray.push(this.controlRoll);
-		dataArray.push(this.controlPitch);
-		dataArray.push(this.controlYaw);
-		dataArray.push(this.controlThrottle);
-
-		// CRC16
-		this.addCRC16(dataArray, indexStart, dataLength);
-
-		//this.log("Module.prototype.handlerForEntry() / Control / roll: " + controlRoll + ", pitch: " + controlPitch + ", yaw: " + controlYaw + ", throttle: " + controlThrottle, dataArray);
-
-		this.bufferTransfer.push(dataArray);
-	}
-	else if( handler.e(DataType.CONTROL_PITCH) == true )
-	{
-		var dataArray = [];
-
-		// Start Code
-		this.addStartCode(dataArray);
-		
-		let target					= handler.e(DataType.TARGET)					? handler.read(DataType.TARGET)					: 0xFF;
-		let controlPitch			= handler.e(DataType.CONTROL_PITCH)				? handler.read(DataType.CONTROL_PITCH)			: 0;
-		
-		let indexStart = dataArray.length;		// 배열에서 데이터를 저장하기 시작하는 위치
-		let dataLength = 4;						// 데이터의 길이
-
-		this.controlPitch		= controlPitch;
-		
-		// Header
-		dataArray.push(0x10);					// Data Type
-		dataArray.push(dataLength);				// Data Length
-		dataArray.push(0x15);					// From
-		dataArray.push(target);					// To
-
-		// Data Array
-		dataArray.push(this.controlRoll);
-		dataArray.push(this.controlPitch);
-		dataArray.push(this.controlYaw);
-		dataArray.push(this.controlThrottle);
-
-		// CRC16
-		this.addCRC16(dataArray, indexStart, dataLength);
-
-		//this.log("Module.prototype.handlerForEntry() / Control / roll: " + controlRoll + ", pitch: " + controlPitch + ", yaw: " + controlYaw + ", throttle: " + controlThrottle, dataArray);
-
-		this.bufferTransfer.push(dataArray);
-	}
-	else if( handler.e(DataType.CONTROL_YAW) == true )
-	{
-		var dataArray = [];
-
-		// Start Code
-		this.addStartCode(dataArray);
-		
-		let target					= handler.e(DataType.TARGET)					? handler.read(DataType.TARGET)					: 0xFF;
-		let controlYaw				= handler.e(DataType.CONTROL_YAW)				? handler.read(DataType.CONTROL_YAW)			: 0;
-		
-		let indexStart = dataArray.length;		// 배열에서 데이터를 저장하기 시작하는 위치
-		let dataLength = 4;						// 데이터의 길이
-
-		this.controlYaw			= controlYaw;
-		
-		// Header
-		dataArray.push(0x10);					// Data Type
-		dataArray.push(dataLength);				// Data Length
-		dataArray.push(0x15);					// From
-		dataArray.push(target);					// To
-
-		// Data Array
-		dataArray.push(this.controlRoll);
-		dataArray.push(this.controlPitch);
-		dataArray.push(this.controlYaw);
-		dataArray.push(this.controlThrottle);
-
-		// CRC16
-		this.addCRC16(dataArray, indexStart, dataLength);
-
-		//this.log("Module.prototype.handlerForEntry() / Control / roll: " + controlRoll + ", pitch: " + controlPitch + ", yaw: " + controlYaw + ", throttle: " + controlThrottle, dataArray);
-
-		this.bufferTransfer.push(dataArray);
-	}
-	else if( handler.e(DataType.CONTROL_THROTTLE) == true )
-	{
-		var dataArray = [];
-
-		// Start Code
-		this.addStartCode(dataArray);
-		
-		let target					= handler.e(DataType.TARGET)					? handler.read(DataType.TARGET)					: 0xFF;
-		let controlThrottle			= handler.e(DataType.CONTROL_THROTTLE)			? handler.read(DataType.CONTROL_THROTTLE)		: 0;
-
-		let indexStart = dataArray.length;		// 배열에서 데이터를 저장하기 시작하는 위치
-		let dataLength = 4;						// 데이터의 길이
-
 		this.controlThrottle	= controlThrottle;
 
 		// Header
@@ -662,87 +552,21 @@ Module.prototype.handlerForEntry = function(handler)
 	}
 
 	// Control Wheel, Accel
-	if( (handler.e(DataType.CONTROL_WHEEL) == true) && (handler.e(DataType.CONTROL_ACCEL) == true) )
+	if( (handler.e(DataType.CONTROL_WHEEL) == true) || (handler.e(DataType.CONTROL_ACCEL) == true) )
 	{
 		var dataArray = [];
 
 		// Start Code
 		this.addStartCode(dataArray);
 		
-		let target					= handler.e(DataType.TARGET)					? handler.read(DataType.TARGET)					: 0xFF;
-		let controlWheel			= handler.e(DataType.CONTROL_WHEEL)				? handler.read(DataType.CONTROL_WHEEL)			: 0;
-		let controlAccel			= handler.e(DataType.CONTROL_ACCEL)				? handler.read(DataType.CONTROL_ACCEL)			: 0;
+		let target					= handler.e(DataType.TARGET)					? handler.read(DataType.TARGET)					: 0x10;
+		let controlWheel			= handler.e(DataType.CONTROL_WHEEL)				? handler.read(DataType.CONTROL_WHEEL)			: this.controlWheel;
+		let controlAccel			= handler.e(DataType.CONTROL_ACCEL)				? handler.read(DataType.CONTROL_ACCEL)			: this.controlAccel;
 
 		let indexStart = dataArray.length;		// 배열에서 데이터를 저장하기 시작하는 위치
 		let dataLength = 2;						// 데이터의 길이
 
 		this.controlWheel = controlWheel;
-		this.controlAccel = controlAccel;
-
-		// Header
-		dataArray.push(0x10);					// Data Type
-		dataArray.push(dataLength);				// Data Length
-		dataArray.push(0x15);					// From
-		dataArray.push(target);					// To
-
-		// Data Array
-		dataArray.push(this.controlWheel);
-		dataArray.push(this.controlAccel);
-
-		// CRC16
-		this.addCRC16(dataArray, indexStart, dataLength);
-
-		//this.log("Module.prototype.handlerForEntry() / Control Double / wheel: " + control_wheel + ", accel: " + control_accel, dataArray);
-
-		this.bufferTransfer.push(dataArray);
-	}
-	// Control Wheel
-	else if( handler.e(DataType.CONTROL_WHEEL) == true )
-	{
-		var dataArray = [];
-
-		// Start Code
-		this.addStartCode(dataArray);
-		
-		let target					= handler.e(DataType.TARGET)					? handler.read(DataType.TARGET)					: 0xFF;
-		let controlWheel			= handler.e(DataType.CONTROL_WHEEL)				? handler.read(DataType.CONTROL_WHEEL)			: 0;
-
-		let indexStart = dataArray.length;		// 배열에서 데이터를 저장하기 시작하는 위치
-		let dataLength = 2;						// 데이터의 길이
-
-		this.controlWheel = controlWheel;
-
-		// Header
-		dataArray.push(0x10);					// Data Type
-		dataArray.push(dataLength);				// Data Length
-		dataArray.push(0x15);					// From
-		dataArray.push(target);					// To
-
-		// Data Array
-		dataArray.push(this.controlWheel);
-		dataArray.push(this.controlAccel);
-
-		// CRC16
-		this.addCRC16(dataArray, indexStart, dataLength);
-
-		//this.log("Module.prototype.handlerForEntry() / Control Double / wheel: " + control_wheel + ", accel: " + control_accel, dataArray);
-
-		this.bufferTransfer.push(dataArray);
-	}
-	// Control Accel
-	else if( handler.e(DataType.CONTROL_ACCEL) == true )
-	{
-		var dataArray = [];
-
-		// Start Code
-		this.addStartCode(dataArray);
-		
-		let target					= handler.e(DataType.TARGET)					? handler.read(DataType.TARGET)					: 0xFF;
-		let controlAccel			= handler.e(DataType.CONTROL_ACCEL)				? handler.read(DataType.CONTROL_ACCEL)			: 0;
-
-		let indexStart = dataArray.length;		// 배열에서 데이터를 저장하기 시작하는 위치
-		let dataLength = 2;						// 데이터의 길이
-
 		this.controlAccel = controlAccel;
 
 		// Header
@@ -771,7 +595,7 @@ Module.prototype.handlerForEntry = function(handler)
 		// Start Code
 		this.addStartCode(dataArray);
 		
-		let target					= handler.e(DataType.TARGET)					? handler.read(DataType.TARGET)						: 0xFF;
+		let target					= handler.e(DataType.TARGET)					? handler.read(DataType.TARGET)						: 0x10;
 		let motorSingleTarget		= handler.e(DataType.MOTORSINGLE_TARGET)		? handler.read(DataType.MOTORSINGLE_TARGET)			: 0;
 		let motorSingleDirection	= handler.e(DataType.MOTORSINGLE_DIRECTION)		? handler.read(DataType.MOTORSINGLE_DIRECTION)		: 0;
 		let motorSingleValue		= handler.e(DataType.MOTORSINGLE_VALUE)			? handler.read(DataType.MOTORSINGLE_VALUE)			: 0;
@@ -805,7 +629,7 @@ Module.prototype.handlerForEntry = function(handler)
 		// Start Code
 		this.addStartCode(dataArray);
 		
-		let target					= handler.e(DataType.TARGET)					? handler.read(DataType.TARGET)						: 0xFF;
+		let target					= handler.e(DataType.TARGET)					? handler.read(DataType.TARGET)						: 0x11;
 		let buzzer_mode				= handler.e(DataType.BUZZER_MODE)				? handler.read(DataType.BUZZER_MODE)				: 0;
 		let buzzer_value			= handler.e(DataType.BUZZER_VALUE)				? handler.read(DataType.BUZZER_VALUE)				: 0;
 		let buzzer_time				= handler.e(DataType.BUZZER_TIME)				? handler.read(DataType.BUZZER_TIME)				: 0;
@@ -842,7 +666,7 @@ Module.prototype.handlerForEntry = function(handler)
 		// Start Code
 		this.addStartCode(dataArray);
 		
-		let target					= handler.e(DataType.TARGET)					? handler.read(DataType.TARGET)						: 0xFF;
+		let target					= handler.e(DataType.TARGET)					? handler.read(DataType.TARGET)						: 0x11;
 		let vibrator_on				= handler.e(DataType.VIBRATOR_ON)				? handler.read(DataType.VIBRATOR_ON)				: 0;
 		let vibrator_off			= handler.e(DataType.VIBRATOR_OFF)				? handler.read(DataType.VIBRATOR_OFF)				: 0;
 		let vibrator_total			= handler.e(DataType.VIBRATOR_TOTAL)			? handler.read(DataType.VIBRATOR_TOTAL)				: 0;
@@ -879,7 +703,7 @@ Module.prototype.handlerForEntry = function(handler)
 		// Start Code
 		this.addStartCode(dataArray);
 		
-		let target					= handler.e(DataType.TARGET)					? handler.read(DataType.TARGET)						: 0xFF;
+		let target					= handler.e(DataType.TARGET)					? handler.read(DataType.TARGET)						: 0x10;
 		let irmessage_data			= handler.e(DataType.IRMESSAGE_DATA)			? handler.read(DataType.IRMESSAGE_DATA)				: 0;
 
 		let indexStart = dataArray.length;		// 배열에서 데이터를 저장하기 시작하는 위치
@@ -1182,22 +1006,24 @@ Module.prototype.handlerForDevice = function()
 	switch( this.dataType )
 	{
 	case 0x02:	// Ack
-		if( this.dataBlock.length == 5 )
+		if( this.dataBlock.length == 7 )
 		{
 			// Device -> Entry 
 			let ack				= this.ack;
 			ack._updated		= true;
 			ack.ack_systemTime	= this.extractUInt32(this.dataBlock, 0);
 			ack.ack_dataType	= this.extractUInt8(this.dataBlock, 4);
+			ack.ack_crc16		= this.extractUInt16(this.dataBlock, 5);
 
 			// ping에 대한 ack는 로그 출력하지 않음
 			if( ack.ack_dataType != 0x01 )
-				console.log("handlerForDevice - Ack / From: " + this.from + " / SystemTime: " + ack.ack_systemTime + " / DataType: " + ack.ack_dataType + " / Repeat: " + this.countTransferRepeat);
+				console.log("handlerForDevice - Ack / From: " + this.from + " / SystemTime: " + ack.ack_systemTime + " / DataType: " + ack.ack_dataType + " / Repeat: " + this.countTransferRepeat + " / Crc16Transfer: " + this.crc16Transfered + " / Crc16Get: " + ack.ack_crc16);
 
 			// 마지막으로 전송한 데이터에 대한 응답을 받았다면 
 			if( this.bufferTransfer != undefined &&
 				this.bufferTransfer.length > 0 &&
-				this.dataTypeLastTransfered == ack.ack_dataType )
+				this.dataTypeLastTransfered == ack.ack_dataType &&
+				this.crc16Transfered == ack.ack_crc16 )
 			{
 				this.bufferTransfer.shift();
 				this.countTransferRepeat = 0;
@@ -1207,7 +1033,7 @@ Module.prototype.handlerForDevice = function()
 
 	default:
 		{
-			// 마지막으로 전송한 데이터에 대한 응답을 받았다면 
+			// 마지막으로 요청한 데이터를 받았다면 
 			if( this.bufferTransfer != undefined &&
 				this.bufferTransfer.length > 0 &&
 				this.dataTypeLastTransfered == this.dataType )
@@ -1451,7 +1277,12 @@ Module.prototype.transferForDevice = function()
 	this.countTransferRepeat++;
 	this.timeTransfer = (new Date()).getTime();
 
-	// 3회 이상 전송했음애도 응답이 업는 경우엔 다음으로 넘어감
+	this.crc16Transfered = (arrayTransfer[arrayTransfer.length - 1] << 8) | (arrayTransfer[arrayTransfer.length - 2]);
+
+	if( this.countTransferRepeat > 1 )
+		console.log("Data Transfer - Repeat: " + this.countTransferRepeat, this.bufferTransfer[0]);
+
+	// maxTransferRepeat 이상 전송했음애도 응답이 없는 경우엔 다음으로 넘어감
 	if( this.countTransferRepeat > this.maxTransferRepeat)
 	{
 		this.bufferTransfer.shift();
