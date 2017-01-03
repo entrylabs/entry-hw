@@ -290,6 +290,7 @@ var DataType =
 	BUZZER_TIME:				'buzzer_time',
 
 	// Vibrator
+	VIBRATOR_MODE:				'vibrator_mode',
 	VIBRATOR_ON:				'vibrator_on',
 	VIBRATOR_OFF:				'vibrator_off',
 	VIBRATOR_TOTAL:				'vibrator_total',
@@ -667,12 +668,13 @@ Module.prototype.handlerForEntry = function(handler)
 		this.addStartCode(dataArray);
 		
 		let target					= handler.e(DataType.TARGET)					? handler.read(DataType.TARGET)						: 0x11;
+		let vibrator_mode			= handler.e(DataType.VIBRATOR_MODE)				? handler.read(DataType.VIBRATOR_MODE)				: 0;
 		let vibrator_on				= handler.e(DataType.VIBRATOR_ON)				? handler.read(DataType.VIBRATOR_ON)				: 0;
 		let vibrator_off			= handler.e(DataType.VIBRATOR_OFF)				? handler.read(DataType.VIBRATOR_OFF)				: 0;
 		let vibrator_total			= handler.e(DataType.VIBRATOR_TOTAL)			? handler.read(DataType.VIBRATOR_TOTAL)				: 0;
 
 		let indexStart = dataArray.length;		// 배열에서 데이터를 저장하기 시작하는 위치
-		let dataLength = 6;						// 데이터의 길이
+		let dataLength = 7;						// 데이터의 길이
 
 		// Header
 		dataArray.push(0x84);					// Data Type
@@ -681,6 +683,7 @@ Module.prototype.handlerForEntry = function(handler)
 		dataArray.push(target);					// To
 
 		// Data
+		dataArray.push(vibrator_mode);
 		dataArray.push(this.getByte0(vibrator_on));
 		dataArray.push(this.getByte1(vibrator_on));
 		dataArray.push(this.getByte0(vibrator_off));
