@@ -1067,6 +1067,9 @@ Module.prototype.handlerForDevice = function()
 			state.state_coordinate				= this.extractUInt8(this.dataBlock, 5);
 			state.state_battery					= this.extractUInt8(this.dataBlock, 6);
 
+			if( state.state_modeVehicle != 0x10 && state.state_modeVehicle != 0x11 )
+				this.reserveModeVehicle(0x10);
+
 			//console.log("handlerForDevice - state: " + state.state_modeVehicle);
 		}
 		break;
@@ -1354,6 +1357,33 @@ Module.prototype.reserveRequest = function(target, dataType)
 	//this.log("Module.prototype.reserveRequest()", dataArray);
 	
 	return dataArray;
+}
+
+// 모드 변경 요청
+Module.prototype.reserveModeVehicle = function(modeVehicle)
+{
+	let dataArray = [];
+
+	// Start Code
+	this.addStartCode(dataArray);
+	
+	let indexStart = dataArray.length;		// 배열에서 데이터를 저장하기 시작하는 위치
+	let dataLength = 2;		// 데이터의 길이
+
+	// Header
+	dataArray.push(0x11);			// Data Type
+	dataArray.push(dataLength);		// Data Length
+	dataArray.push(0x15);			// From
+	dataArray.push(0x10);			// To
+
+	// Data Array
+	dataArray.push(0x10);			// CommandType
+	dataArray.push(modeVehicle);	// Option
+
+	// CRC16
+	this.addCRC16(dataArray, indexStart, dataLength);
+	
+	this.bufferTransfer.push(dataArray);
 }
 
 /***************************************************************************************
