@@ -841,6 +841,14 @@ Module.prototype.tansferForEntry = function(handler)
 			//this.log("Module.prototype.tansferForEntry() / irmeessage", "");
 		}
 	}
+
+	// Entry-hw information
+	{
+		if( this.bufferTransfer == undefined )
+			this.bufferTransfer = [];
+
+		handler.write("entryhw_countTransferReserved", this.bufferTransfer.length);
+	}
 }
 
 
