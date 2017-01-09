@@ -316,6 +316,10 @@ var DataType =
 
 	// IrMessage
 	IRMESSAGE_DATA:				'irmessage_data',
+
+	// UserInterface
+	USERINTERFACE_COMMAND:		'userinterface_command',
+	USERINTERFACE_FUNCTION:		'userinterface_function',
 }
 
 /***************************************************************************************
@@ -730,6 +734,39 @@ Module.prototype.handlerForEntry = function(handler)
 		this.bufferTransfer.push(dataArray);
 
 		this.log("Module.prototype.handlerForEntry()", dataArray);
+	}
+
+	// Command
+	if( handler.e(DataType.USERINTERFACE_COMMAND) == true )
+	{
+		var dataArray = [];
+
+		// Start Code
+		this.addStartCode(dataArray);
+		
+		let target					= handler.e(DataType.TARGET)					? handler.read(DataType.TARGET)						: 0xFF;
+		let userinterface_command	= handler.e(DataType.USERINTERFACE_COMMAND)		? handler.read(DataType.USERINTERFACE_COMMAND)		: 0;
+		let userinterface_function	= handler.e(DataType.USERINTERFACE_FUNCTION)	? handler.read(DataType.USERINTERFACE_FUNCTION)		: 0;
+
+		let indexStart = dataArray.length;		// 배열에서 데이터를 저장하기 시작하는 위치
+		let dataLength = 2;						// 데이터의 길이
+
+		// Header
+		dataArray.push(0x46);					// Data Type
+		dataArray.push(dataLength);				// Data Length
+		dataArray.push(0x15);					// From
+		dataArray.push(target);					// To
+
+		// Data Array
+		dataArray.push(userinterface_command);
+		dataArray.push(userinterface_function);
+
+		// CRC16
+		this.addCRC16(dataArray, indexStart, dataLength);
+
+		this.log("Module.prototype.handlerForEntry() / USERINTERFACE / COMMAND: " + userinterface_command + ", FUNCTION: " + userinterface_function, dataArray);
+
+		this.bufferTransfer.push(dataArray);
 	}
 
 	
