@@ -1,8 +1,8 @@
 {
-	"id": "0F0201",
+	"id": "0F0101",
 	"name": {
-		"en": "BYROBOT Controller",
-		"ko": "바이로봇 컨트롤러"
+		"en": "BYROBOT Drone Fighter controller",
+		"ko": "바이로봇 드론파이터 조종기"
 	},
 	"icon" : "byrobot_dronefighter_controller.png",
 	"module": "byrobot_dronefighter_controller.js",

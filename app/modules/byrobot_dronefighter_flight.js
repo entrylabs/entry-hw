@@ -333,11 +333,11 @@ Module.prototype.checkAck = function(data, config)
 		switch( this.from )
 		{
 		case 0x10:	// 드론파이터와 연결된 경우(드론파이터와 직접 연결되거나 조종기와 연결한 상태에서 페어링 된 드론파이터가 켜진 경우)
-			config.id = '0F0101';
+			config.id = '0F0301';
 			return true;
 
 		case 0x11:	// 컨트롤러와 연결된 경우(페어링 된 드론파이터가 없더라도 조종기만 연결하여 사용 가능한 상태)
-			config.id = '0F0101';
+			config.id = '0F0301';
 			return true;
 
 		default:

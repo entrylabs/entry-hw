@@ -1,11 +1,11 @@
 {
-	"id": "0F0101",
+	"id": "0F0201",
 	"name": {
-		"en": "BYROBOT Drone Fighter",
-		"ko": "바이로봇 드론파이터"
+		"en": "BYROBOT Drone Fighter drive",
+		"ko": "바이로봇 드론파이터 자동차"
 	},
-	"icon" : "byrobot_dronefighter.png",
-	"module": "byrobot_dronefighter.js",
+	"icon" : "byrobot_dronefighter_drive.png",
+	"module": "byrobot_dronefighter_drive.js",
 	"url": "http://www.byrobot.co.kr",
 	"email": "dev@byrobot.co.kr",
 	"driver": {

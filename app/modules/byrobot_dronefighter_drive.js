@@ -333,11 +333,11 @@ Module.prototype.checkAck = function(data, config)
 		switch( this.from )
 		{
 		case 0x10:	// 드론파이터와 연결된 경우(드론파이터와 직접 연결되거나 조종기와 연결한 상태에서 페어링 된 드론파이터가 켜진 경우)
-			config.id = '0F0301';
+			config.id = '0F0201';
 			return true;
 
 		case 0x11:	// 컨트롤러와 연결된 경우(페어링 된 드론파이터가 없더라도 조종기만 연결하여 사용 가능한 상태)
-			config.id = '0F0301';
+			config.id = '0F0201';
 			return true;
 
 		default:
@@ -998,7 +998,7 @@ Module.prototype.receiverForDevice = function(data)
 // 장치로부터 받은 데이터 블럭 처리
 Module.prototype.handlerForDevice = function()
 {
-	// skip 할 대상만 case로 등록
+	// 로그 출력을 skip 할 대상만 case에 등록
 	switch( this.dataType )
 	{
 	case 2:		break;
