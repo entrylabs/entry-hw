@@ -10,7 +10,7 @@ SoftwareSerial SerialB(sTX,sRX);
 int servoPin = 6;
 char remainData;
 const int M_SIZE=20;
-const int M_DELAY=100;
+const int M_DELAY=800;
 int iii=0;
 int rotation=1000;
 int analogcount=0;
