@@ -19,7 +19,7 @@ function Module()
     // Ack
     this.ack =
     {
-        _updated: 0,
+        _updated: 1,
         ack_systemTime: 0,      // u32
         ack_dataType: 0,        // u8
         ack_crc16: 0            // u16
@@ -28,7 +28,7 @@ function Module()
     // Joystick
     this.joystick = 
     {
-        _updated: 0,
+        _updated: 1,
         joystick_left_x: 0,
         joystick_left_y: 0,
         joystick_left_direction: 0,
@@ -44,7 +44,7 @@ function Module()
     // Button
     this.button = 
     {
-        _updated: 0,
+        _updated: 1,
         button_button: 0,
         button_event: 0
     }
@@ -52,7 +52,7 @@ function Module()
     // State
     this.state = 
     {
-        _updated: 0,
+        _updated: 1,
         state_modeVehicle: 0,
         state_modeSystem: 0,
         state_modeFlight: 0,
@@ -65,7 +65,7 @@ function Module()
     // Attitude
     this.attitude =
     {
-        _updated: 0,
+        _updated: 1,
         attitude_roll: 0,
         attitude_pitch : 0,
         attitude_yaw: 0
@@ -74,7 +74,7 @@ function Module()
     // IR Message
     this.irmeessage = 
     {
-        _updated: 0,
+        _updated: 1,
         irmessage_irdata: 0
     }
 
