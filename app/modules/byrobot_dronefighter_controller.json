@@ -1,5 +1,6 @@
 {
     "id": "0F0101",
+    "platform": ["win32"],
     "name": {
         "en": "BYROBOT Drone Fighter controller",
         "ko": "바이로봇 드론파이터 조종기"

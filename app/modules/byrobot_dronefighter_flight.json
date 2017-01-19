@@ -1,5 +1,6 @@
 {
     "id": "0F0301",
+    "platform": ["win32"],
     "name": {
         "en": "BYROBOT Drone Fighter flight",
         "ko": "바이로봇 드론파이터 드론"

@@ -1,5 +1,6 @@
 {
     "id": "0F0201",
+    "platform": ["win32"],
     "name": {
         "en": "BYROBOT Drone Fighter drive",
         "ko": "바이로봇 드론파이터 자동차"
