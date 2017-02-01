@@ -3,17 +3,15 @@
 	src: url('../fonts/NanumGothic.woff');
 }
 
-/*
-::-webkit-scrollbar {
+.darwin ::-webkit-scrollbar {
     -webkit-appearance: none;
-    width: 7px;
+    width: 11px;
 }
-::-webkit-scrollbar-thumb {
-    border-radius: 4px;
-    background-color: rgba(0,0,0,.5);
-    -webkit-box-shadow: 0 0 1px rgba(255,255,255,.5);
+.darwin ::-webkit-scrollbar-thumb {
+    border-radius: 8px;
+    border: 2px solid white; /* should match background, can't be transparent */
+    background-color: rgba(0, 0, 0, .5);
 }
-*/
 
 * {
 	box-sizing: border-box;
@@ -233,6 +231,10 @@ button {
 	text-align: center;
 	height: 0px;
 	line-height: 35px;
+}
+
+#alert.error {
+	background-color: #ffc800;
 }
 
 #ieGuide {
