@@ -323,6 +323,7 @@ void loop() {
             rotation=0;
              SensorBoard_sendPinValues();
        //     Serial.flush();
+			servo1.refresh();
 
          }
        
