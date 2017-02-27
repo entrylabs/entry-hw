@@ -1,14 +1,14 @@
 {
-	"id": "010910",
-	"name": {
-		"en": "Blacksmith Board",
-		"ko": "대장장이 보드"
-	},
-	"icon" : "Blacksmith.png",
-	"module": "Blacksmith.js",
-	"url": "http://www.hanibot.com",
-	"email": "jagr-1@hanmail.net",
-	"driver": {
+    "id": "010910",
+    "name": {
+    	"en": "Blacksmith Board",
+    	"ko": "대장장이 보드"
+    },
+    "icon" : "blacksmith.png",
+    "module": "blacksmith.js",
+    "url": "http://www.hanibot.com",
+    "email": "jagr-1@hanmail.net",
+    "driver": {
 		"win32-ia32": "arduino/dpinst-x86.exe",
 		"win32-x64": "arduino/dpinst-amd64.exe"
 	},
