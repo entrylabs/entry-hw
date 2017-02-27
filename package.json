@@ -44,9 +44,9 @@
     "iconUrl": "https://raw.githubusercontent.com/entrylabs/entry-hw/feature/electron/build/icon.ico"
   },
   "devDependencies": {
+    "electron": "^1.4.15",
     "electron-builder": "10.5.0",
     "electron-packager": "^8.1.0",
-    "electron-prebuilt": "1.4.5",
     "rimraf": "^2.5.4"
   },
   "dependencies": {}
