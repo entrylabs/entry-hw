@@ -19,7 +19,7 @@
         "type": "serial",
         "control": "slave",
         "duration": 32,
-        "vendor": "Silicon Lab",
+        "vendor": ["Silicon Lab", "IntegriSys S.A"],
         "baudRate": 57600
     }
 }
