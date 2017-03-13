@@ -4,7 +4,7 @@
         "en": "E-Sensor board(Bluetooth)",
         "ko": "E-센서보드(무선연결)"
     },
-    "platform": ["win32"],
+    "platform": ["win32", "darwin"],
     "icon": "entrybt.png",
     "url": "http://www.neweducation.co.kr",
     "email": "join@neweducation.co.kr",
