@@ -1,14 +1,14 @@
 {
 	"id": "0A0101",
 	"name": {
-		"en": "Sciencebox Smart Board",
-		"ko": "과학상자 스마트 보드"
+		"en": "Sciencebox Codingboard",
+		"ko": "과학상자 코딩보드"
 	},
 	"platform": ["win32"],
 	"icon" : "smartboard.png",
 	"module": "smartboard.js",
 	"url": "http://www.sciencebox.co.kr",
-	"email": "mail@sciencebox.or.kr",
+	"email": "mail@sciencebox.co.kr",
 	"driver": {
 		"win32-ia32": "ftdi/dpinst-x86.exe",
 		"win32-x64": "ftdi/dpinst-amd64.exe"
