@@ -19,8 +19,8 @@ function Module() {
 		obstacleDetection: 0,				
 		light: 0,							
 		temp: 0,		     				
-		extIrA2 : 0,						
-		extIrA3 : 0,						
+		extA2 : 0,						
+		extA3 : 0,						
 	};
 	this.motoring = {
 		
@@ -108,6 +108,8 @@ Module.prototype.checkInitialData = function(data, config) {
 		console.log("serial connected");
 		return true;
 	}
+	
+	isSending = false;
 
     // Bluetooth1		
 	var response_format = [0xff, 0x55];
@@ -198,8 +200,8 @@ Module.prototype.handleLocalData = function(data) { // data: string
 		sensory.accelerationY = accCalibrate(readInt16(array, 14));
 		sensory.accelerationZ = accCalibrate(readInt16(array, 16));
 		sensory.light = analogCalibrate(readInt16(array, 18));
-		sensory.extIrA2 = analogCalibrate(readInt16(array, 20));
-		sensory.extIrA3 = analogCalibrate(readInt16(array, 22));	
+		sensory.extA2 = analogCalibrate(readInt16(array, 20));
+		sensory.extA3 = analogCalibrate(readInt16(array, 22));	
 		isSending = false;
 	}
 	else
