@@ -47,6 +47,8 @@
     "electron": "^1.4.15",
     "electron-builder": "10.5.0",
     "electron-packager": "^8.1.0",
+    "electron-prebuilt": "^1.4.13",
+    "electron-rebuild": "^1.5.7",
     "rimraf": "^2.5.4"
   },
   "dependencies": {}
