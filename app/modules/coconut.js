@@ -1,10 +1,10 @@
 // 2017.02.22 : LTW : Connection Completed, source clensing
 // 2017.02.23 : LTW : Sensor Receive
 // 2017.02.24 : LTW : Sensor Msg Send Logic Modified
+// 2017.03.15 : LTW : Source Refactoring
 'use strict';
 function Module() {
 	this.sensory = {
-		//START : 2017.01.10
 		msgStatus: "end",
 		msg:[0,0,0],
 		
@@ -23,11 +23,8 @@ function Module() {
 		extIrA3 : 0,						
 	};
 	this.motoring = {
-		//START : 2017.01.10
+		
 		msg: [],
-		//END
-
-		leftWheel: 0,
 		rightWheel: 0,
 		buzzer: 0,
 		outputA: 0,
@@ -52,21 +49,18 @@ function Module() {
 		state: 0
 	};
 }
-//START : 2017.01.10
+
 var isSending = true;				//전문 보내는 상태
 var isBlockedJSSending = false;     //대기중이던 전문을 보내는 상태
 var blockedJSMsg;					//대기중인 전문
-var msgSentTime = 0;					//센서보낸 시간
+var msgSentTime = 0;				//센서보낸 시간
 var sensorDurationTime = 200;		//센서수집 전문 주기
 var isInitialBle = false;			//블루투스 초기화 상태
 
 var sensorCorrectMsg = ["0xff","0x56","0x02","0x00","0x05"];
-//END
 
-var Coconut = {	
-	//START : 2017.01.10
-	MSG_VALUE: 'msgValue',
-	//END
+var Coconut = {		
+	MSG_VALUE: 'msgValue',	
 };
 
 
