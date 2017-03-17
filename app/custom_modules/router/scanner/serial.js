@@ -153,6 +153,9 @@ Scanner.prototype.scan = function(serialport, extension, config, callback) {
 													if(extension.setSerialPort) {
 														extension.setSerialPort(sp);
 													}
+													if(extension.resetProperty) {
+														connector.send(extension.resetProperty());
+													}
 													self.finalizeScan(comName, connector, callback);
 												} else if(callback) {
 													callback(new Error('Invalid hardware'));
