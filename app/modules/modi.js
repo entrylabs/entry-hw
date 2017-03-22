@@ -432,6 +432,9 @@ Module.prototype.requestLocalData = function() {
 Module.prototype.setProperty = function(moduleValue) {
   var obj = {};
   
+  if(!moduleValue)
+    return;
+
   if(!moduleValue.module)
     return null;
 
