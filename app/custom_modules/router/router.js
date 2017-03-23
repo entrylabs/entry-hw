@@ -64,7 +64,7 @@ Router.prototype.connect = function(connector, config) {
                     extension.evevtContoller(state);
                 }
 			} else {
-				if(extension.handleLocalData)  {
+				if(extension.handleLocalData) {
 					extension.handleLocalData(data);
 				}
 				if(extension.requestRemoteData) {
