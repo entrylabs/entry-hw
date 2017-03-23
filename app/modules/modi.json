@@ -4,15 +4,15 @@
         "en": "MODI",
         "ko": "모디"
     },
-	"platform": ["win32"],
-    "icon" : "modi.png",
+    "platform": ["win32"],
+    "icon": "modi.png",
     "module": "modi.js",
     "url": "http://www.luxrobo.com/",
     "driver": {
-		"win32-ia32": "compat/SETUP.EXE",
-		"win32-x64": "compat/SETUP.EXE"
-	},
-    "reconnect" : true,
+        "win32-ia32": "compat/SETUP.EXE",
+        "win32-x64": "compat/SETUP.EXE"
+    },
+    "reconnect": true,
     "entry": {
         "protocol": "json"
     },
