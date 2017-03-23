@@ -417,8 +417,9 @@ Module.prototype.handleRemoteData = function(handler) {
             isSet = false;
         }
     }
-
-    this.requestData = this.setProperty(JSON.parse(this.moduleData));
+    if(this.moduleData){
+        this.requestData = this.setProperty(JSON.parse(this.moduleData));
+    }
 };
 
 Module.prototype.requestLocalData = function() {
