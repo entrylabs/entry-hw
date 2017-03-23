@@ -7,17 +7,17 @@ function Module() {
     this.sensory = {
         msgStatus: "end",
         msg:[0,0,0],
-        leftFloorValue: 0,					
-        rightFloorValue: 0,					
-        BothFloorDetection: 0,				
-        leftProximityValue: 0,				
-        rightProximityValue: 0,				
-        BothProximityDetection: 0,			
-        obstacleDetection: 0,				
-        light: 0,							
-        temp: 0,		     				
-        extA2 : 0,						
-        extA3 : 0,						
+        leftFloorValue: 0,
+        rightFloorValue: 0,
+        BothFloorDetection: 0,
+        leftProximityValue: 0,
+        rightProximityValue: 0,
+        BothProximityDetection: 0,
+        obstacleDetection: 0,	
+        light: 0,
+        temp: 0,
+        extA2 : 0,
+        extA3 : 0,
 	};
     this.motoring = {
         msg: [],
@@ -37,7 +37,7 @@ function Module() {
         configProximity: 2,
         configGravity: 0,
         configBandWidth: 3
-	};
+    };
     this.lineTracer = {
         written: false,
         flag: 0,
@@ -46,15 +46,15 @@ function Module() {
     };
 }
 
-var isSending = true;				//전문 보내는 상태
-var isBlockedJSSending = false;     //대기중이던 전문을 보내는 상태
-var blockedJSMsg;					//대기중인 전문
-var msgSentTime = 0;				//센서보낸 시간
-var sensorDurationTime = 200;		//센서수집 전문 주기
-var isInitialBle = false;			//블루투스 초기화 상태
+var isSending = true;                //전문 보내는 상태
+var isBlockedJSSending = false;      //대기중이던 전문을 보내는 상태
+var blockedJSMsg;                    //대기중인 전문
+var msgSentTime = 0;                 //센서보낸 시간
+var sensorDurationTime = 200;        //센서수집 전문 주기
+var isInitialBle = false;            //블루투스 초기화 상태
 var sensorCorrectMsg = ["0xff","0x56","0x02","0x00","0x05"];
-var Coconut = {		
-    MSG_VALUE: 'msgValue',	
+var Coconut = {
+    MSG_VALUE: 'msgValue',
 };
 
 Module.prototype.lostController = function () {}
@@ -91,26 +91,26 @@ Module.prototype.checkInitialData = function(data, config) {
     var response_real = stringToAsciiByteArray(data);
     var is_same = (response_format.length == response_real.length) && response_format.every(function(element, index) {
     return element === response_real[index]; 
-    });	
+    });
     if (is_same) 
     {
         return true;
     }
-	
+
     isSending = false;
 
     var response_format = [0xff, 0x55];
     var is_same = (response_format.length == response_real.length) && response_format.every(function(element, index) {
     return element === response_real[index]; 
-    });	
+    });
     if (is_same) 
-    {	
+    {
         return true;
     }
 
     if (response_real[0] == 0xff && response_real[1] == 0x56)
     {        
-		return true;
+        return true;
     }
 
     var response_format ="Corea Coding Nut...COCONUT";
@@ -128,7 +128,7 @@ function h2d(ch)
     if (ch >= 48 && ch <= 57) d = ch - 48;
     else if(ch >= 65 && ch <= 70 ) d = ch - 55;
     else {
-		//throw new Error('Character ' + String.fromCharCode(ch) + 'can\`t be convert');
+        //throw new Error('Character ' + String.fromCharCode(ch) + 'can\`t be convert');
     }
 
     return d;
@@ -151,18 +151,18 @@ Module.prototype.validateLocalData = function(data) {
 };
 
 Module.prototype.handleLocalData = function(data) { // data: string
-    var array = stringToAsciiByteArray(data);	
-    var sensory = this.sensory;		
+    var array = stringToAsciiByteArray(data);
+    var sensory = this.sensory;
     var now = new Date();
     if (array[0] == 0xff && array[1] == 0x55)
-    {		
-        sensory.msgStatus = "end";	
+    {
+        sensory.msgStatus = "end";
         isSending = false;
         this.motoring.msg = "";
     } 
     else if (array[0] == 0xff && array[1] == 0x56)
     {
-        sensory.msgStatus = "sensor";		
+        sensory.msgStatus = "sensor";
         sensory.leftProximityValue = readInt16(array, 2);
         sensory.rightProximityValue = readInt16(array, 4);
         sensory.BothProximityDetection = readInt8(array, 6);
@@ -175,12 +175,12 @@ Module.prototype.handleLocalData = function(data) { // data: string
         sensory.accelerationZ = accCalibrate(readInt16(array, 16));
         sensory.light = analogCalibrate(readInt16(array, 18));
         sensory.extA2 = analogCalibrate(readInt16(array, 20));
-        sensory.extA3 = analogCalibrate(readInt16(array, 22));	
+        sensory.extA3 = analogCalibrate(readInt16(array, 22));
         isSending = false;
     }
     else
     {
-        sensory.msgStatus = "continue";	
+        sensory.msgStatus = "continue";
     }
 
     return;
@@ -197,27 +197,27 @@ Module.prototype.requestRemoteData = function(handler) {
 
 Module.prototype.handleRemoteData = function(handler) {
     var now = new Date();
-		
+
     if(handler.e(Coconut.MSG_VALUE)) {
         var t = handler.read(Coconut.MSG_VALUE);
         if (t != "")
         {        
             this.motoring.msg = t;
-        } 	
+        }
     }
 };
 
 Module.prototype.requestLocalData = function() {
     var now = new Date();
     var motoring = this.motoring;
-	
+
     if (isSending == true )
     {
         if (!isInitialBle)
         {
             isInitialBle = true;
             return sensorCorrectMsg;
-        } 	
+        }
         return;
     } 
     if (isBlockedJSSending) 
@@ -234,17 +234,17 @@ Module.prototype.requestLocalData = function() {
             blockedJSMsg = motoring.msg;
             isBlockedJSSending = true;
         } else {
-            blockedJSMsg = "";	
+            blockedJSMsg = "";
         }
         saveLastSensorTime(now);
         isSending = true;
         return sensorCorrectMsg;
     } 
-	
+
     if (motoring.msg.length > 0)
-    {		
+    {
         isSending = true;
-        return motoring.msg;		
+        return motoring.msg;
     }
     return;
 };
@@ -288,12 +288,12 @@ Module.prototype.reset = function() {
         {
             value = value - 0x100;
         }
-		
+
         return value;
     }
 
     function analogCalibrate(value) {
-        return value = value * 9;		
+        return value = value * 9;
     }
 
     function readInt8(arr, position) {
@@ -308,27 +308,27 @@ Module.prototype.reset = function() {
         f3 = f3 | arr[position+0];
         
         return Bytes2Float32(f3);
-	}
+    }
 
-	// IEEE 754 Converter
-	// https://www.h-schmidt.net/FloatConverter/IEEE754.html
+    // IEEE 754 Converter
+    // https://www.h-schmidt.net/FloatConverter/IEEE754.html
     function Bytes2Float32(bytes) {
         var sign = (bytes & 0x80000000) ? -1 : 1;
         var exponent = ((bytes >> 23) & 0xFF) - 127;
         var significand = (bytes & ~(-1 << 23));
-	
+
         if (exponent == 128) 
             return sign * ((significand) ? Number.NaN : Number.POSITIVE_INFINITY);
-	
+
         if (exponent == -127) {
             if (significand == 0) return sign * 0.0;
             exponent = -126;
             significand /= (1 << 22);
         } else significand = (significand | (1 << 23)) / (1 << 23);
-	
+
         return sign * significand * Math.pow(2, exponent);
     }
-		
+
     function saveLastSensorTime(time){
         msgSentTime = time;
     }
