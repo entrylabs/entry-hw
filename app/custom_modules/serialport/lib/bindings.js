@@ -1,6 +1,6 @@
 'use strict';
 
-var module_name = 'serialport_' + process.arch + '.node'
+var module_name = 'serialport_' +  process.platform + '_' + process.arch + '.node';
 var bindings = require('bindings')(module_name);
 var listUnix = require('./list-unix');
 

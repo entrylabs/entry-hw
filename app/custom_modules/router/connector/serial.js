@@ -27,6 +27,9 @@ Connector.prototype.open = function(port, options, callback) {
 	this.sp = sp;
 	sp.on('error', function(error) {
 		console.error(error);
+		if(callback) {
+			callback(error);
+		}
 	});
 	sp.on('open', function(error) {
 		sp.removeAllListeners('open');

@@ -1,5 +1,5 @@
 {
-  "private": true,
+  "name": "Entry_HW",
   "scripts": {
     "clean": "rimraf dist",
     "pack": "build",
@@ -7,23 +7,47 @@
     "start": "set NODE_ENV=development&&electron -d app"
   },
   "build": {
-    "win64": {
-      "appDirectory": "./dist/entry_hw-win32-ia32",
-      "title": "Entry_HW",
-      "icon": "./icon/app.ico",
+    "dmg": {
+      "icon": "build/icon.icns",
+      "iconSize": 80,
+      "background": "build/background.png",
+      "contents": [
+        {
+          "x": 240,
+          "y": 120
+        },
+        {
+          "x": 380,
+          "y": 250,
+          "type": "file",
+          "path": "./app/README.md"
+        },
+        {
+          "x": 240,
+          "y": 380,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
+    },
+    "win": {
+      "target": "dir",
+      "title": "Entry-HW",
       "authors": "EntryLabs",
-      "exe": "Entry_HW.exe"
+      "#certificateSubjectName": "my",
+      "#rfc3161TimeStampServer": "http://timestamp.geotrust.com/tsa"
     },
     "asar": true,
-    "app-bundle-id": "entry_hw",
-    "app-category-type": "org.play-entry.entry_hw",
-    "icon": "app/icon/app"
+    "appId": "org.playentry.entryhw",
+    "productName": "Entry_HW",
+    "extend-info": "build/build.plist",
+    "iconUrl": "https://raw.githubusercontent.com/entrylabs/entry-hw/feature/electron/build/icon.ico"
   },
   "devDependencies": {
-    "electron-packager": "^7.0.2",
-    "electron-prebuilt": "1.1.1",
-    "electron-builder": "^3.25.0",
-    "rimraf": "^2.5.2"
+    "electron": "1.4.15",
+    "electron-builder": "10.5.0",
+    "electron-packager": "^8.1.0",
+    "rimraf": "^2.5.4"
   },
   "dependencies": {}
 }

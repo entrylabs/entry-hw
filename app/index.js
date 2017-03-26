@@ -8,178 +8,31 @@ const packageJson     = require('./package.json');
 const ChildProcess = require('child_process');
 var mainWindow = null;
 var isClose = true;
-var EntryUpdater;
+var roomId = [];
 
-var NODE_ENV = process.env.NODE_ENV || 'production';
-var language;
-
-function spawn(command, args, callback) {
-    var error, spawnedProcess, stdout;
-    stdout = '';
-    try {
-        spawnedProcess = ChildProcess.spawn(command, args);
-    } catch (_error) {
-        error = _error;
-        process.nextTick(function() {
-            return typeof callback === "function" ? callback(error, stdout) : void 0;
-        });
-        return;
+console.fslog = function (text) {    
+    var log_path = path.join(__dirname, '..');
+    if(!fs.existsSync(log_path)) {
+        fs.mkdirSync(log_path);
     }
-    spawnedProcess.stdout.on('data', function(data) {
-        return stdout += data;
-    });
-    error = null;
-    spawnedProcess.on('error', function(processError) {
-        return error != null ? error : error = processError;
-    });
-    return spawnedProcess.on('close', function(code, signal) {
-        if (code !== 0) {
-            if (error == null) {
-                error = new Error("Command failed: " + (signal != null ? signal : code));
-            }
-        }
-    if (error != null) {
-        if (error.code == null) {
-            error.code = code;
-        }
+    if(!fs.existsSync(path.join(log_path, 'debug.log'))) {
+        fs.writeFileSync(path.join(log_path, 'debug.log'), '', 'utf8');
     }
-    if (error != null) {
-        if (error.stdout == null) {
-            error.stdout = stdout;
-        }
-    }
-    return typeof callback === "function" ? callback(error, stdout) : void 0;
-    });
+    var data = fs.readFileSync(path.join(log_path, 'debug.log'), 'utf8');
+    data += '\n\r' + new Date() + ' : ' + text;
+    fs.writeFileSync(path.join(log_path, 'debug.log'), data, 'utf8');
 };
 
-var defaultPath = 'HKCU\\Software\\Entry_HW';
-var system32Path, regPath, setxPath;
+function getArgsParseData(argv) {
+    var regexRoom = /roomId:(.*)/;
+    var arrRoom = regexRoom.exec(argv) || ['', ''];
+    var roomId = arrRoom[1];
 
-if (process.env.SystemRoot) {
-    system32Path = path.join(process.env.SystemRoot, 'System32');
-    regPath = path.join(system32Path, 'reg.exe');
-    setxPath = path.join(system32Path, 'setx.exe');
-} else {
-    regPath = 'reg.exe';
-    setxPath = 'setx.exe';
-}
-
-function spawnReg(args, callback) {
-    return spawn(regPath, args, callback);
-};
-
-function addToRegistry(args, callback) {
-    args.unshift('add');
-    args.push('/f');
-    return spawnReg(args, callback);
-};
-
-function installRegistry() {
-    // var args = [defaultPath, '/ve', '/d', 'Open with Entry_HW'];
-    // addToRegistry(args, function (a) {
-    // });
-}
-
-function unInstallRegistry() {
-
-}
-
-var deleteRecursiveSync = function(target) {
-    try{
-        var exists = fs.existsSync(target);
-        console.log(target);
-        console.log(exists);
-        if (exists) {
-            if(fs.lstatSync(target).isDirectory()) { // recurse
-                fs.readdirSync(target).forEach(function(file) {
-                    var curPath = path.join(target, file);
-                    deleteRecursiveSync(curPath);
-                });
-                fs.rmdirSync(target);
-            } else { // delete file
-                fs.unlinkSync(target);
-            }           
-        }
-    } catch(e) {}
-};
-
-function run(command, done) {
-    var updateExe = path.resolve(path.dirname(process.execPath), "..", "Update.exe"); 
-    var target = path.basename(process.execPath);
-    var child = ChildProcess.spawn(updateExe, [command, target], { detached: true });
-    child.on('close', done);
-}
-
-function createShortcut(locations, done) {
-    var updateExe = path.resolve(path.dirname(process.execPath), "..", "Update.exe"); 
-    var target = path.basename(process.execPath);
-    var args = ['--createShortcut', target, '-l', locations];
-    var child = ChildProcess.spawn(updateExe, args, { detached: true });
-    child.on('close', function () {
-        language = app.getLocale();
-        if(language === 'ko') {
-            var sourcePath = path.resolve(process.env.USERPROFILE, 'Desktop', 'Entry_HW.lnk');
-            var destPath = path.resolve(process.env.USERPROFILE, 'Desktop', '엔트리 하드웨어.lnk');
-            fs.rename(sourcePath, destPath, function (err) {
-                sourcePath = path.resolve(process.env.APPDATA, 'Microsoft', 'Windows', 'Start Menu', 'Programs', 'EntryLabs', 'Entry_HW.lnk');
-                destPath = path.resolve(process.env.APPDATA, 'Microsoft', 'Windows', 'Start Menu', 'Programs', 'EntryLabs', '엔트리 하드웨어.lnk');
-                fs.rename(sourcePath, destPath, function (err) {
-                    if(done) {
-                        done();
-                    }
-                });
-            });
-        }
-    });
-}
-
-function removeShortcut(locations, done) {
-    var updateExe = path.resolve(path.dirname(process.execPath), "..", "Update.exe"); 
-    var target = path.basename(process.execPath);
-    var args = ['--removeShortcut', target, '-l', locations];
-    var child = ChildProcess.spawn(updateExe, args, { detached: true });
-    child.on('close', function () {
-        var desktopEng = path.resolve(process.env.USERPROFILE, 'Desktop', 'Entry_HW.lnk');
-        var desktopKo = path.resolve(process.env.USERPROFILE, 'Desktop', '엔트리 하드웨어.lnk');
-        var startMenuEng = path.resolve(process.env.APPDATA, 'Microsoft', 'Windows', 'Start Menu', 'Programs', 'EntryLabs', 'Entry_HW.lnk');
-        var startMenuKo = path.resolve(process.env.APPDATA, 'Microsoft', 'Windows', 'Start Menu', 'Programs', 'EntryLabs', '엔트리 하드웨어.lnk');
-        deleteRecursiveSync(desktopEng);
-        deleteRecursiveSync(desktopKo);
-        deleteRecursiveSync(startMenuEng);
-        deleteRecursiveSync(startMenuKo);
-
-        if(done) {
-            done();
-        }
-    });
-}
-
-var handleStartupEvent = function() {
-    if (process.platform !== 'win32') {
-        return false;
+    if(roomId === 'undefined') {
+        roomId = '';
     }
 
-    var defaultLocations = 'Desktop,StartMenu';
-    // removeShortcut(defaultLocations, function () {
-    // });
-    const target = path.basename(process.execPath);
-    var squirrelCommand = process.argv[1];
-    switch (squirrelCommand) {
-        case '--squirrel-install':
-        case '--squirrel-updated':
-            createShortcut(defaultLocations, app.quit);
-            return true;
-        case '--squirrel-uninstall':
-            removeShortcut(defaultLocations, app.quit);
-            return true;
-        case '--squirrel-obsolete':
-            app.quit();
-            return true;
-    }
-};
-
-if (handleStartupEvent()) {
-    return;
+    return roomId.replace(/\//g, '');
 }
 
 app.on('window-all-closed', function() {
@@ -187,6 +40,14 @@ app.on('window-all-closed', function() {
 });
 
 var argv = process.argv.slice(1);
+
+if(argv.indexOf('entryhw:')) {
+    var data = getArgsParseData(argv);
+    if(data) {
+        roomId.push(data);
+    }
+}
+
 var option = { file: null, help: null, version: null, webdriver: null, modules: [] };
 for (var i = 0; i < argv.length; i++) {
     if (argv[i] == '--version' || argv[i] == '-v') {
@@ -214,25 +75,56 @@ for (var i = 0; i < argv.length; i++) {
     }
 }
 
-var shouldQuit = app.makeSingleInstance(function(commandLine, workingDirectory) {
 // 어플리케이션을 중복 실행했습니다. 주 어플리케이션 인스턴스를 활성화 합니다.
+var shouldQuit = app.makeSingleInstance(function(argv, workingDirectory) {
+    var parseData = {};
+    if(argv.indexOf('entryhw:')) {
+        parseData = getArgsParseData(argv);
+    }
+    
     if (mainWindow) {
         if (mainWindow.isMinimized()) 
             mainWindow.restore();
         mainWindow.focus();
+
+        if(mainWindow.webContents) {
+            if(roomId.indexOf(parseData) === -1) {
+                roomId.push(parseData);
+            }
+            mainWindow.webContents.send('customArgs', parseData);
+        }
     }
+
     return true;
 });
 
 if (shouldQuit) {
     app.quit();
-    return;
 }
 
-app.once('ready', function() {
-    language = app.getLocale();
+ipcMain.on('reload', function(event, arg) {
+    app.relaunch({args: process.argv.slice(1).concat(['--relaunch'])});
+    app.exit(0);
+});
 
-    var title;
+ipcMain.on('roomId', function(event, arg) {
+    event.returnValue = roomId;
+});
+
+ipcMain.on('version', function(event, arg) {
+    event.returnValue = packageJson.version;
+});
+
+ipcMain.on('serverMode', function(event, mode) {
+    if(mainWindow && mainWindow.webContents) {
+        mainWindow.webContents.send('serverMode', mode);
+    }
+});
+
+app.once('ready', function() {
+    let language = app.getLocale();
+
+    let title;
 
     if(language === 'ko') {
         title = '엔트리 하드웨어 v';
@@ -250,14 +142,6 @@ app.once('ready', function() {
     });
 
     mainWindow.loadURL('file:///' + path.join(__dirname, 'index.html'));
-
-    if(NODE_ENV === 'production') {
-        EntryUpdater = require('./update.js')(mainWindow);
-
-        mainWindow.webContents.once('did-finish-load', function() {
-            EntryUpdater.checkForUpdates();
-        });            
-    }
 
     if(option.debug) {
         mainWindow.webContents.openDevTools();

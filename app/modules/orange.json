@@ -4,13 +4,14 @@
 		"en": "Orange Board",
 		"ko": "오렌지 보드"
 	},
+	"platform": ["win32"],
 	"icon" : "orange.png",
 	"module": "arduino.js",
 	"url": "http://kocoafab.cc",
 	"email": "contact@kocoa.or.kr",
 	"driver": {
-		"win32-ia32": "ftdi/dpinst-x86.exe",
-		"win32-x64": "ftdi/dpinst-amd64.exe"
+		"win32-ia32": "CDM21226_Setup/CDM21226_Setup.exe",
+		"win32-x64": "CDM21226_Setup/CDM21226_Setup.exe"
 	},
     "reconnect" : true,
 	"firmware": "orange",

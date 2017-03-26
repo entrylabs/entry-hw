@@ -1,24 +1,24 @@
-
 {
-	"id": "010202",
-	"name": {
-		"en": "E-Sensor board(Bluetooth)",
-		"ko": "E-센서보드(무선연결)"
-		},
-	"select_com_port": true,
-	"icon" : "entrybt.png",
-	"url": "http://www.neweducation.co.kr",
-	"email": "join@neweducation.co.kr",
-	"module": "entrybt.js",
-    "reconnect" : true,
-	"entry": {
-		"protocol": "json"
-	},
-	"hardware": {
-		"type": "bluetooth",
-		"control": "slave",
-		"duration": 20,
-		"vendor": "Microsoft",
-		"baudRate": 57600
-	}
+    "id": "010202",
+    "name": {
+        "en": "E-Sensor board(Bluetooth)",
+        "ko": "E-센서보드(무선연결)"
+    },
+    "platform": ["win32", "darwin"],
+    "icon": "entrybt.png",
+    "url": "http://www.neweducation.co.kr",
+    "email": "join@neweducation.co.kr",
+    "module": "entrybt.js",
+    "reconnect": true,
+    "select_com_port": true,
+    "entry": {
+        "protocol": "json"
+    },
+    "hardware": {
+        "type": "bluetooth",
+        "control": "slave",
+        "duration": 20,
+        "vendor": "Microsoft",
+        "baudRate": 57600
+    }
 }

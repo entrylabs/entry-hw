@@ -15,7 +15,7 @@ Scanner.prototype.startScan = function(router, extension, config) {
 	scanner.startScan(extension, config, function(error, connector) {
 		if(error) {
 			logger.e(error);
-		} else {
+		} else if(connector) {
 			router.connect(connector, config);
 		}
 	}, router);

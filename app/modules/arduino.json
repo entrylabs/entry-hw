@@ -4,6 +4,7 @@
 		"en": "Arduino Uno",
 		"ko": "아두이노 Uno 정품보드"
 	},
+	"platform": ["win32", "darwin"],
 	"icon" : "arduino.png",
 	"module": "arduino.js",
 	"url": "http://arduino.cc",

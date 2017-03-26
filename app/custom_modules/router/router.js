@@ -59,7 +59,6 @@ Router.prototype.connect = function(connector, config) {
 		});
         connector.connect(extension, function(state, data) {
 			if(state) {
-                console.log(state);
 				self.emit('state', state);
                 if(extension.evevtContoller) {
                     extension.evevtContoller(state);
@@ -110,12 +109,14 @@ Router.prototype.connect = function(connector, config) {
 
 Router.prototype.close = function() {
 	if(this.server) {
+		this.server.disconnectHardware();
 		this.server.removeAllListeners();
 	}
 	if(this.scanner) {
 		this.scanner.stopScan();
 	}
 	if(this.connector) {
+		console.log('disconnect');
 		if(this.extension.disconnect) {
 			this.extension.disconnect(this.connector);
 		} else {

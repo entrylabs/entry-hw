@@ -37,19 +37,20 @@ Scanner.prototype.scan = function(serialport, extension, config, callback) {
 			return;
 		}
 
+		var serverMode = config.serverMode;
 		var scanType = config.hardware.scanType;
 		var vendor = config.hardware.vendor;
 		var control = config.hardware.control;
 		var duration = config.hardware.duration;
 		var firmwarecheck = config.hardware.firmwarecheck;
 		var pnpId = config.hardware.pnpId;
-		var checkComPort = config.select_com_port || false;
-		var myComPort = config.this_com_port;
 		var type = config.hardware.type;
+		var checkComPort = (config.select_com_port || type === 'bluetooth' || serverMode === 1) || false;
+		var myComPort = config.this_com_port;
 
 		if(checkComPort && !myComPort)  {
 			self.router.emit('state', 'select_port', devices);
-			callback('select_port');
+			callback();
 			return;
 		}
 
@@ -59,13 +60,11 @@ Scanner.prototype.scan = function(serialport, extension, config, callback) {
 				if(devices.some(function(device) {
 					var isVendor = false;
 					if(Array.isArray(vendor)) {
-						vendor.forEach(function (v) {
-							if(device.manufacturer.indexOf(v) >= 0) {
-								isVendor = true;
-							}
+						isVendor = vendor.some(function (v) {
+							return device.manufacturer && device.manufacturer.indexOf(v) >= 0;
 						});
 					} else {
-						if(device.manufacturer.indexOf(vendor) >= 0) {
+						if(device.manufacturer && device.manufacturer.indexOf(vendor) >= 0) {
 							isVendor = true;
 						}
 					}
@@ -83,15 +82,11 @@ Scanner.prototype.scan = function(serialport, extension, config, callback) {
 			var isVendor = false;
 
 			if(Array.isArray(vendor)) {
-				vendor.forEach(function (v) {
-					if(device.manufacturer.indexOf(v) >= 0) {
-						isVendor = true;
-					}
+				isVendor = vendor.some(function (v) {
+					return device.manufacturer && device.manufacturer.indexOf(v) >= 0;
 				});
-			} else {
-				if(device.manufacturer.indexOf(vendor) >= 0) {
-					isVendor = true;
-				}
+			} else if(vendor && device.manufacturer && device.manufacturer.indexOf(vendor) >= 0) {
+				isVendor = true;
 			}
 
 			if(!vendor || (device.manufacturer && isVendor) || (device.pnpId && device.pnpId.indexOf(pnpId) >= 0) || checkComPort) {
@@ -106,15 +101,15 @@ Scanner.prototype.scan = function(serialport, extension, config, callback) {
 				var connector = self.connectors[comName];
 				if(connector == undefined) {
 					connector = require('../connector/serial').create();
+					self.connectors[comName] = connector;
 					connector.open(comName, config.hardware, function(error, sp) {
 						if(error) {
+							delete self.connectors[comName];
 							if(callback) {
 								callback(error);
 							}
 						} else {
-							// sp.flush();
 							self.setConnector(connector);
-							self.connectors[comName] = connector;
 							if(control) {
 								var flashFirmware;
 								if(firmwarecheck) {

@@ -4,6 +4,7 @@
 		"en": "ardublock",
 		"ko": "아두블럭"
 	},
+	"platform": ["win32", "darwin"],
 	"icon" : "ardublock.png",
 	"module": "arduino.js",
 	"url": "http://www.jkelec.co.kr",

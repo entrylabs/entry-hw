@@ -29,10 +29,10 @@
 		"ko": "펌웨어 설치 가능"
 	},
 	"Install Firmware(Sensor Board)": {
-		"ko": "펌웨어 설치(센서보드 유선)"
+		"ko": "센서/확장보드 유선 펌웨어"
 	},
 	"Install Firmware(Sensor Board Bluetooth)": {
-		"ko": "펌웨어 설치(센서보드 무선)"
+		"ko": "센서/확장보드 무선 펌웨어"
 	},
 	"Install Firmware(Extension Project)": {
 		"ko": "펌웨어 설치(확장프로젝트)"
@@ -63,6 +63,9 @@
 	},
 	"Firmware Uploaded!": {
 		"ko": "펌웨어가 업로드 되었습니다."
+	},
+	"Failed Firmware Upload": {
+		"ko": "펌웨어 업로드가 실패하였습니다."
 	},
 	"Firmware Uploading...": {
 		"ko": "펌웨어 업로드 중입니다..."
@@ -96,5 +99,23 @@
 	},
 	"Copied to clipboard": {
 		"ko": "이메일 주소가 복사되었습니다."
+	},
+	"Select": {
+		"ko": "선택하세요"
+	},
+	"Select the COM PORT to connect": {
+		"ko": "연결할 COM PORT를 선택하세요"
+	},
+	"Cancel": {
+		"ko": "취소"
+	},
+	"Connect": {
+		"ko": "연결"
+	},
+	"Arduino compatible driver": {
+		"ko": "아두이노 호환보드 드라이버"
+	},
+	"Bluetooth driver": {
+		"ko": "블루투스 동글 드라이버"
 	}
 }

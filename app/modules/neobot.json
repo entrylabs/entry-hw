@@ -4,6 +4,7 @@
 		"en": "Neo Bot",
 		"ko": "네오봇"
 	},
+	"platform": ["win32", "darwin"],
 	"icon" : "neobot.png",
 	"module": "neobot.js",
 	"url": "http://neobot.co.kr/",

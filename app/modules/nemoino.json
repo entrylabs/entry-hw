@@ -4,9 +4,10 @@
 		"en": "NEMOino",
 		"ko": "네모이노"
 	},
+	"platform": ["win32"],
 	"icon" : "nemoino.png",
 	"module": "nemoino.js",
-	"url": "http://www.nemodevice.co.kr",
+	"url": "http://www.nemoroom.com/",
 	"email": "nemo@daun.co.kr",
 	"driver": {
 		"win32-ia32": "ftdi/dpinst-x86.exe",

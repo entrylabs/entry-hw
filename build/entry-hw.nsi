@@ -12,8 +12,9 @@
 !define MUI_ICON "icon.ico"
 !define MUI_UNICON "icon.ico"
 !define PRODUCT_NAME "Entry_HW"
+!define PROTOCOL_NAME "entryhw"
 !define APP_NAME "Entry_HW.exe"
-!define PRODUCT_VERSION "1.5.7"
+!define PRODUCT_VERSION "1.6.6"
 !define PRODUCT_PUBLISHER "EntryLabs"
 !define PRODUCT_WEB_SITE "http://www.play-entry.org/"
  
@@ -106,9 +107,10 @@ Section $(TEXT_ENTRY_TITLE) SectionEntry
   File "..\dist\win-ia32-unpacked\*.*"
   File "icon.ico"
   
-  WriteRegStr HKCR "${PRODUCT_NAME}\DefaultIcon" "" "$INSTDIR\icon.ico"
-  WriteRegStr HKCR "${PRODUCT_NAME}\Shell\Open" "" "&Open"
-  WriteRegStr HKCR "${PRODUCT_NAME}\Shell\Open\Command" "" '"$INSTDIR\nw.exe" "%1"'
+  WriteRegStr HKCR "${PROTOCOL_NAME}" "URL Protocol" ""
+  WriteRegStr HKCR "${PROTOCOL_NAME}\DefaultIcon" "" "$INSTDIR\icon.ico"  
+  WriteRegStr HKCR "${PROTOCOL_NAME}\Shell\Open" "" "&Open"
+  WriteRegStr HKCR "${PROTOCOL_NAME}\Shell\Open\Command" "" '"$INSTDIR\${PRODUCT_NAME}.exe" "%1"'
   
   ; Write the installation path into the registry
   WriteRegStr HKLM "SOFTWARE\${PRODUCT_NAME}" "Install_Dir" "$INSTDIR"
@@ -162,6 +164,7 @@ Section "Uninstall"
   DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
   DeleteRegKey HKLM "SOFTWARE\${PRODUCT_NAME}"
   DeleteRegKey HKCR "${PRODUCT_NAME}"
+  DeleteRegKey HKCR "${PROTOCOL_NAME}"
 
   ; Remove files and uninstaller
   Delete $INSTDIR\*
