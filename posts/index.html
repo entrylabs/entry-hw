@@ -237,17 +237,17 @@
 
 <hr />
 
-<h3 id="section">블록생상 고정</h3>
+<h3 id="블록생상-고정">블록생상 고정</h3>
 
 <p>하드웨어 블록은 현재는 <code class="highlighter-rouge">#00979D</code>로 고정해서 사용하도록 강제하고 있습니다. 이점 양해부탁드리며 앞으로 소스 개발시 해당 부분 변동 없이 처리 부탁드립니다.</p>
 
-<h3 id="section-1">하드웨어 연결프로그램에 값 읽고 쓰기</h3>
+<h3 id="하드웨어-연결프로그램에-값-읽고-쓰기">하드웨어 연결프로그램에 값 읽고 쓰기</h3>
 
-<h4 id="entryhwsendqueue--">1. Entry.hw.sendQueue (값 보내기)</h4>
+<h4 id="1-entryhwsendqueue-값-보내기">1. Entry.hw.sendQueue (값 보내기)</h4>
 
 <p>블록 명세를 보면 func에 블록의 기본 행동을 정의하도록 되어 있습니다. 엔트리 프로그램에서는 정의된 주기대로 websocket을 통해 하드웨어에 데이터를 전달하는데 이때 전달하는 값이 Entry.hw.sendQueue의 값입니다. text형태의 어떠한 값이라고 sendQueue를 통해 전달할수 있고 적절하게 하드웨어에서 받아서 처리 한다면 어떠한 형태의 text도 전달 가능합니다. 다만, 성능이슈가 발생할수 있으므로 최대한 적은 데이터를 보내주시고 JSON형태의 데이터를 권장합니다.</p>
 
-<h5 id="section-2">사용 예</h5>
+<h5 id="사용-예">사용 예</h5>
 
 <figure class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="p">(</span><span class="nx">sprite</span><span class="p">,</span> <span class="nx">script</span><span class="p">)</span> <span class="p">{</span>
     <span class="c1">// Port 라는 key에 '1'이라는 데이터를 하드웨어 프로그램에 보냄.</span>
@@ -256,11 +256,11 @@
     <span class="k">return</span> <span class="nx">script</span><span class="p">.</span><span class="nx">callRetrurn</span><span class="p">();</span>
 <span class="p">}</span></code></pre></figure>
 
-<h4 id="entryhwportdata--">2. Entry.hw.portData (값 읽기)</h4>
+<h4 id="2-entryhwportdata-값-읽기">2. Entry.hw.portData (값 읽기)</h4>
 
 <p>똑같이 func에 사용하는 값으로 주기적으로 하드웨어에서 들어오는 data값 입니다. 값을 읽어서 화면에 표기해야 하는 블록의 경우 해당 값을 읽어서 처리해야 합니다. 기본적으로 text정보 또는 JSON정보가 포함되어 들어 오게 되어 있습니다. 하드웨어 프로그램에서 처리하여 보내준 데이터가 그대로 들어오도록 구성되어 있으니 하드웨어 모듈을 작성하실때 해당 부분을 염두해 두고 만드시면 좋을 것 같습니다.</p>
 
-<h5 id="section-3">사용 예</h5>
+<h5 id="사용-예-1">사용 예</h5>
 
 <figure class="highlight"><pre><code class="language-js" data-lang="js"><span class="kd">function</span> <span class="p">(</span><span class="nx">sprite</span><span class="p">,</span> <span class="nx">script</span><span class="p">)</span> <span class="p">{</span>
     <span class="c1">// Port 라는 key값을 가진 정보를 읽는다.</span>
@@ -269,15 +269,15 @@
     <span class="k">return</span> <span class="nx">result</span><span class="p">;</span>
 <span class="p">}</span></code></pre></figure>
 
-<h3 id="section-4">하드웨어 초기값 설정</h3>
+<h3 id="하드웨어-초기값-설정">하드웨어 초기값 설정</h3>
 
 <p>엔트리 프로그램을 주기적으로 시작하기와 정지하기를 사용자가 수행하게 되고 정지하는 순간 엔트리 작품의 상태가 초기로 돌아가도록 되어 있습니다. 이에 맞춰서 하드웨어도 초기값(아무것도 동작하지 않았던 최초의 상태)으로 설정해줘야 합니다. 물론, 개발방향에 따라 해당기능이 필요 없을수도 있습니다. 이것은 개발자 본인이 판단하시고 작성해 주시면 됩니다.</p>
 
-<h4 id="entrysetzero">Entry.(하드웨어명).setZero</h4>
+<h4 id="entry하드웨어명setzero">Entry.(하드웨어명).setZero</h4>
 
 <p>기본적으로 entryjs/src/blocks/(작성하신 하드웨어 오브젝트 정의 스크립트).js 이곳에 작성한 자바스크립에서 setZero를 정의하도록 합니다. (block_arduino.js롤 참고해 보시는것도 좋습니다.) 해당 소스에는 Entry.hw.sendQueue에 초기값을로 동작할 데이터를 세팅 하고 Entry.hw.update()를 실행시켜서 하드웨어쪽으로 데이터를 보내도록 정의하면 됩니다.</p>
 
-<h5 id="section-5">사용예</h5>
+<h5 id="사용예">사용예</h5>
 
 <figure class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">setZero</span><span class="err">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
     <span class="c1">// Port라는 key값을 가진데이터의 초기값은 0</span>
@@ -286,7 +286,7 @@
     <span class="nx">Entry</span><span class="p">.</span><span class="nx">hw</span><span class="p">.</span><span class="nx">update</span><span class="p">();</span>
 <span class="p">}</span></code></pre></figure>
 
-<h3 id="isnorfor-class-">isNorFor와 Class의 활용</h3>
+<h3 id="isnorfor와-class의-활용">isNorFor와 Class의 활용</h3>
 
 <p>isNotFor와 Class는 사용자에게 블록을 알맞게 보여주는 역할을 합니다.</p>
 
@@ -351,7 +351,7 @@ git에 소스를 올리는 것은 실제 운영에 반영하기 위함 이구요
 
     <span class="post-date">26 May 2016</span>
 
-    <h3 id="section">목차</h3>
+    <h3 id="목차">목차</h3>
 
 <ol>
   <li>값 블록
@@ -378,9 +378,9 @@ git에 소스를 올리는 것은 실제 운영에 반영하기 위함 이구요
   </li>
 </ol>
 
-<h3 id="section-1">1. 값 블록</h3>
+<h3 id="1-값-블록">1. 값 블록</h3>
 
-<h4 id="section-2">ㄱ. 기본 블록</h4>
+<h4 id="ㄱ-기본-블록">ㄱ. 기본 블록</h4>
 <p><img src="/entry-hw/public/image/block_create/default_value.png" alt="기본 블록" /></p>
 
 <figure class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Entry</span><span class="p">.</span><span class="nx">block</span> <span class="o">=</span> <span class="p">{</span>
@@ -421,7 +421,7 @@ template 프로퍼티는 작성 되어 있지 않다면 Lang.template 에서 정
 
 <hr />
 
-<h4 id="section-3">ㄴ. 기본 사용자 입력 블록</h4>
+<h4 id="ㄴ-기본-사용자-입력-블록">ㄴ. 기본 사용자 입력 블록</h4>
 <p><img src="/entry-hw/public/image/block_create/default_input_value.png" alt="기본 블록" /></p>
 
 <figure class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Entry</span><span class="p">.</span><span class="nx">block</span> <span class="o">=</span> <span class="p">{</span>
@@ -463,7 +463,7 @@ template 프로퍼티는 작성 되어 있지 않다면 Lang.template 에서 정
 
 <hr />
 
-<h4 id="section-4">ㄷ. 중첩 사용자 입력 블록</h4>
+<h4 id="ㄷ-중첩-사용자-입력-블록">ㄷ. 중첩 사용자 입력 블록</h4>
 
 <p><img src="/entry-hw/public/image/block_create/default_multi_input_value.png" alt="기본 블록" /></p>
 
@@ -530,7 +530,7 @@ template 프로퍼티는 작성 되어 있지 않다면 Lang.template 에서 정
 
 <hr />
 
-<h4 id="section-5">ㄷ. 중첩 사용자 입력 블록 - 드롭다운 적용</h4>
+<h4 id="ㄷ-중첩-사용자-입력-블록---드롭다운-적용">ㄷ. 중첩 사용자 입력 블록 - 드롭다운 적용</h4>
 
 <p><img src="/entry-hw/public/image/block_create/default_dropdown_input_value.png" alt="기본 블록" /></p>
 
@@ -602,9 +602,9 @@ template 프로퍼티는 작성 되어 있지 않다면 Lang.template 에서 정
 
 <hr />
 
-<h3 id="section-6">2. 판단 블록</h3>
+<h3 id="2-판단-블록">2. 판단 블록</h3>
 
-<h4 id="section-7">ㄱ. 기본 판단 블록</h4>
+<h4 id="ㄱ-기본-판단-블록">ㄱ. 기본 판단 블록</h4>
 <p><img src="/entry-hw/public/image/block_create/default_boolean.png" alt="기본 판단 블록" /></p>
 
 <figure class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Entry</span><span class="p">.</span><span class="nx">block</span> <span class="o">=</span> <span class="p">{</span>
@@ -646,7 +646,7 @@ template 프로퍼티는 작성 되어 있지 않다면 Lang.template 에서 정
 
 <hr />
 
-<h4 id="section-8">ㄴ. 중첩 사용자 입력 판단 블록</h4>
+<h4 id="ㄴ-중첩-사용자-입력-판단-블록">ㄴ. 중첩 사용자 입력 판단 블록</h4>
 <p><img src="/entry-hw/public/image/block_create/default_input_boolean.png" alt="중첩 사용자 입력 판단 블록" /></p>
 
 <figure class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Entry</span><span class="p">.</span><span class="nx">block</span> <span class="o">=</span> <span class="p">{</span>
@@ -692,7 +692,7 @@ template 프로퍼티는 작성 되어 있지 않다면 Lang.template 에서 정
   <p>유사한 블록으로는 판단의 숫자 비교블록 이다.</p>
 </blockquote>
 
-<h4 id="section-9">ㄷ. 중첩 사용자 드롭다운 판단 블록</h4>
+<h4 id="ㄷ-중첩-사용자-드롭다운-판단-블록">ㄷ. 중첩 사용자 드롭다운 판단 블록</h4>
 <p><img src="/entry-hw/public/image/block_create/default_dropdown_boolean.png" alt="중첩 사용자 드롭다운 판단 블록" /></p>
 
 <figure class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Entry</span><span class="p">.</span><span class="nx">block</span> <span class="o">=</span> <span class="p">{</span>
@@ -750,9 +750,9 @@ template 프로퍼티는 작성 되어 있지 않다면 Lang.template 에서 정
 
 <hr />
 
-<h3 id="section-10">3. 순차 블록</h3>
+<h3 id="3-순차-블록">3. 순차 블록</h3>
 
-<h4 id="section-11">ㄱ. 기본 순차 블록</h4>
+<h4 id="ㄱ-기본-순차-블록">ㄱ. 기본 순차 블록</h4>
 <p><img src="/entry-hw/public/image/block_create/default_block.png" alt="기본 순차 블록" /></p>
 
 <figure class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Entry</span><span class="p">.</span><span class="nx">block</span> <span class="o">=</span> <span class="p">{</span>
@@ -791,7 +791,7 @@ template 프로퍼티는 작성 되어 있지 않다면 Lang.template 에서 정
 <p>가장 많이 사용하는 블록이다. 순차로 실행되는 블록으로 정해진 기능을 수행하는 블록이다. 
 엔트리에서 가장 많이 사용되며 핵심블록으로 분류할수 있다.</p>
 
-<h4 id="section-12">ㄴ. 사용자 입력 순차 블록</h4>
+<h4 id="ㄴ-사용자-입력-순차-블록">ㄴ. 사용자 입력 순차 블록</h4>
 <p><img src="/entry-hw/public/image/block_create/default_input_block.png" alt="기본 순차 블록" /></p>
 
 <figure class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Entry</span><span class="p">.</span><span class="nx">block</span> <span class="o">=</span> <span class="p">{</span>
@@ -833,7 +833,7 @@ template 프로퍼티는 작성 되어 있지 않다면 Lang.template 에서 정
 <p>유저 입력을 받아서 처리하는 순차 블록. 기본적인 생성방법은 기존의 블록들과 다르지 않다. 
 하드웨어를 처리할때 아날로그 센서값을 반아 처리하는 블록에 자주 사용된다.</p>
 
-<h4 id="section-13">ㄷ. 드롭다운 입력 순차 블록</h4>
+<h4 id="ㄷ-드롭다운-입력-순차-블록">ㄷ. 드롭다운 입력 순차 블록</h4>
 <p><img src="/entry-hw/public/image/block_create/default_dropdown_block.png" alt="드롭다운 입력 순차 블록  " /></p>
 
 <figure class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Entry</span><span class="p">.</span><span class="nx">block</span> <span class="o">=</span> <span class="p">{</span>
@@ -885,7 +885,7 @@ template 프로퍼티는 작성 되어 있지 않다면 Lang.template 에서 정
 
     <span class="post-date">26 May 2016</span>
 
-    <h3 id="section">블록 사용 등록</h3>
+    <h3 id="블록-사용-등록">블록 사용 등록</h3>
 <p>기존에는 static.js에 EntryStatic.getAllBlocks와 EntryStatic.blockInfo 두 가지를 설정했지만 
 blockInfo의 경우 block_entry.js에 포함되었습니다. getAllBlocks에만 사용 할 블록을 등록하면 해당 블록이 나오게 되어있습니다. 
 작성 방법은 기존과 같습니다.</p>
@@ -902,12 +902,12 @@ blockInfo의 경우 block_entry.js에 포함되었습니다. getAllBlocks에만 
 
     <span class="post-date">22 May 2016</span>
 
-    <h3 id="section">신규 엔트리 블록</h3>
+    <h3 id="신규-엔트리-블록">신규 엔트리 블록</h3>
 <p>엔트리 블록 라이브러리가 변경되었습니다. 기존에 사용하던 구글 Blockly에서 자체개발 Block라이브러리로 변경 되었고 변경과 함께 개발 방법또한 변경되었습니다. 이 문서에서는 변경된 블록 라이브러리를 이용하여 개발을 수행하는 방법에 대해서 설명합니다.</p>
 
-<h3 id="section-1">블록 명세 작성</h3>
+<h3 id="블록-명세-작성">블록 명세 작성</h3>
 
-<h4 id="section-2">블록 작성</h4>
+<h4 id="블록-작성">블록 작성</h4>
 <p>기존의 블록 작성 방식과 다르게 신규 블록은 block_entry.js의 하나의 파일에서 관리 하고 있습니다. 해당 파일에 블록의 모양과 기능을 정희 하면 블록을 만들수 있게 됩니다. 아래의 내용은 블록 구성에 필요한 정보 입니다.</p>
 
 <figure class="highlight"><pre><code class="language-js" data-lang="js"><span class="nx">Entry</span><span class="p">.</span><span class="nx">block</span> <span class="o">=</span> <span class="p">{</span>

@@ -211,19 +211,19 @@ Entry-HW는 1.5.0 부터 <a href="https://github.com/electron/electron/tree/mast
 정확한 사용법은 Electron 사이트를 참조 하시기 바랍니다.<br />
 현재 엔트리 하드웨어 연결 프로그램은 Windows만 지원합니다.</p>
 
-<h4 id="section">클론</h4>
+<h4 id="클론">클론</h4>
 <div class="highlighter-rouge"><pre class="highlight"><code>git clone https://github.com/entrylabs/entry-hw.git
 </code></pre>
 </div>
 
-<h4 id="section-1">의존설 모듈 설치</h4>
+<h4 id="의존설-모듈-설치">의존설 모듈 설치</h4>
 <div class="language-bash highlighter-rouge"><pre class="highlight"><code>npm install
 //Electron을 사용하기 위해 아래 패키지를 -g 옵션으로 설치.
 npm install -g electron-prebuilt
 </code></pre>
 </div>
 
-<h4 id="section-2">실행</h4>
+<h4 id="실행">실행</h4>
 <div class="language-bash highlighter-rouge"><pre class="highlight"><code>//디버그 모드로 실행됨.
 npm start
 
@@ -234,12 +234,12 @@ electron -d app
 </code></pre>
 </div>
 
-<h4 id="nwjs---electron-">Nwjs -&gt; Electron 변경</h4>
+<h4 id="nwjs---electron-변경">Nwjs -&gt; Electron 변경</h4>
 <p>기존의 Nw.js 환경에서 Electron 환경으로 변경함.<br />
 프레임워크 교체에 따라 초기 실행 및 소스 세팅등의 일부 사항이 변경되었으나 기본적인 개발방식인<br />
 모듈추가는 기존과 똑같이 되도록 변경하였음.</p>
 
-<h3 id="section-3">써드파티 라이브러리</h3>
+<h3 id="써드파티-라이브러리">써드파티 라이브러리</h3>
 <ul>
   <li>jQuery : http://jquery.com/download/ (MIT)</li>
   <li>Node Serialport : https://github.com/voodootikigod/node-serialport (MIT)</li>
@@ -247,7 +247,7 @@ electron -d app
   <li>Node localize : https://github.com/dfellis/node-localize (MIT)</li>
 </ul>
 
-<h3 id="section-4">하드웨어 추가하기</h3>
+<h3 id="하드웨어-추가하기">하드웨어 추가하기</h3>
 <div class="highlighter-rouge"><pre class="highlight"><code>1. .js 파일생성
 2. .json 파일생성
 3. 이미지 삽입
@@ -255,7 +255,7 @@ electron -d app
 </code></pre>
 </div>
 
-<h4 id="js-"><code class="highlighter-rouge">.js</code> 파일생성</h4>
+<h4 id="js-파일생성"><code class="highlighter-rouge">.js</code> 파일생성</h4>
 <div class="language-js highlighter-rouge"><pre class="highlight"><code><span class="c1">// 모듈 생성</span>
 <span class="kd">function</span> <span class="nx">Module</span><span class="p">()</span> <span class="p">{</span>
     <span class="c1">//초기설정</span>
@@ -300,7 +300,7 @@ electron -d app
 </code></pre>
 </div>
 
-<h4 id="json-"><code class="highlighter-rouge">.json</code> 파일생성</h4>
+<h4 id="json-파일생성"><code class="highlighter-rouge">.json</code> 파일생성</h4>
 <div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
     </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"하드웨어ID(엔트리와 사전규약 필요. ex.'010101')"</span><span class="p">,</span><span class="w">
     </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">

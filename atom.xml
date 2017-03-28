@@ -4,7 +4,7 @@
  <title>Entry Docs</title>
  <link href="http://entrylabs.github.io/atom.xml" rel="self"/>
  <link href="http://entrylabs.github.io/"/>
- <updated>2016-12-02T00:56:54+00:00</updated>
+ <updated>2017-03-28T05:22:01+00:00</updated>
  <id>http://entrylabs.github.io</id>
  <author>
    <name>kimorkim</name>
@@ -44,17 +44,17 @@
 
 &lt;hr /&gt;
 
-&lt;h3 id=&quot;section&quot;&gt;블록생상 고정&lt;/h3&gt;
+&lt;h3 id=&quot;블록생상-고정&quot;&gt;블록생상 고정&lt;/h3&gt;
 
 &lt;p&gt;하드웨어 블록은 현재는 &lt;code class=&quot;highlighter-rouge&quot;&gt;#00979D&lt;/code&gt;로 고정해서 사용하도록 강제하고 있습니다. 이점 양해부탁드리며 앞으로 소스 개발시 해당 부분 변동 없이 처리 부탁드립니다.&lt;/p&gt;
 
-&lt;h3 id=&quot;section-1&quot;&gt;하드웨어 연결프로그램에 값 읽고 쓰기&lt;/h3&gt;
+&lt;h3 id=&quot;하드웨어-연결프로그램에-값-읽고-쓰기&quot;&gt;하드웨어 연결프로그램에 값 읽고 쓰기&lt;/h3&gt;
 
-&lt;h4 id=&quot;entryhwsendqueue--&quot;&gt;1. Entry.hw.sendQueue (값 보내기)&lt;/h4&gt;
+&lt;h4 id=&quot;1-entryhwsendqueue-값-보내기&quot;&gt;1. Entry.hw.sendQueue (값 보내기)&lt;/h4&gt;
 
 &lt;p&gt;블록 명세를 보면 func에 블록의 기본 행동을 정의하도록 되어 있습니다. 엔트리 프로그램에서는 정의된 주기대로 websocket을 통해 하드웨어에 데이터를 전달하는데 이때 전달하는 값이 Entry.hw.sendQueue의 값입니다. text형태의 어떠한 값이라고 sendQueue를 통해 전달할수 있고 적절하게 하드웨어에서 받아서 처리 한다면 어떠한 형태의 text도 전달 가능합니다. 다만, 성능이슈가 발생할수 있으므로 최대한 적은 데이터를 보내주시고 JSON형태의 데이터를 권장합니다.&lt;/p&gt;
 
-&lt;h5 id=&quot;section-2&quot;&gt;사용 예&lt;/h5&gt;
+&lt;h5 id=&quot;사용-예&quot;&gt;사용 예&lt;/h5&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-js&quot; data-lang=&quot;js&quot;&gt;&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;sprite&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;script&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
     &lt;span class=&quot;c1&quot;&gt;// Port 라는 key에 '1'이라는 데이터를 하드웨어 프로그램에 보냄.&lt;/span&gt;
@@ -63,11 +63,11 @@
     &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;script&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;callRetrurn&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
 &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
-&lt;h4 id=&quot;entryhwportdata--&quot;&gt;2. Entry.hw.portData (값 읽기)&lt;/h4&gt;
+&lt;h4 id=&quot;2-entryhwportdata-값-읽기&quot;&gt;2. Entry.hw.portData (값 읽기)&lt;/h4&gt;
 
 &lt;p&gt;똑같이 func에 사용하는 값으로 주기적으로 하드웨어에서 들어오는 data값 입니다. 값을 읽어서 화면에 표기해야 하는 블록의 경우 해당 값을 읽어서 처리해야 합니다. 기본적으로 text정보 또는 JSON정보가 포함되어 들어 오게 되어 있습니다. 하드웨어 프로그램에서 처리하여 보내준 데이터가 그대로 들어오도록 구성되어 있으니 하드웨어 모듈을 작성하실때 해당 부분을 염두해 두고 만드시면 좋을 것 같습니다.&lt;/p&gt;
 
-&lt;h5 id=&quot;section-3&quot;&gt;사용 예&lt;/h5&gt;
+&lt;h5 id=&quot;사용-예-1&quot;&gt;사용 예&lt;/h5&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-js&quot; data-lang=&quot;js&quot;&gt;&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;sprite&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;script&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
     &lt;span class=&quot;c1&quot;&gt;// Port 라는 key값을 가진 정보를 읽는다.&lt;/span&gt;
@@ -76,15 +76,15 @@
     &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;result&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
 &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
-&lt;h3 id=&quot;section-4&quot;&gt;하드웨어 초기값 설정&lt;/h3&gt;
+&lt;h3 id=&quot;하드웨어-초기값-설정&quot;&gt;하드웨어 초기값 설정&lt;/h3&gt;
 
 &lt;p&gt;엔트리 프로그램을 주기적으로 시작하기와 정지하기를 사용자가 수행하게 되고 정지하는 순간 엔트리 작품의 상태가 초기로 돌아가도록 되어 있습니다. 이에 맞춰서 하드웨어도 초기값(아무것도 동작하지 않았던 최초의 상태)으로 설정해줘야 합니다. 물론, 개발방향에 따라 해당기능이 필요 없을수도 있습니다. 이것은 개발자 본인이 판단하시고 작성해 주시면 됩니다.&lt;/p&gt;
 
-&lt;h4 id=&quot;entrysetzero&quot;&gt;Entry.(하드웨어명).setZero&lt;/h4&gt;
+&lt;h4 id=&quot;entry하드웨어명setzero&quot;&gt;Entry.(하드웨어명).setZero&lt;/h4&gt;
 
 &lt;p&gt;기본적으로 entryjs/src/blocks/(작성하신 하드웨어 오브젝트 정의 스크립트).js 이곳에 작성한 자바스크립에서 setZero를 정의하도록 합니다. (block_arduino.js롤 참고해 보시는것도 좋습니다.) 해당 소스에는 Entry.hw.sendQueue에 초기값을로 동작할 데이터를 세팅 하고 Entry.hw.update()를 실행시켜서 하드웨어쪽으로 데이터를 보내도록 정의하면 됩니다.&lt;/p&gt;
 
-&lt;h5 id=&quot;section-5&quot;&gt;사용예&lt;/h5&gt;
+&lt;h5 id=&quot;사용예&quot;&gt;사용예&lt;/h5&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-js&quot; data-lang=&quot;js&quot;&gt;&lt;span class=&quot;nx&quot;&gt;setZero&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
     &lt;span class=&quot;c1&quot;&gt;// Port라는 key값을 가진데이터의 초기값은 0&lt;/span&gt;
@@ -93,7 +93,7 @@
     &lt;span class=&quot;nx&quot;&gt;Entry&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;hw&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;update&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
 &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
-&lt;h3 id=&quot;isnorfor-class-&quot;&gt;isNorFor와 Class의 활용&lt;/h3&gt;
+&lt;h3 id=&quot;isnorfor와-class의-활용&quot;&gt;isNorFor와 Class의 활용&lt;/h3&gt;
 
 &lt;p&gt;isNotFor와 Class는 사용자에게 블록을 알맞게 보여주는 역할을 합니다.&lt;/p&gt;
 
@@ -150,7 +150,7 @@ git에 소스를 올리는 것은 실제 운영에 반영하기 위함 이구요
    <link href="http://entrylabs.github.io/2016/05/26/add_new_blocks3/"/>
    <updated>2016-05-26T00:00:00+00:00</updated>
    <id>http://entrylabs.github.io/2016/05/26/add_new_blocks3</id>
-   <content type="html">&lt;h3 id=&quot;section&quot;&gt;목차&lt;/h3&gt;
+   <content type="html">&lt;h3 id=&quot;목차&quot;&gt;목차&lt;/h3&gt;
 
 &lt;ol&gt;
   &lt;li&gt;값 블록
@@ -177,9 +177,9 @@ git에 소스를 올리는 것은 실제 운영에 반영하기 위함 이구요
   &lt;/li&gt;
 &lt;/ol&gt;
 
-&lt;h3 id=&quot;section-1&quot;&gt;1. 값 블록&lt;/h3&gt;
+&lt;h3 id=&quot;1-값-블록&quot;&gt;1. 값 블록&lt;/h3&gt;
 
-&lt;h4 id=&quot;section-2&quot;&gt;ㄱ. 기본 블록&lt;/h4&gt;
+&lt;h4 id=&quot;ㄱ-기본-블록&quot;&gt;ㄱ. 기본 블록&lt;/h4&gt;
 &lt;p&gt;&lt;img src=&quot;/entry-hw/public/image/block_create/default_value.png&quot; alt=&quot;기본 블록&quot; /&gt;&lt;/p&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-js&quot; data-lang=&quot;js&quot;&gt;&lt;span class=&quot;nx&quot;&gt;Entry&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;block&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
@@ -220,7 +220,7 @@ template 프로퍼티는 작성 되어 있지 않다면 Lang.template 에서 정
 
 &lt;hr /&gt;
 
-&lt;h4 id=&quot;section-3&quot;&gt;ㄴ. 기본 사용자 입력 블록&lt;/h4&gt;
+&lt;h4 id=&quot;ㄴ-기본-사용자-입력-블록&quot;&gt;ㄴ. 기본 사용자 입력 블록&lt;/h4&gt;
 &lt;p&gt;&lt;img src=&quot;/entry-hw/public/image/block_create/default_input_value.png&quot; alt=&quot;기본 블록&quot; /&gt;&lt;/p&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-js&quot; data-lang=&quot;js&quot;&gt;&lt;span class=&quot;nx&quot;&gt;Entry&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;block&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
@@ -262,7 +262,7 @@ template 프로퍼티는 작성 되어 있지 않다면 Lang.template 에서 정
 
 &lt;hr /&gt;
 
-&lt;h4 id=&quot;section-4&quot;&gt;ㄷ. 중첩 사용자 입력 블록&lt;/h4&gt;
+&lt;h4 id=&quot;ㄷ-중첩-사용자-입력-블록&quot;&gt;ㄷ. 중첩 사용자 입력 블록&lt;/h4&gt;
 
 &lt;p&gt;&lt;img src=&quot;/entry-hw/public/image/block_create/default_multi_input_value.png&quot; alt=&quot;기본 블록&quot; /&gt;&lt;/p&gt;
 
@@ -329,7 +329,7 @@ template 프로퍼티는 작성 되어 있지 않다면 Lang.template 에서 정
 
 &lt;hr /&gt;
 
-&lt;h4 id=&quot;section-5&quot;&gt;ㄷ. 중첩 사용자 입력 블록 - 드롭다운 적용&lt;/h4&gt;
+&lt;h4 id=&quot;ㄷ-중첩-사용자-입력-블록---드롭다운-적용&quot;&gt;ㄷ. 중첩 사용자 입력 블록 - 드롭다운 적용&lt;/h4&gt;
 
 &lt;p&gt;&lt;img src=&quot;/entry-hw/public/image/block_create/default_dropdown_input_value.png&quot; alt=&quot;기본 블록&quot; /&gt;&lt;/p&gt;
 
@@ -401,9 +401,9 @@ template 프로퍼티는 작성 되어 있지 않다면 Lang.template 에서 정
 
 &lt;hr /&gt;
 
-&lt;h3 id=&quot;section-6&quot;&gt;2. 판단 블록&lt;/h3&gt;
+&lt;h3 id=&quot;2-판단-블록&quot;&gt;2. 판단 블록&lt;/h3&gt;
 
-&lt;h4 id=&quot;section-7&quot;&gt;ㄱ. 기본 판단 블록&lt;/h4&gt;
+&lt;h4 id=&quot;ㄱ-기본-판단-블록&quot;&gt;ㄱ. 기본 판단 블록&lt;/h4&gt;
 &lt;p&gt;&lt;img src=&quot;/entry-hw/public/image/block_create/default_boolean.png&quot; alt=&quot;기본 판단 블록&quot; /&gt;&lt;/p&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-js&quot; data-lang=&quot;js&quot;&gt;&lt;span class=&quot;nx&quot;&gt;Entry&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;block&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
@@ -445,7 +445,7 @@ template 프로퍼티는 작성 되어 있지 않다면 Lang.template 에서 정
 
 &lt;hr /&gt;
 
-&lt;h4 id=&quot;section-8&quot;&gt;ㄴ. 중첩 사용자 입력 판단 블록&lt;/h4&gt;
+&lt;h4 id=&quot;ㄴ-중첩-사용자-입력-판단-블록&quot;&gt;ㄴ. 중첩 사용자 입력 판단 블록&lt;/h4&gt;
 &lt;p&gt;&lt;img src=&quot;/entry-hw/public/image/block_create/default_input_boolean.png&quot; alt=&quot;중첩 사용자 입력 판단 블록&quot; /&gt;&lt;/p&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-js&quot; data-lang=&quot;js&quot;&gt;&lt;span class=&quot;nx&quot;&gt;Entry&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;block&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
@@ -491,7 +491,7 @@ template 프로퍼티는 작성 되어 있지 않다면 Lang.template 에서 정
   &lt;p&gt;유사한 블록으로는 판단의 숫자 비교블록 이다.&lt;/p&gt;
 &lt;/blockquote&gt;
 
-&lt;h4 id=&quot;section-9&quot;&gt;ㄷ. 중첩 사용자 드롭다운 판단 블록&lt;/h4&gt;
+&lt;h4 id=&quot;ㄷ-중첩-사용자-드롭다운-판단-블록&quot;&gt;ㄷ. 중첩 사용자 드롭다운 판단 블록&lt;/h4&gt;
 &lt;p&gt;&lt;img src=&quot;/entry-hw/public/image/block_create/default_dropdown_boolean.png&quot; alt=&quot;중첩 사용자 드롭다운 판단 블록&quot; /&gt;&lt;/p&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-js&quot; data-lang=&quot;js&quot;&gt;&lt;span class=&quot;nx&quot;&gt;Entry&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;block&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
@@ -549,9 +549,9 @@ template 프로퍼티는 작성 되어 있지 않다면 Lang.template 에서 정
 
 &lt;hr /&gt;
 
-&lt;h3 id=&quot;section-10&quot;&gt;3. 순차 블록&lt;/h3&gt;
+&lt;h3 id=&quot;3-순차-블록&quot;&gt;3. 순차 블록&lt;/h3&gt;
 
-&lt;h4 id=&quot;section-11&quot;&gt;ㄱ. 기본 순차 블록&lt;/h4&gt;
+&lt;h4 id=&quot;ㄱ-기본-순차-블록&quot;&gt;ㄱ. 기본 순차 블록&lt;/h4&gt;
 &lt;p&gt;&lt;img src=&quot;/entry-hw/public/image/block_create/default_block.png&quot; alt=&quot;기본 순차 블록&quot; /&gt;&lt;/p&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-js&quot; data-lang=&quot;js&quot;&gt;&lt;span class=&quot;nx&quot;&gt;Entry&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;block&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
@@ -590,7 +590,7 @@ template 프로퍼티는 작성 되어 있지 않다면 Lang.template 에서 정
 &lt;p&gt;가장 많이 사용하는 블록이다. 순차로 실행되는 블록으로 정해진 기능을 수행하는 블록이다. 
 엔트리에서 가장 많이 사용되며 핵심블록으로 분류할수 있다.&lt;/p&gt;
 
-&lt;h4 id=&quot;section-12&quot;&gt;ㄴ. 사용자 입력 순차 블록&lt;/h4&gt;
+&lt;h4 id=&quot;ㄴ-사용자-입력-순차-블록&quot;&gt;ㄴ. 사용자 입력 순차 블록&lt;/h4&gt;
 &lt;p&gt;&lt;img src=&quot;/entry-hw/public/image/block_create/default_input_block.png&quot; alt=&quot;기본 순차 블록&quot; /&gt;&lt;/p&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-js&quot; data-lang=&quot;js&quot;&gt;&lt;span class=&quot;nx&quot;&gt;Entry&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;block&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
@@ -632,7 +632,7 @@ template 프로퍼티는 작성 되어 있지 않다면 Lang.template 에서 정
 &lt;p&gt;유저 입력을 받아서 처리하는 순차 블록. 기본적인 생성방법은 기존의 블록들과 다르지 않다. 
 하드웨어를 처리할때 아날로그 센서값을 반아 처리하는 블록에 자주 사용된다.&lt;/p&gt;
 
-&lt;h4 id=&quot;section-13&quot;&gt;ㄷ. 드롭다운 입력 순차 블록&lt;/h4&gt;
+&lt;h4 id=&quot;ㄷ-드롭다운-입력-순차-블록&quot;&gt;ㄷ. 드롭다운 입력 순차 블록&lt;/h4&gt;
 &lt;p&gt;&lt;img src=&quot;/entry-hw/public/image/block_create/default_dropdown_block.png&quot; alt=&quot;드롭다운 입력 순차 블록  &quot; /&gt;&lt;/p&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-js&quot; data-lang=&quot;js&quot;&gt;&lt;span class=&quot;nx&quot;&gt;Entry&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;block&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
@@ -680,7 +680,7 @@ template 프로퍼티는 작성 되어 있지 않다면 Lang.template 에서 정
    <link href="http://entrylabs.github.io/2016/05/26/add_new_blocks2/"/>
    <updated>2016-05-26T00:00:00+00:00</updated>
    <id>http://entrylabs.github.io/2016/05/26/add_new_blocks2</id>
-   <content type="html">&lt;h3 id=&quot;section&quot;&gt;블록 사용 등록&lt;/h3&gt;
+   <content type="html">&lt;h3 id=&quot;블록-사용-등록&quot;&gt;블록 사용 등록&lt;/h3&gt;
 &lt;p&gt;기존에는 static.js에 EntryStatic.getAllBlocks와 EntryStatic.blockInfo 두 가지를 설정했지만 
 blockInfo의 경우 block_entry.js에 포함되었습니다. getAllBlocks에만 사용 할 블록을 등록하면 해당 블록이 나오게 되어있습니다. 
 작성 방법은 기존과 같습니다.&lt;/p&gt;
@@ -693,12 +693,12 @@ blockInfo의 경우 block_entry.js에 포함되었습니다. getAllBlocks에만 
    <link href="http://entrylabs.github.io/2016/05/22/add_new_blocks/"/>
    <updated>2016-05-22T00:00:00+00:00</updated>
    <id>http://entrylabs.github.io/2016/05/22/add_new_blocks</id>
-   <content type="html">&lt;h3 id=&quot;section&quot;&gt;신규 엔트리 블록&lt;/h3&gt;
+   <content type="html">&lt;h3 id=&quot;신규-엔트리-블록&quot;&gt;신규 엔트리 블록&lt;/h3&gt;
 &lt;p&gt;엔트리 블록 라이브러리가 변경되었습니다. 기존에 사용하던 구글 Blockly에서 자체개발 Block라이브러리로 변경 되었고 변경과 함께 개발 방법또한 변경되었습니다. 이 문서에서는 변경된 블록 라이브러리를 이용하여 개발을 수행하는 방법에 대해서 설명합니다.&lt;/p&gt;
 
-&lt;h3 id=&quot;section-1&quot;&gt;블록 명세 작성&lt;/h3&gt;
+&lt;h3 id=&quot;블록-명세-작성&quot;&gt;블록 명세 작성&lt;/h3&gt;
 
-&lt;h4 id=&quot;section-2&quot;&gt;블록 작성&lt;/h4&gt;
+&lt;h4 id=&quot;블록-작성&quot;&gt;블록 작성&lt;/h4&gt;
 &lt;p&gt;기존의 블록 작성 방식과 다르게 신규 블록은 block_entry.js의 하나의 파일에서 관리 하고 있습니다. 해당 파일에 블록의 모양과 기능을 정희 하면 블록을 만들수 있게 됩니다. 아래의 내용은 블록 구성에 필요한 정보 입니다.&lt;/p&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-js&quot; data-lang=&quot;js&quot;&gt;&lt;span class=&quot;nx&quot;&gt;Entry&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;block&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
@@ -789,13 +789,13 @@ blockInfo의 경우 block_entry.js에 포함되었습니다. getAllBlocks에만 
    <link href="http://entrylabs.github.io/2016/05/03/git_fork/"/>
    <updated>2016-05-03T00:00:00+00:00</updated>
    <id>http://entrylabs.github.io/2016/05/03/git_fork</id>
-   <content type="html">&lt;h4 id=&quot;git-fork&quot;&gt;Git Fork방법&lt;/h4&gt;
+   <content type="html">&lt;h4 id=&quot;git-fork방법&quot;&gt;Git Fork방법&lt;/h4&gt;
 
 &lt;p&gt;기본적으로는 GitHub의 Fork기능을 사용하여 저장소를 복사 하신뒤 본인의 Repo에서 작업하신 후 origin에 pull request를 보내는 것을 권장 합니다. 하지만, 해당 기능을 잘모를 실경우에는 repo를 clone하시고 작업하신후 작업본을 저희쪽에 전달해 주시면 됩니다.&lt;/p&gt;
 
 &lt;hr /&gt;
 
-&lt;h5 id=&quot;github-&quot;&gt;GitHub 기본사용법&lt;/h5&gt;
+&lt;h5 id=&quot;github-기본사용법&quot;&gt;GitHub 기본사용법&lt;/h5&gt;
 &lt;ol&gt;
   &lt;li&gt;&lt;a href=&quot;http://blog.outsider.ne.kr/865&quot;&gt;깃허브를 이용하는 전체 흐름 이해하기 #1&lt;/a&gt;&lt;/li&gt;
   &lt;li&gt;&lt;a href=&quot;http://blog.outsider.ne.kr/866&quot;&gt;깃허브를 이용하는 전체 흐름 이해하기 #2&lt;/a&gt;&lt;/li&gt;
@@ -809,18 +809,18 @@ blockInfo의 경우 block_entry.js에 포함되었습니다. getAllBlocks에만 
    <link href="http://entrylabs.github.io/2016/05/03/add_module/"/>
    <updated>2016-05-03T00:00:00+00:00</updated>
    <id>http://entrylabs.github.io/2016/05/03/add_module</id>
-   <content type="html">&lt;h4 id=&quot;section&quot;&gt;모듈추가&lt;/h4&gt;
+   <content type="html">&lt;h4 id=&quot;모듈추가&quot;&gt;모듈추가&lt;/h4&gt;
 &lt;p&gt;엔트리에 하드웨어를 추가하기 위해서 수반되는 가장 기본적인 단계 입니다.&lt;/p&gt;
 
-&lt;h4 id=&quot;section-1&quot;&gt;모듈의 위치&lt;/h4&gt;
+&lt;h4 id=&quot;모듈의-위치&quot;&gt;모듈의 위치&lt;/h4&gt;
 &lt;p&gt;엔트리가 Electron이 적용됨에 따라 모듈의 위치도 변경되었습니다.&lt;br /&gt;
 기존 상위폴더/modules에서 상위폴더/app/modules로 변경되었습니다.&lt;/p&gt;
 
-&lt;h4 id=&quot;section-2&quot;&gt;모듈의 구성&lt;/h4&gt;
+&lt;h4 id=&quot;모듈의-구성&quot;&gt;모듈의 구성&lt;/h4&gt;
 &lt;p&gt;모듈은 모듈명.js, 모듈명.json, 모듈명.png의 3가지로 구성됩니다.&lt;br /&gt;
 &lt;img src=&quot;https://raw.githubusercontent.com/entrylabs/entry-hw/gh-pages/wiki-image/module/default.PNG&quot; alt=&quot;모듈의 구성&quot; /&gt;&lt;/p&gt;
 
-&lt;h5 id=&quot;json-&quot;&gt;모듈명.json 구조&lt;/h5&gt;
+&lt;h5 id=&quot;모듈명json-구조&quot;&gt;모듈명.json 구조&lt;/h5&gt;
 &lt;div class=&quot;language-json highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
     &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;id&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;하드웨어ID(엔트리와 사전규약 필요. ex.'010101')&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
     &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;name&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
@@ -857,7 +857,7 @@ blockInfo의 경우 block_entry.js에 포함되었습니다. getAllBlocks에만 
 &lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 
-&lt;h5 id=&quot;js-&quot;&gt;모듈명.js의 구조&lt;/h5&gt;
+&lt;h5 id=&quot;모듈명js의-구조&quot;&gt;모듈명.js의 구조&lt;/h5&gt;
 &lt;div class=&quot;language-js highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kd&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;Module&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
 &lt;span class=&quot;c1&quot;&gt;//모듈의 constructor&lt;/span&gt;
 &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
