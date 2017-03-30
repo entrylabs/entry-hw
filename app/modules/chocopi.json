@@ -7,7 +7,7 @@
 	"platform": ["win32", "darwin"],	
 	"icon" : "chocopi.png",
 	"module": "chocopi.js",
-	"url": "http://chocopi.org",
+	"url": "http://chocopi.org/entry",
 	"entry": {
 		"protocol": "json"
 	},
@@ -21,7 +21,7 @@
 		"type": "serial",
 		"control": "slave",
 		"duration": 100,
-		"vendor": ["STMicroelectronics."],
+		"vendor": ["Microsoft","STMicroelectronics."],
 		"baudRate": 115200
 	}
 }
