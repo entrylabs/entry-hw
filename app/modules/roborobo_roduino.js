@@ -162,6 +162,12 @@ Module.prototype.requestRemoteData = function(handler) {
 };
 
 Module.prototype.reset = function() {
+    this.ports = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ];
+    this.digitalData = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ];
+    this.digitalPinMode = [ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ];
+    this.analogEnable = [ 0, 0, 0, 0, 0, 0 ];
+    this.colorPin = 0;
+    this.colorSetFlag = false;
 };
 
 module.exports = new Module();

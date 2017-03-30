@@ -30,10 +30,12 @@ function Module() {
     this.previousPWMValue = [ 0, 0, 0, 0, 0 ];
     this.preDigitalPinMode = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ];
     this.digitalPinMode = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ];
+    this.servo = [ 0, 0, 0, 0, 0, 0 ];
     this.inputPin = [ 7, 9 ];
 	this.analgPin = [ 8, 10 ];
-    this.packet = [ 0, 0, 0 ];    
+    this.packet = [ 0, 0, 0 ]; 
     this.step = 0;
+    this.initHW_Flag = false;
 };
 
 Module.prototype.init = function(handler, config) {
@@ -52,9 +54,10 @@ Module.prototype.validateLocalData = function(data) {
 };
 
 Module.prototype.handleRemoteData = function(handler) {
-	var digitalValue = this.remoteDigitalValue;
+	var digitalValue = this.remoteDigitalValue;    
+    this.initHW_Flag = handler.read('initHW_Flag');
     this.digitalPinMode = handler.read('digitalPinMode');
-    this.analogEnable = handler.read('analogEnable');
+    this.servo = handler.read('servo');
     for (var port = 0; port < 14; port++) {
         digitalValue[port] = handler.read(port);
     }
@@ -64,36 +67,35 @@ Module.prototype.requestLocalData = function() {
     var query = [];
     var temp = [];
     
-    query = this.setPinMode();
-    
-    if(query == null) {
-        query = this.digitalWrite();
-    } else {
-        temp = this.digitalWrite();
-        for(var i = 0; i < temp.length; i++) {
-            query.push(temp[i]);
+    if(this.initHW_Flag) {
+        query.push(RESET);
+        this.reset();
+        this.initHW_Flag = false;
+    } else {    
+        query = this.setPinMode();
+            
+        if(query == null) {
+            query = this.digitalWrite();
+        } else {
+            temp = this.digitalWrite();
+            for(var i = 0; i < temp.length; i++) {
+                query.push(temp[i]);
+            }
+        }
+        
+        if(query == null) {
+            query = this.setPWM();
+        } else {
+            temp = this.setPWM();
+            for(var i = 0; i < temp.length; i++) {
+                query.push(temp[i]);
+            }
         }
     }
-    
-    // if(query == null) {
-        // query = this.setPWM();
-    // } else {
-        temp = this.setPWM();
-        for(var i = 0; i < temp.length; i++) {
-            query.push(temp[i]);
-        }
-    // }
-    
-    temp = this.motor();
-    for(var i = 0; i < temp.length; i++) {
-        query.push(temp[i]);
-    }
-    
     return query;
 };
 
 Module.prototype.handleLocalData = function(data) { // data: Native Buffer
-	//console.log("data.length : " + data.length);
     for(var i = 0; i < data.length; i++) {
         var packet = data[i];
         
@@ -159,12 +161,6 @@ Module.prototype.handleLocalData = function(data) { // data: Native Buffer
                 this.step = 0;
             }
             break;
-            // default:
-            // {
-                // this.packet = [ 0, 0, 0 ];
-                // this.step = 0;
-            // }
-            // break;
         }
     }
 };
@@ -182,14 +178,20 @@ Module.prototype.requestRemoteData = function(handler) {
 };
 
 Module.prototype.reset = function() {
-	this.previousMotorValue = [ -1, -1, -1, -1 ];
+	this.digitalValue = new Array(14);
+    this.remoteDigitalValue = new Array(14).fill(0);
+    this.analogValue = new Array(2);
+    this.ports = Array(14).fill(0);
+    this.previousMotorValue = [ -1, -1, -1, -1 ];
     this.previousPWMValue = [ 0, 0, 0, 0, 0 ];
     this.preDigitalPinMode = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ];
     this.digitalPinMode = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ];
+    this.servo = [ 0, 0, 0, 0, 0, 0 ];
     this.inputPin = [ 7, 9 ];
 	this.analgPin = [ 8, 10 ];
-    this.packet = [ 0, 0, 0 ];
+    this.packet = [ 0, 0, 0 ];    
     this.step = 0;
+    // this.initHW_Flag = false;
 };
 
 module.exports = new Module();
@@ -215,22 +217,6 @@ Module.prototype.schoolkitInit = function() {
     queryString.push(QUERY_FIRMWARE);
     queryString.push(END_SYSEX);
 	
-    return queryString;
-};
-
-Module.prototype.sendReset = function() {
-    var queryString = [];
-    this.previousMotorValue = [ -1, -1, -1, -1 ];
-    this.previousPWMValue = [ 0, 0, 0, 0, 0 ];
-    this.preDigitalPinMode = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ];
-    this.digitalPinMode = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ];
-    this.inputPin = [ 7, 9 ];
-	this.analgPin = [ 8, 10 ];
-    this.packet = [ 0, 0, 0 ];
-    this.step = 0;
-    
-    queryString.push(RESET);
-    
     return queryString;
 };
 
@@ -277,39 +263,37 @@ Module.prototype.motor = function() {
         var value = this.remoteDigitalValue[pin];
         var preValue = this.previousMotorValue[i];
                 
-        //if (value != 0x00 || preValue != 0x00) {
-        if (value != preValue) {
-            if(value > 127) {
-                ChannelData[0] = value - 128;
-                ChannelData[1] = 0x01;
-            } else {
-                ChannelData[0] = value;
-                ChannelData[1] = 0x00;
+        if (value != 0x00 || preValue != 0x00) {
+            if (value != preValue) {
+                if(value > 127) {
+                    ChannelData[0] = value - 128;
+                    ChannelData[1] = 0x01;
+                } else {
+                    ChannelData[0] = value;
+                    ChannelData[1] = 0x00;
+                }
+                
+                queryString.push(ANALOG_MESSAGE | pin);
+                queryString.push(ChannelData[0]);
+                queryString.push(ChannelData[1]);
+                
+                this.previousMotorValue[i] = value;
             }
-            
-            queryString.push(ANALOG_MESSAGE | pin);
-            queryString.push(ChannelData[0]);
-            queryString.push(ChannelData[1]);
-            
-            this.previousMotorValue[i] = value;
         }
-        //}
     }
     return queryString;
 };
 
 Module.prototype.setPWM = function() {
     var queryString = [];
-    var pin = 0;
     var value = 0;
     
-    for(var i = 0; i < 5; i++) {
-        pin = i + 2;
-        value = this.remoteDigitalValue[pin];
+    for(var i = 0; i < 9; i++) {
+        value = this.remoteDigitalValue[i];        
         
-        if(this.digitalPinMode[pin] == 3) {
-            if(this.previousPWMValue[pin] != value) {
-                queryString.push(ANALOG_MESSAGE | pin);
+        if(this.digitalPinMode[i] == 3) {
+            if(this.previousPWMValue[i] != value) {
+                queryString.push(ANALOG_MESSAGE | i);
                 if(value > 127) {
                     queryString.push(value - 128);
                     queryString.push(0x01);
@@ -317,7 +301,7 @@ Module.prototype.setPWM = function() {
                     queryString.push(value);
                     queryString.push(0x00);
                 }
-                this.previousPWMValue[pin] = value;
+                this.previousPWMValue[i] = value;
             }
         }
     }
