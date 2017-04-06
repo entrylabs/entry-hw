@@ -93,6 +93,12 @@ Router.prototype.connect = function(connector, config) {
                         connector.send(data);
                     }
                 }
+                if(extension.getProperty) {
+                    var data = extension.getProperty();
+                    if(data) {
+                    	connector.send(data);
+                    }
+                }
             }, duration);
         }
 
