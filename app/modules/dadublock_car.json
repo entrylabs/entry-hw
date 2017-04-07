@@ -16,14 +16,14 @@
 	},
 	"reconnect" : true,
     "entry": {
-		"protocol": "json"
+        "protocol": "json"
 	},
     "hardware" : {
-		"type": "serial",
-		"control": "slave",
-		"duration": 32,
-		"vendor": "Silicon Lab",
-		"baudRate": 115200,
-		"firmwarecheck": false
+        "type": "serial",
+        "control": "slave",
+        "duration": 32,
+        "vendor": ["Silicon Lab", "IntegriSys"],
+        "baudRate": 115200,
+        "firmwarecheck": false
     }
 }
