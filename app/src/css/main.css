@@ -3,6 +3,16 @@
 	src: url('../fonts/NanumGothic.woff');
 }
 
+.darwin ::-webkit-scrollbar {
+    -webkit-appearance: none;
+    width: 11px;
+}
+.darwin ::-webkit-scrollbar-thumb {
+    border-radius: 8px;
+    border: 2px solid white; /* should match background, can't be transparent */
+    background-color: rgba(0, 0, 0, .5);
+}
+
 * {
 	box-sizing: border-box;
 	-moz-box-sizing: border-box;
@@ -14,6 +24,8 @@
 	-ms-user-select: none;
 	user-select: none;
 	font-family: NanumGothic;
+	outline: none;
+    -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
 }
 
 html, body {
@@ -30,6 +42,10 @@ html, body {
     height: 100%;
 }
 
+button {
+	cursor: pointer;
+}
+
 #header {
 	flex: none;
 	width: 100%;
@@ -39,32 +55,50 @@ html, body {
 }
 
 #navigator {
-	padding-top: 12px;
+	padding-top: 15px;
 	width: 100px;
 	margin: 0;
 }
 
 .navigate_button {
+	margin-right: 1px;
+	vertical-align: top;
 	border: none;
-	width: 29px;
-	height: 22px;
+	width: 26px;
+	height: 26px;
 	background-color: transparent;
 }
 
 #back {
-	background-image: url('../images/back.png');
+	background-image: url('../images/btn_back_dim.png');
+}
+
+#back.active {
+	background-image: url('../images/btn_back_off.png');
+}
+
+#back.active:hover, #back.active:active {
+	background-image: url('../images/btn_back_on.png');
 }
 
 #forward {
 	background-image: url('../images/forward.png');
 }
 
+#refresh {
+	background-image: url('../images/btn_refresh_off.png');
+}
+
+#refresh:hover, #refresh:active {
+	background-image: url('../images/btn_refresh_on.png');
+}
+
 #title {
 	margin: 0;
 	width: 200px;
 	color: #fff;
-	font-size: 14px;
-	margin-top: 14px;
+	font-size: 15px;
+	margin-top: 8px;
 }
 
 .content {
@@ -188,14 +222,19 @@ html, body {
 }
 
 #alert {
+	overflow: hidden;
 	width: 100%;
 	background-color: #ffc800;
 	color: white;
 	font-size:10pt;
-	position: absolute;
+	position: relative;
 	text-align: center;
 	height: 0px;
 	line-height: 35px;
+}
+
+#alert.error {
+	background-color: #ffc800;
 }
 
 #ieGuide {
@@ -243,21 +282,89 @@ html, body {
   	align-items: center;
 }
 
-#select_port_box .select_port_child{
+#select_port_box .select_port_child {
 	display: flex;
 	justify-content: space-between;
   	align-items: center;
-	width: 300px;
-	height: 300px;
-	background: #fefefe;
-	border-radius: 10px;
-	border: solid 1px rgba(0, 0, 0, 0.2);
-	padding: 30px;
+	width: 360px;
+	height: 379px;
 	flex-direction: column;
 }
 
+#select_port_box .select_port_child .title{
+	border-top-left-radius: 3px;
+	border-top-right-radius: 3px;
+	height: 57px;
+	padding-left: 20px;
+	line-height: 57px;
+	color: #fff;
+	font-weight: bold;
+	font-size: 20px;
+	width: 100%;
+	background-color: #2a7def;
+}
+#select_port_box .select_port_child .title .cancel_icon{
+	cursor: pointer;
+	float: right;
+	content: " ";
+	width: 22px;
+	height: 57px;
+	margin-right: 20px;
+	display: inline-block;
+	background-repeat: no-repeat;
+    background-position: center;
+    background-image: url(../images/btn_close.png);
+}
+
+#select_port_box .select_port_child .content{
+	border-bottom-left-radius: 3px;
+	border-bottom-right-radius: 3px;
+	background-color: #fff;
+    text-align: center;
+    flex: 1;
+}
+
+#select_port_box .select_port_child .content .description{
+	font-size: 18px;
+	color: #232323;
+	margin: 30px 0 20px 0;
+}
+
 #select_port_box .select_port_child select{ 
-	width: 200px;
+	height: 142px;
+	width: 247px;
+	font-size: 16px;
+	color: #2c2c2c;
+	margin-bottom: 33px;
+}
+
+#select_port_box .select_port_child select option{ 
+	padding: 8px 20px 8px 20px;
+}
+
+
+#select_port_box .select_port_child button {
+	cursor: pointer;
+	height: 47px;
+	width: 110px;
+}
+
+#select_port_box .select_port_child #btn_select_port { 
+	background: #6e5ae6;
+	font-size: 16px;
+	color: #fff;
+	border: 0px;
+	border-radius: 3px;
+
+}
+
+#select_port_box .select_port_child #btn_select_port_cancel { 
+	background: #dbdbdb;
+	font-size: 16px;
+	color: #9e9e9f;
+	border: 0px;
+	border-radius: 3px;
+	margin-right: 11px;
 }
 
 .middleDiv {
@@ -290,4 +397,40 @@ html, body {
 
 #errorAlert .comment {
 	font-size: 11px;
+}
+
+#cloud_icon .cloud_icon {
+    display: inline-block;
+	background: url('../images/cloud.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    width: 22px;
+    height: 13px;
+}
+
+#cloud_icon .cloud_text {
+    display: inline-block;
+    vertical-align: top;
+    line-height: 13px;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+#cloud_icon{
+    display: none;
+    float: right;
+    margin-top: -15px;
+    margin-right: 16px;
+    
+    /*animation: blink_image 2s linear infinite;*/
+}
+
+
+@keyframes blink_image {
+	0%, 100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.2;
+	}
 }

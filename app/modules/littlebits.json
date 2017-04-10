@@ -4,6 +4,7 @@
 		"en": "Little Bits",
 		"ko": "리틀비츠"
 	},
+    "platform": ["win32", "darwin"],
 	"icon" : "littlebits.png",
 	"module": "littlebits.js",
 	"url": "http://littlebits.cc",

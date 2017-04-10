@@ -10,9 +10,14 @@
 	<div id="header">
 		<div id="navigator">
 			<button class="navigate_button" id="back"></button>
-			<button class="navigate_button" id="forward"></button>
+			<!-- <button class="navigate_button" id="forward"></button> -->
+			<button class="navigate_button" id="refresh"></button>
 		</div>
 		<h1 id="title">하드웨어 선택</h1>
+		<div id="cloud_icon">
+			<span class="cloud_icon"></span>
+			<span class="cloud_text">Cloud Mode</span>
+		</div>
 	</div>
 	<div id="errorAlert">
 		<div>
@@ -50,7 +55,9 @@
 			</div>
 			<div id="client" class="hwPanelElement">
 				<img src="src/images/computer.png"/>
-				<button id="driver" class="hwPanelBtn"></button>
+				<div id="driverButtonSet">
+					<!--<button id="driver" class="hwPanelBtn"></button>-->
+				</div>
 			</div>
 			<div id="progress" class="hwPanelElement">
 				<div class="progressDot"></div>
@@ -71,9 +78,7 @@
 			<div id="hardware" class="hwPanelElement">
 				<img id="selectedHWThumb"/>
 				<div id="firmwareButtonSet">
-					<button id="firmware" class="hwPanelBtn"></button>
-					<button id="extFirmware" class="hwPanelBtn"></button>
-					<button id="extFirmwarea" class="hwPanelBtn"></button>
+					<button name="firmware" class="hwPanelBtn"></button>
 				</div>
 			</div>
 		</div>
@@ -81,14 +86,23 @@
 
 	<div id="select_port_box">
 		<div class="select_port_child">
-			<div>
-				연결할 COM PORT를 선택하세요.
+			<div class="title">
+				<span>
+					선택하세요.
+				</span>
+				<div class="cancel_icon cancel_event">					
+				</div>
 			</div>
-			<select multiple size="10" id="select_port">
-			</select>
-			<div>
-				<button id="btn_select_port">선택</button>
-				<button id="btn_select_port_cancel">취소</button>
+			<div class="content">
+				<div class="description">
+					연결할 COM PORT를 선택하세요.
+				</div>
+				<select multiple size="10" id="select_port">
+				</select>
+				<div>
+					<button id="btn_select_port_cancel" class="cancel_event">취소</button>
+					<button id="btn_select_port">선택</button>
+				</div>
 			</div>
 		</div>
 	</div>

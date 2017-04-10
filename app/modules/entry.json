@@ -1,36 +1,41 @@
 {
-	"id": "010201",
-	"name": {
-		"en": "E-Sensor board",
-		"ko": "E-센서보드(유선연결)"
-	},
-	"icon" : "entry.png",
-	"module": "entry.js",
-	"url": "http://www.neweducation.co.kr",
-	"email": "join@neweducation.co.kr",
-	"driver": {
-		"win32-ia32": "compat/SETUP.EXE",
-		"win32-x64": "compat/SETUP.EXE"
-	},
+    "id": "010201",
+    "name": {
+        "en": "E-Sensor board",
+        "ko": "E-센서보드(유선연결)"
+    },
+    "platform": ["win32", "darwin"],
+    "icon" : "entry.png",
+    "module": "entry.js",
+    "url": "http://www.neweducation.co.kr",
+    "email": "join@neweducation.co.kr",
+    "driver": [{
+        "win32-ia32": "compat/SETUP.EXE",
+        "win32-x64": "compat/SETUP.EXE",
+        "darwin-x64": "CH34x_Install_MAC_10_9_AND_ABOVE/CH34x_Install_V1.3.pkg",
+        "translate": "Arduino compatible driver"
+    }, {
+        "win32-ia32": "CP210x_VCP_Windows/CP210xVCPInstaller_x86.exe",
+        "win32-x64": "CP210x_VCP_Windows/CP210xVCPInstaller_x64.exe",
+        "darwin-x64": "Mac_OSX_VCP_Driver/SiLabsUSBDriverDisk.dmg",
+        "translate": "Bluetooth driver"
+    }],
     "reconnect" : true,
-	"firmware": [{
-		"name": "entry",
-		"translate": "Install Firmware(Sensor Board)"
-	}, {
-		"name": "entrybt",
-		"translate": "Install Firmware(Sensor Board Bluetooth)"
-	}, {
-		"name": "entryext",
-		"translate": "Install Firmware(Extension Project)"
-	}],
-	"entry": {
-		"protocol": "json"
-	},
-	"hardware": {
-		"type": "serial",
-		"control": "slave",
-		"duration": 32,
-		"vendor": "wch.cn",
-		"baudRate": 57600
-	}
+    "firmware": [{
+        "name": "entry",
+        "translate": "Install Firmware(Sensor Board)"
+    }, {
+        "name": "entrybt",
+        "translate": "Install Firmware(Sensor Board Bluetooth)"
+    }],
+    "entry": {
+        "protocol": "json"
+    },
+    "hardware": {
+        "type": "serial",
+        "control": "slave",
+        "duration": 32,
+        "vendor": ["wch.cn", "Arduino"],
+        "baudRate": 57600
+    }
 }

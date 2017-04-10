@@ -4,6 +4,7 @@
 		"en": "XBOT EPOR and EDGE Bluetooth",
 		"ko": "엑스봇 에뽀/엣지 블투투스"
 	},
+	"platform": ["win32", "darwin"],
 	"icon" : "xbotBT.png",
 	"module": "xbot.js",
 	"url": "http://www.xbot.co.kr",

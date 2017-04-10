@@ -4,6 +4,7 @@
 		"en": "ROBOTIS IoT",
 		"ko": "로보티즈 IoT"
 	},
+	"platform": ["win32"],
 	"icon" : "robotis_openCM70.png",
 	"module": "robotis_openCM70.js",
 	"url": "http://www.robotis.com",

@@ -1,7 +1,6 @@
 function Module() {
 	this.digitalValue = new Array(12);
 	this.analogValue = new Array(6);
-
 	//this.remoteDigitalValue = new Array(12);
 	this.remoteDigitalValue = [0,0,0,0,0,0,0,0,0,0,0,0];
 	this.readablePorts = null;
@@ -23,6 +22,8 @@ Module.prototype.checkInitialData = function(data, config) {
 Module.prototype.validateLocalData = function(data) {
 	return true;
 };
+
+var A = 'dasdas';
 
 Module.prototype.handleRemoteData = function(handler) {
 	this.readablePorts = handler.read('readablePorts');

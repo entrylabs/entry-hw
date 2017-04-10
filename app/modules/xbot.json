@@ -4,13 +4,15 @@
 		"en": "XBOT EDGE USB",
 		"ko": "엑스봇 엣지 USB"
 	},
+	"platform": ["win32", "darwin"],
 	"icon" : "xbot.png",
 	"module": "xbot.js",
 	"url": "http://www.xbot.co.kr",
 	"email": "xbotqna@gmail.com",
 	"driver": {
 		"win32-ia32": "compat/SETUP.EXE",
-		"win32-x64": "compat/SETUP.EXE"
+		"win32-x64": "compat/SETUP.EXE",
+		"darwin-x64": "CH34x_Install_MAC_10_9_AND_ABOVE/CH34x_Install.pkg"
 	},	
 	"entry": {
 		"protocol": "json"

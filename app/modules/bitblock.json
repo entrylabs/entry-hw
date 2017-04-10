@@ -4,6 +4,7 @@
 		"en": "BitBlock",
 		"ko": "비트블록"
 	},
+	"platform": ["win32"],
 	"icon" : "bitblock.png",
 	"module": "bitblock.js",
 	"url": "http://www.apptronics.net",
