@@ -225,6 +225,9 @@ enum {
 	FT_DEVICE_4222H_1_2,
 	FT_DEVICE_4222H_3,
     FT_DEVICE_4222_PROG,
+    FT_DEVICE_900,
+    FT_DEVICE_930,
+    FT_DEVICE_UMFTPD3A,
 };
 
 //
@@ -1178,7 +1181,7 @@ extern "C" {
 		WORD XoffLim;				/* Transmit X-OFF threshold				*/
 		BYTE ByteSize;				/* Number of bits/byte, 4-8				*/
 		BYTE Parity;				/* 0-4=None,Odd,Even,Mark,Space			*/
-		BYTE StopBits;				/* 0,1,2 = 1, 1.5, 2					*/
+		BYTE StopBits;				/* FT_STOP_BITS_1 or FT_STOP_BITS_2		*/
 		char XonChar;				/* Tx and Rx X-ON character				*/
 		char XoffChar;				/* Tx and Rx X-OFF character			*/
 		char ErrorChar;				/* Error replacement char				*/
