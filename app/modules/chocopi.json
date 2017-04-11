@@ -21,7 +21,7 @@
 		"type": "serial",
 		"control": "slave",
 		"duration": 100,
-		"vendor": ["Microsoft","STMicroelectronics."],
+		"vendor": ["Microsoft", "STMicroelectronics."],
 		"baudRate": 115200
 	}
 }
