@@ -66,8 +66,9 @@
     $('#driverButtonSet').on('click', 'button', function() {
         if (!driverDefaultPath) {
             var sourcePath = path.join(__dirname, 'drivers');
-            if (__dirname.indexOf('.asar') >= 0) {
-                driverDefaultPath = path.join(__dirname, '..', 'drivers');
+            var asarIndex = __dirname.indexOf('app.asar');
+            if (asarIndex >= 0) {
+                driverDefaultPath = path.join(__dirname.substr(0, asarIndex), 'drivers');
                 if (!fs.existsSync(driverDefaultPath)) {
                     copyRecursiveSync(sourcePath, driverDefaultPath);
                 }
