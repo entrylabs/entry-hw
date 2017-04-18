@@ -15,7 +15,8 @@
     },
     "reconnect": true,
     "firmware": "rokoboard",
-    "firmwareBaudRate": 57600,
+    "firmwareBaudRate": 19200,
+    "firmwareMCUType": "atmega168",
     "entry": {
         "protocol": "json"
     },

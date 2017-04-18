@@ -25,7 +25,7 @@ var copyRecursiveSync = function(src, dest) {
 };
 
 var Module = {
-    flash : function(firmware, port, baudRate, callBack) {
+    flash : function(firmware, port, options, callBack) {
         var appPath = '';
         var asarIndex = __dirname.indexOf('app.asar');
         if(asarIndex > -1) {
@@ -36,7 +36,8 @@ var Module = {
             appPath = path.join(__dirname, '..');
         }
 
-        var rate = baudRate || '115200';
+        var baudRate = options.baudRate || '115200';
+        var MCUType = options.MCUType || ' m328p';
         var avrName;
         var avrConf;
         var portPrefix;
@@ -52,7 +53,7 @@ var Module = {
                 portPrefix = '\\\\.\\';
                 break;
         }
-        var cmd = [avrName, ' -p m328p -P', portPrefix, port, ' -b', rate, ' -Uflash:w:\"', firmware, '.hex\":i -C', avrConf, ' -carduino -D'];
+        var cmd = [avrName, ' -p', MCUType, ' -P', portPrefix, port, ' -b', baudRate, ' -Uflash:w:\"', firmware, '.hex\":i -C', avrConf, ' -carduino -D'];
         
         var flasherProcess = exec(
             cmd.join(''),

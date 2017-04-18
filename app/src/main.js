@@ -311,6 +311,7 @@
 
                 var port = prevPort || router.connector.sp.path;
                 var baudRate = config.firmwareBaudRate;
+                var MCUType = config.firmwareMCUType;
                 $('#firmwareButtonSet').hide();
                 ui.showAlert(translator.translate("Firmware Uploading..."));
                 router.close();
@@ -318,7 +319,10 @@
                     flasherProcess = flasher.flash(
                         firmware,
                         port,
-                        baudRate,
+                        {
+                            baudRate: baudRate,
+                            MCUType: MCUType,
+                        },
                         function(error, stdout, stderr) {
                             if (error) {
                                 if(firmwareCount > 10) {
