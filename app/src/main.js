@@ -66,8 +66,9 @@
     $('#driverButtonSet').on('click', 'button', function() {
         if (!driverDefaultPath) {
             var sourcePath = path.join(__dirname, 'drivers');
-            if (__dirname.indexOf('.asar') >= 0) {
-                driverDefaultPath = path.join(__dirname, '..', 'drivers');
+            var asarIndex = __dirname.indexOf('app.asar');
+            if (asarIndex >= 0) {
+                driverDefaultPath = path.join(__dirname.substr(0, asarIndex), 'drivers');
                 if (!fs.existsSync(driverDefaultPath)) {
                     copyRecursiveSync(sourcePath, driverDefaultPath);
                 }
@@ -310,6 +311,7 @@
 
                 var port = prevPort || router.connector.sp.path;
                 var baudRate = config.firmwareBaudRate;
+                var MCUType = config.firmwareMCUType;
                 $('#firmwareButtonSet').hide();
                 ui.showAlert(translator.translate("Firmware Uploading..."));
                 router.close();
@@ -317,7 +319,10 @@
                     flasherProcess = flasher.flash(
                         firmware,
                         port,
-                        baudRate,
+                        {
+                            baudRate: baudRate,
+                            MCUType: MCUType,
+                        },
                         function(error, stdout, stderr) {
                             if (error) {
                                 if(firmwareCount > 10) {
