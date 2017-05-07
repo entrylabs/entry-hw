@@ -1,9 +1,10 @@
 ; FTDIPORT.INF
 ; 
-; Copyright © 2000-2015 Future Technology Devices International Limited
+; Copyright © 2000-2017 Future Technology Devices International Limited
 ;
-; USB serial port driver installation file for Windows 2000, XP, Server 2003, Vista, Server 2008,
-; Windows 7, Server 2008 R2, Windows 8, Windows 8.1 and Server 2012 R2.
+; USB serial port driver installation file for Windows 7, Windows 8, Windows 8.1, Windows 10,
+; Server 2008 R2, Server 2012 R2 and Server 2016.
+
 ; 
 ; 
 ; IMPORTANT NOTICE: PLEASE READ CAREFULLY BEFORE INSTALLING THE RELEVANT 
@@ -224,7 +225,7 @@ Class=Ports
 ClassGUID={4d36e978-e325-11ce-bfc1-08002be10318}
 Provider=%FTDI%
 CatalogFile=ftdiport.cat
-DriverVer=07/10/2015,2.12.06
+DriverVer=02/24/2017,2.12.26
 
 [SourceDisksNames]
 1=%DriversDisk%,,,
@@ -256,6 +257,16 @@ ExcludeFromSelect=*
 %VID_0403&PID_6011.DeviceDesc%=FtdiPort.NT,FTDIBUS\COMPORT&VID_0403&PID_6011
 %VID_0403&PID_6014.DeviceDesc%=FtdiPort.NT,FTDIBUS\COMPORT&VID_0403&PID_6014
 %VID_0403&PID_6015.DeviceDesc%=FtdiPort.NT,FTDIBUS\COMPORT&VID_0403&PID_6015
+%VID_0403&PID_6031.DeviceDesc%=FtdiPort.NT,FTDIBUS\COMPORT&VID_0403&PID_6031
+%VID_0403&PID_6032.DeviceDesc%=FtdiPort.NT,FTDIBUS\COMPORT&VID_0403&PID_6032
+%VID_0403&PID_6033.DeviceDesc%=FtdiPort.NT,FTDIBUS\COMPORT&VID_0403&PID_6033
+%VID_0403&PID_6034.DeviceDesc%=FtdiPort.NT,FTDIBUS\COMPORT&VID_0403&PID_6034
+%VID_0403&PID_6035.DeviceDesc%=FtdiPort.NT,FTDIBUS\COMPORT&VID_0403&PID_6035
+%VID_0403&PID_6036.DeviceDesc%=FtdiPort.NT,FTDIBUS\COMPORT&VID_0403&PID_6036
+%VID_0403&PID_6037.DeviceDesc%=FtdiPort.NT,FTDIBUS\COMPORT&VID_0403&PID_6037
+%VID_0403&PID_6038.DeviceDesc%=FtdiPort.NT,FTDIBUS\COMPORT&VID_0403&PID_6038
+%VID_0403&PID_6039.DeviceDesc%=FtdiPort.NT,FTDIBUS\COMPORT&VID_0403&PID_6039
+%VID_0403&PID_603A.DeviceDesc%=FtdiPort.NT,FTDIBUS\COMPORT&VID_0403&PID_603A
 %VID_0403&PID_0000.DeviceDesc%=FtdiPort.NT,FTDIBUS\COMPORT&VID_0403&PID_0000
 
 [FtdiHw.NTamd64]
@@ -264,6 +275,16 @@ ExcludeFromSelect=*
 %VID_0403&PID_6011.DeviceDesc%=FtdiPort.NTamd64,FTDIBUS\COMPORT&VID_0403&PID_6011
 %VID_0403&PID_6014.DeviceDesc%=FtdiPort.NTamd64,FTDIBUS\COMPORT&VID_0403&PID_6014
 %VID_0403&PID_6015.DeviceDesc%=FtdiPort.NTamd64,FTDIBUS\COMPORT&VID_0403&PID_6015
+%VID_0403&PID_6031.DeviceDesc%=FtdiPort.NTamd64,FTDIBUS\COMPORT&VID_0403&PID_6031
+%VID_0403&PID_6032.DeviceDesc%=FtdiPort.NTamd64,FTDIBUS\COMPORT&VID_0403&PID_6032
+%VID_0403&PID_6033.DeviceDesc%=FtdiPort.NTamd64,FTDIBUS\COMPORT&VID_0403&PID_6033
+%VID_0403&PID_6034.DeviceDesc%=FtdiPort.NTamd64,FTDIBUS\COMPORT&VID_0403&PID_6034
+%VID_0403&PID_6035.DeviceDesc%=FtdiPort.NTamd64,FTDIBUS\COMPORT&VID_0403&PID_6035
+%VID_0403&PID_6036.DeviceDesc%=FtdiPort.NTamd64,FTDIBUS\COMPORT&VID_0403&PID_6036
+%VID_0403&PID_6037.DeviceDesc%=FtdiPort.NTamd64,FTDIBUS\COMPORT&VID_0403&PID_6037
+%VID_0403&PID_6038.DeviceDesc%=FtdiPort.NTamd64,FTDIBUS\COMPORT&VID_0403&PID_6038
+%VID_0403&PID_6039.DeviceDesc%=FtdiPort.NTamd64,FTDIBUS\COMPORT&VID_0403&PID_6039
+%VID_0403&PID_603A.DeviceDesc%=FtdiPort.NTamd64,FTDIBUS\COMPORT&VID_0403&PID_603A
 %VID_0403&PID_0000.DeviceDesc%=FtdiPort.NTamd64,FTDIBUS\COMPORT&VID_0403&PID_0000
 
 [FtdiPort.NT.AddService]
@@ -354,6 +375,16 @@ VID_0403&PID_6010.DeviceDesc="USB Serial Port"
 VID_0403&PID_6011.DeviceDesc="USB Serial Port"
 VID_0403&PID_6014.DeviceDesc="USB Serial Port"
 VID_0403&PID_6015.DeviceDesc="USB Serial Port"
+VID_0403&PID_6031.DeviceDesc="USB Serial Port"
+VID_0403&PID_6032.DeviceDesc="USB Serial Port"
+VID_0403&PID_6033.DeviceDesc="USB Serial Port"
+VID_0403&PID_6034.DeviceDesc="USB Serial Port"
+VID_0403&PID_6035.DeviceDesc="USB Serial Port"
+VID_0403&PID_6036.DeviceDesc="USB Serial Port"
+VID_0403&PID_6037.DeviceDesc="USB Serial Port"
+VID_0403&PID_6038.DeviceDesc="USB Serial Port"
+VID_0403&PID_6039.DeviceDesc="USB Serial Port"
+VID_0403&PID_603A.DeviceDesc="USB Serial Port"
 VID_0403&PID_0000.DeviceDesc="USB Serial Port"
 SvcDesc="USB Serial Port Driver"
 SerEnum.SvcDesc="Serenum Filter Driver"
