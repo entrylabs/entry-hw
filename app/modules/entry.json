@@ -21,6 +21,10 @@
         "translate": "Bluetooth driver"
     }],
     "reconnect" : true,
+    "select_com_port": {
+        "win32": false,
+        "darwin": true
+    },
     "firmware": [{
         "name": "entry",
         "translate": "Install Firmware(Sensor Board)"
@@ -35,7 +39,9 @@
         "type": "serial",
         "control": "slave",
         "duration": 32,
-        "vendor": ["wch.cn", "Arduino"],
+        "vendor": {
+            "win32": ["wch.cn", "Arduino"]
+        },
         "baudRate": 57600
     }
 }
