@@ -47,7 +47,7 @@ function Module() {
         dot5: 0,
         dot6: 0,
         dot7: 0,
-        dot8: 0      
+        dot8: 0
     };
 
     this.flagCmdSend = {
@@ -85,24 +85,24 @@ var ALTINO = {
     DOT8: 'dot8'
 };
 
-Module.prototype.init = function (handler, config) {
+Module.prototype.init = function(handler, config) {
     //console.log(this.motoring.lcdTxt);
 };
 
-Module.prototype.lostController = function () { }
+Module.prototype.lostController = function() {}
 
-Module.prototype.evevtContoller = function (state) {
+Module.prototype.evevtContoller = function(state) {
     if (state === 'connected') {
         clearInterval(this.sensing);
     }
 }
 
-Module.prototype.setSerialPort = function (sp) {
+Module.prototype.setSerialPort = function(sp) {
     this.sp = sp;
 };
 
 
-Module.prototype.requestInitialData = function (sp) {
+Module.prototype.requestInitialData = function(sp) {
     var tx_d = this.tx_d;
     tx_d[0] = 0x2;
     tx_d[1] = 0x1c;
@@ -134,17 +134,17 @@ Module.prototype.requestInitialData = function (sp) {
     tx_d[27] = 0x3;
 
     tx_d[2] = 0x2d;
-    
+
     return tx_d;
 };
 
-Module.prototype.checkInitialData = function (data, config) {
+Module.prototype.checkInitialData = function(data, config) {
     return true;
 };
 
 
 // 하드웨어 데이터 처리
-Module.prototype.handleLocalData = function (data) { // data: Native Buffer
+Module.prototype.handleLocalData = function(data) { // data: Native Buffer
 
 
     var buf = this.rx_d56;
@@ -153,7 +153,7 @@ Module.prototype.handleLocalData = function (data) { // data: Native Buffer
     var buftest = this.rx_dtest;
 
     for (var i = 0; i < data.length; i++) {
-        var str = data[i]; 
+        var str = data[i];
         buftest[i] = parseInt(str, 10);
         for (var j = 0; j < 55; j++) {
             buf[j] = buf[j + 1];
@@ -161,7 +161,7 @@ Module.prototype.handleLocalData = function (data) { // data: Native Buffer
         buf[55] = buftest[i];
 
         if (buf[0] === 2 && buf[55] === 3 && buf[1] === 56) {
-                    
+
             rx_check_sum = buf[0];
             rx_check_sum = rx_check_sum + buf[1];
             rx_check_sum = rx_check_sum + buf[3];
@@ -221,7 +221,7 @@ Module.prototype.handleLocalData = function (data) { // data: Native Buffer
             rx_check_sum = rx_check_sum % 256;
 
             if (rx_check_sum === buf[2]) {
-                
+
                 sensordata.ir1 = buf[7] * 256 + buf[8]; //ir1
                 sensordata.ir2 = buf[9] * 256 + buf[10]; //ir2
                 sensordata.ir3 = buf[11] * 256 + buf[12]; //ir3
@@ -259,12 +259,12 @@ Module.prototype.handleLocalData = function (data) { // data: Native Buffer
 
         }
 
-    }   
+    }
 
 };
 
 // Web Socket(엔트리)에 전달할 데이터
-Module.prototype.requestRemoteData = function (handler) {
+Module.prototype.requestRemoteData = function(handler) {
     var sensordata = this.sensordata;
     for (var key in sensordata) {
         handler.write(key, sensordata[key]);
@@ -272,7 +272,7 @@ Module.prototype.requestRemoteData = function (handler) {
 };
 
 // Web Socket 데이터 처리
-Module.prototype.handleRemoteData = function (handler) {
+Module.prototype.handleRemoteData = function(handler) {
     var motordata = this.motordata;
     var flagCmdSend = this.flagCmdSend;
     var newValue;
@@ -307,8 +307,8 @@ Module.prototype.handleRemoteData = function (handler) {
 
     if (handler.e(ALTINO.ASCII)) {
         newValue = handler.read(ALTINO.ASCII);
-        if (motordata.ascii != newValue) {            
-            motordata.ascii = newValue;            
+        if (motordata.ascii != newValue) {
+            motordata.ascii = newValue;
             console.log('altino_move_forward_for_secs  ' + motordata.ascii);
             flagCmdSend.servoCmd = true;
         }
@@ -335,7 +335,7 @@ Module.prototype.handleRemoteData = function (handler) {
         newValue = handler.read(ALTINO.DOT1);
         if (motordata.dot1 != newValue) {
             motordata.dot1 = newValue;
-            
+
             flagCmdSend.rgbCmd = true;
         }
     }
@@ -401,7 +401,7 @@ Module.prototype.handleRemoteData = function (handler) {
 
 
 // 하드웨어에 전달할 데이터
-Module.prototype.requestLocalData = function () {
+Module.prototype.requestLocalData = function() {
     var motordata = this.motordata;
     var tx_d = this.tx_d;
     var u16_tx_check_sum = 0;
@@ -444,18 +444,18 @@ Module.prototype.requestLocalData = function () {
     }
     u16_tx_check_sum = u16_tx_check_sum % 256;
 
-    
+
     tx_d[2] = u16_tx_check_sum;
 
     return tx_d;
 };
 
-Module.prototype.ALTINOcmdBuild = function (u16_cnt) {
+Module.prototype.ALTINOcmdBuild = function(u16_cnt) {
 
 
 };
 
-Module.prototype.ALTINOcmdBuild = function (cmd, d0, d1, d2, d3, d4) {
+Module.prototype.ALTINOcmdBuild = function(cmd, d0, d1, d2, d3, d4) {
     this.tmpBuffer[0] = 0x58; // header1
     this.tmpBuffer[1] = 0x52; // header2
     this.tmpBuffer[2] = cmd & 0xff;
@@ -467,19 +467,18 @@ Module.prototype.ALTINOcmdBuild = function (cmd, d0, d1, d2, d3, d4) {
     this.tmpBuffer[8] = 0x53; // tail
 };
 
-Module.prototype.makeWord = function (hi, lo) {
+Module.prototype.makeWord = function(hi, lo) {
     return (((hi & 0xff) << 8) | (lo & 0xff));
 };
 
-Module.prototype.getLowByte = function (a) {
+Module.prototype.getLowByte = function(a) {
     return (a & 0xff);
 };
 
-Module.prototype.getHighByte = function (a) {
+Module.prototype.getHighByte = function(a) {
     return ((a >> 8) & 0xff);
 };
 
-Module.prototype.reset = function () {
-};
+Module.prototype.reset = function() {};
 
 module.exports = new Module();
