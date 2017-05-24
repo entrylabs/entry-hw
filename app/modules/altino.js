@@ -50,16 +50,6 @@ function Module() {
         dot8: 0
     };
 
-    this.flagCmdSend = {
-        wheelCmd: false,
-        servoCmd: false,
-        analogCmd: false,
-        digitalCmd: false,
-        rgbCmd: false,
-        lcdCmd: false,
-        toneCmd: false
-    };
-
     for (var i = 0; i < 56; ++i) {
         this.rx_d56[i] = 0;
         this.rx_dtest[i] = 0;
@@ -143,7 +133,7 @@ Module.prototype.checkInitialData = function(data, config) {
 };
 
 
-// ÇÏµå¿þ¾î µ¥ÀÌÅÍ Ã³¸®
+// í•˜ë“œì›¨ì–´ ë°ì´í„° ì²˜ë¦¬
 Module.prototype.handleLocalData = function(data) { // data: Native Buffer
 
 
@@ -263,7 +253,7 @@ Module.prototype.handleLocalData = function(data) { // data: Native Buffer
 
 };
 
-// Web Socket(¿£Æ®¸®)¿¡ Àü´ÞÇÒ µ¥ÀÌÅÍ
+// Web Socket(ì—”íŠ¸ë¦¬)ì— ì „ë‹¬í•  ë°ì´í„°
 Module.prototype.requestRemoteData = function(handler) {
     var sensordata = this.sensordata;
     for (var key in sensordata) {
@@ -271,19 +261,22 @@ Module.prototype.requestRemoteData = function(handler) {
     }
 };
 
-// Web Socket µ¥ÀÌÅÍ Ã³¸®
+// Web Socket ë°ì´í„° ì²˜ë¦¬
 Module.prototype.handleRemoteData = function(handler) {
     var motordata = this.motordata;
-    var flagCmdSend = this.flagCmdSend;
     var newValue;
 
     if (handler.e(ALTINO.RIGHT_WHEEL)) {
         newValue = handler.read(ALTINO.RIGHT_WHEEL);
         if (newValue < -1000) newValue = -1000;
         else if (newValue > 1000) newValue = 1000;
+
+        if (newValue < 0) {
+            newValue = 32768 - newValue;
+        }
+
         if (motordata.rightmotor != newValue) {
             motordata.rightmotor = newValue;
-            flagCmdSend.wheelCmd = true;
         }
     }
 
@@ -291,9 +284,12 @@ Module.prototype.handleRemoteData = function(handler) {
         newValue = handler.read(ALTINO.LEFT_WHEEL);
         if (newValue < -1000) newValue = -1000;
         else if (newValue > 1000) newValue = 1000;
+
+        if (newValue < 0) {
+            newValue = 32768 - newValue;
+        }
         if (motordata.leftmotor != newValue) {
             motordata.leftmotor = newValue;
-            flagCmdSend.wheelCmd = true;
         }
     }
 
@@ -301,7 +297,6 @@ Module.prototype.handleRemoteData = function(handler) {
         newValue = handler.read(ALTINO.STEERING);
         if (motordata.steering != newValue) {
             motordata.steering = newValue;
-            flagCmdSend.servoCmd = true;
         }
     }
 
@@ -309,8 +304,6 @@ Module.prototype.handleRemoteData = function(handler) {
         newValue = handler.read(ALTINO.ASCII);
         if (motordata.ascii != newValue) {
             motordata.ascii = newValue;
-            console.log('altino_move_forward_for_secs  ' + motordata.ascii);
-            flagCmdSend.servoCmd = true;
         }
     }
 
@@ -318,7 +311,6 @@ Module.prototype.handleRemoteData = function(handler) {
         newValue = handler.read(ALTINO.LED);
         if (motordata.led != newValue) {
             motordata.led = newValue;
-            flagCmdSend.rgbCmd = true;
         }
     }
 
@@ -327,7 +319,6 @@ Module.prototype.handleRemoteData = function(handler) {
 
         if (motordata.led2 != newValue) {
             motordata.led2 = newValue;
-            flagCmdSend.rgbCmd = true;
         }
     }
 
@@ -335,57 +326,48 @@ Module.prototype.handleRemoteData = function(handler) {
         newValue = handler.read(ALTINO.DOT1);
         if (motordata.dot1 != newValue) {
             motordata.dot1 = newValue;
-
-            flagCmdSend.rgbCmd = true;
         }
     }
     if (handler.e(ALTINO.DOT2)) {
         newValue = handler.read(ALTINO.DOT2);
         if (motordata.dot2 != newValue) {
             motordata.dot2 = newValue;
-            flagCmdSend.rgbCmd = true;
         }
     }
     if (handler.e(ALTINO.DOT3)) {
         newValue = handler.read(ALTINO.DOT3);
         if (motordata.dot3 != newValue) {
             motordata.dot3 = newValue;
-            flagCmdSend.rgbCmd = true;
         }
     }
     if (handler.e(ALTINO.DOT4)) {
         newValue = handler.read(ALTINO.DOT4);
         if (motordata.dot4 != newValue) {
             motordata.dot4 = newValue;
-            flagCmdSend.rgbCmd = true;
         }
     }
     if (handler.e(ALTINO.DOT5)) {
         newValue = handler.read(ALTINO.DOT5);
         if (motordata.dot5 != newValue) {
             motordata.dot5 = newValue;
-            flagCmdSend.rgbCmd = true;
         }
     }
     if (handler.e(ALTINO.DOT6)) {
         newValue = handler.read(ALTINO.DOT6);
         if (motordata.dot6 != newValue) {
             motordata.dot6 = newValue;
-            flagCmdSend.rgbCmd = true;
         }
     }
     if (handler.e(ALTINO.DOT7)) {
         newValue = handler.read(ALTINO.DOT7);
         if (motordata.dot7 != newValue) {
             motordata.dot7 = newValue;
-            flagCmdSend.rgbCmd = true;
         }
     }
     if (handler.e(ALTINO.DOT8)) {
         newValue = handler.read(ALTINO.DOT8);
         if (motordata.dot8 != newValue) {
             motordata.dot8 = newValue;
-            flagCmdSend.rgbCmd = true;
         }
     }
 
@@ -393,14 +375,13 @@ Module.prototype.handleRemoteData = function(handler) {
         newValue = handler.read(ALTINO.NOTE);
         if (motordata.note != newValue) {
             motordata.note = newValue;
-            flagCmdSend.toneCmd = true;
         }
     }
 
 };
 
 
-// ÇÏµå¿þ¾î¿¡ Àü´ÞÇÒ µ¥ÀÌÅÍ
+// í•˜ë“œì›¨ì–´ì— ì „ë‹¬í•  ë°ì´í„°
 Module.prototype.requestLocalData = function() {
     var motordata = this.motordata;
     var tx_d = this.tx_d;
@@ -450,35 +431,7 @@ Module.prototype.requestLocalData = function() {
     return tx_d;
 };
 
-Module.prototype.ALTINOcmdBuild = function(u16_cnt) {
-
-
+Module.prototype.reset = function () {
 };
-
-Module.prototype.ALTINOcmdBuild = function(cmd, d0, d1, d2, d3, d4) {
-    this.tmpBuffer[0] = 0x58; // header1
-    this.tmpBuffer[1] = 0x52; // header2
-    this.tmpBuffer[2] = cmd & 0xff;
-    this.tmpBuffer[3] = d0 & 0xff;
-    this.tmpBuffer[4] = d1 & 0xff;
-    this.tmpBuffer[5] = d2 & 0xff;
-    this.tmpBuffer[6] = d3 & 0xff;
-    this.tmpBuffer[7] = d4 & 0xff;
-    this.tmpBuffer[8] = 0x53; // tail
-};
-
-Module.prototype.makeWord = function(hi, lo) {
-    return (((hi & 0xff) << 8) | (lo & 0xff));
-};
-
-Module.prototype.getLowByte = function(a) {
-    return (a & 0xff);
-};
-
-Module.prototype.getHighByte = function(a) {
-    return ((a >> 8) & 0xff);
-};
-
-Module.prototype.reset = function() {};
 
 module.exports = new Module();
