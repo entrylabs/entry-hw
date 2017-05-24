@@ -47,7 +47,7 @@ function Module() {
         dot5: 0,
         dot6: 0,
         dot7: 0,
-        dot8: 0      
+        dot8: 0
     };
 
     for (var i = 0; i < 56; ++i) {
@@ -75,24 +75,24 @@ var ALTINO = {
     DOT8: 'dot8'
 };
 
-Module.prototype.init = function (handler, config) {
+Module.prototype.init = function(handler, config) {
     //console.log(this.motoring.lcdTxt);
 };
 
-Module.prototype.lostController = function () { }
+Module.prototype.lostController = function() {}
 
-Module.prototype.evevtContoller = function (state) {
+Module.prototype.evevtContoller = function(state) {
     if (state === 'connected') {
         clearInterval(this.sensing);
     }
 }
 
-Module.prototype.setSerialPort = function (sp) {
+Module.prototype.setSerialPort = function(sp) {
     this.sp = sp;
 };
 
 
-Module.prototype.requestInitialData = function (sp) {
+Module.prototype.requestInitialData = function(sp) {
     var tx_d = this.tx_d;
     tx_d[0] = 0x2;
     tx_d[1] = 0x1c;
@@ -124,17 +124,17 @@ Module.prototype.requestInitialData = function (sp) {
     tx_d[27] = 0x3;
 
     tx_d[2] = 0x2d;
-    
+
     return tx_d;
 };
 
-Module.prototype.checkInitialData = function (data, config) {
+Module.prototype.checkInitialData = function(data, config) {
     return true;
 };
 
 
-// ÇÏµå¿þ¾î µ¥ÀÌÅÍ Ã³¸®
-Module.prototype.handleLocalData = function (data) { // data: Native Buffer
+// í•˜ë“œì›¨ì–´ ë°ì´í„° ì²˜ë¦¬
+Module.prototype.handleLocalData = function(data) { // data: Native Buffer
 
 
     var buf = this.rx_d56;
@@ -143,7 +143,7 @@ Module.prototype.handleLocalData = function (data) { // data: Native Buffer
     var buftest = this.rx_dtest;
 
     for (var i = 0; i < data.length; i++) {
-        var str = data[i]; 
+        var str = data[i];
         buftest[i] = parseInt(str, 10);
         for (var j = 0; j < 55; j++) {
             buf[j] = buf[j + 1];
@@ -151,7 +151,7 @@ Module.prototype.handleLocalData = function (data) { // data: Native Buffer
         buf[55] = buftest[i];
 
         if (buf[0] === 2 && buf[55] === 3 && buf[1] === 56) {
-                    
+
             rx_check_sum = buf[0];
             rx_check_sum = rx_check_sum + buf[1];
             rx_check_sum = rx_check_sum + buf[3];
@@ -211,7 +211,7 @@ Module.prototype.handleLocalData = function (data) { // data: Native Buffer
             rx_check_sum = rx_check_sum % 256;
 
             if (rx_check_sum === buf[2]) {
-                
+
                 sensordata.ir1 = buf[7] * 256 + buf[8]; //ir1
                 sensordata.ir2 = buf[9] * 256 + buf[10]; //ir2
                 sensordata.ir3 = buf[11] * 256 + buf[12]; //ir3
@@ -249,20 +249,20 @@ Module.prototype.handleLocalData = function (data) { // data: Native Buffer
 
         }
 
-    }   
+    }
 
 };
 
-// Web Socket(¿£Æ®¸®)¿¡ Àü´ÞÇÒ µ¥ÀÌÅÍ
-Module.prototype.requestRemoteData = function (handler) {
+// Web Socket(ì—”íŠ¸ë¦¬)ì— ì „ë‹¬í•  ë°ì´í„°
+Module.prototype.requestRemoteData = function(handler) {
     var sensordata = this.sensordata;
     for (var key in sensordata) {
         handler.write(key, sensordata[key]);
     }
 };
 
-// Web Socket µ¥ÀÌÅÍ Ã³¸®
-Module.prototype.handleRemoteData = function (handler) {
+// Web Socket ë°ì´í„° ì²˜ë¦¬
+Module.prototype.handleRemoteData = function(handler) {
     var motordata = this.motordata;
     var newValue;
 
@@ -381,8 +381,8 @@ Module.prototype.handleRemoteData = function (handler) {
 };
 
 
-// ÇÏµå¿þ¾î¿¡ Àü´ÞÇÒ µ¥ÀÌÅÍ
-Module.prototype.requestLocalData = function () {
+// í•˜ë“œì›¨ì–´ì— ì „ë‹¬í•  ë°ì´í„°
+Module.prototype.requestLocalData = function() {
     var motordata = this.motordata;
     var tx_d = this.tx_d;
     var u16_tx_check_sum = 0;
@@ -425,7 +425,7 @@ Module.prototype.requestLocalData = function () {
     }
     u16_tx_check_sum = u16_tx_check_sum % 256;
 
-    
+
     tx_d[2] = u16_tx_check_sum;
 
     return tx_d;
