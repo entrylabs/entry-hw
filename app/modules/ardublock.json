@@ -4,7 +4,7 @@
 		"en": "ardublock",
 		"ko": "아두블럭"
 	},
-	"platform": ["win32", "darwin"],
+	"platform": ["win32"],
 	"icon" : "ardublock.png",
 	"module": "ardublock.js",
 	"url": "http://www.jkelec.co.kr",
