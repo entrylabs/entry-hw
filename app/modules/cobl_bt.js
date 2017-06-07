@@ -1,11 +1,11 @@
 function Module() {
     this.digitalValue = new Array(14);
-    this.analogValue = new Array(14);
+    this.analogValue = new Array(6);
     this.isConSuccess = false;
 
-    this.remoteCommandValue = new Array(25);
+    this.remoteCommandValue = new Array(17);
     //this.readablePorts = null;
-    this.lastRemoteCommandValue = new Array(25);
+    this.lastRemoteCommandValue = new Array(17);
     console.log("***MODULE");
     this.resCnt = 0;
 
@@ -64,14 +64,9 @@ Module.prototype.PORT_MAP = {
     "DC2_SPEED": 11,
     "7SEG": 12,
     "Melody": 13,
-    "Melody_DUR": 14,
-    "RainBowLED_1": 15,
-    "RainBowLED_2": 16,
-    "RainBowLED_3": 17,
-    "BLED_R": 18,
-    "BLED_G": 19,
-    "BLED_B": 20,
-    "BLED_IDX": 21,
+    "RainBowLED_1": 14,
+    "RainBowLED_2": 15,
+    "RainBowLED_3": 16,
 };
 
 Module.prototype.COMMAND_MAP = {
@@ -119,23 +114,6 @@ Module.prototype.handleRemoteData = function(handler) {
     remoteValue[this.PORT_MAP["ELED_B"]] = handler.e("ELED_B") ? handler.read("ELED_B") : undefined;
     remoteValue[this.PORT_MAP["ELED_IDX"]] = handler.e("ELED_IDX") ? handler.read("ELED_IDX") : undefined;
 
-    /*remoteValue[this.PORT_MAP["BLED_IDX"]] = handler.e("BLED_IDX") ? handler.read("BLED_IDX") : undefined;
-    remoteValue[this.PORT_MAP["BLED_R"]] = handler.e("BLED_R") ? handler.read("BLED_R") : undefined;
-    remoteValue[this.PORT_MAP["BLED_G"]] = handler.e("BLED_G") ? handler.read("BLED_G") : undefined;
-    remoteValue[this.PORT_MAP["BLED_B"]] = handler.e("BLED_B") ? handler.read("BLED_B") : undefined;*/
-
-    if (handler.e("BLED_IDX"))
-        remoteValue[this.PORT_MAP["BLED_IDX"]] = handler.read("BLED_IDX");
-    if (handler.e("BLED_R"))
-        remoteValue[this.PORT_MAP["BLED_R"]] = handler.read("BLED_R");
-    if (handler.e("BLED_G"))
-        remoteValue[this.PORT_MAP["BLED_G"]] = handler.read("BLED_G");
-    if (handler.e("BLED_B"))
-        remoteValue[this.PORT_MAP["BLED_B"]] = handler.read("BLED_B");
-
-
-
-
     remoteValue[this.PORT_MAP["RainBowLED_IDX"]] = handler.e("RainBowLED_IDX") ? handler.read("RainBowLED_IDX") : undefined;
     remoteValue[this.PORT_MAP["RainBowLED_COL"]] = handler.e("RainBowLED_COL") ? handler.read("RainBowLED_COL") : undefined;
 
@@ -148,8 +126,6 @@ Module.prototype.handleRemoteData = function(handler) {
 
 
     if (handler.e("Melody")) remoteValue[this.PORT_MAP["Melody"]] = handler.read("Melody");
-    if (handler.e("Melody_DUR")) remoteValue[this.PORT_MAP["Melody_DUR"]] = handler.read("Melody_DUR");
-
 
     if (handler.e("DC1_DIR") && handler.e("DC1_SPEED")) {
         remoteValue[this.PORT_MAP["DC1_DIR"]] = handler.read("DC1_DIR");
@@ -212,7 +188,7 @@ Module.prototype.encodeCommand = function(queryString, command, argc, args) {
 }
 
 Module.prototype.requestLocalData = function() {
-    //	console.log("***2");
+    ///	console.log("***2");
     /*
     	var queryString = [];
 
@@ -267,7 +243,7 @@ Module.prototype.requestLocalData = function() {
         var args = new Array(4);
         var color = this.RainBowLedRgb[this.remoteCommandValue[this.PORT_MAP["RainBowLED_1"]]];
 
-        //delete this.remoteCommandValue[this.PORT_MAP["RainBowLED_1"]];
+        delete this.remoteCommandValue[this.PORT_MAP["RainBowLED_1"]];
 
         args[0] = 0;
         args[1] = color[0];
@@ -282,7 +258,7 @@ Module.prototype.requestLocalData = function() {
         var args = new Array(4);
         var color = this.RainBowLedRgb[this.remoteCommandValue[this.PORT_MAP["RainBowLED_2"]]];
 
-        //delete this.remoteCommandValue[this.PORT_MAP["RainBowLED_2"]];
+        delete this.remoteCommandValue[this.PORT_MAP["RainBowLED_2"]];
 
         args[0] = 1;
         args[1] = color[0];
@@ -297,7 +273,7 @@ Module.prototype.requestLocalData = function() {
         var args = new Array(4);
         var color = this.RainBowLedRgb[this.remoteCommandValue[this.PORT_MAP["RainBowLED_3"]]];
 
-        //delete this.remoteCommandValue[this.PORT_MAP["RainBowLED_3"]];
+        delete this.remoteCommandValue[this.PORT_MAP["RainBowLED_3"]];
 
         args[0] = 2;
         args[1] = color[0];
@@ -306,27 +282,6 @@ Module.prototype.requestLocalData = function() {
 
         this.encodeCommand(queryString, this.COMMAND_MAP["LED"], 4, args);
         console.log("LED:" + args);
-    }
-
-    //console.log("BLED DEBUG" + this.remoteCommandValue[this.PORT_MAP["BLED_IDX"]] + " " + this.remoteCommandValue[this.PORT_MAP["BLED_R"]] + " " + this.remoteCommandValue[this.PORT_MAP["BLED_G"]] + " " + this.remoteCommandValue[this.PORT_MAP["BLED_B"]]);
-    if (this.remoteCommandValue[this.PORT_MAP["BLED_IDX"]] !== undefined &&
-        this.remoteCommandValue[this.PORT_MAP["BLED_R"]] !== undefined &&
-        this.remoteCommandValue[this.PORT_MAP["BLED_G"]] !== undefined &&
-        this.remoteCommandValue[this.PORT_MAP["BLED_B"]] !== undefined) {
-
-        var args = new Array(4);
-        args[0] = this.remoteCommandValue[this.PORT_MAP["BLED_IDX"]] - 1;
-        args[1] = this.remoteCommandValue[this.PORT_MAP["BLED_R"]] * 8;
-        args[2] = this.remoteCommandValue[this.PORT_MAP["BLED_G"]] * 8;
-        args[3] = this.remoteCommandValue[this.PORT_MAP["BLED_B"]] * 8;
-
-        //delete this.remoteCommandValue[this.PORT_MAP["BLED_IDX"]];
-        //delete this.remoteCommandValue[this.PORT_MAP["BLED_R"]];
-        //delete this.remoteCommandValue[this.PORT_MAP["BLED_G"]];
-        //delete this.remoteCommandValue[this.PORT_MAP["BLED_B"]];
-
-        this.encodeCommand(queryString, this.COMMAND_MAP["LED"], 4, args);
-        console.log("BLED:" + args);
     }
 
     if (this.remoteCommandValue[this.PORT_MAP["ELED_IDX"]] !== undefined &&
@@ -340,10 +295,10 @@ Module.prototype.requestLocalData = function() {
         args[2] = this.remoteCommandValue[this.PORT_MAP["ELED_G"]] * 8;
         args[3] = this.remoteCommandValue[this.PORT_MAP["ELED_B"]] * 8;
 
-        //delete this.remoteCommandValue[this.PORT_MAP["ELED_IDX"]];
-        //delete this.remoteCommandValue[this.PORT_MAP["ELED_R"]];
-        //delete this.remoteCommandValue[this.PORT_MAP["ELED_G"]];
-        //delete this.remoteCommandValue[this.PORT_MAP["ELED_B"]];
+        delete this.remoteCommandValue[this.PORT_MAP["ELED_IDX"]];
+        delete this.remoteCommandValue[this.PORT_MAP["ELED_R"]];
+        delete this.remoteCommandValue[this.PORT_MAP["ELED_G"]];
+        delete this.remoteCommandValue[this.PORT_MAP["ELED_B"]];
 
         this.encodeCommand(queryString, this.COMMAND_MAP["ELED"], 4, args);
         console.log("ELED:" + args);
@@ -354,7 +309,7 @@ Module.prototype.requestLocalData = function() {
         args[0] = 1;
         args[1] = this.remoteCommandValue[this.PORT_MAP["Servo1"]];
 
-        //delete this.remoteCommandValue[this.PORT_MAP["Servo1"]];
+        delete this.remoteCommandValue[this.PORT_MAP["Servo1"]];
 
         if (args[1] > 165) args[1] = 165;
         else if (args[1] < 15) args[1] = 15;
@@ -368,7 +323,7 @@ Module.prototype.requestLocalData = function() {
         args[0] = 2;
         args[1] = this.remoteCommandValue[this.PORT_MAP["Servo2"]];
 
-        //delete this.remoteCommandValue[this.PORT_MAP["Servo2"]];
+        delete this.remoteCommandValue[this.PORT_MAP["Servo2"]];
 
         if (args[1] > 165) args[1] = 165;
         else if (args[1] < 15) args[1] = 15;
@@ -383,8 +338,8 @@ Module.prototype.requestLocalData = function() {
         args[1] = this.remoteCommandValue[this.PORT_MAP["DC1_DIR"]] == 1 ? 1 : 0;
         args[2] = this.remoteCommandValue[this.PORT_MAP["DC1_SPEED"]];
 
-        //delete this.remoteCommandValue[this.PORT_MAP["DC1_DIR"]];
-        //delete this.remoteCommandValue[this.PORT_MAP["DC1_SPEED"]];
+        delete this.remoteCommandValue[this.PORT_MAP["DC1_DIR"]];
+        delete this.remoteCommandValue[this.PORT_MAP["DC1_SPEED"]];
 
         this.encodeCommand(queryString, this.COMMAND_MAP["DC"], 3, args);
         console.log("DC:" + args);
@@ -396,21 +351,21 @@ Module.prototype.requestLocalData = function() {
         args[1] = this.remoteCommandValue[this.PORT_MAP["DC2_DIR"]] == 1 ? 1 : 0;
         args[2] = this.remoteCommandValue[this.PORT_MAP["DC2_SPEED"]];
 
-        //delete this.remoteCommandValue[this.PORT_MAP["DC2_DIR"]];
-        //delete this.remoteCommandValue[this.PORT_MAP["DC2_SPEED"]];
+        delete this.remoteCommandValue[this.PORT_MAP["DC2_DIR"]];
+        delete this.remoteCommandValue[this.PORT_MAP["DC2_SPEED"]];
 
         this.encodeCommand(queryString, this.COMMAND_MAP["DC"], 3, args);
         console.log("DC:" + args);
     }
 
-    if (this.remoteCommandValue[this.PORT_MAP["Melody"]] !== undefined && this.remoteCommandValue[this.PORT_MAP["Melody_DUR"]] !== undefined) {
+    if (this.remoteCommandValue[this.PORT_MAP["Melody"]] !== undefined) {
         var args = new Array(3);
         if (this.Melodies[this.remoteCommandValue[this.PORT_MAP["Melody"]]] !== undefined) {
             args[0] = 11;
             args[1] = this.Melodies[this.remoteCommandValue[this.PORT_MAP["Melody"]]];
-            args[2] = this.remoteCommandValue[this.PORT_MAP["Melody_DUR"]] * 1000;
+            args[2] = 1000;
 
-            //delete this.remoteCommandValue[this.PORT_MAP["Melody"]];
+            delete this.remoteCommandValue[this.PORT_MAP["Melody"]];
 
             this.encodeCommand(queryString, this.COMMAND_MAP["TONE"], 3, args);
             //this.lastRemoteCommandValue[this.PORT_MAP["Melody"]] = this.remoteCommandValue[this.PORT_MAP["Melody"]];
@@ -422,7 +377,7 @@ Module.prototype.requestLocalData = function() {
         var args = new Array(1);
         args[0] = this.remoteCommandValue[this.PORT_MAP["7SEG"]];
 
-        //delete this.remoteCommandValue[this.PORT_MAP["7SEG"]];
+        delete this.remoteCommandValue[this.PORT_MAP["7SEG"]];
 
         this.encodeCommand(queryString, this.COMMAND_MAP["SSEG"], 1, args);
 
@@ -438,13 +393,11 @@ Module.prototype.requestLocalData = function() {
 
     if (this.isConSuccess == false) {
         queryString.push(0xCB);
-        queryString.push(0x01);
-        queryString.push(0xCB);
         queryString.push(0x02);
         this.isConSuccess = true;
     }
 
-    console.log("Query test:" + queryString);
+    console.log("Query:" + queryString);
     return queryString;
 };
 
@@ -473,25 +426,6 @@ Module.prototype.handleLocalData = function(data) { // data: Native Buffer
         value += vallsb & 0x7F;
 
         this.analogValue[port] = value;
-
-        if (port == 14 && value == 1) {
-            console.log("Command Recved");
-            delete this.remoteCommandValue[this.PORT_MAP["RainBowLED_1"]];
-            delete this.remoteCommandValue[this.PORT_MAP["RainBowLED_2"]];
-            delete this.remoteCommandValue[this.PORT_MAP["RainBowLED_3"]];
-            delete this.remoteCommandValue[this.PORT_MAP["Melody"]];
-            delete this.remoteCommandValue[this.PORT_MAP["7SEG"]];
-            delete this.remoteCommandValue[this.PORT_MAP["DC2_DIR"]];
-            delete this.remoteCommandValue[this.PORT_MAP["DC2_SPEED"]];
-            delete this.remoteCommandValue[this.PORT_MAP["DC1_DIR"]];
-            delete this.remoteCommandValue[this.PORT_MAP["DC1_SPEED"]];
-            delete this.remoteCommandValue[this.PORT_MAP["Servo2"]];
-            delete this.remoteCommandValue[this.PORT_MAP["Servo1"]];
-            delete this.remoteCommandValue[this.PORT_MAP["BLED_IDX"]];
-            delete this.remoteCommandValue[this.PORT_MAP["BLED_R"]];
-            delete this.remoteCommandValue[this.PORT_MAP["BLED_G"]];
-            delete this.remoteCommandValue[this.PORT_MAP["BLED_B"]];
-        }
         //console.log('data' + port + ':' + value);
     }
     //	console.log('data: ' + this.analogValue);
@@ -521,25 +455,10 @@ Module.prototype.requestRemoteData = function(handler) {
     handler.write("aultrason", (this.analogValue[6]));
     handler.write("atemps1", (21.5 + ((1023 - this.analogValue[2]) - 410) * 0.094));
     handler.write("atemps2", (21.5 + ((1023 - this.analogValue[3]) - 410) * 0.094));
-    handler.write("btn1", (this.analogValue[2] < 500 ? true : false));
-    handler.write("btn2", (this.analogValue[3] < 500 ? true : false));
-    handler.write("alight1", (1023 - this.analogValue[2]));
-    handler.write("alight2", (1023 - this.analogValue[3]));
-    handler.write("ahumid", this.analogValue[9]);
-
-    var colorval = 0;
-    var color_r = (this.analogValue[10] >> 8) & 0xF;
-    var color_g = (this.analogValue[10] >> 4) & 0xF;
-    var color_b = (this.analogValue[10] >> 0) & 0xF;
-    if (color_r < 2 && color_g < 2 && color_b < 2) // undefined
-        colorval = 0;
-    else if (color_r >= color_g && color_r >= color_b)
-        colorval = 1;
-    else if (color_g > color_r && color_g > color_b)
-        colorval = 2;
-    else if (color_b > color_r && color_b > color_g)
-        colorval = 3;
-    handler.write("acolor", colorval);
+    handler.write("abtn1", (this.analogValue[2] < 500 ? true : false));
+    handler.write("abtn2", (this.analogValue[3] < 500 ? true : false));
+    handler.write("alight1", (this.analogValue[2] / 100));
+    handler.write("alight2", (this.analogValue[3] / 100));
 
     var tiltval = this.analogValue[7];
     if ((tiltval & 0x2000) == 0x2000) tiltval = 1;

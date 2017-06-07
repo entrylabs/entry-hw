@@ -2,6 +2,10 @@
 function Scanner() {
 }
 
+function checkObject(target) {
+	return Object.prototype.toString.call(target) === '[object Object]';
+}
+
 Scanner.prototype.startScan = function(extension, config, callback, router) {
 	var serialport = require('../../serialport');
 	var self = this;
@@ -40,13 +44,26 @@ Scanner.prototype.scan = function(serialport, extension, config, callback) {
 		var serverMode = config.serverMode;
 		var scanType = config.hardware.scanType;
 		var vendor = config.hardware.vendor;
+
+		if(vendor && checkObject(vendor)) {
+			vendor = vendor[process.platform];
+		}
+
 		var control = config.hardware.control;
 		var duration = config.hardware.duration;
 		var firmwarecheck = config.hardware.firmwarecheck;
 		var pnpId = config.hardware.pnpId;
 		var type = config.hardware.type;
-		var checkComPort = (config.select_com_port || type === 'bluetooth' || serverMode === 1) || false;
+		var selectComPort = config.select_com_port;
+
+		if(selectComPort && checkObject(selectComPort)) {
+			selectComPort = selectComPort[process.platform];
+		}
+
+		var checkComPort = (selectComPort || type === 'bluetooth' || serverMode === 1) || false;
 		var myComPort = config.this_com_port;
+
+		
 
 		if(checkComPort && !myComPort)  {
 			self.router.emit('state', 'select_port', devices);

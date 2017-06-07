@@ -430,7 +430,8 @@
     $('#select_port_box .cancel_event').click(function(e) {
         clear_select_port();
         clearTimeout(select_port_connection);
-        ui.showRobotList();
+        // com port 선택시 드라이버와 펌웨어 설치가 안되는 문제 일단 간단하게 해결
+        // ui.showRobotList();
     });
 
     function clear_select_port() {
