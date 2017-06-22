@@ -122,6 +122,9 @@ ipcMain.on('serverMode', function(event, mode) {
     }
 });
 
+app.commandLine.appendSwitch('enable-web-bluetooth', true);
+app.commandLine.appendSwitch('enable-experimental-web-platform-features', true);
+// app.commandLine.appendSwitch('enable-web-bluetooth');
 app.once('ready', function() {
     let language = app.getLocale();
 
@@ -141,6 +144,19 @@ app.once('ready', function() {
             backgroundThrottling: false
         }
     });
+
+    mainWindow.webContents.on('select-bluetooth-device', (event, deviceList, callback) => {
+        event.preventDefault()
+        let result = deviceList.find((device) => {
+            console.log(device);
+            return device.deviceName === 'LPF2 Smart Hub 2 I/O';
+        })
+        if (!result) {
+            callback('A0:E6:F8:1D:FB:E3')
+        } else {
+            callback(result.deviceId)
+        }
+    })
 
     mainWindow.loadURL('file:///' + path.join(__dirname, 'index.html'));
 
