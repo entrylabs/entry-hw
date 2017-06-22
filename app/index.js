@@ -1,7 +1,7 @@
 'use strict';
 
 const electron = require('electron');
-const {app, BrowserWindow, Menu, globalShortcut, ipcMain} = electron;
+const {app, BrowserWindow, Menu, globalShortcut, ipcMain, webContents} = electron;
 const path = require('path');
 const fs = require('fs');
 const packageJson     = require('./package.json');
@@ -9,6 +9,7 @@ const ChildProcess = require('child_process');
 var mainWindow = null;
 var isClose = true;
 var roomId = [];
+let isForceClose = false;
 
 console.fslog = function (text) {    
     var log_path = path.join(__dirname, '..');
@@ -149,6 +150,13 @@ app.once('ready', function() {
 
     mainWindow.setMenu(null);
 
+    mainWindow.on('close', function(e) {
+        if(!isForceClose) {
+            e.preventDefault();
+            mainWindow.webContents.send('hardwareClose');
+        }
+    });
+
     mainWindow.on('closed', function() {
         mainWindow = null;
     });
@@ -159,7 +167,16 @@ app.once('ready', function() {
     } else {
         inspectorShortcut = 'Control+Shift+i';
     }
-    globalShortcut.register(inspectorShortcut, () => {
-        mainWindow.webContents.openDevTools();
+
+    globalShortcut.register(inspectorShortcut, (e) => {
+        const content = webContents.getFocusedWebContents();
+        if(content) {
+            webContents.getFocusedWebContents().openDevTools(); 
+        }
     });
+});
+
+ipcMain.on('hardwareForceClose', () => {
+    isForceClose = true;
+    mainWindow.close();
 });

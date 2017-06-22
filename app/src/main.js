@@ -397,8 +397,7 @@
         return process.arch === 'x64' || process.env.hasOwnProperty('PROCESSOR_ARCHITEW6432');
     };
 
-    // close
-    window.onbeforeunload = function(e) {
+    ipcRenderer.on('hardwareClose', function() {
         var isQuit = true;
         if (router.connector && router.connector.connected) {
             isQuit = confirm(translator.translate('Connection to the hardware will terminate once program is closed.'));
@@ -407,11 +406,9 @@
         if (isQuit) {
             router.close();
             server.close();
-        } else {
-            e.preventDefault();
-            e.returnValue = false;
+            ipcRenderer.send('hardwareForceClose', true);
         }
-    };
+    });
 
     $('#select_port').dblclick(function() {
         $('#btn_select_port').trigger('click');
