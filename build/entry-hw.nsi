@@ -213,12 +213,15 @@ Function .onInit
     ;IfErrors no_remove_uninstaller done
     ;no_remove_uninstaller:
     IfErrors 0 +2
-	  Abort
-      DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
-      DeleteRegKey HKLM "SOFTWARE\${PRODUCT_NAME}"
-      DeleteRegKey HKCR "${PRODUCT_NAME}"
-      DeleteRegKey HKCR "${PROTOCOL_NAME}"
-	  RMDir /r /REBOOTOK $R1
+	  Goto no_remove_uninstaller
+	  RMDir /r /REBOOTOK $R1 
+	  Goto done
+	  
+  no_remove_uninstaller:
+    DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
+    DeleteRegKey HKLM "SOFTWARE\${PRODUCT_NAME}"
+    DeleteRegKey HKCR "${PRODUCT_NAME}"
+    DeleteRegKey HKCR "${PROTOCOL_NAME}"
 	
   done:
  
