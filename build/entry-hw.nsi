@@ -14,7 +14,7 @@
 !define PRODUCT_NAME "Entry_HW"
 !define PROTOCOL_NAME "entryhw"
 !define APP_NAME "Entry_HW.exe"
-!define PRODUCT_VERSION "1.6.9"
+!define PRODUCT_VERSION "1.6.10"
 !define PRODUCT_PUBLISHER "EntryLabs"
 !define PRODUCT_WEB_SITE "http://www.play-entry.org/"
  
@@ -195,24 +195,34 @@ Function .onInit
   "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}" \
   "UninstallString"
   StrCmp $R0 "" done
+  
+  ReadRegStr $R1 HKLM "SOFTWARE\${PRODUCT_NAME}" "Install_Dir" 
+  StrCmp $R1 "" done
  
   MessageBox MB_OKCANCEL|MB_ICONEXCLAMATION \
   $(SETUP_UNINSTALL_MSG) \
   IDOK uninst
   Abort
  
-;Run the uninstaller
-uninst:
-  ClearErrors
-  ExecWait '$R0 _?=$INSTDIR'
-  ;ExecWait '$R0 _?=$R1'
+  ;Run the uninstaller
+  uninst:
+    ClearErrors
+    ;ExecWait '$R0 _?=$INSTDIR'
+    ExecWait '$R0 _?=$R1'
  
-  ;IfErrors no_remove_uninstaller done
-  ;no_remove_uninstaller:
-  IfErrors 0 +2
-	Abort
-	RMDir /r /REBOOTOK $R1
- 
-done:
+    ;IfErrors no_remove_uninstaller done
+    ;no_remove_uninstaller:
+    IfErrors 0 +2
+	  Goto no_remove_uninstaller
+	  RMDir /r /REBOOTOK $R1 
+	  Goto done
+	  
+  no_remove_uninstaller:
+    DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
+    DeleteRegKey HKLM "SOFTWARE\${PRODUCT_NAME}"
+    DeleteRegKey HKCR "${PRODUCT_NAME}"
+    DeleteRegKey HKCR "${PROTOCOL_NAME}"
+	
+  done:
  
 FunctionEnd
