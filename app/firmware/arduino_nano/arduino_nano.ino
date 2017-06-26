@@ -49,7 +49,7 @@ int trigPin = 13;
 int echoPin = 12;
 
 //포트별 상태
-int analogs[6]={0,0,0,0,0,0};
+int analogs[8]={0,0,0,0,0,0,0,0};
 int digitals[14]={0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 int servo_pins[8]={0,0,0,0,0,0,0,0};
 
@@ -238,13 +238,13 @@ void runModule(int device) {
 
 void sendPinValues() {  
   int pinNumber = 0;
-  for (pinNumber = 0; pinNumber < 12; pinNumber++) {
+  for (pinNumber = 0; pinNumber < 14; pinNumber++) {
     if(digitals[pinNumber] == 0) {
       sendDigitalValue(pinNumber);
       callOK();
     }
   }
-  for (pinNumber = 0; pinNumber < 6; pinNumber++) {
+  for (pinNumber = 0; pinNumber < 8; pinNumber++) {
     if(analogs[pinNumber] == 0) {
       sendAnalogValue(pinNumber);
       callOK();
