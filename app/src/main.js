@@ -331,9 +331,10 @@
                                     ui.showAlert(translator.translate("Failed Firmware Upload"));
                                     router.startScan(config);
                                 } else if(error === 'exit') {
-                                    firmwareCount = 0;
+                                    // firmwareCount = 0;
                                     $('#firmwareButtonSet').show();
                                 } else {
+                                    firmwareCount++;
                                     setTimeout(function() {
                                         ui.flashFirmware(firmware, config, port);
                                     }, 100);
