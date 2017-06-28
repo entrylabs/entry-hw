@@ -26,8 +26,9 @@
 #define PULSEIN 6
 #define ULTRASONIC 7
 #define TIMER 8
-#define BLUETOOTH 9
+#define rxBLUETOOTH 9
 #define LCD 10
+#define txBLUETOOTH 11
 
 // 상태 상수
 #define GET 1
@@ -65,8 +66,7 @@ int echoPin = 12;
 float lastUltrasonic = 0;
 
 // 블루투스 포트
-int mySerialRX = 2;
-int mySerialTX = 3;
+int mySerialRX = 12;
 
 // 블루투스 임시값
 char tempBluetooth;
@@ -203,18 +203,30 @@ void parseData() {
               delay(50);
             }
           }
-        }  else if (device == BLUETOOTH) {
-          setBluetoothMode(true);
-          mySerialRX = readBuffer(6);
-          mySerialTX = readBuffer(7);
-          delay(50);
-        } else if (port == trigPin || port == echoPin) {
+        }
+        else if (device == rxBLUETOOTH) {
+          if (!isBluetooth) {
+            setBluetoothMode(true);
+            mySerialRX = readBuffer(6);
+            delay(5);
+          }
+          else {
+            int rx = readBuffer(6);
+            if (rx != mySerialRX) {
+              mySerialRX = rx;
+              delay(5);
+            }
+          }
+        }
+        else if (port == trigPin || port == echoPin) {
           setUltrasonicMode(false);
           digitals[port] = 0;
-        } else if (port == mySerialRX || port == mySerialTX) {
+        }
+        else if (port == mySerialRX ) { // || port == mySerialTX
           setBluetoothMode(false);
-          digitals[port] = 0;
-        } else {
+          //digitals[port] = 0;
+        }
+        else {
           digitals[port] = 0;
         }
       }
@@ -238,7 +250,7 @@ void runModule(int device) {
 
   if (pin == trigPin || pin == echoPin) {
     setUltrasonicMode(false);
-  } else if (device == BLUETOOTH) {
+  } else if (device == rxBLUETOOTH) {
     setBluetoothMode(false);
   }
 
@@ -280,7 +292,7 @@ void runModule(int device) {
         lastTime = millis() / 1000.0;
       }
       break;
-    case BLUETOOTH: {
+    case txBLUETOOTH: {
         char mySerialTemp[32];
         int arrayNum = 7;
         for (int i = 0; i < 17; i++) {
@@ -369,11 +381,17 @@ void sendUltrasonic() {
 void sendBluetooth() {
   char value;
   value = tempBluetooth;
+  
+  if (value == 0) {
+    value = lastBluetooth;
+  } else {
+    lastBluetooth = value;
+  }
+  
   writeHead();
   sendFloat(value);
   writeSerial(mySerialRX);
-  writeSerial(mySerialTX);
-  writeSerial(BLUETOOTH);
+  writeSerial(rxBLUETOOTH);
   writeEnd();
 }
 

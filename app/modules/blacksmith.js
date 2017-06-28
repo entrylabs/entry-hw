@@ -10,8 +10,9 @@ function Module() {
         PULSEIN: 6,
         ULTRASONIC: 7,
         TIMER: 8,
-        BLUETOOTH: 9,
-        LCD: 10
+        rxBLUETOOTH: 9,
+        LCD: 10,
+        txBLUETOOTH: 11
     }
 
     this.actionTypes = {
@@ -56,8 +57,7 @@ function Module() {
         PULSEIN: {
         },
         TIMER: 0,
-        LCD: 0,
-        BLUETOOTH: 0
+        rxBLUETOOTH: 0
     }
 
     this.defaultOutput = {
@@ -271,12 +271,8 @@ Module.prototype.handleLocalData = function(data) {
                 self.sensorData.TIMER = value;
                 break;
             }
-            case self.sensorTypes.BLUETOOTH: {
-                self.sensorData.BLUETOOTH = value;
-                break;
-            }
-            case self.sensorTypes.LCD: {
-                self.sensorData.LCD[port] = value;
+            case self.sensorTypes.rxBLUETOOTH: {
+                self.sensorData.rxBLUETOOTH = value;
                 break;
             }
             default: {
@@ -296,8 +292,8 @@ Module.prototype.makeSensorReadBuffer = function(device, port, data) {
     var dummy = new Buffer([10]);
     if(device == this.sensorTypes.ULTRASONIC) {
         buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port[0], port[1], 10]);
-    } else if(device == this.sensorTypes.BLUETOOTH) {
-        buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port[0], port[1], 10]);
+    } else if(device == this.sensorTypes.rxBLUETOOTH) {
+        buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.GET, device, port, 10]);
     } else if(!data) {
         buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.GET, device, port, 10]);
     } else {
@@ -341,7 +337,7 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
             buffer = Buffer.concat([buffer, value, time, dummy]);
             break;
         }
-        case this.sensorTypes.BLUETOOTH:
+        case this.sensorTypes.txBLUETOOTH:
         case this.sensorTypes.LCD: {
             var text0 = new Buffer(2);
             var text1 = new Buffer(2);
