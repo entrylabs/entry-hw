@@ -331,9 +331,10 @@
                                     ui.showAlert(translator.translate("Failed Firmware Upload"));
                                     router.startScan(config);
                                 } else if(error === 'exit') {
-                                    firmwareCount = 0;
+                                    // firmwareCount = 0;
                                     $('#firmwareButtonSet').show();
                                 } else {
+                                    firmwareCount++;
                                     setTimeout(function() {
                                         ui.flashFirmware(firmware, config, port);
                                     }, 100);
@@ -397,8 +398,7 @@
         return process.arch === 'x64' || process.env.hasOwnProperty('PROCESSOR_ARCHITEW6432');
     };
 
-    // close
-    window.onbeforeunload = function(e) {
+    ipcRenderer.on('hardwareClose', function() {
         var isQuit = true;
         if (router.connector && router.connector.connected) {
             isQuit = confirm(translator.translate('Connection to the hardware will terminate once program is closed.'));
@@ -407,11 +407,9 @@
         if (isQuit) {
             router.close();
             server.close();
-        } else {
-            e.preventDefault();
-            e.returnValue = false;
+            ipcRenderer.send('hardwareForceClose', true);
         }
-    };
+    });
 
     $('#select_port').dblclick(function() {
         $('#btn_select_port').trigger('click');
@@ -430,7 +428,8 @@
     $('#select_port_box .cancel_event').click(function(e) {
         clear_select_port();
         clearTimeout(select_port_connection);
-        ui.showRobotList();
+        // com port 선택시 드라이버와 펌웨어 설치가 안되는 문제 일단 간단하게 해결
+        // ui.showRobotList();
     });
 
     function clear_select_port() {

@@ -5,7 +5,7 @@
 		"ko": "코블 블루투스"
 	},
 	"platform": ["win32"],
-	"icon" : "coblbt.png",
+	"icon" : "cobl_bt.png",
 	"module": "cobl.js",
 	"driver": {
 		"win32-ia32": "arduino/dpinst-x86.exe",

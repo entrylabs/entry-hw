@@ -14,7 +14,7 @@
 !define PRODUCT_NAME "Entry_HW"
 !define PROTOCOL_NAME "entryhw"
 !define APP_NAME "Entry_HW.exe"
-!define PRODUCT_VERSION "1.6.7"
+!define PRODUCT_VERSION "1.6.10"
 !define PRODUCT_PUBLISHER "EntryLabs"
 !define PRODUCT_WEB_SITE "http://www.play-entry.org/"
  
@@ -31,7 +31,7 @@
 ;--------------------------------
 
 ; The name of the installer
-Name "엔트리 하드웨어"
+Name "$(TEXT_ENTRY)"
 
 ; The file to write
 OutFile "${PRODUCT_NAME}_${PRODUCT_VERSION}_Setup.exe"
@@ -66,6 +66,8 @@ RequestExecutionLevel admin
 ; 다국어 설정
 !insertmacro MUI_LANGUAGE "Korean" ;first language is the default language
 
+LangString TEXT_ENTRY ${LANG_KOREAN} "엔트리 하드웨어"
+LangString TEXT_ENTRY_DELETE ${LANG_KOREAN} "엔트리 하드웨어 제거"
 LangString TEXT_ENTRY_TITLE ${LANG_KOREAN} "엔트리 하드웨어 (필수)"
 LangString TEXT_START_MENU_TITLE ${LANG_KOREAN} "시작메뉴에 바로가기"
 LangString TEXT_DESKTOP_TITLE ${LANG_KOREAN} "바탕화면에 바로가기"
@@ -73,11 +75,13 @@ LangString DESC_ENTRY ${LANG_KOREAN} "엔트리 하드웨어"
 LangString START_ENTRY ${LANG_KOREAN} "엔트리 하드웨어 시작하기"
 LangString DESC_START_MENU ${LANG_KOREAN} "시작메뉴에 바로가기 아이콘이 생성됩니다."
 LangString DESC_DESKTOP ${LANG_KOREAN} "바탕화면에 바로가기 아이콘이 생성됩니다."
-LangString SETUP_UNINSTALL_MSG ${LANG_ENGLISTH} "엔트리 하드웨어가 이미 설치되어 있습니다. $\n$\r'확인' 버튼을 누르면 이전 버전을 삭제 후 재설치하고 '취소' 버튼을 누르면 업그레이드를 취소합니다."
+LangString SETUP_UNINSTALL_MSG ${LANG_KOREAN} "엔트리 하드웨어가 이미 설치되어 있습니다. $\n$\r'확인' 버튼을 누르면 이전 버전을 삭제 후 재설치하고 '취소' 버튼을 누르면 업그레이드를 취소합니다."
 
 
 !insertmacro MUI_LANGUAGE "English"
 
+LangString TEXT_ENTRY ${LANG_ENGLISTH} "Entry HW"
+LangString TEXT_ENTRY_DELETE ${LANG_ENGLISTH} "Entry HW Uninstall"
 LangString TEXT_ENTRY_TITLE ${LANG_ENGLISTH} "Entry HW (required)"
 LangString TEXT_START_MENU_TITLE ${LANG_ENGLISTH} "Start menu shortcut"
 LangString TEXT_DESKTOP_TITLE ${LANG_ENGLISTH} "Desktop shortcut"
@@ -116,15 +120,15 @@ Section $(TEXT_ENTRY_TITLE) SectionEntry
   WriteRegStr HKLM "SOFTWARE\${PRODUCT_NAME}" "Install_Dir" "$INSTDIR"
   
   ; Write the uninstall keys for Windows
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}" "DisplayName" "엔트리 하드웨어"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}" "DisplayName" "$(TEXT_ENTRY)"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}" "DisplayVersion" "${PRODUCT_VERSION}"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}" "Publisher" "${PRODUCT_PUBLISHER}"
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}" "URLInfoAbout" "${PRODUCT_WEB_SITE}"  
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}" "UninstallString" '"$INSTDIR\엔트리 하드웨어 제거.exe"'
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}" "UninstallString" '"$INSTDIR\$(TEXT_ENTRY_DELETE).exe"'
   WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}" "DisplayIcon" '"$INSTDIR\icon.ico"'
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}" "NoModify" 1
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}" "NoRepair" 1
-  WriteUninstaller "\엔트리 하드웨어 제거.exe"
+  WriteUninstaller "\$(TEXT_ENTRY_DELETE).exe"
   
 SectionEnd
 
@@ -133,8 +137,8 @@ Section $(TEXT_START_MENU_TITLE) SectionStartMenu
 
   SetShellVarContext all
   CreateDirectory "$SMPROGRAMS\EntryLabs\${PRODUCT_NAME}"
-  CreateShortCut "$SMPROGRAMS\EntryLabs\${PRODUCT_NAME}\엔트리 하드웨어 제거.lnk" "$INSTDIR\엔트리 하드웨어 제거.exe" "" "$INSTDIR\엔트리 하드웨어 제거.exe" 0
-  CreateShortCut "$SMPROGRAMS\EntryLabs\${PRODUCT_NAME}\엔트리 하드웨어.lnk" "$INSTDIR\${PRODUCT_NAME}.exe" "" "$INSTDIR\icon.ico" 0
+  CreateShortCut "$SMPROGRAMS\EntryLabs\${PRODUCT_NAME}\$(TEXT_ENTRY_DELETE).lnk" "$INSTDIR\$(TEXT_ENTRY_DELETE).exe" "" "$INSTDIR\$(TEXT_ENTRY_DELETE).exe" 0
+  CreateShortCut "$SMPROGRAMS\EntryLabs\${PRODUCT_NAME}\$(TEXT_ENTRY).lnk" "$INSTDIR\${PRODUCT_NAME}.exe" "" "$INSTDIR\icon.ico" 0
   
 SectionEnd
 
@@ -144,7 +148,7 @@ SectionEnd
 Section $(TEXT_DESKTOP_TITLE) SectionDesktop
 
 	SetShellVarContext all
-    CreateShortCut "$DESKTOP\엔트리 하드웨어.lnk" "$INSTDIR\${PRODUCT_NAME}.exe" "" "$INSTDIR\icon.ico" 0
+    CreateShortCut "$DESKTOP\$(TEXT_ENTRY).lnk" "$INSTDIR\${PRODUCT_NAME}.exe" "" "$INSTDIR\icon.ico" 0
   
 SectionEnd
 
@@ -172,7 +176,7 @@ Section "Uninstall"
   ; Remove shortcuts, if any
   Delete "$SMPROGRAMS\EntryLabs\${PRODUCT_NAME}\*.*"
   
-  Delete "$DESKTOP\엔트리 하드웨어.lnk"
+  Delete "$DESKTOP\$(TEXT_ENTRY).lnk"
 
   ; Remove directories used
   RMDir "$SMPROGRAMS\EntryLabs\${PRODUCT_NAME}"
@@ -195,24 +199,34 @@ Function .onInit
   "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}" \
   "UninstallString"
   StrCmp $R0 "" done
+  
+  ReadRegStr $R1 HKLM "SOFTWARE\${PRODUCT_NAME}" "Install_Dir" 
+  StrCmp $R1 "" done
  
   MessageBox MB_OKCANCEL|MB_ICONEXCLAMATION \
   $(SETUP_UNINSTALL_MSG) \
   IDOK uninst
   Abort
  
-;Run the uninstaller
-uninst:
-  ClearErrors
-  ExecWait '$R0 _?=$INSTDIR'
-  ;ExecWait '$R0 _?=$R1'
+  ;Run the uninstaller
+  uninst:
+    ClearErrors
+    ;ExecWait '$R0 _?=$INSTDIR'
+    ExecWait '$R0 _?=$R1'
  
-  ;IfErrors no_remove_uninstaller done
-  ;no_remove_uninstaller:
-  IfErrors 0 +2
-	Abort
-	RMDir /r /REBOOTOK $R1
- 
-done:
+    ;IfErrors no_remove_uninstaller done
+    ;no_remove_uninstaller:
+    IfErrors 0 +2
+	  Goto no_remove_uninstaller
+	  RMDir /r /REBOOTOK $R1 
+	  Goto done
+	  
+  no_remove_uninstaller:
+    DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
+    DeleteRegKey HKLM "SOFTWARE\${PRODUCT_NAME}"
+    DeleteRegKey HKCR "${PRODUCT_NAME}"
+    DeleteRegKey HKCR "${PROTOCOL_NAME}"
+	
+  done:
  
 FunctionEnd

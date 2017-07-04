@@ -9,9 +9,7 @@ function Module() {
         TONE: 5,
         PULSEIN: 6,
         ULTRASONIC: 7,
-        TIMER: 8,
-        MOTOR_LEFT: 9,
-        MOTOR_RIGHT: 10
+        TIMER: 8
     }
 
     this.actionTypes = {
@@ -51,7 +49,9 @@ function Module() {
             '2': 0,
             '3': 0,
             '4': 0,
-            '5': 0
+            '5': 0,
+            '6': 0,
+            '7': 0,
         },
         PULSEIN: {
         },
@@ -81,6 +81,8 @@ Module.prototype.setSerialPort = function (sp) {
     var self = this;
     this.sp = sp;
 };
+
+// Module.prototype.lostController = function () {};
 
 Module.prototype.requestInitialData = function() {
     return this.makeSensorReadBuffer(this.sensorTypes.ANALOG, 0);
@@ -169,6 +171,7 @@ Module.prototype.handleRemoteData = function(handler) {
             if(data) {
                 if(self.digitalPortTimeList[port] < data.time) {
                     self.digitalPortTimeList[port] = data.time;
+
                     if(!self.isRecentData(port, data.type, data.data)) {
                         self.recentCheckData[port] = {
                             type: data.type,
@@ -268,12 +271,6 @@ Module.prototype.handleLocalData = function(data) {
                 self.sensorData.TIMER = value;
                 break;
             }
-            /*
-            case self.sensorTypes.SOUND_IN: {
-                self.sensorData.ANALOG[port] = value;
-                break;
-            }
-            */
             default: {
                 break;
             }
@@ -289,20 +286,11 @@ ff 55 len idx action device port  slot  data a
 Module.prototype.makeSensorReadBuffer = function(device, port, data) {
     var buffer;
     var dummy = new Buffer([10]);
-    if(device == this.sensorTypes.ULTRASONIC) 
-    {
+    if(device == this.sensorTypes.ULTRASONIC) {
         buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port[0], port[1], 10]);
-    }
-    else if(device == this.sensorTypes.MOTOR_LEFT || device == this.sensorTypes.MOTOR_RIGHT) 
-    {
-        buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port[0], port[1], 10]);
-    } 
-    else if(!data) 
-    {
+    } else if(!data) {
         buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.GET, device, port, 10]);
-    } 
-    else 
-    {
+    } else {
         value = new Buffer(2);
         value.writeInt16LE(data);
         buffer = new Buffer([255, 85, 7, sensorIdx, this.actionTypes.GET, device, port, 10]);
@@ -343,20 +331,7 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
             buffer = Buffer.concat([buffer, value, time, dummy]);
             break;
         }
-        case this.sensorTypes.MOTOR_RIGHT: 
-        case this.sensorTypes.MOTOR_LEFT: {
-            var direction = new Buffer(2);
-            var speed = new Buffer(2);
-            if($.isPlainObject(data)) {
-                direction.writeInt16LE(data.direction);
-                speed.writeInt16LE(data.speed);
-            } else {
-                direction.writeInt16LE(0);
-                speed.writeInt16LE(0);
-            }
-            buffer = new Buffer([255, 85, 8, sensorIdx, this.actionTypes.SET, device, port]);
-            buffer = Buffer.concat([buffer, direction, speed, dummy]);
-            break;
+        case this.sensorTypes.TONE: {
         }
     }
 
