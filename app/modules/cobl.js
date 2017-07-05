@@ -114,17 +114,26 @@ Module.prototype.handleRemoteData = function(handler) {
 
     var remoteValue = this.remoteCommandValue;
 
-    remoteValue[this.PORT_MAP["ELED_R"]] = handler.e("ELED_R") ? handler.read("ELED_R") : undefined;
+    /* remoteValue[this.PORT_MAP["ELED_R"]] = handler.e("ELED_R") ? handler.read("ELED_R") : undefined;
     remoteValue[this.PORT_MAP["ELED_G"]] = handler.e("ELED_G") ? handler.read("ELED_G") : undefined;
     remoteValue[this.PORT_MAP["ELED_B"]] = handler.e("ELED_B") ? handler.read("ELED_B") : undefined;
-    remoteValue[this.PORT_MAP["ELED_IDX"]] = handler.e("ELED_IDX") ? handler.read("ELED_IDX") : undefined;
+    remoteValue[this.PORT_MAP["ELED_IDX"]] = handler.e("ELED_IDX") ? handler.read("ELED_IDX") : undefined; */
 
     /*remoteValue[this.PORT_MAP["BLED_IDX"]] = handler.e("BLED_IDX") ? handler.read("BLED_IDX") : undefined;
     remoteValue[this.PORT_MAP["BLED_R"]] = handler.e("BLED_R") ? handler.read("BLED_R") : undefined;
     remoteValue[this.PORT_MAP["BLED_G"]] = handler.e("BLED_G") ? handler.read("BLED_G") : undefined;
     remoteValue[this.PORT_MAP["BLED_B"]] = handler.e("BLED_B") ? handler.read("BLED_B") : undefined;*/
 
-    if (handler.e("BLED_IDX"))
+    if (handler.e("ELED_IDX"))
+        remoteValue[this.PORT_MAP["ELED_IDX"]] = handler.read("ELED_IDX");
+    if (handler.e("ELED_R"))
+        remoteValue[this.PORT_MAP["ELED_R"]] = handler.read("ELED_R");
+    if (handler.e("ELED_G"))
+        remoteValue[this.PORT_MAP["ELED_G"]] = handler.read("ELED_G");
+    if (handler.e("ELED_B"))
+        remoteValue[this.PORT_MAP["ELED_B"]] = handler.read("ELED_B");
+
+	if (handler.e("BLED_IDX"))
         remoteValue[this.PORT_MAP["BLED_IDX"]] = handler.read("BLED_IDX");
     if (handler.e("BLED_R"))
         remoteValue[this.PORT_MAP["BLED_R"]] = handler.read("BLED_R");
@@ -132,7 +141,6 @@ Module.prototype.handleRemoteData = function(handler) {
         remoteValue[this.PORT_MAP["BLED_G"]] = handler.read("BLED_G");
     if (handler.e("BLED_B"))
         remoteValue[this.PORT_MAP["BLED_B"]] = handler.read("BLED_B");
-
 
 
 
@@ -491,6 +499,10 @@ Module.prototype.handleLocalData = function(data) { // data: Native Buffer
             delete this.remoteCommandValue[this.PORT_MAP["BLED_R"]];
             delete this.remoteCommandValue[this.PORT_MAP["BLED_G"]];
             delete this.remoteCommandValue[this.PORT_MAP["BLED_B"]];
+			delete this.remoteCommandValue[this.PORT_MAP["ELED_IDX"]];
+			delete this.remoteCommandValue[this.PORT_MAP["ELED_R"]];
+			delete this.remoteCommandValue[this.PORT_MAP["ELED_G"]];
+			delete this.remoteCommandValue[this.PORT_MAP["ELED_B"]];
         }
         //console.log('data' + port + ':' + value);
     }
