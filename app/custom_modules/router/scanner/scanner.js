@@ -6,7 +6,7 @@ function Scanner() {
 
 Scanner.prototype.startScan = function(router, extension, config) {
 	var logger = require('../../logger').get();
-	logger.i('scanning...');
+	console.log('scanning...');
 
 	var type = config.hardware.type;
 
