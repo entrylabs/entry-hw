@@ -79,7 +79,7 @@ Server.prototype.open = function(logger) {
 		var socket = client(address, {query:{'childServer': true}});
 		socketClient = socket;
 		self.connections.push(socket);
-		socket.on('connect', function() {			c
+		socket.on('connect', function() {
 			var roomIds = ipcRenderer.sendSync('roomId');
 			if(roomIds.length > 0) {
 				roomIds.forEach(function(roomId) {
@@ -117,7 +117,7 @@ Server.prototype.open = function(logger) {
 		console.log('%cI`M SERVER', 'background:orange; font-size: 30px');
 		self.httpServer = httpServer;
 		if(logger) {
-			console.log('Listening on port ' + PORT);
+			logger.i('Listening on port ' + PORT);
 		}
 
 		var server = require('socket.io')(httpServer);
@@ -133,20 +133,20 @@ Server.prototype.open = function(logger) {
 			var connection = socket;			
 			self.connectionSet[connection.id] = connection;
 			self.connections.push(connection);
-			console.info('Entry connected.');
+			if(logger) {
+				logger.i('Entry connected.');
+			}
 
 			var roomId = connection.handshake.query.roomId;
 			if(connection.handshake.query.childServer === 'true') {
 				self.childServerList[connection.id] = true;
 			} else {
-				console.log('joininig:'+roomId)
 				connection.join(roomId);
 				connection.roomId = roomId;
 			}
 
 			var childServerListCnt = Object.keys(self.childServerList).length;
-			console.info('ok mode changed  '+ childServerListCnt)
-			if(childServerListCnt > 0) {				
+			if(childServerListCnt > 0) {
 				ipcRenderer.send('serverMode', serverModeTypes.multi);
 				server.emit('mode', serverModeTypes.multi);
 			} else {
@@ -155,7 +155,6 @@ Server.prototype.open = function(logger) {
 			}
 
 			connection.on('matchTarget', function(data) {
-				console.debug('matchTarget'+data)
 				if(connection.handshake.query.childServer === 'true' && data.roomId) {
 					if(!connection.roomIds) {
 						connection.roomIds = [];
@@ -166,7 +165,6 @@ Server.prototype.open = function(logger) {
 					}
 
 					self.clientTargetList[data.roomId] = connection.id;
-					console.debug('matched:'+connection.id)
 					server.to(data.roomId).emit('matched', connection.id);
 				}
 			});
@@ -193,10 +191,8 @@ Server.prototype.open = function(logger) {
 
 			connection.on('message', function(message) {
 				if(message.mode === serverModeTypes.single || masterRoomIds.indexOf(connection.roomId) >= 0 ) {
-//					console.log('single room messages'+message)
 					self.emit('data', message.data, message.type);
 				} else {
-//					console.log('multi room messages'+message)
 					if(connection.handshake.query.childServer === 'true') {
 						if(connection.roomIds && connection.roomIds.length > 0) {
 							connection.roomIds.forEach(function(roomId) {
@@ -232,9 +228,6 @@ Server.prototype.closeSingleConnection = function(connection) {
 };
 	
 Server.prototype.send = function(data) {
-//	console.log('data:'+JSON.stringify(data) )
-//	console.log('version:'+version.toString() )
-	
 	var self = this;
 	var childServerListCnt = Object.keys(this.childServerList).length;
 	if((runningMode === serverModeTypes.parent && childServerListCnt === 0) || runningMode === serverModeTypes.child) {
@@ -245,7 +238,6 @@ Server.prototype.send = function(data) {
 		}
 	} else if(masterRoomIds.length > 0){
 		masterRoomIds.forEach(function (masterRoomId) {
-			console.log('master message'+ {data : data, version: version}.toString() )
 			self.server.to(masterRoomId).emit('message', {data : data, version: version});
 		});
 	}
