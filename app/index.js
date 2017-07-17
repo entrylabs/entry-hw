@@ -1,7 +1,7 @@
 'use strict';
 
 const electron = require('electron');
-const {app, BrowserWindow, Menu, globalShortcut, ipcMain, webContents} = electron;
+const {app, BrowserWindow, Menu, globalShortcut, ipcMain, webContents, dialog} = electron;
 const path = require('path');
 const fs = require('fs');
 const packageJson     = require('./package.json');
@@ -148,7 +148,6 @@ app.once('ready', function() {
     mainWindow.webContents.on('select-bluetooth-device', (event, deviceList, callback) => {
         event.preventDefault()
         let result = deviceList.find((device) => {
-            console.log(device);
             return device.deviceName === 'LPF2 Smart Hub 2 I/O';
         })
         if (!result) {
@@ -189,10 +188,18 @@ app.once('ready', function() {
         if(content) {
             webContents.getFocusedWebContents().openDevTools(); 
         }
-    });
+    });    
 });
 
 ipcMain.on('hardwareForceClose', () => {
     isForceClose = true;
     mainWindow.close();
+});
+
+ipcMain.on('showMessageBox', (e, msg) => {
+    dialog.showMessageBox({
+        type: 'none',
+        message: msg,
+        detail: msg,
+    });
 });

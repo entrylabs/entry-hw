@@ -367,6 +367,89 @@ button {
     margin-right: 11px;
 }
 
+#opensource_license_viewer {
+    background: rgba(0, 0, 0, 0.4);
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+}
+
+#opensource_license_viewer .select_port_child {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 80%;
+    height: 70%;
+    flex-direction: column;
+}
+
+#opensource_license_viewer .select_port_child .title{
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    height: 57px;
+    padding-left: 20px;
+    line-height: 57px;
+    color: #fff;
+    font-weight: bold;
+    font-size: 20px;
+    width: 100%;
+    background-color: #2a7def;
+}
+#opensource_license_viewer .select_port_child .title .cancel_icon{
+    cursor: pointer;
+    float: right;
+    content: " ";
+    width: 22px;
+    height: 57px;
+    margin-right: 20px;
+    display: inline-block;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-image: url(../images/btn_close.png);
+}
+
+#opensource_license_viewer .select_port_child .content{
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
+    background-color: #fff;
+    text-align: center;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+#opensource_license_viewer .select_port_child .content textarea{
+    width: 100%;
+    flex: 1;
+    overflow-x: hidden;
+    -webkit-user-select: auto;
+    -khtml-user-select: auto;
+    -moz-user-select: auto;
+    -ms-user-select: auto;
+    user-select: auto;
+    resize: none; 
+}
+
+#opensource_license_viewer .select_port_child button {
+    cursor: pointer;
+    height: 47px;
+    width: 110px;
+    margin: 10px;
+}
+
+#opensource_license_viewer .select_port_child #btn_close { 
+    background: #6e5ae6;
+    font-size: 16px;
+    color: #fff;
+    border: 0px;
+    border-radius: 3px;
+}
+
 .middleDiv {
     margin: auto;
     height: 100%;
@@ -419,8 +502,8 @@ button {
 #cloud_icon{
     display: none;
     float: right;
-    margin-top: -15px;
-    margin-right: 16px;
+    margin-top: -12px;
+    margin-right: 20px;
     
     /*animation: blink_image 2s linear infinite;*/
 }
@@ -436,15 +519,13 @@ button {
 }
 
 #search_area {
-    top: 10px;
-    right: 10px;
+    top: 15px;
+    right: 20px;
     position: fixed;
 }
 
 #search_bar {
     border: solid 1px #fff;
-    // background: #5096f5;
-    // color: #fff;
     background: #fff;
     color: black;
     height: 30px;
@@ -478,4 +559,14 @@ button {
     filter: opacity(40%);
     width: 10px;
     height: 10px;   
+}
+
+#opensource_label {
+    position: absolute;
+    text-align: right;
+    right: 0;
+    margin: 20px 20px;
+    color: #595757;
+    cursor: pointer;
+    font-weight: bold;
 }

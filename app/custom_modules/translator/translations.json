@@ -126,5 +126,11 @@
 	},
 	"Please select the firmware.": {
 		"ko": "펌웨어를 선택해 주세요."
+	},
+	"Opensource lincense": {
+		"ko": "오픈소스 라이선스"
+	},
+	"Close": {
+		"ko": "닫기"
 	}
 }

@@ -401,3 +401,9 @@ IN THE SOFTWARE.
 Package: translator@1.0.0
 License: (none)
 License Url: (none)
+
+-------------------------------------------------------------------------
+
+Package: jquery@1.11.3
+License: MIT
+License Url: https://jquery.org/license/

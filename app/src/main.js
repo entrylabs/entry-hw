@@ -4,6 +4,8 @@
     var VERSION = 1.1;
 
     // initialize options
+
+    const fs = require('fs');
     var options = {};
     var viewMode = 'main';
     var firmwareCount = 0;
@@ -59,9 +61,13 @@
     $('#select_port_box #btn_select_port_cancel').text(translator.translate('Cancel'));
     $('#select_port_box #btn_select_port').text(translator.translate('Connect'));
 
+    $('#opensource_license_viewer .title span').text(translator.translate('Opensource lincense'));
+    $('#opensource_license_viewer #btn_close').text(translator.translate('Close'));
+
     $('#reference .emailTitle').text(translator.translate('E-Mail : '));
     $('#reference .urlTitle').text(translator.translate('WebSite : '));
 
+    $('#opensource_label').text(translator.translate('Opensource lincense'));
     $('#firmware').text(translator.translate('Install Firmware'));
     $('#other-robot .text').text(translator.translate('Connect Other Hardware'));
     $('#entry .text').text(translator.translate('Show Entry Web Page'));
@@ -506,6 +512,17 @@
         $('#select_port_box').css('display', 'none');
     }
 
+    $('#opensource_license_viewer .close_event').on('click', function () {
+        $('#opensource_license_viewer').css('display', 'none');
+    });
+
+    $('#opensource_label').on('click', function () {
+        $('#opensource_license_viewer').css('display', 'flex');
+    });
+
+    fs.readFile('./app/OPENSOURCE.md', 'utf8', function (err, text) {
+        $('#opensource_content').val(text);
+    });
 
     var _cache_object = '';
     var _com_port = '';
@@ -581,7 +598,6 @@
     });
 
     // configuration
-    var fs = require('fs');
     var path = require('path');
     fs.readdir(path.join(__dirname, 'modules'), function(error, files) {
         if (error) {
