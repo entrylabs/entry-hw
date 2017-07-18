@@ -123,7 +123,7 @@ Module.prototype.init = function(handler, config)
 // 초기 송신데이터(필수)
 Module.prototype.requestInitialData = function()
 {
-    return this.ping(0x11);
+    return this.ping(0x31);
 };
 
 // 초기 수신데이터 체크(필수)
@@ -262,7 +262,7 @@ Module.prototype.resetData = function()
 }
 
 /***************************************************************************************
- *  드론파이터 / 컨트롤러에 전달하는 명령
+ *  페트론V2 / 컨트롤러에 전달하는 명령
  ***************************************************************************************/
 
 // Entry -> Device
@@ -336,11 +336,11 @@ Module.prototype.checkAck = function(data, config)
     {
         switch( this.from )
         {
-        case 0x10:  // 드론파이터와 연결된 경우(드론파이터와 직접 연결되거나 조종기와 연결한 상태에서 페어링 된 드론파이터가 켜진 경우)
+        case 0x30:  // 페트론V2와 연결된 경우(페트론V2와 직접 연결되거나 조종기와 연결한 상태에서 페어링 된 페트론V2가 켜진 경우)
             config.id = '0F0401';
             return true;
 
-        case 0x11:  // 컨트롤러와 연결된 경우(페어링 된 드론파이터가 없더라도 조종기만 연결하여 사용 가능한 상태)
+        case 0x31:  // 컨트롤러와 연결된 경우(페어링 된 페트론V2가 없더라도 조종기만 연결하여 사용 가능한 상태)
             config.id = '0F0401';
             return true;
 
@@ -388,7 +388,7 @@ Module.prototype.handlerForEntry = function(handler)
         // Header
         dataArray.push(0x21);                   // Data Type
         dataArray.push(dataLength);             // Data Length
-        dataArray.push(0x15);                   // From
+        dataArray.push(0x38);                   // From (네이버 엔트리)
         dataArray.push(target);                 // To
 
         // Data
@@ -420,7 +420,7 @@ Module.prototype.handlerForEntry = function(handler)
         // Header
         dataArray.push(0x2A);                   // Data Type
         dataArray.push(dataLength);             // Data Length
-        dataArray.push(0x15);                   // From
+        dataArray.push(0x38);                   // From (네이버 엔트리)
         dataArray.push(target);                 // To
 
         // Data Array
@@ -452,7 +452,7 @@ Module.prototype.handlerForEntry = function(handler)
         // Header
         dataArray.push(0x20);                   // Data Type
         dataArray.push(dataLength);             // Data Length
-        dataArray.push(0x15);                   // From
+        dataArray.push(0x38);                   // From (네이버 엔트리)
         dataArray.push(target);                 // To
 
         // Data
@@ -483,7 +483,7 @@ Module.prototype.handlerForEntry = function(handler)
         // Header
         dataArray.push(0x11);                   // Data Type
         dataArray.push(dataLength);             // Data Length
-        dataArray.push(0x15);                   // From
+        dataArray.push(0x38);                   // From (네이버 엔트리)
         dataArray.push(target);                 // To
 
         // Data Array
@@ -522,7 +522,7 @@ Module.prototype.handlerForEntry = function(handler)
         // Start Code
         this.addStartCode(dataArray);
         
-        let target                  = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                 : 0x10;
+        let target                  = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                 : 0x30;
         let controlRoll             = handler.e(DataType.CONTROL_ROLL)              ? handler.read(DataType.CONTROL_ROLL)           : this.controlRoll;
         let controlPitch            = handler.e(DataType.CONTROL_PITCH)             ? handler.read(DataType.CONTROL_PITCH)          : this.controlPitch;
         let controlYaw              = handler.e(DataType.CONTROL_YAW)               ? handler.read(DataType.CONTROL_YAW)            : this.controlYaw;
@@ -539,7 +539,7 @@ Module.prototype.handlerForEntry = function(handler)
         // Header
         dataArray.push(0x10);                   // Data Type
         dataArray.push(dataLength);             // Data Length
-        dataArray.push(0x15);                   // From
+        dataArray.push(0x38);                   // From (네이버 엔트리)
         dataArray.push(target);                 // To
 
         // Data Array
@@ -564,7 +564,7 @@ Module.prototype.handlerForEntry = function(handler)
         // Start Code
         this.addStartCode(dataArray);
         
-        let target                  = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                 : 0x10;
+        let target                  = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                 : 0x30;
         let controlWheel            = handler.e(DataType.CONTROL_WHEEL)             ? handler.read(DataType.CONTROL_WHEEL)          : this.controlWheel;
         let controlAccel            = handler.e(DataType.CONTROL_ACCEL)             ? handler.read(DataType.CONTROL_ACCEL)          : this.controlAccel;
 
@@ -577,7 +577,7 @@ Module.prototype.handlerForEntry = function(handler)
         // Header
         dataArray.push(0x10);                   // Data Type
         dataArray.push(dataLength);             // Data Length
-        dataArray.push(0x15);                   // From
+        dataArray.push(0x38);                   // From (네이버 엔트리)
         dataArray.push(target);                 // To
 
         // Data Array
@@ -600,7 +600,7 @@ Module.prototype.handlerForEntry = function(handler)
         // Start Code
         this.addStartCode(dataArray);
         
-        let target                  = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                     : 0x10;
+        let target                  = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                     : 0x30;
         let motorSingleTarget       = handler.e(DataType.MOTORSINGLE_TARGET)        ? handler.read(DataType.MOTORSINGLE_TARGET)         : 0;
         let motorSingleDirection    = handler.e(DataType.MOTORSINGLE_DIRECTION)     ? handler.read(DataType.MOTORSINGLE_DIRECTION)      : 0;
         let motorSingleValue        = handler.e(DataType.MOTORSINGLE_VALUE)         ? handler.read(DataType.MOTORSINGLE_VALUE)          : 0;
@@ -611,7 +611,7 @@ Module.prototype.handlerForEntry = function(handler)
         // Header
         dataArray.push(0x81);                   // Data Type
         dataArray.push(dataLength);             // Data Length
-        dataArray.push(0x15);                   // From
+        dataArray.push(0x38);                   // From (네이버 엔트리)
         dataArray.push(target);                 // To
 
         // Data Array
@@ -634,7 +634,7 @@ Module.prototype.handlerForEntry = function(handler)
         // Start Code
         this.addStartCode(dataArray);
         
-        let target                  = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                     : 0x11;
+        let target                  = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                     : 0x31;
         let buzzer_mode             = handler.e(DataType.BUZZER_MODE)               ? handler.read(DataType.BUZZER_MODE)                : 0;
         let buzzer_value            = handler.e(DataType.BUZZER_VALUE)              ? handler.read(DataType.BUZZER_VALUE)               : 0;
         let buzzer_time             = handler.e(DataType.BUZZER_TIME)               ? handler.read(DataType.BUZZER_TIME)                : 0;
@@ -645,7 +645,7 @@ Module.prototype.handlerForEntry = function(handler)
         // Header
         dataArray.push(0x83);                   // Data Type
         dataArray.push(dataLength);             // Data Length
-        dataArray.push(0x15);                   // From
+        dataArray.push(0x38);                   // From (네이버 엔트리)
         dataArray.push(target);                 // To
 
         // Data
@@ -671,7 +671,7 @@ Module.prototype.handlerForEntry = function(handler)
         // Start Code
         this.addStartCode(dataArray);
         
-        let target                  = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                     : 0x11;
+        let target                  = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                     : 0x31;
         let vibrator_mode           = handler.e(DataType.VIBRATOR_MODE)             ? handler.read(DataType.VIBRATOR_MODE)              : 0;
         let vibrator_on             = handler.e(DataType.VIBRATOR_ON)               ? handler.read(DataType.VIBRATOR_ON)                : 0;
         let vibrator_off            = handler.e(DataType.VIBRATOR_OFF)              ? handler.read(DataType.VIBRATOR_OFF)               : 0;
@@ -683,7 +683,7 @@ Module.prototype.handlerForEntry = function(handler)
         // Header
         dataArray.push(0x84);                   // Data Type
         dataArray.push(dataLength);             // Data Length
-        dataArray.push(0x15);                   // From
+        dataArray.push(0x38);                   // From (네이버 엔트리)
         dataArray.push(target);                 // To
 
         // Data
@@ -710,7 +710,7 @@ Module.prototype.handlerForEntry = function(handler)
         // Start Code
         this.addStartCode(dataArray);
         
-        let target                  = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                     : 0x10;
+        let target                  = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                     : 0x30;
         let irmessage_data          = handler.e(DataType.IRMESSAGE_DATA)            ? handler.read(DataType.IRMESSAGE_DATA)             : 0;
 
         let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
@@ -719,7 +719,7 @@ Module.prototype.handlerForEntry = function(handler)
         // Header
         dataArray.push(0x82);                   // Data Type
         dataArray.push(dataLength);             // Data Length
-        dataArray.push(0x15);                   // From
+        dataArray.push(0x38);                   // From (네이버 엔트리)
         dataArray.push(target);                 // To
 
         // Data
@@ -754,7 +754,7 @@ Module.prototype.handlerForEntry = function(handler)
         // Header
         dataArray.push(0x46);                   // Data Type
         dataArray.push(dataLength);             // Data Length
-        dataArray.push(0x15);                   // From
+        dataArray.push(0x38);                   // From (네이버 엔트리)
         dataArray.push(target);                 // To
 
         // Data Array
@@ -890,7 +890,7 @@ Module.prototype.transferForEntry = function(handler)
 
 
 /***************************************************************************************
- *  Communciation - Drone Fighter
+ *  Communciation - Petrone V2
  ***************************************************************************************/
 
 // 장치로부터 받은 데이터 배열 처리
@@ -1282,16 +1282,16 @@ Module.prototype.transferForDevice = function()
         switch( this.countReqeustDevice % 6 )
         {
         case 0:
-            return this.ping(0x10);
+            return this.ping(0x30);                     // 페트론V2 드론
 
         case 2:
-            return this.ping(0x11);
+            return this.ping(0x31);                     // 조종기
 
         case 4:
-            return this.reserveRequest(0x10, 0x40);
+            return this.reserveRequest(0x30, 0x40);     // 페트론V2 드론, 드론의 상태(State)
 
         default:
-            return this.reserveRequest(0x10, 0x41);
+            return this.reserveRequest(0x30, 0x41);     // 페트론V2 드론, 드론의 자세(Attitude)
         }
     }
     else
@@ -1300,16 +1300,16 @@ Module.prototype.transferForDevice = function()
         switch( this.countReqeustDevice % 15 )
         {
         case 3:
-            return this.ping(0x10);
+            return this.ping(0x30);
 
         case 6:
-            return this.ping(0x11);
+            return this.ping(0x31);
 
         case 9:
-            return this.reserveRequest(0x10, 0x40);
+            return this.reserveRequest(0x30, 0x40);
 
         case 12:
-            return this.reserveRequest(0x10, 0x41);
+            return this.reserveRequest(0x30, 0x41);
 
         default:
             break;
@@ -1356,7 +1356,7 @@ Module.prototype.ping = function(target)
     // Header
     dataArray.push(0x01);           // Data Type (UpdateLookupTarget)
     dataArray.push(dataLength);     // Data Length
-    dataArray.push(0x15);           // From
+    dataArray.push(0x38);           // From (네이버 엔트리)
     dataArray.push(target);         // To
 
     // Data Array
@@ -1387,7 +1387,7 @@ Module.prototype.reserveRequest = function(target, dataType)
     // Header
     dataArray.push(0x04);           // Data Type (Request)
     dataArray.push(dataLength);     // Data Length
-    dataArray.push(0x15);           // From
+    dataArray.push(0x38);           // From (네이버 엔트리)
     dataArray.push(target);         // To
 
     // Data Array
