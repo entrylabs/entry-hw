@@ -189,6 +189,7 @@ Module.prototype.requestRemoteData = function(handler) {
 };
 
 Module.prototype.reset = function() {
+    console.log('reset');
 	this.digitalValue = new Array(14);
     this.remoteDigitalValue = new Array(14).fill(0);
     this.analogValue = new Array(2);
@@ -206,9 +207,14 @@ module.exports = new Module();
 
 Module.prototype.schoolkitInit = function() {
     var queryString = [];
+    this.digitalValue = new Array(14);
+    this.remoteDigitalValue = new Array(14).fill(0);
+    this.analogValue = new Array(2);
+    this.ports = Array(14).fill(0);
     this.previousValue = [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ];
     this.preDigitalPinMode = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ];
     this.digitalPinMode = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ];
+    this.servo = [ 0, 0, 0, 0, 0, 0 ];
     this.inputPin = [ 7, 9 ];
     this.packet = [ 0, 0, 0 ];
     this.step = 0;
@@ -250,15 +256,17 @@ Module.prototype.digitalWrite = function() {
         
     for(var i = 2; i < 7; i++) {
         value = this.remoteDigitalValue[i];
-        if(this.previousValue[i] != value) {
-            sendFlag = true;
-            this.previousValue[i] = value;
-            mask = 1 << (i % 8);
-            if(value == 1) {
-                this.ports[0] |= mask;
-            } else {
-                this.ports[0] &= ~mask;
-            }            
+        if(this.digitalPinMode[i] == 1) {
+            if(this.previousValue[i] != value) {
+                sendFlag = true;
+                this.previousValue[i] = value;
+                mask = 1 << (i % 8);
+                if(value == 1) {
+                    this.ports[0] |= mask;
+                } else {
+                    this.ports[0] &= ~mask;
+                }            
+            }
         }
     }
     
@@ -315,18 +323,16 @@ Module.prototype.setPWM = function() {
     for(var i = 2; i < 7; i++) {
         value = this.remoteDigitalValue[i];
         
-        if(this.digitalPinMode[i] == 3) {
-            if(this.previousValue[i] != value) {
-                queryString.push(ANALOG_MESSAGE | i);
-                if(value > 127) {
-                    queryString.push(value - 128);
-                    queryString.push(0x01);
-                } else {
-                    queryString.push(value);
-                    queryString.push(0x00);
-                }
-                this.previousValue[i] = value;
+        if(this.previousValue[i] != value) {
+            queryString.push(ANALOG_MESSAGE | i);
+            if(value > 127) {
+                queryString.push(value - 128);
+                queryString.push(0x01);
+            } else {
+                queryString.push(value);
+                queryString.push(0x00);
             }
+            this.previousValue[i] = value;
         }
     }
     
