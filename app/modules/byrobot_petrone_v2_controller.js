@@ -20,7 +20,7 @@ function Module()
     this.ack =
     {
         _updated: 1,
-        ack_systemTime: 0,      // u32
+        ack_systemTime: 0,      // u64
         ack_dataType: 0,        // u8
         ack_crc16: 0            // u16
     }
@@ -33,12 +33,12 @@ function Module()
         joystick_left_y: 0,
         joystick_left_direction: 0,
         joystick_left_event: 0,
-        joystick_left_command: 0,
+    //  joystick_left_command: 0,
         joystick_right_x: 0,
         joystick_right_y: 0,
         joystick_right_direction: 0,
         joystick_right_event: 0,
-        joystick_right_command: 0
+    //  joystick_right_command: 0
     }
 
     // Button
@@ -75,6 +75,7 @@ function Module()
     this.irmessage = 
     {
         _updated: 1,
+        irmessage_direction: 0,     // 수신 받은 방향 (추가)
         irmessage_irdata: 0
     }
 
@@ -191,12 +192,12 @@ Module.prototype.resetData = function()
     joystick.joystick_left_y            = 0;
     joystick.joystick_left_direction    = 0;
     joystick.joystick_left_event        = 0;
-    joystick.joystick_left_command      = 0;
+    // joystick.joystick_left_command      = 0;
     joystick.joystick_right_x           = 0;
     joystick.joystick_right_y           = 0;
     joystick.joystick_right_direction   = 0;
     joystick.joystick_right_event       = 0;
-    joystick.joystick_right_command     = 0;
+    // joystick.joystick_right_command     = 0;
 
     // Button
     let button                          = this.button;
@@ -223,9 +224,10 @@ Module.prototype.resetData = function()
     attitude.attitude_yaw               = 0;
 
     // IR Message
-    let irmessage                      = this.irmessage;
-    irmessage._updated                 = 0;
-    irmessage.irmessage_irdata         = 0;
+    let irmessage                       = this.irmessage;
+    irmessage._updated = 0;
+    irmessage.direction                 = 0;
+    irmessage.irmessage_irdata          = 0;
 
     // -- Control -----------------------------------------------------------------
     this.controlWheel                   = 0;        // 
