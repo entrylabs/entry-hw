@@ -256,7 +256,7 @@ Module.prototype.resetData = function()
     // IR Message
     let irmessage                       = this.irmessage;
     irmessage._updated                  = 0;
-    irmessage.direction                 = 0;
+    irmessage.irmessage_direction       = 0;
     irmessage.irmessage_irdata          = 0;
 
     // -- Control -----------------------------------------------------------------
@@ -347,7 +347,7 @@ var DataType =
     MOTORSINGLE_VALUE:          'motorsingle_value',
 
     // IrMessage
-    IRMESSAGE_DATA:             'irmessage_data',
+    IRMESSAGE_DATA:             'irmessage_data'
 
     // UserInterface
     // USERINTERFACE_COMMAND:      'userinterface_command',
