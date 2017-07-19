@@ -343,7 +343,7 @@ var DataType =
 
     // Motor
     MOTORSINGLE_TARGET:         'motorsingle_target',
-    MOTORSINGLE_DIRECTION:      'motorsingle_direction',
+    MOTORSINGLE_ROTATION:       'motorsingle_rotation',     // direction -> rotation
     MOTORSINGLE_VALUE:          'motorsingle_value',
 
     // IrMessage
@@ -634,7 +634,7 @@ Module.prototype.handlerForEntry = function(handler)
         
         let target                  = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                     : 0x30;
         let motorSingleTarget       = handler.e(DataType.MOTORSINGLE_TARGET)        ? handler.read(DataType.MOTORSINGLE_TARGET)         : 0;
-        let motorSingleDirection    = handler.e(DataType.MOTORSINGLE_DIRECTION)     ? handler.read(DataType.MOTORSINGLE_DIRECTION)      : 0;
+        let motorSingleRotation     = handler.e(DataType.MOTORSINGLE_ROTATION)      ? handler.read(DataType.MOTORSINGLE_ROTATION)       : 0;
         let motorSingleValue        = handler.e(DataType.MOTORSINGLE_VALUE)         ? handler.read(DataType.MOTORSINGLE_VALUE)          : 0;
 
         let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
@@ -648,7 +648,7 @@ Module.prototype.handlerForEntry = function(handler)
 
         // Data Array
         dataArray.push(motorSingleTarget);
-        dataArray.push(motorSingleDirection);
+        dataArray.push(motorSingleRotation);
         dataArray.push(this.getByte0(motorSingleValue));
         dataArray.push(this.getByte1(motorSingleValue));
 
