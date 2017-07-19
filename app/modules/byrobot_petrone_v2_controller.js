@@ -332,8 +332,8 @@ var DataType =
     IRMESSAGE_DATA:             'irmessage_data',
 
     // UserInterface
-    USERINTERFACE_COMMAND:      'userinterface_command',
-    USERINTERFACE_FUNCTION:     'userinterface_function',
+    // USERINTERFACE_COMMAND:      'userinterface_command',
+    // USERINTERFACE_FUNCTION:     'userinterface_function',
 }
 
 /***************************************************************************************
@@ -750,7 +750,7 @@ Module.prototype.handlerForEntry = function(handler)
         this.log("Module.prototype.handlerForEntry()", dataArray);
     }
 
-    // Command
+    /*// Command
     if( handler.e(DataType.USERINTERFACE_COMMAND) == true )
     {
         var dataArray = [];
@@ -782,7 +782,7 @@ Module.prototype.handlerForEntry = function(handler)
 
         this.bufferTransfer.push(dataArray);
     }
-
+    */
     
     //this.log("Module.prototype.handlerForEntry()", dataArray);
 }
