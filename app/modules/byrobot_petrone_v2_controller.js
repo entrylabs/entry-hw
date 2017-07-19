@@ -37,7 +37,7 @@ function Module()
         joystick_right_x: 0,
         joystick_right_y: 0,
         joystick_right_direction: 0,
-        joystick_right_event: 0,
+        joystick_right_event: 0
     //  joystick_right_command: 0
     }
 
@@ -59,7 +59,7 @@ function Module()
         state_modeDrive: 0,
         state_sensorOrientation: 0,
         state_coordinate: 0,
-        state_battery: 0,
+        state_battery: 0
     }
 
     // Attitude
@@ -204,12 +204,12 @@ Module.prototype.resetData = function()
     joystick.joystick_left_y            = 0;
     joystick.joystick_left_direction    = 0;
     joystick.joystick_left_event        = 0;
-    // joystick.joystick_left_command      = 0;
+    // joystick.joystick_left_command   = 0;
     joystick.joystick_right_x           = 0;
     joystick.joystick_right_y           = 0;
     joystick.joystick_right_direction   = 0;
     joystick.joystick_right_event       = 0;
-    // joystick.joystick_right_command     = 0;
+    // joystick.joystick_right_command  = 0;
 
     // Button
     let button                          = this.button;
@@ -237,7 +237,7 @@ Module.prototype.resetData = function()
 
     // IR Message
     let irmessage                       = this.irmessage;
-    irmessage._updated = 0;
+    irmessage._updated                  = 0;
     irmessage.direction                 = 0;
     irmessage.irmessage_irdata          = 0;
 
@@ -321,7 +321,7 @@ var DataType =
 
     // Command
     COMMAND_COMMAND:            'command_command',
-    COMMAND_OPTIOIN:            'command_option',
+    COMMAND_OPTION:             'command_option',
 
     // Motor
     MOTORSINGLE_TARGET:         'motorsingle_target',
@@ -489,7 +489,7 @@ Module.prototype.handlerForEntry = function(handler)
         
         let target                  = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                 : 0xFF;
         let command_command         = handler.e(DataType.COMMAND_COMMAND)           ? handler.read(DataType.COMMAND_COMMAND)        : 0;
-        let command_option          = handler.e(DataType.COMMAND_OPTIOIN)           ? handler.read(DataType.COMMAND_OPTIOIN)        : 0;
+        let command_option          = handler.e(DataType.COMMAND_OPTION)            ? handler.read(DataType.COMMAND_OPTION)         : 0;
 
         let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
         let dataLength = 2;                     // 데이터의 길이
