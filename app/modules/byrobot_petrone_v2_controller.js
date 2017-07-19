@@ -91,6 +91,24 @@ function Module()
         day: 0              // u8   빌드 일
     }
 
+    // AccelBias
+    this.accelBias =
+    {
+        _updated: 1,
+        x: 0,               // s16
+        y: 0,               // s16
+        z: 0                // s16
+    }
+
+    // GyroBias
+    this.gyroBias =
+    {
+        _updated: 1,
+        roll: 0,            // s16
+        pitch: 0,           // s16
+        yaw: 0              // s16
+    }
+
     // -- Control -----------------------------------------------------------------
     this.controlWheel           = 0;        // 
     this.controlAccel           = 0;        // 
