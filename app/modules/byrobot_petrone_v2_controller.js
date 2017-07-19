@@ -1366,6 +1366,10 @@ Module.prototype.ping = function(target)
     dataArray.push(0x00);
     dataArray.push(0x00);
     dataArray.push(0x00);
+    dataArray.push(0x00);           // u32 -> u64
+    dataArray.push(0x00);
+    dataArray.push(0x00);
+    dataArray.push(0x00);
 
     // CRC16
     this.addCRC16(dataArray, indexStart, dataLength);
