@@ -750,7 +750,7 @@ Module.prototype.handlerForEntry = function(handler)
         this.log("Module.prototype.handlerForEntry()", dataArray);
     }
 
-    /*// Command
+    /*// UserInterface
     if( handler.e(DataType.USERINTERFACE_COMMAND) == true )
     {
         var dataArray = [];
@@ -1167,12 +1167,12 @@ Module.prototype.handlerForDevice = function()
             joystick.joystick_left_y            = this.extractInt8(this.dataBlock,  1);
             joystick.joystick_left_direction    = this.extractUInt8(this.dataBlock, 2);
             joystick.joystick_left_event        = this.extractUInt8(this.dataBlock, 3);
-            joystick.joystick_left_command      = this.extractUInt8(this.dataBlock, 4);
+        //  joystick.joystick_left_command      = this.extractUInt8(this.dataBlock, 4);
             joystick.joystick_right_x           = this.extractInt8(this.dataBlock,  5);
             joystick.joystick_right_y           = this.extractInt8(this.dataBlock,  6);
             joystick.joystick_right_direction   = this.extractUInt8(this.dataBlock, 7);
             joystick.joystick_right_event       = this.extractUInt8(this.dataBlock, 8);
-            joystick.joystick_right_command     = this.extractUInt8(this.dataBlock, 9);
+        //  joystick.joystick_right_command     = this.extractUInt8(this.dataBlock, 9);
 
             //console.log("handlerForDevice - Joystick: " + joystick.joystick_left_x + ", " + joystick.joystick_left_y + ", " + joystick.joystick_right_x + ", " + joystick.joystick_right_y);
         }
