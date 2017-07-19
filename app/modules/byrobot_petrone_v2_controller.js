@@ -79,6 +79,18 @@ function Module()
         irmessage_irdata: 0
     }
 
+    // Information
+    this.information =
+    {
+        _updated: 1,
+        modeUpdate: 0,      // u8   현재 업데이트 모드
+        deviceType: 0,      // u32  장치 타입
+        imageVersion: 0,    // u32  현재 펌웨어의 버젼
+        year: 0,            // u16  빌드 년
+        month: 0,           // u8   빌드 월
+        day: 0              // u8   빌드 일
+    }
+
     // -- Control -----------------------------------------------------------------
     this.controlWheel           = 0;        // 
     this.controlAccel           = 0;        // 
