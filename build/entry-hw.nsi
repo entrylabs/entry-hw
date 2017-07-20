@@ -1,4 +1,4 @@
-; example1.nsi
+ï»¿; example1.nsi
 ;
 ; This script is perhaps one of the simplest NSIs you can make. All of the
 ; optional settings are left to their default settings. The installer simply 
@@ -14,7 +14,7 @@
 !define PRODUCT_NAME "Entry_HW"
 !define PROTOCOL_NAME "entryhw"
 !define APP_NAME "Entry_HW.exe"
-!define PRODUCT_VERSION "1.6.10"
+!define PRODUCT_VERSION "1.6.11"
 !define PRODUCT_PUBLISHER "EntryLabs"
 !define PRODUCT_WEB_SITE "http://www.play-entry.org/"
  
@@ -63,33 +63,33 @@ RequestExecutionLevel admin
 !insertmacro MUI_UNPAGE_INSTFILES
 ;--------------------------------
 
-; ´Ù±¹¾î ¼³Á¤
+; ë‹¤êµ­ì–´ ì„¤ì •
 !insertmacro MUI_LANGUAGE "Korean" ;first language is the default language
 
-LangString TEXT_ENTRY ${LANG_KOREAN} "¿£Æ®¸® ÇÏµå¿ş¾î"
-LangString TEXT_ENTRY_DELETE ${LANG_KOREAN} "¿£Æ®¸® ÇÏµå¿ş¾î Á¦°Å"
-LangString TEXT_ENTRY_TITLE ${LANG_KOREAN} "¿£Æ®¸® ÇÏµå¿ş¾î (ÇÊ¼ö)"
-LangString TEXT_START_MENU_TITLE ${LANG_KOREAN} "½ÃÀÛ¸Ş´º¿¡ ¹Ù·Î°¡±â"
-LangString TEXT_DESKTOP_TITLE ${LANG_KOREAN} "¹ÙÅÁÈ­¸é¿¡ ¹Ù·Î°¡±â"
-LangString DESC_ENTRY ${LANG_KOREAN} "¿£Æ®¸® ÇÏµå¿ş¾î"
-LangString START_ENTRY ${LANG_KOREAN} "¿£Æ®¸® ÇÏµå¿ş¾î ½ÃÀÛÇÏ±â"
-LangString DESC_START_MENU ${LANG_KOREAN} "½ÃÀÛ¸Ş´º¿¡ ¹Ù·Î°¡±â ¾ÆÀÌÄÜÀÌ »ı¼ºµË´Ï´Ù."
-LangString DESC_DESKTOP ${LANG_KOREAN} "¹ÙÅÁÈ­¸é¿¡ ¹Ù·Î°¡±â ¾ÆÀÌÄÜÀÌ »ı¼ºµË´Ï´Ù."
-LangString SETUP_UNINSTALL_MSG ${LANG_KOREAN} "¿£Æ®¸® ÇÏµå¿ş¾î°¡ ÀÌ¹Ì ¼³Ä¡µÇ¾î ÀÖ½À´Ï´Ù. $\n$\r'È®ÀÎ' ¹öÆ°À» ´©¸£¸é ÀÌÀü ¹öÀüÀ» »èÁ¦ ÈÄ Àç¼³Ä¡ÇÏ°í 'Ãë¼Ò' ¹öÆ°À» ´©¸£¸é ¾÷±×·¹ÀÌµå¸¦ Ãë¼ÒÇÕ´Ï´Ù."
+LangString TEXT_ENTRY ${LANG_KOREAN} "ì—”íŠ¸ë¦¬ í•˜ë“œì›¨ì–´"
+LangString TEXT_ENTRY_DELETE ${LANG_KOREAN} "ì—”íŠ¸ë¦¬ í•˜ë“œì›¨ì–´ ì œê±°"
+LangString TEXT_ENTRY_TITLE ${LANG_KOREAN} "ì—”íŠ¸ë¦¬ í•˜ë“œì›¨ì–´ (í•„ìˆ˜)"
+LangString TEXT_START_MENU_TITLE ${LANG_KOREAN} "ì‹œì‘ë©”ë‰´ì— ë°”ë¡œê°€ê¸°"
+LangString TEXT_DESKTOP_TITLE ${LANG_KOREAN} "ë°”íƒ•í™”ë©´ì— ë°”ë¡œê°€ê¸°"
+LangString DESC_ENTRY ${LANG_KOREAN} "ì—”íŠ¸ë¦¬ í•˜ë“œì›¨ì–´"
+LangString START_ENTRY ${LANG_KOREAN} "ì—”íŠ¸ë¦¬ í•˜ë“œì›¨ì–´ ì‹œì‘í•˜ê¸°"
+LangString DESC_START_MENU ${LANG_KOREAN} "ì‹œì‘ë©”ë‰´ì— ë°”ë¡œê°€ê¸° ì•„ì´ì½˜ì´ ìƒì„±ë©ë‹ˆë‹¤."
+LangString DESC_DESKTOP ${LANG_KOREAN} "ë°”íƒ•í™”ë©´ì— ë°”ë¡œê°€ê¸° ì•„ì´ì½˜ì´ ìƒì„±ë©ë‹ˆë‹¤."
+LangString SETUP_UNINSTALL_MSG ${LANG_KOREAN} "ì—”íŠ¸ë¦¬ í•˜ë“œì›¨ì–´ê°€ ì´ë¯¸ ì„¤ì¹˜ë˜ì–´ ìˆìŠµë‹ˆë‹¤. $\n$\r'í™•ì¸' ë²„íŠ¼ì„ ëˆ„ë¥´ë©´ ì´ì „ ë²„ì „ì„ ì‚­ì œ í›„ ì¬ì„¤ì¹˜í•˜ê³  'ì·¨ì†Œ' ë²„íŠ¼ì„ ëˆ„ë¥´ë©´ ì—…ê·¸ë ˆì´ë“œë¥¼ ì·¨ì†Œí•©ë‹ˆë‹¤."
 
 
 !insertmacro MUI_LANGUAGE "English"
 
-LangString TEXT_ENTRY ${LANG_ENGLISTH} "Entry HW"
-LangString TEXT_ENTRY_DELETE ${LANG_ENGLISTH} "Entry HW Uninstall"
-LangString TEXT_ENTRY_TITLE ${LANG_ENGLISTH} "Entry HW (required)"
-LangString TEXT_START_MENU_TITLE ${LANG_ENGLISTH} "Start menu shortcut"
-LangString TEXT_DESKTOP_TITLE ${LANG_ENGLISTH} "Desktop shortcut"
-LangString DESC_ENTRY ${LANG_ENGLISTH} "Entry HW Program"
-LangString START_ENTRY ${LANG_ENGLISTH} "Start Entry HW Program"
-LangString DESC_START_MENU ${LANG_ENGLISTH} "Create shortcut on start menu"
-LangString DESC_DESKTOP ${LANG_ENGLISTH} "Create shortcut on desktop"
-LangString SETUP_UNINSTALL_MSG ${LANG_ENGLISTH} "Entry_HW is already installed. $\n$\nClick 'OK' to remove the previous version or 'Cancel' to cancel this upgrade."
+LangString TEXT_ENTRY ${LANG_ENGLISH} "Entry HW"
+LangString TEXT_ENTRY_DELETE ${LANG_ENGLISH} "Entry HW Uninstall"
+LangString TEXT_ENTRY_TITLE ${LANG_ENGLISH} "Entry HW (required)"
+LangString TEXT_START_MENU_TITLE ${LANG_ENGLISH} "Start menu shortcut"
+LangString TEXT_DESKTOP_TITLE ${LANG_ENGLISH} "Desktop shortcut"
+LangString DESC_ENTRY ${LANG_ENGLISH} "Entry HW Program"
+LangString START_ENTRY ${LANG_ENGLISH} "Start Entry HW Program"
+LangString DESC_START_MENU ${LANG_ENGLISH} "Create shortcut on start menu"
+LangString DESC_DESKTOP ${LANG_ENGLISH} "Create shortcut on desktop"
+LangString SETUP_UNINSTALL_MSG ${LANG_ENGLISH} "Entry_HW is already installed. $\n$\nClick 'OK' to remove the previous version or 'Cancel' to cancel this upgrade."
 
 
 ; The stuff to install

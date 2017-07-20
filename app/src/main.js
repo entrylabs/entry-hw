@@ -6,13 +6,12 @@
     // initialize options
 
     const fs = require('fs');
+    const path = require('path');
     var options = {};
     var viewMode = 'main';
     var firmwareCount = 0;
     var flasherProcess;
     var hardwareList = [];
-    var initialWordMap = [];
-    var initialWord = ["ㄱ", "ㄲ", "ㄴ", "ㄷ", "ㄸ", "ㄹ", "ㅁ", "ㅂ", "ㅃ", "ㅅ", "ㅆ", "ㅇ", "ㅈ", "ㅉ", "ㅊ", "ㅋ", "ㅌ", "ㅍ", "ㅎ"];
 
     var os = process.platform + '-' + (isOSWin64() ? 'x64' : process.arch);
     var driverDefaultPath;
@@ -520,7 +519,8 @@
         $('#opensource_license_viewer').css('display', 'flex');
     });
 
-    fs.readFile('./app/OPENSOURCE.md', 'utf8', function (err, text) {
+    var opensourceFile = path.resolve(__dirname, 'OPENSOURCE.md');
+    fs.readFile(opensourceFile, 'utf8', function (err, text) {
         $('#opensource_content').val(text);
     });
 
@@ -598,7 +598,6 @@
     });
 
     // configuration
-    var path = require('path');
     fs.readdir(path.join(__dirname, 'modules'), function(error, files) {
         if (error) {
             logger.e(error);
