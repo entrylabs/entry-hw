@@ -1,11 +1,14 @@
 {
   "name": "Entry_HW",
-  "version": "1.6.10",
+  "version": "1.6.11",
   "scripts": {
     "clean": "rimraf dist",
     "pack": "build",
     "dist": "build --arch ia32",
-    "start": "set NODE_ENV=development&&electron -d app"
+    "start": "set NODE_ENV=development&&electron -d app",
+    "make": "build",
+    "make:osx": "build",
+    "make:win": "build --arch ia32 --platform=win32"
   },
   "build": {
     "dmg": {
