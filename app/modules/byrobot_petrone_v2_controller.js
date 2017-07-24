@@ -313,6 +313,7 @@ var DataType =
     MOTORSINGLE_VALUE:          'motorsingle_value',
 
     // IrMessage
+    IRMESSAGE_DIRECTION:        'irmessage_direction'       // 수신 받은 방향 (추가)
     IRMESSAGE_DATA:             'irmessage_data'
 }
 
@@ -428,7 +429,7 @@ Module.prototype.handlerForEntry = function(handler)
         this.bufferTransfer.push(dataArray);
     }
     
-    // Light Manaul
+    // Light Manual
     if( handler.e(DataType.LIGHT_MANUAL_FLAGS) == true )
     {
         var dataArray = [];
@@ -705,6 +706,7 @@ Module.prototype.handlerForEntry = function(handler)
         this.addStartCode(dataArray);
         
         let target                  = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                     : 0x30;
+        let irmessage_direction     = handler.e(DataType.IRMESSAGE_DIRECTION )      ? handler.read(DataType.IRMESSAGE_DIRECTION)        : 0;
         let irmessage_data          = handler.e(DataType.IRMESSAGE_DATA)            ? handler.read(DataType.IRMESSAGE_DATA)             : 0;
 
         let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
@@ -717,6 +719,7 @@ Module.prototype.handlerForEntry = function(handler)
         dataArray.push(target);                 // To
 
         // Data
+        dataArray.push(irmessage_direction);
         dataArray.push(this.getByte0(irmessage_data));
         dataArray.push(this.getByte1(irmessage_data));
         dataArray.push(this.getByte2(irmessage_data));
@@ -998,10 +1001,10 @@ Module.prototype.handlerForDevice = function()
     // skip 할 대상만 case로 등록
     switch( this.dataType )
     {
-    case 2:     break;
-    case 64:    break;
-    case 65:    break;
-    case 0x71:  break;
+    case 2:     break;      // Ack
+    case 64:    break;      // State (0x40)
+    case 65:    break;      // Attitude (0x41)
+    case 0x71:  break;      // Joystick
 
     default:
         this.log("Module.prototype.handlerForDevice() / From: " + this.from + " / To: " + this.to + " / Type: " + this.dataType + " / ", this.dataBlock);
@@ -1123,14 +1126,15 @@ Module.prototype.handlerForDevice = function()
         break;
 
     case 0x82:  // IR Message
-        if( this.dataBlock.length == 4 )
+        if( this.dataBlock.length == 5 )
         {
             // Device -> Entry 
-            let irmessage              = this.irmessage;
-            irmessage._updated         = true;
-            irmessage.irmessage_irdata = this.extractUInt32(this.dataBlock, 0);
+            let irmessage                   = this.irmessage;
+            irmessage._updated              = true;
+            irmessage.irmessage_direction   = this.extractUInt8(this.dataBlock, 0);
+            irmessage.irmessage_irdata      = this.extractUInt32(this.dataBlock, 1);
 
-            console.log("handlerForDevice - IR Message: " + irmessage.irmessage_irdata);
+            console.log("handlerForDevice - IR Message: " + irmessage.irmessage_direction + ", " + irmessage.irmessage_irdata);
         }
         break;
 
