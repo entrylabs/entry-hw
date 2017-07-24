@@ -710,7 +710,7 @@ Module.prototype.handlerForEntry = function(handler)
         let irmessage_data          = handler.e(DataType.IRMESSAGE_DATA)            ? handler.read(DataType.IRMESSAGE_DATA)             : 0;
 
         let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-        let dataLength = 4;                     // 데이터의 길이
+        let dataLength = 5;                     // 데이터의 길이
 
         // Header
         dataArray.push(0x82);                   // Data Type
@@ -1107,7 +1107,7 @@ Module.prototype.handlerForDevice = function()
         break;
 
     case 0x71:  // Joystick
-        if( this.dataBlock.length == 10 )
+        if( this.dataBlock.length == 8 )
         {
             // Device -> Entry 
             let joystick                        = this.joystick;
@@ -1116,10 +1116,10 @@ Module.prototype.handlerForDevice = function()
             joystick.joystick_left_y            = this.extractInt8(this.dataBlock,  1);
             joystick.joystick_left_direction    = this.extractUInt8(this.dataBlock, 2);
             joystick.joystick_left_event        = this.extractUInt8(this.dataBlock, 3);
-            joystick.joystick_right_x           = this.extractInt8(this.dataBlock,  5);
-            joystick.joystick_right_y           = this.extractInt8(this.dataBlock,  6);
-            joystick.joystick_right_direction   = this.extractUInt8(this.dataBlock, 7);
-            joystick.joystick_right_event       = this.extractUInt8(this.dataBlock, 8);
+            joystick.joystick_right_x           = this.extractInt8(this.dataBlock,  4);
+            joystick.joystick_right_y           = this.extractInt8(this.dataBlock,  5);
+            joystick.joystick_right_direction   = this.extractUInt8(this.dataBlock, 6);
+            joystick.joystick_right_event       = this.extractUInt8(this.dataBlock, 7);
 
             //console.log("handlerForDevice - Joystick: " + joystick.joystick_left_x + ", " + joystick.joystick_left_y + ", " + joystick.joystick_right_x + ", " + joystick.joystick_right_y);
         }
