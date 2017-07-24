@@ -313,7 +313,7 @@ var DataType =
     MOTORSINGLE_VALUE:          'motorsingle_value',
 
     // IrMessage
-    IRMESSAGE_DIRECTION:        'irmessage_direction'       // 수신 받은 방향 (추가)
+    IRMESSAGE_DIRECTION:        'irmessage_direction',      // 수신 받은 방향 (추가)
     IRMESSAGE_DATA:             'irmessage_data'
 }
 
@@ -1313,7 +1313,7 @@ Module.prototype.ping = function(target)
     this.addStartCode(dataArray);
     
     let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-    let dataLength = 4;     // 데이터의 길이
+    let dataLength = 8;     // 데이터의 길이
 
     // Header
     dataArray.push(0x01);           // Data Type (UpdateLookupTarget)
