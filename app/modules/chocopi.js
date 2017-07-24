@@ -68,9 +68,7 @@ Module.prototype.requestInitialData = function (sp) {
 	return null
 }
 
-Module.prototype.lostController = function(self, cb) {
-    console.log("lost control");
-};
+Module.prototype.lostController = function(self, cb) {};
 
 
 Module.prototype.checkInitialData = function (data, config) { return true }
@@ -131,7 +129,6 @@ Module.prototype.requestRemoteData = function (handler) {
 Module.prototype.handleRemoteData = function (handler) {
 	if (handler.read('init')) {
 		this.send_array([0xE0, this.command.listblock])
-		console.log('init command')
 	}
 	
 	var data = handler.read('data');
@@ -141,12 +138,8 @@ Module.prototype.handleRemoteData = function (handler) {
 				this.outputHw[i](i, data[i])
 			}
 		}
-	}else{
-		console.log('stoped')
 	}
-	if (handler.read('stop') == 'stop') {
-		console.log('stoped')
-	}
+	if (handler.read('stop') == 'stop') {}
 	this.entry=true
 }
 
@@ -160,17 +153,12 @@ Module.prototype.requestLocalData = function () {
 }
 
 Module.prototype.connect = function () { 
-
-	console.log('connect') ;
 }
 
 Module.prototype.disconnect = function (connect) {
-	console.log('disconnected reset') ;
 }
 
-Module.prototype.reset = function () { 
-	console.log('reset') ;
-}
+Module.prototype.reset = function () { }
 
 //additional definitions
 
@@ -211,7 +199,6 @@ Module.prototype.ps_chocopi = function (b) {
 		case 0x08: this.ps = this.ps_get_version; break
 		case 0x0D: this.ps = this.ps_block_list; break
 		case 27: this.ps = this.ps_block_list_ble; break
-		default: console.log('strange ' + b)
 	}
 
 }
@@ -219,7 +206,6 @@ Module.prototype.ps_chocopi = function (b) {
 Module.prototype.ps_get_version = function (b) {
 	if (this.pi == 10) {
 		this.version = 'V' + this.pd[8] + '.' + this.pd[9]
-		console.log('chocopi version ' + this.version)
 	}
 }
 
