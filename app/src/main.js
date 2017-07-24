@@ -393,7 +393,7 @@
         }
     };    
 
-    $('#search_bar').on('keyup', function(e) {
+    $('#search_bar').on('keydown', function(e) {
         if (e.which == 27) {
             this.value = '';
             searchHardware('');
