@@ -8,7 +8,7 @@
     "icon" : "byrobot_dronefighter_flight.png",
     "module": "byrobot_dronefighter_flight.js",
     "url": "http://www.byrobot.co.kr",
-    "email": "dev@byrobot.co.kr",
+    "email": "help@byrobot.co.kr",
     "driver": {
         "win32-ia32": "BYROBOT/dronefighter_usb_driver.exe",
         "win32-x64": "BYROBOT/dronefighter_usb_driver.exe"

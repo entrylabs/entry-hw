@@ -8,7 +8,7 @@
     "icon" : "byrobot_petrone_v2_controller.png",
     "module": "byrobot_petrone_v2_controller.js",
     "url": "http://www.byrobot.co.kr",
-    "email": "dev@byrobot.co.kr",
+    "email": "help@byrobot.co.kr",
     "driver": {
         "win32-ia32": "BYROBOT/petrone_v2_usb_driver.exe",
         "win32-x64": "BYROBOT/petrone_v2_usb_driver.exe"
