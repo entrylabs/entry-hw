@@ -33,12 +33,10 @@ function Module()
         joystick_left_y: 0,
         joystick_left_direction: 0,
         joystick_left_event: 0,
-    //  joystick_left_command: 0,
         joystick_right_x: 0,
         joystick_right_y: 0,
         joystick_right_direction: 0,
         joystick_right_event: 0
-    //  joystick_right_command: 0
     }
 
     // Button
@@ -78,37 +76,7 @@ function Module()
         irmessage_direction: 0,     // 수신 받은 방향 (추가)
         irmessage_irdata: 0
     }
-
-    // Information
-    this.information =
-    {
-        _updated: 1,
-        modeUpdate: 0,      // u8   현재 업데이트 모드
-        deviceType: 0,      // u32  장치 타입
-        imageVersion: 0,    // u32  현재 펌웨어의 버젼
-        year: 0,            // u16  빌드 년
-        month: 0,           // u8   빌드 월
-        day: 0              // u8   빌드 일
-    }
-
-    // AccelBias
-    this.accelBias =
-    {
-        _updated: 1,
-        x: 0,               // s16
-        y: 0,               // s16
-        z: 0                // s16
-    }
-
-    // GyroBias
-    this.gyroBias =
-    {
-        _updated: 1,
-        roll: 0,            // s16
-        pitch: 0,           // s16
-        yaw: 0              // s16
-    }
-
+    
     // -- Control -----------------------------------------------------------------
     this.controlWheel           = 0;        // 
     this.controlAccel           = 0;        // 
@@ -222,12 +190,10 @@ Module.prototype.resetData = function()
     joystick.joystick_left_y            = 0;
     joystick.joystick_left_direction    = 0;
     joystick.joystick_left_event        = 0;
-    // joystick.joystick_left_command   = 0;
     joystick.joystick_right_x           = 0;
     joystick.joystick_right_y           = 0;
     joystick.joystick_right_direction   = 0;
     joystick.joystick_right_event       = 0;
-    // joystick.joystick_right_command  = 0;
 
     // Button
     let button                          = this.button;
@@ -348,10 +314,6 @@ var DataType =
 
     // IrMessage
     IRMESSAGE_DATA:             'irmessage_data'
-
-    // UserInterface
-    // USERINTERFACE_COMMAND:      'userinterface_command',
-    // USERINTERFACE_FUNCTION:     'userinterface_function',
 }
 
 /***************************************************************************************
@@ -767,40 +729,6 @@ Module.prototype.handlerForEntry = function(handler)
 
         this.log("Module.prototype.handlerForEntry()", dataArray);
     }
-
-    /*// UserInterface
-    if( handler.e(DataType.USERINTERFACE_COMMAND) == true )
-    {
-        var dataArray = [];
-
-        // Start Code
-        this.addStartCode(dataArray);
-        
-        let target                  = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                     : 0xFF;
-        let userinterface_command   = handler.e(DataType.USERINTERFACE_COMMAND)     ? handler.read(DataType.USERINTERFACE_COMMAND)      : 0;
-        let userinterface_function  = handler.e(DataType.USERINTERFACE_FUNCTION)    ? handler.read(DataType.USERINTERFACE_FUNCTION)     : 0;
-
-        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-        let dataLength = 2;                     // 데이터의 길이
-
-        // Header
-        dataArray.push(0x46);                   // Data Type
-        dataArray.push(dataLength);             // Data Length
-        dataArray.push(0x38);                   // From (네이버 엔트리)
-        dataArray.push(target);                 // To
-
-        // Data Array
-        dataArray.push(userinterface_command);
-        dataArray.push(userinterface_function);
-
-        // CRC16
-        this.addCRC16(dataArray, indexStart, dataLength);
-
-        this.log("Module.prototype.handlerForEntry() / USERINTERFACE / COMMAND: " + userinterface_command + ", FUNCTION: " + userinterface_function, dataArray);
-
-        this.bufferTransfer.push(dataArray);
-    }
-    */
     
     //this.log("Module.prototype.handlerForEntry()", dataArray);
 }
@@ -1185,12 +1113,10 @@ Module.prototype.handlerForDevice = function()
             joystick.joystick_left_y            = this.extractInt8(this.dataBlock,  1);
             joystick.joystick_left_direction    = this.extractUInt8(this.dataBlock, 2);
             joystick.joystick_left_event        = this.extractUInt8(this.dataBlock, 3);
-        //  joystick.joystick_left_command      = this.extractUInt8(this.dataBlock, 4);
             joystick.joystick_right_x           = this.extractInt8(this.dataBlock,  5);
             joystick.joystick_right_y           = this.extractInt8(this.dataBlock,  6);
             joystick.joystick_right_direction   = this.extractUInt8(this.dataBlock, 7);
             joystick.joystick_right_event       = this.extractUInt8(this.dataBlock, 8);
-        //  joystick.joystick_right_command     = this.extractUInt8(this.dataBlock, 9);
 
             //console.log("handlerForDevice - Joystick: " + joystick.joystick_left_x + ", " + joystick.joystick_left_y + ", " + joystick.joystick_right_x + ", " + joystick.joystick_right_y);
         }
