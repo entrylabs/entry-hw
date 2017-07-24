@@ -3,6 +3,10 @@ function Module() {
 	this.sensor_count = 0;
 	this.blocklist = []
 	this.blockdata = []
+	this.entry = false
+	this.needStop = false
+	this.staretedM = []
+	this.stopBoundary=[]
 	this.outputHw = []
 	this.eventdata = []
 	this.eventmask = 0
@@ -13,10 +17,14 @@ function Module() {
 	this.pd = new Array(128)
 	this.pi = 0
 	this.mp = {}
+
+
 	for (var i = 0; i < 16; i++) {
 		this.blockdata.push({ g: this, connected: false, ps: () => { }, empty: true, is_sensor: false });
 		this.eventdata[i] = {}
 		this.blocklist[i] = { id: 0, name: '' }
+		this.stopBoundary[i]=-1
+		this.needStop[i]=false
 	}
 	this.ps = () => { }
 	this.command = { listblock: 0x0D, name: 0x0C, version: 0x08, ping: 0xE4 }
@@ -45,7 +53,9 @@ function make_packet(bytearray) {
 	return new Uint8Array(data).buffer
 }
 
-Module.prototype.init = function (handler, config) { }
+Module.prototype.init = function (handler, config) { 
+	this.checkStop()
+}
 
 Module.prototype.setSerialPort = function (sp) {
 	this.sp = sp;
@@ -57,6 +67,9 @@ Module.prototype.requestInitialData = function (sp) {
 	this.send_array([0xE0, this.command.version])
 	return null
 }
+
+Module.prototype.lostController = function(self, cb) {};
+
 
 Module.prototype.checkInitialData = function (data, config) { return true }
 // 하드웨어 데이터 처리
@@ -117,6 +130,7 @@ Module.prototype.handleRemoteData = function (handler) {
 	if (handler.read('init')) {
 		this.send_array([0xE0, this.command.listblock])
 	}
+	
 	var data = handler.read('data');
 	if (data) {
 		for (var i in data) {
@@ -125,9 +139,8 @@ Module.prototype.handleRemoteData = function (handler) {
 			}
 		}
 	}
-	if (handler.read('stop') == 'stop') {
-		console.log('stoped')
-	}
+	if (handler.read('stop') == 'stop') {}
+	this.entry=true
 }
 
 
@@ -139,12 +152,13 @@ Module.prototype.requestLocalData = function () {
 	return null; //not by Entry but by this module
 }
 
-Module.prototype.connect = function () { }
+Module.prototype.connect = function () { 
+}
 
 Module.prototype.disconnect = function (connect) {
 }
 
-Module.prototype.reset = function () { console.log('reset') }
+Module.prototype.reset = function () { }
 
 //additional definitions
 
@@ -185,7 +199,6 @@ Module.prototype.ps_chocopi = function (b) {
 		case 0x08: this.ps = this.ps_get_version; break
 		case 0x0D: this.ps = this.ps_block_list; break
 		case 27: this.ps = this.ps_block_list_ble; break
-		default: console.log('strange ' + b)
 	}
 
 }
@@ -193,7 +206,6 @@ Module.prototype.ps_chocopi = function (b) {
 Module.prototype.ps_get_version = function (b) {
 	if (this.pi == 10) {
 		this.version = 'V' + this.pd[8] + '.' + this.pd[9]
-		console.log('chocopi version ' + this.version)
 	}
 }
 
@@ -484,8 +496,11 @@ Module.prototype.ledBhw = function (port, data) {
 	if (l > 0) l--;
 	if (r > 255) r = 255; if (r < 0) r = 0;
 	if (g > 255) g = 255; if (g < 0) g = 0;
-	if (b > 255) b = 255; if (b < 0) b = 0;
+	if (b > 255) b = 255; if (b < 0) b = 0;	
 	this.send_array([0x00 | port, l, g, r, b])
+	this.staretedM[port]	= true
+	this.needStop = true
+	if(this.stopBoundary[port]< l ) this.stopBoundary[port] = l 
 }
 
 
@@ -503,6 +518,11 @@ Module.prototype.dcmotorBhw = function (port, data) {
 	if (s > 2047) s = 2047
 	s = Math.round(s)
 	this.send_array([code, s & 0xFF, s >>= 8])
+	if(s>0) {
+		this.staretedM[port]=true
+		this.needStop = true		
+		if(this.stopBoundary[port]< id) this.stopBoundary[port]=id
+	}
 }
 
 
@@ -546,4 +566,30 @@ Module.prototype.stepperBhw = function (port, data) {
 	}
 	this.send_array(packet)
 }
+
+Module.prototype.checkStop = function () {	
+	var me = this	
+	setTimeout(me.checkStop.bind(me), 200)
+	if(this.entry) {
+		this.entry=false
+		return
+	}
+	if(!me.needStop) return
+	me.needStop = false;
+	for(var i=0;i<16;i++){
+		if(this.staretedM[i]){
+			this.staretedM[i]=false
+			if(this.blocklist[i].name=='led'){				
+				for(var j=0; j<= this.stopBoundary[i]; j++){
+					this.send_array([0x00 | i, j, 0, 0, 0])
+				}
+			}else if(this.blocklist[i].name=='dcmotor'){
+				for(var j=0; j<= this.stopBoundary[i]; j++){
+					me.dcmotorBhw(i,[j,0,0])
+				}
+			}
+		}
+	}
+}
+
 module.exports = new Module()
