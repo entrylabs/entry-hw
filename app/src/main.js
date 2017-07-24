@@ -424,7 +424,9 @@
         if(searchText) {
             var hideList = hardwareList.filter(function (hardware) {
                 var en = hardware.name.en.toLowerCase();
-                if(hardware.name.ko.indexOf(searchText) > -1 || en.indexOf(searchText) > -1) {
+                var ko = hardware.name.ko.toLowerCase();
+                var text = searchText.toLowerCase();
+                if(ko.indexOf(text) > -1 || en.indexOf(text) > -1) {
                     ui.showRobot(hardware.id);
                     isNotFound = false;
                 } else {
