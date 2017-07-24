@@ -15,8 +15,7 @@ a.	You may download and install the Licensed Software on one or more computers a
 b.	You may internally evaluate the Licensed Software.  If you elect to use the Licensed Software for any other purpose, including modification and distribution, then the following additional terms apply to you.
 c.	You may modify only the INF and XML files. You may modify these files with information concerning your company or your company's products. 
 d.	You may not modify the driver binary files or the DPInst.exe files.
-e.	You may redistribute to your 
-the Licensed Software only with the modified INF and XML files.  Your redistribution may be in any form, including physical media and Internet downloads. 
+e.	You may redistribute to your customers the Licensed Software only with the modified INF and XML files.  Your redistribution may be in any form, including physical media and Internet downloads. 
 4.	RESTRICTIONS:  
 a.	You may not use the Licensed Software with any integrated circuit products other than those designed and manufactured by Silicon Labs.
 b.	Except as provided above, you may not redistribute, sublicense, assign, rent or lease any portion of the Licensed Software to any third party.

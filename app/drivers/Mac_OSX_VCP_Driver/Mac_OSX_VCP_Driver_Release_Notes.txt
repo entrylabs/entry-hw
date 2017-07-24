@@ -1,5 +1,5 @@
 CP210x Macintosh OS X VCP Driver v4 Release Notes
-Copyright (C) 2016 Silicon Laboratories Inc.
+Copyright (C) 2017 Silicon Laboratories Inc.
 
 This release contains the following components:
 
@@ -10,9 +10,8 @@ This release contains the following components:
 Known Issues and Limitations
 ----------------------------
 
-	This release includes the Macintosh OSX driver for the Intel and
-	PowerPC Platforms versions 10.5, 10.6, 10.7, 10.8, 
-	10.9, 10.10 and 10.11.
+	This release includes the Macintosh OSX driver for 64 bit Intel 
+	Macintosh computers running MacOS X 10.7 or greater.
 
 Driver Installation
 -------------------
@@ -29,6 +28,10 @@ Uninstalling the Driver
 Release Dates
 -------------
 
+	CP210x Macintosh OSX VCP Driver 4.11.0 - May 2, 2017
+	CP210x Macintosh OSX VCP Driver 4.x.17 - March 23, 2017
+	CP210x Macintosh OSX VCP Driver 4.x.16 - Feb 3, 2017
+	CP210x Macintosh OSX VCP Driver 4.x.15 - December 19, 2016
 	CP210x Macintosh OSX VCP Driver 4.x.14 - November 3, 2016
 	CP210x Macintosh OSX VCP Driver 4.x.13 - August 31, 2016
 	CP210x Macintosh OSX VCP Driver 4.x.12 - June 15, 2016
@@ -42,6 +45,18 @@ Release Dates
 CP210x Macintosh OSX Driver Revision History
 --------------------------------------------
 
+Version 4.11.0
+	Fixed an issue that would cause the CP2102N to hang when a user space application disconnects while the device is receiving data.
+
+Version 4.x.17
+	Added VID/PID for METER USB.
+
+Version 4.x.16
+	Added VID/PID for Zero-Click.
+
+Version 4.x.15
+	Added VID/PID for NETGEAR.
+	
 Version 4.x.14
 	Added VID/PIDs for Planar UltraRes.
 	Added VID/PIDs for Coolon USB.
@@ -156,5 +171,4 @@ Version 1.02
 
 Version 1.00
 	Initial Release
-
 
