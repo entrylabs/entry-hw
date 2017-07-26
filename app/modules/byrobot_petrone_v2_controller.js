@@ -442,7 +442,7 @@ Module.prototype.handlerForEntry = function(handler)
         let lightManual_brightness  = handler.e(DataType.LIGHT_MANUAL_BRIGHTNESS)   ? handler.read(DataType.LIGHT_MANUAL_BRIGHTNESS)    : 0;
 
         let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-        let dataLength = 2;                     // 데이터의 길이
+        let dataLength = 3;                     // 데이터의 길이
 
         // Header
         dataArray.push(0x20);                   // Data Type
@@ -451,7 +451,9 @@ Module.prototype.handlerForEntry = function(handler)
         dataArray.push(target);                 // To
 
         // Data
-        dataArray.push(lightManual_flags);
+        // dataArray.push(lightManual_flags);   페트론V2 에서는 자료형 u16 이므로 아래와 같이 수정함(2017.07.26)
+        dataArray.push(this.getByte0(lightManual_flags));
+        dataArray.push(this.getByte1(lightManual_flags));
         dataArray.push(lightManual_brightness);
 
         // CRC16
