@@ -1,7 +1,7 @@
 'use strict';
 
 const electron = require('electron');
-const {app, BrowserWindow, Menu, globalShortcut, ipcMain} = electron;
+const {app, BrowserWindow, Menu, globalShortcut, ipcMain, webContents, dialog} = electron;
 const path = require('path');
 const fs = require('fs');
 const packageJson     = require('./package.json');
@@ -9,6 +9,7 @@ const ChildProcess = require('child_process');
 var mainWindow = null;
 var isClose = true;
 var roomId = [];
+let isForceClose = false;
 
 console.fslog = function (text) {    
     var log_path = path.join(__dirname, '..');
@@ -121,6 +122,9 @@ ipcMain.on('serverMode', function(event, mode) {
     }
 });
 
+app.commandLine.appendSwitch('enable-web-bluetooth', true);
+app.commandLine.appendSwitch('enable-experimental-web-platform-features', true);
+// app.commandLine.appendSwitch('enable-web-bluetooth');
 app.once('ready', function() {
     let language = app.getLocale();
 
@@ -141,6 +145,18 @@ app.once('ready', function() {
         }
     });
 
+    mainWindow.webContents.on('select-bluetooth-device', (event, deviceList, callback) => {
+        event.preventDefault()
+        let result = deviceList.find((device) => {
+            return device.deviceName === 'LPF2 Smart Hub 2 I/O';
+        })
+        if (!result) {
+            callback('A0:E6:F8:1D:FB:E3')
+        } else {
+            callback(result.deviceId)
+        }
+    })
+
     mainWindow.loadURL('file:///' + path.join(__dirname, 'index.html'));
 
     if(option.debug) {
@@ -148,6 +164,13 @@ app.once('ready', function() {
     }
 
     mainWindow.setMenu(null);
+
+    mainWindow.on('close', function(e) {
+        if(!isForceClose) {
+            e.preventDefault();
+            mainWindow.webContents.send('hardwareClose');
+        }
+    });
 
     mainWindow.on('closed', function() {
         mainWindow = null;
@@ -159,7 +182,24 @@ app.once('ready', function() {
     } else {
         inspectorShortcut = 'Control+Shift+i';
     }
-    globalShortcut.register(inspectorShortcut, () => {
-        mainWindow.webContents.openDevTools();
+
+    globalShortcut.register(inspectorShortcut, (e) => {
+        const content = webContents.getFocusedWebContents();
+        if(content) {
+            webContents.getFocusedWebContents().openDevTools(); 
+        }
+    });    
+});
+
+ipcMain.on('hardwareForceClose', () => {
+    isForceClose = true;
+    mainWindow.close();
+});
+
+ipcMain.on('showMessageBox', (e, msg) => {
+    dialog.showMessageBox({
+        type: 'none',
+        message: msg,
+        detail: msg,
     });
 });

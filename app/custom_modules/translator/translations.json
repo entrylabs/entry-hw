@@ -117,5 +117,20 @@
 	},
 	"Bluetooth driver": {
 		"ko": "블루투스 동글 드라이버"
+	},
+	"No results found": {
+		"ko": "검색 결과가 없습니다."
+	},
+	"Do you want to restart the program?": {
+		"ko": "프로그램을 재시작 하시겠습니까?"
+	},
+	"Please select the firmware.": {
+		"ko": "펌웨어를 선택해 주세요."
+	},
+	"Opensource lincense": {
+		"ko": "오픈소스 라이선스"
+	},
+	"Close": {
+		"ko": "닫기"
 	}
 }

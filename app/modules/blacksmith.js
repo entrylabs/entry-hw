@@ -9,7 +9,10 @@ function Module() {
         TONE: 5,
         PULSEIN: 6,
         ULTRASONIC: 7,
-        TIMER: 8
+        TIMER: 8,
+        rxBLUETOOTH: 9,
+        LCD: 10,
+        txBLUETOOTH: 11
     }
 
     this.actionTypes = {
@@ -54,6 +57,7 @@ function Module() {
         PULSEIN: {
         },
         TIMER: 0,
+        rxBLUETOOTH: 0
     }
 
     this.defaultOutput = {
@@ -267,6 +271,10 @@ Module.prototype.handleLocalData = function(data) {
                 self.sensorData.TIMER = value;
                 break;
             }
+            case self.sensorTypes.rxBLUETOOTH: {
+                self.sensorData.rxBLUETOOTH = value;
+                break;
+            }
             default: {
                 break;
             }
@@ -284,6 +292,8 @@ Module.prototype.makeSensorReadBuffer = function(device, port, data) {
     var dummy = new Buffer([10]);
     if(device == this.sensorTypes.ULTRASONIC) {
         buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port[0], port[1], 10]);
+    } else if(device == this.sensorTypes.rxBLUETOOTH) {
+        buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.GET, device, port, 10]);
     } else if(!data) {
         buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.GET, device, port, 10]);
     } else {
@@ -327,7 +337,62 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
             buffer = Buffer.concat([buffer, value, time, dummy]);
             break;
         }
-        case this.sensorTypes.TONE: {
+        case this.sensorTypes.txBLUETOOTH:
+        case this.sensorTypes.LCD: {
+            var text0 = new Buffer(2);
+            var text1 = new Buffer(2);
+            var text2 = new Buffer(2);
+            var text3 = new Buffer(2);
+            var text4 = new Buffer(2);
+            var text5 = new Buffer(2);
+            var text6 = new Buffer(2);
+            var text7 = new Buffer(2);
+            var text8 = new Buffer(2);
+            var text9 = new Buffer(2);
+            var text10 = new Buffer(2);
+            var text11 = new Buffer(2);
+            var text12 = new Buffer(2);
+            var text13 = new Buffer(2);
+            var text14 = new Buffer(2);
+            var text15 = new Buffer(2);
+            if($.isPlainObject(data)) {
+                text0.writeInt16LE(data.text0);
+                text1.writeInt16LE(data.text1);
+                text2.writeInt16LE(data.text2);
+                text3.writeInt16LE(data.text3);
+                text4.writeInt16LE(data.text4);
+                text5.writeInt16LE(data.text5);
+                text6.writeInt16LE(data.text6);
+                text7.writeInt16LE(data.text7);
+                text8.writeInt16LE(data.text8);
+                text9.writeInt16LE(data.text9);
+                text10.writeInt16LE(data.text10);
+                text11.writeInt16LE(data.text11);
+                text12.writeInt16LE(data.text12);
+                text13.writeInt16LE(data.text13);
+                text14.writeInt16LE(data.text14);
+                text15.writeInt16LE(data.text15);
+            } else {
+                text0.writeInt16LE(0);
+                text1.writeInt16LE(0);
+                text2.writeInt16LE(0);
+                text3.writeInt16LE(0);
+                text4.writeInt16LE(0);
+                text5.writeInt16LE(0);
+                text6.writeInt16LE(0);
+                text7.writeInt16LE(0);
+                text8.writeInt16LE(0);
+                text9.writeInt16LE(0);
+                text10.writeInt16LE(0);
+                text11.writeInt16LE(0);
+                text12.writeInt16LE(0);
+                text13.writeInt16LE(0);
+                text14.writeInt16LE(0);
+                text15.writeInt16LE(0);
+            }
+            buffer = new Buffer([255, 85, 36, sensorIdx, this.actionTypes.SET, device, port]);
+            buffer = Buffer.concat([buffer, text0, text1, text2, text3, text4, text5, text6, text7, text8, text9, text10,text11, text12, text13, text14, text15,dummy]);
+            break;
         }
     }
 

@@ -4,10 +4,14 @@
     var VERSION = 1.1;
 
     // initialize options
+
+    const fs = require('fs');
+    const path = require('path');
     var options = {};
     var viewMode = 'main';
     var firmwareCount = 0;
     var flasherProcess;
+    var hardwareList = [];
 
     var os = process.platform + '-' + (isOSWin64() ? 'x64' : process.arch);
     var driverDefaultPath;
@@ -56,9 +60,13 @@
     $('#select_port_box #btn_select_port_cancel').text(translator.translate('Cancel'));
     $('#select_port_box #btn_select_port').text(translator.translate('Connect'));
 
+    $('#opensource_license_viewer .title span').text(translator.translate('Opensource lincense'));
+    $('#opensource_license_viewer #btn_close').text(translator.translate('Close'));
+
     $('#reference .emailTitle').text(translator.translate('E-Mail : '));
     $('#reference .urlTitle').text(translator.translate('WebSite : '));
 
+    $('#opensource_label').text(translator.translate('Opensource lincense'));
     $('#firmware').text(translator.translate('Install Firmware'));
     $('#other-robot .text').text(translator.translate('Connect Other Hardware'));
     $('#entry .text').text(translator.translate('Show Entry Web Page'));
@@ -115,6 +123,7 @@
             delete window.currentConfig;
             $('#title').text(translator.translate('Select hardware'));
             $('#hwList').show();
+            $('#search_area').show();
             $('#hwPanel').css('display', 'none');
             ui.showIeGuide();
             this.hideAlert();
@@ -123,6 +132,7 @@
         showConnecting: function() {
             $('#title').text(translator.translate('hardware > connecting'));
             $('#hwList').hide();
+            $('#search_area').hide();
             $('#hwPanel').css('display', 'flex');
             ui.hideIeGuide();
             this.showAlert(translator.translate('Connecting to hardware device.'));
@@ -130,6 +140,7 @@
         showConnected: function() {
             $('#title').text(translator.translate('hardware > connected'));
             $('#hwList').hide();
+            $('#search_area').hide();
             $('#hwPanel').css('display', 'flex');
             ui.hideIeGuide();
             this.showAlert(translator.translate('Connected to hardware device.'), 2000);
@@ -137,6 +148,7 @@
         showDisconnected: function() {
             $('#title').text(translator.translate('hardware > disconnected'));
             $('#hwList').hide();
+            $('#search_area').hide();
             $('#hwPanel').css('display', 'flex');
             ui.hideIeGuide();
             this.showAlert(translator.translate('Hardware device is disconnected. Please restart this program.'));
@@ -185,6 +197,16 @@
             $('#alert').stop(true, true).animate({
                 height: '0px'
             });
+        },
+        hideRobot: function (id) {
+            $('#' + id).hide();
+        },
+        showRobot: function (id) {
+            if(id) {
+                $('#' + id).show();
+            } else {
+                $('.hardwareType').show();
+            }
         },
         addRobot: function(config) {
             ui.showRobotList();
@@ -331,9 +353,10 @@
                                     ui.showAlert(translator.translate("Failed Firmware Upload"));
                                     router.startScan(config);
                                 } else if(error === 'exit') {
-                                    firmwareCount = 0;
+                                    // firmwareCount = 0;
                                     $('#firmwareButtonSet').show();
                                 } else {
+                                    firmwareCount++;
                                     setTimeout(function() {
                                         ui.flashFirmware(firmware, config, port);
                                     }, 100);
@@ -368,7 +391,60 @@
         hideIeGuide: function() {
             $('#errorAlert').hide();
         }
-    };
+    };    
+
+    $('#search_bar').on('keydown', function(e) {
+        if (e.which == 27) {
+            this.value = '';
+            searchHardware('');
+        } else if (e.which == 13) {
+            searchHardware(this.value);
+        }
+
+        if(this.value) {
+            $('#search_close_button').show();
+        } else {
+            $('#search_close_button').hide();
+        }
+    });
+
+    $('#search_button').on('click', function () {
+        searchHardware($('#search_bar').val());
+    });
+
+    $('#search_close_button').on('click', function () {
+        $('#search_bar').val('');
+        searchHardware('');
+        $(this).hide();
+    });
+
+    function searchHardware(searchText) {
+        // var searchText = $('#search_bar').val();
+        var isNotFound = true;
+        if(searchText) {
+            var hideList = hardwareList.filter(function (hardware) {
+                var en = hardware.name.en.toLowerCase();
+                var ko = hardware.name.ko.toLowerCase();
+                var text = searchText.toLowerCase();
+                if(ko.indexOf(text) > -1 || en.indexOf(text) > -1) {
+                    ui.showRobot(hardware.id);
+                    isNotFound = false;
+                } else {
+                    return true;
+                }
+            });
+
+            if(isNotFound) {
+                alert(translator.translate('No results found'));
+            } else {
+                hideList.forEach(function (hardware) {
+                    ui.hideRobot(hardware.id);
+                });
+            }
+        } else {
+            ui.showRobot();
+        }
+    }
 
     $('body').on('keyup', function(e) {
         if (e.keyCode === 8) {
@@ -383,7 +459,7 @@
     });
 
     $('body').on('click', '#refresh', function(e) {
-        if (confirm('프로그램을 재시작 하시겠습니까?')) {
+        if (confirm(translator.translate('Do you want to restart the program?'))) {
             ipcRenderer.send('reload');
         }
     });
@@ -397,8 +473,7 @@
         return process.arch === 'x64' || process.env.hasOwnProperty('PROCESSOR_ARCHITEW6432');
     };
 
-    // close
-    window.onbeforeunload = function(e) {
+    ipcRenderer.on('hardwareClose', function() {
         var isQuit = true;
         if (router.connector && router.connector.connected) {
             isQuit = confirm(translator.translate('Connection to the hardware will terminate once program is closed.'));
@@ -407,11 +482,9 @@
         if (isQuit) {
             router.close();
             server.close();
-        } else {
-            e.preventDefault();
-            e.returnValue = false;
+            ipcRenderer.send('hardwareForceClose', true);
         }
-    };
+    });
 
     $('#select_port').dblclick(function() {
         $('#btn_select_port').trigger('click');
@@ -420,7 +493,7 @@
     $('#btn_select_port').click(function(e) {
         var com_port = $("#select_port").val();
         if (!com_port) {
-            alert('연결할 COM PORT를 선택하세요.');
+            alert(translator.translate('Select the COM PORT to connect'));
         } else {
             window.currentConfig.this_com_port = com_port[0];
             clear_select_port();
@@ -430,7 +503,8 @@
     $('#select_port_box .cancel_event').click(function(e) {
         clear_select_port();
         clearTimeout(select_port_connection);
-        ui.showRobotList();
+        // com port 선택시 드라이버와 펌웨어 설치가 안되는 문제 일단 간단하게 해결
+        // ui.showRobotList();
     });
 
     function clear_select_port() {
@@ -439,6 +513,18 @@
         $('#select_port_box').css('display', 'none');
     }
 
+    $('#opensource_license_viewer .close_event').on('click', function () {
+        $('#opensource_license_viewer').css('display', 'none');
+    });
+
+    $('#opensource_label').on('click', function () {
+        $('#opensource_license_viewer').css('display', 'flex');
+    });
+
+    var opensourceFile = path.resolve(__dirname, 'OPENSOURCE.md');
+    fs.readFile(opensourceFile, 'utf8', function (err, text) {
+        $('#opensource_content').val(text);
+    });
 
     var _cache_object = '';
     var _com_port = '';
@@ -502,7 +588,7 @@
             state = "disconnected";
             router.close();
         } else if (state === 'before_connect' && window.currentConfig.firmware) {
-            ui.showAlert(translator.translate('Connecting to hardware device.') + ' 펌웨어를 선택해 주세요.');
+            ui.showAlert(translator.translate('Connecting to hardware device.') + ' ' + translator.translate('Please select the firmware.'));
         }
         ui.setState(state);
         server.setState(state);
@@ -514,14 +600,12 @@
     });
 
     // configuration
-    var fs = require('fs');
-    var path = require('path');
     fs.readdir(path.join(__dirname, 'modules'), function(error, files) {
         if (error) {
             logger.e(error);
             return;
         }
-        var hardwareList = [];
+        
         files.filter(function(file) {
             return /(?:\.([^.]+))?$/.exec(file)[1] == 'json';
         }).forEach(function(file) {

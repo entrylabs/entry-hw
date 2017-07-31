@@ -2,6 +2,8 @@
 // 2017.02.23 : LTW : Sensor Receive
 // 2017.02.24 : LTW : Sensor Msg Send Logic Modified
 // 2017.03.15 : LTW : Source Refactoring
+// 2017.04.16 : LTW : Stop Function Add
+// 2017.04.17 : LTW : Stop Function Update
 'use strict';
 function Module() {
     this.sensory = {
@@ -53,6 +55,9 @@ var msgSentTime = 0;                 //센서보낸 시간
 var sensorDurationTime = 200;        //센서수집 전문 주기
 var isInitialBle = false;            //블루투스 초기화 상태
 var sensorCorrectMsg = ["0xff","0x56","0x02","0x00","0x05"];
+var resetMsg = ["0xff", "0x55", "0x02", "0x00", "0x04"];
+var resetStatus = false;
+
 var Coconut = {
     MSG_VALUE: 'msgValue',
 };
@@ -204,13 +209,25 @@ Module.prototype.handleRemoteData = function(handler) {
         {        
             this.motoring.msg = t;
         }
+
+        if (t[0] == 255 && t[1] == 85 && t[2] == 2 && t[3] == 0 && t[4] == 4)
+        {
+            resetStatus = true;
+        }
     }
 };
 
 Module.prototype.requestLocalData = function() {
     var now = new Date();
     var motoring = this.motoring;
-
+    
+    if (resetStatus == true)
+    {
+        resetStatus = false;
+        this.motoring.msg = "";
+        isBlockedJSSending = false;
+        return resetMsg;
+    }
     if (isSending == true )
     {
         if (!isInitialBle)

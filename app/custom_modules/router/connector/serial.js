@@ -5,6 +5,7 @@ function Connector() {
 Connector.prototype.open = function(port, options, callback) {
 	var serialport = require('../../serialport');
 
+	this.lostTimer = options.lostTimer || 500;
 	// options
 	var _options = {};
 	_options.autoOpen = options.autoOpen || options.AutoOpen || true;
@@ -90,7 +91,7 @@ Connector.prototype.connect = function(extension, callback) {
 					}
 					self.received = false;
 				}
-			}, 500);
+			}, this.lostTimer);
 		}
 	}
 };
