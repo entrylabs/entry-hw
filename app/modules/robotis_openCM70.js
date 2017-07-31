@@ -103,6 +103,19 @@ Module.prototype.requestInitialData = function () {
     this.lightSensor = [];
     this.detectedSound = 0;
     this.detectringSound = 0;
+
+    this.servoPrevAddres = []; // add by kjs 20170627 
+    this.servoPrevLength = []; // add by kjs 20170627 
+    this.servoPrevValue = [];  // add by kjs 20170627 
+    this.servoPrevAddres2 = []; // add by kjs 20170627 
+    this.servoPrevLength2 = []; // add by kjs 20170627 
+    this.servoPrevValue2 = [];  // add by kjs 20170627 
+    this.servoPrevAddres3 = []; // add by kjs 20170627 
+    this.servoPrevLength3 = []; // add by kjs 20170627 
+    this.servoPrevValue3 = [];  // add by kjs 20170627 
+    this.servoPrevAddres4 = []; // add by kjs 20170627 
+    this.servoPrevLength4 = []; // add by kjs 20170627 
+    this.servoPrevValue4 = [];  // add by kjs 20170627 
     // car_cont, get sensor state of right touch.
     // return this.readPacket(200, 69, 1);
 
@@ -151,6 +164,19 @@ Module.prototype.handleRemoteData = function (handler) {
     var setZero = handler.read('setZero');
     if (setZero[0] == 1) {
         this.robotisBuffer = [];
+
+        this.servoPrevAddres = []; // add by kjs 20170627 
+        this.servoPrevLength = []; // add by kjs 20170627 
+        this.servoPrevValue = [];  // add by kjs 20170627 
+        this.servoPrevAddres2 = []; // add by kjs 20170627 
+        this.servoPrevLength2 = []; // add by kjs 20170627 
+        this.servoPrevValue2 = [];  // add by kjs 20170627 
+        this.servoPrevAddres3 = []; // add by kjs 20170627 
+        this.servoPrevLength3 = []; // add by kjs 20170627 
+        this.servoPrevValue3 = [];  // add by kjs 20170627 
+        this.servoPrevAddres4 = []; // add by kjs 20170627 
+        this.servoPrevLength4 = []; // add by kjs 20170627 
+        this.servoPrevValue4 = [];  // add by kjs 20170627 
     }
     for (var index = 0; index < data.length; index++) {
         var instruction = data[index][0];
@@ -179,12 +205,14 @@ Module.prototype.handleRemoteData = function (handler) {
                 doSend = false;
             } else {
                 if (this.prevServoCompare(address, value, length)) {
+                    
                 } else {
                     doSend = true;
                 }
             }
         }
-
+        console.log("####### dosend : " + doSend + " and  : " + this.prevValue + " and : " + this.servoPrevValue2);
+        this.prevValue = 123;
         if (doSend) {
             for (var indexA = 0; indexA < this.robotisBuffer.length; indexA++) {
                 if (data[index][0] == this.robotisBuffer[indexA][0] &&
@@ -207,9 +235,18 @@ Module.prototype.handleRemoteData = function (handler) {
             this.prevLength = [];
             this.prevValue = [];
 
-            this.servoPrevAddres = [];
-            this.servoPrevLength = [];
-            this.servoPrevValue = [];
+            this.servoPrevAddres = []; // add by kjs 20170627 
+            this.servoPrevLength = []; // add by kjs 20170627 
+            this.servoPrevValue = [];  // add by kjs 20170627 
+            this.servoPrevAddres2 = []; // add by kjs 20170627 
+            this.servoPrevLength2 = []; // add by kjs 20170627 
+            this.servoPrevValue2 = [];  // add by kjs 20170627 
+            this.servoPrevAddres3 = []; // add by kjs 20170627 
+            this.servoPrevLength3 = []; // add by kjs 20170627 
+            this.servoPrevValue3 = [];  // add by kjs 20170627 
+            this.servoPrevAddres4 = []; // add by kjs 20170627 
+            this.servoPrevLength4 = []; // add by kjs 20170627 
+            this.servoPrevValue4 = [];  // add by kjs 20170627 
         } else {
             this.prevInstruction = instruction;
             this.prevAddress = address;
@@ -258,7 +295,7 @@ Module.prototype.requestLocalData = function () {
     var address = data[1];
     var length = data[2];
     var value = data[3];
-    console.log('send address : ' + address + ', ' + value + ", " + length); // add by kjs 170426
+    //console.log('send address : ' + address + ', ' + value + ", " + length); // add by kjs 170426
     if (instruction == INST_WRITE) {
         if (length == 1) {
             sendBuffer = this.writeBytePacket(200, address, value);
@@ -303,7 +340,7 @@ Module.prototype.requestLocalData = function () {
         }
     }
 
-    console.log("send buffer : " + sendBuffer);
+    //console.log("send buffer : " + sendBuffer);
 
     return sendBuffer;
 };
@@ -435,6 +472,7 @@ Module.prototype.handleLocalData = function (data) { // data: Native Buffer
 };
 
 Module.prototype.reset = function () {
+    debug.console("########## reset!!");
     this.addressToRead = [];
     this.varTimeout = null;
 
@@ -449,6 +487,19 @@ Module.prototype.reset = function () {
     this.receiveAddress = -1;
     this.receiveLength = -1;
     this.defaultLength = -1;
+
+    this.servoPrevAddres = []; // add by kjs 20170731
+    this.servoPrevLength = []; // add by kjs 20170627 
+    this.servoPrevValue = [];  // add by kjs 20170627 
+    this.servoPrevAddres2 = []; // add by kjs 20170627 
+    this.servoPrevLength2 = []; // add by kjs 20170627 
+    this.servoPrevValue2 = [];  // add by kjs 20170627 
+    this.servoPrevAddres3 = []; // add by kjs 20170627 
+    this.servoPrevLength3 = []; // add by kjs 20170627 
+    this.servoPrevValue3 = [];  // add by kjs 20170627 
+    this.servoPrevAddres4 = []; // add by kjs 20170627 
+    this.servoPrevLength4 = []; // add by kjs 20170627 
+    this.servoPrevValue4 = [];  // add by kjs 20170731
 };
 
 module.exports = new Module();
