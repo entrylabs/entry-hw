@@ -126,6 +126,12 @@ Module.prototype.validateLocalData = function (data) {
 
 Module.prototype.requestRemoteData = function (handler) {
 
+    for (var indexA = 0; indexA < this.dataBuffer.length; indexA++) { // 일반형
+        if (this.dataBuffer[indexA] != undefined) {
+            handler.write(indexA, this.dataBuffer[indexA]);
+        }
+    }
+    //실과형
     for (var i = 0; i < 4; i++) {
         handler.write('TOUCH' + i, this.touchSensor[i]); // 접촉 센서
         handler.write('IR' + i, this.irSensor[i]); // 적외선 센서
@@ -140,7 +146,7 @@ Module.prototype.requestRemoteData = function (handler) {
 };
 
 Module.prototype.handleRemoteData = function (handler) {
-    var data = handler.read('ROBOTIS_DATA');        
+    var data = handler.read('ROBOTIS_DATA');
 
     var setZero = handler.read('setZero');
     if (setZero[0] == 1) {
@@ -203,7 +209,7 @@ Module.prototype.handleRemoteData = function (handler) {
 
             this.servoPrevAddres = [];
             this.servoPrevLength = [];
-            this.servoPrevValue = [];           
+            this.servoPrevValue = [];
         } else {
             this.prevInstruction = instruction;
             this.prevAddress = address;
@@ -248,31 +254,31 @@ Module.prototype.requestLocalData = function () {
     if (data == null) {
         return sendBuffer;
     }
-        var instruction = data[0];
-        var address = data[1];
-        var length = data[2];
-        var value = data[3];
-        console.log('send address : ' + address + ', ' + value + ", " + length); // add by kjs 170426
-        if (instruction == INST_WRITE) {
-            if (length == 1) {
-                sendBuffer = this.writeBytePacket(200, address, value);
-            } else if (length == 2) {
-                sendBuffer = this.writeWordPacket(200, address, value);
-            } else if (length == 4 && address == 136) {
-                var value2;
-                if (value < 1024)
-                    value2 = value + 1024;
-                else
-                    value2 = value - 1024;
-                sendBuffer = this.writeDWordPacket2(200, address, value, value2);
-            } else {
-                sendBuffer = this.writeDWordPacket(200, address, value);
-            }
-
-        } else if (instruction == INST_READ) {
-            this.addressToRead[address] = 0;
-            sendBuffer = this.readPacket(200, address, length);
+    var instruction = data[0];
+    var address = data[1];
+    var length = data[2];
+    var value = data[3];
+    console.log('send address : ' + address + ', ' + value + ", " + length); // add by kjs 170426
+    if (instruction == INST_WRITE) {
+        if (length == 1) {
+            sendBuffer = this.writeBytePacket(200, address, value);
+        } else if (length == 2) {
+            sendBuffer = this.writeWordPacket(200, address, value);
+        } else if (length == 4 && address == 136) {
+            var value2;
+            if (value < 1024)
+                value2 = value + 1024;
+            else
+                value2 = value - 1024;
+            sendBuffer = this.writeDWordPacket2(200, address, value, value2);
+        } else {
+            sendBuffer = this.writeDWordPacket(200, address, value);
         }
+
+    } else if (instruction == INST_READ) {
+        this.addressToRead[address] = 0;
+        sendBuffer = this.readPacket(200, address, length);
+    }
 
     if (sendBuffer[0] == 0xFF &&
 		sendBuffer[1] == 0xFF &&
@@ -307,9 +313,10 @@ Module.prototype.handleLocalData = function (data) { // data: Native Buffer
         this.receiveBuffer.push(data[i]);
     }
 
-    if (this.receiveBuffer.length < 80) {
+    /*if (this.receiveBuffer.length < 80) {
         return;
-    }
+    }*/
+
     /*
     if (this.receiveBuffer.length != 80) {
         console.log("!!!!!!!!!!!!!!warning!!!!!!!!!!!!!!!!!! : " + this.receiveBuffer.length);
@@ -423,7 +430,7 @@ Module.prototype.handleLocalData = function (data) { // data: Native Buffer
                     }
                 }
             }
-        } 
+        }
     }
 };
 
