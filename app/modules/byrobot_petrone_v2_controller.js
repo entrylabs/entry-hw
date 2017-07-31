@@ -378,7 +378,7 @@ Module.prototype.handlerForEntry = function(handler)
         let lightMode_interval      = handler.e(DataType.LIGHT_MODE_INTERVAL)       ? handler.read(DataType.LIGHT_MODE_INTERVAL)    : 0;
 
         let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-        let dataLength = 2;                     // 데이터의 길이
+        let dataLength = 3;                     // 데이터의 길이
 
         // Header
         dataArray.push(0x21);                   // Data Type
@@ -388,7 +388,9 @@ Module.prototype.handlerForEntry = function(handler)
 
         // Data
         dataArray.push(lightMode_mode);
-        dataArray.push(lightMode_interval);
+        // dataArray.push(lightMode_interval);          // u16  LED 모드의 갱신 주기 (2017.07.31)
+        dataArray.push(this.getByte0(lightMode_interval));
+        dataArray.push(this.getByte1(lightMode_interval));
 
         // CRC16
         this.addCRC16(dataArray, indexStart, dataLength);
@@ -410,7 +412,7 @@ Module.prototype.handlerForEntry = function(handler)
         let lightEvent_repeat       = handler.e(DataType.LIGHT_EVENT_REPEAT)        ? handler.read(DataType.LIGHT_EVENT_REPEAT)     : 0;
 
         let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-        let dataLength = 3;                     // 데이터의 길이
+        let dataLength = 4;                     // 데이터의 길이
 
         // Header
         dataArray.push(0x2A);                   // Data Type
@@ -420,7 +422,9 @@ Module.prototype.handlerForEntry = function(handler)
 
         // Data Array
         dataArray.push(lightEvent_event);
-        dataArray.push(lightEvent_interval);
+        // dataArray.push(lightMode_interval);          // u16  LED 이벤트 갱신 주기 (2017.07.31)
+        dataArray.push(this.getByte0(lightMode_interval));
+        dataArray.push(this.getByte1(lightMode_interval));
         dataArray.push(lightEvent_repeat);
 
         // CRC16
