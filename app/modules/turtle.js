@@ -259,7 +259,6 @@ Module.prototype.requestInitialData = function() {
 
 Module.prototype.checkInitialData = function(data, config) {
 	var alignment = this.alignment;
-	console.log(`state:${alignment.state}:::${data}`);
 	if(alignment.state == 0) {
 		if(data && data.slice(0, 2) == 'FF') {
 			var info = data.split(/[,\n]+/);
