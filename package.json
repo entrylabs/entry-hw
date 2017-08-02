@@ -8,7 +8,7 @@
     "start": "set NODE_ENV=development&&electron -d app",
     "make": "build",
     "make:osx": "build",
-    "make:win": "build --arch ia32 --platform=win32"
+    "make:win": "build --arch ia32 --platform=win32 && makensis ./build/entry-hw.nsi"
   },
   "build": {
     "dmg": {
