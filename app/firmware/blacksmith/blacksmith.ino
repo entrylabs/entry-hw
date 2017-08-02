@@ -294,6 +294,7 @@ void runModule(int device) {
       break;
     case txBLUETOOTH: {
         char mySerialTemp[32];
+        unsigned int lcdTempInt;
         int arrayNum = 7;
         for (int i = 0; i < 17; i++) {
           mySerialTemp[i] = readBuffer(arrayNum);
@@ -303,15 +304,22 @@ void runModule(int device) {
       }
       break;
     case LCD: {
-        char lcdTemp[32];
+        char lcdTempChar[32];
+        unsigned int lcdTempInt;
         int arrayNum = 7;
         for (int i = 0; i < 17; i++) {
-          lcdTemp[i] = readBuffer(arrayNum);
+          lcdTempChar[i] = readBuffer(arrayNum);
           arrayNum += 2;
         }
         lcd.clear();
         lcd.setCursor(0, pin);
-        lcd.print(lcdTemp);
+        if (lcdTempChar[0] == 1) {
+            lcdTempInt = readShort(9);            
+            lcd.print(lcdTempInt);
+        }
+        else {
+          lcd.print(lcdTempChar);
+        }
       }
   }
 }
@@ -381,13 +389,13 @@ void sendUltrasonic() {
 void sendBluetooth() {
   char value;
   value = tempBluetooth;
-  
+
   if (value == 0) {
     value = lastBluetooth;
   } else {
     lastBluetooth = value;
   }
-  
+
   writeHead();
   sendFloat(value);
   writeSerial(mySerialRX);
