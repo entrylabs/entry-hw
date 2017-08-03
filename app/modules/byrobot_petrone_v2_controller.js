@@ -1293,7 +1293,7 @@ Module.prototype.transferForDevice = function()
 
     this.crc16Transfered = (arrayTransfer[arrayTransfer.length - 1] << 8) | (arrayTransfer[arrayTransfer.length - 2]);
 
-    if (this.countTransferRepeat > 1)
+    if (this.countTransferRepeat > 1 && this.countTransferRepeat < 3)
         this.log("Data Transfer - Repeat: " + this.countTransferRepeat, this.bufferTransfer[0]);
         //console.log("Data Transfer - Repeat: " + this.countTransferRepeat, this.bufferTransfer[0]);
 
