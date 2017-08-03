@@ -2,7 +2,7 @@
     "id": "0F0401",
     "platform": ["win32"],
     "name": {
-        "en": "BYROBOT Petrone V2 controller",
+        "en": "BYROBOT PetroneV2 controller",
         "ko": "바이로봇 페트론V2 조종기"
     },
     "icon" : "byrobot_petrone_v2_controller.png",
