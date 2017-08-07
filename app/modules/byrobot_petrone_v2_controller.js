@@ -282,6 +282,11 @@ var DataType =
     LIGHT_MANUAL_FLAGS:         'light_manual_flags',
     LIGHT_MANUAL_BRIGHTNESS:    'light_manual_brightness',
 
+    // Light Color
+    LIGHT_COLOR_R:              'light_color_r',
+    LIGHT_COLOR_G:              'light_color_g',
+    LIGHT_COLOR_B:              'light_color_b',
+
     // Buzzer
     BUZZER_MODE:                'buzzer_mode',
     BUZZER_VALUE:               'buzzer_value',
@@ -457,6 +462,45 @@ Module.prototype.handlerForEntry = function(handler)
         // Data
         dataArray.push(lightManual_flags);
         dataArray.push(lightManual_brightness);
+
+        // CRC16
+        this.addCRC16(dataArray, indexStart, dataLength);
+
+        this.bufferTransfer.push(dataArray);
+    }
+
+    // Light Color RGB
+    if( (handler.e(DataType.LIGHT_COLOR_R) == true) || (handler.e(DataType.LIGHT_COLOR_G) == true) || (handler.e(DataType.LIGHT_COLOR_B) == true ) )
+    {
+        var dataArray = [];
+
+        // Start Code
+        this.addStartCode(dataArray);
+        
+        let target                  = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                     : 0xFF;
+        let lightColor_r            = handler.e(DataType.LIGHT_COLOR_R)             ? handler.read(DataType.LIGHT_COLOR_R)              : 0;
+        let lightColor_g            = handler.e(DataType.LIGHT_COLOR_G)             ? handler.read(DataType.LIGHT_COLOR_G)              : 0;
+        let lightColor_b            = handler.e(DataType.LIGHT_COLOR_B)             ? handler.read(DataType.LIGHT_COLOR_B)              : 0;
+
+        let lightMode_mode          = 0x12;     // TeamHold
+        let lightMode_interval      = 220;      // 밝기
+
+        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
+        let dataLength = 6;                     // 데이터의 길이
+
+        // Header
+        dataArray.push(0x24);                   // Data Type
+        dataArray.push(dataLength);             // Data Length
+        dataArray.push(0x38);                   // From (네이버 엔트리)
+        dataArray.push(target);                 // To
+
+        // Data
+        dataArray.push(lightMode_mode);
+        dataArray.push(this.getByte0(lightMode_interval));
+        dataArray.push(this.getByte1(lightMode_interval));
+        dataArray.push(lightColor_r);
+        dataArray.push(lightColor_g);
+        dataArray.push(lightColor_b);
 
         // CRC16
         this.addCRC16(dataArray, indexStart, dataLength);
