@@ -278,7 +278,7 @@ var DataType =
     LIGHT_EVENT_INTERVAL:       'light_event_interval',
     LIGHT_EVENT_REPEAT:         'light_event_repeat',
 
-    // Light Manaul
+    // Light Manual
     LIGHT_MANUAL_FLAGS:         'light_manual_flags',
     LIGHT_MANUAL_BRIGHTNESS:    'light_manual_brightness',
 
@@ -1337,7 +1337,7 @@ Module.prototype.transferForDevice = function()
 
     this.crc16Transfered = (arrayTransfer[arrayTransfer.length - 1] << 8) | (arrayTransfer[arrayTransfer.length - 2]);
 
-    if (this.countTransferRepeat > 1 && this.countTransferRepeat < 3)
+    if( this.countTransferRepeat > 1 && this.countTransferRepeat < 3 )
         this.log("Data Transfer - Repeat: " + this.countTransferRepeat, this.bufferTransfer[0]);
         //console.log("Data Transfer - Repeat: " + this.countTransferRepeat, this.bufferTransfer[0]);
 
@@ -1362,7 +1362,7 @@ Module.prototype.ping = function(target)
     this.addStartCode(dataArray);
     
     let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-    let dataLength = 8;     // 데이터의 길이
+    let dataLength = 8;                     // 데이터의 길이
 
     // Header
     dataArray.push(0x01);           // Data Type (UpdateLookupTarget)
@@ -1397,7 +1397,7 @@ Module.prototype.reserveRequest = function(target, dataType)
     this.addStartCode(dataArray);
     
     let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-    let dataLength = 1;     // 데이터의 길이
+    let dataLength = 1;                     // 데이터의 길이
 
     // Header
     dataArray.push(0x04);           // Data Type (Request)

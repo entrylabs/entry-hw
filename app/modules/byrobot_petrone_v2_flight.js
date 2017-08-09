@@ -20,7 +20,7 @@ function Module()
     this.ack =
     {
         _updated: 1,
-        ack_systemTime: 0,      // u32
+        ack_systemTime: 0,      // u64
         ack_dataType: 0,        // u8
         ack_crc16: 0            // u16
     }
@@ -33,12 +33,10 @@ function Module()
         joystick_left_y: 0,
         joystick_left_direction: 0,
         joystick_left_event: 0,
-        joystick_left_command: 0,
         joystick_right_x: 0,
         joystick_right_y: 0,
         joystick_right_direction: 0,
         joystick_right_event: 0,
-        joystick_right_command: 0
     }
 
     // Button
@@ -59,7 +57,7 @@ function Module()
         state_modeDrive: 0,
         state_sensorOrientation: 0,
         state_coordinate: 0,
-        state_battery: 0,
+        state_battery: 0
     }
 
     // Attitude
@@ -72,9 +70,10 @@ function Module()
     }
 
     // IR Message
-    this.irmeessage = 
+    this.irmessage = 
     {
         _updated: 1,
+        irmessage_direction: 0,             // 수신 받은 방향 (추가)
         irmessage_irdata: 0
     }
 
@@ -109,7 +108,7 @@ function Module()
     this.timeReceive            = 0;        // 데이터를 전송 받은 시각
     this.timeTransfer           = 0;        // 예약 데이터를 전송한 시각
     this.timeTransferNext       = 0;        // 전송 가능한 다음 시간
-    this.timeTransferInterval   = 40;       // 최소 전송 시간 간격
+    this.timeTransferInterval   = 24;       // 최소 전송 시간 간격
 
     this.countReqeustDevice     = 0;        // 장치에 데이터를 요청한 횟수 카운트 
 }
@@ -123,7 +122,7 @@ Module.prototype.init = function(handler, config)
 // 초기 송신데이터(필수)
 Module.prototype.requestInitialData = function()
 {
-    return this.ping(0x11);
+    return this.ping(0x31);
 };
 
 // 초기 수신데이터 체크(필수)
@@ -191,12 +190,10 @@ Module.prototype.resetData = function()
     joystick.joystick_left_y            = 0;
     joystick.joystick_left_direction    = 0;
     joystick.joystick_left_event        = 0;
-    joystick.joystick_left_command      = 0;
     joystick.joystick_right_x           = 0;
     joystick.joystick_right_y           = 0;
     joystick.joystick_right_direction   = 0;
     joystick.joystick_right_event       = 0;
-    joystick.joystick_right_command     = 0;
 
     // Button
     let button                          = this.button;
@@ -223,9 +220,10 @@ Module.prototype.resetData = function()
     attitude.attitude_yaw               = 0;
 
     // IR Message
-    let irmeessage                      = this.irmeessage;
-    irmeessage._updated                 = 0;
-    irmeessage.irmessage_irdata         = 0;
+    let irmessage                       = this.irmessage;
+    irmessage._updated                  = 0;
+    irmessage.irmessage_direction       = 0;
+    irmessage.irmessage_irdata          = 0;
 
     // -- Control -----------------------------------------------------------------
     this.controlWheel                   = 0;        // 
@@ -262,7 +260,7 @@ Module.prototype.resetData = function()
 }
 
 /***************************************************************************************
- *  드론파이터 / 컨트롤러에 전달하는 명령
+ *  페트론V2 / 컨트롤러에 전달하는 명령
  ***************************************************************************************/
 
 // Entry -> Device
@@ -280,9 +278,14 @@ var DataType =
     LIGHT_EVENT_INTERVAL:       'light_event_interval',
     LIGHT_EVENT_REPEAT:         'light_event_repeat',
 
-    // Light Manaul
+    // Light Manual
     LIGHT_MANUAL_FLAGS:         'light_manual_flags',
     LIGHT_MANUAL_BRIGHTNESS:    'light_manual_brightness',
+
+    // Light Color
+    LIGHT_COLOR_R:              'light_color_r',
+    LIGHT_COLOR_G:              'light_color_g',
+    LIGHT_COLOR_B:              'light_color_b',
 
     // Buzzer
     BUZZER_MODE:                'buzzer_mode',
@@ -307,14 +310,15 @@ var DataType =
 
     // Command
     COMMAND_COMMAND:            'command_command',
-    COMMAND_OPTIOIN:            'command_option',
+    COMMAND_OPTION:             'command_option',
 
     // Motor
     MOTORSINGLE_TARGET:         'motorsingle_target',
-    MOTORSINGLE_DIRECTION:      'motorsingle_direction',
+    MOTORSINGLE_ROTATION:       'motorsingle_rotation',     // direction -> rotation
     MOTORSINGLE_VALUE:          'motorsingle_value',
 
     // IrMessage
+    IRMESSAGE_DIRECTION:        'irmessage_direction',      // 수신 받은 방향 (추가)
     IRMESSAGE_DATA:             'irmessage_data',
 }
 
@@ -332,12 +336,12 @@ Module.prototype.checkAck = function(data, config)
     {
         switch( this.from )
         {
-        case 0x10:  // 드론파이터와 연결된 경우(드론파이터와 직접 연결되거나 조종기와 연결한 상태에서 페어링 된 드론파이터가 켜진 경우)
-            config.id = '0F0301';
+        case 0x30:  // 페트론V2와 연결된 경우(페트론V2와 직접 연결되거나 조종기와 연결한 상태에서 페어링 된 페트론V2가 켜진 경우)
+            config.id = '0F0601';
             return true;
 
-        case 0x11:  // 컨트롤러와 연결된 경우(페어링 된 드론파이터가 없더라도 조종기만 연결하여 사용 가능한 상태)
-            config.id = '0F0301';
+        case 0x31:  // 컨트롤러와 연결된 경우(페어링 된 페트론V2가 없더라도 조종기만 연결하여 사용 가능한 상태)
+            config.id = '0F0601';
             return true;
 
         default:
@@ -379,17 +383,19 @@ Module.prototype.handlerForEntry = function(handler)
         let lightMode_interval      = handler.e(DataType.LIGHT_MODE_INTERVAL)       ? handler.read(DataType.LIGHT_MODE_INTERVAL)    : 0;
 
         let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-        let dataLength = 2;                     // 데이터의 길이
+        let dataLength = 3;                     // 데이터의 길이
 
         // Header
         dataArray.push(0x21);                   // Data Type
         dataArray.push(dataLength);             // Data Length
-        dataArray.push(0x15);                   // From
+        dataArray.push(0x38);                   // From (네이버 엔트리)
         dataArray.push(target);                 // To
 
         // Data
         dataArray.push(lightMode_mode);
-        dataArray.push(lightMode_interval);
+        // dataArray.push(lightMode_interval);          // u16  LED 모드의 갱신 주기 (2017.07.31)
+        dataArray.push(this.getByte0(lightMode_interval));
+        dataArray.push(this.getByte1(lightMode_interval));
 
         // CRC16
         this.addCRC16(dataArray, indexStart, dataLength);
@@ -411,17 +417,18 @@ Module.prototype.handlerForEntry = function(handler)
         let lightEvent_repeat       = handler.e(DataType.LIGHT_EVENT_REPEAT)        ? handler.read(DataType.LIGHT_EVENT_REPEAT)     : 0;
 
         let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-        let dataLength = 3;                     // 데이터의 길이
+        let dataLength = 4;                     // 데이터의 길이
 
         // Header
         dataArray.push(0x2A);                   // Data Type
         dataArray.push(dataLength);             // Data Length
-        dataArray.push(0x15);                   // From
+        dataArray.push(0x38);                   // From (네이버 엔트리)
         dataArray.push(target);                 // To
 
         // Data Array
         dataArray.push(lightEvent_event);
-        dataArray.push(lightEvent_interval);
+        dataArray.push(this.getByte0(lightMode_interval));
+        dataArray.push(this.getByte1(lightMode_interval));
         dataArray.push(lightEvent_repeat);
 
         // CRC16
@@ -430,7 +437,7 @@ Module.prototype.handlerForEntry = function(handler)
         this.bufferTransfer.push(dataArray);
     }
     
-    // Light Manaul
+    // Light Manual
     if( handler.e(DataType.LIGHT_MANUAL_FLAGS) == true )
     {
         var dataArray = [];
@@ -448,12 +455,51 @@ Module.prototype.handlerForEntry = function(handler)
         // Header
         dataArray.push(0x20);                   // Data Type
         dataArray.push(dataLength);             // Data Length
-        dataArray.push(0x15);                   // From
+        dataArray.push(0x38);                   // From (네이버 엔트리)
         dataArray.push(target);                 // To
 
         // Data
         dataArray.push(lightManual_flags);
         dataArray.push(lightManual_brightness);
+
+        // CRC16
+        this.addCRC16(dataArray, indexStart, dataLength);
+
+        this.bufferTransfer.push(dataArray);
+    }
+
+    // Light Color RGB
+    if( (handler.e(DataType.LIGHT_COLOR_R) == true) || (handler.e(DataType.LIGHT_COLOR_G) == true) || (handler.e(DataType.LIGHT_COLOR_B) == true ) )
+    {
+        var dataArray = [];
+
+        // Start Code
+        this.addStartCode(dataArray);
+        
+        let target                  = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                     : 0xFF;
+        let lightColor_r            = handler.e(DataType.LIGHT_COLOR_R)             ? handler.read(DataType.LIGHT_COLOR_R)              : 0;
+        let lightColor_g            = handler.e(DataType.LIGHT_COLOR_G)             ? handler.read(DataType.LIGHT_COLOR_G)              : 0;
+        let lightColor_b            = handler.e(DataType.LIGHT_COLOR_B)             ? handler.read(DataType.LIGHT_COLOR_B)              : 0;
+
+        let lightMode_mode          = 0x12;     // TeamHold
+        let lightMode_interval      = 220;      // 밝기
+
+        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
+        let dataLength = 6;                     // 데이터의 길이
+
+        // Header
+        dataArray.push(0x24);                   // Data Type
+        dataArray.push(dataLength);             // Data Length
+        dataArray.push(0x38);                   // From (네이버 엔트리)
+        dataArray.push(target);                 // To
+
+        // Data
+        dataArray.push(lightMode_mode);
+        dataArray.push(this.getByte0(lightMode_interval));
+        dataArray.push(this.getByte1(lightMode_interval));
+        dataArray.push(lightColor_r);
+        dataArray.push(lightColor_g);
+        dataArray.push(lightColor_b);
 
         // CRC16
         this.addCRC16(dataArray, indexStart, dataLength);
@@ -471,7 +517,7 @@ Module.prototype.handlerForEntry = function(handler)
         
         let target                  = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                 : 0xFF;
         let command_command         = handler.e(DataType.COMMAND_COMMAND)           ? handler.read(DataType.COMMAND_COMMAND)        : 0;
-        let command_option          = handler.e(DataType.COMMAND_OPTIOIN)           ? handler.read(DataType.COMMAND_OPTIOIN)        : 0;
+        let command_option          = handler.e(DataType.COMMAND_OPTION)            ? handler.read(DataType.COMMAND_OPTION)         : 0;
 
         let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
         let dataLength = 2;                     // 데이터의 길이
@@ -479,7 +525,7 @@ Module.prototype.handlerForEntry = function(handler)
         // Header
         dataArray.push(0x11);                   // Data Type
         dataArray.push(dataLength);             // Data Length
-        dataArray.push(0x15);                   // From
+        dataArray.push(0x38);                   // From (네이버 엔트리)
         dataArray.push(target);                 // To
 
         // Data Array
@@ -518,7 +564,7 @@ Module.prototype.handlerForEntry = function(handler)
         // Start Code
         this.addStartCode(dataArray);
         
-        let target                  = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                 : 0x10;
+        let target                  = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                 : 0x30;
         let controlRoll             = handler.e(DataType.CONTROL_ROLL)              ? handler.read(DataType.CONTROL_ROLL)           : this.controlRoll;
         let controlPitch            = handler.e(DataType.CONTROL_PITCH)             ? handler.read(DataType.CONTROL_PITCH)          : this.controlPitch;
         let controlYaw              = handler.e(DataType.CONTROL_YAW)               ? handler.read(DataType.CONTROL_YAW)            : this.controlYaw;
@@ -535,7 +581,7 @@ Module.prototype.handlerForEntry = function(handler)
         // Header
         dataArray.push(0x10);                   // Data Type
         dataArray.push(dataLength);             // Data Length
-        dataArray.push(0x15);                   // From
+        dataArray.push(0x38);                   // From (네이버 엔트리)
         dataArray.push(target);                 // To
 
         // Data Array
@@ -560,7 +606,7 @@ Module.prototype.handlerForEntry = function(handler)
         // Start Code
         this.addStartCode(dataArray);
         
-        let target                  = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                 : 0x10;
+        let target                  = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                 : 0x30;
         let controlWheel            = handler.e(DataType.CONTROL_WHEEL)             ? handler.read(DataType.CONTROL_WHEEL)          : this.controlWheel;
         let controlAccel            = handler.e(DataType.CONTROL_ACCEL)             ? handler.read(DataType.CONTROL_ACCEL)          : this.controlAccel;
 
@@ -573,7 +619,7 @@ Module.prototype.handlerForEntry = function(handler)
         // Header
         dataArray.push(0x10);                   // Data Type
         dataArray.push(dataLength);             // Data Length
-        dataArray.push(0x15);                   // From
+        dataArray.push(0x38);                   // From (네이버 엔트리)
         dataArray.push(target);                 // To
 
         // Data Array
@@ -596,9 +642,9 @@ Module.prototype.handlerForEntry = function(handler)
         // Start Code
         this.addStartCode(dataArray);
         
-        let target                  = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                     : 0x10;
+        let target                  = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                     : 0x30;
         let motorSingleTarget       = handler.e(DataType.MOTORSINGLE_TARGET)        ? handler.read(DataType.MOTORSINGLE_TARGET)         : 0;
-        let motorSingleDirection    = handler.e(DataType.MOTORSINGLE_DIRECTION)     ? handler.read(DataType.MOTORSINGLE_DIRECTION)      : 0;
+        let motorSingleRotation     = handler.e(DataType.MOTORSINGLE_ROTATION)      ? handler.read(DataType.MOTORSINGLE_ROTATION)       : 0;
         let motorSingleValue        = handler.e(DataType.MOTORSINGLE_VALUE)         ? handler.read(DataType.MOTORSINGLE_VALUE)          : 0;
 
         let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
@@ -607,13 +653,13 @@ Module.prototype.handlerForEntry = function(handler)
         // Header
         dataArray.push(0x81);                   // Data Type
         dataArray.push(dataLength);             // Data Length
-        dataArray.push(0x15);                   // From
+        dataArray.push(0x38);                   // From (네이버 엔트리)
         dataArray.push(target);                 // To
 
         // Data Array
         dataArray.push(motorSingleTarget);
         dataArray.push(motorSingleDirection);
-        dataArray.push(this.getByte0(motorSingleValue));
+        dataArray.push(this.getByte0(motorSingleRotation));
         dataArray.push(this.getByte1(motorSingleValue));
 
         // CRC16
@@ -630,7 +676,7 @@ Module.prototype.handlerForEntry = function(handler)
         // Start Code
         this.addStartCode(dataArray);
         
-        let target                  = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                     : 0x11;
+        let target                  = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                     : 0x31;
         let buzzer_mode             = handler.e(DataType.BUZZER_MODE)               ? handler.read(DataType.BUZZER_MODE)                : 0;
         let buzzer_value            = handler.e(DataType.BUZZER_VALUE)              ? handler.read(DataType.BUZZER_VALUE)               : 0;
         let buzzer_time             = handler.e(DataType.BUZZER_TIME)               ? handler.read(DataType.BUZZER_TIME)                : 0;
@@ -641,7 +687,7 @@ Module.prototype.handlerForEntry = function(handler)
         // Header
         dataArray.push(0x83);                   // Data Type
         dataArray.push(dataLength);             // Data Length
-        dataArray.push(0x15);                   // From
+        dataArray.push(0x38);                   // From (네이버 엔트리)
         dataArray.push(target);                 // To
 
         // Data
@@ -667,7 +713,7 @@ Module.prototype.handlerForEntry = function(handler)
         // Start Code
         this.addStartCode(dataArray);
         
-        let target                  = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                     : 0x11;
+        let target                  = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                     : 0x31;
         let vibrator_mode           = handler.e(DataType.VIBRATOR_MODE)             ? handler.read(DataType.VIBRATOR_MODE)              : 0;
         let vibrator_on             = handler.e(DataType.VIBRATOR_ON)               ? handler.read(DataType.VIBRATOR_ON)                : 0;
         let vibrator_off            = handler.e(DataType.VIBRATOR_OFF)              ? handler.read(DataType.VIBRATOR_OFF)               : 0;
@@ -679,7 +725,7 @@ Module.prototype.handlerForEntry = function(handler)
         // Header
         dataArray.push(0x84);                   // Data Type
         dataArray.push(dataLength);             // Data Length
-        dataArray.push(0x15);                   // From
+        dataArray.push(0x38);                   // From (네이버 엔트리)
         dataArray.push(target);                 // To
 
         // Data
@@ -706,19 +752,21 @@ Module.prototype.handlerForEntry = function(handler)
         // Start Code
         this.addStartCode(dataArray);
         
-        let target                  = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                     : 0x10;
+        let target                  = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                     : 0x30;
+        let irmessage_direction     = handler.e(DataType.IRMESSAGE_DIRECTION )      ? handler.read(DataType.IRMESSAGE_DIRECTION)        : 0;
         let irmessage_data          = handler.e(DataType.IRMESSAGE_DATA)            ? handler.read(DataType.IRMESSAGE_DATA)             : 0;
 
         let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-        let dataLength = 4;                     // 데이터의 길이
+        let dataLength = 5;                     // 데이터의 길이
 
         // Header
         dataArray.push(0x82);                   // Data Type
         dataArray.push(dataLength);             // Data Length
-        dataArray.push(0x15);                   // From
+        dataArray.push(0x38);                   // From (네이버 엔트리)
         dataArray.push(target);                 // To
 
         // Data
+        dataArray.push(irmessage_direction);
         dataArray.push(this.getByte0(irmessage_data));
         dataArray.push(this.getByte1(irmessage_data));
         dataArray.push(this.getByte2(irmessage_data));
@@ -829,16 +877,16 @@ Module.prototype.tansferForEntry = function(handler)
 
     // IR Message
     {
-        let irmeessage = this.irmeessage;
-        if( irmeessage._updated == true )
+        let irmessage = this.irmessage;
+        if( irmessage._updated == true )
         {
-            for(let key in irmeessage)
+            for(let key in irmessage)
             {
-                handler.write(key, irmeessage[key]);
+                handler.write(key, irmessage[key]);
             }
 
-            irmeessage._updated == false;
-            //this.log("Module.prototype.tansferForEntry() / irmeessage", "");
+            irmessage._updated == false;
+            //this.log("Module.prototype.tansferForEntry() / irmessage", "");
         }
     }
 
@@ -853,7 +901,7 @@ Module.prototype.tansferForEntry = function(handler)
 
 
 /***************************************************************************************
- *  Communciation - Drone Fighter
+ *  Communciation - Petrone V2
  ***************************************************************************************/
 
 // 장치로부터 받은 데이터 배열 처리
@@ -1001,10 +1049,10 @@ Module.prototype.handlerForDevice = function()
     // skip 할 대상만 case로 등록
     switch( this.dataType )
     {
-    case 2:     break;
-    case 64:    break;
-    case 65:    break;
-    case 0x71:  break;
+    case 2:     break;      // Ack
+    case 64:    break;      // State (0x40)
+    case 65:    break;      // Attitude (0x41)
+    case 0x71:  break;      // Joystick
 
     default:
         this.log("Module.prototype.handlerForDevice() / From: " + this.from + " / To: " + this.to + " / Type: " + this.dataType + " / ", this.dataBlock);
@@ -1110,7 +1158,7 @@ Module.prototype.handlerForDevice = function()
         break;
 
     case 0x71:  // Joystick
-        if( this.dataBlock.length == 10 )
+        if( this.dataBlock.length == 8 )
         {
             // Device -> Entry 
             let joystick                        = this.joystick;
@@ -1119,26 +1167,25 @@ Module.prototype.handlerForDevice = function()
             joystick.joystick_left_y            = this.extractInt8(this.dataBlock,  1);
             joystick.joystick_left_direction    = this.extractUInt8(this.dataBlock, 2);
             joystick.joystick_left_event        = this.extractUInt8(this.dataBlock, 3);
-            joystick.joystick_left_command      = this.extractUInt8(this.dataBlock, 4);
-            joystick.joystick_right_x           = this.extractInt8(this.dataBlock,  5);
-            joystick.joystick_right_y           = this.extractInt8(this.dataBlock,  6);
-            joystick.joystick_right_direction   = this.extractUInt8(this.dataBlock, 7);
-            joystick.joystick_right_event       = this.extractUInt8(this.dataBlock, 8);
-            joystick.joystick_right_command     = this.extractUInt8(this.dataBlock, 9);
+            joystick.joystick_right_x           = this.extractInt8(this.dataBlock,  4);
+            joystick.joystick_right_y           = this.extractInt8(this.dataBlock,  5);
+            joystick.joystick_right_direction   = this.extractUInt8(this.dataBlock, 6);
+            joystick.joystick_right_event       = this.extractUInt8(this.dataBlock, 7);
 
             //console.log("handlerForDevice - Joystick: " + joystick.joystick_left_x + ", " + joystick.joystick_left_y + ", " + joystick.joystick_right_x + ", " + joystick.joystick_right_y);
         }
         break;
 
     case 0x82:  // IR Message
-        if( this.dataBlock.length == 4 )
+        if( this.dataBlock.length == 5 )
         {
             // Device -> Entry 
-            let irmeessage              = this.irmeessage;
-            irmeessage._updated         = true;
-            irmeessage.irmessage_irdata = this.extractUInt32(this.dataBlock, 0);
+            let irmessage                   = this.irmessage;
+            irmessage._updated              = true;
+            irmessage.irmessage_direction   = this.extractUInt8(this.dataBlock, 0);
+            irmessage.irmessage_irdata      = this.extractUInt32(this.dataBlock, 1);
 
-            console.log("handlerForDevice - IR Message: " + irmeessage.irmessage_irdata);
+            console.log("handlerForDevice - IR Message: " + irmessage.irmessage_direction + ", " + irmessage.irmessage_irdata);
         }
         break;
 
@@ -1248,16 +1295,16 @@ Module.prototype.transferForDevice = function()
         switch( this.countReqeustDevice % 6 )
         {
         case 0:
-            return this.ping(0x10);
+            return this.ping(0x30);                     // 페트론V2 드론
 
         case 2:
-            return this.ping(0x11);
+            return this.ping(0x31);                     // 조종기
 
         case 4:
-            return this.reserveRequest(0x10, 0x40);
+            return this.reserveRequest(0x30, 0x40);     // 페트론V2 드론, 드론의 상태(State)
 
         default:
-            return this.reserveRequest(0x10, 0x41);
+            return this.reserveRequest(0x30, 0x41);     // 페트론V2 드론, 드론의 자세(Attitude)
         }
     }
     else
@@ -1266,16 +1313,16 @@ Module.prototype.transferForDevice = function()
         switch( this.countReqeustDevice % 15 )
         {
         case 3:
-            return this.ping(0x10);
+            return this.ping(0x30);
 
         case 6:
-            return this.ping(0x11);
+            return this.ping(0x31);
 
         case 9:
-            return this.reserveRequest(0x10, 0x40);
+            return this.reserveRequest(0x30, 0x40);
 
         case 12:
-            return this.reserveRequest(0x10, 0x41);
+            return this.reserveRequest(0x30, 0x41);
 
         default:
             break;
@@ -1293,8 +1340,9 @@ Module.prototype.transferForDevice = function()
 
     this.crc16Transfered = (arrayTransfer[arrayTransfer.length - 1] << 8) | (arrayTransfer[arrayTransfer.length - 2]);
 
-    if( this.countTransferRepeat > 1 )
-        console.log("Data Transfer - Repeat: " + this.countTransferRepeat, this.bufferTransfer[0]);
+    if( this.countTransferRepeat > 1 && this.countTransferRepeat < 3 )
+        this.log("Data Transfer - Repeat: " + this.countTransferRepeat, this.bufferTransfer[0]);
+        //console.log("Data Transfer - Repeat: " + this.countTransferRepeat, this.bufferTransfer[0]);
 
     // maxTransferRepeat 이상 전송했음애도 응답이 없는 경우엔 다음으로 넘어감
     if( this.countTransferRepeat > this.maxTransferRepeat)
@@ -1317,16 +1365,20 @@ Module.prototype.ping = function(target)
     this.addStartCode(dataArray);
     
     let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-    let dataLength = 4;     // 데이터의 길이
+    let dataLength = 8;                     // 데이터의 길이
 
     // Header
     dataArray.push(0x01);           // Data Type (UpdateLookupTarget)
     dataArray.push(dataLength);     // Data Length
-    dataArray.push(0x15);           // From
+    dataArray.push(0x38);           // From (네이버 엔트리)
     dataArray.push(target);         // To
 
     // Data Array
     dataArray.push(0x00);           // systemTime
+    dataArray.push(0x00);
+    dataArray.push(0x00);
+    dataArray.push(0x00);
+    dataArray.push(0x00);           // u32 -> u64
     dataArray.push(0x00);
     dataArray.push(0x00);
     dataArray.push(0x00);
@@ -1353,7 +1405,7 @@ Module.prototype.reserveRequest = function(target, dataType)
     // Header
     dataArray.push(0x04);           // Data Type (Request)
     dataArray.push(dataLength);     // Data Length
-    dataArray.push(0x15);           // From
+    dataArray.push(0x38);           // From (네이버 엔트리)
     dataArray.push(target);         // To
 
     // Data Array
@@ -1376,16 +1428,16 @@ Module.prototype.reserveModeVehicle = function(modeVehicle)
     this.addStartCode(dataArray);
     
     let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-    let dataLength = 2;     // 데이터의 길이
+    let dataLength = 2;                     // 데이터의 길이
 
     // Header
     dataArray.push(0x11);           // Data Type
     dataArray.push(dataLength);     // Data Length
-    dataArray.push(0x15);           // From
-    dataArray.push(0x10);           // To
+    dataArray.push(0x38);           // From (네이버 엔트리)
+    dataArray.push(0x30);           // To
 
     // Data Array
-    dataArray.push(0x10);           // CommandType
+    dataArray.push(0x10);           // CommandType (Vehicle 동작 모드 전환 ?)
     dataArray.push(modeVehicle);    // Option
 
     // CRC16
