@@ -658,8 +658,8 @@ Module.prototype.handlerForEntry = function(handler)
 
         // Data Array
         dataArray.push(motorSingleTarget);
-        dataArray.push(motorSingleDirection);
-        dataArray.push(this.getByte0(motorSingleRotation));
+        dataArray.push(motorSingleRotation);
+        dataArray.push(this.getByte0(motorSingleValue));
         dataArray.push(this.getByte1(motorSingleValue));
 
         // CRC16
