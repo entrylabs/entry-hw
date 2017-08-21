@@ -73,9 +73,6 @@ char tempBluetooth;
 /* 블루투스 최종 값 */
 char lastBluetooth;
 
-/* 아날로그 값 관련 시간 */
-unsigned long a_currentTime, a_previousTime, a_elapsedTime;
-
 /* 버퍼 */
 char buffer[52];
 unsigned char prevc = 0;
@@ -102,7 +99,7 @@ void setup() {
 }
 
 void initPorts() {
-  for (int pinNumber = 0; pinNumber < 14; pinNumber++) {
+  for (int pinNumber = 4; pinNumber < 14; pinNumber++) {
     pinMode(pinNumber, OUTPUT);
     digitalWrite(pinNumber, LOW);
   }
