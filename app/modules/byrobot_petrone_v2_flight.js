@@ -65,7 +65,7 @@ function Module()
     {
         _updated: 1,
         attitude_roll: 0,
-        attitude_pitch : 0,
+        attitude_pitch: 0,
         attitude_yaw: 0
     }
 
@@ -75,6 +75,34 @@ function Module()
         _updated: 1,
         irmessage_direction: 0,             // 수신 받은 방향 (추가)
         irmessage_irdata: 0
+    }
+
+    // Pressure
+    this.pressure =
+    {
+        _updated: 1,
+        pressure_temperature: 0,
+        pressure_pressure: 0
+    }
+
+    // Image Flow (Optical Flow)
+    this.imageflow =
+    {
+        _updated: 1,
+        imageflow_positionX: 0,
+        imageflow_positionY: 0
+    }
+
+    // Range
+    this.range =
+    {
+        _updated: 1,
+        range_left: 0,
+        range_front: 0,
+        range_right: 0,
+        range_rear: 0,
+        range_top: 0,
+        range_bottom: 0
     }
 
     // -- Control -----------------------------------------------------------------
@@ -224,6 +252,28 @@ Module.prototype.resetData = function()
     irmessage._updated                  = 0;
     irmessage.irmessage_direction       = 0;
     irmessage.irmessage_irdata          = 0;
+
+     // Pressure
+    let pressure                        = this.pressure;
+    pressure._updated                   = 0;
+    pressure.pressure_temperature       = 0;
+    pressure.pressure_pressure          = 0;
+
+    // Image Flow (Optical Flow)
+    let imageflow                       = this.imageflow;
+    imageflow._updated                  = 0;
+    imageflow.imageflow_positionX       = 0;
+    imageflow.imageflow_positionY       = 0;
+
+    // Range
+    let range                           = this.range;
+    range._updated                      = 0;
+    range.range_left                    = 0;
+    range.range_front                   = 0;
+    range.range_right                   = 0;
+    range.range_rear                    = 0;
+    range.range_top                     = 0;
+    range.range_bottom                  = 0;
 
     // -- Control -----------------------------------------------------------------
     this.controlWheel                   = 0;        // 
@@ -875,6 +925,51 @@ Module.prototype.tansferForEntry = function(handler)
         }
     }
 
+    // Pressure
+    {
+        let pressure = this.pressure;
+        if( pressure._updated == true )
+        {
+            for(let key in pressure)
+            {
+                handler.write(key, pressure[key]);
+            }
+
+            pressure._updated == false;
+            //this.log("Module.prototype.tansferForEntry() / pressure", "");
+        }
+    }
+
+    // Image Flow (Optical Flow)
+    {
+        let imageflow = this.imageflow;
+        if( imageflow._updated == true )
+        {
+            for(let key in imageflow)
+            {
+                handler.write(key, imageflow[key]);
+            }
+
+            imageflow._updated == false;
+            //this.log("Module.prototype.tansferForEntry() / imageflow", "");
+        }
+    }
+
+    // Range
+    {
+        let range = this.range;
+        if( range._updated == true )
+        {
+            for(let key in range)
+            {
+                handler.write(key, range[key]);
+            }
+
+            range._updated == false;
+            //this.log("Module.prototype.tansferForEntry() / range", "");
+        }
+    }
+
     // IR Message
     {
         let irmessage = this.irmessage;
@@ -1134,16 +1229,58 @@ Module.prototype.handlerForDevice = function()
         if( this.dataBlock.length == 6 )
         {
             // Device -> Entry 
-            let attitude            = this.attitude;
-            attitude._updated       = true;
-            attitude.attitude_roll  = this.extractInt16(this.dataBlock, 0);
-            attitude.attitude_pitch = this.extractInt16(this.dataBlock, 2);
-            attitude.attitude_yaw   = this.extractInt16(this.dataBlock, 4);
+            let attitude                = this.attitude;
+            attitude._updated           = true;
+            attitude.attitude_roll      = this.extractInt16(this.dataBlock, 0);
+            attitude.attitude_pitch     = this.extractInt16(this.dataBlock, 2);
+            attitude.attitude_yaw       = this.extractInt16(this.dataBlock, 4);
 
             //console.log("handlerForDevice - attitude: " + attitude.attitude_roll + ", " + attitude.attitude_pitch + ", " + attitude.attitude_yaw);
         }
         break;
 
+    case 0x51:  // Pressure
+        if( this.dataBlock.length == 8 )
+        {
+            // Device -> Entry 
+            let pressure                    = this.pressure;
+            pressure._updated               = true;
+            pressure.pressure_temperature   = this.extractInt32(this.dataBlock, 0);
+            pressure.pressure_pressure      = this.extractInt32(this.dataBlock, 4);
+
+            //console.log("handlerForDevice - pressure: " + pressure.pressure_temperature + ", " + pressure.pressure_pressure);
+        }
+        break;
+
+    case 0x53:  // Range
+        if( this.dataBlock.length == 24 )
+        {
+            // Device -> Entry 
+            let range               = this.range;
+            range._updated          = true;
+            range.range_left        = this.extractInt32(this.dataBlock, 0);
+            range.range_front       = this.extractInt32(this.dataBlock, 4);
+            range.range_right       = this.extractInt32(this.dataBlock, 8);
+            range.range_rear        = this.extractInt32(this.dataBlock, 12);
+            range.range_top         = this.extractInt32(this.dataBlock, 16);
+            range.range_bottom      = this.extractInt32(this.dataBlock, 20);
+
+            //console.log("handlerForDevice - range: " + range.range_left + ", " + range.range_front + ", " + range.range_right + ", " + range.range_rear + ", " + range.range_top + ", " + range.range_bottom);
+        }
+        break;
+
+    case 0x54:  // Image Flow (Optical Flow)
+        if( this.dataBlock.length == 8 )
+        {
+            // Device -> Entry 
+            let imageflow                   = this.imageflow;
+            imageflow._updated              = true;
+            imageflow.imageflow_positionX   = this.extractInt32(this.dataBlock, 0);
+            imageflow.imageflow_positionY   = this.extractInt32(this.dataBlock, 4);
+
+            //console.log("handlerForDevice - imageflow: " + imageflow.imageflow_positionX + ", " + imageflow.imageflow_positionY);
+        }
+        break;
     case 0x70:  // Button
         if( this.dataBlock.length == 3 )
         {
