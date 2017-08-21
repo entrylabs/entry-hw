@@ -69,14 +69,6 @@ function Module()
         attitude_yaw: 0
     }
 
-    // IR Message
-    this.irmessage = 
-    {
-        _updated: 1,
-        irmessage_direction: 0,             // 수신 받은 방향 (추가)
-        irmessage_irdata: 0
-    }
-
     // Pressure
     this.pressure =
     {
@@ -103,6 +95,14 @@ function Module()
         range_rear: 0,
         range_top: 0,
         range_bottom: 0
+    }
+
+    // IR Message
+    this.irmessage = 
+    {
+        _updated: 1,
+        irmessage_direction: 0,             // 수신 받은 방향 (추가)
+        irmessage_irdata: 0
     }
 
     // -- Control -----------------------------------------------------------------
@@ -247,12 +247,6 @@ Module.prototype.resetData = function()
     attitude.attitude_pitch             = 0;
     attitude.attitude_yaw               = 0;
 
-    // IR Message
-    let irmessage                       = this.irmessage;
-    irmessage._updated                  = 0;
-    irmessage.irmessage_direction       = 0;
-    irmessage.irmessage_irdata          = 0;
-
      // Pressure
     let pressure                        = this.pressure;
     pressure._updated                   = 0;
@@ -274,6 +268,12 @@ Module.prototype.resetData = function()
     range.range_rear                    = 0;
     range.range_top                     = 0;
     range.range_bottom                  = 0;
+
+    // IR Message
+    let irmessage = this.irmessage;
+    irmessage._updated = 0;
+    irmessage.irmessage_direction = 0;
+    irmessage.irmessage_irdata = 0;
 
     // -- Control -----------------------------------------------------------------
     this.controlWheel                   = 0;        // 
