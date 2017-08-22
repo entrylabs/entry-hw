@@ -1245,8 +1245,8 @@ Module.prototype.handlerForDevice = function()
             // Device -> Entry 
             let pressure                    = this.pressure;
             pressure._updated               = true;
-            pressure.pressure_temperature   = this.extractInt32(this.dataBlock, 0);
-            pressure.pressure_pressure      = this.extractInt32(this.dataBlock, 4);
+            pressure.pressure_temperature   = this.extractFloat32(this.dataBlock, 0);
+            pressure.pressure_pressure      = this.extractFloat32(this.dataBlock, 4);
 
             //console.log("handlerForDevice - pressure: " + pressure.pressure_temperature + ", " + pressure.pressure_pressure);
         }
@@ -1258,12 +1258,12 @@ Module.prototype.handlerForDevice = function()
             // Device -> Entry 
             let range               = this.range;
             range._updated          = true;
-            range.range_left        = this.extractInt32(this.dataBlock, 0);
-            range.range_front       = this.extractInt32(this.dataBlock, 4);
-            range.range_right       = this.extractInt32(this.dataBlock, 8);
-            range.range_rear        = this.extractInt32(this.dataBlock, 12);
-            range.range_top         = this.extractInt32(this.dataBlock, 16);
-            range.range_bottom      = this.extractInt32(this.dataBlock, 20);
+            range.range_left        = this.extractFloat32(this.dataBlock, 0);
+            range.range_front       = this.extractFloat32(this.dataBlock, 4);
+            range.range_right       = this.extractFloat32(this.dataBlock, 8);
+            range.range_rear        = this.extractFloat32(this.dataBlock, 12);
+            range.range_top         = this.extractFloat32(this.dataBlock, 16);
+            range.range_bottom      = this.extractFloat32(this.dataBlock, 20);
 
             //console.log("handlerForDevice - range: " + range.range_left + ", " + range.range_front + ", " + range.range_right + ", " + range.range_rear + ", " + range.range_top + ", " + range.range_bottom);
         }
@@ -1275,12 +1275,13 @@ Module.prototype.handlerForDevice = function()
             // Device -> Entry 
             let imageflow                   = this.imageflow;
             imageflow._updated              = true;
-            imageflow.imageflow_positionX   = this.extractInt32(this.dataBlock, 0);
-            imageflow.imageflow_positionY   = this.extractInt32(this.dataBlock, 4);
+            imageflow.imageflow_positionX   = this.extractFloat32(this.dataBlock, 0);
+            imageflow.imageflow_positionY   = this.extractFloat32(this.dataBlock, 4);
 
             //console.log("handlerForDevice - imageflow: " + imageflow.imageflow_positionX + ", " + imageflow.imageflow_positionY);
         }
         break;
+
     case 0x70:  // Button
         if( this.dataBlock.length == 3 )
         {
@@ -1385,6 +1386,17 @@ Module.prototype.extractUInt32 = function(dataArray, startIndex)
     {
         let value = ((dataArray[startIndex + 3]) << 24) + ((dataArray[startIndex + 2]) << 16) + ((dataArray[startIndex + 1]) << 8) + dataArray[startIndex];
         return value;
+    }
+    else
+        return 0;
+}
+
+Module.prototype.extractFloat32 = function (dataArray, startIndex)
+{
+    if (dataArray.length >= startIndex + 4)
+    {
+        var floatView = new Float32Array(dataArray, startIndex, 1);
+        return floatView[0];
     }
     else
         return 0;
