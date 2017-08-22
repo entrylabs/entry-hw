@@ -1395,8 +1395,15 @@ Module.prototype.extractFloat32 = function (dataArray, startIndex)
 {
     if (dataArray.length >= startIndex + 4)
     {
-        var floatView = new Float32Array(dataArray, startIndex, 1);
-        return floatView[0];
+        var buffer = new ArrayBuffer(4);
+        var float32View = new Float32Array(buffer, 0, 1);
+        var uint8View = new Uint8Array(buffer, 0, 4)
+        uint8View[0] = dataArray[startIndex];
+        uint8View[1] = dataArray[startIndex + 1];
+        uint8View[2] = dataArray[startIndex + 2];
+        uint8View[3] = dataArray[startIndex + 3];
+
+        return float32View[0];
     }
     else
         return 0;
