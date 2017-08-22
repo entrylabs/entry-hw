@@ -1147,6 +1147,9 @@ Module.prototype.handlerForDevice = function()
     case 2:     break;      // Ack
     case 64:    break;      // State (0x40)
     case 65:    break;      // Attitude (0x41)
+    case 0x51:  break;      // Pressure
+    case 0x53:  break;      // Range
+    case 0x54:  break;      // Image Flow (Optical Flow)
     case 0x71:  break;      // Joystick
 
     default:
