@@ -270,10 +270,10 @@ Module.prototype.resetData = function()
     range.range_bottom                  = 0;
 
     // IR Message
-    let irmessage = this.irmessage;
-    irmessage._updated = 0;
-    irmessage.irmessage_direction = 0;
-    irmessage.irmessage_irdata = 0;
+    let irmessage                       = this.irmessage;
+    irmessage._updated                  = 0;
+    irmessage.irmessage_direction       = 0;
+    irmessage.irmessage_irdata          = 0;
 
     // -- Control -----------------------------------------------------------------
     this.controlWheel                   = 0;        // 
