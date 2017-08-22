@@ -1441,7 +1441,7 @@ Module.prototype.transferForDevice = function()
     if( this.bufferTransfer.length == 0 )
     {
         // 예약된 요청이 없는 경우 데이터 요청 등록(현재는 자세 데이터 요청)
-        switch( this.countReqeustDevice % 6 )
+        switch( this.countReqeustDevice % 12 )
         {
         case 0:
             return this.ping(0x30);                     // 페트론V2 드론
@@ -1452,6 +1452,15 @@ Module.prototype.transferForDevice = function()
         case 4:
             return this.reserveRequest(0x30, 0x40);     // 페트론V2 드론, 드론의 상태(State)
 
+        case 6:
+            return this.reserveRequest(0x30, 0x51);     // 페트론V2 드론, Pressure Sensor
+
+        case 8:
+            return this.reserveRequest(0x30, 0x53);     // 페트론V2 드론, Range Sensor
+
+        case 10:
+            return this.reserveRequest(0x30, 0x54);     // 페트론V2 드론, Image Flow (Optical Flow) Sensor
+
         default:
             return this.reserveRequest(0x30, 0x41);     // 페트론V2 드론, 드론의 자세(Attitude)
         }
@@ -1459,7 +1468,7 @@ Module.prototype.transferForDevice = function()
     else
     {
         // 예약된 요청이 있는 경우에도 간헐적으로 장치 검색(연결 유지를 위해)
-        switch( this.countReqeustDevice % 15 )
+        switch( this.countReqeustDevice % 24 )
         {
         case 3:
             return this.ping(0x30);
@@ -1472,6 +1481,15 @@ Module.prototype.transferForDevice = function()
 
         case 12:
             return this.reserveRequest(0x30, 0x41);
+
+        case 15:
+            return this.reserveRequest(0x30, 0x51);
+
+        case 18:
+            return this.reserveRequest(0x30, 0x53);
+
+        case 21:
+            return this.reserveRequest(0x30, 0x54);
 
         default:
             break;
