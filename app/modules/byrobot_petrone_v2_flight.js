@@ -369,7 +369,7 @@ var DataType =
 
     // IrMessage
     IRMESSAGE_DIRECTION:        'irmessage_direction',      // 수신 받은 방향 (추가)
-    IRMESSAGE_DATA:             'irmessage_data',
+    IRMESSAGE_IRDATA:           'irmessage_irdata',
 }
 
 /***************************************************************************************
@@ -795,7 +795,7 @@ Module.prototype.handlerForEntry = function(handler)
 
 
     // IrMessage
-    if( handler.e(DataType.IRMESSAGE_DATA) == true )
+    if (handler.e(DataType.IRMESSAGE_IRDATA) == true )
     {
         var dataArray = [];
 
@@ -804,7 +804,7 @@ Module.prototype.handlerForEntry = function(handler)
         
         let target                  = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                     : 0x30;
         let irmessage_direction     = handler.e(DataType.IRMESSAGE_DIRECTION )      ? handler.read(DataType.IRMESSAGE_DIRECTION)        : 0;
-        let irmessage_data          = handler.e(DataType.IRMESSAGE_DATA)            ? handler.read(DataType.IRMESSAGE_DATA)             : 0;
+        let irmessage_irdata        = handler.e(DataType.IRMESSAGE_IRDATA)          ? handler.read(DataType.IRMESSAGE_IRDATA)           : 0;
 
         let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
         let dataLength = 5;                     // 데이터의 길이
@@ -817,10 +817,10 @@ Module.prototype.handlerForEntry = function(handler)
 
         // Data
         dataArray.push(irmessage_direction);
-        dataArray.push(this.getByte0(irmessage_data));
-        dataArray.push(this.getByte1(irmessage_data));
-        dataArray.push(this.getByte2(irmessage_data));
-        dataArray.push(this.getByte3(irmessage_data));
+        dataArray.push(this.getByte0(irmessage_irdata));
+        dataArray.push(this.getByte1(irmessage_irdata));
+        dataArray.push(this.getByte2(irmessage_irdata));
+        dataArray.push(this.getByte3(irmessage_irdata));
 
         // CRC16
         this.addCRC16(dataArray, indexStart, dataLength);
