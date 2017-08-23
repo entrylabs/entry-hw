@@ -9,14 +9,13 @@
    Description : Firmware for Makeblock Electronic modules with Scratch.
    Copyright (C) 2013 - 2016 Maker Works Technology Co., Ltd. All right reserved.
  **********************************************************************************/
-// 서보 라이브러리
-#include <Servo.h>
-// LCD 라이브러리
-#include <LiquidCrystal_I2C.h>
-// 소프트 시리얼 라이브러리
-#include <SoftwareSerial.h>
 
-// 동작 상수
+#include <Servo.h>                /* 서보 라이브러리 */
+#include <LiquidCrystal_I2C.h>  /* LCD 라이브러리 */
+#include <SoftwareSerial.h>     /* 소프트 시리얼 라이브러리 */
+
+
+/* 동작 상수 */
 #define ALIVE 0
 #define DIGITAL 1
 #define ANALOG 2
@@ -30,51 +29,51 @@
 #define LCD 10
 #define txBLUETOOTH 11
 
-// 상태 상수
+/* 상태 상수 */
 #define GET 1
 #define SET 2
 #define RESET 3
 
-// val Union
+/* val Union */
 union {
   byte byteVal[4];
   float floatVal;
   long longVal;
 } val;
 
-// valShort Union
+/* valShort Union */
 union {
   byte byteVal[2];
   short shortVal;
 } valShort;
 
-// 전역변수 선언 시작
+/* 전역변수 선언 시작 */
 Servo servos[8];
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 SoftwareSerial mySerial(2, 3);
 
-//포트별 상태
+/* 포트별 상태 */
 int analogs[6] = {0, 0, 0, 0, 0, 0};
 int digitals[14] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 int servo_pins[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 
-//울트라 소닉 포트
+/* 울트라 소닉 포트 */
 int trigPin = 13;
 int echoPin = 12;
 
-// 울트라소닉 최종 값
+/* 울트라소닉 최종 값 */
 float lastUltrasonic = 0;
 
-// 블루투스 포트
+/* 블루투스 포트 */
 int mySerialRX = 12;
 
-// 블루투스 임시값
+/* 블루투스 임시값 */
 char tempBluetooth;
 
-// 블루투스 최종 값
+/* 블루투스 최종 값 */
 char lastBluetooth;
 
-// 버퍼
+/* 버퍼 */
 char buffer[52];
 unsigned char prevc = 0;
 
@@ -89,7 +88,7 @@ uint8_t command_index = 0;
 boolean isStart = false;
 boolean isUltrasonic = false;
 boolean isBluetooth = false;
-// 전역변수 선언 종료
+/* 전역변수 선언 종료 */
 
 void setup() {
   Serial.begin(115200);
@@ -106,7 +105,7 @@ void initPorts() {
   }
 }
 
-// 대장장이 보드 LCD 초기화
+/* 대장장이 LCD 초기화 */
 void initLCD() {
   lcd.init();
   lcd.backlight();
@@ -124,6 +123,7 @@ void loop() {
       setPinValue(serialRead & 0xff);
     }
   }
+  /* 소프트 시리얼을 이용 -> 블루투스 값 */
   while (mySerial.available()) {
     if (mySerial.available() > 0) {
       tempBluetooth = mySerial.read();
@@ -294,6 +294,7 @@ void runModule(int device) {
       break;
     case txBLUETOOTH: {
         char mySerialTemp[32];
+        unsigned int lcdTempInt;
         int arrayNum = 7;
         for (int i = 0; i < 17; i++) {
           mySerialTemp[i] = readBuffer(arrayNum);
@@ -303,15 +304,22 @@ void runModule(int device) {
       }
       break;
     case LCD: {
-        char lcdTemp[32];
+        char lcdTempChar[32];
+        unsigned int lcdTempInt;
         int arrayNum = 7;
         for (int i = 0; i < 17; i++) {
-          lcdTemp[i] = readBuffer(arrayNum);
+          lcdTempChar[i] = readBuffer(arrayNum);
           arrayNum += 2;
         }
         lcd.clear();
         lcd.setCursor(0, pin);
-        lcd.print(lcdTemp);
+        if (lcdTempChar[0] == 1) {
+          lcdTempInt = readShort(9);
+          lcd.print(lcdTempInt);
+        }
+        else {
+          lcd.print(lcdTempChar);
+        }
       }
   }
 }
@@ -381,13 +389,13 @@ void sendUltrasonic() {
 void sendBluetooth() {
   char value;
   value = tempBluetooth;
-  
+
   if (value == 0) {
     value = lastBluetooth;
   } else {
     lastBluetooth = value;
   }
-  
+
   writeHead();
   sendFloat(value);
   writeSerial(mySerialRX);
@@ -404,9 +412,25 @@ void sendDigitalValue(int pinNumber) {
   writeEnd();
 }
 
+/*
+ *    LM35 사용시 adc값 신뢰성 부족
+ *   -> LPF를 사용하여 보정
+*/
 void sendAnalogValue(int pinNumber) {
+  float prevx, xlpf, measurement;
+  float alpha = 0.1;
+  bool firstRun = true;
   writeHead();
-  sendFloat(analogRead(pinNumber));
+  for (int i = 0; i < 20; i++) {
+    measurement = analogRead(pinNumber);
+    if (firstRun == true) {
+      prevx = measurement;
+      firstRun = false;
+    }
+    xlpf = alpha * prevx + (1 - alpha) * measurement ;
+    prevx = xlpf;
+  }
+  sendFloat((int)xlpf);
   writeSerial(pinNumber);
   writeSerial(ANALOG);
   writeEnd();

@@ -85,8 +85,11 @@ Module.prototype.setSerialPort = function (sp) {
 };
 
 Module.prototype.requestInitialData = function() {
-    return this.makeSensorReadBuffer(this.sensorTypes.ANALOG, 0);
+    return true;
+    // MRT 개선 코드 구성 중 : 주석 처리 시 자사 다른 펌웨어와의 연결 오류 없음
+    //return this.makeSensorReadBuffer(this.sensorTypes.ANALOG, 0);  
 };
+   
 
 Module.prototype.checkInitialData = function(data, config) {
     return true;
