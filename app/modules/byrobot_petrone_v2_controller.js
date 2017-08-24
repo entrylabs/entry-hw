@@ -297,6 +297,12 @@ var DataType =
     DISPLAY_CLEAR_HEIGHT:       'display_clear_height',
     DISPLAY_CLEAR_PIXEL:        'display_clear_pixel',
 
+    // OLED - 선택 영역 반전
+    DISPLAY_INVERT_X:           'display_invert_x',
+    DISPLAY_INVERT_Y:           'display_invert_y',
+    DISPLAY_INVERT_WIDTH:       'display_invert_width',
+    DISPLAY_INVERT_HEIGHT:      'display_invert_height',
+
     // Buzzer
     BUZZER_MODE:                'buzzer_mode',
     BUZZER_VALUE:               'buzzer_value',
@@ -587,6 +593,46 @@ Module.prototype.handlerForEntry = function(handler)
 
         this.bufferTransfer.push(dataArray);
     }
+
+    // OLED - 선택 영역 반전
+    if( (handler.e(DataType.DISPLAY_INVERT_X) == true) || (handler.e(DataType.DISPLAY_INVERT_Y) == true) || (handler.e(DataType.DISPLAY_INVERT_WIDTH) == true) || (handler.e(DataType.DISPLAY_INVERT_HEIGHT) == true) )
+    {
+        var dataArray = [];
+
+        // Start Code
+        this.addStartCode(dataArray);
+        
+        let target                  = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                     : 0xFF;
+        let display_invert_x        = handler.e(DataType.DISPLAY_INVERT_X)          ? handler.read(DataType.DISPLAY_INVERT_X)           : 0;
+        let display_invert_y        = handler.e(DataType.DISPLAY_INVERT_Y)          ? handler.read(DataType.DISPLAY_INVERT_Y)           : 0;
+        let display_invert_width    = handler.e(DataType.DISPLAY_INVERT_WIDTH)      ? handler.read(DataType.DISPLAY_INVERT_WIDTH)       : 0;
+        let display_invert_height   = handler.e(DataType.DISPLAY_INVERT_HEIGHT)     ? handler.read(DataType.DISPLAY_INVERT_HEIGHT)      : 0;
+
+        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
+        let dataLength = 8;                     // 데이터의 길이  (조건문으로 분기하는법 생각해볼것)
+
+        // Header
+        dataArray.push(0xB1);                   // Data Type
+        dataArray.push(dataLength);             // Data Length
+        dataArray.push(0x38);                   // From (네이버 엔트리)
+        dataArray.push(target);                 // To
+
+        // Data
+        dataArray.push(this.getByte0(display_invert_x));
+        dataArray.push(this.getByte1(display_invert_x));
+        dataArray.push(this.getByte0(display_invert_y));
+        dataArray.push(this.getByte1(display_invert_y));
+        dataArray.push(this.getByte0(display_invert_width));
+        dataArray.push(this.getByte1(display_invert_width));
+        dataArray.push(this.getByte0(display_invert_height));
+        dataArray.push(this.getByte1(display_invert_height));
+
+        // CRC16
+        this.addCRC16(dataArray, indexStart, dataLength);
+
+        this.bufferTransfer.push(dataArray);
+    }
+
 
     // Command
     if( handler.e(DataType.COMMAND_COMMAND) == true )
