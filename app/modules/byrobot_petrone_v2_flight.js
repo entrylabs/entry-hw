@@ -1324,7 +1324,7 @@ Module.prototype.handlerForDevice = function()
             let irmessage                   = this.irmessage;
             irmessage._updated              = true;
             irmessage.irmessage_direction   = this.extractUInt8(this.dataBlock, 0);
-            irmessage.irmessage_irdata      = this.extractUInt32(this.dataBlock, 1);
+            irmessage.irmessage_irdata      = this.extractUInt32(this.dataBlock, 1);    // javascript int 범위 제한(2017.08.23)
 
             console.log("handlerForDevice - IR Message: " + irmessage.irmessage_direction + ", " + irmessage.irmessage_irdata);
         }

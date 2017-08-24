@@ -287,6 +287,16 @@ var DataType =
     LIGHT_COLOR_G:              'light_color_g',
     LIGHT_COLOR_B:              'light_color_b',
 
+    // OLED - 화면 전체 지우기
+    DISPLAY_CLEARALL_PIXEL:     'display_clearall_pixel',
+
+    // OLED - 선택 영역 지우기
+    DISPLAY_CLEAR_X:            'display_clear_x',
+    DISPLAY_CLEAR_Y:            'display_clear_y',
+    DISPLAY_CLEAR_WIDTH:        'display_clear_width',
+    DISPLAY_CLEAR_HEIGHT:       'display_clear_height',
+    DISPLAY_CLEAR_PIXEL:        'display_clear_pixel',
+
     // Buzzer
     BUZZER_MODE:                'buzzer_mode',
     BUZZER_VALUE:               'buzzer_value',
@@ -319,7 +329,7 @@ var DataType =
 
     // IrMessage
     IRMESSAGE_DIRECTION:        'irmessage_direction',      // 수신 받은 방향 (추가)
-    IRMESSAGE_DATA:             'irmessage_data'
+    IRMESSAGE_IRDATA:           'irmessage_irdata',
 }
 
 /***************************************************************************************
@@ -501,6 +511,76 @@ Module.prototype.handlerForEntry = function(handler)
         dataArray.push(lightColor_r);
         dataArray.push(lightColor_g);
         dataArray.push(lightColor_b);
+
+        // CRC16
+        this.addCRC16(dataArray, indexStart, dataLength);
+
+        this.bufferTransfer.push(dataArray);
+    }
+
+    // OLED - 화면 전체 지우기
+    if( handler.e(DataType.DISPLAY_CLEARALL_PIXEL) == true )
+    {
+        var dataArray = [];
+
+        // Start Code
+        this.addStartCode(dataArray);
+        
+        let target                  = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                     : 0xFF;
+        let display_clearall_pixel  = handler.e(DataType.DISPLAY_CLEARALL_PIXEL)    ? handler.read(DataType.DISPLAY_CLEARALL_PIXEL)     : 0;
+
+        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
+        let dataLength = 1;                     // 데이터의 길이  (조건문으로 분기하는법 생각해볼것)
+
+        // Header
+        dataArray.push(0xB0);                   // Data Type
+        dataArray.push(dataLength);             // Data Length
+        dataArray.push(0x38);                   // From (네이버 엔트리)
+        dataArray.push(target);                 // To
+
+        // Data
+        dataArray.push(display_clearall_pixel);
+
+        // CRC16
+        this.addCRC16(dataArray, indexStart, dataLength);
+
+        this.bufferTransfer.push(dataArray);
+    }
+
+    // OLED - 선택 영역 지우기
+    if( (handler.e(DataType.DISPLAY_CLEAR_X) == true) || (handler.e(DataType.DISPLAY_CLEAR_Y) == true) || (handler.e(DataType.DISPLAY_CLEAR_WIDTH) == true) || (handler.e(DataType.DISPLAY_CLEAR_HEIGHT) == true) || (handler.e(DataType.DISPLAY_CLEAR_PIXEL) == true) )
+    {
+        var dataArray = [];
+
+        // Start Code
+        this.addStartCode(dataArray);
+        
+        let target                  = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                     : 0xFF;
+        let display_clear_x         = handler.e(DataType.DISPLAY_CLEAR_X)           ? handler.read(DataType.DISPLAY_CLEAR_X)            : 0;
+        let display_clear_y         = handler.e(DataType.DISPLAY_CLEAR_Y)           ? handler.read(DataType.DISPLAY_CLEAR_Y)            : 0;
+        let display_clear_width     = handler.e(DataType.DISPLAY_CLEAR_WIDTH)       ? handler.read(DataType.DISPLAY_CLEAR_WIDTH)        : 0;
+        let display_clear_height    = handler.e(DataType.DISPLAY_CLEAR_HEIGHT)      ? handler.read(DataType.DISPLAY_CLEAR_HEIGHT)       : 0;
+        let display_clear_pixel     = handler.e(DataType.DISPLAY_CLEAR_PIXEL)       ? handler.read(DataType.DISPLAY_CLEAR_PIXEL)        : 0;
+
+        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
+        let dataLength = 9;                     // 데이터의 길이  (조건문으로 분기하는법 생각해볼것)
+
+        // Header
+        dataArray.push(0xB0);                   // Data Type
+        dataArray.push(dataLength);             // Data Length
+        dataArray.push(0x38);                   // From (네이버 엔트리)
+        dataArray.push(target);                 // To
+
+        // Data
+        dataArray.push(this.getByte0(display_clear_x));
+        dataArray.push(this.getByte1(display_clear_x));
+        dataArray.push(this.getByte0(display_clear_y));
+        dataArray.push(this.getByte1(display_clear_y));
+        dataArray.push(this.getByte0(display_clear_width));
+        dataArray.push(this.getByte1(display_clear_width));
+        dataArray.push(this.getByte0(display_clear_height));
+        dataArray.push(this.getByte1(display_clear_height));
+        dataArray.push(display_clear_pixel);
 
         // CRC16
         this.addCRC16(dataArray, indexStart, dataLength);
@@ -746,7 +826,7 @@ Module.prototype.handlerForEntry = function(handler)
 
 
     // IrMessage
-    if( handler.e(DataType.IRMESSAGE_DATA) == true )
+    if( handler.e(DataType.IRMESSAGE_IRDATA) == true )
     {
         var dataArray = [];
 
@@ -755,7 +835,7 @@ Module.prototype.handlerForEntry = function(handler)
         
         let target                  = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                     : 0x30;
         let irmessage_direction     = handler.e(DataType.IRMESSAGE_DIRECTION )      ? handler.read(DataType.IRMESSAGE_DIRECTION)        : 0;
-        let irmessage_data          = handler.e(DataType.IRMESSAGE_DATA)            ? handler.read(DataType.IRMESSAGE_DATA)             : 0;
+        let irmessage_irdata        = handler.e(DataType.IRMESSAGE_IRDATA)          ? handler.read(DataType.IRMESSAGE_IRDATA)           : 0;
 
         let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
         let dataLength = 5;                     // 데이터의 길이
@@ -768,10 +848,10 @@ Module.prototype.handlerForEntry = function(handler)
 
         // Data
         dataArray.push(irmessage_direction);
-        dataArray.push(this.getByte0(irmessage_data));
-        dataArray.push(this.getByte1(irmessage_data));
-        dataArray.push(this.getByte2(irmessage_data));
-        dataArray.push(this.getByte3(irmessage_data));
+        dataArray.push(this.getByte0(irmessage_irdata));
+        dataArray.push(this.getByte1(irmessage_irdata));
+        dataArray.push(this.getByte2(irmessage_irdata));
+        dataArray.push(this.getByte3(irmessage_irdata));
 
         // CRC16
         this.addCRC16(dataArray, indexStart, dataLength);
@@ -1180,7 +1260,7 @@ Module.prototype.handlerForDevice = function()
             let irmessage                   = this.irmessage;
             irmessage._updated              = true;
             irmessage.irmessage_direction   = this.extractUInt8(this.dataBlock, 0);
-            irmessage.irmessage_irdata      = this.extractUInt32(this.dataBlock, 1);
+            irmessage.irmessage_irdata      = this.extractUInt32(this.dataBlock, 1);    // javascript int 범위 제한(2017.08.23)
 
             console.log("handlerForDevice - IR Message: " + irmessage.irmessage_direction + ", " + irmessage.irmessage_irdata);
         }
