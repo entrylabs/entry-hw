@@ -1,6 +1,6 @@
 {
   "name": "Entry_HW",
-  "version": "1.6.12",
+  "version": "1.6.13",
   "scripts": {
     "clean": "rimraf dist",
     "pack": "build",
@@ -48,7 +48,7 @@
     "iconUrl": "https://raw.githubusercontent.com/entrylabs/entry-hw/feature/electron/build/icon.ico"
   },
   "devDependencies": {
-    "electron": "1.4.15",
+    "electron": "1.6.11",
     "electron-builder": "10.5.0",
     "electron-packager": "^8.1.0",
     "rimraf": "^2.5.4"
