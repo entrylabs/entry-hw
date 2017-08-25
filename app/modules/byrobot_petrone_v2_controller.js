@@ -315,6 +315,14 @@ var DataType =
     DISPLAY_DRAW_LINE_Y2:       'display_draw_line_y2',
     DISPLAY_DRAW_LINE_PIXEL:    'display_draw_line_pixel',
 
+    // OLED - 화면에 사각형 그리기
+    DISPLAY_DRAW_RECT_X:        'display_draw_rect_x',
+    DISPLAY_DRAW_RECT_Y:        'display_draw_rect_y',
+    DISPLAY_DRAW_RECT_WIDTH:    'display_draw_rect_width',
+    DISPLAY_DRAW_RECT_HEIGHT:   'display_draw_rect_height',
+    DISPLAY_DRAW_RECT_PIXEL:    'display_draw_rect_pixel',
+    DISPLAY_DRAW_RECT_FLAGFILL: 'display_draw_rect_flagfill',
+
     // Buzzer
     BUZZER_MODE:                'buzzer_mode',
     BUZZER_VALUE:               'buzzer_value',
@@ -714,6 +722,49 @@ Module.prototype.handlerForEntry = function(handler)
         dataArray.push(this.getByte0(display_draw_line_y2));
         dataArray.push(this.getByte1(display_draw_line_y2));
         dataArray.push(display_draw_line_pixel);
+
+        // CRC16
+        this.addCRC16(dataArray, indexStart, dataLength);
+
+        this.bufferTransfer.push(dataArray);
+    }
+
+     // OLED - 화면에 사각형 그리기
+    if( (handler.e(DataType.DISPLAY_DRAW_RECT_X) == true) || (handler.e(DataType.DISPLAY_DRAW_RECT_Y) == true) || (handler.e(DataType.DISPLAY_DRAW_RECT_WIDTH) == true) || (handler.e(DataType.DISPLAY_DRAW_RECT_HEIGHT) == true) || (handler.e(DataType.DISPLAY_DRAW_RECT_PIXEL) == true) || (handler.e(DataType.DISPLAY_DRAW_RECT_FLAGFILL) == true) )
+    {
+        var dataArray = [];
+
+        // Start Code
+        this.addStartCode(dataArray);
+        
+        let target                      = handler.e(DataType.TARGET)                        ? handler.read(DataType.TARGET)                         : 0xFF;
+        let display_draw_rect_x         = handler.e(DataType.DISPLAY_DRAW_RECT_X)           ? handler.read(DataType.DISPLAY_DRAW_RECT_X)            : 0;
+        let display_draw_rect_y         = handler.e(DataType.DISPLAY_DRAW_RECT_Y)           ? handler.read(DataType.DISPLAY_DRAW_RECT_Y)            : 0;
+        let display_draw_rect_width     = handler.e(DataType.DISPLAY_DRAW_RECT_WIDTH)       ? handler.read(DataType.DISPLAY_DRAW_RECT_WIDTH)        : 0;
+        let display_draw_rect_height    = handler.e(DataType.DISPLAY_DRAW_RECT_HEIGHT)      ? handler.read(DataType.DISPLAY_DRAW_RECT_HEIGHT)       : 0;
+        let display_draw_rect_pixel     = handler.e(DataType.DISPLAY_DRAW_RECT_PIXEL)       ? handler.read(DataType.DISPLAY_DRAW_RECT_PIXEL)        : 0;
+        let display_draw_rect_flagfill  = handler.e(DataType.DISPLAY_DRAW_RECT_FLAGFILL)    ? handler.read(DataType.DISPLAY_DRAW_RECT_FLAGFILL)     : 0;
+
+        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
+        let dataLength = 10;                     // 데이터의 길이  (조건문으로 분기하는법 생각해볼것)
+
+        // Header
+        dataArray.push(0xB4);                   // Data Type
+        dataArray.push(dataLength);             // Data Length
+        dataArray.push(0x38);                   // From (네이버 엔트리)
+        dataArray.push(target);                 // To
+
+        // Data
+        dataArray.push(this.getByte0(display_draw_rect_x));
+        dataArray.push(this.getByte1(display_draw_rect_x));
+        dataArray.push(this.getByte0(display_draw_rect_y));
+        dataArray.push(this.getByte1(display_draw_rect_y));
+        dataArray.push(this.getByte0(display_draw_rect_width));
+        dataArray.push(this.getByte1(display_draw_rect_width));
+        dataArray.push(this.getByte0(display_draw_rect_height));
+        dataArray.push(this.getByte1(display_draw_rect_height));
+        dataArray.push(display_draw_rect_pixel);
+        dataArray.push(display_draw_rect_flagfill);
 
         // CRC16
         this.addCRC16(dataArray, indexStart, dataLength);
