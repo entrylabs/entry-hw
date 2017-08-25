@@ -323,6 +323,13 @@ var DataType =
     DISPLAY_DRAW_RECT_PIXEL:    'display_draw_rect_pixel',
     DISPLAY_DRAW_RECT_FLAGFILL: 'display_draw_rect_flagfill',
 
+    // OLED - 화면에 원 그리기
+    DISPLAY_DRAW_CIRCLE_X:        'display_draw_circle_x',
+    DISPLAY_DRAW_CIRCLE_Y:        'display_draw_circle_y',
+    DISPLAY_DRAW_CIRCLE_RADIUS:   'display_draw_circle_radius',
+    DISPLAY_DRAW_CIRCLE_PIXEL:    'display_draw_circle_pixel',
+    DISPLAY_DRAW_CIRCLE_FLAGFILL: 'display_draw_circle_flagfill',
+
     // Buzzer
     BUZZER_MODE:                'buzzer_mode',
     BUZZER_VALUE:               'buzzer_value',
@@ -765,6 +772,46 @@ Module.prototype.handlerForEntry = function(handler)
         dataArray.push(this.getByte1(display_draw_rect_height));
         dataArray.push(display_draw_rect_pixel);
         dataArray.push(display_draw_rect_flagfill);
+
+        // CRC16
+        this.addCRC16(dataArray, indexStart, dataLength);
+
+        this.bufferTransfer.push(dataArray);
+    }
+
+    // OLED - 화면에 원 그리기
+    if( (handler.e(DataType.DISPLAY_DRAW_CIRCLE_X) == true) || (handler.e(DataType.DISPLAY_DRAW_CIRCLE_Y) == true) || (handler.e(DataType.DISPLAY_DRAW_CIRCLE_RADIUS) == true) || (handler.e(DataType.DISPLAY_DRAW_CIRCLE_PIXEL) == true) || (handler.e(DataType.DISPLAY_DRAW_CIRCLE_FLAGFILL) == true) )
+    {
+        var dataArray = [];
+
+        // Start Code
+        this.addStartCode(dataArray);
+        
+        let target                       = handler.e(DataType.TARGET)                         ? handler.read(DataType.TARGET)                           : 0xFF;
+        let display_draw_circle_x        = handler.e(DataType.DISPLAY_DRAW_CIRCLE_X)          ? handler.read(DataType.DISPLAY_DRAW_CIRCLE_X)            : 0;
+        let display_draw_circle_y        = handler.e(DataType.DISPLAY_DRAW_CIRCLE_Y)          ? handler.read(DataType.DISPLAY_DRAW_CIRCLE_Y)            : 0;
+        let display_draw_circle_radius   = handler.e(DataType.DISPLAY_DRAW_CIRCLE_RADIUS)     ? handler.read(DataType.DISPLAY_DRAW_CIRCLE_RADIUS)       : 0;
+        let display_draw_circle_pixel    = handler.e(DataType.DISPLAY_DRAW_CIRCLE_PIXEL)      ? handler.read(DataType.DISPLAY_DRAW_CIRCLE_PIXEL)        : 0;
+        let display_draw_circle_flagfill = handler.e(DataType.DISPLAY_DRAW_CIRCLE_FLAGFILL)   ? handler.read(DataType.DISPLAY_DRAW_CIRCLE_FLAGFILL)     : 0;
+
+        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
+        let dataLength = 8;                     // 데이터의 길이  (조건문으로 분기하는법 생각해볼것)
+
+        // Header
+        dataArray.push(0xB5);                   // Data Type
+        dataArray.push(dataLength);             // Data Length
+        dataArray.push(0x38);                   // From (네이버 엔트리)
+        dataArray.push(target);                 // To
+
+        // Data
+        dataArray.push(this.getByte0(display_draw_circle_x));
+        dataArray.push(this.getByte1(display_draw_circle_x));
+        dataArray.push(this.getByte0(display_draw_circle_y));
+        dataArray.push(this.getByte1(display_draw_circle_y));
+        dataArray.push(this.getByte0(display_draw_circle_radius));
+        dataArray.push(this.getByte1(display_draw_circle_radius));
+        dataArray.push(display_draw_circle_pixel);
+        dataArray.push(display_draw_circle_flagfill);
 
         // CRC16
         this.addCRC16(dataArray, indexStart, dataLength);
