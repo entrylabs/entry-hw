@@ -303,6 +303,12 @@ var DataType =
     DISPLAY_INVERT_WIDTH:       'display_invert_width',
     DISPLAY_INVERT_HEIGHT:      'display_invert_height',
 
+    // OLED - 화면에 점 찍기
+    DISPLAY_DRAW_POINT_X:       'display_draw_point_x',
+    DISPLAY_DRAW_POINT_Y:       'display_draw_point_y',
+    DISPLAY_DRAW_POINT_PIXEL:   'display_draw_point_pixel',
+
+
     // Buzzer
     BUZZER_MODE:                'buzzer_mode',
     BUZZER_VALUE:               'buzzer_value',
@@ -633,6 +639,42 @@ Module.prototype.handlerForEntry = function(handler)
         this.bufferTransfer.push(dataArray);
     }
 
+    // OLED - 화면에 점 찍기
+    if( (handler.e(DataType.DISPLAY_DRAW_POINT_X) == true) || (handler.e(DataType.DISPLAY_DRAW_POINT_Y) == true) || (handler.e(DataType.DISPLAY_DRAW_POINT_PIXEL) == true) )
+    {
+        var dataArray = [];
+
+        // Start Code
+        this.addStartCode(dataArray);
+        
+        let target                      = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                     : 0xFF;
+        let display_draw_point_x        = handler.e(DataType.DISPLAY_DRAW_POINT_X)      ? handler.read(DataType.DISPLAY_DRAW_POINT_X)       : 0;
+        let display_draw_point_y        = handler.e(DataType.DISPLAY_DRAW_POINT_Y)      ? handler.read(DataType.DISPLAY_DRAW_POINT_Y)       : 0;
+        let display_draw_point_pixel    = handler.e(DataType.DISPLAY_DRAW_POINT_PIXEL)  ? handler.read(DataType.DISPLAY_DRAW_POINT_PIXEL)   : 0;
+        
+        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
+        let dataLength = 5;                     // 데이터의 길이  (조건문으로 분기하는법 생각해볼것)
+
+        // Header
+        dataArray.push(0xB2);                   // Data Type
+        dataArray.push(dataLength);             // Data Length
+        dataArray.push(0x38);                   // From (네이버 엔트리)
+        dataArray.push(target);                 // To
+
+        // Data
+        dataArray.push(this.getByte0(display_draw_point_x));
+        dataArray.push(this.getByte1(display_draw_point_x));
+        dataArray.push(this.getByte0(display_draw_point_y));
+        dataArray.push(this.getByte1(display_draw_point_y));
+        dataArray.push(display_draw_point_pixel);
+
+        // CRC16
+        this.addCRC16(dataArray, indexStart, dataLength);
+
+        this.bufferTransfer.push(dataArray);
+    }
+
+    // 작업중..
 
     // Command
     if( handler.e(DataType.COMMAND_COMMAND) == true )
