@@ -308,6 +308,12 @@ var DataType =
     DISPLAY_DRAW_POINT_Y:       'display_draw_point_y',
     DISPLAY_DRAW_POINT_PIXEL:   'display_draw_point_pixel',
 
+    // OLED - 화면에 선 그리기
+    DISPLAY_DRAW_LINE_X1:       'display_draw_line_x1',
+    DISPLAY_DRAW_LINE_Y1:       'display_draw_line_y1',
+    DISPLAY_DRAW_LINE_X2:       'display_draw_line_x2',
+    DISPLAY_DRAW_LINE_Y2:       'display_draw_line_y2',
+    DISPLAY_DRAW_LINE_PIXEL:    'display_draw_line_pixel',
 
     // Buzzer
     BUZZER_MODE:                'buzzer_mode',
@@ -667,6 +673,47 @@ Module.prototype.handlerForEntry = function(handler)
         dataArray.push(this.getByte0(display_draw_point_y));
         dataArray.push(this.getByte1(display_draw_point_y));
         dataArray.push(display_draw_point_pixel);
+
+        // CRC16
+        this.addCRC16(dataArray, indexStart, dataLength);
+
+        this.bufferTransfer.push(dataArray);
+    }
+
+    // OLED - 화면에 선 그리기
+    if( (handler.e(DataType.DISPLAY_DRAW_LINE_X1) == true) || (handler.e(DataType.DISPLAY_DRAW_LINE_Y1) == true) || (handler.e(DataType.DISPLAY_DRAW_LINE_X2) == true) || (handler.e(DataType.DISPLAY_DRAW_LINE_Y2) == true) || (handler.e(DataType.DISPLAY_DRAW_LINE_PIXEL) == true) )
+    {
+        var dataArray = [];
+
+        // Start Code
+        this.addStartCode(dataArray);
+        
+        let target                      = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                     : 0xFF;
+        let display_draw_line_x1        = handler.e(DataType.DISPLAY_DRAW_LINE_X1)      ? handler.read(DataType.DISPLAY_DRAW_LINE_X1)       : 0;
+        let display_draw_line_y1        = handler.e(DataType.DISPLAY_DRAW_LINE_Y1)      ? handler.read(DataType.DISPLAY_DRAW_LINE_Y1)       : 0;
+        let display_draw_line_x2        = handler.e(DataType.DISPLAY_DRAW_LINE_X2)      ? handler.read(DataType.DISPLAY_DRAW_LINE_X2)       : 0;
+        let display_draw_line_y2        = handler.e(DataType.DISPLAY_DRAW_LINE_Y2)      ? handler.read(DataType.DISPLAY_DRAW_LINE_Y2)       : 0;
+        let display_draw_line_pixel     = handler.e(DataType.DISPLAY_DRAW_LINE_PIXEL)   ? handler.read(DataType.DISPLAY_DRAW_LINE_PIXEL)    : 0;
+        
+        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
+        let dataLength = 9;                     // 데이터의 길이  (조건문으로 분기하는법 생각해볼것)
+
+        // Header
+        dataArray.push(0xB3);                   // Data Type
+        dataArray.push(dataLength);             // Data Length
+        dataArray.push(0x38);                   // From (네이버 엔트리)
+        dataArray.push(target);                 // To
+
+        // Data
+        dataArray.push(this.getByte0(display_draw_line_x1));
+        dataArray.push(this.getByte1(display_draw_line_x1));
+        dataArray.push(this.getByte0(display_draw_line_y1));
+        dataArray.push(this.getByte1(display_draw_line_y1));
+        dataArray.push(this.getByte0(display_draw_line_x2));
+        dataArray.push(this.getByte1(display_draw_line_x2));
+        dataArray.push(this.getByte0(display_draw_line_y2));
+        dataArray.push(this.getByte1(display_draw_line_y2));
+        dataArray.push(display_draw_line_pixel);
 
         // CRC16
         this.addCRC16(dataArray, indexStart, dataLength);
