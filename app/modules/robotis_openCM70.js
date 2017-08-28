@@ -1,6 +1,7 @@
 function Module() {
     isReadDataArrived = true;
     isConnected = true;
+    isTemp = true; // add by kjs 20170824
     this.addressToRead = [];
     this.varTimeout = null;
 
@@ -49,7 +50,7 @@ function Module() {
 }
 
 Module.prototype.init = function (handler, config) {
-    //console.log("######### init");
+    console.log("######### init");
 };
 
 Module.prototype.lostController = function (self, callback) {
@@ -70,9 +71,10 @@ Module.prototype.lostController = function (self, callback) {
 };
 
 Module.prototype.requestInitialData = function () {
-    //console.log("######### requestInitialData");
+    console.log("######### requestInitialData");
     isReadDataArrived = true;
     isConnected = true;
+    isTemp = true; // add by kjs 20170824
     this.addressToRead = [];
     this.varTimeout = null;
 
@@ -124,12 +126,13 @@ Module.prototype.requestInitialData = function () {
     // return this.readPacket(200, 26, 1);
 
     // ping : 0xFF, 0xFF, 0xFD, 0x00, 0xC8, 0x03, 0x00, 0x01, 0x3B, 0xFA
-    this.robotisBuffer.push([INST_READ, 87, 1, 0], [INST_READ, 87, 1, 0], [INST_READ, 87, 1, 0], [INST_WRITE, 21, 1, 8]);
+    //this.robotisBuffer.push([INST_READ, 87, 1, 0], [INST_READ, 87, 1, 0], [INST_READ, 87, 1, 0], [INST_WRITE, 21, 1, 8]);
+    this.robotisBuffer.push([INST_READ, 87, 1, 0], [INST_READ, 87, 1, 0], [INST_READ, 21, 1, 0]);
     return this.readPacket(200, 87, 1);
 };
 
 Module.prototype.checkInitialData = function (data, config) {
-    console.log("######### checkInitialData");
+    console.log("######### checkInitialData : ");
     return true;
 };
 
@@ -145,7 +148,8 @@ Module.prototype.requestRemoteData = function (handler) {
         }
     }
     //실과형
-    for (var i = 0; i < 4; i++) {
+    //console.log("###### value : " + this.touchSensor[1]);
+    for (var i = 0; i < 4; i++) {        
         handler.write('TOUCH' + i, this.touchSensor[i]); // 접촉 센서
         handler.write('IR' + i, this.irSensor[i]); // 적외선 센서
         handler.write('LIGHT' + i, this.lightSensor[i]); // 조도 센서
@@ -155,7 +159,6 @@ Module.prototype.requestRemoteData = function (handler) {
     }
     handler.write('DETECTEDSOUNDE', this.detectedSound); // 최종 소리 감지 횟수
     handler.write('DETECTINGSOUNDE1', this.detectringSound); // 실시간 소리 감지 횟수
-
 };
 
 Module.prototype.handleRemoteData = function (handler) {
@@ -177,14 +180,16 @@ Module.prototype.handleRemoteData = function (handler) {
         this.servoPrevAddres4 = []; // add by kjs 20170627 
         this.servoPrevLength4 = []; // add by kjs 20170627 
         this.servoPrevValue4 = [];  // add by kjs 20170627 
+
     }
+    console.log("### 1");
     for (var index = 0; index < data.length; index++) {
         var instruction = data[index][0];
         var address = data[index][1];
         var length = data[index][2];
         var value = data[index][3];
         var doSend = false;
-
+        console.log("###2 : " + address + " and : " + value);
         if (instruction == INST_NONE) {
             doSend = false;
         } else if (instruction == INST_READ) {
@@ -211,8 +216,9 @@ Module.prototype.handleRemoteData = function (handler) {
                 }
             }
         }
-        console.log("####### dosend : " + doSend + " and  : " + this.prevValue + " and : " + this.servoPrevValue2);
-        this.prevValue = 123;
+        //console.log("############ address : " + address + " value : " + value + " length : " + length);
+        //console.log("####### dosend : " + doSend + " and  : " + this.prevValue + " and : " + this.servoPrevValue2);
+        //this.prevValue = 123;
         if (doSend) {
             for (var indexA = 0; indexA < this.robotisBuffer.length; indexA++) {
                 if (data[index][0] == this.robotisBuffer[indexA][0] &&
@@ -277,57 +283,27 @@ Module.prototype.requestLocalData = function () {
     var dataLength = 0;
 
     if (isReadDataArrived == false) {
-        console.log("######## 1");
+        //console.log("######## 1");
         return sendBuffer;
     }
+
+    
 
     /////////////////
     if (!isConnected) {
-        this.receiveAddress = -1;
+        this.receiveAddress = -1;        
         return this.readPacket(200, 87, 1);
     }
 
-    var data = this.robotisBuffer.shift();
-    if (data == null) {
-        return sendBuffer;
-    }
-    var instruction = data[0];
-    var address = data[1];
-    var length = data[2];
-    var value = data[3];
-    //console.log('send address : ' + address + ', ' + value + ", " + length); // add by kjs 170426
-    if (instruction == INST_WRITE) {
-        if (length == 1) {
-            sendBuffer = this.writeBytePacket(200, address, value);
-        } else if (length == 2) {
-            sendBuffer = this.writeWordPacket(200, address, value);
-        } else if (length == 4 && address == 136) {
-            var value2;
-            if (value < 1024)
-                value2 = value + 1024;
-            else
-                value2 = value - 1024;
-            sendBuffer = this.writeDWordPacket2(200, address, value, value2);
-        } else {
-            sendBuffer = this.writeDWordPacket(200, address, value);
-        }
-
-    } else if (instruction == INST_READ) {
-        this.addressToRead[address] = 0;
-        sendBuffer = this.readPacket(200, address, length);
-    }
-
-    if (sendBuffer[0] == 0xFF &&
-		sendBuffer[1] == 0xFF &&
-		sendBuffer[2] == 0xFD &&
-		sendBuffer[3] == 0x00 &&
-		sendBuffer[4] == 0xC8) {
+    if (!isTemp) { // add by kjs 20170824
+        console.log("####### temp");
+        sendBuffer = this.writeBytePacket(200, 21, 8);
         dataLength = this.makeWord(sendBuffer[5], sendBuffer[6]);
 
         if (sendBuffer[7] == 0x02) {
-            this.receiveAddress = address;
-            this.receiveLength = length;
-            this.defaultLength = data[4];
+            this.receiveAddress = 21;
+            this.receiveLength = 1;
+            this.defaultLength = 1;
             isReadDataArrived = false;
 
             if (this.varTimeout != null) {
@@ -338,18 +314,129 @@ Module.prototype.requestLocalData = function () {
                 isReadDataArrived = true;
             }, 100);
         }
+        isTemp = true;
+    } else {
+
+        var data = this.robotisBuffer.shift();
+        if (data == null) {
+            return sendBuffer;
+        }
+        var instruction = data[0];
+        var address = data[1];
+        var length = data[2];
+        var value = data[3];
+        //console.log('send address : ' + address + ', ' + value + ", " + length); // add by kjs 170426
+        if (instruction == INST_WRITE) {
+            if (length == 1) {
+                sendBuffer = this.writeBytePacket(200, address, value);
+            } else if (length == 2) {
+                sendBuffer = this.writeWordPacket(200, address, value);
+            } else if (length == 4 && address == 136) {
+                var value2;
+                if (value < 1024)
+                    value2 = value + 1024;
+                else
+                    value2 = value - 1024;
+                sendBuffer = this.writeDWordPacket2(200, address, value, value2);
+            } else {
+                sendBuffer = this.writeDWordPacket(200, address, value);
+            }
+
+        } else if (instruction == INST_READ) {
+            this.addressToRead[address] = 0;
+            sendBuffer = this.readPacket(200, address, length);
+        }
+
+        if (sendBuffer[0] == 0xFF &&
+            sendBuffer[1] == 0xFF &&
+            sendBuffer[2] == 0xFD &&
+            sendBuffer[3] == 0x00 &&
+            sendBuffer[4] == 0xC8) {
+            dataLength = this.makeWord(sendBuffer[5], sendBuffer[6]);
+
+            if (sendBuffer[7] == 0x02) {
+                this.receiveAddress = address;
+                this.receiveLength = length;
+                this.defaultLength = data[4];
+                isReadDataArrived = false;
+
+                if (this.varTimeout != null) {
+                    clearTimeout(this.varTimeout);
+                }
+
+                this.varTimeout = setTimeout(function () {
+                    isReadDataArrived = true;
+                }, 100);
+            }
+        }
+
+        console.log("send buffer : " + sendBuffer);
     }
+    /* // original 170824
+     var data = this.robotisBuffer.shift();
+        if (data == null) {
+            return sendBuffer;
+        }
+        var instruction = data[0];
+        var address = data[1];
+        var length = data[2];
+        var value = data[3];
+        //console.log('send address : ' + address + ', ' + value + ", " + length); // add by kjs 170426
+        if (instruction == INST_WRITE) {
+            if (length == 1) {
+                sendBuffer = this.writeBytePacket(200, address, value);
+            } else if (length == 2) {
+                sendBuffer = this.writeWordPacket(200, address, value);
+            } else if (length == 4 && address == 136) {
+                var value2;
+                if (value < 1024)
+                    value2 = value + 1024;
+                else
+                    value2 = value - 1024;
+                sendBuffer = this.writeDWordPacket2(200, address, value, value2);
+            } else {
+                sendBuffer = this.writeDWordPacket(200, address, value);
+            }
 
-    //console.log("send buffer : " + sendBuffer);
+        } else if (instruction == INST_READ) {
+            this.addressToRead[address] = 0;
+            sendBuffer = this.readPacket(200, address, length);
+        }
 
+        if (sendBuffer[0] == 0xFF &&
+            sendBuffer[1] == 0xFF &&
+            sendBuffer[2] == 0xFD &&
+            sendBuffer[3] == 0x00 &&
+            sendBuffer[4] == 0xC8) {
+            dataLength = this.makeWord(sendBuffer[5], sendBuffer[6]);
+
+            if (sendBuffer[7] == 0x02) {
+                this.receiveAddress = address;
+                this.receiveLength = length;
+                this.defaultLength = data[4];
+                isReadDataArrived = false;
+
+                if (this.varTimeout != null) {
+                    clearTimeout(this.varTimeout);
+                }
+
+                this.varTimeout = setTimeout(function () {
+                    isReadDataArrived = true;
+                }, 100);
+            }
+        }
+
+        console.log("send buffer : " + sendBuffer);
+    */
     return sendBuffer;
 };
 
 Module.prototype.handleLocalData = function (data) { // data: Native Buffer
     for (var i = 0; i < data.length; i++) {
-        this.receiveBuffer.push(data[i]);
+        this.receiveBuffer.push(data[i]);        
     }
-
+    //console.log("receiveBuffer : " + this.receiveBuffer);
+    //console.log("length : " + this.receiveBuffer.length);
     /*if (this.receiveBuffer.length < 80) {
         return;
     }*/
@@ -362,6 +449,8 @@ Module.prototype.handleLocalData = function (data) { // data: Native Buffer
         console.log(this.receiveBuffer.length);
     }*/
     //console.log('<< 2 : ' + this.receiveBuffer);
+    //console.log(this.receiveBuffer.length);
+    //console.log("######## buffer : " + this.receiveBuffer);
     if (this.receiveBuffer.length >= 11 + this.receiveLength) {
         isConnected = true;
 
@@ -422,14 +511,15 @@ Module.prototype.handleLocalData = function (data) { // data: Native Buffer
                                 }
 
                                 var packetLength = this.makeWord(this.receiveBuffer.shift(), this.receiveBuffer.shift());
+
                                 if (this.receiveLength == (packetLength - 4)) {
                                     this.receiveBuffer.shift(); // take 0x55 - status check byte
                                     this.receiveBuffer.shift(); // take 0x00 - error check byte
 
                                     var valueLength = packetLength - 4;
                                     var returnValue = [];
-
                                     for (var index = 0; index < valueLength / this.defaultLength; index++) {
+                                        
                                         if (this.defaultLength == 1) {
                                             returnValue.push(this.receiveBuffer.shift());
                                         } else if (this.defaultLength == 2) {
@@ -452,14 +542,15 @@ Module.prototype.handleLocalData = function (data) { // data: Native Buffer
                                     } else {
                                     }
 
-                                    this.receiveBuffer.shift(); // take crc check byte
+                                    if (this.receiveBuffer.shift() != 2) // add by kjs 20170824
+                                        isTemp = false;
                                     this.receiveBuffer.shift(); // take crc check byte
 
                                     // break because this packet has no error.
                                     break;
                                 } else {
                                     for (var i = 0; i < packetLength; i++) {
-                                        this.receiveBuffer.shift(); // take bytes of write status
+                                        //console.log("### 5 : " + this.receiveBuffer.shift()); // take bytes of write status
                                     }
                                 }
                             }
@@ -472,7 +563,7 @@ Module.prototype.handleLocalData = function (data) { // data: Native Buffer
 };
 
 Module.prototype.reset = function () {
-    debug.console("########## reset!!");
+    console.log("########## reset!!");
     this.addressToRead = [];
     this.varTimeout = null;
 
