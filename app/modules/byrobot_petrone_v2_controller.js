@@ -330,6 +330,13 @@ var DataType =
     DISPLAY_DRAW_CIRCLE_PIXEL:    'display_draw_circle_pixel',
     DISPLAY_DRAW_CIRCLE_FLAGFILL: 'display_draw_circle_flagfill',
 
+    // OLED - 화면에 문자열 쓰기
+    DISPLAY_DRAW_STRING_X:      'display_draw_string_x',
+    DISPLAY_DRAW_STRING_Y:      'display_draw_string_y',
+    DISPLAY_DRAW_STRING_FONT:   'display_draw_string_font',
+    DISPLAY_DRAW_STRING_PIXEL:  'display_draw_string_pixel',
+    DISPLAY_DRAW_STRING_STRING: 'display_draw_string_string',
+
     // Buzzer
     BUZZER_MODE:                'buzzer_mode',
     BUZZER_VALUE:               'buzzer_value',
@@ -563,7 +570,7 @@ Module.prototype.handlerForEntry = function(handler)
         let display_clearall_pixel  = handler.e(DataType.DISPLAY_CLEARALL_PIXEL)    ? handler.read(DataType.DISPLAY_CLEARALL_PIXEL)     : 0;
 
         let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-        let dataLength = 1;                     // 데이터의 길이  (조건문으로 분기하는법 생각해볼것)
+        let dataLength = 1;                     // 데이터의 길이
 
         // Header
         dataArray.push(0xB0);                   // Data Type
@@ -596,7 +603,7 @@ Module.prototype.handlerForEntry = function(handler)
         let display_clear_pixel     = handler.e(DataType.DISPLAY_CLEAR_PIXEL)       ? handler.read(DataType.DISPLAY_CLEAR_PIXEL)        : 0;
 
         let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-        let dataLength = 9;                     // 데이터의 길이  (조건문으로 분기하는법 생각해볼것)
+        let dataLength = 9;                     // 데이터의 길이
 
         // Header
         dataArray.push(0xB0);                   // Data Type
@@ -636,7 +643,7 @@ Module.prototype.handlerForEntry = function(handler)
         let display_invert_height   = handler.e(DataType.DISPLAY_INVERT_HEIGHT)     ? handler.read(DataType.DISPLAY_INVERT_HEIGHT)      : 0;
 
         let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-        let dataLength = 8;                     // 데이터의 길이  (조건문으로 분기하는법 생각해볼것)
+        let dataLength = 8;                     // 데이터의 길이
 
         // Header
         dataArray.push(0xB1);                   // Data Type
@@ -674,7 +681,7 @@ Module.prototype.handlerForEntry = function(handler)
         let display_draw_point_pixel    = handler.e(DataType.DISPLAY_DRAW_POINT_PIXEL)  ? handler.read(DataType.DISPLAY_DRAW_POINT_PIXEL)   : 0;
         
         let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-        let dataLength = 5;                     // 데이터의 길이  (조건문으로 분기하는법 생각해볼것)
+        let dataLength = 5;                     // 데이터의 길이
 
         // Header
         dataArray.push(0xB2);                   // Data Type
@@ -711,7 +718,7 @@ Module.prototype.handlerForEntry = function(handler)
         let display_draw_line_pixel     = handler.e(DataType.DISPLAY_DRAW_LINE_PIXEL)   ? handler.read(DataType.DISPLAY_DRAW_LINE_PIXEL)    : 0;
         
         let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-        let dataLength = 9;                     // 데이터의 길이  (조건문으로 분기하는법 생각해볼것)
+        let dataLength = 9;                     // 데이터의 길이
 
         // Header
         dataArray.push(0xB3);                   // Data Type
@@ -753,7 +760,7 @@ Module.prototype.handlerForEntry = function(handler)
         let display_draw_rect_flagfill  = handler.e(DataType.DISPLAY_DRAW_RECT_FLAGFILL)    ? handler.read(DataType.DISPLAY_DRAW_RECT_FLAGFILL)     : 0;
 
         let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-        let dataLength = 10;                     // 데이터의 길이  (조건문으로 분기하는법 생각해볼것)
+        let dataLength = 10;                     // 데이터의 길이
 
         // Header
         dataArray.push(0xB4);                   // Data Type
@@ -795,7 +802,7 @@ Module.prototype.handlerForEntry = function(handler)
         let display_draw_circle_flagfill = handler.e(DataType.DISPLAY_DRAW_CIRCLE_FLAGFILL)   ? handler.read(DataType.DISPLAY_DRAW_CIRCLE_FLAGFILL)     : 0;
 
         let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-        let dataLength = 8;                     // 데이터의 길이  (조건문으로 분기하는법 생각해볼것)
+        let dataLength = 8;                     // 데이터의 길이
 
         // Header
         dataArray.push(0xB5);                   // Data Type
@@ -812,6 +819,68 @@ Module.prototype.handlerForEntry = function(handler)
         dataArray.push(this.getByte1(display_draw_circle_radius));
         dataArray.push(display_draw_circle_pixel);
         dataArray.push(display_draw_circle_flagfill);
+
+        // CRC16
+        this.addCRC16(dataArray, indexStart, dataLength);
+
+        this.bufferTransfer.push(dataArray);
+    }
+
+    // OLED - 화면에 문자열 쓰기
+    if( (handler.e(DataType.DISPLAY_DRAW_STRING_X) == true) || (handler.e(DataType.DISPLAY_DRAW_STRING_Y) == true) || (handler.e(DataType.DISPLAY_DRAW_STRING_FONT) == true) || (handler.e(DataType.DISPLAY_DRAW_STRING_PIXEL) == true) || (handler.e(DataType.DISPLAY_DRAW_STRING_STRING) == true) )
+    {
+        var dataArray = [];
+        var bytes = [];
+
+        // Start Code
+        this.addStartCode(dataArray);
+        
+        let target                       = handler.e(DataType.TARGET)                       ? handler.read(DataType.TARGET)                         : 0xFF;
+        let display_draw_string_x        = handler.e(DataType.DISPLAY_DRAW_STRING_X)        ? handler.read(DataType.DISPLAY_DRAW_STRING_X)          : 0;
+        let display_draw_string_y        = handler.e(DataType.DISPLAY_DRAW_STRING_Y)        ? handler.read(DataType.DISPLAY_DRAW_STRING_Y)          : 0;
+        let display_draw_string_font     = handler.e(DataType.DISPLAY_DRAW_STRING_FONT)     ? handler.read(DataType.DISPLAY_DRAW_STRING_FONT)       : 0;
+        let display_draw_string_pixel    = handler.e(DataType.DISPLAY_DRAW_STRING_PIXEL)    ? handler.read(DataType.DISPLAY_DRAW_STRING_PIXEL)      : 0;
+        let display_draw_string_string   = handler.e(DataType.DISPLAY_DRAW_STRING_STRING)   ? handler.read(DataType.DISPLAY_DRAW_STRING_STRING)     : 0;
+
+        // 입력받은 문자열 처리
+        // https://stackoverflow.com/questions/6226189/how-to-convert-a-string-to-bytearray
+        function stringToAsciiByteArray(str)
+        {
+            for (var i = 0; i < str.length; ++i)
+            {
+                var charCode = str.charCodeAt(i);
+                if (charCode > 0xFF)  // char > 1 byte since charCodeAt returns the UTF-16 value
+                {
+                    throw new Error('Character ' + String.fromCharCode(charCode) + ' can\'t be represented by a US-ASCII byte.');
+                }
+                bytes.push(charCode);
+            }
+            return bytes;
+        }
+
+        bytes = stringToAsciiByteArray(display_draw_string_string);
+
+        let indexStart = dataArray.length;                          // 배열에서 데이터를 저장하기 시작하는 위치
+        let dataLength = 6 + bytes.length;     // 데이터의 길이
+
+        // Header
+        dataArray.push(0xB6);                   // Data Type
+        dataArray.push(dataLength);             // Data Length
+        dataArray.push(0x38);                   // From (네이버 엔트리)
+        dataArray.push(target);                 // To
+
+        // Data
+        dataArray.push(this.getByte0(display_draw_string_x));
+        dataArray.push(this.getByte1(display_draw_string_x));
+        dataArray.push(this.getByte0(display_draw_string_y));
+        dataArray.push(this.getByte1(display_draw_string_y));
+        dataArray.push(display_draw_string_font);
+        dataArray.push(display_draw_string_pixel);
+
+        for (var i = 0; i < bytes.length; ++i)
+        {
+            dataArray.push(bytes[i]);
+        }
 
         // CRC16
         this.addCRC16(dataArray, indexStart, dataLength);
