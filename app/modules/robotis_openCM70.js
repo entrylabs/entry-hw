@@ -49,13 +49,10 @@ function Module() {
     this.prevState = []; // add by kjs 170623
 }
 
-<<<<<<< HEAD
 Module.prototype.init = function (handler, config) {
     console.log("######### init");
-=======
 Module.prototype.init = function(handler, config) {
     //console.log("######### init");
->>>>>>> origin/master
 };
 
 Module.prototype.lostController = function(self, callback) {
@@ -75,13 +72,10 @@ Module.prototype.lostController = function(self, callback) {
     }, 1000);
 };
 
-<<<<<<< HEAD
 Module.prototype.requestInitialData = function () {
     console.log("######### requestInitialData");
-=======
 Module.prototype.requestInitialData = function() {
     //console.log("######### requestInitialData");
->>>>>>> origin/master
     isReadDataArrived = true;
     isConnected = true;
     isTemp = true; // add by kjs 20170824
@@ -141,13 +135,12 @@ Module.prototype.requestInitialData = function() {
     return this.readPacket(200, 87, 1);
 };
 
-<<<<<<< HEAD
 Module.prototype.checkInitialData = function (data, config) {
     console.log("######### checkInitialData : ");
-=======
+
 Module.prototype.checkInitialData = function(data, config) {
     console.log("######### checkInitialData");
->>>>>>> origin/master
+
     return true;
 };
 
@@ -310,11 +303,11 @@ Module.prototype.requestLocalData = function() {
         return this.readPacket(200, 87, 1);
     }
 
-<<<<<<< HEAD
+
     if (!isTemp) { // add by kjs 20170824
         console.log("####### temp");
         sendBuffer = this.writeBytePacket(200, 21, 8);
-=======
+
     var data = this.robotisBuffer.shift();
     if (data == null) {
         return sendBuffer;
@@ -350,7 +343,7 @@ Module.prototype.requestLocalData = function() {
         sendBuffer[2] == 0xFD &&
         sendBuffer[3] == 0x00 &&
         sendBuffer[4] == 0xC8) {
->>>>>>> origin/master
+
         dataLength = this.makeWord(sendBuffer[5], sendBuffer[6]);
 
         if (sendBuffer[7] == 0x02) {
@@ -614,12 +607,12 @@ Module.prototype.handleLocalData = function(data) { // data: Native Buffer
     }
 };
 
-<<<<<<< HEAD
+
 Module.prototype.reset = function () {
     console.log("########## reset!!");
-=======
+
 Module.prototype.reset = function() {
->>>>>>> origin/master
+
     this.addressToRead = [];
     this.varTimeout = null;
 
