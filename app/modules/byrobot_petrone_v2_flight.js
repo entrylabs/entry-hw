@@ -129,7 +129,7 @@ function Module()
     this.crc16Received          = 0;        // CRC16 수신 받은 블럭
     this.crc16Transfered        = 0;        // 전송한 데이터의 crc16
     
-    this.maxTransferRepeat      = 10;       // 최대 반복 전송 횟수
+    this.maxTransferRepeat      = 3;       // 최대 반복 전송 횟수
     this.countTransferRepeat    = 0;        // 반복 전송 횟수
     this.dataTypeLastTransfered = 0;        // 마지막으로 전송한 데이터의 타입
 
@@ -316,6 +316,9 @@ Module.prototype.resetData = function()
 // Entry -> Device
 var DataType =
 {
+    // 전송 버퍼
+    BUFFER_CLEAR:               'buffer_clear',
+
     // 전송 대상
     TARGET:                     'target',
 
@@ -419,6 +422,12 @@ Module.prototype.handlerForEntry = function(handler)
 {
     if( this.bufferTransfer == undefined )
         this.bufferTransfer = [];
+
+    // Buffer Clear
+    if ( handler.e(DataType.BUFFER_CLEAR) == true )
+    {
+        this.bufferTransfer = [];
+    }
 
     // Light Mode
     if( handler.e(DataType.LIGHT_MODE_MODE) == true )
@@ -1517,8 +1526,8 @@ Module.prototype.transferForDevice = function()
 
     this.crc16Transfered = (arrayTransfer[arrayTransfer.length - 1] << 8) | (arrayTransfer[arrayTransfer.length - 2]);
 
-    if( this.countTransferRepeat > 1 && this.countTransferRepeat < 3 )
-        this.log("Data Transfer - Repeat: " + this.countTransferRepeat, this.bufferTransfer[0]);
+    //if( this.countTransferRepeat > 1 && this.countTransferRepeat < 3 )
+    this.log("Data Transfer - Repeat(" + this.bufferTransfer.length + ") : " + this.countTransferRepeat, this.bufferTransfer[0]);
         //console.log("Data Transfer - Repeat: " + this.countTransferRepeat, this.bufferTransfer[0]);
 
     // maxTransferRepeat 이상 전송했음애도 응답이 없는 경우엔 다음으로 넘어감
