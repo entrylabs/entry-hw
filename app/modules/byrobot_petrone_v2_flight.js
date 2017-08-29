@@ -60,15 +60,21 @@ function Module()
         state_battery: 0
     }
 
-    // Attitude
-    this.attitude =
+    // Imu
+    this.imu =
     {
         _updated: 1,
-        attitude_roll: 0,
-        attitude_pitch: 0,
-        attitude_yaw: 0
+        imu_accX: 0,
+        imu_accY: 0,
+        imu_accZ: 0,
+        imu_gyroRoll: 0,
+        imu_gyroPitch: 0,
+        imu_gyroYaw: 0,
+        imu_angleRoll: 0,
+        imu_anglePitch: 0,
+        imu_angleYaw: 0
     }
-
+    
     // Pressure
     this.pressure =
     {
@@ -240,13 +246,19 @@ Module.prototype.resetData = function()
     state.state_coordinate              = 0;
     state.state_battery                 = 0;
 
-    // Attitude
-    let attitude                        = this.attitude;
-    attitude._updated                   = 0;
-    attitude.attitude_roll              = 0;
-    attitude.attitude_pitch             = 0;
-    attitude.attitude_yaw               = 0;
-
+    // Imu
+    let imu                             = this.imu;
+    imu._updated                        = 0;
+    imu.imu_accX                        = 0;
+    imu.imu_accY                        = 0;
+    imu.imu_accZ                        = 0;
+    imu.imu_gyroRoll                    = 0;
+    imu.imu_gyroPitch                   = 0;
+    imu.imu_gyroYaw                     = 0;
+    imu.imu_angleRoll                   = 0;
+    imu.imu_anglePitch                  = 0;
+    imu.imu_angleYaw                    = 0;
+    
      // Pressure
     let pressure                        = this.pressure;
     pressure._updated                   = 0;
@@ -424,7 +436,7 @@ Module.prototype.handlerForEntry = function(handler)
         this.bufferTransfer = [];
 
     // Buffer Clear
-    if ( handler.e(DataType.BUFFER_CLEAR) == true )
+    if( handler.e(DataType.BUFFER_CLEAR) == true )
     {
         this.bufferTransfer = [];
     }
@@ -802,7 +814,6 @@ Module.prototype.handlerForEntry = function(handler)
         this.bufferTransfer.push(dataArray);
     }
 
-
     // IrMessage
     if (handler.e(DataType.IRMESSAGE_IRDATA) == true )
     {
@@ -919,18 +930,18 @@ Module.prototype.tansferForEntry = function(handler)
         }
     }
 
-    // Attitude
+    // Imu
     {
-        let attitude = this.attitude;
-        if( attitude._updated == true )
+        let imu = this.imu;
+        if( imu._updated == true )
         {
-            for(let key in attitude)
+            for(let key in imu)
             {
-                handler.write(key, attitude[key]);
+                handler.write(key, imu[key]);
             }
 
-            attitude._updated == false;
-            //this.log("Module.prototype.tansferForEntry() / attitude", "");
+            imu._updated == false;
+            //this.log("Module.prototype.tansferForEntry() / imu", "");
         }
     }
 
@@ -1155,7 +1166,7 @@ Module.prototype.handlerForDevice = function()
     {
     case 2:     break;      // Ack
     case 64:    break;      // State (0x40)
-    case 65:    break;      // Attitude (0x41)
+    case 0x50:  break;      // Imu
     case 0x51:  break;      // Pressure
     case 0x53:  break;      // Range
     case 0x54:  break;      // Image Flow (Optical Flow)
@@ -1237,17 +1248,23 @@ Module.prototype.handlerForDevice = function()
         }
         break;
 
-    case 0x41:  // Attitude
-        if( this.dataBlock.length == 6 )
+    case 0x50:  // Imu
+        if( this.dataBlock.length == 18 )
         {
             // Device -> Entry 
-            let attitude                = this.attitude;
-            attitude._updated           = true;
-            attitude.attitude_roll      = this.extractInt16(this.dataBlock, 0);
-            attitude.attitude_pitch     = this.extractInt16(this.dataBlock, 2);
-            attitude.attitude_yaw       = this.extractInt16(this.dataBlock, 4);
+            let imu                     = this.imu;
+            imu._updated                = true;
+            imu.imu_accX                = this.extractInt16(this.dataBlock, 0);
+            imu.imu_accY                = this.extractInt16(this.dataBlock, 2);
+            imu.imu_accZ                = this.extractInt16(this.dataBlock, 4);
+            imu.imu_gyroRoll            = this.extractInt16(this.dataBlock, 6);
+            imu.imu_gyroPitch           = this.extractInt16(this.dataBlock, 8);
+            imu.imu_gyroYaw             = this.extractInt16(this.dataBlock, 10);
+            imu.imu_angleRoll           = this.extractInt16(this.dataBlock, 12);
+            imu.imu_anglePitch          = this.extractInt16(this.dataBlock, 14);
+            imu.imu_angleYaw            = this.extractInt16(this.dataBlock, 16);
 
-            //console.log("handlerForDevice - attitude: " + attitude.attitude_roll + ", " + attitude.attitude_pitch + ", " + attitude.attitude_yaw);
+            //console.log("handlerForDevice - imu: " + imu.angle_roll + ", " + imu.angle_pitch + ", " + imu.angle_yaw);
         }
         break;
 
@@ -1415,7 +1432,7 @@ Module.prototype.extractFloat32 = function (dataArray, startIndex)
         uint8View[2] = dataArray[startIndex + 2];
         uint8View[3] = dataArray[startIndex + 3];
 
-        return float32View[0];
+        return float32View[0].toFixed(2);
     }
     else
         return 0;
@@ -1481,7 +1498,7 @@ Module.prototype.transferForDevice = function()
             return this.reserveRequest(0x30, 0x54);     // 페트론V2 드론, Image Flow (Optical Flow) Sensor
 
         default:
-            return this.reserveRequest(0x30, 0x41);     // 페트론V2 드론, 드론의 자세(Attitude)
+            return this.reserveRequest(0x30, 0x50);     // 페트론V2 드론, 드론의 자세(Attitude) 및 Accel, Gyro
         }
     }
     else
@@ -1499,7 +1516,7 @@ Module.prototype.transferForDevice = function()
             return this.reserveRequest(0x30, 0x40);
 
         case 12:
-            return this.reserveRequest(0x30, 0x41);
+            return this.reserveRequest(0x30, 0x50);
 
         case 15:
             return this.reserveRequest(0x30, 0x51);
@@ -1586,7 +1603,7 @@ Module.prototype.reserveRequest = function(target, dataType)
     this.addStartCode(dataArray);
     
     let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-    let dataLength = 1;     // 데이터의 길이
+    let dataLength = 1;                     // 데이터의 길이
 
     // Header
     dataArray.push(0x04);           // Data Type (Request)
