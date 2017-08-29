@@ -3,6 +3,10 @@ function Module() {
 	this.sensor_count = 0;
 	this.blocklist = []
 	this.blockdata = []
+	this.entry = false
+	this.needStop = false
+	this.staretedM = []
+	this.stopBoundary=[]
 	this.outputHw = []
 	this.eventdata = []
 	this.eventmask = 0
@@ -13,13 +17,17 @@ function Module() {
 	this.pd = new Array(128)
 	this.pi = 0
 	this.mp = {}
+
+
 	for (var i = 0; i < 16; i++) {
 		this.blockdata.push({ g: this, connected: false, ps: () => { }, empty: true, is_sensor: false });
 		this.eventdata[i] = {}
-		this.blocklist[i] = {id:0,name:''}
+		this.blocklist[i] = { id: 0, name: '' }
+		this.stopBoundary[i]=-1
+		this.needStop[i]=false
 	}
 	this.ps = () => { }
-	this.command={listblock:0x0D,name:0x0C,version:0x08,ping:0xE4 }	
+	this.command = { listblock: 0x0D, name: 0x0C, version: 0x08, ping: 0xE4 }
 }
 
 function make_packet(bytearray) {
@@ -45,7 +53,9 @@ function make_packet(bytearray) {
 	return new Uint8Array(data).buffer
 }
 
-Module.prototype.init = function (handler, config){}
+Module.prototype.init = function (handler, config) { 
+	this.checkStop()
+}
 
 Module.prototype.setSerialPort = function (sp) {
 	this.sp = sp;
@@ -58,10 +68,26 @@ Module.prototype.requestInitialData = function (sp) {
 	return null
 }
 
+Module.prototype.lostController = function(self, cb) {};
+
+
 Module.prototype.checkInitialData = function (data, config) { return true }
 // 하드웨어 데이터 처리
 Module.prototype.handleLocalData = function (data) { // data: Native Buffer
-	for (var i = 0; i < data.length; i++) { this.process(data[i]) }
+	for (var i = 0; i < data.length; i++) {
+		var b = data[i]
+		if (b == 0x7E) {
+			this.ps = this.ps_start;
+			this.pi = 0;
+			continue
+		} else {
+			if (b == 0x7D) {
+				i++
+				b = data[i] == 0x5E ? 0x7E : 0x7D
+			}			
+		}
+		this.process(b)
+	}
 }
 
 
@@ -104,34 +130,35 @@ Module.prototype.handleRemoteData = function (handler) {
 	if (handler.read('init')) {
 		this.send_array([0xE0, this.command.listblock])
 	}
+	
 	var data = handler.read('data');
 	if (data) {
 		for (var i in data) {
-			if (data[i] && this.outputHw[i]){
+			if (data[i] && this.outputHw[i]) {
 				this.outputHw[i](i, data[i])
-			} 
+			}
 		}
 	}
-	if(handler.read('stop')=='stop'){
-		console.log('stoped')
-	}
+	if (handler.read('stop') == 'stop') {}
+	this.entry=true
 }
 
 
 // 하드웨어에 전달할 데이터
 Module.prototype.requestLocalData = function () {
 	if (this.sensor_count == 0) {
-		return make_packet([this.command.ping]) 
+		return make_packet([this.command.ping])
 	}
 	return null; //not by Entry but by this module
 }
 
-Module.prototype.connect = function () {}
+Module.prototype.connect = function () { 
+}
 
 Module.prototype.disconnect = function (connect) {
 }
 
-Module.prototype.reset = function () {console.log('reset')}
+Module.prototype.reset = function () { }
 
 //additional definitions
 
@@ -140,11 +167,6 @@ Module.prototype.send_array = function (data) {
 }
 
 Module.prototype.process = function (b) {
-	if (b == 0x7E) {
-		this.ps = this.ps_start;
-		this.pi = 0;
-		return
-	}
 	this.pd[this.pi++] = b
 	if (this.pi > 128) this.pi = 127;
 	this.ps(b);
@@ -177,7 +199,6 @@ Module.prototype.ps_chocopi = function (b) {
 		case 0x08: this.ps = this.ps_get_version; break
 		case 0x0D: this.ps = this.ps_block_list; break
 		case 27: this.ps = this.ps_block_list_ble; break
-		default: console.log('strange ' + b)
 	}
 
 }
@@ -185,7 +206,6 @@ Module.prototype.ps_chocopi = function (b) {
 Module.prototype.ps_get_version = function (b) {
 	if (this.pi == 10) {
 		this.version = 'V' + this.pd[8] + '.' + this.pd[9]
-		console.log('chocopi version ' + this.version)
 	}
 }
 
@@ -193,7 +213,7 @@ Module.prototype.ps_block_list = function (b) {
 	var rp = 1;
 	if (this.pi < 17) return;
 	for (var port = 0; port < 8; port++) {
-		var block_type = this.pd[rp] | (this.pd[rp + 1] << 8)
+		var block_type = this.pd[rp] + (this.pd[rp + 1] * 256)
 		rp += 2
 		this.blocklist[port] = this.connectBlock(block_type, port);
 	}
@@ -208,7 +228,7 @@ Module.prototype.ps_block_list_ble = function () {
 
 Module.prototype.ps_block_connected = function (b) {
 	if (this.pi == 3) {
-		var block_type = this.pd[1] | (this.pd[2] << 8)
+		var block_type = this.pd[1] + (this.pd[2] * 256)
 		var port = this.pd[0]
 		this.has_bl = true
 		this.blocklist[port] = this.connectBlock(block_type, port)
@@ -224,7 +244,7 @@ Module.prototype.ps_block_disconnected = function (b) {
 		this.sensor_count--
 		if (this.sensor_count < 0) this.sensor_count = 0
 	}
-	this.blocklist[b] = {id:0,name:''}
+	this.blocklist[b] = { id: 0, name: '' }
 	this.has_bl = true
 	console.log(bd.name + ' disconnected')
 }
@@ -247,7 +267,7 @@ Module.prototype.connectBlock = function (block, port) {
 	}
 	bd.port = port
 	bd.ps.call(bd, 0, 'init');
-	return {id:block,name:bd.name}
+	return { id: block, name: bd.name }
 }
 
 
@@ -295,7 +315,7 @@ Module.prototype.touchB = function (b, init) {
 		this.connected = true
 		if (!this.is_sensor) { this.is_sensor = true; this.g.sensor_count++ }
 		this.data = { tv: new Array(12) }
-		this.prev_touch=0
+		this.prev_touch = 0
 		return
 	}
 	if (this.g.mp.detail != 0x10) return
@@ -309,23 +329,23 @@ Module.prototype.touchB = function (b, init) {
 		if (b & (1 << 3)) { this.pk_length += 24; }
 	} else if (this.pk_length == this.g.pi) {
 		var value, i, dp = 1;
-		if (this.fb & (1 << 0)) { 
-			this.data.ts = this.g.pd[dp] | (this.g.pd[dp + 1] << 8)
+		if (this.fb & (1 << 0)) {
+			this.data.ts = this.g.pd[dp] + (this.g.pd[dp + 1] * 256)
 			dp += 4
 		} //button status
-		if (this.fb & (1 << 1)) { this.data.ts = this.g.pd[dp] | (this.g.pd[dp + 1] << 8); dp += 2; }
-		if (this.fb & (1 << 2)) { this.data.ts = this.g.pd[dp] | (this.g.pd[dp + 1] << 8); dp += 2; }
+		if (this.fb & (1 << 1)) { this.data.ts = this.g.pd[dp] + (this.g.pd[dp + 1] * 256); dp += 2; }
+		if (this.fb & (1 << 2)) { this.data.ts = this.g.pd[dp] + (this.g.pd[dp + 1] * 256); dp += 2; }
 		if (this.fb & (1 << 3)) {
 			for (i = 0; i < 12; i++) {
-				this.data.tv[i] = this.g.pd[dp] | (this.g.pd[dp + 1] << 8); dp += 2;
+				this.data.tv[i] = this.g.pd[dp] + (this.g.pd[dp + 1] * 256); dp += 2;
 			}
 		}
 		var change = this.prev_touch ^ this.data.ts
-		
-		if(change>0){
-			this.g.eventdata[this.port].id=change
-			this.prev_touch=this.data.ts
-			this.g.eventmask |= 1 << this.port			
+
+		if (change > 0) {
+			this.g.eventdata[this.port].id = change
+			this.prev_touch = this.data.ts
+			this.g.eventmask |= 1 << this.port
 		}
 		this.g.ps = this.g.ps_null
 		this.g.datamask |= 1 << this.port
@@ -337,7 +357,7 @@ Module.prototype.controlB = function (b, init) {
 		this.name = 'control'
 		this.g.send_array([0x10 | this.port, 0x0f, 30, 0])
 		if (!this.is_sensor) { this.is_sensor = true; this.g.sensor_count++ }
-		this.prev_button=0
+		this.prev_button = 0
 		return
 	}
 	if (this.g.pi == 1) {
@@ -355,20 +375,20 @@ Module.prototype.controlB = function (b, init) {
 			}
 		}
 		if (this.fb & 8) {
-			var buttons=this.g.pd[dp] & 0x1E
-			var ev=this.g.eventdata[this.port]
-			ev.btn=[]
-			for (i = 0; i < 4; i++) {				
-				ev.btn[i] = buttons & (1 << (4 - i)) ? 1 : 0; 
+			var buttons = this.g.pd[dp] & 0x1E
+			var ev = this.g.eventdata[this.port]
+			ev.btn = []
+			for (i = 0; i < 4; i++) {
+				ev.btn[i] = buttons & (1 << (4 - i)) ? 1 : 0;
 			}
-			var change= buttons  ^this.prev_button
-			if(change >0){
-				ev.id=change
-				this.prev_button=buttons
-				this.g.eventmask |= 1<<this.port
+			var change = buttons ^ this.prev_button
+			if (change > 0) {
+				ev.id = change
+				this.prev_button = buttons
+				this.g.eventmask |= 1 << this.port
 			}
 		}
-		
+
 		this.g.datamask |= 1 << this.port
 		this.g.ps = this.g.ps_null
 	}
@@ -397,7 +417,7 @@ Module.prototype.motionB = function (b, init) {
 			for (i = 0; i < 3; i++) {
 				if (this.fb & (1 << 0)) {
 					for (j = 0; j < 3; j++) {
-						value = this.g.pd[dp] | (this.g.pd[dp + 1] << 8); dp += 2;
+						value = this.g.pd[dp] + (this.g.pd[dp + 1] * 256); dp += 2;
 						value = (value << 16) >> 16;
 						this.data.s[i * 3 + j] = value;
 					}
@@ -423,13 +443,13 @@ Module.prototype.motionB = function (b, init) {
 			if (!ev.time) ev.time = [[0, 0], [0, 0]]
 			var value, i, dp = 1, status1, status2;
 			for (i = 0; i < this.event_count; i++) {
-				var pg=this.g.pd[dp]
+				var pg = this.g.pd[dp]
 				var pgid = (pg & 4) ? 0 : 1
 				status1 = (pg & 1) ? 1 : 0
 				status2 = (pg & 2) ? 1 : 0
 				ev.pg[0] = status1;
 				ev.pg[1] = status2;
-				event_time = this.g.pd[dp + 1] | (this.g.pd[dp + 2] << 8) | (this.g.pd[dp + 3] << 16) | (this.g.pd[dp + 4] << 24)
+				event_time = this.g.pd[dp + 1] + (this.g.pd[dp + 2] * 256) + (this.g.pd[dp + 3] * 65536) + (this.g.pd[dp + 4] * 16777216)
 				var event_time_s = event_time * 0.0001;
 				if (pgid == 0) {
 					ev.time[pgid][status1] = event_time_s
@@ -473,12 +493,14 @@ Module.prototype.stepperB = function (b, init) {
 Module.prototype.ledBhw = function (port, data) {
 	var l, r, g, b
 	[l, r, g, b] = data
-	console.log(data)
 	if (l > 0) l--;
 	if (r > 255) r = 255; if (r < 0) r = 0;
 	if (g > 255) g = 255; if (g < 0) g = 0;
-	if (b > 255) b = 255; if (b < 0) b = 0;
+	if (b > 255) b = 255; if (b < 0) b = 0;	
 	this.send_array([0x00 | port, l, g, r, b])
+	this.staretedM[port]	= true
+	this.needStop = true
+	if(this.stopBoundary[port]< l ) this.stopBoundary[port] = l 
 }
 
 
@@ -496,6 +518,11 @@ Module.prototype.dcmotorBhw = function (port, data) {
 	if (s > 2047) s = 2047
 	s = Math.round(s)
 	this.send_array([code, s & 0xFF, s >>= 8])
+	if(s>0) {
+		this.staretedM[port]=true
+		this.needStop = true		
+		if(this.stopBoundary[port]< id) this.stopBoundary[port]=id
+	}
 }
 
 
@@ -506,7 +533,7 @@ Module.prototype.servoBhw = function (port, data) {
 		a = 200;
 	} else if (a < 0) { a = 0 }
 	a *= 100;
-	this.send_array([((id + 1) << 4)|port, a & 0xFF, a >>= 8])
+	this.send_array([((id + 1) << 4) | port, a & 0xFF, a >>= 8])
 }
 
 Module.prototype.stepperBhw = function (port, data) {
@@ -517,10 +544,10 @@ Module.prototype.stepperBhw = function (port, data) {
 		d = !d
 	}
 	s *= 100;
-	if (s > 32767) s = 32767; 
+	if (s > 32767) s = 32767;
 	s = Math.round(s);
 
-	if (c == 's') { 
+	if (c == 's') {
 		code = (d) ? 0x10 : 0x00;
 		code += motor_id * 0x20;
 		code |= port;
@@ -539,4 +566,30 @@ Module.prototype.stepperBhw = function (port, data) {
 	}
 	this.send_array(packet)
 }
+
+Module.prototype.checkStop = function () {	
+	var me = this	
+	setTimeout(me.checkStop.bind(me), 200)
+	if(this.entry) {
+		this.entry=false
+		return
+	}
+	if(!me.needStop) return
+	me.needStop = false;
+	for(var i=0;i<16;i++){
+		if(this.staretedM[i]){
+			this.staretedM[i]=false
+			if(this.blocklist[i].name=='led'){				
+				for(var j=0; j<= this.stopBoundary[i]; j++){
+					this.send_array([0x00 | i, j, 0, 0, 0])
+				}
+			}else if(this.blocklist[i].name=='dcmotor'){
+				for(var j=0; j<= this.stopBoundary[i]; j++){
+					me.dcmotorBhw(i,[j,0,0])
+				}
+			}
+		}
+	}
+}
+
 module.exports = new Module()

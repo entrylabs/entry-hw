@@ -11,6 +11,7 @@
 	"email": "contact@kocoa.or.kr",
 	"driver": {
 	},
+	"select_com_port": true,
 	"firmware": "JS_Shield",
 	"entry": {
 		"protocol": "json"
