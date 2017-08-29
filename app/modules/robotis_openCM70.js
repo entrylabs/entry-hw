@@ -49,8 +49,6 @@ function Module() {
     this.prevState = []; // add by kjs 170623
 }
 
-Module.prototype.init = function (handler, config) {
-    console.log("######### init");
 Module.prototype.init = function(handler, config) {
     //console.log("######### init");
 };
@@ -72,8 +70,6 @@ Module.prototype.lostController = function(self, callback) {
     }, 1000);
 };
 
-Module.prototype.requestInitialData = function () {
-    console.log("######### requestInitialData");
 Module.prototype.requestInitialData = function() {
     //console.log("######### requestInitialData");
     isReadDataArrived = true;
@@ -135,9 +131,6 @@ Module.prototype.requestInitialData = function() {
     return this.readPacket(200, 87, 1);
 };
 
-Module.prototype.checkInitialData = function (data, config) {
-    console.log("######### checkInitialData : ");
-
 Module.prototype.checkInitialData = function(data, config) {
     console.log("######### checkInitialData");
 
@@ -156,7 +149,7 @@ Module.prototype.requestRemoteData = function(handler) {
         }
     }
     //실과형
-    //console.log("###### value : " + this.touchSensor[1]);
+    console.log("###### value : " + this.touchSensor[2]);
     for (var i = 0; i < 4; i++) {        
         handler.write('TOUCH' + i, this.touchSensor[i]); // 접촉 센서
         handler.write('IR' + i, this.irSensor[i]); // 적외선 센서
@@ -303,47 +296,8 @@ Module.prototype.requestLocalData = function() {
         return this.readPacket(200, 87, 1);
     }
 
-
-    if (!isTemp) { // add by kjs 20170824
-        console.log("####### temp");
-        sendBuffer = this.writeBytePacket(200, 21, 8);
-
-    var data = this.robotisBuffer.shift();
-    if (data == null) {
-        return sendBuffer;
-    }
-    var instruction = data[0];
-    var address = data[1];
-    var length = data[2];
-    var value = data[3];
-    //console.log('send address : ' + address + ', ' + value + ", " + length); // add by kjs 170426
-    if (instruction == INST_WRITE) {
-        if (length == 1) {
-            sendBuffer = this.writeBytePacket(200, address, value);
-        } else if (length == 2) {
-            sendBuffer = this.writeWordPacket(200, address, value);
-        } else if (length == 4 && address == 136) {
-            var value2;
-            if (value < 1024)
-                value2 = value + 1024;
-            else
-                value2 = value - 1024;
-            sendBuffer = this.writeDWordPacket2(200, address, value, value2);
-        } else {
-            sendBuffer = this.writeDWordPacket(200, address, value);
-        }
-
-    } else if (instruction == INST_READ) {
-        this.addressToRead[address] = 0;
-        sendBuffer = this.readPacket(200, address, length);
-    }
-
-    if (sendBuffer[0] == 0xFF &&
-        sendBuffer[1] == 0xFF &&
-        sendBuffer[2] == 0xFD &&
-        sendBuffer[3] == 0x00 &&
-        sendBuffer[4] == 0xC8) {
-
+        if (!isTemp) { // add by kjs 20170824
+            sendBuffer = this.writeBytePacket(200, 21, 8);
         dataLength = this.makeWord(sendBuffer[5], sendBuffer[6]);
 
         if (sendBuffer[7] == 0x02) {
@@ -587,7 +541,8 @@ Module.prototype.handleLocalData = function(data) { // data: Native Buffer
                                         isReadDataArrived = true;
                                     } else {}
 
-                                    if (this.receiveBuffer.shift() != 2) // add by kjs 20170824
+                                    var bufferValue_read_address_21 = this.receiveBuffer.shift();
+                                    if (bufferValue_read_address_21 != 2) // add by kjs 20170824
                                         isTemp = false;
                                     this.receiveBuffer.shift(); // take crc check byte
 
@@ -606,10 +561,6 @@ Module.prototype.handleLocalData = function(data) { // data: Native Buffer
         }
     }
 };
-
-
-Module.prototype.reset = function () {
-    console.log("########## reset!!");
 
 Module.prototype.reset = function() {
 
