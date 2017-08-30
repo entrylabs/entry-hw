@@ -101,7 +101,7 @@ function Module()
     this.crc16Received          = 0;        // CRC16 수신 받은 블럭
     this.crc16Transfered        = 0;        // 전송한 데이터의 crc16
     
-    this.maxTransferRepeat      = 10;       // 최대 반복 전송 횟수
+    this.maxTransferRepeat      = 2;        // 최대 반복 전송 횟수
     this.countTransferRepeat    = 0;        // 반복 전송 횟수
     this.dataTypeLastTransfered = 0;        // 마지막으로 전송한 데이터의 타입
 
@@ -247,7 +247,7 @@ Module.prototype.resetData = function()
     this.crc16Calculated                = 0;        // CRC16 계산 된 결과
     this.crc16Received                  = 0;        // CRC16 수신 받은 블럭
 
-    this.maxTransferRepeat              = 10;       // 최대 반복 전송 횟수
+    this.maxTransferRepeat              = 2;        // 최대 반복 전송 횟수
     this.countTransferRepeat            = 0;        // 반복 전송 횟수
     this.dataTypeLastTransfered         = 0;        // 마지막으로 전송한 데이터의 타입
 

@@ -135,7 +135,7 @@ function Module()
     this.crc16Received          = 0;        // CRC16 수신 받은 블럭
     this.crc16Transfered        = 0;        // 전송한 데이터의 crc16
     
-    this.maxTransferRepeat      = 3;       // 최대 반복 전송 횟수
+    this.maxTransferRepeat      = 2;        // 최대 반복 전송 횟수
     this.countTransferRepeat    = 0;        // 반복 전송 횟수
     this.dataTypeLastTransfered = 0;        // 마지막으로 전송한 데이터의 타입
 
@@ -309,7 +309,7 @@ Module.prototype.resetData = function()
     this.crc16Calculated                = 0;        // CRC16 계산 된 결과
     this.crc16Received                  = 0;        // CRC16 수신 받은 블럭
 
-    this.maxTransferRepeat              = 10;       // 최대 반복 전송 횟수
+    this.maxTransferRepeat              = 2;        // 최대 반복 전송 횟수
     this.countTransferRepeat            = 0;        // 반복 전송 횟수
     this.dataTypeLastTransfered         = 0;        // 마지막으로 전송한 데이터의 타입
 
@@ -351,6 +351,56 @@ var DataType =
     LIGHT_COLOR_R:              'light_color_r',
     LIGHT_COLOR_G:              'light_color_g',
     LIGHT_COLOR_B:              'light_color_b',
+
+    // OLED - 화면 전체 지우기
+    DISPLAY_CLEARALL_PIXEL:     'display_clearall_pixel',
+
+    // OLED - 선택 영역 지우기
+    DISPLAY_CLEAR_X:            'display_clear_x',
+    DISPLAY_CLEAR_Y:            'display_clear_y',
+    DISPLAY_CLEAR_WIDTH:        'display_clear_width',
+    DISPLAY_CLEAR_HEIGHT:       'display_clear_height',
+    DISPLAY_CLEAR_PIXEL:        'display_clear_pixel',
+
+    // OLED - 선택 영역 반전
+    DISPLAY_INVERT_X:           'display_invert_x',
+    DISPLAY_INVERT_Y:           'display_invert_y',
+    DISPLAY_INVERT_WIDTH:       'display_invert_width',
+    DISPLAY_INVERT_HEIGHT:      'display_invert_height',
+
+    // OLED - 화면에 점 찍기
+    DISPLAY_DRAW_POINT_X:       'display_draw_point_x',
+    DISPLAY_DRAW_POINT_Y:       'display_draw_point_y',
+    DISPLAY_DRAW_POINT_PIXEL:   'display_draw_point_pixel',
+
+    // OLED - 화면에 선 그리기
+    DISPLAY_DRAW_LINE_X1:       'display_draw_line_x1',
+    DISPLAY_DRAW_LINE_Y1:       'display_draw_line_y1',
+    DISPLAY_DRAW_LINE_X2:       'display_draw_line_x2',
+    DISPLAY_DRAW_LINE_Y2:       'display_draw_line_y2',
+    DISPLAY_DRAW_LINE_PIXEL:    'display_draw_line_pixel',
+
+    // OLED - 화면에 사각형 그리기
+    DISPLAY_DRAW_RECT_X:        'display_draw_rect_x',
+    DISPLAY_DRAW_RECT_Y:        'display_draw_rect_y',
+    DISPLAY_DRAW_RECT_WIDTH:    'display_draw_rect_width',
+    DISPLAY_DRAW_RECT_HEIGHT:   'display_draw_rect_height',
+    DISPLAY_DRAW_RECT_PIXEL:    'display_draw_rect_pixel',
+    DISPLAY_DRAW_RECT_FLAGFILL: 'display_draw_rect_flagfill',
+
+    // OLED - 화면에 원 그리기
+    DISPLAY_DRAW_CIRCLE_X:        'display_draw_circle_x',
+    DISPLAY_DRAW_CIRCLE_Y:        'display_draw_circle_y',
+    DISPLAY_DRAW_CIRCLE_RADIUS:   'display_draw_circle_radius',
+    DISPLAY_DRAW_CIRCLE_PIXEL:    'display_draw_circle_pixel',
+    DISPLAY_DRAW_CIRCLE_FLAGFILL: 'display_draw_circle_flagfill',
+
+    // OLED - 화면에 문자열 쓰기
+    DISPLAY_DRAW_STRING_X:      'display_draw_string_x',
+    DISPLAY_DRAW_STRING_Y:      'display_draw_string_y',
+    DISPLAY_DRAW_STRING_FONT:   'display_draw_string_font',
+    DISPLAY_DRAW_STRING_PIXEL:  'display_draw_string_pixel',
+    DISPLAY_DRAW_STRING_STRING: 'display_draw_string_string',
 
     // Buzzer
     BUZZER_MODE:                'buzzer_mode',
@@ -571,6 +621,337 @@ Module.prototype.handlerForEntry = function(handler)
         dataArray.push(lightColor_r);
         dataArray.push(lightColor_g);
         dataArray.push(lightColor_b);
+
+        // CRC16
+        this.addCRC16(dataArray, indexStart, dataLength);
+
+        this.bufferTransfer.push(dataArray);
+    }
+
+    // OLED - 화면 전체 지우기
+    if( handler.e(DataType.DISPLAY_CLEARALL_PIXEL) == true )
+    {
+        var dataArray = [];
+
+        // Start Code
+        this.addStartCode(dataArray);
+        
+        let target                  = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                     : 0xFF;
+        let display_clearall_pixel  = handler.e(DataType.DISPLAY_CLEARALL_PIXEL)    ? handler.read(DataType.DISPLAY_CLEARALL_PIXEL)     : 0;
+
+        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
+        let dataLength = 1;                     // 데이터의 길이
+
+        // Header
+        dataArray.push(0xB0);                   // Data Type
+        dataArray.push(dataLength);             // Data Length
+        dataArray.push(0x38);                   // From (네이버 엔트리)
+        dataArray.push(target);                 // To
+
+        // Data
+        dataArray.push(display_clearall_pixel);
+
+        // CRC16
+        this.addCRC16(dataArray, indexStart, dataLength);
+
+        this.bufferTransfer.push(dataArray);
+    }
+
+    // OLED - 선택 영역 지우기
+    if( (handler.e(DataType.DISPLAY_CLEAR_X) == true) || (handler.e(DataType.DISPLAY_CLEAR_Y) == true) || (handler.e(DataType.DISPLAY_CLEAR_WIDTH) == true) || (handler.e(DataType.DISPLAY_CLEAR_HEIGHT) == true) || (handler.e(DataType.DISPLAY_CLEAR_PIXEL) == true) )
+    {
+        var dataArray = [];
+
+        // Start Code
+        this.addStartCode(dataArray);
+        
+        let target                  = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                     : 0xFF;
+        let display_clear_x         = handler.e(DataType.DISPLAY_CLEAR_X)           ? handler.read(DataType.DISPLAY_CLEAR_X)            : 0;
+        let display_clear_y         = handler.e(DataType.DISPLAY_CLEAR_Y)           ? handler.read(DataType.DISPLAY_CLEAR_Y)            : 0;
+        let display_clear_width     = handler.e(DataType.DISPLAY_CLEAR_WIDTH)       ? handler.read(DataType.DISPLAY_CLEAR_WIDTH)        : 0;
+        let display_clear_height    = handler.e(DataType.DISPLAY_CLEAR_HEIGHT)      ? handler.read(DataType.DISPLAY_CLEAR_HEIGHT)       : 0;
+        let display_clear_pixel     = handler.e(DataType.DISPLAY_CLEAR_PIXEL)       ? handler.read(DataType.DISPLAY_CLEAR_PIXEL)        : 0;
+
+        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
+        let dataLength = 9;                     // 데이터의 길이
+
+        // Header
+        dataArray.push(0xB0);                   // Data Type
+        dataArray.push(dataLength);             // Data Length
+        dataArray.push(0x38);                   // From (네이버 엔트리)
+        dataArray.push(target);                 // To
+
+        // Data
+        dataArray.push(this.getByte0(display_clear_x));
+        dataArray.push(this.getByte1(display_clear_x));
+        dataArray.push(this.getByte0(display_clear_y));
+        dataArray.push(this.getByte1(display_clear_y));
+        dataArray.push(this.getByte0(display_clear_width));
+        dataArray.push(this.getByte1(display_clear_width));
+        dataArray.push(this.getByte0(display_clear_height));
+        dataArray.push(this.getByte1(display_clear_height));
+        dataArray.push(display_clear_pixel);
+
+        // CRC16
+        this.addCRC16(dataArray, indexStart, dataLength);
+
+        this.bufferTransfer.push(dataArray);
+    }
+
+    // OLED - 선택 영역 반전
+    if( (handler.e(DataType.DISPLAY_INVERT_X) == true) || (handler.e(DataType.DISPLAY_INVERT_Y) == true) || (handler.e(DataType.DISPLAY_INVERT_WIDTH) == true) || (handler.e(DataType.DISPLAY_INVERT_HEIGHT) == true) )
+    {
+        var dataArray = [];
+
+        // Start Code
+        this.addStartCode(dataArray);
+        
+        let target                  = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                     : 0xFF;
+        let display_invert_x        = handler.e(DataType.DISPLAY_INVERT_X)          ? handler.read(DataType.DISPLAY_INVERT_X)           : 0;
+        let display_invert_y        = handler.e(DataType.DISPLAY_INVERT_Y)          ? handler.read(DataType.DISPLAY_INVERT_Y)           : 0;
+        let display_invert_width    = handler.e(DataType.DISPLAY_INVERT_WIDTH)      ? handler.read(DataType.DISPLAY_INVERT_WIDTH)       : 0;
+        let display_invert_height   = handler.e(DataType.DISPLAY_INVERT_HEIGHT)     ? handler.read(DataType.DISPLAY_INVERT_HEIGHT)      : 0;
+
+        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
+        let dataLength = 8;                     // 데이터의 길이
+
+        // Header
+        dataArray.push(0xB1);                   // Data Type
+        dataArray.push(dataLength);             // Data Length
+        dataArray.push(0x38);                   // From (네이버 엔트리)
+        dataArray.push(target);                 // To
+
+        // Data
+        dataArray.push(this.getByte0(display_invert_x));
+        dataArray.push(this.getByte1(display_invert_x));
+        dataArray.push(this.getByte0(display_invert_y));
+        dataArray.push(this.getByte1(display_invert_y));
+        dataArray.push(this.getByte0(display_invert_width));
+        dataArray.push(this.getByte1(display_invert_width));
+        dataArray.push(this.getByte0(display_invert_height));
+        dataArray.push(this.getByte1(display_invert_height));
+
+        // CRC16
+        this.addCRC16(dataArray, indexStart, dataLength);
+
+        this.bufferTransfer.push(dataArray);
+    }
+
+    // OLED - 화면에 점 찍기
+    if( (handler.e(DataType.DISPLAY_DRAW_POINT_X) == true) || (handler.e(DataType.DISPLAY_DRAW_POINT_Y) == true) || (handler.e(DataType.DISPLAY_DRAW_POINT_PIXEL) == true) )
+    {
+        var dataArray = [];
+
+        // Start Code
+        this.addStartCode(dataArray);
+        
+        let target                      = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                     : 0xFF;
+        let display_draw_point_x        = handler.e(DataType.DISPLAY_DRAW_POINT_X)      ? handler.read(DataType.DISPLAY_DRAW_POINT_X)       : 0;
+        let display_draw_point_y        = handler.e(DataType.DISPLAY_DRAW_POINT_Y)      ? handler.read(DataType.DISPLAY_DRAW_POINT_Y)       : 0;
+        let display_draw_point_pixel    = handler.e(DataType.DISPLAY_DRAW_POINT_PIXEL)  ? handler.read(DataType.DISPLAY_DRAW_POINT_PIXEL)   : 0;
+        
+        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
+        let dataLength = 5;                     // 데이터의 길이
+
+        // Header
+        dataArray.push(0xB2);                   // Data Type
+        dataArray.push(dataLength);             // Data Length
+        dataArray.push(0x38);                   // From (네이버 엔트리)
+        dataArray.push(target);                 // To
+
+        // Data
+        dataArray.push(this.getByte0(display_draw_point_x));
+        dataArray.push(this.getByte1(display_draw_point_x));
+        dataArray.push(this.getByte0(display_draw_point_y));
+        dataArray.push(this.getByte1(display_draw_point_y));
+        dataArray.push(display_draw_point_pixel);
+
+        // CRC16
+        this.addCRC16(dataArray, indexStart, dataLength);
+
+        this.bufferTransfer.push(dataArray);
+    }
+
+    // OLED - 화면에 선 그리기
+    if( (handler.e(DataType.DISPLAY_DRAW_LINE_X1) == true) || (handler.e(DataType.DISPLAY_DRAW_LINE_Y1) == true) || (handler.e(DataType.DISPLAY_DRAW_LINE_X2) == true) || (handler.e(DataType.DISPLAY_DRAW_LINE_Y2) == true) || (handler.e(DataType.DISPLAY_DRAW_LINE_PIXEL) == true) )
+    {
+        var dataArray = [];
+
+        // Start Code
+        this.addStartCode(dataArray);
+        
+        let target                      = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                     : 0xFF;
+        let display_draw_line_x1        = handler.e(DataType.DISPLAY_DRAW_LINE_X1)      ? handler.read(DataType.DISPLAY_DRAW_LINE_X1)       : 0;
+        let display_draw_line_y1        = handler.e(DataType.DISPLAY_DRAW_LINE_Y1)      ? handler.read(DataType.DISPLAY_DRAW_LINE_Y1)       : 0;
+        let display_draw_line_x2        = handler.e(DataType.DISPLAY_DRAW_LINE_X2)      ? handler.read(DataType.DISPLAY_DRAW_LINE_X2)       : 0;
+        let display_draw_line_y2        = handler.e(DataType.DISPLAY_DRAW_LINE_Y2)      ? handler.read(DataType.DISPLAY_DRAW_LINE_Y2)       : 0;
+        let display_draw_line_pixel     = handler.e(DataType.DISPLAY_DRAW_LINE_PIXEL)   ? handler.read(DataType.DISPLAY_DRAW_LINE_PIXEL)    : 0;
+        
+        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
+        let dataLength = 9;                     // 데이터의 길이
+
+        // Header
+        dataArray.push(0xB3);                   // Data Type
+        dataArray.push(dataLength);             // Data Length
+        dataArray.push(0x38);                   // From (네이버 엔트리)
+        dataArray.push(target);                 // To
+
+        // Data
+        dataArray.push(this.getByte0(display_draw_line_x1));
+        dataArray.push(this.getByte1(display_draw_line_x1));
+        dataArray.push(this.getByte0(display_draw_line_y1));
+        dataArray.push(this.getByte1(display_draw_line_y1));
+        dataArray.push(this.getByte0(display_draw_line_x2));
+        dataArray.push(this.getByte1(display_draw_line_x2));
+        dataArray.push(this.getByte0(display_draw_line_y2));
+        dataArray.push(this.getByte1(display_draw_line_y2));
+        dataArray.push(display_draw_line_pixel);
+
+        // CRC16
+        this.addCRC16(dataArray, indexStart, dataLength);
+
+        this.bufferTransfer.push(dataArray);
+    }
+
+     // OLED - 화면에 사각형 그리기
+    if( (handler.e(DataType.DISPLAY_DRAW_RECT_X) == true) || (handler.e(DataType.DISPLAY_DRAW_RECT_Y) == true) || (handler.e(DataType.DISPLAY_DRAW_RECT_WIDTH) == true) || (handler.e(DataType.DISPLAY_DRAW_RECT_HEIGHT) == true) || (handler.e(DataType.DISPLAY_DRAW_RECT_PIXEL) == true) || (handler.e(DataType.DISPLAY_DRAW_RECT_FLAGFILL) == true) )
+    {
+        var dataArray = [];
+
+        // Start Code
+        this.addStartCode(dataArray);
+        
+        let target                      = handler.e(DataType.TARGET)                        ? handler.read(DataType.TARGET)                         : 0xFF;
+        let display_draw_rect_x         = handler.e(DataType.DISPLAY_DRAW_RECT_X)           ? handler.read(DataType.DISPLAY_DRAW_RECT_X)            : 0;
+        let display_draw_rect_y         = handler.e(DataType.DISPLAY_DRAW_RECT_Y)           ? handler.read(DataType.DISPLAY_DRAW_RECT_Y)            : 0;
+        let display_draw_rect_width     = handler.e(DataType.DISPLAY_DRAW_RECT_WIDTH)       ? handler.read(DataType.DISPLAY_DRAW_RECT_WIDTH)        : 0;
+        let display_draw_rect_height    = handler.e(DataType.DISPLAY_DRAW_RECT_HEIGHT)      ? handler.read(DataType.DISPLAY_DRAW_RECT_HEIGHT)       : 0;
+        let display_draw_rect_pixel     = handler.e(DataType.DISPLAY_DRAW_RECT_PIXEL)       ? handler.read(DataType.DISPLAY_DRAW_RECT_PIXEL)        : 0;
+        let display_draw_rect_flagfill  = handler.e(DataType.DISPLAY_DRAW_RECT_FLAGFILL)    ? handler.read(DataType.DISPLAY_DRAW_RECT_FLAGFILL)     : 0;
+
+        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
+        let dataLength = 10;                     // 데이터의 길이
+
+        // Header
+        dataArray.push(0xB4);                   // Data Type
+        dataArray.push(dataLength);             // Data Length
+        dataArray.push(0x38);                   // From (네이버 엔트리)
+        dataArray.push(target);                 // To
+
+        // Data
+        dataArray.push(this.getByte0(display_draw_rect_x));
+        dataArray.push(this.getByte1(display_draw_rect_x));
+        dataArray.push(this.getByte0(display_draw_rect_y));
+        dataArray.push(this.getByte1(display_draw_rect_y));
+        dataArray.push(this.getByte0(display_draw_rect_width));
+        dataArray.push(this.getByte1(display_draw_rect_width));
+        dataArray.push(this.getByte0(display_draw_rect_height));
+        dataArray.push(this.getByte1(display_draw_rect_height));
+        dataArray.push(display_draw_rect_pixel);
+        dataArray.push(display_draw_rect_flagfill);
+
+        // CRC16
+        this.addCRC16(dataArray, indexStart, dataLength);
+
+        this.bufferTransfer.push(dataArray);
+    }
+
+    // OLED - 화면에 원 그리기
+    if( (handler.e(DataType.DISPLAY_DRAW_CIRCLE_X) == true) || (handler.e(DataType.DISPLAY_DRAW_CIRCLE_Y) == true) || (handler.e(DataType.DISPLAY_DRAW_CIRCLE_RADIUS) == true) || (handler.e(DataType.DISPLAY_DRAW_CIRCLE_PIXEL) == true) || (handler.e(DataType.DISPLAY_DRAW_CIRCLE_FLAGFILL) == true) )
+    {
+        var dataArray = [];
+
+        // Start Code
+        this.addStartCode(dataArray);
+        
+        let target                       = handler.e(DataType.TARGET)                         ? handler.read(DataType.TARGET)                           : 0xFF;
+        let display_draw_circle_x        = handler.e(DataType.DISPLAY_DRAW_CIRCLE_X)          ? handler.read(DataType.DISPLAY_DRAW_CIRCLE_X)            : 0;
+        let display_draw_circle_y        = handler.e(DataType.DISPLAY_DRAW_CIRCLE_Y)          ? handler.read(DataType.DISPLAY_DRAW_CIRCLE_Y)            : 0;
+        let display_draw_circle_radius   = handler.e(DataType.DISPLAY_DRAW_CIRCLE_RADIUS)     ? handler.read(DataType.DISPLAY_DRAW_CIRCLE_RADIUS)       : 0;
+        let display_draw_circle_pixel    = handler.e(DataType.DISPLAY_DRAW_CIRCLE_PIXEL)      ? handler.read(DataType.DISPLAY_DRAW_CIRCLE_PIXEL)        : 0;
+        let display_draw_circle_flagfill = handler.e(DataType.DISPLAY_DRAW_CIRCLE_FLAGFILL)   ? handler.read(DataType.DISPLAY_DRAW_CIRCLE_FLAGFILL)     : 0;
+
+        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
+        let dataLength = 8;                     // 데이터의 길이
+
+        // Header
+        dataArray.push(0xB5);                   // Data Type
+        dataArray.push(dataLength);             // Data Length
+        dataArray.push(0x38);                   // From (네이버 엔트리)
+        dataArray.push(target);                 // To
+
+        // Data
+        dataArray.push(this.getByte0(display_draw_circle_x));
+        dataArray.push(this.getByte1(display_draw_circle_x));
+        dataArray.push(this.getByte0(display_draw_circle_y));
+        dataArray.push(this.getByte1(display_draw_circle_y));
+        dataArray.push(this.getByte0(display_draw_circle_radius));
+        dataArray.push(this.getByte1(display_draw_circle_radius));
+        dataArray.push(display_draw_circle_pixel);
+        dataArray.push(display_draw_circle_flagfill);
+
+        // CRC16
+        this.addCRC16(dataArray, indexStart, dataLength);
+
+        this.bufferTransfer.push(dataArray);
+    }
+
+    // OLED - 화면에 문자열 쓰기
+    if( (handler.e(DataType.DISPLAY_DRAW_STRING_X) == true) || (handler.e(DataType.DISPLAY_DRAW_STRING_Y) == true) || (handler.e(DataType.DISPLAY_DRAW_STRING_FONT) == true) || (handler.e(DataType.DISPLAY_DRAW_STRING_PIXEL) == true) || (handler.e(DataType.DISPLAY_DRAW_STRING_STRING) == true) )
+    {
+        var dataArray = [];
+        var bytes = [];
+
+        // Start Code
+        this.addStartCode(dataArray);
+        
+        let target                       = handler.e(DataType.TARGET)                       ? handler.read(DataType.TARGET)                         : 0xFF;
+        let display_draw_string_x        = handler.e(DataType.DISPLAY_DRAW_STRING_X)        ? handler.read(DataType.DISPLAY_DRAW_STRING_X)          : 0;
+        let display_draw_string_y        = handler.e(DataType.DISPLAY_DRAW_STRING_Y)        ? handler.read(DataType.DISPLAY_DRAW_STRING_Y)          : 0;
+        let display_draw_string_font     = handler.e(DataType.DISPLAY_DRAW_STRING_FONT)     ? handler.read(DataType.DISPLAY_DRAW_STRING_FONT)       : 0;
+        let display_draw_string_pixel    = handler.e(DataType.DISPLAY_DRAW_STRING_PIXEL)    ? handler.read(DataType.DISPLAY_DRAW_STRING_PIXEL)      : 0;
+        let display_draw_string_string   = handler.e(DataType.DISPLAY_DRAW_STRING_STRING)   ? handler.read(DataType.DISPLAY_DRAW_STRING_STRING)     : 0;
+
+        // 입력받은 문자열 처리
+        // https://stackoverflow.com/questions/6226189/how-to-convert-a-string-to-bytearray
+        function stringToAsciiByteArray(str)
+        {
+            for (var i = 0; i < str.length; ++i)
+            {
+                var charCode = str.charCodeAt(i);
+                if (charCode > 0xFF)  // char > 1 byte since charCodeAt returns the UTF-16 value
+                {
+                    // throw new Error('Character ' + String.fromCharCode(charCode) + ' can\'t be represented by a US-ASCII byte.');
+                    continue;
+                }
+                bytes.push(charCode);
+            }
+            return bytes;
+        }
+
+        bytes = stringToAsciiByteArray(display_draw_string_string);
+
+        let indexStart = dataArray.length;                          // 배열에서 데이터를 저장하기 시작하는 위치
+        let dataLength = 6 + bytes.length;     // 데이터의 길이
+
+        // Header
+        dataArray.push(0xB6);                   // Data Type
+        dataArray.push(dataLength);             // Data Length
+        dataArray.push(0x38);                   // From (네이버 엔트리)
+        dataArray.push(target);                 // To
+
+        // Data
+        dataArray.push(this.getByte0(display_draw_string_x));
+        dataArray.push(this.getByte1(display_draw_string_x));
+        dataArray.push(this.getByte0(display_draw_string_y));
+        dataArray.push(this.getByte1(display_draw_string_y));
+        dataArray.push(display_draw_string_font);
+        dataArray.push(display_draw_string_pixel);
+
+        for (var i = 0; i < bytes.length; ++i)
+        {
+            dataArray.push(bytes[i]);
+        }
 
         // CRC16
         this.addCRC16(dataArray, indexStart, dataLength);
@@ -1241,7 +1622,7 @@ Module.prototype.handlerForDevice = function()
             state.state_coordinate              = this.extractUInt8(this.dataBlock, 5);
             state.state_battery                 = this.extractUInt8(this.dataBlock, 6);
 
-            if( state.state_modeVehicle != 0x10 && state.state_modeVehicle != 0x11 )
+            if (state.state_modeVehicle != 0x10 && state.state_modeVehicle != 0x11 && state.state_modeVehicle != 0x12 )
                 this.reserveModeVehicle(0x10);
 
             //console.log("handlerForDevice - state: " + state.state_modeVehicle);
