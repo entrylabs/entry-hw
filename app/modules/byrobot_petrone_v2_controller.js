@@ -46,36 +46,6 @@ function Module()
         button_button: 0,
         button_event: 0
     }
-
-    // State
-    this.state = 
-    {
-        _updated: 1,
-        state_modeVehicle: 0,
-        state_modeSystem: 0,
-        state_modeFlight: 0,
-        state_modeDrive: 0,
-        state_sensorOrientation: 0,
-        state_coordinate: 0,
-        state_battery: 0
-    }
-
-    // Attitude
-    this.attitude =
-    {
-        _updated: 1,
-        attitude_roll: 0,
-        attitude_pitch : 0,
-        attitude_yaw: 0
-    }
-
-    // IR Message
-    this.irmessage = 
-    {
-        _updated: 1,
-        irmessage_direction: 0,     // 수신 받은 방향 (추가)
-        irmessage_irdata: 0
-    }
     
     // -- Control -----------------------------------------------------------------
     this.controlWheel           = 0;        // 
@@ -200,31 +170,7 @@ Module.prototype.resetData = function()
     button._updated                     = 0;
     button.button_button                = 0;
     button.button_event                 = 0;
-
-    // State
-    let state                           = this.state;
-    state._updated                      = 0;
-    state.state_modeVehicle             = 0;
-    state.state_modeSystem              = 0;
-    state.state_modeFlight              = 0;
-    state.state_modeDrive               = 0;
-    state.state_sensorOrientation       = 0;
-    state.state_coordinate              = 0;
-    state.state_battery                 = 0;
-
-    // Attitude
-    let attitude                        = this.attitude;
-    attitude._updated                   = 0;
-    attitude.attitude_roll              = 0;
-    attitude.attitude_pitch             = 0;
-    attitude.attitude_yaw               = 0;
-
-    // IR Message
-    let irmessage                       = this.irmessage;
-    irmessage._updated                  = 0;
-    irmessage.irmessage_direction       = 0;
-    irmessage.irmessage_irdata          = 0;
-
+    
     // -- Control -----------------------------------------------------------------
     this.controlWheel                   = 0;        // 
     this.controlAccel                   = 0;        // 
@@ -1127,43 +1073,6 @@ Module.prototype.handlerForEntry = function(handler)
         this.bufferTransfer.push(dataArray);
     }
 
-
-    // IrMessage
-    if( handler.e(DataType.IRMESSAGE_IRDATA) == true )
-    {
-        var dataArray = [];
-
-        // Start Code
-        this.addStartCode(dataArray);
-        
-        let target                  = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                     : 0x30;
-        let irmessage_direction     = handler.e(DataType.IRMESSAGE_DIRECTION )      ? handler.read(DataType.IRMESSAGE_DIRECTION)        : 0;
-        let irmessage_irdata        = handler.e(DataType.IRMESSAGE_IRDATA)          ? handler.read(DataType.IRMESSAGE_IRDATA)           : 0;
-
-        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-        let dataLength = 5;                     // 데이터의 길이
-
-        // Header
-        dataArray.push(0x82);                   // Data Type
-        dataArray.push(dataLength);             // Data Length
-        dataArray.push(0x38);                   // From (네이버 엔트리)
-        dataArray.push(target);                 // To
-
-        // Data
-        dataArray.push(irmessage_direction);
-        dataArray.push(this.getByte0(irmessage_irdata));
-        dataArray.push(this.getByte1(irmessage_irdata));
-        dataArray.push(this.getByte2(irmessage_irdata));
-        dataArray.push(this.getByte3(irmessage_irdata));
-
-        // CRC16
-        this.addCRC16(dataArray, indexStart, dataLength);
-
-        this.bufferTransfer.push(dataArray);
-
-        this.log("Module.prototype.handlerForEntry()", dataArray);
-    }
-    
     //this.log("Module.prototype.handlerForEntry()", dataArray);
 }
 
@@ -1225,51 +1134,6 @@ Module.prototype.transferForEntry = function(handler)
 
             button._updated = false;
             //this.log("Module.prototype.transferForEntry() / attitude", "");
-        }
-    }
-
-    // State
-    {
-        let state = this.state;
-        if( state._updated == true )
-        {
-            for(let key in state)
-            {
-                handler.write(key, state[key]);
-            }
-
-            state._updated = false;
-            //this.log("Module.prototype.transferForEntry() / state", "");
-        }
-    }
-
-    // Attitude
-    {
-        let attitude = this.attitude;
-        if( attitude._updated == true )
-        {
-            for(let key in attitude)
-            {
-                handler.write(key, attitude[key]);
-            }
-
-            attitude._updated = false;
-            //this.log("Module.prototype.transferForEntry() / attitude", "");
-        }
-    }
-
-    // IR Message
-    {
-        let irmessage = this.irmessage;
-        if( irmessage._updated == true )
-        {
-            for(let key in irmessage)
-            {
-                handler.write(key, irmessage[key]);
-            }
-
-            irmessage._updated = false;
-            //this.log("Module.prototype.transferForEntry() / irmessage", "");
         }
     }
 
@@ -1433,8 +1297,6 @@ Module.prototype.handlerForDevice = function()
     switch( this.dataType )
     {
     case 2:     break;      // Ack
-    case 64:    break;      // State (0x40)
-    case 65:    break;      // Attitude (0x41)
     case 0x71:  break;      // Joystick
 
     default:
@@ -1492,38 +1354,7 @@ Module.prototype.handlerForDevice = function()
 
     switch( this.dataType )
     {
-    case 0x40:  // State
-        if( this.dataBlock.length == 7 )
-        {
-            // Device -> Entry 
-            let state                           = this.state;
-            state._updated                      = true;
-            state.state_modeVehicle             = this.extractUInt8(this.dataBlock, 0);
-            state.state_modeSystem              = this.extractUInt8(this.dataBlock, 1);
-            state.state_modeFlight              = this.extractUInt8(this.dataBlock, 2);
-            state.state_modeDrive               = this.extractUInt8(this.dataBlock, 3);
-            state.state_sensorOrientation       = this.extractUInt8(this.dataBlock, 4);
-            state.state_coordinate              = this.extractUInt8(this.dataBlock, 5);
-            state.state_battery                 = this.extractUInt8(this.dataBlock, 6);
-
-            //console.log("handlerForDevice - state: " + state.state_modeVehicle);
-        }
-        break;
-
-    case 0x41:  // Attitude
-        if( this.dataBlock.length == 6 )
-        {
-            // Device -> Entry 
-            let attitude            = this.attitude;
-            attitude._updated       = true;
-            attitude.attitude_roll  = this.extractInt16(this.dataBlock, 0);
-            attitude.attitude_pitch = this.extractInt16(this.dataBlock, 2);
-            attitude.attitude_yaw   = this.extractInt16(this.dataBlock, 4);
-
-            //console.log("handlerForDevice - attitude: " + attitude.attitude_roll + ", " + attitude.attitude_pitch + ", " + attitude.attitude_yaw);
-        }
-        break;
-
+    
     case 0x70:  // Button
         if( this.dataBlock.length == 3 )
         {
@@ -1553,19 +1384,6 @@ Module.prototype.handlerForDevice = function()
             joystick.joystick_right_event       = this.extractUInt8(this.dataBlock, 7);
 
             //console.log("handlerForDevice - Joystick: " + joystick.joystick_left_x + ", " + joystick.joystick_left_y + ", " + joystick.joystick_right_x + ", " + joystick.joystick_right_y);
-        }
-        break;
-
-    case 0x82:  // IR Message
-        if( this.dataBlock.length == 5 )
-        {
-            // Device -> Entry 
-            let irmessage                   = this.irmessage;
-            irmessage._updated              = true;
-            irmessage.irmessage_direction   = this.extractUInt8(this.dataBlock, 0);
-            irmessage.irmessage_irdata      = this.extractUInt32(this.dataBlock, 1);    // javascript int 범위 제한(2017.08.23)
-
-            console.log("handlerForDevice - IR Message: " + irmessage.irmessage_direction + ", " + irmessage.irmessage_irdata);
         }
         break;
 
