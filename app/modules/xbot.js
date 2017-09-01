@@ -68,7 +68,8 @@ var XBOT = {
 	LCD_NUM: 'lcdNum',
 	LCD_TXT: 'lcdTxt',
 	NOTE: 'note',
-	DURATION: 'duration'
+	DURATION: 'duration',
+	TEMP: 'temp'	
 };
 
 Module.prototype.init = function(handler, config) {
@@ -323,48 +324,36 @@ Module.prototype.handleRemoteData = function(handler) {
 		}
 	}
 
-	if(handler.e(XBOT.LCD_NUM)) {
+	if(handler.e(XBOT.LCD_NUM)&&handler.e(XBOT.LCD_TXT)) {
 		newValue = handler.read(XBOT.LCD_NUM);
 		if(newValue < 0) newValue = 0;		
 		else if(newValue > 1)  newValue = 1;
-		if(motoring.lcdNum != newValue)
+
+		var lcdTxtValue = handler.read(XBOT.LCD_TXT)+ '                ';
+
+		if(motoring.lcdNum != newValue || motoring.lcdTxt != lcdTxtValue)
 		{
-			motoring.lcdNum = newValue;
+			motoring.lcdNum = newValue;	
+			motoring.lcdTxt = lcdTxtValue;
 			flagCmdSend.lcdCmd = true;
 			this.lcdState = 0;
+			//console.log('LCD_TXT ' + motoring.lcdTxt);			
 		}
 	}
 
-	if(handler.e(XBOT.LCD_TXT)) {
-		newValue = handler.read(XBOT.LCD_TXT)+ '                ';
-		if(motoring.lcdTxt != newValue)
-		{
-			motoring.lcdTxt = newValue;
-			flagCmdSend.lcdCmd = true;
-			this.lcdState = 0;			
-		}
-	}
+	if(handler.e(XBOT.NOTE) && handler.e(XBOT.DURATION)) {
+		var noteValue = handler.read(XBOT.NOTE);
+		var durValue = handler.read(XBOT.DURATION);
 
-	if(handler.e(XBOT.NOTE)) {
-		newValue = handler.read(XBOT.NOTE);
-		if(newValue < 65) newValue = 65;
-		else if(newValue > 4186)  newValue = 4186;
-		if(motoring.note != newValue)
+		//if(newValue < 0) newValue = 0;
+		//else if(newValue > 250)  newValue = 250;
+		if(motoring.note != noteValue || motoring.duration != durValue)
 		{
-			motoring.note = newValue;
-			flagCmdSend.toneCmd = true;			
-		}
-	}
-
-	if(handler.e(XBOT.DURATION)) {
-		newValue = handler.read(XBOT.DURATION);
-		if(newValue < 0) newValue = 0;
-		else if(newValue > 250)  newValue = 250;
-		if(motoring.duration != newValue)
-		{
-			motoring.duration = newValue;
+			motoring.note = noteValue;
+			motoring.duration = durValue;
 			flagCmdSend.toneCmd = true;
-		}
+			console.log('DURATION ' + motoring.note + ' ' + motoring.duration);
+		}		
 	}
 
 	//console.log('handleRemoteData');
@@ -396,6 +385,9 @@ Module.prototype.requestLocalData = function() {
 			this.sendBuffer.push(buffer[i]);
 		}
 		flagCmdSend.wheelCmd = false;
+
+		if(this.sendBuffer.length!=0)
+			return this.sendBuffer;
 	}
 
 	if(flagCmdSend.servoCmd)
@@ -405,6 +397,9 @@ Module.prototype.requestLocalData = function() {
 			this.sendBuffer.push(buffer[i]);
 		}
 		flagCmdSend.servoCmd = false;
+
+		if(this.sendBuffer.length!=0)
+			return this.sendBuffer;
 	}
 
 	if(flagCmdSend.analogCmd)
@@ -414,6 +409,9 @@ Module.prototype.requestLocalData = function() {
 			this.sendBuffer.push(buffer[i]);
 		}
 		flagCmdSend.analogCmd = false;
+	
+		if(this.sendBuffer.length!=0)
+			return this.sendBuffer;
 	}
 
 	if(flagCmdSend.digitalCmd)
@@ -423,6 +421,9 @@ Module.prototype.requestLocalData = function() {
 			this.sendBuffer.push(buffer[i]);
 		}
 		flagCmdSend.digitalCmd = false;
+
+		if(this.sendBuffer.length!=0)
+			return this.sendBuffer;		
 	}	
 
 	if(flagCmdSend.rgbCmd)
@@ -432,6 +433,9 @@ Module.prototype.requestLocalData = function() {
 			this.sendBuffer.push(buffer[i]);
 		}
 		flagCmdSend.rgbCmd = false;
+
+		if(this.sendBuffer.length!=0)
+			return this.sendBuffer;
 	}
 
 	if(flagCmdSend.toneCmd)
@@ -445,7 +449,11 @@ Module.prototype.requestLocalData = function() {
 		for (var i = 0; i < buffer.length; i++) {
 			this.sendBuffer.push(buffer[i]);
 		}
+
 		flagCmdSend.toneCmd = false;
+
+		if(this.sendBuffer.length!=0)
+			return this.sendBuffer;
 	}
 
 	if(flagCmdSend.lcdCmd)
@@ -477,6 +485,7 @@ Module.prototype.requestLocalData = function() {
 		for (var i = 0; i < buffer.length; i++) {
 			this.sendBuffer.push(buffer[i]);
 		}
+		
 		flagCmdSend.lcdCmd = false;
 
 		if(this.lcdState <= 3)
@@ -487,17 +496,20 @@ Module.prototype.requestLocalData = function() {
 				//console.log('setTimeout');				
 			}, 30);
 		}
-
+		
+		if(this.sendBuffer.length!=0)
+			return this.sendBuffer;
 	}
 
 	//return this.tmpBuffer;
 	//console.log('requestLocalData');
 
-	if(this.sendBuffer.length!=0)
-	{	
+	//if(this.sendBuffer.length!=0)
+	//{	
 		//console.log('send this.sendBuffer');	
-		return this.sendBuffer;
-	}
+	//	return this.sendBuffer;
+	//}
+	return null;
 };
 
 Module.prototype.XBOTcmdBuild = function(cmd, d0, d1, d2, d3, d4) {
