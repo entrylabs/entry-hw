@@ -579,7 +579,7 @@
             sp.set({ dtr: false }, function() {});
             setTimeout(function() { sp.set({ dtr: true }, function() {}) }, 1000);
             return;
-        } else if ((state === "lost" || state === "disconnected") && window.currentConfig.reconnect) {
+        } else if ((state === "lost" || state === "disconnected") && window.currentConfig.reconnect) { // kjs see this 170817
             router.close();
             ui.showConnecting();
             router.startScan(window.currentConfig);
