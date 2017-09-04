@@ -2,7 +2,7 @@
     "id": "011001",
     "name": {
         "en": "4D Mechatronics",
-        "ko": "4D Mechatronicsº"
+        "ko": "4D Mechatronics"
     },
     "platform": ["win32", "darwin"],
     "icon" : "4d_mechatronics.png",
