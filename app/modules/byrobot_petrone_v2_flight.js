@@ -1286,7 +1286,7 @@ Module.prototype.tansferForEntry = function(handler)
             }
 
             joystick._updated == false;
-            //this.log("Module.prototype.tansferForEntry() / attitude", "");
+            //this.log("Module.prototype.tansferForEntry() / Joystick", "");
         }
     }
 
@@ -1301,7 +1301,7 @@ Module.prototype.tansferForEntry = function(handler)
             }
 
             button._updated == false;
-            //this.log("Module.prototype.tansferForEntry() / attitude", "");
+            //this.log("Module.prototype.tansferForEntry() / Button", "");
         }
     }
 
@@ -1561,6 +1561,7 @@ Module.prototype.handlerForDevice = function()
     case 0x53:  break;      // Range
     case 0x54:  break;      // Image Flow (Optical Flow)
     case 0x71:  break;      // Joystick
+    case 0xD1:  break;      // Information Assembled For Entry 자주 갱신되는 데이터 모음(엔트리)
 
     default:
         this.log("Module.prototype.handlerForDevice() / From: " + this.from + " / To: " + this.to + " / Type: " + this.dataType + " / ", this.dataBlock);
@@ -1654,7 +1655,7 @@ Module.prototype.handlerForDevice = function()
             imu.imu_anglePitch          = this.extractInt16(this.dataBlock, 14);
             imu.imu_angleYaw            = this.extractInt16(this.dataBlock, 16);
 
-            //console.log("handlerForDevice - imu: " + imu.angle_roll + ", " + imu.angle_pitch + ", " + imu.angle_yaw);
+            //console.log("handlerForDevice - imu: " + imu.imu_angleRoll + ", " + imu.imu_anglePitch + ", " + imu.imu_angleYaw);
         }
         break;
 
@@ -1743,6 +1744,41 @@ Module.prototype.handlerForDevice = function()
             irmessage.irmessage_irdata      = this.extractUInt32(this.dataBlock, 1);    // javascript int 범위 제한(2017.08.23)
 
             console.log("handlerForDevice - IR Message: " + irmessage.irmessage_direction + ", " + irmessage.irmessage_irdata);
+        }
+        break;
+
+    case 0xD1:  // Information Assembled For Entry 자주 갱신되는 데이터 모음(엔트리)
+        if( this.dataBlock.length != 0 )            // 데이터 길이 안맞는 문제 발견 (2017.09.04)
+        {
+            console.log("handlerForDevice - Information Assembled For Entry: 진입");
+            // Device -> Entry 
+            let imu                         = this.imu;
+            imu._updated                    = true;
+            imu.imu_accX                    = this.extractInt16(this.dataBlock, 0);
+            imu.imu_accY                    = this.extractInt16(this.dataBlock, 2);
+            imu.imu_accZ                    = this.extractInt16(this.dataBlock, 4);
+            imu.imu_gyroRoll                = this.extractInt16(this.dataBlock, 6);
+            imu.imu_gyroPitch               = this.extractInt16(this.dataBlock, 8);
+            imu.imu_gyroYaw                 = this.extractInt16(this.dataBlock, 10);
+            imu.imu_angleRoll               = this.extractInt16(this.dataBlock, 12);
+            imu.imu_anglePitch              = this.extractInt16(this.dataBlock, 14);
+            imu.imu_angleYaw                = this.extractInt16(this.dataBlock, 16);
+
+            let pressure                    = this.pressure;
+            pressure._updated               = true;
+            pressure.pressure_temperature   = this.extractFloat32(this.dataBlock, 18);
+            pressure.pressure_pressure      = this.extractFloat32(this.dataBlock, 22);
+
+            let imageflow                   = this.imageflow;
+            imageflow._updated              = true;
+            imageflow.imageflow_positionX   = this.extractFloat32(this.dataBlock, 26);
+            imageflow.imageflow_positionY   = this.extractFloat32(this.dataBlock, 30);
+
+            let range                       = this.range;
+            range._updated                  = true;
+            range.range_bottom              = this.extractFloat32(this.dataBlock, 34);
+
+            console.log("handlerForDevice - Information Assembled For Entry: 완료" + this.dataBlock.length + ", " + this.dataBlock);
         }
         break;
 
@@ -1867,7 +1903,7 @@ Module.prototype.transferForDevice = function()
     if( this.bufferTransfer.length == 0 )
     {
         // 예약된 요청이 없는 경우 데이터 요청 등록(현재는 자세 데이터 요청)
-        switch( this.countReqeustDevice % 12 )
+        switch( this.countReqeustDevice % 14 )
         {
         case 0:
             return this.ping(0x30);                     // 페트론V2 드론
@@ -1879,16 +1915,19 @@ Module.prototype.transferForDevice = function()
             return this.reserveRequest(0x30, 0x40);     // 페트론V2 드론, 드론의 상태(State)
 
         case 6:
-            return this.reserveRequest(0x30, 0x51);     // 페트론V2 드론, Pressure Sensor
+            return this.reserveRequest(0x30, 0x50);     // 페트론V2 드론, 드론의 자세(Attitude) 및 Accel, Gyro
 
         case 8:
-            return this.reserveRequest(0x30, 0x53);     // 페트론V2 드론, Range Sensor
+            return this.reserveRequest(0x30, 0x51);     // 페트론V2 드론, Pressure Sensor
 
         case 10:
+            return this.reserveRequest(0x30, 0x53);     // 페트론V2 드론, Range Sensor
+
+        case 12:
             return this.reserveRequest(0x30, 0x54);     // 페트론V2 드론, Image Flow (Optical Flow) Sensor
 
         default:
-            return this.reserveRequest(0x30, 0x50);     // 페트론V2 드론, 드론의 자세(Attitude) 및 Accel, Gyro
+            return this.reserveRequest(0x30, 0xD1);     // 페트론V2 드론, 자주 갱신되는 데이터 모음(엔트리)
         }
     }
     else
