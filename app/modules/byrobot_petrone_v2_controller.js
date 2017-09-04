@@ -534,7 +534,7 @@ Module.prototype.handlerForEntry = function(handler)
     }
 
     // OLED - 선택 영역 지우기
-    if( (handler.e(DataType.DISPLAY_CLEAR_X) == true) || (handler.e(DataType.DISPLAY_CLEAR_Y) == true) || (handler.e(DataType.DISPLAY_CLEAR_WIDTH) == true) || (handler.e(DataType.DISPLAY_CLEAR_HEIGHT) == true) || (handler.e(DataType.DISPLAY_CLEAR_PIXEL) == true) )
+    if( (handler.e(DataType.DISPLAY_CLEAR_WIDTH) == true) || (handler.e(DataType.DISPLAY_CLEAR_HEIGHT) == true) )
     {
         var dataArray = [];
 
@@ -575,7 +575,7 @@ Module.prototype.handlerForEntry = function(handler)
     }
 
     // OLED - 선택 영역 반전
-    if( (handler.e(DataType.DISPLAY_INVERT_X) == true) || (handler.e(DataType.DISPLAY_INVERT_Y) == true) || (handler.e(DataType.DISPLAY_INVERT_WIDTH) == true) || (handler.e(DataType.DISPLAY_INVERT_HEIGHT) == true) )
+    if( (handler.e(DataType.DISPLAY_INVERT_WIDTH) == true) || (handler.e(DataType.DISPLAY_INVERT_HEIGHT) == true) )
     {
         var dataArray = [];
 
@@ -649,7 +649,7 @@ Module.prototype.handlerForEntry = function(handler)
     }
 
     // OLED - 화면에 선 그리기
-    if( (handler.e(DataType.DISPLAY_DRAW_LINE_X1) == true) || (handler.e(DataType.DISPLAY_DRAW_LINE_Y1) == true) || (handler.e(DataType.DISPLAY_DRAW_LINE_X2) == true) || (handler.e(DataType.DISPLAY_DRAW_LINE_Y2) == true) || (handler.e(DataType.DISPLAY_DRAW_LINE_PIXEL) == true) )
+    if( (handler.e(DataType.DISPLAY_DRAW_LINE_X1) == true) || (handler.e(DataType.DISPLAY_DRAW_LINE_Y1) == true) || (handler.e(DataType.DISPLAY_DRAW_LINE_X2) == true) || (handler.e(DataType.DISPLAY_DRAW_LINE_Y2) == true) )
     {
         var dataArray = [];
 
@@ -690,7 +690,7 @@ Module.prototype.handlerForEntry = function(handler)
     }
 
      // OLED - 화면에 사각형 그리기
-    if( (handler.e(DataType.DISPLAY_DRAW_RECT_X) == true) || (handler.e(DataType.DISPLAY_DRAW_RECT_Y) == true) || (handler.e(DataType.DISPLAY_DRAW_RECT_WIDTH) == true) || (handler.e(DataType.DISPLAY_DRAW_RECT_HEIGHT) == true) || (handler.e(DataType.DISPLAY_DRAW_RECT_PIXEL) == true) || (handler.e(DataType.DISPLAY_DRAW_RECT_FLAGFILL) == true) )
+    if( (handler.e(DataType.DISPLAY_DRAW_RECT_WIDTH) == true) || (handler.e(DataType.DISPLAY_DRAW_RECT_HEIGHT) == true) )
     {
         var dataArray = [];
 
@@ -733,7 +733,7 @@ Module.prototype.handlerForEntry = function(handler)
     }
 
     // OLED - 화면에 원 그리기
-    if( (handler.e(DataType.DISPLAY_DRAW_CIRCLE_X) == true) || (handler.e(DataType.DISPLAY_DRAW_CIRCLE_Y) == true) || (handler.e(DataType.DISPLAY_DRAW_CIRCLE_RADIUS) == true) || (handler.e(DataType.DISPLAY_DRAW_CIRCLE_PIXEL) == true) || (handler.e(DataType.DISPLAY_DRAW_CIRCLE_FLAGFILL) == true) )
+    if( handler.e(DataType.DISPLAY_DRAW_CIRCLE_RADIUS) == true )
     {
         var dataArray = [];
 
@@ -773,7 +773,7 @@ Module.prototype.handlerForEntry = function(handler)
     }
 
     // OLED - 화면에 문자열 쓰기
-    if( (handler.e(DataType.DISPLAY_DRAW_STRING_X) == true) || (handler.e(DataType.DISPLAY_DRAW_STRING_Y) == true) || (handler.e(DataType.DISPLAY_DRAW_STRING_FONT) == true) || (handler.e(DataType.DISPLAY_DRAW_STRING_PIXEL) == true) || (handler.e(DataType.DISPLAY_DRAW_STRING_STRING) == true) )
+    if( handler.e(DataType.DISPLAY_DRAW_STRING_STRING) == true )
     {
         var dataArray = [];
         var bytes = [];
