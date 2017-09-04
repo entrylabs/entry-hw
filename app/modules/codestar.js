@@ -12,7 +12,8 @@ function Module() {
 		geomagnetic: 0,
 		sonar: 0,
 		leftwheel: 0,
-		rightwheel: 0
+		rightwheel: 0,
+		tilt: 0
 	};
 }
 
@@ -67,15 +68,20 @@ Module.prototype.handleLocalData = function(data) { // data: Native Buffer
 					var port = (chunk >> 3) & 7;
 					this.analogValue[port] = ((chunk & 7) << 7) +
 						(nextChunk & 127);
-					if(port == 7){ 
+					if(port == 5){ 
 						var sensory = this.sensory;
-						sensory.temperature = ((chunk & 7) << 7) +
-						(nextChunk & 127);
+						sensory.temperature = Math.round((500 * (((chunk & 7) << 7) +
+						(nextChunk & 127))) / 1024);
 					}
 					else if(port == 1){
 						var sensory = this.sensory;
 						sensory.sonar = ((chunk & 7) << 7) +
 						(nextChunk & 127);
+					}
+					else if(port == 4){
+						var sensory = this.sensory;
+						sensory.tilt = (((chunk & 7) << 7) +
+						(nextChunk & 127)) == 0 ? 0 : 1;
 					}
 				}				
 		    i++;
