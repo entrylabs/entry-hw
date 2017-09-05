@@ -1644,13 +1644,15 @@ Module.prototype.handlerForDevice = function()
         {
             // Device -> Entry 
             let imu                     = this.imu;
+            let kAccel                  = ( 9.8 / 2048 );       // 1g (중력가속도) = 9.8 m/s^2 로 만들기 위한 변환 상수
+            let kGyro                   = ( 2000 / 32767 );     // 각 속도 (deg/s) 를 만들기 위한 변환 상수
             imu._updated                = true;
-            imu.imu_accX                = this.extractInt16(this.dataBlock, 0);
-            imu.imu_accY                = this.extractInt16(this.dataBlock, 2);
-            imu.imu_accZ                = this.extractInt16(this.dataBlock, 4);
-            imu.imu_gyroRoll            = this.extractInt16(this.dataBlock, 6);
-            imu.imu_gyroPitch           = this.extractInt16(this.dataBlock, 8);
-            imu.imu_gyroYaw             = this.extractInt16(this.dataBlock, 10);
+            imu.imu_accX                = (this.extractInt16(this.dataBlock, 0) * kAccel).toFixed(2);
+            imu.imu_accY                = (this.extractInt16(this.dataBlock, 2) * kAccel).toFixed(2);
+            imu.imu_accZ                = (this.extractInt16(this.dataBlock, 4) * kAccel).toFixed(2);
+            imu.imu_gyroRoll            = (this.extractInt16(this.dataBlock, 6) * kGyro).toFixed(2);
+            imu.imu_gyroPitch           = (this.extractInt16(this.dataBlock, 8) * kGyro).toFixed(2);
+            imu.imu_gyroYaw             = (this.extractInt16(this.dataBlock, 10) * kGyro).toFixed(2);
             imu.imu_angleRoll           = this.extractInt16(this.dataBlock, 12);
             imu.imu_anglePitch          = this.extractInt16(this.dataBlock, 14);
             imu.imu_angleYaw            = this.extractInt16(this.dataBlock, 16);
@@ -1927,7 +1929,7 @@ Module.prototype.transferForDevice = function()
             return this.reserveRequest(0x30, 0x54);     // 페트론V2 드론, Image Flow (Optical Flow) Sensor
 
         default:
-            return this.reserveRequest(0x30, 0xD1);     // 페트론V2 드론, 자주 갱신되는 데이터 모음(엔트리)
+            return this.reserveRequest(0x30, 0x50);     // 페트론V2 드론, 자주 갱신되는 데이터 모음(엔트리)
         }
     }
     else

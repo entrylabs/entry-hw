@@ -792,6 +792,7 @@ Module.prototype.handlerForEntry = function(handler)
         // https://stackoverflow.com/questions/6226189/how-to-convert-a-string-to-bytearray
         function stringToAsciiByteArray(str)
         {
+            var bytes = []; // 함수 밖으로 옮기는것부터 시작
             for (var i = 0; i < str.length; ++i)
             {
                 var charCode = str.charCodeAt(i);
