@@ -283,6 +283,15 @@ var DataType =
     DISPLAY_DRAW_STRING_PIXEL:  'display_draw_string_pixel',
     DISPLAY_DRAW_STRING_STRING: 'display_draw_string_string',
 
+    // OLED - 화면에 문자열 정렬하여 그리기
+    DISPLAY_DRAW_STRING_ALIGN_X_START:  'display_draw_string_align_x_start',
+    DISPLAY_DRAW_STRING_ALIGN_X_END:    'display_draw_string_align_x_end',
+    DISPLAY_DRAW_STRING_ALIGN_Y:        'display_draw_string_align_y',
+    DISPLAY_DRAW_STRING_ALIGN_ALIGN:    'display_draw_string_align_align',
+    DISPLAY_DRAW_STRING_ALIGN_FONT:     'display_draw_string_align_font',
+    DISPLAY_DRAW_STRING_ALIGN_PIXEL:    'display_draw_string_align_pixel',
+    DISPLAY_DRAW_STRING_ALIGN_STRING:   'display_draw_string_align_string',
+
     // Buzzer
     BUZZER_MODE:                'buzzer_mode',
     BUZZER_VALUE:               'buzzer_value',
@@ -818,7 +827,56 @@ Module.prototype.handlerForEntry = function(handler)
         this.bufferTransfer.push(dataArray);
     }
 
-    // 작업중..
+    // OLED - 화면에 문자열 정렬하여 그리기
+    if( handler.e(DataType.DISPLAY_DRAW_STRING_ALIGN_STRING) == true )
+    {
+        var dataArray = [];
+        var byteArray = [];
+
+        // Start Code
+        this.addStartCode(dataArray);
+        
+        let target                              = handler.e(DataType.TARGET)                                ? handler.read(DataType.TARGET)                             : 0xFF;
+        let display_draw_string_align_x_start   = handler.e(DataType.DISPLAY_DRAW_STRING_ALIGN_X_START)     ? handler.read(DataType.DISPLAY_DRAW_STRING_ALIGN_X_START)  : 0;
+        let display_draw_string_align_x_end     = handler.e(DataType.DISPLAY_DRAW_STRING_ALIGN_X_END)       ? handler.read(DataType.DISPLAY_DRAW_STRING_ALIGN_X_END)    : 0;
+        let display_draw_string_align_y         = handler.e(DataType.DISPLAY_DRAW_STRING_ALIGN_Y)           ? handler.read(DataType.DISPLAY_DRAW_STRING_ALIGN_Y)        : 0;
+        let display_draw_string_align_align     = handler.e(DataType.DISPLAY_DRAW_STRING_ALIGN_ALIGN)       ? handler.read(DataType.DISPLAY_DRAW_STRING_ALIGN_ALIGN)    : 0;
+        let display_draw_string_align_font      = handler.e(DataType.DISPLAY_DRAW_STRING_ALIGN_FONT)        ? handler.read(DataType.DISPLAY_DRAW_STRING_ALIGN_FONT)     : 0;
+        let display_draw_string_align_pixel     = handler.e(DataType.DISPLAY_DRAW_STRING_ALIGN_PIXEL)       ? handler.read(DataType.DISPLAY_DRAW_STRING_ALIGN_PIXEL)    : 0;
+        let display_draw_string_align_string    = handler.e(DataType.DISPLAY_DRAW_STRING_ALIGN_STRING)      ? handler.read(DataType.DISPLAY_DRAW_STRING_ALIGN_STRING)   : 0;
+
+        byteArray = this.stringToAsciiByteArray(display_draw_string_align_string);
+
+        let indexStart = dataArray.length;         // 배열에서 데이터를 저장하기 시작하는 위치
+        let dataLength = 9 + byteArray.length;     // 데이터의 길이
+
+        // Header
+        dataArray.push(0xB7);                   // Data Type
+        dataArray.push(dataLength);             // Data Length
+        dataArray.push(0x38);                   // From (네이버 엔트리)
+        dataArray.push(target);                 // To
+
+        // Data
+        dataArray.push(this.getByte0(display_draw_string_align_x_start));
+        dataArray.push(this.getByte1(display_draw_string_align_x_start));
+        dataArray.push(this.getByte0(display_draw_string_align_x_end));
+        dataArray.push(this.getByte1(display_draw_string_align_x_end));
+        dataArray.push(this.getByte0(display_draw_string_align_y));
+        dataArray.push(this.getByte1(display_draw_string_align_y));
+        dataArray.push(display_draw_string_align_align);
+        dataArray.push(display_draw_string_align_font);
+        dataArray.push(display_draw_string_align_pixel);
+
+        for (let i = 0; i < byteArray.length; i++)
+        {
+            dataArray.push(byteArray[i]);
+        }
+
+        // CRC16
+        this.addCRC16(dataArray, indexStart, dataLength);
+
+        this.bufferTransfer.push(dataArray);
+    }
 
     // Command
     if( handler.e(DataType.COMMAND_COMMAND) == true )
