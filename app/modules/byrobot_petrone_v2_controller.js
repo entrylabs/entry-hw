@@ -260,6 +260,7 @@ var DataType =
     DISPLAY_DRAW_LINE_X2:       'display_draw_line_x2',
     DISPLAY_DRAW_LINE_Y2:       'display_draw_line_y2',
     DISPLAY_DRAW_LINE_PIXEL:    'display_draw_line_pixel',
+    DISPLAY_DRAW_LINE_LINE:     'display_draw_line_line',
 
     // OLED - 화면에 사각형 그리기
     DISPLAY_DRAW_RECT_X:        'display_draw_rect_x',
@@ -268,6 +269,7 @@ var DataType =
     DISPLAY_DRAW_RECT_HEIGHT:   'display_draw_rect_height',
     DISPLAY_DRAW_RECT_PIXEL:    'display_draw_rect_pixel',
     DISPLAY_DRAW_RECT_FLAGFILL: 'display_draw_rect_flagfill',
+    DISPLAY_DRAW_RECT_LINE:     'display_draw_rect_line',
 
     // OLED - 화면에 원 그리기
     DISPLAY_DRAW_CIRCLE_X:        'display_draw_circle_x',
@@ -671,9 +673,10 @@ Module.prototype.handlerForEntry = function(handler)
         let display_draw_line_x2        = handler.e(DataType.DISPLAY_DRAW_LINE_X2)      ? handler.read(DataType.DISPLAY_DRAW_LINE_X2)       : 0;
         let display_draw_line_y2        = handler.e(DataType.DISPLAY_DRAW_LINE_Y2)      ? handler.read(DataType.DISPLAY_DRAW_LINE_Y2)       : 0;
         let display_draw_line_pixel     = handler.e(DataType.DISPLAY_DRAW_LINE_PIXEL)   ? handler.read(DataType.DISPLAY_DRAW_LINE_PIXEL)    : 0;
+        let display_draw_line_line      = handler.e(DataType.DISPLAY_DRAW_LINE_LINE)    ? handler.read(DataType.DISPLAY_DRAW_LINE_LINE)     : 0;
         
         let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-        let dataLength = 9;                     // 데이터의 길이
+        let dataLength = 10;                     // 데이터의 길이
 
         // Header
         dataArray.push(0xB3);                   // Data Type
@@ -691,6 +694,7 @@ Module.prototype.handlerForEntry = function(handler)
         dataArray.push(this.getByte0(display_draw_line_y2));
         dataArray.push(this.getByte1(display_draw_line_y2));
         dataArray.push(display_draw_line_pixel);
+        dataArray.push(display_draw_line_line);
 
         // CRC16
         this.addCRC16(dataArray, indexStart, dataLength);
@@ -713,9 +717,10 @@ Module.prototype.handlerForEntry = function(handler)
         let display_draw_rect_height    = handler.e(DataType.DISPLAY_DRAW_RECT_HEIGHT)      ? handler.read(DataType.DISPLAY_DRAW_RECT_HEIGHT)       : 0;
         let display_draw_rect_pixel     = handler.e(DataType.DISPLAY_DRAW_RECT_PIXEL)       ? handler.read(DataType.DISPLAY_DRAW_RECT_PIXEL)        : 0;
         let display_draw_rect_flagfill  = handler.e(DataType.DISPLAY_DRAW_RECT_FLAGFILL)    ? handler.read(DataType.DISPLAY_DRAW_RECT_FLAGFILL)     : 0;
+        let display_draw_rect_line      = handler.e(DataType.DISPLAY_DRAW_RECT_LINE)        ? handler.read(DataType.DISPLAY_DRAW_RECT_LINE)         : 0;
 
         let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-        let dataLength = 10;                    // 데이터의 길이
+        let dataLength = 11;                    // 데이터의 길이
 
         // Header
         dataArray.push(0xB4);                   // Data Type
@@ -734,6 +739,7 @@ Module.prototype.handlerForEntry = function(handler)
         dataArray.push(this.getByte1(display_draw_rect_height));
         dataArray.push(display_draw_rect_pixel);
         dataArray.push(display_draw_rect_flagfill);
+        dataArray.push(display_draw_rect_line);
 
         // CRC16
         this.addCRC16(dataArray, indexStart, dataLength);
