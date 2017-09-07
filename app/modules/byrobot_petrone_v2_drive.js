@@ -20,7 +20,7 @@ function Module()
     this.ack =
     {
         _updated: 1,
-        ack_systemTime: 0,      // u32
+        ack_systemTime: 0,      // u64
         ack_dataType: 0,        // u8
         ack_crc16: 0            // u16
     }
@@ -33,12 +33,10 @@ function Module()
         joystick_left_y: 0,
         joystick_left_direction: 0,
         joystick_left_event: 0,
-        joystick_left_command: 0,
         joystick_right_x: 0,
         joystick_right_y: 0,
         joystick_right_direction: 0,
         joystick_right_event: 0,
-        joystick_right_command: 0
     }
 
     // Button
@@ -59,22 +57,57 @@ function Module()
         state_modeDrive: 0,
         state_sensorOrientation: 0,
         state_coordinate: 0,
-        state_battery: 0,
+        state_battery: 0
     }
 
-    // Attitude
-    this.attitude =
+    // Imu
+    this.imu =
     {
         _updated: 1,
-        attitude_roll: 0,
-        attitude_pitch : 0,
-        attitude_yaw: 0
+        imu_accX: 0,
+        imu_accY: 0,
+        imu_accZ: 0,
+        imu_gyroRoll: 0,
+        imu_gyroPitch: 0,
+        imu_gyroYaw: 0,
+        imu_angleRoll: 0,
+        imu_anglePitch: 0,
+        imu_angleYaw: 0
+    }
+    
+    // Pressure
+    this.pressure =
+    {
+        _updated: 1,
+        pressure_temperature: 0,
+        pressure_pressure: 0
+    }
+
+    // Image Flow (Optical Flow)
+    this.imageflow =
+    {
+        _updated: 1,
+        imageflow_positionX: 0,
+        imageflow_positionY: 0
+    }
+
+    // Range
+    this.range =
+    {
+        _updated: 1,
+        range_left: 0,
+        range_front: 0,
+        range_right: 0,
+        range_rear: 0,
+        range_top: 0,
+        range_bottom: 0
     }
 
     // IR Message
-    this.irmeessage = 
+    this.irmessage = 
     {
         _updated: 1,
+        irmessage_direction: 0,             // 수신 받은 방향 (추가)
         irmessage_irdata: 0
     }
 
@@ -102,7 +135,7 @@ function Module()
     this.crc16Received          = 0;        // CRC16 수신 받은 블럭
     this.crc16Transfered        = 0;        // 전송한 데이터의 crc16
     
-    this.maxTransferRepeat      = 10;       // 최대 반복 전송 횟수
+    this.maxTransferRepeat      = 2;        // 최대 반복 전송 횟수
     this.countTransferRepeat    = 0;        // 반복 전송 횟수
     this.dataTypeLastTransfered = 0;        // 마지막으로 전송한 데이터의 타입
 
@@ -123,7 +156,7 @@ Module.prototype.init = function(handler, config)
 // 초기 송신데이터(필수)
 Module.prototype.requestInitialData = function()
 {
-    return this.ping(0x11);
+    return this.ping(0x31);
 };
 
 // 초기 수신데이터 체크(필수)
@@ -191,12 +224,10 @@ Module.prototype.resetData = function()
     joystick.joystick_left_y            = 0;
     joystick.joystick_left_direction    = 0;
     joystick.joystick_left_event        = 0;
-    joystick.joystick_left_command      = 0;
     joystick.joystick_right_x           = 0;
     joystick.joystick_right_y           = 0;
     joystick.joystick_right_direction   = 0;
     joystick.joystick_right_event       = 0;
-    joystick.joystick_right_command     = 0;
 
     // Button
     let button                          = this.button;
@@ -215,17 +246,46 @@ Module.prototype.resetData = function()
     state.state_coordinate              = 0;
     state.state_battery                 = 0;
 
-    // Attitude
-    let attitude                        = this.attitude;
-    attitude._updated                   = 0;
-    attitude.attitude_roll              = 0;
-    attitude.attitude_pitch             = 0;
-    attitude.attitude_yaw               = 0;
+    // Imu
+    let imu                             = this.imu;
+    imu._updated                        = 0;
+    imu.imu_accX                        = 0;
+    imu.imu_accY                        = 0;
+    imu.imu_accZ                        = 0;
+    imu.imu_gyroRoll                    = 0;
+    imu.imu_gyroPitch                   = 0;
+    imu.imu_gyroYaw                     = 0;
+    imu.imu_angleRoll                   = 0;
+    imu.imu_anglePitch                  = 0;
+    imu.imu_angleYaw                    = 0;
+    
+     // Pressure
+    let pressure                        = this.pressure;
+    pressure._updated                   = 0;
+    pressure.pressure_temperature       = 0;
+    pressure.pressure_pressure          = 0;
+
+    // Image Flow (Optical Flow)
+    let imageflow                       = this.imageflow;
+    imageflow._updated                  = 0;
+    imageflow.imageflow_positionX       = 0;
+    imageflow.imageflow_positionY       = 0;
+
+    // Range
+    let range                           = this.range;
+    range._updated                      = 0;
+    range.range_left                    = 0;
+    range.range_front                   = 0;
+    range.range_right                   = 0;
+    range.range_rear                    = 0;
+    range.range_top                     = 0;
+    range.range_bottom                  = 0;
 
     // IR Message
-    let irmeessage                      = this.irmeessage;
-    irmeessage._updated                 = 0;
-    irmeessage.irmessage_irdata         = 0;
+    let irmessage                       = this.irmessage;
+    irmessage._updated                  = 0;
+    irmessage.irmessage_direction       = 0;
+    irmessage.irmessage_irdata          = 0;
 
     // -- Control -----------------------------------------------------------------
     this.controlWheel                   = 0;        // 
@@ -249,25 +309,28 @@ Module.prototype.resetData = function()
     this.crc16Calculated                = 0;        // CRC16 계산 된 결과
     this.crc16Received                  = 0;        // CRC16 수신 받은 블럭
 
-    this.maxTransferRepeat              = 10;       // 최대 반복 전송 횟수
+    this.maxTransferRepeat              = 2;        // 최대 반복 전송 횟수
     this.countTransferRepeat            = 0;        // 반복 전송 횟수
     this.dataTypeLastTransfered         = 0;        // 마지막으로 전송한 데이터의 타입
 
     this.timeReceive                    = 0;        // 데이터를 전송 받은 시각
     this.timeTransfer                   = 0;        // 예약 데이터를 전송한 시각
     this.timeTransferNext               = 0;        // 전송 가능한 다음 시간
-    this.timeTransferInterval           = 24;       // 최소 전송 시간 간격
+    this.timeTransferInterval           = 40;       // 최소 전송 시간 간격
 
     this.countReqeustDevice             = 0;        // 장치에 데이터를 요청한 횟수 카운트 
 }
 
 /***************************************************************************************
- *  드론파이터 / 컨트롤러에 전달하는 명령
+ *  페트론V2 / 컨트롤러에 전달하는 명령
  ***************************************************************************************/
 
 // Entry -> Device
 var DataType =
 {
+    // 전송 버퍼
+    BUFFER_CLEAR:               'buffer_clear',
+
     // 전송 대상
     TARGET:                     'target',
 
@@ -280,9 +343,75 @@ var DataType =
     LIGHT_EVENT_INTERVAL:       'light_event_interval',
     LIGHT_EVENT_REPEAT:         'light_event_repeat',
 
-    // Light Manaul
+    // Light Manual
     LIGHT_MANUAL_FLAGS:         'light_manual_flags',
     LIGHT_MANUAL_BRIGHTNESS:    'light_manual_brightness',
+
+    // Light Color
+    LIGHT_COLOR_R:              'light_color_r',
+    LIGHT_COLOR_G:              'light_color_g',
+    LIGHT_COLOR_B:              'light_color_b',
+
+    // OLED - 화면 전체 지우기
+    DISPLAY_CLEARALL_PIXEL:     'display_clearall_pixel',
+
+    // OLED - 선택 영역 지우기
+    DISPLAY_CLEAR_X:            'display_clear_x',
+    DISPLAY_CLEAR_Y:            'display_clear_y',
+    DISPLAY_CLEAR_WIDTH:        'display_clear_width',
+    DISPLAY_CLEAR_HEIGHT:       'display_clear_height',
+    DISPLAY_CLEAR_PIXEL:        'display_clear_pixel',
+
+    // OLED - 선택 영역 반전
+    DISPLAY_INVERT_X:           'display_invert_x',
+    DISPLAY_INVERT_Y:           'display_invert_y',
+    DISPLAY_INVERT_WIDTH:       'display_invert_width',
+    DISPLAY_INVERT_HEIGHT:      'display_invert_height',
+
+    // OLED - 화면에 점 찍기
+    DISPLAY_DRAW_POINT_X:       'display_draw_point_x',
+    DISPLAY_DRAW_POINT_Y:       'display_draw_point_y',
+    DISPLAY_DRAW_POINT_PIXEL:   'display_draw_point_pixel',
+
+    // OLED - 화면에 선 그리기
+    DISPLAY_DRAW_LINE_X1:       'display_draw_line_x1',
+    DISPLAY_DRAW_LINE_Y1:       'display_draw_line_y1',
+    DISPLAY_DRAW_LINE_X2:       'display_draw_line_x2',
+    DISPLAY_DRAW_LINE_Y2:       'display_draw_line_y2',
+    DISPLAY_DRAW_LINE_PIXEL:    'display_draw_line_pixel',
+    DISPLAY_DRAW_LINE_LINE:     'display_draw_line_line',
+
+    // OLED - 화면에 사각형 그리기
+    DISPLAY_DRAW_RECT_X:        'display_draw_rect_x',
+    DISPLAY_DRAW_RECT_Y:        'display_draw_rect_y',
+    DISPLAY_DRAW_RECT_WIDTH:    'display_draw_rect_width',
+    DISPLAY_DRAW_RECT_HEIGHT:   'display_draw_rect_height',
+    DISPLAY_DRAW_RECT_PIXEL:    'display_draw_rect_pixel',
+    DISPLAY_DRAW_RECT_FLAGFILL: 'display_draw_rect_flagfill',
+    DISPLAY_DRAW_RECT_LINE:     'display_draw_rect_line',
+
+    // OLED - 화면에 원 그리기
+    DISPLAY_DRAW_CIRCLE_X:        'display_draw_circle_x',
+    DISPLAY_DRAW_CIRCLE_Y:        'display_draw_circle_y',
+    DISPLAY_DRAW_CIRCLE_RADIUS:   'display_draw_circle_radius',
+    DISPLAY_DRAW_CIRCLE_PIXEL:    'display_draw_circle_pixel',
+    DISPLAY_DRAW_CIRCLE_FLAGFILL: 'display_draw_circle_flagfill',
+
+    // OLED - 화면에 문자열 쓰기
+    DISPLAY_DRAW_STRING_X:      'display_draw_string_x',
+    DISPLAY_DRAW_STRING_Y:      'display_draw_string_y',
+    DISPLAY_DRAW_STRING_FONT:   'display_draw_string_font',
+    DISPLAY_DRAW_STRING_PIXEL:  'display_draw_string_pixel',
+    DISPLAY_DRAW_STRING_STRING: 'display_draw_string_string',
+
+    // OLED - 화면에 문자열 정렬하여 그리기
+    DISPLAY_DRAW_STRING_ALIGN_X_START:  'display_draw_string_align_x_start',
+    DISPLAY_DRAW_STRING_ALIGN_X_END:    'display_draw_string_align_x_end',
+    DISPLAY_DRAW_STRING_ALIGN_Y:        'display_draw_string_align_y',
+    DISPLAY_DRAW_STRING_ALIGN_ALIGN:    'display_draw_string_align_align',
+    DISPLAY_DRAW_STRING_ALIGN_FONT:     'display_draw_string_align_font',
+    DISPLAY_DRAW_STRING_ALIGN_PIXEL:    'display_draw_string_align_pixel',
+    DISPLAY_DRAW_STRING_ALIGN_STRING:   'display_draw_string_align_string',
 
     // Buzzer
     BUZZER_MODE:                'buzzer_mode',
@@ -307,15 +436,16 @@ var DataType =
 
     // Command
     COMMAND_COMMAND:            'command_command',
-    COMMAND_OPTIOIN:            'command_option',
+    COMMAND_OPTION:             'command_option',
 
     // Motor
     MOTORSINGLE_TARGET:         'motorsingle_target',
-    MOTORSINGLE_DIRECTION:      'motorsingle_direction',
+    MOTORSINGLE_ROTATION:       'motorsingle_rotation',     // direction -> rotation
     MOTORSINGLE_VALUE:          'motorsingle_value',
 
     // IrMessage
-    IRMESSAGE_DATA:             'irmessage_data',
+    IRMESSAGE_DIRECTION:        'irmessage_direction',      // 수신 받은 방향 (추가)
+    IRMESSAGE_IRDATA:           'irmessage_irdata',
 }
 
 /***************************************************************************************
@@ -332,12 +462,12 @@ Module.prototype.checkAck = function(data, config)
     {
         switch( this.from )
         {
-        case 0x10:  // 드론파이터와 연결된 경우(드론파이터와 직접 연결되거나 조종기와 연결한 상태에서 페어링 된 드론파이터가 켜진 경우)
-            config.id = '0F0201';
+        case 0x30:  // 페트론V2와 연결된 경우(페트론V2와 직접 연결되거나 조종기와 연결한 상태에서 페어링 된 페트론V2가 켜진 경우)
+            config.id = '0F0501';
             return true;
 
-        case 0x11:  // 컨트롤러와 연결된 경우(페어링 된 드론파이터가 없더라도 조종기만 연결하여 사용 가능한 상태)
-            config.id = '0F0201';
+        case 0x31:  // 컨트롤러와 연결된 경우(페어링 된 페트론V2가 없더라도 조종기만 연결하여 사용 가능한 상태)
+            config.id = '0F0501';
             return true;
 
         default:
@@ -366,8 +496,14 @@ Module.prototype.handlerForEntry = function(handler)
     if( this.bufferTransfer == undefined )
         this.bufferTransfer = [];
 
+    // Buffer Clear
+    if( handler.e(DataType.BUFFER_CLEAR) == true )
+    {
+        this.bufferTransfer = [];
+    }
+
     // Light Mode
-    if( handler.e(DataType.LIGHT_MODE_MODE) == true )
+    if( (handler.e(DataType.LIGHT_MODE_MODE) == true) && (handler.e(DataType.LIGHT_MODE_INTERVAL) == true) )
     {
         var dataArray = [];
 
@@ -377,22 +513,32 @@ Module.prototype.handlerForEntry = function(handler)
         let target                  = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                 : 0xFF;
         let lightMode_mode          = handler.e(DataType.LIGHT_MODE_MODE)           ? handler.read(DataType.LIGHT_MODE_MODE)        : 0;
         let lightMode_interval      = handler.e(DataType.LIGHT_MODE_INTERVAL)       ? handler.read(DataType.LIGHT_MODE_INTERVAL)    : 0;
-
+        let lightColor_r            = 50;
+        let lightColor_g            = 200;
+        let lightColor_b            = 150;
+        
         let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-        let dataLength = 2;                     // 데이터의 길이
+        let dataLength = 6;                     // 데이터의 길이
 
         // Header
-        dataArray.push(0x21);                   // Data Type
+        dataArray.push(0x24);                   // Data Type
         dataArray.push(dataLength);             // Data Length
-        dataArray.push(0x15);                   // From
+        dataArray.push(0x38);                   // From (네이버 엔트리)
         dataArray.push(target);                 // To
 
         // Data
         dataArray.push(lightMode_mode);
-        dataArray.push(lightMode_interval);
+        // dataArray.push(lightMode_interval);          // u16  LED 모드의 갱신 주기 (2017.07.31)
+        dataArray.push(this.getByte0(lightMode_interval));
+        dataArray.push(this.getByte1(lightMode_interval));
+        dataArray.push(lightColor_r);
+        dataArray.push(lightColor_g);
+        dataArray.push(lightColor_b);
 
         // CRC16
         this.addCRC16(dataArray, indexStart, dataLength);
+
+        // this.log("Light Mode");
 
         this.bufferTransfer.push(dataArray);
     }
@@ -411,17 +557,18 @@ Module.prototype.handlerForEntry = function(handler)
         let lightEvent_repeat       = handler.e(DataType.LIGHT_EVENT_REPEAT)        ? handler.read(DataType.LIGHT_EVENT_REPEAT)     : 0;
 
         let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-        let dataLength = 3;                     // 데이터의 길이
+        let dataLength = 4;                     // 데이터의 길이
 
         // Header
         dataArray.push(0x2A);                   // Data Type
         dataArray.push(dataLength);             // Data Length
-        dataArray.push(0x15);                   // From
+        dataArray.push(0x38);                   // From (네이버 엔트리)
         dataArray.push(target);                 // To
 
         // Data Array
         dataArray.push(lightEvent_event);
-        dataArray.push(lightEvent_interval);
+        dataArray.push(this.getByte0(lightMode_interval));
+        dataArray.push(this.getByte1(lightMode_interval));
         dataArray.push(lightEvent_repeat);
 
         // CRC16
@@ -430,7 +577,7 @@ Module.prototype.handlerForEntry = function(handler)
         this.bufferTransfer.push(dataArray);
     }
     
-    // Light Manaul
+    // Light Manual
     if( handler.e(DataType.LIGHT_MANUAL_FLAGS) == true )
     {
         var dataArray = [];
@@ -448,12 +595,421 @@ Module.prototype.handlerForEntry = function(handler)
         // Header
         dataArray.push(0x20);                   // Data Type
         dataArray.push(dataLength);             // Data Length
-        dataArray.push(0x15);                   // From
+        dataArray.push(0x38);                   // From (네이버 엔트리)
         dataArray.push(target);                 // To
 
         // Data
         dataArray.push(lightManual_flags);
         dataArray.push(lightManual_brightness);
+
+        // CRC16
+        this.addCRC16(dataArray, indexStart, dataLength);
+
+        this.bufferTransfer.push(dataArray);
+    }
+
+    // Light Color RGB
+    if( (handler.e(DataType.LIGHT_COLOR_R) == true) || (handler.e(DataType.LIGHT_COLOR_G) == true) || (handler.e(DataType.LIGHT_COLOR_B) == true ) )
+    {
+        var dataArray = [];
+
+        // Start Code
+        this.addStartCode(dataArray);
+        
+        let target                  = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                     : 0xFF;
+        let lightColor_r            = handler.e(DataType.LIGHT_COLOR_R)             ? handler.read(DataType.LIGHT_COLOR_R)              : 0;
+        let lightColor_g            = handler.e(DataType.LIGHT_COLOR_G)             ? handler.read(DataType.LIGHT_COLOR_G)              : 0;
+        let lightColor_b            = handler.e(DataType.LIGHT_COLOR_B)             ? handler.read(DataType.LIGHT_COLOR_B)              : 0;
+        let lightMode_mode          = handler.e(DataType.LIGHT_MODE_MODE)           ? handler.read(DataType.LIGHT_MODE_MODE)            : 0x12;
+        let lightMode_interval      = 220;      // 밝기
+
+        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
+        let dataLength = 6;                     // 데이터의 길이
+
+        // Header
+        dataArray.push(0x24);                   // Data Type
+        dataArray.push(dataLength);             // Data Length
+        dataArray.push(0x38);                   // From (네이버 엔트리)
+        dataArray.push(target);                 // To
+
+        // Data
+        dataArray.push(lightMode_mode);
+        dataArray.push(this.getByte0(lightMode_interval));
+        dataArray.push(this.getByte1(lightMode_interval));
+        dataArray.push(lightColor_r);
+        dataArray.push(lightColor_g);
+        dataArray.push(lightColor_b);
+
+        // CRC16
+        this.addCRC16(dataArray, indexStart, dataLength);
+
+        // this.log("Light Color RGB");
+
+        this.bufferTransfer.push(dataArray);
+    }
+
+    // OLED - 화면 전체 지우기
+    if( handler.e(DataType.DISPLAY_CLEARALL_PIXEL) == true )
+    {
+        var dataArray = [];
+
+        // Start Code
+        this.addStartCode(dataArray);
+        
+        let target                  = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                     : 0xFF;
+        let display_clearall_pixel  = handler.e(DataType.DISPLAY_CLEARALL_PIXEL)    ? handler.read(DataType.DISPLAY_CLEARALL_PIXEL)     : 0;
+
+        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
+        let dataLength = 1;                     // 데이터의 길이
+
+        // Header
+        dataArray.push(0xB0);                   // Data Type
+        dataArray.push(dataLength);             // Data Length
+        dataArray.push(0x38);                   // From (네이버 엔트리)
+        dataArray.push(target);                 // To
+
+        // Data
+        dataArray.push(display_clearall_pixel);
+
+        // CRC16
+        this.addCRC16(dataArray, indexStart, dataLength);
+
+        this.bufferTransfer.push(dataArray);
+    }
+
+    // OLED - 선택 영역 지우기
+    if( (handler.e(DataType.DISPLAY_CLEAR_WIDTH) == true) || (handler.e(DataType.DISPLAY_CLEAR_HEIGHT) == true) )
+    {
+        var dataArray = [];
+
+        // Start Code
+        this.addStartCode(dataArray);
+        
+        let target                  = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                     : 0xFF;
+        let display_clear_x         = handler.e(DataType.DISPLAY_CLEAR_X)           ? handler.read(DataType.DISPLAY_CLEAR_X)            : 0;
+        let display_clear_y         = handler.e(DataType.DISPLAY_CLEAR_Y)           ? handler.read(DataType.DISPLAY_CLEAR_Y)            : 0;
+        let display_clear_width     = handler.e(DataType.DISPLAY_CLEAR_WIDTH)       ? handler.read(DataType.DISPLAY_CLEAR_WIDTH)        : 0;
+        let display_clear_height    = handler.e(DataType.DISPLAY_CLEAR_HEIGHT)      ? handler.read(DataType.DISPLAY_CLEAR_HEIGHT)       : 0;
+        let display_clear_pixel     = handler.e(DataType.DISPLAY_CLEAR_PIXEL)       ? handler.read(DataType.DISPLAY_CLEAR_PIXEL)        : 0;
+
+        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
+        let dataLength = 9;                     // 데이터의 길이
+
+        // Header
+        dataArray.push(0xB0);                   // Data Type
+        dataArray.push(dataLength);             // Data Length
+        dataArray.push(0x38);                   // From (네이버 엔트리)
+        dataArray.push(target);                 // To
+
+        // Data
+        dataArray.push(this.getByte0(display_clear_x));
+        dataArray.push(this.getByte1(display_clear_x));
+        dataArray.push(this.getByte0(display_clear_y));
+        dataArray.push(this.getByte1(display_clear_y));
+        dataArray.push(this.getByte0(display_clear_width));
+        dataArray.push(this.getByte1(display_clear_width));
+        dataArray.push(this.getByte0(display_clear_height));
+        dataArray.push(this.getByte1(display_clear_height));
+        dataArray.push(display_clear_pixel);
+
+        // CRC16
+        this.addCRC16(dataArray, indexStart, dataLength);
+
+        this.bufferTransfer.push(dataArray);
+    }
+
+    // OLED - 선택 영역 반전
+    if( (handler.e(DataType.DISPLAY_INVERT_WIDTH) == true) || (handler.e(DataType.DISPLAY_INVERT_HEIGHT) == true) )
+    {
+        var dataArray = [];
+
+        // Start Code
+        this.addStartCode(dataArray);
+        
+        let target                  = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                     : 0xFF;
+        let display_invert_x        = handler.e(DataType.DISPLAY_INVERT_X)          ? handler.read(DataType.DISPLAY_INVERT_X)           : 0;
+        let display_invert_y        = handler.e(DataType.DISPLAY_INVERT_Y)          ? handler.read(DataType.DISPLAY_INVERT_Y)           : 0;
+        let display_invert_width    = handler.e(DataType.DISPLAY_INVERT_WIDTH)      ? handler.read(DataType.DISPLAY_INVERT_WIDTH)       : 0;
+        let display_invert_height   = handler.e(DataType.DISPLAY_INVERT_HEIGHT)     ? handler.read(DataType.DISPLAY_INVERT_HEIGHT)      : 0;
+
+        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
+        let dataLength = 8;                     // 데이터의 길이
+
+        // Header
+        dataArray.push(0xB1);                   // Data Type
+        dataArray.push(dataLength);             // Data Length
+        dataArray.push(0x38);                   // From (네이버 엔트리)
+        dataArray.push(target);                 // To
+
+        // Data
+        dataArray.push(this.getByte0(display_invert_x));
+        dataArray.push(this.getByte1(display_invert_x));
+        dataArray.push(this.getByte0(display_invert_y));
+        dataArray.push(this.getByte1(display_invert_y));
+        dataArray.push(this.getByte0(display_invert_width));
+        dataArray.push(this.getByte1(display_invert_width));
+        dataArray.push(this.getByte0(display_invert_height));
+        dataArray.push(this.getByte1(display_invert_height));
+
+        // CRC16
+        this.addCRC16(dataArray, indexStart, dataLength);
+
+        this.bufferTransfer.push(dataArray);
+    }
+
+    // OLED - 화면에 점 찍기
+    if( (handler.e(DataType.DISPLAY_DRAW_POINT_X) == true) || (handler.e(DataType.DISPLAY_DRAW_POINT_Y) == true) || (handler.e(DataType.DISPLAY_DRAW_POINT_PIXEL) == true) )
+    {
+        var dataArray = [];
+
+        // Start Code
+        this.addStartCode(dataArray);
+        
+        let target                      = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                     : 0xFF;
+        let display_draw_point_x        = handler.e(DataType.DISPLAY_DRAW_POINT_X)      ? handler.read(DataType.DISPLAY_DRAW_POINT_X)       : 0;
+        let display_draw_point_y        = handler.e(DataType.DISPLAY_DRAW_POINT_Y)      ? handler.read(DataType.DISPLAY_DRAW_POINT_Y)       : 0;
+        let display_draw_point_pixel    = handler.e(DataType.DISPLAY_DRAW_POINT_PIXEL)  ? handler.read(DataType.DISPLAY_DRAW_POINT_PIXEL)   : 0;
+        
+        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
+        let dataLength = 5;                     // 데이터의 길이
+
+        // Header
+        dataArray.push(0xB2);                   // Data Type
+        dataArray.push(dataLength);             // Data Length
+        dataArray.push(0x38);                   // From (네이버 엔트리)
+        dataArray.push(target);                 // To
+
+        // Data
+        dataArray.push(this.getByte0(display_draw_point_x));
+        dataArray.push(this.getByte1(display_draw_point_x));
+        dataArray.push(this.getByte0(display_draw_point_y));
+        dataArray.push(this.getByte1(display_draw_point_y));
+        dataArray.push(display_draw_point_pixel);
+
+        // CRC16
+        this.addCRC16(dataArray, indexStart, dataLength);
+
+        this.bufferTransfer.push(dataArray);
+    }
+
+    // OLED - 화면에 선 그리기
+    if( (handler.e(DataType.DISPLAY_DRAW_LINE_X1) == true) || (handler.e(DataType.DISPLAY_DRAW_LINE_Y1) == true) || (handler.e(DataType.DISPLAY_DRAW_LINE_X2) == true) || (handler.e(DataType.DISPLAY_DRAW_LINE_Y2) == true) )
+    {
+        var dataArray = [];
+
+        // Start Code
+        this.addStartCode(dataArray);
+        
+        let target                      = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                     : 0xFF;
+        let display_draw_line_x1        = handler.e(DataType.DISPLAY_DRAW_LINE_X1)      ? handler.read(DataType.DISPLAY_DRAW_LINE_X1)       : 0;
+        let display_draw_line_y1        = handler.e(DataType.DISPLAY_DRAW_LINE_Y1)      ? handler.read(DataType.DISPLAY_DRAW_LINE_Y1)       : 0;
+        let display_draw_line_x2        = handler.e(DataType.DISPLAY_DRAW_LINE_X2)      ? handler.read(DataType.DISPLAY_DRAW_LINE_X2)       : 0;
+        let display_draw_line_y2        = handler.e(DataType.DISPLAY_DRAW_LINE_Y2)      ? handler.read(DataType.DISPLAY_DRAW_LINE_Y2)       : 0;
+        let display_draw_line_pixel     = handler.e(DataType.DISPLAY_DRAW_LINE_PIXEL)   ? handler.read(DataType.DISPLAY_DRAW_LINE_PIXEL)    : 0;
+        let display_draw_line_line      = handler.e(DataType.DISPLAY_DRAW_LINE_LINE)    ? handler.read(DataType.DISPLAY_DRAW_LINE_LINE)     : 0;
+        
+        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
+        let dataLength = 10;                     // 데이터의 길이
+
+        // Header
+        dataArray.push(0xB3);                   // Data Type
+        dataArray.push(dataLength);             // Data Length
+        dataArray.push(0x38);                   // From (네이버 엔트리)
+        dataArray.push(target);                 // To
+
+        // Data
+        dataArray.push(this.getByte0(display_draw_line_x1));
+        dataArray.push(this.getByte1(display_draw_line_x1));
+        dataArray.push(this.getByte0(display_draw_line_y1));
+        dataArray.push(this.getByte1(display_draw_line_y1));
+        dataArray.push(this.getByte0(display_draw_line_x2));
+        dataArray.push(this.getByte1(display_draw_line_x2));
+        dataArray.push(this.getByte0(display_draw_line_y2));
+        dataArray.push(this.getByte1(display_draw_line_y2));
+        dataArray.push(display_draw_line_pixel);
+        dataArray.push(display_draw_line_line);
+
+        // CRC16
+        this.addCRC16(dataArray, indexStart, dataLength);
+
+        this.bufferTransfer.push(dataArray);
+    }
+
+     // OLED - 화면에 사각형 그리기
+    if( (handler.e(DataType.DISPLAY_DRAW_RECT_WIDTH) == true) || (handler.e(DataType.DISPLAY_DRAW_RECT_HEIGHT) == true) )
+    {
+        var dataArray = [];
+
+        // Start Code
+        this.addStartCode(dataArray);
+        
+        let target                      = handler.e(DataType.TARGET)                        ? handler.read(DataType.TARGET)                         : 0xFF;
+        let display_draw_rect_x         = handler.e(DataType.DISPLAY_DRAW_RECT_X)           ? handler.read(DataType.DISPLAY_DRAW_RECT_X)            : 0;
+        let display_draw_rect_y         = handler.e(DataType.DISPLAY_DRAW_RECT_Y)           ? handler.read(DataType.DISPLAY_DRAW_RECT_Y)            : 0;
+        let display_draw_rect_width     = handler.e(DataType.DISPLAY_DRAW_RECT_WIDTH)       ? handler.read(DataType.DISPLAY_DRAW_RECT_WIDTH)        : 0;
+        let display_draw_rect_height    = handler.e(DataType.DISPLAY_DRAW_RECT_HEIGHT)      ? handler.read(DataType.DISPLAY_DRAW_RECT_HEIGHT)       : 0;
+        let display_draw_rect_pixel     = handler.e(DataType.DISPLAY_DRAW_RECT_PIXEL)       ? handler.read(DataType.DISPLAY_DRAW_RECT_PIXEL)        : 0;
+        let display_draw_rect_flagfill  = handler.e(DataType.DISPLAY_DRAW_RECT_FLAGFILL)    ? handler.read(DataType.DISPLAY_DRAW_RECT_FLAGFILL)     : 0;
+        let display_draw_rect_line      = handler.e(DataType.DISPLAY_DRAW_RECT_LINE)        ? handler.read(DataType.DISPLAY_DRAW_RECT_LINE)         : 0;
+
+        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
+        let dataLength = 11;                    // 데이터의 길이
+
+        // Header
+        dataArray.push(0xB4);                   // Data Type
+        dataArray.push(dataLength);             // Data Length
+        dataArray.push(0x38);                   // From (네이버 엔트리)
+        dataArray.push(target);                 // To
+
+        // Data
+        dataArray.push(this.getByte0(display_draw_rect_x));
+        dataArray.push(this.getByte1(display_draw_rect_x));
+        dataArray.push(this.getByte0(display_draw_rect_y));
+        dataArray.push(this.getByte1(display_draw_rect_y));
+        dataArray.push(this.getByte0(display_draw_rect_width));
+        dataArray.push(this.getByte1(display_draw_rect_width));
+        dataArray.push(this.getByte0(display_draw_rect_height));
+        dataArray.push(this.getByte1(display_draw_rect_height));
+        dataArray.push(display_draw_rect_pixel);
+        dataArray.push(display_draw_rect_flagfill);
+        dataArray.push(display_draw_rect_line);
+
+        // CRC16
+        this.addCRC16(dataArray, indexStart, dataLength);
+
+        this.bufferTransfer.push(dataArray);
+    }
+
+    // OLED - 화면에 원 그리기
+    if( handler.e(DataType.DISPLAY_DRAW_CIRCLE_RADIUS) == true )
+    {
+        var dataArray = [];
+
+        // Start Code
+        this.addStartCode(dataArray);
+        
+        let target                       = handler.e(DataType.TARGET)                         ? handler.read(DataType.TARGET)                           : 0xFF;
+        let display_draw_circle_x        = handler.e(DataType.DISPLAY_DRAW_CIRCLE_X)          ? handler.read(DataType.DISPLAY_DRAW_CIRCLE_X)            : 0;
+        let display_draw_circle_y        = handler.e(DataType.DISPLAY_DRAW_CIRCLE_Y)          ? handler.read(DataType.DISPLAY_DRAW_CIRCLE_Y)            : 0;
+        let display_draw_circle_radius   = handler.e(DataType.DISPLAY_DRAW_CIRCLE_RADIUS)     ? handler.read(DataType.DISPLAY_DRAW_CIRCLE_RADIUS)       : 0;
+        let display_draw_circle_pixel    = handler.e(DataType.DISPLAY_DRAW_CIRCLE_PIXEL)      ? handler.read(DataType.DISPLAY_DRAW_CIRCLE_PIXEL)        : 0;
+        let display_draw_circle_flagfill = handler.e(DataType.DISPLAY_DRAW_CIRCLE_FLAGFILL)   ? handler.read(DataType.DISPLAY_DRAW_CIRCLE_FLAGFILL)     : 0;
+
+        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
+        let dataLength = 8;                     // 데이터의 길이
+
+        // Header
+        dataArray.push(0xB5);                   // Data Type
+        dataArray.push(dataLength);             // Data Length
+        dataArray.push(0x38);                   // From (네이버 엔트리)
+        dataArray.push(target);                 // To
+
+        // Data
+        dataArray.push(this.getByte0(display_draw_circle_x));
+        dataArray.push(this.getByte1(display_draw_circle_x));
+        dataArray.push(this.getByte0(display_draw_circle_y));
+        dataArray.push(this.getByte1(display_draw_circle_y));
+        dataArray.push(this.getByte0(display_draw_circle_radius));
+        dataArray.push(this.getByte1(display_draw_circle_radius));
+        dataArray.push(display_draw_circle_pixel);
+        dataArray.push(display_draw_circle_flagfill);
+
+        // CRC16
+        this.addCRC16(dataArray, indexStart, dataLength);
+
+        this.bufferTransfer.push(dataArray);
+    }
+
+    // OLED - 화면에 문자열 쓰기
+    if( handler.e(DataType.DISPLAY_DRAW_STRING_STRING) == true )
+    {
+        var dataArray = [];
+        var byteArray = [];
+
+        // Start Code
+        this.addStartCode(dataArray);
+        
+        let target                       = handler.e(DataType.TARGET)                       ? handler.read(DataType.TARGET)                         : 0xFF;
+        let display_draw_string_x        = handler.e(DataType.DISPLAY_DRAW_STRING_X)        ? handler.read(DataType.DISPLAY_DRAW_STRING_X)          : 0;
+        let display_draw_string_y        = handler.e(DataType.DISPLAY_DRAW_STRING_Y)        ? handler.read(DataType.DISPLAY_DRAW_STRING_Y)          : 0;
+        let display_draw_string_font     = handler.e(DataType.DISPLAY_DRAW_STRING_FONT)     ? handler.read(DataType.DISPLAY_DRAW_STRING_FONT)       : 0;
+        let display_draw_string_pixel    = handler.e(DataType.DISPLAY_DRAW_STRING_PIXEL)    ? handler.read(DataType.DISPLAY_DRAW_STRING_PIXEL)      : 0;
+        let display_draw_string_string   = handler.e(DataType.DISPLAY_DRAW_STRING_STRING)   ? handler.read(DataType.DISPLAY_DRAW_STRING_STRING)     : 0;
+
+        byteArray = this.stringToAsciiByteArray(display_draw_string_string);
+
+        let indexStart = dataArray.length;         // 배열에서 데이터를 저장하기 시작하는 위치
+        let dataLength = 6 + byteArray.length;     // 데이터의 길이
+
+        // Header
+        dataArray.push(0xB6);                   // Data Type
+        dataArray.push(dataLength);             // Data Length
+        dataArray.push(0x38);                   // From (네이버 엔트리)
+        dataArray.push(target);                 // To
+
+        // Data
+        dataArray.push(this.getByte0(display_draw_string_x));
+        dataArray.push(this.getByte1(display_draw_string_x));
+        dataArray.push(this.getByte0(display_draw_string_y));
+        dataArray.push(this.getByte1(display_draw_string_y));
+        dataArray.push(display_draw_string_font);
+        dataArray.push(display_draw_string_pixel);
+
+        for (let i = 0; i < byteArray.length; i++)
+        {
+            dataArray.push(byteArray[i]);
+        }
+
+        // CRC16
+        this.addCRC16(dataArray, indexStart, dataLength);
+
+        this.bufferTransfer.push(dataArray);
+    }
+
+    // OLED - 화면에 문자열 정렬하여 그리기
+    if( handler.e(DataType.DISPLAY_DRAW_STRING_ALIGN_STRING) == true )
+    {
+        var dataArray = [];
+        var byteArray = [];
+
+        // Start Code
+        this.addStartCode(dataArray);
+        
+        let target                              = handler.e(DataType.TARGET)                                ? handler.read(DataType.TARGET)                             : 0xFF;
+        let display_draw_string_align_x_start   = handler.e(DataType.DISPLAY_DRAW_STRING_ALIGN_X_START)     ? handler.read(DataType.DISPLAY_DRAW_STRING_ALIGN_X_START)  : 0;
+        let display_draw_string_align_x_end     = handler.e(DataType.DISPLAY_DRAW_STRING_ALIGN_X_END)       ? handler.read(DataType.DISPLAY_DRAW_STRING_ALIGN_X_END)    : 0;
+        let display_draw_string_align_y         = handler.e(DataType.DISPLAY_DRAW_STRING_ALIGN_Y)           ? handler.read(DataType.DISPLAY_DRAW_STRING_ALIGN_Y)        : 0;
+        let display_draw_string_align_align     = handler.e(DataType.DISPLAY_DRAW_STRING_ALIGN_ALIGN)       ? handler.read(DataType.DISPLAY_DRAW_STRING_ALIGN_ALIGN)    : 0;
+        let display_draw_string_align_font      = handler.e(DataType.DISPLAY_DRAW_STRING_ALIGN_FONT)        ? handler.read(DataType.DISPLAY_DRAW_STRING_ALIGN_FONT)     : 0;
+        let display_draw_string_align_pixel     = handler.e(DataType.DISPLAY_DRAW_STRING_ALIGN_PIXEL)       ? handler.read(DataType.DISPLAY_DRAW_STRING_ALIGN_PIXEL)    : 0;
+        let display_draw_string_align_string    = handler.e(DataType.DISPLAY_DRAW_STRING_ALIGN_STRING)      ? handler.read(DataType.DISPLAY_DRAW_STRING_ALIGN_STRING)   : 0;
+
+        byteArray = this.stringToAsciiByteArray(display_draw_string_align_string);
+
+        let indexStart = dataArray.length;         // 배열에서 데이터를 저장하기 시작하는 위치
+        let dataLength = 9 + byteArray.length;     // 데이터의 길이
+
+        // Header
+        dataArray.push(0xB7);                   // Data Type
+        dataArray.push(dataLength);             // Data Length
+        dataArray.push(0x38);                   // From (네이버 엔트리)
+        dataArray.push(target);                 // To
+
+        // Data
+        dataArray.push(this.getByte0(display_draw_string_align_x_start));
+        dataArray.push(this.getByte1(display_draw_string_align_x_start));
+        dataArray.push(this.getByte0(display_draw_string_align_x_end));
+        dataArray.push(this.getByte1(display_draw_string_align_x_end));
+        dataArray.push(this.getByte0(display_draw_string_align_y));
+        dataArray.push(this.getByte1(display_draw_string_align_y));
+        dataArray.push(display_draw_string_align_align);
+        dataArray.push(display_draw_string_align_font);
+        dataArray.push(display_draw_string_align_pixel);
+
+        for (let i = 0; i < byteArray.length; i++)
+        {
+            dataArray.push(byteArray[i]);
+        }
 
         // CRC16
         this.addCRC16(dataArray, indexStart, dataLength);
@@ -471,7 +1027,7 @@ Module.prototype.handlerForEntry = function(handler)
         
         let target                  = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                 : 0xFF;
         let command_command         = handler.e(DataType.COMMAND_COMMAND)           ? handler.read(DataType.COMMAND_COMMAND)        : 0;
-        let command_option          = handler.e(DataType.COMMAND_OPTIOIN)           ? handler.read(DataType.COMMAND_OPTIOIN)        : 0;
+        let command_option          = handler.e(DataType.COMMAND_OPTION)            ? handler.read(DataType.COMMAND_OPTION)         : 0;
 
         let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
         let dataLength = 2;                     // 데이터의 길이
@@ -479,7 +1035,7 @@ Module.prototype.handlerForEntry = function(handler)
         // Header
         dataArray.push(0x11);                   // Data Type
         dataArray.push(dataLength);             // Data Length
-        dataArray.push(0x15);                   // From
+        dataArray.push(0x38);                   // From (네이버 엔트리)
         dataArray.push(target);                 // To
 
         // Data Array
@@ -518,7 +1074,7 @@ Module.prototype.handlerForEntry = function(handler)
         // Start Code
         this.addStartCode(dataArray);
         
-        let target                  = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                 : 0x10;
+        let target                  = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                 : 0x30;
         let controlRoll             = handler.e(DataType.CONTROL_ROLL)              ? handler.read(DataType.CONTROL_ROLL)           : this.controlRoll;
         let controlPitch            = handler.e(DataType.CONTROL_PITCH)             ? handler.read(DataType.CONTROL_PITCH)          : this.controlPitch;
         let controlYaw              = handler.e(DataType.CONTROL_YAW)               ? handler.read(DataType.CONTROL_YAW)            : this.controlYaw;
@@ -535,7 +1091,7 @@ Module.prototype.handlerForEntry = function(handler)
         // Header
         dataArray.push(0x10);                   // Data Type
         dataArray.push(dataLength);             // Data Length
-        dataArray.push(0x15);                   // From
+        dataArray.push(0x38);                   // From (네이버 엔트리)
         dataArray.push(target);                 // To
 
         // Data Array
@@ -560,7 +1116,7 @@ Module.prototype.handlerForEntry = function(handler)
         // Start Code
         this.addStartCode(dataArray);
         
-        let target                  = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                 : 0x10;
+        let target                  = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                 : 0x30;
         let controlWheel            = handler.e(DataType.CONTROL_WHEEL)             ? handler.read(DataType.CONTROL_WHEEL)          : this.controlWheel;
         let controlAccel            = handler.e(DataType.CONTROL_ACCEL)             ? handler.read(DataType.CONTROL_ACCEL)          : this.controlAccel;
 
@@ -573,7 +1129,7 @@ Module.prototype.handlerForEntry = function(handler)
         // Header
         dataArray.push(0x10);                   // Data Type
         dataArray.push(dataLength);             // Data Length
-        dataArray.push(0x15);                   // From
+        dataArray.push(0x38);                   // From (네이버 엔트리)
         dataArray.push(target);                 // To
 
         // Data Array
@@ -596,9 +1152,9 @@ Module.prototype.handlerForEntry = function(handler)
         // Start Code
         this.addStartCode(dataArray);
         
-        let target                  = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                     : 0x10;
+        let target                  = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                     : 0x30;
         let motorSingleTarget       = handler.e(DataType.MOTORSINGLE_TARGET)        ? handler.read(DataType.MOTORSINGLE_TARGET)         : 0;
-        let motorSingleDirection    = handler.e(DataType.MOTORSINGLE_DIRECTION)     ? handler.read(DataType.MOTORSINGLE_DIRECTION)      : 0;
+        let motorSingleRotation     = handler.e(DataType.MOTORSINGLE_ROTATION)      ? handler.read(DataType.MOTORSINGLE_ROTATION)       : 0;
         let motorSingleValue        = handler.e(DataType.MOTORSINGLE_VALUE)         ? handler.read(DataType.MOTORSINGLE_VALUE)          : 0;
 
         let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
@@ -607,12 +1163,12 @@ Module.prototype.handlerForEntry = function(handler)
         // Header
         dataArray.push(0x81);                   // Data Type
         dataArray.push(dataLength);             // Data Length
-        dataArray.push(0x15);                   // From
+        dataArray.push(0x38);                   // From (네이버 엔트리)
         dataArray.push(target);                 // To
 
         // Data Array
         dataArray.push(motorSingleTarget);
-        dataArray.push(motorSingleDirection);
+        dataArray.push(motorSingleRotation);
         dataArray.push(this.getByte0(motorSingleValue));
         dataArray.push(this.getByte1(motorSingleValue));
 
@@ -630,7 +1186,7 @@ Module.prototype.handlerForEntry = function(handler)
         // Start Code
         this.addStartCode(dataArray);
         
-        let target                  = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                     : 0x11;
+        let target                  = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                     : 0x31;
         let buzzer_mode             = handler.e(DataType.BUZZER_MODE)               ? handler.read(DataType.BUZZER_MODE)                : 0;
         let buzzer_value            = handler.e(DataType.BUZZER_VALUE)              ? handler.read(DataType.BUZZER_VALUE)               : 0;
         let buzzer_time             = handler.e(DataType.BUZZER_TIME)               ? handler.read(DataType.BUZZER_TIME)                : 0;
@@ -641,7 +1197,7 @@ Module.prototype.handlerForEntry = function(handler)
         // Header
         dataArray.push(0x83);                   // Data Type
         dataArray.push(dataLength);             // Data Length
-        dataArray.push(0x15);                   // From
+        dataArray.push(0x38);                   // From (네이버 엔트리)
         dataArray.push(target);                 // To
 
         // Data
@@ -667,7 +1223,7 @@ Module.prototype.handlerForEntry = function(handler)
         // Start Code
         this.addStartCode(dataArray);
         
-        let target                  = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                     : 0x11;
+        let target                  = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                     : 0x31;
         let vibrator_mode           = handler.e(DataType.VIBRATOR_MODE)             ? handler.read(DataType.VIBRATOR_MODE)              : 0;
         let vibrator_on             = handler.e(DataType.VIBRATOR_ON)               ? handler.read(DataType.VIBRATOR_ON)                : 0;
         let vibrator_off            = handler.e(DataType.VIBRATOR_OFF)              ? handler.read(DataType.VIBRATOR_OFF)               : 0;
@@ -679,7 +1235,7 @@ Module.prototype.handlerForEntry = function(handler)
         // Header
         dataArray.push(0x84);                   // Data Type
         dataArray.push(dataLength);             // Data Length
-        dataArray.push(0x15);                   // From
+        dataArray.push(0x38);                   // From (네이버 엔트리)
         dataArray.push(target);                 // To
 
         // Data
@@ -697,32 +1253,33 @@ Module.prototype.handlerForEntry = function(handler)
         this.bufferTransfer.push(dataArray);
     }
 
-
     // IrMessage
-    if( handler.e(DataType.IRMESSAGE_DATA) == true )
+    if (handler.e(DataType.IRMESSAGE_IRDATA) == true )
     {
         var dataArray = [];
 
         // Start Code
         this.addStartCode(dataArray);
         
-        let target                  = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                     : 0x10;
-        let irmessage_data          = handler.e(DataType.IRMESSAGE_DATA)            ? handler.read(DataType.IRMESSAGE_DATA)             : 0;
+        let target                  = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                     : 0x30;
+        let irmessage_direction     = handler.e(DataType.IRMESSAGE_DIRECTION )      ? handler.read(DataType.IRMESSAGE_DIRECTION)        : 0;
+        let irmessage_irdata        = handler.e(DataType.IRMESSAGE_IRDATA)          ? handler.read(DataType.IRMESSAGE_IRDATA)           : 0;
 
         let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-        let dataLength = 4;                     // 데이터의 길이
+        let dataLength = 5;                     // 데이터의 길이
 
         // Header
         dataArray.push(0x82);                   // Data Type
         dataArray.push(dataLength);             // Data Length
-        dataArray.push(0x15);                   // From
+        dataArray.push(0x38);                   // From (네이버 엔트리)
         dataArray.push(target);                 // To
 
         // Data
-        dataArray.push(this.getByte0(irmessage_data));
-        dataArray.push(this.getByte1(irmessage_data));
-        dataArray.push(this.getByte2(irmessage_data));
-        dataArray.push(this.getByte3(irmessage_data));
+        dataArray.push(irmessage_direction);
+        dataArray.push(this.getByte0(irmessage_irdata));
+        dataArray.push(this.getByte1(irmessage_irdata));
+        dataArray.push(this.getByte2(irmessage_irdata));
+        dataArray.push(this.getByte3(irmessage_irdata));
 
         // CRC16
         this.addCRC16(dataArray, indexStart, dataLength);
@@ -778,7 +1335,7 @@ Module.prototype.tansferForEntry = function(handler)
             }
 
             joystick._updated == false;
-            //this.log("Module.prototype.tansferForEntry() / attitude", "");
+            //this.log("Module.prototype.tansferForEntry() / Joystick", "");
         }
     }
 
@@ -793,7 +1350,7 @@ Module.prototype.tansferForEntry = function(handler)
             }
 
             button._updated == false;
-            //this.log("Module.prototype.tansferForEntry() / attitude", "");
+            //this.log("Module.prototype.tansferForEntry() / Button", "");
         }
     }
 
@@ -812,33 +1369,78 @@ Module.prototype.tansferForEntry = function(handler)
         }
     }
 
-    // Attitude
+    // Imu
     {
-        let attitude = this.attitude;
-        if( attitude._updated == true )
+        let imu = this.imu;
+        if( imu._updated == true )
         {
-            for(let key in attitude)
+            for(let key in imu)
             {
-                handler.write(key, attitude[key]);
+                handler.write(key, imu[key]);
             }
 
-            attitude._updated == false;
-            //this.log("Module.prototype.tansferForEntry() / attitude", "");
+            imu._updated == false;
+            //this.log("Module.prototype.tansferForEntry() / imu", "");
+        }
+    }
+
+    // Pressure
+    {
+        let pressure = this.pressure;
+        if( pressure._updated == true )
+        {
+            for(let key in pressure)
+            {
+                handler.write(key, pressure[key]);
+            }
+
+            pressure._updated == false;
+            //this.log("Module.prototype.tansferForEntry() / pressure", "");
+        }
+    }
+
+    // Image Flow (Optical Flow)
+    {
+        let imageflow = this.imageflow;
+        if( imageflow._updated == true )
+        {
+            for(let key in imageflow)
+            {
+                handler.write(key, imageflow[key]);
+            }
+
+            imageflow._updated == false;
+            //this.log("Module.prototype.tansferForEntry() / imageflow", "");
+        }
+    }
+
+    // Range
+    {
+        let range = this.range;
+        if( range._updated == true )
+        {
+            for(let key in range)
+            {
+                handler.write(key, range[key]);
+            }
+
+            range._updated == false;
+            //this.log("Module.prototype.tansferForEntry() / range", "");
         }
     }
 
     // IR Message
     {
-        let irmeessage = this.irmeessage;
-        if( irmeessage._updated == true )
+        let irmessage = this.irmessage;
+        if( irmessage._updated == true )
         {
-            for(let key in irmeessage)
+            for(let key in irmessage)
             {
-                handler.write(key, irmeessage[key]);
+                handler.write(key, irmessage[key]);
             }
 
-            irmeessage._updated == false;
-            //this.log("Module.prototype.tansferForEntry() / irmeessage", "");
+            irmessage._updated == false;
+            //this.log("Module.prototype.tansferForEntry() / irmessage", "");
         }
     }
 
@@ -853,7 +1455,7 @@ Module.prototype.tansferForEntry = function(handler)
 
 
 /***************************************************************************************
- *  Communciation - Drone Fighter
+ *  Communciation - Petrone V2
  ***************************************************************************************/
 
 // 장치로부터 받은 데이터 배열 처리
@@ -998,13 +1600,17 @@ Module.prototype.receiverForDevice = function(data)
 // 장치로부터 받은 데이터 블럭 처리
 Module.prototype.handlerForDevice = function()
 {
-    // 로그 출력을 skip 할 대상만 case에 등록
+    // skip 할 대상만 case로 등록
     switch( this.dataType )
     {
-    case 2:     break;
-    case 64:    break;
-    case 65:    break;
-    case 0x71:  break;
+    case 2:     break;      // Ack
+    case 64:    break;      // State (0x40)
+    case 0x50:  break;      // Imu
+    case 0x51:  break;      // Pressure
+    case 0x53:  break;      // Range
+    case 0x54:  break;      // Image Flow (Optical Flow)
+    case 0x71:  break;      // Joystick
+    case 0xD1:  break;      // Information Assembled For Entry 자주 갱신되는 데이터 모음(엔트리)
 
     default:
         this.log("Module.prototype.handlerForDevice() / From: " + this.from + " / To: " + this.to + " / Type: " + this.dataType + " / ", this.dataBlock);
@@ -1075,24 +1681,75 @@ Module.prototype.handlerForDevice = function()
             state.state_coordinate              = this.extractUInt8(this.dataBlock, 5);
             state.state_battery                 = this.extractUInt8(this.dataBlock, 6);
 
-            if( state.state_modeVehicle != 0x20 && state.state_modeVehicle != 0x21 )
-                this.reserveModeVehicle(0x20);
+            if (state.state_modeVehicle != 0x10 && state.state_modeVehicle != 0x11 && state.state_modeVehicle != 0x12 )
+                this.reserveModeVehicle(0x10);
 
             //console.log("handlerForDevice - state: " + state.state_modeVehicle);
         }
         break;
 
-    case 0x41:  // Attitude
-        if( this.dataBlock.length == 6 )
+    case 0x50:  // Imu
+        if( this.dataBlock.length == 18 )
         {
             // Device -> Entry 
-            let attitude            = this.attitude;
-            attitude._updated       = true;
-            attitude.attitude_roll  = this.extractInt16(this.dataBlock, 0);
-            attitude.attitude_pitch = this.extractInt16(this.dataBlock, 2);
-            attitude.attitude_yaw   = this.extractInt16(this.dataBlock, 4);
+            let imu                     = this.imu;
+            let kAccel                  = ( 9.8 / 2048 );       // 1g (중력가속도) = 9.8 m/s^2 로 만들기 위한 변환 상수
+            let kGyro                   = ( 2000 / 32767 );     // 각 속도 (deg/s) 를 만들기 위한 변환 상수
+            imu._updated                = true;
+            imu.imu_accX                = (this.extractInt16(this.dataBlock, 0) * kAccel).toFixed(2);
+            imu.imu_accY                = (this.extractInt16(this.dataBlock, 2) * kAccel).toFixed(2);
+            imu.imu_accZ                = (this.extractInt16(this.dataBlock, 4) * kAccel).toFixed(2);
+            imu.imu_gyroRoll            = (this.extractInt16(this.dataBlock, 6) * kGyro).toFixed(2);
+            imu.imu_gyroPitch           = (this.extractInt16(this.dataBlock, 8) * kGyro).toFixed(2);
+            imu.imu_gyroYaw             = (this.extractInt16(this.dataBlock, 10) * kGyro).toFixed(2);
+            imu.imu_angleRoll           = this.extractInt16(this.dataBlock, 12);
+            imu.imu_anglePitch          = this.extractInt16(this.dataBlock, 14);
+            imu.imu_angleYaw            = this.extractInt16(this.dataBlock, 16);
 
-            //console.log("handlerForDevice - attitude: " + attitude.attitude_roll + ", " + attitude.attitude_pitch + ", " + attitude.attitude_yaw);
+            //console.log("handlerForDevice - imu: " + imu.imu_angleRoll + ", " + imu.imu_anglePitch + ", " + imu.imu_angleYaw);
+        }
+        break;
+
+    case 0x51:  // Pressure
+        if( this.dataBlock.length == 8 )
+        {
+            // Device -> Entry 
+            let pressure                    = this.pressure;
+            pressure._updated               = true;
+            pressure.pressure_temperature   = this.extractFloat32(this.dataBlock, 0);
+            pressure.pressure_pressure      = this.extractFloat32(this.dataBlock, 4);
+
+            //console.log("handlerForDevice - pressure: " + pressure.pressure_temperature + ", " + pressure.pressure_pressure);
+        }
+        break;
+
+    case 0x53:  // Range
+        if( this.dataBlock.length == 24 )
+        {
+            // Device -> Entry 
+            let range               = this.range;
+            range._updated          = true;
+            range.range_left        = this.extractFloat32(this.dataBlock, 0);
+            range.range_front       = this.extractFloat32(this.dataBlock, 4);
+            range.range_right       = this.extractFloat32(this.dataBlock, 8);
+            range.range_rear        = this.extractFloat32(this.dataBlock, 12);
+            range.range_top         = this.extractFloat32(this.dataBlock, 16);
+            range.range_bottom      = this.extractFloat32(this.dataBlock, 20);
+
+            //console.log("handlerForDevice - range: " + range.range_left + ", " + range.range_front + ", " + range.range_right + ", " + range.range_rear + ", " + range.range_top + ", " + range.range_bottom);
+        }
+        break;
+
+    case 0x54:  // Image Flow (Optical Flow)
+        if( this.dataBlock.length == 8 )
+        {
+            // Device -> Entry 
+            let imageflow                   = this.imageflow;
+            imageflow._updated              = true;
+            imageflow.imageflow_positionX   = this.extractFloat32(this.dataBlock, 0);
+            imageflow.imageflow_positionY   = this.extractFloat32(this.dataBlock, 4);
+
+            //console.log("handlerForDevice - imageflow: " + imageflow.imageflow_positionX + ", " + imageflow.imageflow_positionY);
         }
         break;
 
@@ -1110,7 +1767,7 @@ Module.prototype.handlerForDevice = function()
         break;
 
     case 0x71:  // Joystick
-        if( this.dataBlock.length == 10 )
+        if( this.dataBlock.length == 8 )
         {
             // Device -> Entry 
             let joystick                        = this.joystick;
@@ -1119,26 +1776,61 @@ Module.prototype.handlerForDevice = function()
             joystick.joystick_left_y            = this.extractInt8(this.dataBlock,  1);
             joystick.joystick_left_direction    = this.extractUInt8(this.dataBlock, 2);
             joystick.joystick_left_event        = this.extractUInt8(this.dataBlock, 3);
-            joystick.joystick_left_command      = this.extractUInt8(this.dataBlock, 4);
-            joystick.joystick_right_x           = this.extractInt8(this.dataBlock,  5);
-            joystick.joystick_right_y           = this.extractInt8(this.dataBlock,  6);
-            joystick.joystick_right_direction   = this.extractUInt8(this.dataBlock, 7);
-            joystick.joystick_right_event       = this.extractUInt8(this.dataBlock, 8);
-            joystick.joystick_right_command     = this.extractUInt8(this.dataBlock, 9);
+            joystick.joystick_right_x           = this.extractInt8(this.dataBlock,  4);
+            joystick.joystick_right_y           = this.extractInt8(this.dataBlock,  5);
+            joystick.joystick_right_direction   = this.extractUInt8(this.dataBlock, 6);
+            joystick.joystick_right_event       = this.extractUInt8(this.dataBlock, 7);
 
             //console.log("handlerForDevice - Joystick: " + joystick.joystick_left_x + ", " + joystick.joystick_left_y + ", " + joystick.joystick_right_x + ", " + joystick.joystick_right_y);
         }
         break;
 
     case 0x82:  // IR Message
-        if( this.dataBlock.length == 4 )
+        if( this.dataBlock.length == 5 )
         {
             // Device -> Entry 
-            let irmeessage              = this.irmeessage;
-            irmeessage._updated         = true;
-            irmeessage.irmessage_irdata = this.extractUInt32(this.dataBlock, 0);
+            let irmessage                   = this.irmessage;
+            irmessage._updated              = true;
+            irmessage.irmessage_direction   = this.extractUInt8(this.dataBlock, 0);
+            irmessage.irmessage_irdata      = this.extractUInt32(this.dataBlock, 1);    // javascript int 범위 제한(2017.08.23)
 
-            console.log("handlerForDevice - IR Message: " + irmeessage.irmessage_irdata);
+            console.log("handlerForDevice - IR Message: " + irmessage.irmessage_direction + ", " + irmessage.irmessage_irdata);
+        }
+        break;
+
+    case 0xD1:  // Information Assembled For Entry 자주 갱신되는 데이터 모음(엔트리)
+        if( this.dataBlock.length == 38 )
+        {
+            // Device -> Entry 
+            let imu                         = this.imu;
+            let kAccel                      = ( 9.8 / 2048 );       // 1g (중력가속도) = 9.8 m/s^2 로 만들기 위한 변환 상수
+            let kGyro                       = ( 2000 / 32767 );     // 각 속도 (deg/s) 를 만들기 위한 변환 상수
+            imu._updated                    = true;
+            imu.imu_accX                    = (this.extractInt16(this.dataBlock, 0) * kAccel).toFixed(2);
+            imu.imu_accY                    = (this.extractInt16(this.dataBlock, 2) * kAccel).toFixed(2);
+            imu.imu_accZ                    = (this.extractInt16(this.dataBlock, 4) * kAccel).toFixed(2);
+            imu.imu_gyroRoll                = (this.extractInt16(this.dataBlock, 6) * kGyro).toFixed(2);
+            imu.imu_gyroPitch               = (this.extractInt16(this.dataBlock, 8) * kGyro).toFixed(2);
+            imu.imu_gyroYaw                 = (this.extractInt16(this.dataBlock, 10) * kGyro).toFixed(2);
+            imu.imu_angleRoll               = this.extractInt16(this.dataBlock, 12);
+            imu.imu_anglePitch              = this.extractInt16(this.dataBlock, 14);
+            imu.imu_angleYaw                = this.extractInt16(this.dataBlock, 16);
+
+            let pressure                    = this.pressure;
+            pressure._updated               = true;
+            pressure.pressure_temperature   = this.extractFloat32(this.dataBlock, 18);
+            pressure.pressure_pressure      = this.extractFloat32(this.dataBlock, 22);
+
+            let imageflow                   = this.imageflow;
+            imageflow._updated              = true;
+            imageflow.imageflow_positionX   = this.extractFloat32(this.dataBlock, 26);
+            imageflow.imageflow_positionY   = this.extractFloat32(this.dataBlock, 30);
+
+            let range                       = this.range;
+            range._updated                  = true;
+            range.range_bottom              = this.extractFloat32(this.dataBlock, 34);
+
+            // console.log("handlerForDevice - Information Assembled For Entry: " + this.dataBlock.length + ", " + this.dataBlock);
         }
         break;
 
@@ -1206,6 +1898,24 @@ Module.prototype.extractUInt32 = function(dataArray, startIndex)
         return 0;
 }
 
+Module.prototype.extractFloat32 = function (dataArray, startIndex)
+{
+    if (dataArray.length >= startIndex + 4)
+    {
+        var buffer = new ArrayBuffer(4);
+        var float32View = new Float32Array(buffer, 0, 1);
+        var uint8View = new Uint8Array(buffer, 0, 4)
+        uint8View[0] = dataArray[startIndex];
+        uint8View[1] = dataArray[startIndex + 1];
+        uint8View[2] = dataArray[startIndex + 2];
+        uint8View[3] = dataArray[startIndex + 3];
+
+        return float32View[0].toFixed(2);
+    }
+    else
+        return 0;
+}
+
 // 값 추출
 Module.prototype.getByte0 = function(b)
 {
@@ -1245,37 +1955,58 @@ Module.prototype.transferForDevice = function()
     if( this.bufferTransfer.length == 0 )
     {
         // 예약된 요청이 없는 경우 데이터 요청 등록(현재는 자세 데이터 요청)
-        switch( this.countReqeustDevice % 6 )
+        switch( this.countReqeustDevice % 14 )
         {
         case 0:
-            return this.ping(0x10);
+            return this.ping(0x30);                     // 페트론V2 드론
 
         case 2:
-            return this.ping(0x11);
+            return this.ping(0x31);                     // 조종기
 
         case 4:
-            return this.reserveRequest(0x10, 0x40);
+            return this.reserveRequest(0x30, 0x40);     // 페트론V2 드론, 드론의 상태(State)
+
+        case 6:
+            return this.reserveRequest(0x30, 0x50);     // 페트론V2 드론, 드론의 자세(Attitude) 및 Accel, Gyro
+
+        case 8:
+            return this.reserveRequest(0x30, 0x51);     // 페트론V2 드론, Pressure Sensor
+
+        case 10:
+            return this.reserveRequest(0x30, 0x53);     // 페트론V2 드론, Range Sensor
+
+        case 12:
+            return this.reserveRequest(0x30, 0x54);     // 페트론V2 드론, Image Flow (Optical Flow) Sensor
 
         default:
-            return this.reserveRequest(0x10, 0x41);
+            return this.reserveRequest(0x30, 0xD1);     // 페트론V2 드론, 자주 갱신되는 데이터 모음(엔트리)
         }
     }
     else
     {
         // 예약된 요청이 있는 경우에도 간헐적으로 장치 검색(연결 유지를 위해)
-        switch( this.countReqeustDevice % 15 )
+        switch( this.countReqeustDevice % 24 )
         {
         case 3:
-            return this.ping(0x10);
+            return this.ping(0x30);
 
         case 6:
-            return this.ping(0x11);
+            return this.ping(0x31);
 
         case 9:
-            return this.reserveRequest(0x10, 0x40);
+            return this.reserveRequest(0x30, 0x40);
 
         case 12:
-            return this.reserveRequest(0x10, 0x41);
+            return this.reserveRequest(0x30, 0x50);
+
+        case 15:
+            return this.reserveRequest(0x30, 0x51);
+
+        case 18:
+            return this.reserveRequest(0x30, 0x53);
+
+        case 21:
+            return this.reserveRequest(0x30, 0x54);
 
         default:
             break;
@@ -1293,8 +2024,9 @@ Module.prototype.transferForDevice = function()
 
     this.crc16Transfered = (arrayTransfer[arrayTransfer.length - 1] << 8) | (arrayTransfer[arrayTransfer.length - 2]);
 
-    if( this.countTransferRepeat > 1 )
-        console.log("Data Transfer - Repeat: " + this.countTransferRepeat, this.bufferTransfer[0]);
+    //if( this.countTransferRepeat > 1 && this.countTransferRepeat < 3 )
+    this.log("Data Transfer - Repeat(" + this.bufferTransfer.length + ") : " + this.countTransferRepeat, this.bufferTransfer[0]);
+        //console.log("Data Transfer - Repeat: " + this.countTransferRepeat, this.bufferTransfer[0]);
 
     // maxTransferRepeat 이상 전송했음애도 응답이 없는 경우엔 다음으로 넘어감
     if( this.countTransferRepeat > this.maxTransferRepeat)
@@ -1317,16 +2049,20 @@ Module.prototype.ping = function(target)
     this.addStartCode(dataArray);
     
     let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-    let dataLength = 4;     // 데이터의 길이
+    let dataLength = 8;                     // 데이터의 길이
 
     // Header
     dataArray.push(0x01);           // Data Type (UpdateLookupTarget)
     dataArray.push(dataLength);     // Data Length
-    dataArray.push(0x15);           // From
+    dataArray.push(0x38);           // From (네이버 엔트리)
     dataArray.push(target);         // To
 
     // Data Array
     dataArray.push(0x00);           // systemTime
+    dataArray.push(0x00);
+    dataArray.push(0x00);
+    dataArray.push(0x00);
+    dataArray.push(0x00);           // u32 -> u64
     dataArray.push(0x00);
     dataArray.push(0x00);
     dataArray.push(0x00);
@@ -1348,12 +2084,12 @@ Module.prototype.reserveRequest = function(target, dataType)
     this.addStartCode(dataArray);
     
     let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-    let dataLength = 1;     // 데이터의 길이
+    let dataLength = 1;                     // 데이터의 길이
 
     // Header
     dataArray.push(0x04);           // Data Type (Request)
     dataArray.push(dataLength);     // Data Length
-    dataArray.push(0x15);           // From
+    dataArray.push(0x38);           // From (네이버 엔트리)
     dataArray.push(target);         // To
 
     // Data Array
@@ -1376,22 +2112,40 @@ Module.prototype.reserveModeVehicle = function(modeVehicle)
     this.addStartCode(dataArray);
     
     let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-    let dataLength = 2;     // 데이터의 길이
+    let dataLength = 2;                     // 데이터의 길이
 
     // Header
     dataArray.push(0x11);           // Data Type
     dataArray.push(dataLength);     // Data Length
-    dataArray.push(0x15);           // From
-    dataArray.push(0x10);           // To
+    dataArray.push(0x38);           // From (네이버 엔트리)
+    dataArray.push(0x30);           // To
 
     // Data Array
-    dataArray.push(0x10);           // CommandType
+    dataArray.push(0x10);           // CommandType (Vehicle 동작 모드 전환 ?)
     dataArray.push(modeVehicle);    // Option
 
     // CRC16
     this.addCRC16(dataArray, indexStart, dataLength);
     
     this.bufferTransfer.push(dataArray);
+}
+
+// 입력받은 문자열 처리
+// https://stackoverflow.com/questions/6226189/how-to-convert-a-string-to-bytearray
+Module.prototype.stringToAsciiByteArray = function(str)
+{
+    let bytes = [];
+    for(let i=0; i<str.length; i++)
+    {
+        let charCode = str.charCodeAt(i);
+        if( charCode > 0xFF )  // char > 1 byte since charCodeAt returns the UTF-16 value
+        {
+            // throw new Error('Character ' + String.fromCharCode(charCode) + ' can\'t be represented by a US-ASCII byte.');
+            continue;
+        }
+        bytes.push(charCode);
+    }
+    return bytes;
 }
 
 /***************************************************************************************
