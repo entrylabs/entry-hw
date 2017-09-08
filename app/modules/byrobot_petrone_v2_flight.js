@@ -316,7 +316,7 @@ Module.prototype.resetData = function()
     this.timeReceive                    = 0;        // 데이터를 전송 받은 시각
     this.timeTransfer                   = 0;        // 예약 데이터를 전송한 시각
     this.timeTransferNext               = 0;        // 전송 가능한 다음 시간
-    this.timeTransferInterval           = 40;       // 최소 전송 시간 간격
+    this.timeTransferInterval           = 30;       // 최소 전송 시간 간격
 
     this.countReqeustDevice             = 0;        // 장치에 데이터를 요청한 횟수 카운트 
 }

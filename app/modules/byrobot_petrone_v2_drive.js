@@ -142,7 +142,7 @@ function Module()
     this.timeReceive            = 0;        // 데이터를 전송 받은 시각
     this.timeTransfer           = 0;        // 예약 데이터를 전송한 시각
     this.timeTransferNext       = 0;        // 전송 가능한 다음 시간
-    this.timeTransferInterval   = 40;       // 최소 전송 시간 간격
+    this.timeTransferInterval   = 30;       // 최소 전송 시간 간격
 
     this.countReqeustDevice     = 0;        // 장치에 데이터를 요청한 횟수 카운트 
 }
@@ -316,7 +316,7 @@ Module.prototype.resetData = function()
     this.timeReceive                    = 0;        // 데이터를 전송 받은 시각
     this.timeTransfer                   = 0;        // 예약 데이터를 전송한 시각
     this.timeTransferNext               = 0;        // 전송 가능한 다음 시간
-    this.timeTransferInterval           = 40;       // 최소 전송 시간 간격
+    this.timeTransferInterval           = 30;       // 최소 전송 시간 간격
 
     this.countReqeustDevice             = 0;        // 장치에 데이터를 요청한 횟수 카운트 
 }
@@ -1139,7 +1139,7 @@ Module.prototype.handlerForEntry = function(handler)
         // CRC16
         this.addCRC16(dataArray, indexStart, dataLength);
 
-        //this.log("Module.prototype.handlerForEntry() / Control Double / wheel: " + control_wheel + ", accel: " + control_accel, dataArray);
+        this.log("Module.prototype.handlerForEntry() / Control Double / wheel: " + controlWheel + ", accel: " + controlAccel, dataArray);
 
         this.bufferTransfer.push(dataArray);
     }
@@ -1681,8 +1681,8 @@ Module.prototype.handlerForDevice = function()
             state.state_coordinate              = this.extractUInt8(this.dataBlock, 5);
             state.state_battery                 = this.extractUInt8(this.dataBlock, 6);
 
-            if (state.state_modeVehicle != 0x10 && state.state_modeVehicle != 0x11 && state.state_modeVehicle != 0x12 )
-                this.reserveModeVehicle(0x10);
+            if (state.state_modeVehicle != 0x20 && state.state_modeVehicle != 0x21 )
+                this.reserveModeVehicle(0x20);
 
             //console.log("handlerForDevice - state: " + state.state_modeVehicle);
         }
@@ -1984,6 +1984,7 @@ Module.prototype.transferForDevice = function()
     }
     else
     {
+        /*
         // 예약된 요청이 있는 경우에도 간헐적으로 장치 검색(연결 유지를 위해)
         switch( this.countReqeustDevice % 24 )
         {
@@ -2010,6 +2011,15 @@ Module.prototype.transferForDevice = function()
 
         default:
             break;
+        }
+        // */
+        // 예약된 요청이 없는 경우 데이터 요청 등록(현재는 자세 데이터 요청)
+        switch (this.countReqeustDevice % 3) {
+            case 1:
+                return this.reserveRequest(0x30, 0xD1);     // 페트론V2 드론, 자주 갱신되는 데이터 모음(엔트리)
+
+            default:
+                break;
         }
     }
 
