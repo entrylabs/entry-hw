@@ -1,6 +1,6 @@
 { 
   "name": "Entry_HW",
-  "version": "1.6.14",
+  "version": "1.6.15",
   "scripts": {
     "clean": "rimraf dist",
     "pack": "build",
