@@ -5,8 +5,8 @@
         "ko": "4D 메카트로닉스"
     },
     "platform": ["win32", "darwin"],
-    "icon" : "4d_mechatronics.png",
-    "module": "4d_mechatronics.js",
+    "icon" : "mechatronics_4d.png",
+    "module": "mechatronics_4d.js",
     "driver": {
         "win32-ia32": "arduino/dpinst-x86.exe",
         "win32-x64": "arduino/dpinst-amd64.exe"
