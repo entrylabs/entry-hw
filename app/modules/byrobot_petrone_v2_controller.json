@@ -1,17 +1,17 @@
 {
-    "id": "0F0301",
+    "id": "0F0401",
     "platform": ["win32"],
     "name": {
-        "en": "BYROBOT Drone Fighter flight",
-        "ko": "바이로봇 드론파이터 드론"
+        "en": "BYROBOT PetroneV2 controller",
+        "ko": "바이로봇 페트론V2 조종기"
     },
-    "icon" : "byrobot_dronefighter_flight.png",
-    "module": "byrobot_dronefighter_flight.js",
+    "icon" : "byrobot_petrone_v2_controller.png",
+    "module": "byrobot_petrone_v2_controller.js",
     "url": "http://www.byrobot.co.kr",
     "email": "help@byrobot.co.kr",
     "driver": {
-        "win32-ia32": "BYROBOT/dronefighter_usb_driver.exe",
-        "win32-x64": "BYROBOT/dronefighter_usb_driver.exe"
+        "win32-ia32": "BYROBOT/petrone_v2_usb_driver_32.exe",
+        "win32-x64": "BYROBOT/petrone_v2_usb_driver_64.exe"
     },
     "reconnect" : true,
     "entry": {
