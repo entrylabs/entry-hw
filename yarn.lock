@@ -582,9 +582,9 @@ electron-packager@^8.1.0:
     sanitize-filename "^1.6.0"
     semver "^5.3.0"
 
-electron@1.6.11:
-  version "1.6.11"
-  resolved "https://registry.yarnpkg.com/electron/-/electron-1.6.11.tgz#be79c0ebdcefedb5bf28117409800fa53baceffa"
+electron@1.7.8:
+  version "1.7.8"
+  resolved "https://registry.yarnpkg.com/electron/-/electron-1.7.8.tgz#27b791a6895171a7d52991b99442cdbd10a3539d"
   dependencies:
     "@types/node" "^7.0.18"
     electron-download "^3.0.1"
