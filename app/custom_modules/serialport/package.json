@@ -1,7 +1,7 @@
 {
   "name": "serialport",
-  "version": "3.1.2",
-  "description": "Node.js package to access serial ports. Welcome your robotic javascript overlords. Better yet, program them!",
+  "version": "5.0.0",
+  "description": "Node.js package to access serial ports. Linux, OSX and Windows. Welcome your robotic JavaScript overlords. Better yet, program them!",
   "author": {
     "name": "Chris Williams",
     "email": "voodootikigod@gmail.com",
@@ -10,20 +10,30 @@
   "binary": {
     "module_name": "serialport",
     "module_path": "build/{configuration}/",
-    "host": "https://github.com/voodootikigod/node-serialport/releases/download/3.1.2"
+    "host": "https://github.com/EmergingTechnologyAdvisors/node-serialport/releases/download/5.0.0"
   },
-  "main": "./lib/serialport",
+  "main": "lib",
   "repository": {
     "type": "git",
-    "url": "git://github.com/voodootikigod/node-serialport.git"
+    "url": "git://github.com/EmergingTechnologyAdvisors/node-serialport.git"
   },
   "keywords": [
-    "serialport",
-    "johnny-five",
-    "serial port",
+    "ccTalk",
+    "com port",
+    "data logging",
     "hardware",
     "iot",
-    "nodebots"
+    "johnny-five",
+    "modem",
+    "nodebots",
+    "RFID",
+    "sensor",
+    "serial port",
+    "serial",
+    "serialport",
+    "sms gateway",
+    "stream",
+    "tty"
   ],
   "maintainers": [
     {
@@ -52,48 +62,56 @@
     }
   ],
   "dependencies": {
-    "bindings": "1.2.1",
-    "commander": "^2.9.0",
-    "debug": "^2.1.1",
-    "es6-promise": "^3.1.2",
-    "nan": "^2.3.3",
-    "node-pre-gyp": "^0.6.26",
-    "object.assign": "^4.0.3"
+    "bindings": "1.3.0",
+    "commander": "^2.11.0",
+    "debug": "^2.6.6",
+    "nan": "^2.6.2",
+    "node-pre-gyp": "^0.6.36",
+    "promirepl": "^1.0.1",
+    "safe-buffer": "^5.0.1"
   },
   "devDependencies": {
-    "chai": "^3.5.0",
-    "chai-subset": "^1.2.2",
-    "eslint-config-standard": "^5.1.0",
-    "eslint-plugin-promise": "^1.1.0",
-    "eslint-plugin-standard": "^1.3.2",
-    "grunt": "^1.0.0",
-    "grunt-mocha-test": "^0.12.7",
-    "gruntify-eslint": "^2.0.0",
-    "mocha": "^2.4.5",
+    "bluebird": "^3.5.0",
+    "chai": "^4.0.2",
+    "chai-subset": "^1.5.0",
+    "eslint": "^4.1.1",
+    "eslint-config-standard": "^10.2.1",
+    "eslint-plugin-import": "^2.7.0",
+    "eslint-plugin-node": "^5.1.0",
+    "eslint-plugin-promise": "^3.5.0",
+    "eslint-plugin-standard": "^3.0.1",
+    "istanbul": "^0.4.4",
+    "jsdoc-to-markdown": "^3.0.0",
+    "mocha": "^3.4.2",
     "node-pre-gyp-github": "^1.1.2",
-    "sandboxed-module": "^2.0.3",
-    "sinon": "^1.17.3",
-    "sinon-chai": "^2.8.0",
-    "spawn-sync": "^1.0.15"
+    "proxyquire": "^1.7.10",
+    "sinon": "^2.3.8"
   },
   "bundledDependencies": [
     "node-pre-gyp"
   ],
   "engines": {
-    "node": ">= 0.10.0"
+    "node": ">=4.0.0"
   },
   "bin": {
-    "serialportlist": "./bin/serialport-list.js",
-    "serialportterm": "./bin/serialport-terminal.js"
+    "serialport-list": "./bin/list.js",
+    "serialport-repl": "./bin/repl.js",
+    "serialport-term": "./bin/terminal.js"
   },
   "license": "MIT",
   "scripts": {
+    "arduino-test": "TEST_PORT=$(./bin/find-arduino.js) npm test",
+    "docs": "jsdoc2md --no-cache -t .docs/README.hbs --partial .docs/sig-name.hbs --partial .docs/sig-link.hbs --partial .docs/edit-warning.hbs -r table --separators --name-format -f lib/* lib/bindings/* lib/parsers/* > README.md",
+    "docs:diff": "jsdoc2md --no-cache -t .docs/README.hbs --partial .docs/sig-name.hbs --partial .docs/sig-link.hbs --partial .docs/edit-warning.hbs -r table --separators --name-format -f lib/* lib/bindings/* lib/parsers/* | diff README.md - || (echo 'Docs out of date, run `npm run docs` and commit the new README.md' && false)",
     "install": "node-pre-gyp install --fallback-to-build",
+    "lint": "eslint lib test bin examples",
     "rebuild-all": "npm rebuild && node-gyp rebuild",
-    "gyp-rebuild": "node-gyp rebuild",
+    "repl": "node bin/repl.js",
     "stress": "mocha --no-timeouts test/arduinoTest/stress.js",
-    "grunt": "grunt",
-    "test": "grunt --verbose"
+    "test": "istanbul cover ./node_modules/mocha/bin/_mocha",
+    "test:watch": "mocha -w",
+    "valgrind": "TEST_PORT=$(./bin/find-arduino.js) valgrind --leak-check=full node test/manual-testing/memory-binding.js",
+    "debugger": "TEST_PORT=$(./bin/find-arduino.js) node --inspect --debug-brk test/manual-testing/performance.js"
   },
   "gypfile": true
 }

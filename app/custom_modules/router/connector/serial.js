@@ -14,9 +14,7 @@ Connector.prototype.open = function(port, options, callback) {
 	_options.dataBits = options.dataBits || options.databits || 8;
 	_options.stopBits = options.stopBits || options.stopbits || 1;
 	_options.bufferSize = options.bufferSize || options.buffersize || 65536;
-	if(options.delimiter) {
-		_options.parser = serialport.parsers.readline(options.delimiter);
-	}
+	
 	var flowcontrol = options.flowControl || options.flowcontrol;
 	if(flowcontrol === 'hardware') {
 		_options.flowControl = true;
@@ -24,8 +22,15 @@ Connector.prototype.open = function(port, options, callback) {
 		_options.flowControl = ['XON', 'XOFF'];
 	}
 
-	var sp = new serialport.SerialPort(port, _options);
+	var sp = new serialport(port, _options);	
 	this.sp = sp;
+	var reader = sp;
+    if(options.delimiter) {
+        var parser = new serialport.parsers.Readline({ delimiter: options.delimiter });
+        sp.pipe(parser);
+        reader = parser;
+    }
+    this.reader = reader;
 	sp.on('error', function(error) {
 		console.error(error);
 		if(callback) {
@@ -35,7 +40,7 @@ Connector.prototype.open = function(port, options, callback) {
 	sp.on('open', function(error) {
 		sp.removeAllListeners('open');
 		if(callback) {
-			callback(error, sp);
+			callback(error, reader);			
 		}
 	});
 };
@@ -50,11 +55,12 @@ Connector.prototype.connect = function(extension, callback) {
 		self.connected = false;
 		self.received = true;
 		var sp = self.sp;
+		var reader = self.reader;		
 		callback('connect');
 		if(extension.afterConnect) {
 			extension.afterConnect(self, callback);
 		}
-		sp.on('data', function(data) {
+		reader.on('data', function(data) {				
 			var valid = true;
 			if(extension.validateLocalData) {
 				valid = extension.validateLocalData(data);
@@ -111,7 +117,7 @@ Connector.prototype.close = function() {
 	var self = this;
 	this.clear();
 	if(this.sp) {
-		if(this.sp.isOpen()) {
+		if(this.sp.isOpen) {
 			this.sp.close(function (e) {
 				self.sp = undefined;
 			});
@@ -121,7 +127,7 @@ Connector.prototype.close = function() {
 
 Connector.prototype.send = function(data, callback) {
 	var that = this;
-	if(this.sp && this.sp.isOpen() && data && !this.sp.isSending) {
+	if(this.sp && this.sp.isOpen && data && !this.sp.isSending) {
 		this.sp.isSending = true;
 		this.sp.write(data, function () {
 			if(that.sp) {

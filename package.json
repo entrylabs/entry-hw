@@ -1,4 +1,4 @@
-{ 
+{
   "name": "Entry_HW",
   "version": "1.6.15",
   "scripts": {
@@ -48,10 +48,18 @@
     "iconUrl": "https://raw.githubusercontent.com/entrylabs/entry-hw/feature/electron/build/icon.ico"
   },
   "devDependencies": {
-    "electron": "1.6.11",
+    "electron": "1.7.8",
     "electron-builder": "10.5.0",
     "electron-packager": "^8.1.0",
     "rimraf": "^2.5.4"
   },
-  "dependencies": {}
+  "dependencies": {    
+    "bindings": "^1.2.1",
+    "debug": "^2.2.0",
+    "es6-promise": "^3.2.1",
+    "lodash": "^4.16.4",
+    "object.assign": "^4.0.4",
+    "socket.io": "^1.5.0",
+    "socket.io-client": "^1.5.1"
+  }
 }
