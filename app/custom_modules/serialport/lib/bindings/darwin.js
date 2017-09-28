@@ -1,5 +1,6 @@
 'use strict';
-const binding = require('bindings')('serialport.node');
+const module_name = 'serialport_' +  process.platform + '_' + process.arch + '.node';
+const binding = require('bindings')(module_name);
 const BaseBinding = require('./base');
 const Poller = require('./poller');
 const promisify = require('../util').promisify;

@@ -2,7 +2,8 @@
 const debug = require('debug');
 const logger = debug('serialport:poller');
 const EventEmitter = require('events');
-const FDPoller = require('bindings')('serialport.node').Poller;
+const module_name = 'serialport_' +  process.platform + '_' + process.arch + '.node';
+const FDPoller = require('bindings')(module_name).Poller;
 
 const EVENTS = {
   UV_READABLE: 1,

@@ -137,6 +137,30 @@ Scanner.prototype.scan = function(serialport, extension, config, callback) {
 									}, 3000);
 								}
 
+								connector.reader.on('readable', function () {
+									console.log('is readable !!');
+								});
+
+								sp.on('readable', function () {
+									console.log('is readable !! 2');
+								});
+
+								connector.sp.on('readable', function () {
+									console.log('is readable !! 3');
+								});
+
+								connector.reader.on('data', function () {
+									console.log('is data !!');
+								});
+
+								sp.on('data', function () {
+									console.log('is data !!2');
+								});
+
+								connector.sp.on('data', function () {
+									console.log('is data !!3');
+								});
+								return;
 								if(control == 'master') {
 									if(extension.checkInitialData && extension.requestInitialData) {
 										sp.on('data', function(data) {

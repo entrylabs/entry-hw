@@ -14,6 +14,7 @@ Connector.prototype.open = function(port, options, callback) {
 	_options.dataBits = options.dataBits || options.databits || 8;
 	_options.stopBits = options.stopBits || options.stopbits || 1;
 	_options.bufferSize = options.bufferSize || options.buffersize || 65536;
+	_options.highWaterMark = 500;
 	
 	var flowcontrol = options.flowControl || options.flowcontrol;
 	if(flowcontrol === 'hardware') {
@@ -24,12 +25,15 @@ Connector.prototype.open = function(port, options, callback) {
 
 	var sp = new serialport(port, _options);	
 	this.sp = sp;
-	var reader = sp;
+	var reader;
     if(options.delimiter) {
         var parser = new serialport.parsers.Readline({ delimiter: options.delimiter });
-        sp.pipe(parser);
-        reader = parser;
-    }
+		reader = sp.pipe(parser);
+		console.log('set parser');
+    } else {
+		reader = sp;
+		console.log('not set parser');
+	}
     this.reader = reader;
 	sp.on('error', function(error) {
 		console.error(error);
