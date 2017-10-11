@@ -2,6 +2,7 @@ function Module() {
 	this.cmdData = [0xF0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
 	this.sensorData = [0xF0, 100, 0x00, 100, 100, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00];
 	this.oldNoteCount = 0;
+	this.emergency = 0;
 }
 
 Module.prototype.init = function(handler, config) {
@@ -27,7 +28,7 @@ Module.prototype.handleRemoteData = function(handler) {
 		this.noteCount = handler.read('noteCount');
 		var cmdData = this.cmdData;
 	
-		if(typeof cmd == "undefined")
+		if(typeof cmd != "object")
 				return;
 
 		cmd.forEach(function (value, idx) {
@@ -36,6 +37,13 @@ Module.prototype.handleRemoteData = function(handler) {
     		
 		if(this.noteCount == this.oldNoteCount)
 				cmdData[2] = 0;	
+				
+		if(cmd[8] == 0x81)
+				this.emergency = 1;
+		if(cmd[7] == 0x00)
+				this.emergency = 0;
+		if(this.emergency == 1)
+				cmdData[7] = 0;
 };
 
 Module.prototype.requestLocalData = function() {
@@ -62,6 +70,7 @@ Module.prototype.reset = function() {
 		this.cmdData = [0xF0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
 		this.sensorData = [0xF0, 100, 0x00, 100, 100, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00];
 		this.oldNoteCount = 0;
+		this.emergency = 0;
 };
 
 module.exports = new Module();
