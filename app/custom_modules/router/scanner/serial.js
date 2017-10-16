@@ -72,8 +72,9 @@ Scanner.prototype.scan = function(serialport, extension, config, callback) {
 		}
 
 		if(scanType == 'data') {
-			if(self.scanCount < 5) self.scanCount ++;
-			else {
+			if(self.scanCount < 5) {
+				self.scanCount ++;
+			} else {
 				if(devices.some(function(device) {
 					var isVendor = false;
 					if(Array.isArray(vendor)) {
