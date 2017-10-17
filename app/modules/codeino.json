@@ -8,7 +8,7 @@
 	"icon" : "codeino.png",
 	"module": "codeino.js",
 	"url": "http://www.codable.co.kr",
-	"email": "k760210@kdice.co.kr",
+	"email": "book@kdice.co.kr",
 	"driver": {
 		"win32-ia32": "ftdi/dpinst-x86.exe",
 		"win32-x64": "ftdi/dpinst-amd64.exe",
