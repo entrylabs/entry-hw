@@ -40,9 +40,12 @@ Module.prototype.requestLocalData = function() {
 			queryString.push(query);
 		}
 	}
-
+	var readablePortsValues = readablePorts && Object.values(readablePorts) || [];
 	var digitalValue = this.remoteDigitalValue;
 	for (var port = 0; port < 14; port++) {
+		if(readablePortsValues.indexOf(port) > -1) {
+			continue;
+		}
 		var value = digitalValue[port];
 		if (value === 255 || value === 0) {
 			var query = (7 << 5) + (port << 1) + (value == 255 ? 1 : 0);
