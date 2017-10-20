@@ -469,9 +469,12 @@ SoftwareSerial mySerial(3, 2); // RX, TX
 #define ULTRASONIC 7
 #define TIMER 8
 #define LCD 9
-#define SOUND_IN 10
-#define MOTOR_LEFT 11
-#define MOTOR_RIGHT 12
+#define LCD_COMMAND 10
+
+// 여기서부터 구현 해야 함
+#define SOUND_IN 11
+#define MOTOR_LEFT 12
+#define MOTOR_RIGHT 13
 
 
 // 상태 상수
@@ -553,8 +556,8 @@ void setup(){
   
   initPorts();
 
-  lcd.init();  
-  lcd.backlight();  
+  lcd.init();
+  // lcd.backlight();
   
   delay(200);
 
@@ -636,6 +639,27 @@ void parseData() {
   int action = readBuffer(4);
   int device = readBuffer(5);
   int port = readBuffer(6);
+
+  /*
+  lcd.clear();
+  lcd.setCursor(0,0);
+
+  lcd.print(readBuffer(4));
+  lcd.print(",");
+  lcd.print(readBuffer(5));
+  lcd.print(",");
+  lcd.print(readBuffer(6));
+  lcd.print(",");
+  lcd.print(readBuffer(7));
+  lcd.print(",");
+  lcd.print(readBuffer(8));
+  lcd.print(",");
+  lcd.print(readBuffer(9));
+  lcd.print(",");
+  lcd.print(readBuffer(10));
+  */
+  
+ 
   switch(action){
     case GET:{
       if(device == ULTRASONIC){
@@ -729,13 +753,43 @@ void runModule(int device) {
     }
     break;
     case LCD:{
-      int line = readBuffer(6);  // Line
-      int col = readBuffer(7);  // Col
+      int line = readBuffer(7);  // Line
+      int col = readBuffer(9);  // Col
 
-      lcd.setCursor(1,1);
-      lcd.print("123456789");      
+      // lcd.clear();
+      lcd.setCursor(col,line);
+    
+      /*
+      lcd.print(readBuffer(7)); // line
+      lcd.print(",");     
+      lcd.print(readBuffer(9)); // column
+      lcd.print(",");     
+      lcd.print(readBuffer(11)); // string  
+      lcd.print(readBuffer(13)); // string
+      lcd.print(readBuffer(15)); // string
+      */
+    
+      char lcd_char[32];
+      int lcd_string_start_num = 11;
+      for (int i = 0; i < 17; i++) 
+      {
+        lcd_char[i] = readBuffer(lcd_string_start_num);
+        lcd_string_start_num += 2;
+      }      
+      lcd.print(lcd_char);      
     }
     break;
+    case LCD_COMMAND:{
+      int command = readBuffer(6);  // command
+      
+      if( command == 0 )
+        lcd.clear();      
+      else if( command == 1 )
+        lcd.backlight();
+      else if( command == 2 )
+        lcd.noBacklight();
+    }
+    break;    
     case MOTOR_LEFT:{
       int direction = readBuffer(7);
       int speed = readBuffer(9);
