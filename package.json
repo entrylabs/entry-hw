@@ -17,7 +17,8 @@
       "icon": "build/icon.icns",
       "iconSize": 80,
       "background": "build/background.png",
-      "contents": [{
+      "contents": [
+        {
           "x": 240,
           "y": 120
         },
