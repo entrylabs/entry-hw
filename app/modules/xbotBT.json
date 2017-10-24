@@ -1,8 +1,8 @@
 {
 	"id": "010702",
 	"name": {
-		"en": "XBOT EPOR and EDGE Bluetooth",
-		"ko": "엑스봇 에뽀/엣지 블투투스"
+		"en": "XBOT(Bluetooth)",
+		"ko": "엑스봇(블루투스)"
 	},
 	"platform": ["win32", "darwin"],
 	"icon" : "xbotBT.png",

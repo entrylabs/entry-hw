@@ -1,8 +1,8 @@
 {
 	"id": "010701",
 	"name": {
-		"en": "XBOT EDGE USB",
-		"ko": "엑스봇 엣지 USB"
+		"en": "XBOT(OneTouch Dongle/USB)",
+		"ko": "엑스봇(원터치 동글/USB)"
 	},
 	"platform": ["win32", "darwin"],
 	"icon" : "xbot.png",
