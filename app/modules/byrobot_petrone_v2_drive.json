@@ -1,6 +1,6 @@
 {
     "id": "0F0501",
-    "platform": ["win32"],
+    "platform": ["win32", "darwin"],
     "name": {
         "en": "BYROBOT PetroneV2 drive",
         "ko": "바이로봇 페트론V2 자동차"
