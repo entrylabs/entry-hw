@@ -7,11 +7,12 @@ function Module() {
 	this.remainValue = null;
 }
 
-var high_2bit=[0xc0,0xc0,0xc0,0xc0, // LED1~4
-				0xc0,0xc0,0xc0, 0xc0,0xc0,0xc0, // TriLED1, TriLED2
-				0xc0,0xc0, // vibrat1~2
-				0x80,0x80, // Motor1~2
-				0x80,0x80,0x80,0x80]; // Servo1~4
+var high_2bit=[ 0xc0,0xc0,0xc0,0xc0, // 0..3: LED1~4
+				0xc0,0xc0,0xc0, // 4..6: TriLED1
+				0xc0,0xc0,0xc0, // 7..9: TriLED2
+				0xc0,0xc0, // 10.11: vibrat1~2
+				0x80,0x80, // 12.13: Motor1~2
+				0x80,0x80,0x80,0x80]; // 14..17: Servo1~4
 var port_idx=[2,3,0,1,7,4,12,5,6,11,9,10,0,1,2,3,4,5];
 
 //초기설정
@@ -24,7 +25,6 @@ Module.prototype.requestInitialData = function() {return null;};
 //초기 수신데이터
 Module.prototype.checkInitialData = function(data, config) { return true;};
 
-// 이것은 무엇인고
 Module.prototype.validateLocalData = function(data) { return true; };
 
 //웹소켓 데이터 처리
@@ -40,42 +40,25 @@ Module.prototype.handleRemoteData = function(handler) {
 	digitalValue[1] = handler.read('led2');
 	digitalValue[2] = handler.read('led3');
 	digitalValue[3] = handler.read('led4');
+	//console.log('LED1', digitalValue[1]);
 	digitalValue[4] = handler.read('triLEDR1');
-	//console.log('LED1-R ',digitalValue[4]);
 	digitalValue[5] = handler.read('triLEDG1');
-	//console.log('LED1-G ',digitalValue[5]);
 	digitalValue[6] = handler.read('triLEDB1');
-	//console.log('LED1-B ',digitalValue[6]);
+	//console.log('TriLED1', digitalValue[4],digitalValue[5],digitalValue[6]);
 	digitalValue[7] = handler.read('triLEDR2');
 	digitalValue[8] = handler.read('triLEDG2');
 	digitalValue[9] = handler.read('triLEDB2');
 	digitalValue[10] = handler.read('vibrat1');
-	//console.log('vibrat1', digitalValue[10]);
+	//console.log('Vibrat1', digitalValue[10]);
 	digitalValue[11] = handler.read('vibrat2');	
 	digitalValue[12] = handler.read('dcMotor1');
 	//console.log('dcMotor1', digitalValue[12]);
 	digitalValue[13] = handler.read('dcMotor2');
-	temp = digitalValue[13];
-	//console.log('dcMotor2', digitalValue[13]);
-	if (temp) {
-		var sign = 0;
-		if (temp < 0) {
-			sign = 1;
-			temp = -temp;
-		}
-		temp >>= 1;
-		if (sign) 
-			temp |= 0x80;
-		//console.log('dcMotor2 ', temp, digitalValue[13]);
-		// 256 --> stop
-		if (digitalValue[13] != 256) digitalValue[13] = temp;
-	}
 	digitalValue[14] = handler.read('servo1');
 	//console.log('servo1', digitalValue[14]);
 	digitalValue[15] = handler.read('servo2');
 	digitalValue[16] = handler.read('servo3');
 	digitalValue[17] = handler.read('servo4');
-	//console.log('HRD ',this.remoteDigitalValue);
 };
 
 // 하드웨어에 전달하는 경우에는 리턴하는 스트링이 전송된다.
@@ -100,8 +83,17 @@ Module.prototype.requestLocalData = function() {
         var query;
         if (value == undefined) continue;
         if (value == null) continue;
-        if (value == 0) continue;
-        query =	high_2bit[port] | (port_idx[port]<<1) | (value & 0x80 ? 1 : 0);
+        //if (value == 0) continue;
+
+        query = high_2bit[port] | (port_idx[port]<<1);
+        if (port == 12 || port == 13) { // dcMotor1,2
+        	if (value < 0) {
+        		query |= 1;
+        		value = -value;
+        	}
+        }
+        else if (value & 0x80)
+        	query |= 1;
         queryString.push(query);
         queryString.push(value & 0x7f);
         //console.log('RLD', port, query.toString(16), (value&0x7f).toString(16));
