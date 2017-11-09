@@ -1,6 +1,6 @@
 {
     "id": "0F0601",
-    "platform": ["win32"],
+    "platform": ["win32", "darwin"],
     "name": {
         "en": "BYROBOT PetroneV2 flight",
         "ko": "바이로봇 페트론V2 드론"
