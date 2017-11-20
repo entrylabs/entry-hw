@@ -7,7 +7,7 @@
 	"platform": ["win32"],
 	"icon" : "memaker.png",
 	"module": "memaker.js",
-	"url": "http://www.jkelec.co.kr",
+	"url": "openfingers@openfingers.com",
 	"email": "jk@deviceshop.net",
 	"driver": {
         "win32-ia32": "CP210x_VCP_Windows/CP210xVCPInstaller_x86.exe",

@@ -1,5 +1,8 @@
 
+#include "Arduino.h"
+
 // LCD 라이브러리
+#include "LiquidCrystal_I2C.h"
 #include <inttypes.h>
 #include "Print.h" 
 #include <Wire.h>
@@ -11,6 +14,9 @@
 #include <Servo.h>
 #include <SoftwareSerial.h>
 
+
+
+#if 0
 // commands
 #define LCD_CLEARDISPLAY 0x01
 #define LCD_RETURNHOME 0x02
@@ -449,7 +455,7 @@ uint8_t LiquidCrystal_I2C::init_bargraph(uint8_t graphtype){return 0;}
 void LiquidCrystal_I2C::draw_horizontal_graph(uint8_t row, uint8_t column, uint8_t len,  uint8_t pixel_col_end){}
 void LiquidCrystal_I2C::draw_vertical_graph(uint8_t row, uint8_t column, uint8_t len,  uint8_t pixel_row_end){}
 void LiquidCrystal_I2C::setContrast(uint8_t new_val){}
-
+#endif
   
 
 LiquidCrystal_I2C lcd(0x27,16,2);  // set the LCD address to 0x27 for a 16 chars and 2 line display
