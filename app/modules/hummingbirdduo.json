@@ -12,7 +12,8 @@
 		"win32-x64": "arduino/dpinst-amd64.exe"
 	},
 	"select_com_port": true,
-	"reconnect": false,
+	"reconnect": true,
+	"firmware": "hummingbirdduo",
 	"softwareReset": true,
 	"entry": {
 		"protocol": "json"
@@ -20,7 +21,7 @@
 	"hardware": {
 		"type": "serial",
 		"duration": 64,
-		"vendor": "Hummingbird",
+		"vendor": "BirdBrain Technologies, LLC.",
 		"baudRate": 9600,
 		"firmwarecheck": false
 	}
