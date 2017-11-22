@@ -13,7 +13,6 @@
 	},
 	"select_com_port": true,
 	"reconnect": true,
-	"firmware": "hummingbirdduo",
 	"softwareReset": true,
 	"entry": {
 		"protocol": "json"
