@@ -1,5 +1,5 @@
 function Module() {
-    this.sp = null;
+	this.sp = null;
 	this.sensory = {
 		L2: 0,
 		L1: 0,
@@ -20,10 +20,10 @@ function Module() {
 	};
 
 	this.setting = {
-        singlemotor:0x0A,
-        dualmotor:0x0A,
-        colorled:0x08,
-        leds: 0x46,
+		singlemotor: 0x0A,
+		dualmotor: 0x0A,
+		colorled: 0x08,
+		leds: 0x46,
 		linetracer: 0x4C,
 		leftWheel: 0,
 		rightWheel: 0,
@@ -35,18 +35,18 @@ function Module() {
 		ledPort: 0,
 		ledONOFF: 0
 	};
-	
-    this.recentCheckData = {
-    }
 
-    this.sendBuffers = [];
+	this.recentCheckData = {
+	}
 
-    this.lastTime = 0;
-    this.lastSendTime = 0;
-    this.isDraing = false;
+	this.sendBuffers = [];
 
-	this.delaytime=0;
-	this.starttime= new Date().getTime();
+	this.lastTime = 0;
+	this.lastSendTime = 0;
+	this.isDraing = false;
+
+	this.delaytime = 0;
+	this.starttime = new Date().getTime();
 }
 
 
@@ -67,48 +67,48 @@ var TrueTrue = {
 	BCOLOR_BLUE: 'BColorBlue',
 	FCOLOR_LEFT_KEY: 'FColorLeftKey',
 	FCOLOR_RIGHT_KEY: 'FColorRightKey',
-	singlemotor:'singlemotor',
-	dualmotor:'dualmotor',
-	colorled:'colorled',
+	singlemotor: 'singlemotor',
+	dualmotor: 'dualmotor',
+	colorled: 'colorled',
 	leds: 'leds'
 };
 
 
 var sensorIdx = 0;
-var hexChar = ["0", "1", "2", "3", "4", "5", "6", "7","8", "9", "A", "B", "C", "D", "E", "F"];
+var hexChar = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"];
 
-Module.prototype.init = function(handler, config) {
+Module.prototype.init = function (handler, config) {
 };
 
 Module.prototype.setSerialPort = function (sp) {
-    var self = this;
-    this.sp = sp;
+	var self = this;
+	this.sp = sp;
 };
 
-Module.prototype.requestInitialData = function() { //Send Initial Start Packet to (Dongle)Robot
-    var buffer;
-//    buffer = new Buffer([0x5F, 0x7E, 0x0E, 0x00, 0x07, 0x00, 0x00, 0x00, 0x0D, 0x0A]);
-    buffer = new Buffer([0x5F, 0x7E, 0x0E, 0x00, 0x07, 0x00, 0x00, 0x00]);
-    return buffer;
+Module.prototype.requestInitialData = function () { //Send Initial Start Packet to (Dongle)Robot
+	var buffer;
+	//    buffer = new Buffer([0x5F, 0x7E, 0x0E, 0x00, 0x07, 0x00, 0x00, 0x00, 0x0D, 0x0A]);
+	buffer = new Buffer([0x5F, 0x7E, 0x0E, 0x00, 0x07, 0x00, 0x00, 0x00]);
+	return buffer;
 };
 
-Module.prototype.checkInitialData = function(data, config) {
-    return true;
-    // 이후에 체크 로직 개선되면 처리
-    // var datas = this.getDataByBuffer(data);
-    // var isValidData = datas.some(function (data) {
-    //     return (data.length > 4 && data[0] === 255 && data[1] === 85);
-    // });
-    // return isValidData;
+Module.prototype.checkInitialData = function (data, config) {
+	return true;
+	// 이후에 체크 로직 개선되면 처리
+	// var datas = this.getDataByBuffer(data);
+	// var isValidData = datas.some(function (data) {
+	//     return (data.length > 4 && data[0] === 255 && data[1] === 85);
+	// });
+	// return isValidData;
 };
 
-Module.prototype.toHex = function(number) {
+Module.prototype.toHex = function (number) {
 	var value = parseInt(number);
-//	var value = number;
-	if(value < 0) value += 0x100;
+	//	var value = number;
+	if (value < 0) value += 0x100;
 
 	value = value.toString(16).toUpperCase();
-	if(value.length > 1) return value;
+	if (value.length > 1) return value;
 	else return '0' + value;
 };
 
@@ -126,35 +126,35 @@ Module.prototype.buf2hex = function(arr) { // buffer is an ArrayBuffer
 }
 */
 
-Module.prototype.buf2hex = function(b) { 
-  return hexChar[(b >> 4) & 0x0f] + hexChar[b & 0x0f]; 
-} 
+Module.prototype.buf2hex = function (b) {
+	return hexChar[(b >> 4) & 0x0f] + hexChar[b & 0x0f];
+}
 
-Module.prototype.validateLocalData = function(data) {
+Module.prototype.validateLocalData = function (data) {
 	return true;
 };
 
-Module.prototype.requestRemoteData = function(handler) { // Send sensor data EntryHW -> EntryJS
+Module.prototype.requestRemoteData = function (handler) { // Send sensor data EntryHW -> EntryJS
 	var sensory = this.sensory;
-	for(var key in sensory) {
+	for (var key in sensory) {
 		handler.write(key, sensory[key]);
 	}
 };
 
-Module.prototype.handleRemoteData = function(handler) { // Entry blocks -> EntryHW -> Buffer
-    // Only process for setting & control robots
-    var self = this;
-    var setDatas = handler.read('SET');
-    var buffer = new Buffer([]);
+Module.prototype.handleRemoteData = function (handler) { // Entry blocks -> EntryHW -> Buffer
+	// Only process for setting & control robots
+	var self = this;
+	var setDatas = handler.read('SET');
+	var buffer = new Buffer([]);
 
-    if(setDatas) {
-        var setKeys = Object.keys(setDatas);
-        setKeys.forEach(function (device) {
-            var data = setDatas[device];
-            if(data) {
-				if(!self.isRecentData(device, data.port, data)) { // Check for recent data
+	if (setDatas) {
+		var setKeys = Object.keys(setDatas);
+		setKeys.forEach(function (device) {
+			var data = setDatas[device];
+			if (data) {
+				if (!self.isRecentData(device, data.port, data)) { // Check for recent data
 
-					console.log("D:"+device+" P:"+data.port+" A:"+data.dataA);
+					console.log("D:" + device + " P:" + data.port + " A:" + data.dataA);
 
 					self.recentCheckData[device] = {
 						port: data.port,
@@ -164,56 +164,56 @@ Module.prototype.handleRemoteData = function(handler) { // Entry blocks -> Entry
 					}
 					self.sp.write(self.makeOutputBuffer(device, data));
 				}
-            }
-        });
-    }
+			}
+		});
+	}
 };
 
-Module.prototype.isRecentData = function(device, port, data) {
-    var isRecent = false;
+Module.prototype.isRecentData = function (device, port, data) {
+	var isRecent = false;
 
-    if(device in this.recentCheckData) {
-		if(this.recentCheckData[device].port === port && this.recentCheckData[device].data1 === data.dataA && this.recentCheckData[device].data2 === data.dataB && this.recentCheckData[device].data3 === data.dataC) {
-//			if(device== setting.dualmotor) isRecent = false;
-//			else isRecent = true;
+	if (device in this.recentCheckData) {
+		if (this.recentCheckData[device].port == port && this.recentCheckData[device].data1 == data.dataA && this.recentCheckData[device].data2 == data.dataB && this.recentCheckData[device].data3 == data.dataC) {
+			//			if(device== setting.dualmotor) isRecent = false;
+			//			else isRecent = true;
 			isRecent = true;
 		}
-    }
-    return isRecent;
+	}
+	return isRecent;
 }
 
-Module.prototype.requestLocalData = function() { // make a buffer data for EntryHW -> Robot follow firmata protocol
-/*
-    var self = this;
-    
-     if(!this.isDraing && this.sendBuffers.length > 0) {
-        this.isDraing = true;
-        this.sp.write(this.sendBuffers.shift(), function () {
-            if(self.sp) {
-                self.sp.drain(function () {
-                    self.isDraing = false;
-                });
-            }
-        });        
-    }
-*/
-    return null;
+Module.prototype.requestLocalData = function () { // make a buffer data for EntryHW -> Robot follow firmata protocol
+	/*
+		var self = this;
+	    
+		 if(!this.isDraing && this.sendBuffers.length > 0) {
+			this.isDraing = true;
+			this.sp.write(this.sendBuffers.shift(), function () {
+				if(self.sp) {
+					self.sp.drain(function () {
+						self.isDraing = false;
+					});
+				}
+			});        
+		}
+	*/
+	return null;
 };
 
-Module.prototype.handleLocalData = function(data) { // Robot data -> EntryHW, save to sensory data
-/*
-    if(data.length) {
-		for(var i=0; i<data.length; i++){
-			str=str+this.buf2hex(data[i]);
-		};
-		console.log("D:"+str);
-    }
-*/
-	if(data.length != 19) return;
+Module.prototype.handleLocalData = function (data) { // Robot data -> EntryHW, save to sensory data
+	/*
+		if(data.length) {
+			for(var i=0; i<data.length; i++){
+				str=str+this.buf2hex(data[i]);
+			};
+			console.log("D:"+str);
+		}
+	*/
+	if (data.length != 19) return;
 
-	if(data[0] != 0x7E) return; // invalid data
+	if (data[0] != 0x7E) return; // invalid data
 	var sensory = this.sensory;
-	
+
 	sensory.L2 = data[1];
 	sensory.L1 = data[2];
 	sensory.R1 = data[3];
@@ -224,14 +224,14 @@ Module.prototype.handleLocalData = function(data) { // Robot data -> EntryHW, sa
 	sensory.AccY = data[8];
 	sensory.AccZ = data[9];
 	sensory.AccStatus = data[10];
-/*
-	sensory.BColorKey = data[11];
-	sensory.BColorRed = data[12];
-	sensory.BColorGreen = data[13];
-	sensory.BColorBlue = data[14];
-	sensory.FColorLeftKey = data[15];
-	sensory.FColorRightKey = data[16];
-*/
+	/*
+		sensory.BColorKey = data[11];
+		sensory.BColorRed = data[12];
+		sensory.BColorGreen = data[13];
+		sensory.BColorBlue = data[14];
+		sensory.FColorLeftKey = data[15];
+		sensory.FColorRightKey = data[16];
+	*/
 	sensory.BColorKey = data[13];
 	sensory.BColorRed = data[14];
 	sensory.BColorGreen = data[15];
@@ -242,80 +242,79 @@ Module.prototype.handleLocalData = function(data) { // Robot data -> EntryHW, sa
 
 
 //0xff 0x55 0x6 0x0 0x1 0xa 0x9 0x0 0x0 0xa
-Module.prototype.makeOutputBuffer = function(device, data) {
-    var self = this;
-    var buffer;
-	setting=this.setting;
-		
-	console.log("D:"+device+ " P:"+data.port+" B:"+data.dataB+" C:"+data.dataC);
+Module.prototype.makeOutputBuffer = function (device, data) {
+	var self = this;
+	var buffer;
+	setting = this.setting;
 
-//	if(device==setting.singlemotor){
-//		buffer = new Buffer([0xFF, 0x55, 6, 0, 2, device, data.port, data.dataA, data.dataB]);
-//	}else 
-	if(device==setting.dualmotor){
-		if(this.delaytime>0){
+	console.log("D:" + device + " P:" + data.port + " B:" + data.dataB + " C:" + data.dataC);
+
+	//	if(device==setting.singlemotor){
+	//		buffer = new Buffer([0xFF, 0x55, 6, 0, 2, device, data.port, data.dataA, data.dataB]);
+	//	}else 
+	if (device == setting.dualmotor) {
+		if (this.delaytime > 0) {
 			var cur = new Date().getTime();
-			while(cur - this.starttime < this.delaytime)
-			{
+			while (cur - this.starttime < this.delaytime) {
 				cur = new Date().getTime();
 			}
 		}
 
 		//dualmotor
-		if(data.port==0x0B) buffer = new Buffer([0xFF, 0x55, 6, 0, 2, device, data.port, data.dataA, data.dataB, data.dataC]);
+		if (data.port == 0x0B) buffer = new Buffer([0xFF, 0x55, 6, 0, 2, device, data.port, data.dataA, data.dataB, data.dataC]);
 		else buffer = new Buffer([0xFF, 0x55, 6, 0, 2, device, data.port, data.dataA, data.dataB]);
-
-		if(data.dataC>0) {
-			this.starttime=new Date().getTime(); // delaytime 얻어내기
-			// delaytime 이후에 정지명령 전송하기
-			this.delaytime=data.dataC*1000;
-			console.log("###D:"+device+ " P:"+data.port+" T:"+this.delaytime);
-			window.setTimeout(function(){
-				buffer = new Buffer([0xFF, 0x55, 6, 0, 2, 10, 11, 0, 0, 0]);
-//				this.sendBuffers.push(buffer);
-				self.sp.write(buffer);
-			 }, this.delaytime);
-		}else{
-			this.delaytime=0;
-		}
-	}else if(device==setting.colorled){
+		/*
+				if(data.dataC>0) {
+					this.starttime=new Date().getTime(); // delaytime 얻어내기
+					// delaytime 이후에 정지명령 전송하기
+					this.delaytime=data.dataC*1000;
+					console.log("###D:"+device+ " P:"+data.port+" T:"+this.delaytime);
+					window.setTimeout(function(){
+						buffer = new Buffer([0xFF, 0x55, 6, 0, 2, 10, 11, 0, 0, 0]);
+						self.sp.write(buffer);
+					 }, this.delaytime);
+				}else{
+					this.delaytime=0;
+				}
+		*/
+	} else if (device == setting.colorled) {
 		buffer = new Buffer([0xFF, 0x55, 6, 0, 2, device, data.dataA, data.dataB, data.dataC]);
-	}else if(device==setting.leds){
+	} else if (device == setting.leds) {
 		buffer = new Buffer([0xFF, 0x55, 6, 0, 2, device, data.port, data.dataA, 0xF0]);
-	}else if(device==setting.linetracer){
+	} else if (device == setting.linetracer) {
 		buffer = new Buffer([0xFF, 0x55, 6, 0, 2, device, data.port, data.dataA, 0xF0]);
-	}else{
+	} else {
 		//buffer = new Buffer([]);
 	}
-	
-    return buffer;
+
+	return buffer;
 };
 
-Module.prototype.getDataByBuffer = function(buffer) {
-    var datas = [];
-    var lastIndex = 0;
-    buffer.forEach(function (value, idx) {
-        if(value == 13 && buffer[idx + 1] == 10) {
-            datas.push(buffer.subarray(lastIndex, idx));
-            lastIndex = idx + 2;
-        }
-    });
+Module.prototype.getDataByBuffer = function (buffer) {
+	var datas = [];
+	var lastIndex = 0;
+	buffer.forEach(function (value, idx) {
+		if (value == 13 && buffer[idx + 1] == 10) {
+			datas.push(buffer.subarray(lastIndex, idx));
+			lastIndex = idx + 2;
+		}
+	});
 
-    return datas;
+	return datas;
 };
 
 
-Module.prototype.disconnect = function(connect) {
-    var self = this;
-    connect.close();
-    if(self.sp) {
-        delete self.sp;
-    }
+Module.prototype.disconnect = function (connect) {
+	var self = this;
+	connect.close();
+	if (self.sp) {
+		delete self.sp;
+	}
 };
 
-Module.prototype.reset = function() {
-    this.lastTime = 0;
-    this.lastSendTime = 0;
+Module.prototype.reset = function () {
+	this.lastTime = 0;
+	this.lastSendTime = 0;
 
 	var sensory = this.sensory;
 };

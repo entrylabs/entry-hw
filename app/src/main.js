@@ -216,7 +216,7 @@
             }            
 
             if ((config.platform && config.platform.indexOf(process.platform) === -1) || !config.platform) {
-                return;
+                // return;
             }
 
             $('#hwList').append(
