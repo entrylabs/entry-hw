@@ -55,7 +55,7 @@ Server.prototype.open = function(logger) {
 	if(fs.existsSync(path.resolve(global.__dirname, 'ssl', 'cert.pem'))) {
 		http = require('https');
 		httpServer = http.createServer({
-		    key: fs.readFileSync(path.resolve(global.__dirname, 'ssl', 'playentry.org.key')),
+		    key: fs.readFileSync(path.resolve(global.__dirname, 'ssl', 'hardware.key')),
 		    cert: fs.readFileSync(path.resolve(global.__dirname, 'ssl', 'cert.pem')),
 		    ca: [
 				fs.readFileSync(path.resolve(global.__dirname, 'ssl', 'ChainCA1.crt')),
