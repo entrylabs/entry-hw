@@ -10,7 +10,7 @@
     "pack:win32": "build --arch ia32",
     "make": "build",
     "make:osx": "build",
-    "make:win": "build --arch ia32 --platform=win32 && makensis ./build/entry-hw.nsi"
+    "make:win32": "build --arch ia32 --platform=win32 && makensis ./build/entry-hw.nsi"
   },
   "build": {
     "dmg": {
