@@ -31,5 +31,4 @@ app/ssl/
 app/node_modules/
 /build/*.exe
 build/*.zip
-*.dmg
 .DS_Store
