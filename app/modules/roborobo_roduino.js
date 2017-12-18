@@ -25,13 +25,12 @@ var PWM = 3;
 var SERVO = 4;
 
 function Module() {
-    this.digitalValue = new Array(14);
-    this.analogValue = new Array(6);
-    this.remoteDigitalValue = new Array(14);
+    this.digitalValue = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ];
+    this.analogValue = [ 0, 0, 0, 0, 0, 0 ];
+    this.remoteDigitalValue = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ];
     this.ports = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ];
     this.digitalData = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ];
-    this.digitalPinMode = [ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ];
-    this.analogEnable = [ 0, 0, 0, 0, 0, 0 ];
+    this.digitalPinMode = [ -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 ];
     this.colorPin = 0;
     this.colorSetFlag = false;
 };
@@ -54,7 +53,6 @@ Module.prototype.validateLocalData = function(data) {
 Module.prototype.handleRemoteData = function(handler) {
 	var digitalValue = this.remoteDigitalValue;
     this.colorPin = handler.read('colorPin');
-    this.analogEnable = handler.read('analogEnable');
     for (var port = 0; port < 14; port++) {
         digitalValue[port] = handler.read(port);
     }
@@ -83,14 +81,6 @@ Module.prototype.requestLocalData = function() {
                     query.push(temp[i]);
                 }
             }            
-        break;
-        case 5 :
-            temp = this.setAnalogEnable(1);
-            if(temp != null) {
-                for(var i = 0; i < temp.length; i++) {
-                    query.push(temp[i]);
-                }
-            }
         break;
     }
     
@@ -139,12 +129,10 @@ Module.prototype.handleLocalData = function(data) { // data: Native Buffer
             } else {
                 this.digitalValue[6] = 0;
             }
-        } else {
-            var pin = data[0] & 0x0F;
-            var value = data[1] | (data[2] << 7);
-            if(value != 0) {
-                this.analogValue[pin] = value;
-            }
+        } else {            
+            var pin = cmd & 0x0F;
+            var value = LSB | (MSB << 7);
+            this.analogValue[pin] = value;
         }
     }
 };
@@ -161,46 +149,27 @@ Module.prototype.requestRemoteData = function(handler) {
     }
 };
 
-Module.prototype.reset = function() {
-    this.ports = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ];
-    this.digitalData = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ];
-    this.digitalPinMode = [ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ];
-    this.analogEnable = [ 0, 0, 0, 0, 0, 0 ];
-    this.colorPin = 0;
-    this.colorSetFlag = false;
-};
-
 module.exports = new Module();
 
 Module.prototype.roduinoInit = function() {
     var queryString = [];
     
+    this.digitalValue = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ];    
+    this.analogValue = [ 0, 0, 0, 0, 0, 0 ];
     this.ports = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ];
     this.digitalData = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ];
-    this.digitalPinMode = [ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ];
-    this.analogEnable = [ 0, 0, 0, 0, 0, 0 ];
+    this.digitalPinMode = [ -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 ];
     this.colorPin = 0;
     this.colorSetFlag = false;
     
     queryString.push(START_SYSEX);
-    queryString.push(ANALOG_MAPPING);
+    queryString.push(QUERY_FIRMWARE);
     queryString.push(END_SYSEX);
     
-    return queryString;
-};
-
-Module.prototype.sendReset = function() {
-    var queryString = [];
-
-    this.ports = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ];
-    this.digitalData = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ];
-    this.digitalPinMode = [ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ];
-    this.analogEnable = [ 0, 0, 0, 0, 0, 0 ];
-    this.colorPin = 0;
-    this.colorSetFlag = false;
-    
-    queryString.push(RESET);
-    queryString.push(RESET1);
+    for(var i = 0; i < 6; i++) {
+        queryString.push(ANALOG_REPORT + i);
+        queryString.push(ENABLE);
+    }
     
     return queryString;
 };
@@ -215,20 +184,6 @@ Module.prototype.setPinMode = function(pin, mode) {
         this.digitalPinMode[pin] = mode;
         
         return queryString;
-    }
-    
-    return null;
-}
-
-Module.prototype.setAnalogEnable = function(flag) {
-    var queryString = [];
-    
-    for(var i = 0; i < 6; i++) {
-        if(this.analogEnable[i] != flag) {
-            queryString.push(ANALOG_REPORT + i);
-            queryString.push(flag);
-            return queryString;
-        }
     }
     
     return null;
