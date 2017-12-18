@@ -189,7 +189,6 @@ Module.prototype.requestRemoteData = function(handler) {
 };
 
 Module.prototype.reset = function() {
-    console.log('reset');
 	this.digitalValue = new Array(14);
     this.remoteDigitalValue = new Array(14).fill(0);
     this.analogValue = new Array(2);
