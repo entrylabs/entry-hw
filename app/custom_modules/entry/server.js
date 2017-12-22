@@ -55,14 +55,18 @@ Server.prototype.open = function(logger) {
 	if(fs.existsSync(path.resolve(global.__dirname, 'ssl', 'cert.pem'))) {
 		http = require('https');
 		httpServer = http.createServer({
-		    key: fs.readFileSync(path.resolve(global.__dirname, 'ssl', 'hardware.play-entry.key')),
+		    key: fs.readFileSync(path.resolve(global.__dirname, 'ssl', 'hardware.key')),
 		    cert: fs.readFileSync(path.resolve(global.__dirname, 'ssl', 'cert.pem')),
-		    ca: fs.readFileSync(path.resolve(global.__dirname, 'ssl', 'Symantec-Chain_sha2.pem'))
+		    ca: [
+				fs.readFileSync(path.resolve(global.__dirname, 'ssl', 'ChainCA1.crt')),
+				fs.readFileSync(path.resolve(global.__dirname, 'ssl', 'ChainCA2.crt')),
+				fs.readFileSync(path.resolve(global.__dirname, 'ssl', 'RootCA.crt')),
+			]
 		}, function (req, res) {
 		    res.writeHead(200);
 		    res.end();
 		});
-		address = 'https://hardware.play-entry.org:23518';
+		address = 'https://hardware.playentry.org:23518';
 	} else {
 		http = require('http');
 		httpServer = http.createServer(function(request, response) {
