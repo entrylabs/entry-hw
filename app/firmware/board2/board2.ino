@@ -29,12 +29,11 @@ void loop() {
 void sendPinValues() {
   int pinNumber = 0;
   for (pinNumber = 0; pinNumber < 14; pinNumber++) {
-      sendDigitalValue(pinNumber);
+    sendDigitalValue(pinNumber);
   }
   for (pinNumber = 0; pinNumber < 6; pinNumber++) {
-      sendAnalogValue(pinNumber);
-  }
-  
+    sendAnalogValue(pinNumber);
+  }  
 }
 
 void updateDigitalPort (char c) {
@@ -69,23 +68,17 @@ void updateDigitalPort (char c) {
 
 void sendAnalogValue(int pinNumber) {
   int value = analogRead(pinNumber);
-  Serial.write(B11000000
-               | ((pinNumber & B111)<<3)
-               | ((value>>7) & B111));
+  Serial.write(B11000000 | ((pinNumber & B111)<<3) | ((value>>7) & B111));
   Serial.write(value & B1111111);
 }
 
 void sendDigitalValue(int pinNumber) {
   if(isPortWritable(pinNumber)) {
-    Serial.write(B10000000
-               | ((pinNumber & B1111)<<2));
+    Serial.write(B10000000 | ((pinNumber & B1111)<<2));
   } else if (digitalRead(pinNumber) == HIGH) {
-    Serial.write(B10000000
-                 | ((pinNumber & B1111)<<2)
-                 | (B1));
+    Serial.write(B10000000 | ((pinNumber & B1111)<<2) | (B1));
   } else {
-    Serial.write(B10000000
-               | ((pinNumber & B1111)<<2));
+    Serial.write(B10000000 | ((pinNumber & B1111)<<2));
   }
 }
 
