@@ -1,67 +1,77 @@
 {
-  "name": "entry_hw",
-  "version": "1.6.18",
-  "description": "엔트리 하드웨어 연결 프로그램",
-  "author": "EntryLabs",
-  "main": "app/index.js",
-  "scripts": {
-    "clean": "rimraf dist",
-    "start": "set NODE_ENV=development&&electron -d app",
-    "pack:win32": "build --arch ia32",
-    "make": "build",
-    "make:osx": "build",
-    "make:win32": "build --arch ia32 --platform=win32 && makensis ./build/entry-hw.nsi"
-  },
-  "build": {
-    "dmg": {
-      "icon": "build/icon.icns",
-      "iconSize": 80,
-      "background": "build/background.png",
-      "contents": [
-        {
-          "x": 240,
-          "y": 120
-        },
-        {
-          "x": 380,
-          "y": 250,
-          "type": "file",
-          "path": "./app/README.md"
-        },
-        {
-          "x": 240,
-          "y": 380,
-          "type": "link",
-          "path": "/Applications"
-        }
-      ]
+    "name": "entry_hw",
+    "version": "1.6.18",
+    "description": "엔트리 하드웨어 연결 프로그램",
+    "author": "EntryLabs",
+    "main": "app/index.js",
+    "scripts": {
+        "clean": "rimraf dist",
+        "start": "set NODE_ENV=development&&electron -d app",
+        "pack:win32": "build --arch ia32",
+        "make": "build",
+        "make:osx": "build",
+        "make:win32": "build --arch ia32 --platform=win32 && makensis ./build/entry-hw.nsi"
     },
-    "win": {
-      "target": "dir",
-      "title": "Entry-HW",
-      "authors": "EntryLabs",
-      "#certificateSubjectName": "my",
-      "#rfc3161TimeStampServer": "http://timestamp.geotrust.com/tsa"
+    "build": {
+        "mac": {
+            "target": "dmg",
+            "category": "public.app-category.education",
+            "extendInfo": {
+                "URL Types": [
+                    {
+                        "URL Identifie": "org.playentry.entryhw",
+                        "URL Schemes": [
+                            "entryhw"
+                        ]
+                    }
+                ],
+                "CFBundleURLTypes": [
+                    {
+                        "CFBundleURLName": "org.playentry.entryhw",
+                        "CFBundleURLSchemes": [
+                            "entryhw"
+                        ]
+                    }
+                ]
+            }
+        },
+        "dmg": {
+            "icon": "build/icon.icns",
+            "iconSize": 80,
+            "background": "build/background.png",
+            "contents": [
+                {
+                    "x": 240,
+                    "y": 120
+                },
+                {
+                    "x": 240,
+                    "y": 380,
+                    "type": "link",
+                    "path": "/Applications"
+                }
+            ]
+        },
+        "win": {
+            "target": "dir"
+        },
+        "asar": true,
+        "appId": "org.playentry.entryhw",
+        "productName": "Entry_HW"
     },
-    "asar": true,
-    "appId": "org.playentry.entryhw",
-    "productName": "Entry_HW",
-    "extend-info": "build/build.plist",
-    "iconUrl": "https://raw.githubusercontent.com/entrylabs/entry-hw/feature/electron/build/icon.ico"
-  },
-  "devDependencies": {
-    "electron": "1.7.8",
-    "electron-builder": "10.5.0",
-    "electron-packager": "^8.1.0",
-    "rimraf": "^2.5.4"
-  },
-  "dependencies": {
-    "bindings": "^1.2.1",
-    "debug": "^2.2.0",
-    "es6-promise": "^3.2.1",
-    "lodash": "^4.16.4",
-    "object.assign": "^4.0.4",
-    "socket.io": "^1.5.0",
-    "socket.io-client": "^1.5.1"
-  }
+    "devDependencies": {
+        "electron": "1.7.8",
+        "electron-builder": "^19.52.1",
+        "electron-packager": "^8.1.0",
+        "rimraf": "^2.5.4"
+    },
+    "dependencies": {
+        "bindings": "^1.2.1",
+        "debug": "^2.2.0",
+        "es6-promise": "^3.2.1",
+        "lodash": "^4.16.4",
+        "object.assign": "^4.0.4",
+        "socket.io": "^1.5.0",
+        "socket.io-client": "^1.5.1"
+    }
 }

@@ -2,7 +2,7 @@
 	"id": "1D0101",
 	"name": {
 		"en": "JDKit",
-		"ko": "JDKit"
+		"ko": "제이디킷트"
 	},
 	"platform": ["win32", "darwin"],
 	"icon" : "jdkit.png",
