@@ -1,0 +1,27 @@
+{
+	"id": "050201",
+	"name": {
+		"en": "NEOBOT Senosor Theme",
+		"ko": "네오봇 센서 테마"
+	},
+	"platform": ["win32", "darwin"],
+	"icon" : "neobot_sensor_theme.png",
+	"module": "neobot_sensor_theme.js",
+	"url": "http://neobot.co.kr/",
+	"email": "neobot@neobot.co.kr",
+    "reconnect" : true,
+	"entry": {
+		"protocol": "json"
+	},
+	"driver": {
+		"win32-ia32": "NeobotTheme/VCP_V1.4.0_Setup.EXE",
+		"win32-x64": "NeobotTheme/VCP_V1.4.0_Setup.EXE"
+	},
+	"hardware": {
+		"type": "serial",
+		"control": "master",
+		"vendor": ["Microsoft", "STMicroelectronics."],
+		"duration": 32,
+		"baudRate": 9600
+	}
+}
