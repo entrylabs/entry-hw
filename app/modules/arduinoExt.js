@@ -194,11 +194,31 @@ Module.prototype.handleRemoteData = function(handler) {
 };
 
 Module.prototype.isRecentData = function(port, type, data) {
+    var that = this;
     var isRecent = false;
 
-    if (port in this.recentCheckData) {
+    if(type == this.sensorTypes.ULTRASONIC) {
+        var portString = port.toString();
+        var isGarbageClear = false;
+        Object.keys(this.recentCheckData).forEach(function (key) {
+            var recent = that.recentCheckData[key];
+            if(key === portString) {
+                
+            }
+            if(key !== portString && recent.type == that.sensorTypes.ULTRASONIC) {
+                delete that.recentCheckData[key];
+                isGarbageClear = true;
+            }
+        });
+
+        if((port in this.recentCheckData && isGarbageClear) || !(port in this.recentCheckData)) {
+            isRecent = false;
+        } else {
+            isRecent = true;
+        }
+        
+    } else if (port in this.recentCheckData && type != this.sensorTypes.TONE) {
         if (
-            type != this.sensorTypes.TONE &&
             this.recentCheckData[port].type === type &&
             this.recentCheckData[port].data === data
         ) {
