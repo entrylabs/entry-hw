@@ -20,7 +20,7 @@
 	"hardware": {
 		"type": "serial",
 		"control": "master",
-		"vendor": ["Microsoft", "STMicroelectronics."],
+		"vendor": ["Microsoft", "STMicroelectronics"],
 		"duration": 32,
 		"baudRate": 9600
 	}
