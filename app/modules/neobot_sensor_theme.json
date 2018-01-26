@@ -14,8 +14,8 @@
 		"protocol": "json"
 	},
 	"driver": {
-		"win32-ia32": "NeobotTheme/VCP_V1.4.0_Setup.EXE",
-		"win32-x64": "NeobotTheme/VCP_V1.4.0_Setup.EXE"
+		"win32-ia32": "NeobotSensorTheme/VCP_V1.4.0_Setup.EXE",
+		"win32-x64": "NeobotSensorTheme/VCP_V1.4.0_Setup.EXE"
 	},
 	"hardware": {
 		"type": "serial",
