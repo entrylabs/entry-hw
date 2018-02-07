@@ -11,7 +11,7 @@ function Module() {
         ULTRASONIC: 7,
         TIMER: 8,
         LIGHT: 9,
-		MICROPHONE: 10
+        MICROPHONE: 10,
     };
 
     this.actionTypes = {
@@ -55,8 +55,8 @@ function Module() {
         },
         PULSEIN: {},
         TIMER: 0,
-        LIGHT : 0,
-        MIC : 0
+        LIGHT: 0,
+        MIC: 0,
     };
 
     this.defaultOutput = {};
@@ -104,7 +104,6 @@ Module.prototype.validateLocalData = function(data) {
     return true;
 };
 
-
 //-------------------------------------------------------------------------------------------------
 // Web Socket 송신 데이타
 Module.prototype.requestRemoteData = function(handler) {
@@ -118,7 +117,6 @@ Module.prototype.requestRemoteData = function(handler) {
         }
     });
 };
-
 
 // Web Socket 수신 데이타
 Module.prototype.handleRemoteData = function(handler) {
@@ -238,33 +236,28 @@ Module.prototype.requestLocalData = function() {
     return null;
 };
 
-
 // 하드웨어 수신 데이타 (Hardware -> this)
 
 /*
 ff 55 idx size data a
 */
 Module.prototype.handleLocalData = function(data) {
-    
     var key;
-	var value;
+    var value;
     var self = this;
-	
-	console.log("HW Received...");
-	
-	for (var i = 0; i < 3; i++){
-		
-		key = (data[i * 2] & 0x78) >> 3;
-		value = ((data[i * 2] & 0x07) << 7 ) | (data[i * 2 + 1] & 0x7F);
-		
-		console.log("["+ key + "] = " + value);
-		
-		if (key == 5)
-			self.sensorData.LIGHT = value;
-		else if (key == 6)
-			self.sensorData.MIC = value;
-	}
-    
+
+    console.log('HW Received...');
+
+    for (var i = 0; i < 3; i++) {
+        key = (data[i * 2] & 0x78) >> 3;
+        value = ((data[i * 2] & 0x07) << 7) | (data[i * 2 + 1] & 0x7f);
+
+        console.log('[' + key + '] = ' + value);
+
+        if (key == 5) self.sensorData.LIGHT = value;
+        else if (key == 6) self.sensorData.MIC = value;
+    }
+
     /*
     var self = this;
     var datas = this.getDataByBuffer(data);
@@ -321,10 +314,7 @@ Module.prototype.handleLocalData = function(data) {
         }
     });
     */
-    
-    
 };
-
 
 //-------------------------------------------------------------------------------------------------
 
@@ -336,32 +326,31 @@ ff 55 len idx action device port  slot  data a
 Module.prototype.makeSensorReadBuffer = function(device, port, data) {
     var buffer;
     var dummy = new Buffer([10]);
-    var convertPort = (port - "1") + 2;
-    
+    var convertPort = port - '1' + 2;
+
     if (device == this.sensorTypes.LIGHT) {
         buffer = new Buffer([
-            0xFF, 
-            0x01, 
-            convertPort,    // port
-            0x04,           // command
-            data,           // data
+            0xff,
+            0x01,
+            convertPort, // port
+            0x04, // command
+            data, // data
             0x20,
             0x34,
-            0x56
+            0x56,
         ]);
     } else if (device == this.sensorTypes.MICROPHONE) {
         buffer = new Buffer([
-            0xFF, 
-            0x01, 
-            convertPort,    // port
-            0x03,           // command
-            data,           // data
+            0xff,
+            0x01,
+            convertPort, // port
+            0x03, // command
+            data, // data
             0x20,
             0x34,
-            0x56
+            0x56,
         ]);
-    } 
-    else if (!data) {
+    } else if (!data) {
         buffer = new Buffer([
             255,
             85,
@@ -404,92 +393,88 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
     var buffer;
     var value = new Buffer(2);
     var dummy = new Buffer([10]);
-    
-    var convertPort = (port - "1") + 2;
-    
+
+    var convertPort = port - '1' + 2;
+
     switch (device) {
-        
-//        case this.sensorTypes.PWM: {
-//            value.writeInt16LE(data);
-//            buffer = new Buffer([
-//                255,
-//                85,
-//                6,
-//                sensorIdx,
-//                this.actionTypes.SET,
-//                device,
-//                port,
-//            ]);
-//            buffer = Buffer.concat([buffer, value, dummy]);
-//            break;
-//        }
-//        case this.sensorTypes.TONE: {
-//            var time = new Buffer(2);
-//            if ($.isPlainObject(data)) {
-//                value.writeInt16LE(data.value);
-//                time.writeInt16LE(data.duration);
-//            } else {
-//                value.writeInt16LE(0);
-//                time.writeInt16LE(0);
-//            }
-//            buffer = new Buffer([
-//                255,
-//                85,
-//                8,
-//                sensorIdx,
-//                this.actionTypes.SET,
-//                device,
-//                port,
-//            ]);
-//            buffer = Buffer.concat([buffer, value, time, dummy]);
-//            break;
-//        }
-            
-        case this.sensorTypes.PWM:{
-            
+        //        case this.sensorTypes.PWM: {
+        //            value.writeInt16LE(data);
+        //            buffer = new Buffer([
+        //                255,
+        //                85,
+        //                6,
+        //                sensorIdx,
+        //                this.actionTypes.SET,
+        //                device,
+        //                port,
+        //            ]);
+        //            buffer = Buffer.concat([buffer, value, dummy]);
+        //            break;
+        //        }
+        //        case this.sensorTypes.TONE: {
+        //            var time = new Buffer(2);
+        //            if ($.isPlainObject(data)) {
+        //                value.writeInt16LE(data.value);
+        //                time.writeInt16LE(data.duration);
+        //            } else {
+        //                value.writeInt16LE(0);
+        //                time.writeInt16LE(0);
+        //            }
+        //            buffer = new Buffer([
+        //                255,
+        //                85,
+        //                8,
+        //                sensorIdx,
+        //                this.actionTypes.SET,
+        //                device,
+        //                port,
+        //            ]);
+        //            buffer = Buffer.concat([buffer, value, time, dummy]);
+        //            break;
+        //        }
+
+        case this.sensorTypes.PWM: {
             buffer = new Buffer([
                 0xff,
                 0x01,
-                convertPort,    // port
-                0x05,           // command
-                data,           // 0~255
+                convertPort, // port
+                0x05, // command
+                data, // 0~255
                 0x20,
                 0x34,
-                0x56
+                0x56,
             ]);
-            
+
             break;
-        } 
-            
-        case this.sensorTypes.SERVO_PIN:{
-            
+        }
+
+        case this.sensorTypes.SERVO_PIN: {
             buffer = new Buffer([
                 0xff,
                 0x01,
-                convertPort,    // port
-                0x01,           // command
-                data,           // 0~180
+                convertPort, // port
+                0x01, // command
+                data, // 0~180
                 0x20,
                 0x34,
-                0x56
+                0x56,
             ]);
-            
+
             break;
-        } 
-            
+        }
+
         case this.sensorTypes.DIGITAL: {
-            
             buffer = new Buffer([
                 0xff,
                 0x01,
-                convertPort,    // port
-                0x02,           // command
-                data,           // on-off 
+                convertPort, // port
+                0x02, // command
+                data, // on-off
                 0x20,
                 0x34,
-                0x56
+                0x56,
             ]);
-            
+
             break;
         }
     }
