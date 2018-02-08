@@ -9,15 +9,20 @@ var NODE_ENV = process.env.NODE_ENV || 'production';
 var lastCheckVersion = localStorage.getItem('lastCheckVersion');
 var newVersion = localStorage.getItem('isNewVersion');
 
-if(newVersion) {
-    localStorage.removeItem('isNewVersion')
-    alert('업데이트 하자');
+if(sharedObject.appName === 'hardware') {
+    alert('hardware 모드다');
+    if(newVersion) {
+        localStorage.removeItem('isNewVersion')
+        alert('업데이트 하자');
+    } else {
+        ipcRenderer.on('checkUpdateResult', (e, { isNewVersion, version } = {}) => {
+            if (isNewVersion && version != lastCheckVersion) {
+                localStorage.setItem('isNewVersion', version);
+                localStorage.setItem('lastCheckVersion', version);
+            }
+        });
+        ipcRenderer.send('checkUpdate');
+    }
 } else {
-    ipcRenderer.on('checkUpdateResult', (e, { isNewVersion, version } = {}) => {
-        if (isNewVersion && version != lastCheckVersion) {
-            localStorage.setItem('isNewVersion', version);
-            localStorage.setItem('lastCheckVersion', version);
-        }
-    });
-    ipcRenderer.send('checkUpdate');
+    alert(sharedObject.appName + ' 모드다');
 }

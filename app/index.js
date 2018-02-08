@@ -21,6 +21,10 @@ var roomId = [];
 let isForceClose = false;
 let hostURI = 'playentry.org';
 
+global.sharedObject = {
+    appName: 'hardware',
+};
+
 console.fslog = function(text) {
     var log_path = path.join(__dirname, '..');
     if (!fs.existsSync(log_path)) {
