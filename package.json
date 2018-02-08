@@ -8,8 +8,8 @@
         "clean": "rimraf dist",
         "start": "set NODE_ENV=development&&electron -d app",
         "pack:win32": "build --arch ia32",
-        "make": "build",
-        "make:osx": "build",
+        "make": "cross-env CSC_NAME=\"Developer ID Application: Connect Foundation (DLFUSDA3L5)\"&&build",
+        "make:osx": "cross-env CSC_NAME=\"Developer ID Application: Connect Foundation (DLFUSDA3L5)\"&&build",
         "make:win32": "build --arch ia32 --platform=win32 && makensis ./build/entry-hw.nsi"
     },
     "build": {
@@ -60,6 +60,7 @@
         "productName": "Entry_HW"
     },
     "devDependencies": {
+        "cross-env": "^5.1.3",
         "electron": "1.7.8",
         "electron-builder": "^19.52.1",
         "electron-packager": "^8.1.0",

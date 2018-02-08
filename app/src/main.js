@@ -270,17 +270,14 @@
                 return;
             }
 
-            $('#hwList').append(
-                '<div class="hardwareType" id="' +
-                    config.id +
-                    '">' +
-                    '<img class="hwThumb" src="./modules/' +
-                    config.icon +
-                    '">' +
-                    '<h2 class="hwTitle">' +
-                    name +
-                    '</h2></div>'
-            );
+            $('#hwList').append(`
+                <div class="hardwareType" id="${config.id}">
+                    <img class="hwThumb" src="./modules/${config.icon}">
+                    <h2 class="hwTitle">
+                        ${name}
+                    </h2>
+                </div>
+            `);
 
             $('#' + config.id)
                 .off('click')
