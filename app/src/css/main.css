@@ -7,13 +7,16 @@
     -webkit-appearance: none;
     width: 11px;
 }
+
 .darwin ::-webkit-scrollbar-thumb {
     border-radius: 8px;
-    border: 2px solid white; /* should match background, can't be transparent */
+    border: 2px solid white;
+    /* should match background, can't be transparent */
     background-color: rgba(0, 0, 0, .5);
 }
 
 * {
+    font-family: NanumGothic !important;
     box-sizing: border-box;
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
@@ -28,13 +31,14 @@
     -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
 }
 
-html, body {
+html,
+body {
     margin: 0;
     padding: 0;
     border: 0;
     outline: 0;
     font-family: Arial, Dotum;
-    font-size:10pt;
+    font-size: 10pt;
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -77,7 +81,8 @@ button {
     background-image: url('../images/btn_back_off.png');
 }
 
-#back.active:hover, #back.active:active {
+#back.active:hover,
+#back.active:active {
     background-image: url('../images/btn_back_on.png');
 }
 
@@ -89,7 +94,8 @@ button {
     background-image: url('../images/btn_refresh_off.png');
 }
 
-#refresh:hover, #refresh:active {
+#refresh:hover,
+#refresh:active {
     background-image: url('../images/btn_refresh_on.png');
 }
 
@@ -226,7 +232,7 @@ button {
     width: 100%;
     background-color: #ffc800;
     color: white;
-    font-size:10pt;
+    font-size: 10pt;
     position: relative;
     text-align: center;
     height: 0px;
@@ -269,7 +275,6 @@ button {
     background-position: 270px 10px;
 }
 
-
 #select_port_box {
     background: rgba(0, 0, 0, 0.4);
     display: none;
@@ -291,7 +296,7 @@ button {
     flex-direction: column;
 }
 
-#select_port_box .select_port_child .title{
+#select_port_box .select_port_child .title {
     border-top-left-radius: 3px;
     border-top-right-radius: 3px;
     height: 57px;
@@ -303,7 +308,8 @@ button {
     width: 100%;
     background-color: #2a7def;
 }
-#select_port_box .select_port_child .title .cancel_icon{
+
+#select_port_box .select_port_child .title .cancel_icon {
     cursor: pointer;
     float: right;
     content: " ";
@@ -316,7 +322,7 @@ button {
     background-image: url(../images/btn_close.png);
 }
 
-#select_port_box .select_port_child .content{
+#select_port_box .select_port_child .content {
     border-bottom-left-radius: 3px;
     border-bottom-right-radius: 3px;
     background-color: #fff;
@@ -324,13 +330,13 @@ button {
     flex: 1;
 }
 
-#select_port_box .select_port_child .content .description{
+#select_port_box .select_port_child .content .description {
     font-size: 18px;
     color: #232323;
     margin: 30px 0 20px 0;
 }
 
-#select_port_box .select_port_child select{ 
+#select_port_box .select_port_child select {
     height: 142px;
     width: 247px;
     font-size: 16px;
@@ -338,10 +344,9 @@ button {
     margin-bottom: 33px;
 }
 
-#select_port_box .select_port_child select option{ 
+#select_port_box .select_port_child select option {
     padding: 8px 20px 8px 20px;
 }
-
 
 #select_port_box .select_port_child button {
     cursor: pointer;
@@ -349,16 +354,15 @@ button {
     width: 110px;
 }
 
-#select_port_box .select_port_child #btn_select_port { 
+#select_port_box .select_port_child #btn_select_port {
     background: #6e5ae6;
     font-size: 16px;
     color: #fff;
     border: 0px;
     border-radius: 3px;
-
 }
 
-#select_port_box .select_port_child #btn_select_port_cancel { 
+#select_port_box .select_port_child #btn_select_port_cancel {
     background: #dbdbdb;
     font-size: 16px;
     color: #9e9e9f;
@@ -388,7 +392,7 @@ button {
     flex-direction: column;
 }
 
-#opensource_license_viewer .select_port_child .title{
+#opensource_license_viewer .select_port_child .title {
     border-top-left-radius: 3px;
     border-top-right-radius: 3px;
     height: 57px;
@@ -400,7 +404,8 @@ button {
     width: 100%;
     background-color: #2a7def;
 }
-#opensource_license_viewer .select_port_child .title .cancel_icon{
+
+#opensource_license_viewer .select_port_child .title .cancel_icon {
     cursor: pointer;
     float: right;
     content: " ";
@@ -413,7 +418,7 @@ button {
     background-image: url(../images/btn_close.png);
 }
 
-#opensource_license_viewer .select_port_child .content{
+#opensource_license_viewer .select_port_child .content {
     border-bottom-left-radius: 3px;
     border-bottom-right-radius: 3px;
     background-color: #fff;
@@ -423,7 +428,7 @@ button {
     flex-direction: column;
 }
 
-#opensource_license_viewer .select_port_child .content textarea{
+#opensource_license_viewer .select_port_child .content textarea {
     width: 100%;
     flex: 1;
     overflow-x: hidden;
@@ -432,7 +437,7 @@ button {
     -moz-user-select: auto;
     -ms-user-select: auto;
     user-select: auto;
-    resize: none; 
+    resize: none;
 }
 
 #opensource_license_viewer .select_port_child button {
@@ -442,7 +447,7 @@ button {
     margin: 10px;
 }
 
-#opensource_license_viewer .select_port_child #btn_close { 
+#opensource_license_viewer .select_port_child #btn_close {
     background: #6e5ae6;
     font-size: 16px;
     color: #fff;
@@ -470,7 +475,7 @@ button {
     margin-bottom: 6px;
 }
 
-#errorAlert .alertMsg span{
+#errorAlert .alertMsg span {
     display: block;
     font-size: 17px;
     font-weight: bold;
@@ -499,18 +504,17 @@ button {
     color: rgba(255, 255, 255, 0.5);
 }
 
-#cloud_icon{
+#cloud_icon {
     display: none;
     float: right;
     margin-top: -12px;
     margin-right: 20px;
-    
     /*animation: blink_image 2s linear infinite;*/
 }
 
-
 @keyframes blink_image {
-    0%, 100% {
+    0%,
+    100% {
         opacity: 1;
     }
     50% {
@@ -533,10 +537,10 @@ button {
     border-radius: 20px;
 }
 
-// #search_bar:focus {
-//     background: #fff;
-//     color: black;
-// }
+#search_bar:focus {
+    background: #fff;
+    color: black;
+}
 
 #search_button {
     position: absolute;
@@ -558,15 +562,23 @@ button {
 #search_close_button img {
     filter: opacity(40%);
     width: 10px;
-    height: 10px;   
+    height: 10px;
 }
 
 #opensource_label {
-    position: absolute;
     text-align: right;
-    right: 0;
-    margin: 20px 20px;
+    margin: 20px 10px 20px 20px;
     color: #595757;
     cursor: pointer;
     font-weight: bold;
+    float: right;
+}
+
+.version_label {
+    text-align: right;
+    margin: 20px 20px 20px 10px;
+    color: #595757;
+    cursor: pointer;
+    font-weight: bold;
+    float: right;
 }

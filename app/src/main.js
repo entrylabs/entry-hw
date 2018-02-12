@@ -2,9 +2,8 @@
     'use strict';
 
     var VERSION = 1.1;
-
     // initialize options
-
+    window.modal = new Modal();
     const fs = require('fs');
     const path = require('path');
     var options = {};
@@ -16,10 +15,34 @@
     var os = process.platform + '-' + (isOSWin64() ? 'x64' : process.arch);
     var driverDefaultPath;
 
-    // language
-    var translator = require('./custom_modules/translator');
-    var lang = translator.getLanguage();
-
+    if (sharedObject.appName === 'hardware' && navigator.onLine) {
+        if (newVersion) {
+            localStorage.removeItem('isNewVersion');
+            modal.alert(Lang.Msgs.version_update_msg1.replace(/%1/gi, '1.6.20'), Lang.General.update_title, {
+                positiveButtonText: Lang.General.recent_download,
+                positiveButtonStyle: {
+                    width: '180px'
+                }
+            }).on('click', (event)=> {
+                if(event === 'ok') {
+                    shell.openExternal(
+                        'https://playentry.org/#!/offlineEditor'
+                    );
+                }
+            });
+        } else {
+            ipcRenderer.on(
+                'checkUpdateResult',
+                (e, { isNewVersion, version } = {}) => {
+                    if (isNewVersion && version != lastCheckVersion) {
+                        localStorage.setItem('isNewVersion', version);
+                        localStorage.setItem('lastCheckVersion', version);
+                    }
+                }
+            );
+            ipcRenderer.send('checkUpdate');
+        }
+    }
     // logger
     var logger = {
         v: function(str) {
@@ -86,6 +109,7 @@
     $('#reference .urlTitle').text(translator.translate('WebSite : '));
 
     $('#opensource_label').text(translator.translate('Opensource lincense'));
+    $('#version_label').text(translator.translate('Version Info'));
     $('#firmware').text(translator.translate('Install Firmware'));
     $('#other-robot .text').text(
         translator.translate('Connect Other Hardware')
@@ -621,6 +645,12 @@
 
     $('#opensource_label').on('click', function() {
         $('#opensource_license_viewer').css('display', 'flex');
+    });
+
+    $('#version_label').on('click', function() {
+        modal.alert('dasdas').on('click', (name)=> {
+            alert('~~' + name);
+        });
     });
 
     var opensourceFile = path.resolve(__dirname, 'OPENSOURCE.md');
