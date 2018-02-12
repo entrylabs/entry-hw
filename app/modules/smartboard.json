@@ -9,12 +9,23 @@
 	"module": "smartboard.js",
 	"url": "http://www.sciencebox.co.kr",
 	"email": "mail@sciencebox.co.kr",
-	"driver": {
+	"reconnect" : true,
+	"driver": [{
 		"win32-ia32": "CDM21226_Setup/CDM21226_Setup.exe",
-		"win32-x64": "CDM21226_Setup/CDM21226_Setup.exe"
-	},
-    "reconnect" : true,
-    "firmware": "smartboard",
+		"win32-x64": "CDM21226_Setup/CDM21226_Setup.exe",
+		"translate": "스마트보드 드라이버"
+	}, {
+		"win32-ia32": "esensorbt/CP210xVCPInstaller_x86.exe",
+        "win32-x64": "esensorbt/CP210xVCPInstaller_x64.exe",
+		"translate": "블루투스 동글 드라이버"
+	}],
+    "firmware": [{
+        "name": "smartboard",
+        "translate": "유선 펌웨어"
+    }, {
+        "name": "smartboardbt",
+        "translate": "무선 펌웨어"
+    }],
 	"entry": {
 		"protocol": "json"
 	},
