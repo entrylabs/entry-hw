@@ -1,22 +1,19 @@
 
+#include "Arduino.h"
 
+// LCD 라이브러리
+#include "LiquidCrystal_I2C.h"
 
-/**********************************************************************************
- * The following software may be included in this software : orion_firmware.ino
- * from http://www.makeblock.cc/
- * This software contains the following license and notice below:
- * CC-BY-SA 3.0 (https://creativecommons.org/licenses/by-sa/3.0/)
- * Author : Ander, Mark Yan
- * Updated : Ander, Mark Yan
- * Date : 01/09/2016
- * Description : Firmware for Makeblock Electronic modules with Scratch.
- * Copyright (C) 2013 - 2016 Maker Works Technology Co., Ltd. All right reserved. 
- **********************************************************************************/
+#include <inttypes.h>
+#include "Print.h" 
+
 // 서보 라이브러리
 #include <Servo.h>
-#include <SoftwareSerial.h>
+//#include <SoftwareSerial.h>  
 
-SoftwareSerial mySerial(3, 2); // RX, TX
+//LiquidCrystal_I2C lcd(0x3f,16,2);  // set the LCD address to 0x27 for a 16 chars and 2 line display
+LiquidCrystal_I2C lcd(0x27,16,2);  // set the LCD address to 0x27 for a 16 chars and 2 line display
+// SoftwareSerial mySerial(3, 2); // RX, TX
 
 // 동작 상수
 #define ALIVE 0
@@ -28,9 +25,14 @@ SoftwareSerial mySerial(3, 2); // RX, TX
 #define PULSEIN 6
 #define ULTRASONIC 7
 #define TIMER 8
-#define MOTOR_LEFT 9
-#define MOTOR_RIGHT 10
-// #define SOUND_IN 11
+#define LCD 9
+#define LCD_COMMAND 10
+
+// 여기서부터 구현 해야 함
+#define SOUND_IN 11
+#define MOTOR_LEFT 12
+#define MOTOR_RIGHT 13
+
 
 // 상태 상수
 #define GET 1
@@ -47,7 +49,7 @@ SoftwareSerial mySerial(3, 2); // RX, TX
 // PHASE : HIGH,  ENABLE : PWM --> OUT1 : LOW, OUT2 : PWM
 
 // val Union
-union{
+union{ 
   byte byteVal[4];
   float floatVal;
   long longVal;
@@ -63,14 +65,16 @@ union{
 Servo servos[8];  
 
 //울트라 소닉 포트
-int trigPin = 13;
-int echoPin = 12;
+int trigPin = 7;
+int echoPin = 8;
 
 // 사운드
-#define SOUND_IN  A2
+// #define SOUND_IN  A2
 
 //포트별 상태
-int analogs[6]={0,0,0,0,0,0};
+#define MAX_ANALOG_PIN 8
+#define MAX_DIGITAL_PIN 14
+int analogs[8]={0,0,0,0,0,0,0,0};
 int digitals[14]={0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 int servo_pins[8]={0,0,0,0,0,0,0,0};
 
@@ -93,22 +97,17 @@ boolean isStart = false;
 boolean isUltrasonic = false;
 boolean isLeftMotormode = false;
 boolean isRightMotormode = false;
-// boolean isSoundInmode = false;
+boolean isSoundInmode = false;
+int sound_input_pin_no = 2;
+boolean isOn = false;
 
 const int sound_max9812_sampleWindow = 50; // Sample window width in mS (50 mS = 20Hz)
 unsigned int sound_max9812_sample;
 unsigned int sound_max9812_peak = 0;   // peak-to-peak level
 // 전역변수 선언 종료
 
-void setup(){
-  Serial.begin(115200);
-  
-  // set the data rate for the SoftwareSerial port
-  mySerial.begin(115200);
-    
-  initPorts();
-  delay(200);
-}
+
+unsigned int lcd_val = 0;
 
 void initPorts() {
   for (int pinNumber = 0; pinNumber < 14; pinNumber++) {
@@ -117,11 +116,44 @@ void initPorts() {
   }
 }
 
+void setup()
+{
+  initPorts();
+  Serial.begin(115200);  
+  // set the data rate for the SoftwareSerial port
+  // mySerial.begin(115200);
+  
+  lcd.init(0x3f,16,2);
+  //lcd.init(0x27,16,2);
+  delay(700);
+
+  
+}
+
 void loop()
 {
   //mySerial.write("b");
   //delay(1000);  
 
+#if 0
+  if( isSoundInmode == false )
+  {
+    lcd.init(0x3f,16,2);
+    //lcd.init();
+    isSoundInmode = true;
+    lcd.noBacklight();
+  }  
+
+  lcd.backlight();
+  delay(1000);  
+  lcd.print("123");
+  delay(1000);  
+  lcd.clear();  
+#endif  
+  
+
+
+#if 1
   while (Serial.available()) 
   {
     if (Serial.available() > 0) 
@@ -129,17 +161,16 @@ void loop()
       char serialRead = Serial.read();
       setPinValue(serialRead&0xff);
       //mySerial.write("a");
-    }    
-  }
+    }        
+  } 
   
-  delay(15);
+  delay(1);
   sendPinValues();
-  //isLeftMotormode = false;
-  //isRightMotormode = false;  
-  //isSoundInmode = false;
-  delay(10);
+  isSoundInmode = false;
+  delay(1);
 
   //mySerial.write("a");
+#endif
 
 }
 
@@ -187,6 +218,27 @@ void parseData() {
   int action = readBuffer(4);
   int device = readBuffer(5);
   int port = readBuffer(6);
+
+  /*
+  lcd.clear();
+  lcd.setCursor(0,0);
+
+  lcd.print(readBuffer(4));
+  lcd.print(",");
+  lcd.print(readBuffer(5));
+  lcd.print(",");
+  lcd.print(readBuffer(6));
+  lcd.print(",");
+  lcd.print(readBuffer(7));
+  lcd.print(",");
+  lcd.print(readBuffer(8));
+  lcd.print(",");
+  lcd.print(readBuffer(9));
+  lcd.print(",");
+  lcd.print(readBuffer(10));
+  */
+  
+ 
   switch(action){
     case GET:{
       if(device == ULTRASONIC){
@@ -265,7 +317,7 @@ void runModule(int device) {
       }
     }
     break;
-    case SERVO_PIN:{
+    case SERVO_PIN:{            
       setPortWritable(pin);
       int v = readBuffer(7);
       if(v>=0&&v<=180){
@@ -279,6 +331,87 @@ void runModule(int device) {
       lastTime = millis()/1000.0; 
     }
     break;
+    case LCD:{
+      int line = readBuffer(7);  // Line
+      int col = readBuffer(9);  // Col       
+
+      // lcd.clear();
+      lcd.setCursor(col,line);
+    
+      /*
+      lcd.print(readBuffer(7)); // line
+      lcd.print(",");     
+      lcd.print(readBuffer(9)); // column
+      lcd.print(",");     
+      lcd.print(readBuffer(11)); // string  
+      lcd.print(readBuffer(13)); // string
+      lcd.print(readBuffer(15)); // string
+      */
+    
+      char lcd_char[12];
+      int lcd_string_start_num = 11;
+      for (int i = 0; i < 17; i++) 
+      {
+        lcd_char[i] = readBuffer(lcd_string_start_num);
+        lcd_string_start_num += 2;
+        //lcd_char[i] = buffer[lcd_string_start_num];
+        //lcd_string_start_num += 2;
+      }      
+      //lcd.print(buffer[11]);
+      lcd.print(lcd_char);
+    }
+    break;
+    case LCD_COMMAND:
+    {
+      int command = readBuffer(7);  // command   
+
+      /*
+      lcd.print(readBuffer(3)); // line 
+      // 9:backlight on
+      // 15: lcd_blue
+      lcd.print(",");     
+      lcd.print(readBuffer(4)); // column 2
+      lcd.print(",");     
+      lcd.print(readBuffer(5)); // string  10
+      lcd.print(",");     
+      lcd.print(readBuffer(6)); // string  0
+      lcd.print(",");     
+      lcd.print(readBuffer(7)); // string  3
+      lcd.print(",");     
+      lcd.print(readBuffer(8)); // string  0
+      */
+     
+
+#if 1
+      if( command == 0 )
+      {
+        //lcd.print("init1()"); 
+        lcd.init(0x3f,16,2);
+        //delay(1000);
+        //lcd.init(0x3f,16,2);
+        delay(10);
+        lcd.backlight();
+      }
+      else if( command == 1 )
+      {
+        //lcd.print("init2()"); 
+        lcd.init(0x27,16,2);
+        //delay(1000);
+        //lcd.init(0x27,16,2);
+        delay(10);
+        lcd.backlight();
+      }
+      else if( command == 2 )
+      {        
+        lcd.clear();
+      }
+      else if( command == 3 )
+        lcd.backlight();
+      else if( command == 4 )
+        lcd.noBacklight();
+#endif        
+    }
+    break;    
     case MOTOR_LEFT:{
       int direction = readBuffer(7);
       int speed = readBuffer(9);
@@ -346,7 +479,6 @@ void runModule(int device) {
       }
     }
     break;    
-/*    
     case SOUND_IN:{
       isSoundInmode = true;
 
@@ -356,6 +488,7 @@ void runModule(int device) {
        unsigned int signalMin = 1024;
 
        pinMode(pin, INPUT);  
+       sound_input_pin_no = pin;
      
        // collect data for 50 mS
        while (millis() - startMillis < sound_max9812_sampleWindow)
@@ -376,19 +509,19 @@ void runModule(int device) {
        sound_max9812_peak = signalMax - signalMin;  // max - min = peak-peak amplitude      
     }
     break;    
-*/    
+
   }
 }
 
 void sendPinValues() {  
   int pinNumber = 0;
-  for (pinNumber = 0; pinNumber < 12; pinNumber++) {
+  for (pinNumber = 0; pinNumber < MAX_DIGITAL_PIN; pinNumber++) {
     if(digitals[pinNumber] == 0) {
       sendDigitalValue(pinNumber);
       callOK();
     }
   }
-  for (pinNumber = 0; pinNumber < 6; pinNumber++) {
+  for (pinNumber = 0; pinNumber < MAX_ANALOG_PIN; pinNumber++) {
     if(analogs[pinNumber] == 0) {
       sendAnalogValue(pinNumber);
       callOK();
@@ -437,17 +570,6 @@ void sendUltrasonic() {
 
 void sendDigitalValue(int pinNumber) 
 {
-  if( isLeftMotormode == true && (pinNumber == PHASE_B_L || pinNumber == ENABLE_B_L ) )
-  {
-    //delay(200);
-    return;
-  }
-
-  if( isRightMotormode == true && (pinNumber == PHASE_A_R || pinNumber == ENABLE_A_R ) )
-  {
-    //delay(200);
-    return;
-  }
     
   pinMode(pinNumber,INPUT);
   writeHead();
@@ -458,36 +580,10 @@ void sendDigitalValue(int pinNumber)
 }
 
 void sendAnalogValue(int pinNumber) 
-{
-   unsigned long startMillis= millis();  // Start of sample window       
- 
-   unsigned int signalMax = 0;
-   unsigned int signalMin = 1024;
-
-   pinMode(SOUND_IN, INPUT);  
- 
-   // collect data for 50 mS
-   while (millis() - startMillis < sound_max9812_sampleWindow)
-   {
-      sound_max9812_sample = analogRead(SOUND_IN);
-      if (sound_max9812_sample < 1024)  // toss out spurious readings
-      {
-         if (sound_max9812_sample > signalMax)
-         {
-            signalMax = sound_max9812_sample;  // save just the max levels
-         }
-         else if (sound_max9812_sample < signalMin)
-         {
-            signalMin = sound_max9812_sample;  // save just the min levels
-         }
-      }
-   }
-   sound_max9812_peak = signalMax - signalMin;  // max - min = peak-peak amplitude     
-     
+{    
   writeHead();  
 
-  // if( isSoundInmode == true )
-  if( pinNumber == 2 )
+  if( isSoundInmode == true && sound_input_pin_no == pinNumber)
   {
     sendFloat(sound_max9812_peak);
   }
@@ -597,7 +693,3 @@ void callDebug(char c){
   writeSerial(c);
   writeEnd();
 }
-
-
-
-
