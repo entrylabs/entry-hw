@@ -8,7 +8,7 @@ const Modal = require('./src/modal/app.js').default;
 window.$ = window.jQuery = require('./src/js/jquery-1.11.3.min.js');
 var NODE_ENV = process.env.NODE_ENV || 'production';
 var lastCheckVersion = localStorage.getItem('lastCheckVersion');
-var newVersion = localStorage.getItem('isNewVersion');
+var hasNewVersion = localStorage.getItem('hasNewVersion');
 // language
 var translator = require('./custom_modules/translator');
 var lang = translator.getLanguage();

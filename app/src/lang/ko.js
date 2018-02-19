@@ -5211,7 +5211,9 @@ Lang.General = {
     "alert_title": "알림",
     "confirm_title": "확인",
     "update_title": "업데이트 알림",
-    "recent_download": "최신 버전 다운로드"
+    "recent_download": "최신 버전 다운로드",
+    "recent_download2": "최신버전 다운로드",
+    "latest_version": "최신 버전입니다."
 };
 Lang.Fonts = {
     "batang": "바탕체",

@@ -5211,7 +5211,9 @@ Lang.General = {
     "alert_title": "Alert",
     "confirm_title": "Confirm",
     "update_title": "Alert",
-    "recent_download": "Download"
+    "recent_download": "Download",
+    "recent_download2": "Download the latest version",
+    "latest_version": "You are running the latest version."
 };
 Lang.Fonts = {
     "batang": "Batang",

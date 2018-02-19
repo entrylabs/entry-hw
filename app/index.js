@@ -15,7 +15,8 @@ const path = require('path');
 const fs = require('fs');
 const packageJson = require('../package.json');
 const ChildProcess = require('child_process');
-var mainWindow = null;
+let mainWindow = null;
+let aboutWindow = null;
 var isClose = true;
 var roomId = [];
 let isForceClose = false;
@@ -37,6 +38,51 @@ console.fslog = function(text) {
     data += '\n\r' + new Date() + ' : ' + text;
     fs.writeFileSync(path.join(log_path, 'debug.log'), data, 'utf8');
 };
+
+function lpad(str, len) {
+    var strLen = str.length;
+    if (strLen < len) {
+        for (var i=0; i<len-strLen; i++) {
+            str = "0" + str;
+        }
+    }
+    return String(str);
+};
+
+function getPaddedVersion(version) {
+    if(!version) {
+        return '';
+    }
+    version = String(version);
+
+    var padded = [];
+    var splitVersion = version.split('.');
+    splitVersion.forEach(function (item) {
+        padded.push(lpad(item, 4));
+    });
+
+    return padded.join('.');
+}
+
+function createAboutWindow(mainWindow) {
+    aboutWindow = new BrowserWindow({
+        parent: mainWindow,
+        width: 380,
+        height: 290,
+        resizable: false,
+        movable: false,
+        center: true,
+        frame: false,
+        modal: true,
+        show: false,
+    });
+
+    aboutWindow.loadURL('file:///' + path.resolve(__dirname, 'src', 'views', 'about.html'));
+
+    aboutWindow.on('closed', ()=> {
+        aboutWindow = null;
+    });
+}
 
 function getArgsParseData(argv) {
     var regexRoom = /roomId:(.*)/;
@@ -206,6 +252,8 @@ app.once('ready', function() {
             webContents.getFocusedWebContents().openDevTools();
         }
     });
+
+    createAboutWindow(mainWindow);
 });
 
 ipcMain.on('hardwareForceClose', () => {
@@ -251,4 +299,15 @@ ipcMain.on('checkUpdate', (e, msg) => {
         })
     );
     request.end();
+});
+
+ipcMain.on('checkVersion', (e, lastCheckVersion) => {
+    const version = getPaddedVersion(packageJson.version);
+    const lastVersion = getPaddedVersion(lastCheckVersion);
+
+    e.sender.send('checkVersionResult', lastVersion > version);
+});
+
+ipcMain.on('openAboutWindow', function(event, arg) {
+    aboutWindow.show();
 });

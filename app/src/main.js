@@ -16,26 +16,35 @@
     var driverDefaultPath;
 
     if (sharedObject.appName === 'hardware' && navigator.onLine) {
-        if (newVersion) {
-            localStorage.removeItem('isNewVersion');
-            modal.alert(Lang.Msgs.version_update_msg1.replace(/%1/gi, '1.6.20'), Lang.General.update_title, {
-                positiveButtonText: Lang.General.recent_download,
-                positiveButtonStyle: {
-                    width: '180px'
-                }
-            }).on('click', (event)=> {
-                if(event === 'ok') {
-                    shell.openExternal(
-                        'https://playentry.org/#!/offlineEditor'
-                    );
-                }
-            });
+        if (hasNewVersion) {
+            localStorage.removeItem('hasNewVersion');
+            modal
+                .alert(
+                    Lang.Msgs.version_update_msg1.replace(
+                        /%1/gi,
+                        hasNewVersion
+                    ),
+                    Lang.General.update_title,
+                    {
+                        positiveButtonText: Lang.General.recent_download,
+                        positiveButtonStyle: {
+                            width: '180px',
+                        },
+                    }
+                )
+                .one('click', (event) => {
+                    if (event === 'ok') {
+                        shell.openExternal(
+                            'https://playentry.org/#!/offlineEditor'
+                        );
+                    }
+                });
         } else {
             ipcRenderer.on(
                 'checkUpdateResult',
-                (e, { isNewVersion, version } = {}) => {
-                    if (isNewVersion && version != lastCheckVersion) {
-                        localStorage.setItem('isNewVersion', version);
+                (e, { hasNewVersion, version } = {}) => {
+                    if (hasNewVersion && version != lastCheckVersion) {
+                        localStorage.setItem('hasNewVersion', version);
                         localStorage.setItem('lastCheckVersion', version);
                     }
                 }
@@ -648,9 +657,7 @@
     });
 
     $('#version_label').on('click', function() {
-        modal.alert('dasdas').on('click', (name)=> {
-            alert('~~' + name);
-        });
+        ipcRenderer.send('openAboutWindow');
     });
 
     var opensourceFile = path.resolve(__dirname, 'OPENSOURCE.md');
