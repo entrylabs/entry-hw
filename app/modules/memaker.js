@@ -323,10 +323,14 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
     var buffer;
     var value = new Buffer(2);
     var dummy = new Buffer([10]);
+
+    //console.log("makeOutputBuffer");
+
     switch(device) {
         case this.sensorTypes.SERVO_PIN:
         case this.sensorTypes.DIGITAL:
         case this.sensorTypes.PWM: {
+            //console.log("digital,pwm");
             value.writeInt16LE(data);
             buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.SET, device, port]);
             buffer = Buffer.concat([buffer, value, dummy]);
@@ -346,6 +350,8 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
             break;
         }
         case this.sensorTypes.LCD: {
+            //console.log("LCD");
+
             var line = new Buffer(2);
             var column = new Buffer(2);
 
@@ -420,13 +426,15 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
             //console.log("line");
             //console.log(line);
             //console.log("column");
-            //console.log(column);
+            //console.log("entryjs");
+            //console.log(buffer);
 
             break;
         }
         case this.sensorTypes.LCD_COMMAND: {
             //console.log("LCD_COMMAND");
 
+            
             var command = new Buffer(2);
             if($.isPlainObject(data)) {
                 value.writeInt16LE(data.value);
@@ -441,10 +449,12 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
             }
 
 
-            buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.SET, device, port]);
+
+            buffer = new Buffer([255, 85, 7, sensorIdx, this.actionTypes.SET, device, port]);
             buffer = Buffer.concat([buffer, value, command, dummy]);
 
-            // console.log(buffer);
+
+            //console.log(buffer);
 
             break;
         }    
