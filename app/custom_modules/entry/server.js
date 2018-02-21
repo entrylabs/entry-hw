@@ -96,7 +96,7 @@ Server.prototype.open = function(logger) {
             '%cI`M CLIENT',
             'background:black;color:yellow;font-size: 30px'
         );
-        var socket = client(address, { query: { childServer: true } });
+        var socket = client(address, { query: { childServer: true }, reconnectionAttempts: 3 });
         socketClient = socket;
         self.connections.push(socket);
         socket.on('connect', function() {
@@ -117,6 +117,12 @@ Server.prototype.open = function(logger) {
         });
         socket.on('mode', function(data) {
             socket.mode = data;
+        });
+        socket.on('reconnect_failed', function() {
+            ipcRenderer.send('serverMode', serverModeTypes.single);
+            socket.close();
+            socket = null;
+            self.open();
         });
         socket.on('disconnect', function() {
             socket.close();
