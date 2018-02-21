@@ -720,9 +720,9 @@ electron-publish@19.52.0:
     fs-extra-p "^4.5.0"
     mime "^2.1.0"
 
-electron@1.7.8:
-  version "1.7.8"
-  resolved "https://registry.yarnpkg.com/electron/-/electron-1.7.8.tgz#27b791a6895171a7d52991b99442cdbd10a3539d"
+electron@1.7.11:
+  version "1.7.11"
+  resolved "https://registry.yarnpkg.com/electron/-/electron-1.7.11.tgz#993b6aa79e0e79a7cfcc369f4c813fbd9a0b08d9"
   dependencies:
     "@types/node" "^7.0.18"
     electron-download "^3.0.1"
