@@ -1,0 +1,28 @@
+{
+    "id": "210101",
+    "name": {
+        "en": "funboard",
+        "ko": "펀보드"
+    },
+    "platform": ["win32", "darwin"],
+    "icon": "FunBoard.png",
+    "module": "FunBoard.js",
+    "url": "www.thinkfunedu.com",
+    "driver": {
+        "win32-ia32": "arduino/dpinst-x86.exe",
+        "win32-x64": "arduino/dpinst-amd64.exe"
+    },
+    "select_com_port": true,
+    "reconnect": true,
+    "firmware": "funboard",
+    "entry": {
+        "protocol": "json"
+    },
+    "hardware": {
+        "type": "serial",
+        "control": "slave",
+        "duration": 32,
+        "vendor": "",
+        "baudRate": 115200
+    }
+}
