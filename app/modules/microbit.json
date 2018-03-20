@@ -1,0 +1,25 @@
+{
+    "id": "220101",
+    "name": {
+        "en": "Microbit",
+        "ko": "마이크로빗"
+    },
+    "platform": ["win32", "darwin"],
+    "icon": "Microbit.png",
+    "module": "Microbit.js",
+    "url": "https://microbit.org/ko/",
+    "select_com_port": true,
+    "reconnect": true,
+    "firmware": "microbit",
+    "entry": {
+        "protocol": "json"
+    },
+    "hardware": {
+        "type": "serial",
+        "control": "slave",
+        "delimiter": "\n",
+        "duration": 32,
+        "vendor": "",
+        "baudRate": 115200
+    }
+}
