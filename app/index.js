@@ -289,7 +289,6 @@ ipcMain.on('checkUpdate', (e, msg) => {
         });
     });
     request.on('error', (err) => {
-        console.log(err);
     });
     request.setHeader('content-type', 'application/json; charset=utf-8');
     request.write(
