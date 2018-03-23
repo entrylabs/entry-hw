@@ -314,16 +314,22 @@ Module.prototype.handleJsonMessage = function( object ) {
             this.setConnect( obj.category, obj.module, obj.from, obj.id, obj.uuid);
             break;
         case 0x1F:
-            var propertyValue = new Uint16Array(buffer, 0, 1);
-            if(propertyValue > 1000){
-                propertyValue = propertyValue - 65535;
+            var data = new Uint8Array(buffer, 0, 4);
+            var buf = new ArrayBuffer(4);
+            var view = new DataView(buf);
+
+            for(var i=0;i<4;i++) {
+				view.setUint8(3-i, data[i]);
             }
+            
+            var propertyValue = Number(view.getFloat32(0).toFixed(0));
+
             if(object.d == 0 && object.d == 1){
                 return;
             }
             for(var i in connect_){
                 if(obj.id == connect_[i].id){
-                    connect_[i].value[object.d] = Math.floor(propertyValue/10);  
+                    connect_[i].value[object.d] = propertyValue;  
                 }
             }
             return;
