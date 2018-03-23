@@ -20,7 +20,7 @@
         "type": "serial",
         "control": "slave",
         "duration": 60,
-        "vendor": ["STMicroelectronics", "Microsoft"],
+        "vendor": ["LUXROBO", "STMicroelectronics", "Microsoft"],
         "baudRate": 115200
     }
 }
