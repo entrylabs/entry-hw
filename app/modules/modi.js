@@ -444,8 +444,6 @@ Module.prototype.setProperty = function(moduleValue) {
     if(!moduleValue.module)
         return null;
 
-    obj.c = 0x04;
-    obj.l = 8;
 
     var buffer = new ArrayBuffer(8);
     var view = new Uint16Array(buffer);
@@ -454,6 +452,9 @@ Module.prototype.setProperty = function(moduleValue) {
     if(moduleName == "DISPLAY"){
         this.setDisplay(moduleValue);
         return null;
+    }
+    if(moduleName == "SPEAKER"){
+        return this.setTune(moduleValue);
     }
     if(moduleValue.value1){
         view[0] = moduleValue.value1;
@@ -471,9 +472,11 @@ Module.prototype.setProperty = function(moduleValue) {
 
     var b64 = btoa(this.ab2str(buffer));
 
+    obj.c = 0x04;
     obj.s = setProperty[moduleValue.module];//function ID
     obj.d = moduleValue.id;// module ID
     obj.b = b64;// property value
+    obj.l = 8;
     clear = null;
     return JSON.stringify(obj);  
 };
@@ -523,6 +526,50 @@ Module.prototype.setDisplay = function(moduleValue){
 
     displayArr[1] = JSON.stringify(obj);
     displayStr = displayArr[1];
+};
+
+Module.prototype.setTune = function(moduleValue){
+
+    var obj = {};
+    var frequence = 0;
+    var volume = 0;
+
+    if(moduleValue.value1){
+        frequence = moduleValue.value1;
+
+        if(setProperty[moduleValue.value1]){
+            frequence = setProperty[moduleValue.value1];
+        }
+    }
+    if(moduleValue.value2){
+        volume = moduleValue.value2;
+    }
+
+    var freqBuffer = new ArrayBuffer(4);
+    var freqView = new DataView(freqBuffer);
+    freqView.setFloat32(0,frequence);
+
+    var volBuffer = new ArrayBuffer(4);
+    var volView = new DataView(volBuffer);
+    volView.setFloat32(0,volume);
+
+    var buffer = new ArrayBuffer(8);
+    var view = new Uint8Array(buffer);
+
+    for(var i=0; i<4; i++) {
+        view[i] = freqView.getUint8(3-i);
+        view[i+4] = volView.getUint8(3-i);
+    }
+
+    var b64 = btoa(this.ab2str(buffer));
+
+    obj.c = 0x04;
+    obj.s = setProperty[moduleValue.module];//function ID
+    obj.d = moduleValue.id;// module ID
+    obj.b = b64;// property value
+    obj.l = 8;// property value
+
+    return JSON.stringify(obj);
 };
 
 var arr = [];
@@ -595,7 +642,7 @@ Module.prototype.lostController = function(self, callback) {
     }, 1000);
 };
 
-    Module.prototype.resetProperty = function() {
+Module.prototype.resetProperty = function() {
     clear = null;
     oldData = null;
     outputIndex = {
