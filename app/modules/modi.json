@@ -9,8 +9,8 @@
     "module": "modi.js",
     "url": "http://www.luxrobo.com/",
     "driver": {
-        "win32-ia32": "compat/SETUP.EXE",
-        "win32-x64": "compat/SETUP.EXE"
+        "win32-ia32": "LUXROBO/VCP_V1.3.1_Setup.exe",
+        "win32-x64": "LUXROBO/VCP_V1.3.1_Setup_x64.exe"
     },
     "reconnect": true,
     "entry": {
