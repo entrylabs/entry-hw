@@ -4,7 +4,7 @@
         "en": "MODI",
         "ko": "모디"
     },
-    "platform": ["win32"],
+    "platform": ["win32","darwin"],
     "icon": "modi.png",
     "module": "modi.js",
     "url": "http://www.luxrobo.com/",
@@ -20,7 +20,7 @@
         "type": "serial",
         "control": "slave",
         "duration": 60,
-        "vendor": ["LUXROBO", "STMicroelectronics", "Microsoft"],
+        "vendor": ["LUXROBO", "Luxrobo", "STMicroelectronics", "Microsoft"],
         "baudRate": 115200
     }
 }
