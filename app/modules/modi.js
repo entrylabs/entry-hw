@@ -429,7 +429,11 @@ Module.prototype.handleRemoteData = function(handler) {
         }
     }
     if(this.moduleData) {
-        this.requestData.push(this.setProperty(JSON.parse(this.moduleData)));
+        var send = this.setProperty(JSON.parse(this.moduleData));
+        if(send) {
+            this.requestData.push(send);
+        }
+        
     }
 };
 
@@ -449,7 +453,7 @@ Module.prototype.setProperty = function(moduleValue) {
         return;
 
     if(!moduleValue.module)
-        return null;
+        return;
 
 
     var buffer = new ArrayBuffer(8);
@@ -458,7 +462,7 @@ Module.prototype.setProperty = function(moduleValue) {
 
     if(moduleName == "DISPLAY") {
         this.setDisplay(moduleValue);
-        return null;
+        return;
     }
     if(moduleName == "SPEAKER") {
         return this.setTune(moduleValue);
