@@ -179,18 +179,18 @@ var outputIndex = {
 function Module() {
     isConnected = true;
 
-    this.requestData = null;
+    this.requestData = [];
     this.moduleData = null;
 }
 
-setInterval(function disconnectHandler(){// disconnect cheak
-    for (var obj in connect_){
+setInterval(function disconnectHandler() {// disconnect cheak
+    for (var obj in connect_) {
         newT = new Date().getTime();
         oldT = connect_[obj].ping;
-        if (oldT === undefined){
+        if (oldT === undefined) {
             continue;
         }
-        if (newT - oldT > 3500){
+        if (newT - oldT > 3500) {
             // disconnect
             console.log("DC");//모듈 disconnect
             unsetConnect(connect_[obj].uuid);
@@ -200,12 +200,12 @@ setInterval(function disconnectHandler(){// disconnect cheak
 
 function unsetConnect( id, port ) {
     var obj = connect_[id];
-    if (port !== undefined && connect_[port] !== undefined){
+    if (port !== undefined && connect_[port] !== undefined) {
         obj = connect_[port][id];
     }
     if (obj === undefined)
         return;
-    if(moduleCount[obj.moduleT] > 0){
+    if(moduleCount[obj.moduleT] > 0) {
         moduleCount[obj.moduleT]--;
     }
     delete(connect_[obj.port][obj.id]);
@@ -213,13 +213,13 @@ function unsetConnect( id, port ) {
 }
 
 Module.prototype.setConnect = function( categoryT, moduleT, port, id, uuid ) {
-    if (connect_[port] === undefined){
+    if (connect_[port] === undefined) {
         connect_[port] = {};
     }
-    if (connect_[uuid] === undefined){
+    if (connect_[uuid] === undefined) {
         connect_[uuid] = {};
     }
-    else if(connect_[uuid].id){
+    else if(connect_[uuid].id) {
         return;
     }
     var obj = connect_[uuid];
@@ -231,17 +231,17 @@ Module.prototype.setConnect = function( categoryT, moduleT, port, id, uuid ) {
     obj.moduleT = moduleT;
     obj.value = [];
 
-    if (connect_[port] === undefined){
+    if (connect_[port] === undefined) {
         connect_[port] = {};
     }
 
     connect_[port][id] = uuid;
 }
 
-Module.prototype.updateHealth = function(id, port){
+Module.prototype.updateHealth = function(id, port) {
     var obj = this.isConnect(id, port);
 
-    if (obj !== undefined){
+    if (obj !== undefined) {
         obj.ping = new Date().getTime();
         return;
     }
@@ -249,8 +249,8 @@ Module.prototype.updateHealth = function(id, port){
 
 Module.prototype.isConnect = function(id, port) {
     var uuid = id;
-    if (port !== undefined){
-        if (connect_[port] === undefined){
+    if (port !== undefined) {
+        if (connect_[port] === undefined) {
             return undefined;
         }
         uuid = connect_[port][id];
@@ -295,10 +295,9 @@ Module.prototype.handleJsonMessage = function( object ) {
     var byteTemp = atob(object.b);
     var buffer = this.str2ab(byteTemp);
 
-    switch(obj.c){
+    switch(obj.c) {
         case 0x00:
             this.updateHealth( obj.id, path );
-            this.requestData = null;
             console.log(object);
             break;
         case 0x05:
@@ -324,11 +323,11 @@ Module.prototype.handleJsonMessage = function( object ) {
             
             var propertyValue = Number(view.getFloat32(0).toFixed(0));
 
-            if(object.d == 0 && object.d == 1){
+            if(object.d == 0 || object.d == 1) {
                 return;
             }
-            for(var i in connect_){
-                if(obj.id == connect_[i].id){
+            for(var i in connect_) {
+                if(object.s == connect_[i].id) {
                     connect_[i].value[object.d] = propertyValue;  
                 }
             }
@@ -336,10 +335,10 @@ Module.prototype.handleJsonMessage = function( object ) {
     }
 }
 
-Module.prototype.offPnp = function(id){
+Module.prototype.offPnp = function(id) {
     console.log("offPnp");
     var offStr= {"c":9,"s":0,"d":id,"b":"AAI=","l":2};
-    this.requestData = JSON.stringify(offStr);
+    this.requestData.push(JSON.stringify(offStr));
 }
 
 Module.prototype.getJson = function() {
@@ -369,7 +368,7 @@ Module.prototype.getJson = function() {
             return false;
         }
 
-        if ( json.c === undefined ){
+        if ( json.c === undefined ) {
             return false;
         }
 
@@ -387,20 +386,20 @@ Module.prototype.setSerialPort = function(sp) {
 
 Module.prototype.handleLocalData = function(data) { // data: Native Buffer
     messageBuffer_ += data;
-    while(true){
+    while(true) {
         var json = this.getJson();
         if ( json === false )
             return;
         try{
             this.handleJsonMessage(json);
-        }catch(err){}
+        }catch(err) {}
     }
 };
 
 Module.prototype.handleRemoteData = function(handler) {
     var moduleValue = handler.read('moduleValue');
-    if(conModuleName.length <  Object.keys(connect_).length){
-        for(var i in connect_){
+    if(conModuleName.length <  Object.keys(connect_).length) {
+        for(var i in connect_) {
             if(connect_[i].moduleT)
                 conModuleName.push(connect_[i].moduleT);
         }
@@ -411,28 +410,30 @@ Module.prototype.handleRemoteData = function(handler) {
     if(!moduleValue[hrJ])
     return;
 
-    if(moduleValue[hrJ].length != 0){
+    if(moduleValue[hrJ].length != 0) {
         this.moduleData = moduleValue[hrJ][hrI];
-        if(!this.moduleData){
+        if(!this.moduleData) {
             outputIndex[hrJ] = 0;
             isSet = false;
             return;
         }
-        if(outputIndex[hrJ]+1 <= moduleValue[hrJ].length){
+        if(outputIndex[hrJ]+1 <= moduleValue[hrJ].length) {
             outputIndex[hrJ]++;
             isSet = false;
         }
     }
-    if(this.moduleData){
-        this.requestData = this.setProperty(JSON.parse(this.moduleData));
+    if(this.moduleData) {
+        this.requestData.push(this.setProperty(JSON.parse(this.moduleData)));
     }
 };
 
 Module.prototype.requestLocalData = function() {
-    if(displayArr.length > 0){
-        return displayArr.shift();
+
+    if(this.requestData.length > 0) {
+        return this.requestData.shift();
+    } else {
+        return null;
     }
-    return this.requestData;
 };
 
 Module.prototype.setProperty = function(moduleValue) {
@@ -449,24 +450,24 @@ Module.prototype.setProperty = function(moduleValue) {
     var view = new Uint16Array(buffer);
     var moduleName = moduleValue.module.split("_")[0];
 
-    if(moduleName == "DISPLAY"){
+    if(moduleName == "DISPLAY") {
         this.setDisplay(moduleValue);
         return null;
     }
-    if(moduleName == "SPEAKER"){
+    if(moduleName == "SPEAKER") {
         return this.setTune(moduleValue);
     }
-    if(moduleValue.value1){
+    if(moduleValue.value1) {
         view[0] = moduleValue.value1;
 
-        if(setProperty[moduleValue.value1]){
+        if(setProperty[moduleValue.value1]) {
             view[0] = setProperty[moduleValue.value1];
         }
     }
-    if(moduleValue.value2){
+    if(moduleValue.value2) {
         view[1] = moduleValue.value2;
     }
-    if(moduleValue.value3){
+    if(moduleValue.value3) {
         view[2] = moduleValue.value3;
     }
 
@@ -481,12 +482,10 @@ Module.prototype.setProperty = function(moduleValue) {
     return JSON.stringify(obj);  
 };
 
-var displayArr = [];
 var displayId = null;
 var oldData = null;
-Module.prototype.setDisplay = function(moduleValue){
-    if(displayArr.length != 0)
-        return;
+Module.prototype.setDisplay = function(moduleValue) {
+
     var clear = {
         c : 0x04,
         s : 20,
@@ -494,15 +493,14 @@ Module.prototype.setDisplay = function(moduleValue){
         b : "AAA=",
         l : 2
     };
-    displayArr[0] = JSON.stringify(clear);
+    this.requestData.push(JSON.stringify(clear));
 
     var obj = {};
     obj.c = 0x04;
 
     var str = moduleValue.value1;
 
-    if(oldData == str && displayId == moduleValue.id){
-        displayArr = [];
+    if(oldData == str && displayId == moduleValue.id) {
         return;
     }
     oldData = str;
@@ -524,24 +522,23 @@ Module.prototype.setDisplay = function(moduleValue){
     obj.d = moduleValue.id;// module ID
     obj.b = b64;// property value
 
-    displayArr[1] = JSON.stringify(obj);
-    displayStr = displayArr[1];
+    this.requestData.push(JSON.stringify(obj));
 };
 
-Module.prototype.setTune = function(moduleValue){
+Module.prototype.setTune = function(moduleValue) {
 
     var obj = {};
     var frequence = 0;
     var volume = 0;
 
-    if(moduleValue.value1){
+    if(moduleValue.value1) {
         frequence = moduleValue.value1;
 
-        if(setProperty[moduleValue.value1]){
+        if(setProperty[moduleValue.value1]) {
             frequence = setProperty[moduleValue.value1];
         }
     }
-    if(moduleValue.value2){
+    if(moduleValue.value2) {
         volume = moduleValue.value2;
     }
 
@@ -576,18 +573,18 @@ var arr = [];
 Module.prototype.getProperty = function() {
     if(arr.length == 0)
         arr = [];
-    else if(arr.length != 0){
+    else if(arr.length != 0) {
         return arr.shift();  
     }
 
     if(connect_.length == 0)
         return;
 
-    for(var i in connect_){
-        if(i != path){
-            for(var j in getProperty){
+    for(var i in connect_) {
+        if(i != path) {
+            for(var j in getProperty) {
                 var s = j.split("_")[0].toLowerCase();
-                if(s == connect_[i].moduleT){
+                if(s == connect_[i].moduleT) {
                     arr.push(this.getPropertyJson(getProperty[j],connect_[i].id));
                 }
             }
@@ -595,7 +592,7 @@ Module.prototype.getProperty = function() {
     }
 };
 
-Module.prototype.getPropertyJson = function(propertyNum, moduleID){
+Module.prototype.getPropertyJson = function(propertyNum, moduleID) {
     var obj = {};
     obj.c = 0x03; 
     var buffer = new ArrayBuffer(4);
@@ -614,9 +611,9 @@ Module.prototype.getPropertyJson = function(propertyNum, moduleID){
 
 Module.prototype.requestRemoteData = function(handler) {
     var arr = new Object();
-    $.each(connect_,function(index){
-        if(index != path){
-            if(arr[connect_[index].moduleT] == undefined){
+    $.each(connect_,function(index) {
+        if(index != path) {
+            if(arr[connect_[index].moduleT] == undefined) {
                 arr[connect_[index].moduleT] = new Array();
             }      
             arr[connect_[index].moduleT][connect_[index].num] = JSON.stringify(connect_[index]);
@@ -688,7 +685,7 @@ Module.prototype.resetProperty = function() {
 
 Module.prototype.reset = function() {
     this.moduleData = null;
-    this.requestData = null;
+    this.requestData = [];
     connect_ = {};
     arr = [];
     path = "";
