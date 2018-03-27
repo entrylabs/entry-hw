@@ -4,7 +4,8 @@ var hrI = 0;
 var hrJ = null;
 var path = "";
 var messageBuffer_ = "";
-var clear = null;
+
+var displayTextOld = {};
 
 var moduleCount = {
     number: 0,
@@ -208,6 +209,11 @@ function unsetConnect( id, port ) {
     if(moduleCount[obj.moduleT] > 0) {
         moduleCount[obj.moduleT]--;
     }
+
+    if(obj.moduleT === "display") {
+        delete(displayTextOld[obj.id]);
+    }
+
     delete(connect_[obj.port][obj.id]);
     delete(connect_[obj.uuid]);
 }
@@ -478,13 +484,20 @@ Module.prototype.setProperty = function(moduleValue) {
     obj.d = moduleValue.id;// module ID
     obj.b = b64;// property value
     obj.l = 8;
-    clear = null;
     return JSON.stringify(obj);  
 };
 
-var displayId = null;
-var oldData = null;
 Module.prototype.setDisplay = function(moduleValue) {
+
+    var str = moduleValue.value1;
+    var strArray = [];
+
+    if(str.length > 27 || displayTextOld[moduleValue.id] === str)
+        return;
+
+    for(var i=0; i<Math.ceil(str.length/8); i++) {
+        strArray.push(str.substr((i*8),8));
+    }
 
     var clear = {
         c : 0x04,
@@ -495,34 +508,26 @@ Module.prototype.setDisplay = function(moduleValue) {
     };
     this.requestData.push(JSON.stringify(clear));
 
-    var obj = {};
-    obj.c = 0x04;
+    for(var i=0; i<strArray.length; i++) {
+        var obj = {};
 
-    var str = moduleValue.value1;
+        var buffer = new ArrayBuffer(strArray[i].length);
+        var view = new Uint8Array(buffer);
+        for(var j = 0; j < strArray[i].length; j++) {
+            view[j] = strArray[i].charCodeAt(j);
+        }
+        var b64 = btoa(this.ab2str(buffer));
 
-    if(oldData == str && displayId == moduleValue.id) {
-        return;
+        obj.c = 0x04;
+        obj.s = setProperty[moduleValue.module];    //function ID
+        obj.d = moduleValue.id;                     // module ID
+        obj.b = b64;                                // property value
+        obj.l = strArray[i].length;
+
+        this.requestData.push(JSON.stringify(obj));
     }
-    oldData = str;
-    displayId = moduleValue.id;
 
-    if(str.length > 8)
-        return;
-
-    var buffer = new ArrayBuffer(str.length);
-    var view = new Uint8Array(buffer);
-    for (var i = 0, strLen = str.length; i < strLen; i++) {
-        view[i] = str.charCodeAt(i);
-    }
-    obj.l = str.length;
-
-    var b64 = btoa(this.ab2str(buffer));
-
-    obj.s = setProperty[moduleValue.module];//function ID
-    obj.d = moduleValue.id;// module ID
-    obj.b = b64;// property value
-
-    this.requestData.push(JSON.stringify(obj));
+    displayTextOld[moduleValue.id] = str;
 };
 
 Module.prototype.setTune = function(moduleValue) {
@@ -640,8 +645,7 @@ Module.prototype.lostController = function(self, callback) {
 };
 
 Module.prototype.resetProperty = function() {
-    clear = null;
-    oldData = null;
+    displayTextOld = {};
     outputIndex = {
         "led" : 0,
         "motor" : 0, 
@@ -690,8 +694,7 @@ Module.prototype.reset = function() {
     arr = [];
     path = "";
     messageBuffer_ = "";
-    clear = null;
-    oldData = null;
+    displayTextOld = {};
     outputIndex = {
         "led" : 0,
         "motor" : 0, 
