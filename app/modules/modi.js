@@ -328,7 +328,7 @@ Module.prototype.handleJsonMessage = function( object ) {
             }
             for(var i in connect_) {
                 if(object.s == connect_[i].id) {
-                    connect_[i].value[object.d] = propertyValue;  
+                    connect_[i].value[object.d] = propertyValue;
                 }
             }
             return;
@@ -337,7 +337,7 @@ Module.prototype.handleJsonMessage = function( object ) {
 
 Module.prototype.offPnp = function(id) {
     console.log("offPnp");
-    var offStr= {"c":9,"s":0,"d":id,"b":"AAI=","l":2};
+    var offStr= {"c":9,"s":0,"d":4095,"b":"AAI=","l":2};
     this.requestData.push(JSON.stringify(offStr));
 }
 
