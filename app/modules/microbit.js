@@ -34,7 +34,6 @@ class Microbit extends BaseModule {
     }
 
     connect() {
-        console.log('connect');
         setTimeout(() => {
             this.sp.write(this.makeData('RST'));
         }, 500);
@@ -46,7 +45,6 @@ class Microbit extends BaseModule {
     }
 
     requestInitialData() {
-        console.log('requestInitialData');
         return this.makeData('RST');
     }
 
@@ -81,7 +79,6 @@ class Microbit extends BaseModule {
                 _.findIndex(this.sendBuffers, { id }) === -1 &&
                 this.executeCheckList.indexOf(id) === -1
             ) {
-                console.log(type);
                 const sendData = this.makeData(type, data);
                 this.sendBuffers.push({
                     id,
@@ -96,13 +93,9 @@ class Microbit extends BaseModule {
         if (!this.isDraing && this.sendBuffers.length > 0) {
             const sendData = this.sendBuffers.shift();
             this.isDraing = true;
-            // console.time(sendData.id);
-            console.log(sendData.data);
             this.sp.write(sendData.data, () => {
                 if (this.sp) {
                     this.sp.drain(() => {
-                        // console.log('drain', sendData.data.length);
-                        // console.timeEnd(sendData.id);
                         this.executeCheckList[sendData.index] = sendData.id;
                     });
                 }
