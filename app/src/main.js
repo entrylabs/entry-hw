@@ -6,6 +6,7 @@
     window.modal = new Modal();
     const fs = require('fs');
     const path = require('path');
+    const _ = require('lodash');
     var options = {};
     var viewMode = 'main';
     var firmwareCount = 0;
@@ -490,7 +491,13 @@
                                 ui.showAlert(
                                     translator.translate('Firmware Uploaded!')
                                 );
-                                router.startScan(config);
+                                let timeout = 0;
+                                if (_.isPlainObject(firmware) && firmware.afterDelay) {
+                                    timeout = firmware.afterDelay;
+                                }
+                                setTimeout(() => {
+                                    router.startScan(config);    
+                                }, timeout);
                             }
                         });
                 }, 500);
