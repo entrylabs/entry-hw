@@ -172,9 +172,8 @@
         countRobot: 0,
         showRobotList: function() {
             viewMode = 'main';
-            if (flasherProcess) {
-                flasherProcess.kill();
-                flasherProcess = undefined;
+            if (flasher.flasherProcess) {
+                flasher.kill();
             }
             $('#alert')
                 .stop()
@@ -407,13 +406,7 @@
                     }
                     if (config.firmware) {
                         $('#firmware').show();
-                        if (typeof config.firmware === 'string') {
-                            var $dom = $('<button class="hwPanelBtn">');
-                            $dom.text(translator.translate('Install Firmware'));
-                            $dom.prop('firmware', config.firmware);
-                            $dom.prop('config', config);
-                            $('#firmwareButtonSet').append($dom);
-                        } else if (Array.isArray(config.firmware)) {
+                        if (Array.isArray(config.firmware)) {
                             config.firmware.forEach(function(firmware, idx) {
                                 var $dom = $('<button class="hwPanelBtn">');
                                 $dom.text(
@@ -423,6 +416,12 @@
                                 $dom.prop('config', config);
                                 $('#firmwareButtonSet').append($dom);
                             });
+                        } else {
+                            var $dom = $('<button class="hwPanelBtn">');
+                            $dom.text(translator.translate('Install Firmware'));
+                            $dom.prop('firmware', config.firmware);
+                            $dom.prop('config', config);
+                            $('#firmwareButtonSet').append($dom);
                         }
                     }
                 });
@@ -457,14 +456,12 @@
                 ui.showAlert(translator.translate('Firmware Uploading...'));
                 router.close();
                 setTimeout(function() {
-                    flasherProcess = flasher.flash(
-                        firmware,
-                        port,
-                        {
+                    flasher
+                        .flash(firmware, port, {
                             baudRate: baudRate,
                             MCUType: MCUType,
-                        },
-                        function(error, stdout, stderr) {
+                        })
+                        .then(([ error, stdout, stderr ]) => {
                             if (error) {
                                 if (firmwareCount > 10) {
                                     firmwareCount = 0;
@@ -495,8 +492,7 @@
                                 );
                                 router.startScan(config);
                             }
-                        }
-                    );
+                        });
                 }, 500);
             } catch (e) {
                 $('#firmwareButtonSet').show();
@@ -752,7 +748,7 @@
             router.close();
         } else if (
             state === 'before_connect' &&
-            window.currentConfig.firmware
+            window.currentConfig && window.currentConfig.firmware
         ) {
             ui.showAlert(
                 translator.translate('Connecting to hardware device.') +

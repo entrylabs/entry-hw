@@ -10,7 +10,10 @@
     "url": "https://microbit.org/ko/",
     "select_com_port": true,
     "reconnect": true,
-    "firmware": "microbit",
+    "firmware": {
+        "type": "copy",
+        "name": "microbit"
+    },
     "entry": {
         "protocol": "json"
     },
