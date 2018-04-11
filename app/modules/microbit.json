@@ -17,8 +17,8 @@
     "hardware": {
         "type": "serial",
         "control": "slave",
-        "delimiter": "\n",
-        "duration": 32,
+        "byteDelimiter": [13, 10],
+        "duration": 64,
         "vendor": "",
         "baudRate": 115200
     }

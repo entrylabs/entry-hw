@@ -16,6 +16,7 @@ function JsonHandler(id) {
 }
 
 JsonHandler.prototype.encode = function() {
+	return this.data;
 	if(this.data) {
 		return JSON.stringify(this.data);
 	}

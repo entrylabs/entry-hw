@@ -96,7 +96,10 @@ Server.prototype.open = function(logger) {
             '%cI`M CLIENT',
             'background:black;color:yellow;font-size: 30px'
         );
-        var socket = client(address, { query: { childServer: true }, reconnectionAttempts: 3 });
+        var socket = client(address, {
+            query: { childServer: true },
+            reconnectionAttempts: 3,
+        });
         socketClient = socket;
         self.connections.push(socket);
         socket.on('connect', function() {
@@ -161,6 +164,8 @@ Server.prototype.open = function(logger) {
             var connection = socket;
             self.connectionSet[connection.id] = connection;
             self.connections.push(connection);
+            self.emit('connection');
+            
             if (logger) {
                 logger.i('Entry connected.');
             }
@@ -221,7 +226,7 @@ Server.prototype.open = function(logger) {
                 }
             });
 
-            connection.on('message', function(message) {
+            connection.on('message', function(message, ack) {
                 if (
                     message.mode === serverModeTypes.single ||
                     masterRoomIds.indexOf(connection.roomId) >= 0
@@ -242,6 +247,10 @@ Server.prototype.open = function(logger) {
                             .to(self.clientTargetList[connection.roomId])
                             .emit('message', message);
                     }
+                }
+                if(ack) {
+                    const { key = true } = message;
+                    ack(key);
                 }
             });
 

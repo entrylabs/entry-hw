@@ -45,7 +45,15 @@ Router.prototype.connect = function(connector, config) {
 		if(extension.init) {
 			extension.init(handler, config);
 		}
+		if(extension.setSocket) {
+			extension.setSocket(server);
+		}
 		server.removeAllListeners();
+		server.on('connection', function(data, type) {
+            if(extension.socketReconnection) {
+                extension.socketReconnection();
+            }
+		});
 		server.on('data', function(data, type) {
 			handler.decode(data, type);
 			if(extension.handleRemoteData) {
