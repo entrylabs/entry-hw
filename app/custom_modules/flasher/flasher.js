@@ -14,6 +14,7 @@ class Flasher {
 
     getAppPath(firmware) {
         return new Promise((resolve, reject) => {
+            const firmwareName = typeof firmware === 'string' ? firmware : firmware.name;
             var asarIndex = __dirname.indexOf('app.asar');
             if (asarIndex > -1) {
                 var asarPath = __dirname.substr(0, asarIndex);
@@ -22,11 +23,11 @@ class Flasher {
                         const copyJob = [];
                         copyJob.push(
                             Utils.copyFile(
-                                path.join(__dirname, `${firmware}.hex`),
+                                path.join(__dirname, `${firmwareName}.hex`),
                                 path.join(
                                     asarPath,
                                     'flasher',
-                                    `${firmware}.hex`
+                                    `${firmwareName}.hex`
                                 )
                             )
                         );
@@ -58,7 +59,7 @@ class Flasher {
         });
     }
 
-    flashArduino(firmware, port, options, callBack) {
+    flashArduino(firmware, port, options) {
         return this.getAppPath(firmware).then((appPath) => {
             return new Promise((resolve, reject) => {
                 var baudRate = options.baudRate || '115200';
