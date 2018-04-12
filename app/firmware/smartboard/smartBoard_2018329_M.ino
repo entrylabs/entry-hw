@@ -11,13 +11,16 @@ const int M_SIZE=20;
 int iii=0;
 int mdata[M_SIZE];
 
-unsigned long previousMillis = 0;   
+unsigned long previousMillis[2] = {0, 0};   
 const long interval = 40;           // interval at which to blink (milliseconds)
+const long motorInterval = 2;
 
 VarSpeedServo myServo[3];
 int myServoSpeed[3] = { 52, 52, 52 };
 int myServoAngle[3] = { 12, 12, 12 };
 const int myServoPin[3] = { SERVO_A, SERVO_B, SERVO_C };
+
+int myDCMotorControl[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 
 void setup(){
   Serial.begin(38400);
@@ -49,9 +52,29 @@ void loop() {
       }
     }
 
-   if (currentMillis - previousMillis >= interval) {
-    previousMillis = currentMillis;
+   if (currentMillis - previousMillis[0] >= interval) {
+    previousMillis[0] = currentMillis;
     sendPinValues();
+  }
+
+  if (currentMillis - previousMillis[1] >= motorInterval) {
+    previousMillis[1] = currentMillis;
+     
+    if(myDCMotorControl[0] > myDCMotorControl[2] ) {
+      analogWrite(5, myDCMotorControl[2]++);
+    } else if(myDCMotorControl[0] < myDCMotorControl[2] ) {
+      analogWrite(5, myDCMotorControl[2]--);
+    } else {
+      
+    }
+  
+    if(myDCMotorControl[3] > myDCMotorControl[5] ) {
+      analogWrite(6, myDCMotorControl[5]++);
+    } else if(myDCMotorControl[3] < myDCMotorControl[5] ) {
+      analogWrite(6, myDCMotorControl[5]--);
+    } else {
+      
+    }
   }
 }
 
@@ -76,9 +99,19 @@ void updateDigitalPort (char c) {
         if( (port != SERVO_A) && (port != SERVO_B) && (port != SERVO_C) ) {
           setPortWritable(port);
           if (c & 1) {
-            digitalWrite(port, HIGH);
+            if(port == 4) { if( myDCMotorControl[1] == 0 ) { myDCMotorControl[1] = 1; myDCMotorControl[2] = 0; digitalWrite(4, HIGH); } }
+            else if(port == 5) { myDCMotorControl[0] = 255; }
+            else { digitalWrite(port, HIGH); }
+            if(port == 7) { if( myDCMotorControl[4] == 0 ) { myDCMotorControl[4] = 1; myDCMotorControl[5] = 0; digitalWrite(7, HIGH); } }
+            else if(port == 6) { myDCMotorControl[3] = 255; }
+            else { digitalWrite(port, HIGH); }
           } else {
-            digitalWrite(port, LOW);
+            if(port == 4) { if( myDCMotorControl[1] == 1 ) { myDCMotorControl[1] = 0; myDCMotorControl[2] = 0; digitalWrite(7, LOW); } }
+            else if(port == 5) { myDCMotorControl[0] = 0; }
+            else { digitalWrite(port, LOW); }
+            if(port == 7) { if( myDCMotorControl[4] == 1 ) { myDCMotorControl[4] = 0; myDCMotorControl[5] = 0; digitalWrite(7, LOW); } }
+            else if(port == 6) { myDCMotorControl[3] = 0; }
+            else { digitalWrite(port, LOW); }
           }
         } 
       }
@@ -94,8 +127,13 @@ void updateDigitalPort (char c) {
     int value = ((remainData & 1) << 7) + (c & B1111111);
     
     if( (port != SERVO_A) && (port != SERVO_B) && (port != SERVO_C) ) {
-      setPortWritable(port);
-      analogWrite(port, value);
+      if( port != 5 && port != 6 ) {
+        setPortWritable(port);
+        analogWrite(port, value);
+      } else {
+        if( port == 5 ) myDCMotorControl[0] = value;
+        if( port == 6 ) myDCMotorControl[3] = value;
+      }
     } else {
         if( value == 253 ) myServoSpeed[port-9] = 255;
         if( value > 185 && value < 253 ) myServoSpeed[port-9] = (value-180)<<2;
@@ -114,7 +152,6 @@ void updateDigitalPort (char c) {
 void sendAnalogValue(int pinNumber) {
   int value;
   value = analogRead(pinNumber);
-  
   Serial.write(B11000000
                | ((pinNumber & B111)<<3)
                | ((value>>7) & B111));
