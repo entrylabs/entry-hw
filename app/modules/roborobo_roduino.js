@@ -61,10 +61,10 @@ Module.prototype.handleRemoteData = function(handler) {
 Module.prototype.requestLocalData = function() {
     var query = [];
     var temp = [];
-    
+
     query = this.digitalWrite();
-    
-    // 1 : digital_read, 2 : set_pin_mode, 3 : digital_write, 4 : analog_write, 5 : analog_read, 6 : motor, 7: color    
+
+    // 1 : digital_read, 2 : set_pin_mode, 3 : digital_write, 4 : analog_write, 5 : analog_read, 6 : motor, 7: color
     switch(this.remoteDigitalValue[0]) {
         case 1:
             temp = this.setPinMode(this.remoteDigitalValue[1], INPUT);
@@ -80,10 +80,10 @@ Module.prototype.requestLocalData = function() {
                 for(var i = 0; i < temp.length; i++) {
                     query.push(temp[i]);
                 }
-            }            
+            }
         break;
     }
-    
+
     if(!this.colorSetFlag && this.colorPin != 0) {
         temp = this.setColor();
         if(temp != null) {
@@ -96,10 +96,10 @@ Module.prototype.requestLocalData = function() {
 
     query.push(DIGITAL_REPORT_LOW_CHANNEL);
     query.push(ENABLE);
-    
+
     query.push(DIGITAL_REPORT_HIGH_CHANNEL);
     query.push(ENABLE);
-    
+
     return query;
 };
 
@@ -108,7 +108,7 @@ Module.prototype.handleLocalData = function(data) { // data: Native Buffer
         var cmd = data[i];
         var LSB = data[i + 1];
         var MSB = data[i + 2];
-        
+
         if(cmd == DIGITAL_MESSAGE) {
             if(MSB == 0) {
                 var temp = 0;
@@ -142,9 +142,9 @@ Module.prototype.requestRemoteData = function(handler) {
         var value = this.analogValue[i];
         handler.write('a' + i, value);
     }
-    
+
     for (var i = 0; i < this.digitalValue.length; i++) {
-        var value = this.digitalValue[i];        
+        var value = this.digitalValue[i];
         handler.write(i, value);
     }
 };
@@ -153,48 +153,48 @@ module.exports = new Module();
 
 Module.prototype.roduinoInit = function() {
     var queryString = [];
-    
-    this.digitalValue = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ];    
+
+    this.digitalValue = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ];
     this.analogValue = [ 0, 0, 0, 0, 0, 0 ];
     this.ports = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ];
     this.digitalData = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ];
     this.digitalPinMode = [ -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 ];
     this.colorPin = 0;
     this.colorSetFlag = false;
-    
+
     queryString.push(START_SYSEX);
     queryString.push(QUERY_FIRMWARE);
     queryString.push(END_SYSEX);
-    
+
     for(var i = 0; i < 6; i++) {
         queryString.push(ANALOG_REPORT + i);
         queryString.push(ENABLE);
     }
-    
+
     return queryString;
 };
 
 Module.prototype.setPinMode = function(pin, mode) {
     var queryString = [];
-    
-    if(this.digitalPinMode[pin] != mode) {     
+
+    if(this.digitalPinMode[pin] != mode) {
         queryString.push(SET_PIN_MODE);
         queryString.push(pin);
         queryString.push(mode);
         this.digitalPinMode[pin] = mode;
-        
+
         return queryString;
     }
-    
+
     return null;
 }
 
 Module.prototype.digitalWrite = function() {
     var queryString = [];
     var mask = 0;
-    
+
     queryString.push(DIGITAL_MESSAGE);
-    for(var i = 2; i < 8; i++) {        
+    for(var i = 2; i < 8; i++) {
         mask = 1 << (i % 8);
         if(this.remoteDigitalValue[i] == 1) {
             this.ports[0] |= mask;
@@ -204,7 +204,7 @@ Module.prototype.digitalWrite = function() {
     }
     queryString.push(this.ports[0] & 0x7F);
     queryString.push(this.ports[0] >> 7);
-    
+
     queryString.push(DIGITAL_MESSAGE + 1);
     for (var i = 8; i < 14; i++) {
         mask = 1 << (i % 8);
@@ -216,14 +216,14 @@ Module.prototype.digitalWrite = function() {
     }
     queryString.push(this.ports[1] & 0x7F);
     queryString.push(this.ports[1] >> 7);
-    
+
     return queryString;
 };
 
 Module.prototype.setColor = function() {
     var queryString = [];
     var temp = null;
-    
+
     for(var i = 0; i < 3; i++) {
         temp = this.setPinMode(this.colorPin + i, INPUT);
         if(temp != null) {
@@ -231,6 +231,6 @@ Module.prototype.setColor = function() {
                 queryString.push(temp[j]);
             }
         }
-    }    
+    }
     return queryString;
 };
