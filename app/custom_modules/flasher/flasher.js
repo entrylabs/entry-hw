@@ -114,7 +114,9 @@ class Flasher {
                 const destPath = dialog.showOpenDialog({
                     properties: ['openDirectory'],
                 });
-
+                if(!destPath) {
+                    return resolve(['경로 미선택']);
+                }
                 Utils.copyFile(
                     path.join(appPath, 'flasher', `${firmware.name}.hex`),
                     path.join(destPath[0], `${firmware.name}.hex`)

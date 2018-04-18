@@ -10,6 +10,7 @@
     "url": "https://microbit.org/ko/",
     "select_com_port": true,
     "reconnect": true,
+    "tryFlasherNumber": 1,
     "firmware": {
         "type": "copy",
         "name": "microbit",
