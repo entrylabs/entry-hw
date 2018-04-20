@@ -16,15 +16,7 @@
     "firmware": [
         {
             "name": "mechatro_hc_05",
-            "translate": "mechatro_hc_05"
-        },
-        {
-            "name": "mechatro_bt_master",
-            "translate": "mechatro_bt_master"
-        },
-        {
-            "name": "mechatro_bt_master_hc_05_set",
-            "translate": "mechatro_bt_master_hc_05_set"
+            "translate": "유/무선 펌웨어"
         }
     ],
     "entry": {
