@@ -118,15 +118,6 @@
 	"Bluetooth driver": {
 		"ko": "블루투스 동글 드라이버"
 	},
-	"mechatro_hc_05": {
-		"ko": "제어보드 유선/무선 펌웨어"
-	},
-	"mechatro_bt_master": {
-		"ko": "블루투스 동글 통신용 펌웨어"
-	},
-	"mechatro_bt_master_hc_05_set": {
-		"ko": "블루투스 동글 설정용 펌웨어"
-	},
 	"No results found": {
 		"ko": "검색 결과가 없습니다."
 	},

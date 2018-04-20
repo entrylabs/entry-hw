@@ -9,28 +9,7 @@
 function Module() {
     // this.setZero_flag = null
     // 사용하는 포트 리스트
-    this.portList = [
-        2,
-        3,
-        4,
-        5,
-        6,
-        7,
-        10,
-        11,
-        14,
-        15,
-        16,
-        17,
-        18,
-        19,
-        20,
-        21,
-        22,
-        23,
-        24,
-        25,
-    ];
+    this.portList = [2,3,4,5,6,7,10,11,14,15,16,17,18,19,20,21,22,23,24,25];
 
     this.contMode = new Array(26);
     this.entryValue = new Array(26);
@@ -47,10 +26,10 @@ function Module() {
         RUN: 1,
     };
 
-    this.haveToSet = {
-        DIVICE_INPUT_MODE: true,
-        DIVICE_STANDBY_MODE: false,
-        ENTRY_STANDBY_MODE: true,
+    this.modeStatus = {
+        DIVICE_INPUT: true,
+        DIVICE_STANDBY: false,
+        ENTRY_STANDBY: true,
     };
 
     this.remainPort = null;
@@ -162,9 +141,9 @@ function Module() {
 Module.prototype.init = function(handler, config) {
     //console.log("init");
     this.entryState.CHECKER = this.entryState.STOP;
-    this.haveToSet.DIVICE_INPUT_MODE = true;
-    this.haveToSet.DIVICE_STANDBY_MODE = false;
-    this.haveToSet.ENTRY_STANDBY_MODE = true;
+    this.modeStatus.DIVICE_INPUT = true;
+    this.modeStatus.DIVICE_STANDBY = false;
+    this.modeStatus.ENTRY_STANDBY = true;
     this.entryHW_setInput();
     this.entryHW_initMotor();
 };
@@ -193,14 +172,14 @@ Module.prototype.handleRemoteData = function(handler) {
     if (handler.e('entryStop') == true) {
         //console.log("Entry  stop      ■ ");
         this.entryState.CHECKER = this.entryState.STOP;
-        this.haveToSet.DIVICE_INPUT_MODE = true;
-        this.haveToSet.ENTRY_STANDBY_MODE = true;
+        this.modeStatus.DIVICE_INPUT = true;
+        this.modeStatus.ENTRY_STANDBY = true;
         this.entryHW_setInput();
         this.entryHW_initMotor();
     } else if (this.entryState.CHECKER == this.entryState.STOP) {
         //console.log("Start            ■");
         this.entryState.CHECKER = this.entryState.RUN;
-        this.haveToSet.DIVICE_STANDBY_MODE = true;
+        this.modeStatus.DIVICE_STANDBY = true;
         this.entryHW_setStandBy();
     }
     this.dataFromEntry(handler);
@@ -209,20 +188,24 @@ Module.prototype.handleRemoteData = function(handler) {
 // 하드웨어에 데이터 전송, 연결 프로그램이 구동 되면 상시 실행한다.
 Module.prototype.requestLocalData = function() {
     var queryString = [];
-    if (this.haveToSet.DIVICE_INPUT_MODE) {
-        //console.log("                 ■--> DIVICE_INPUT_MODE");
-        this.haveToSet.DIVICE_INPUT_MODE = false;
+    if ( this.modeStatus.DIVICE_INPUT ) {
+        //console.log("                 ■--> DIVICE_INPUT");
         queryString.push(this.portMode.COM_INIT_DEVICE);
+        queryString.push(this.portMode.COM_INIT_DEVICE);
+        this.modeStatus.DIVICE_INPUT = false;
     }
-    if (this.haveToSet.DIVICE_STANDBY_MODE) {
-        //console.log("                 ■--> DIVICE_STANDBY_MODE");
-        this.haveToSet.DIVICE_STANDBY_MODE = false;
+    if ( this.modeStatus.DIVICE_STANDBY ) {
+        //console.log("                 ■--> DIVICE_STANDBY");
         queryString.push(this.portMode.COM_STANDBY_DEVICE);
+        queryString.push(this.portMode.COM_STANDBY_DEVICE);
+        this.modeStatus.DIVICE_STANDBY = false;
     }
-    if (this.entryState.CHECKER == this.entryState.RUN) {
+    if ( this.entryState.CHECKER == this.entryState.RUN ) {
+        //console.log("                 ■--> DIVICE_RUN_MODE");
         this.dataToDevice(queryString);
     }
-    return queryString;
+    if ( queryString.length > 0 ) return queryString;
+    else     return null;
 };
 
 // 하드웨어에서 수신한 데이터 처리, 연결 프로그램이 구동 되면 상시 실행한다.
@@ -232,8 +215,8 @@ Module.prototype.handleLocalData = function(data) {
 
 // 서버로 데이터 전송, 연결 프로그램이 구동 되면 상시 실행한다.
 Module.prototype.requestRemoteData = function(handler) {
-    if (this.haveToSet.ENTRY_STANDBY_MODE) {
-        this.haveToSet.ENTRY_STANDBY_MODE = false;
+    if (this.modeStatus.ENTRY_STANDBY) {
+        this.modeStatus.ENTRY_STANDBY = false;
         this.Entry_setStandBy(handler);
     }
 
@@ -246,118 +229,10 @@ Module.prototype.reset = function() {};
 //**********************************************************
 // Entry-HW 프로그램 셋팅 함수
 Module.prototype.entryHW_initValues = function() {
-    this.entryValue = [
-        0,
-        0,
-        0,
-        100,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        100,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-    ];
-    this.deviceValue = [
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-    ];
-    this.valueFlagToEntry = [
-        2,
-        2,
-        2,
-        2,
-        2,
-        2,
-        2,
-        2,
-        2,
-        2,
-        2,
-        2,
-        2,
-        2,
-        2,
-        2,
-        2,
-        2,
-        2,
-        2,
-        2,
-        2,
-        2,
-        2,
-        2,
-        2,
-    ];
-    this.flagToDevice = [
-        2,
-        2,
-        2,
-        2,
-        2,
-        2,
-        2,
-        2,
-        2,
-        2,
-        2,
-        2,
-        2,
-        2,
-        2,
-        2,
-        2,
-        2,
-        2,
-        2,
-        2,
-        2,
-        2,
-        2,
-        2,
-        2,
-    ];
+    this.entryValue       = [ 0,0,0,100,0,0,0,0,0,0,0,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0 ];
+    this.deviceValue      = [ 0,0,0,  0,0,0,0,0,0,0,0,  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 ];
+    this.valueFlagToEntry = [ 2,2,2,  2,2,2,2,2,2,2,2,  2,2,2,2,2,2,2,2,2,2,2,2,2,2,2 ];
+    this.flagToDevice     = [ 2,2,2,  2,2,2,2,2,2,2,2,  2,2,2,2,2,2,2,2,2,2,2,2,2,2,2 ];
 };
 
 Module.prototype.entryHW_setDigitalMode = function(mode) {
@@ -377,7 +252,7 @@ Module.prototype.entryHW_setAnalogMode = function(mode) {
 };
 
 Module.prototype.entryHW_setInput = function() {
-    //console.log("entryHW_setInput()")
+    // console.log("entryHW_setInput()")
     // 하드웨어 프로그램 인풋 모드로 초기화
     this.entryHW_initValues();
     this.entryHW_setDigitalMode(this.portMode.SET_DIGITAL_IN);
@@ -479,7 +354,7 @@ Module.prototype.dataToDevice = function(queryString) {
         portNo = this.portList[i];
         // Entry 에서 값이 업데이트 되었는지 검사 후 데이터 1회 전송
         // dataFromEntry() 에서 flag=0 셋팅
-        if (flag[portNo] < 1) {
+        if (flag[portNo] < 2) {
             mode = contMode[portNo];
             modeGroup = mode & 0xe0;
             value = entryValue[portNo];
@@ -638,7 +513,6 @@ Module.prototype.dataToDevice = function(queryString) {
             }
         }
     }
-    return queryString;
 };
 
 Module.prototype.dataFormDevice = function(data) {
