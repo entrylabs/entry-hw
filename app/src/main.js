@@ -557,7 +557,7 @@
                 var en = hardware.name.en.toLowerCase();
                 var ko = hardware.name.ko.toLowerCase();
                 var text = searchText.toLowerCase();
-                if (ko.indexOf(text) > -1 || en.indexOf(text) > -1) {
+                if ((ko.indexOf(text) > -1 || en.indexOf(text) > -1) && hardware.platform.indexOf(process.platform) > -1) {
                     ui.showRobot(hardware.id);
                     isNotFound = false;
                 } else {
