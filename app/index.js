@@ -21,6 +21,7 @@ var isClose = true;
 var roomId = [];
 let isForceClose = false;
 let hostURI = 'playentry.org';
+let hostProtocol = 'https:';
 
 global.sharedObject = {
     appName: 'hardware',
@@ -128,6 +129,9 @@ for (var i = 0; i < argv.length; i++) {
         continue;
     } else if (argv[i].match(/^--host=/) || argv[i].match(/^-h=/)) {
         hostURI = argv[i].split('=')[1];
+        continue;
+    } else if (argv[i].match(/^--protocol=/) || argv[i].match(/^-p=/)) {
+        hostProtocol = argv[i].split('=')[1];
         continue;
     } else if (argv[i][0] == '-') {
         continue;
@@ -273,6 +277,7 @@ ipcMain.on('checkUpdate', (e, msg) => {
     const request = net.request({
         method: 'POST',
         host: hostURI,
+        protocol: hostProtocol,
         path: '/api/checkVersion',
     });
     let body = '';

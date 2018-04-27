@@ -9,7 +9,7 @@ var platform = process.platform;
 class Flasher {
     constructor() {
         this.flasherProcess;
-        this.avrFileList = ['avrdude', 'avrdude.conf', 'avrdude.exe'];
+        this.avrFileList = ['avrdude', 'avrdude.conf', 'avrdude.exe', 'libusb0.dll'];
     }
 
     getAppPath(firmware) {
