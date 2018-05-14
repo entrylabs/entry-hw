@@ -135,10 +135,9 @@ button {
 }
 
 #reference {
-    margin-bottom: 30px;
+    margin-bottom: 25px;
     text-align: right;
     font-weight: bold;
-    height: 30px;
     line-height: 25px;
     font-size: 14px;
     color: #595757;
@@ -153,6 +152,14 @@ button {
 }
 
 #email {
+    width: 100%;
+    height: 100%;
+    text-align: left;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+#video {
     width: 100%;
     height: 100%;
     text-align: left;

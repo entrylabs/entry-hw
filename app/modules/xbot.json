@@ -9,6 +9,7 @@
 	"module": "xbot.js",
 	"url": "http://www.xbot.co.kr",
 	"email": "xbotqna@gmail.com",
+	"video": "https://goo.gl/xyyZMo",
 	"driver": {
 		"win32-ia32": "compat/SETUP.EXE",
 		"win32-x64": "compat/SETUP.EXE",

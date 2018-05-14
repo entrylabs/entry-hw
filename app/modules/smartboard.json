@@ -8,6 +8,7 @@
 	"icon" : "smartboard.png",
 	"module": "smartboard.js",
 	"url": "http://www.sciencebox.co.kr",
+	"video": "https://goo.gl/Gyh5Yx",
 	"email": "mail@sciencebox.co.kr",
 	"reconnect" : true,
 	"driver": [{

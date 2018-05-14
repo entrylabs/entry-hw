@@ -117,6 +117,7 @@
 
     $('#reference .emailTitle').text(translator.translate('E-Mail : '));
     $('#reference .urlTitle').text(translator.translate('WebSite : '));
+    $('#reference .videoTitle').text(translator.translate('Video : '));
 
     $('#opensource_label').text(translator.translate('Opensource lincense'));
     $('#version_label').text(translator.translate('Version Info'));
@@ -361,6 +362,26 @@
                         });
                     } else {
                         $('#urlArea').hide();
+                    }
+
+                    if (config.video) {
+                        let video = config.video;
+                        if(typeof video === 'string') {
+                            video = [video];
+                        }
+                        $('#video').empty();
+                        video.forEach((link, idx) => {
+                            $('#video').append(`<span>${link}</span><br/>`);
+                            $('#videoArea').show();
+                        });
+                        $('#video').off('click');
+                        $('#video').on('click', 'span', (e) => {
+                            const index = $('#video span').index(e.target);
+                            console.log(video, index, video[index]);
+                            shell.openExternal(video[index]);
+                        });
+                    } else {
+                        $('#videoArea').hide();
                     }
 
                     if (config.email) {

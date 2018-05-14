@@ -9,6 +9,7 @@
 	"module": "arduinoExt.js",
 	"url": "http://kocoafab.cc",
 	"email": "contact@kocoa.or.kr",
+	"video": "https://goo.gl/QLfHRA",
 	"driver": {
 		"win32-ia32": "CDM21226_Setup/CDM21226_Setup.exe",
 		"win32-x64": "CDM21226_Setup/CDM21226_Setup.exe"
