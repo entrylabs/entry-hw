@@ -1,14 +1,4 @@
-/**********************************************************************************
-   The following software may be included in this software : orion_firmware.ino
-   from http://www.makeblock.cc/
-   This software contains the following license and notice below:
-   CC-BY-SA 3.0 (https://creativecommons.org/licenses/by-sa/3.0/)
-   Author : Ander, Mark Yan
-   Updated : Ander, Mark Yan
-   Date : 01/09/2016
-   Description : Firmware for Makeblock Electronic modules with Scratch.
-   Copyright (C) 2013 - 2016 Maker Works Technology Co., Ltd. All right reserved.
- **********************************************************************************/
+#include <Wire.h>
 // 서보 라이브러리
 #include <Servo.h>
 #include "I2C_LCD.h"
@@ -98,8 +88,27 @@ const int CYCLE_LENGTH = 1000000 / 300;
 boolean isStart = false;
 boolean isUltrasonic = false;
 // 전역변수 선언 종료
+int lcdAddress = 0;
+
+
+byte findI2CAddress() {
+  byte error, address = 0, foundAddress;
+
+  for (address = 1; address < 127; address++ ) {
+    Wire.beginTransmission(address);
+    error = Wire.endTransmission();
+
+    if (error == 0) {
+      foundAddress =  address;
+    } else if (error == 4) {
+      //      foundAddress =  address;
+    }
+  }
+  return foundAddress;
+}
 
 void setup() {
+  Wire.begin();
   Serial.begin(115200);
 
   initLCD();
@@ -107,6 +116,8 @@ void setup() {
   delay(200);
 }
 void initLCD() {
+  lcdAddress = findI2CAddress();
+  lcd.setAddress(lcdAddress);
   lcd.init();
   lcd.backlight();
   lcd.setCursor(0, 0);
