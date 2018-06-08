@@ -514,6 +514,7 @@ Module.prototype.getDashCommand = function(c, a, cnt, pa, pb, pc, pd)
             case 8:  buffer.push(0x56, 0x4f, 0x49, 0x43, 0x45, 0x38);  break;
             case 9:  buffer.push(0x56, 0x4f, 0x49, 0x43, 0x45, 0x39);  break;
           }
+          break;
         case DashActionCmd_Sound.SAY:
           switch (pa)
           {
