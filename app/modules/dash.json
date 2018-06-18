@@ -2,7 +2,7 @@
     "id": "240101",
     "name": {
         "en": "Dash",
-        "ko": "대쉬"
+        "ko": "대시"
     },
     "platform": "win32",
     "icon": "dash.png",
