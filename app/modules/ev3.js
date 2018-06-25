@@ -88,16 +88,16 @@ class ev3 extends BaseModule {
     /**
      * Direct Send Command 의 앞 부분을 설정한다.
      *
-     * @param mode 3byte. mode & header 를 나타낸다.
-     * mode = 0x00(reply required), 0x80(no reply)
-     * header = 할당된 결과값 byte 수를 나타낸다. 이 값이 4인 경우, 4byte 를 result value 로 사용한다.
      * @returns {Buffer} size(2byte) + counter(2byte) + mode(1byte) + header(2byte)
+     * @param replyModeByte 0x00(reply required), 0x80(no reply)
+     * @param allocHeaderByte 할당된 결과값 byte 수를 나타낸다. 이 값이 4인 경우, 4byte 를 result value 로 사용한다.
      */
-    makeInitBuffer(mode) {
+    makeInitBuffer(replyModeByte, allocHeaderByte) {
         const size = new Buffer([0xFF, 0xFF]); // dummy 에 가깝다. #checkByteSize 에서 갱신된다.
         const counter = this.getCounter();
-        const reply = new Buffer(mode);
-        return Buffer.concat([size, counter, reply]);
+        const reply = new Buffer(replyModeByte);
+        const header = new Buffer(allocHeaderByte);
+        return Buffer.concat([size, counter, reply, header]);
     }
 
     /**
@@ -166,7 +166,7 @@ class ev3 extends BaseModule {
         }
 
         if (!this.isSendInitData) {
-            const initBuf = this.makeInitBuffer([0x80, 0, 0]);
+            const initBuf = this.makeInitBuffer([0x80], [0, 0]);
             const motorStop = new Buffer([0xA3, 0x81, 0, 0x81, 0x0F, 0x81, 0]);
             const initMotor = Buffer.concat([initBuf, motorStop]);
             this.checkByteSize(initMotor);
@@ -200,9 +200,7 @@ class ev3 extends BaseModule {
                     let siValue = Number(
                         (data.readFloatLE(index + 2) || 0).toFixed(1)
                     );
-                    const readyRaw = data.readInt32LE(index + 6);
-                    const readyPercent = data[index + 10];
-
+                    console.log("portNum:" + p + "type:" + type + "mode:" + mode + "siValue:" + siValue);
                     this.returnData[p] = {
                         type: type,
                         mode: mode,
@@ -235,7 +233,7 @@ class ev3 extends BaseModule {
     // 하드웨어에 전달할 데이터
     requestLocalData() {
         let isSendData = false;
-        const initBuf = this.makeInitBuffer([0x80, 0, 0]);
+        const initBuf = this.makeInitBuffer([0x80], [0, 0]);
         let sendBody;
         this.sensorCheck();
         let skipOutput = false;
@@ -375,7 +373,7 @@ class ev3 extends BaseModule {
     sensorCheck() {
         if (!this.isSensing) {
             this.isSensing = true;
-            const initBuf = this.makeInitBuffer([0, 0x5E, 0]);
+            const initBuf = this.makeInitBuffer([0], [0x5E, 0]);
             const counter = initBuf.readInt16LE(2); // initBuf의 index(2) 부터 2byte 는 counter 에 해당
             this.SENSOR_COUNTER_LIST[counter] = true;
             let sensorBody = [];
