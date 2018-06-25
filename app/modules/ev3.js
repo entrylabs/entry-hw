@@ -45,12 +45,6 @@ class ev3 extends BaseModule {
             D: 8,
             ALL: 0x0F,
         };
-        this.sensorMode = {
-            Touch: 0,
-            Color: 2,
-            Ultrasonic: 0,
-            Gyroscope: 0,
-        };
         this.PORT_MAP = {
             A: {
                 type: this.motorMovementTypes.Power,
