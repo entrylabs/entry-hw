@@ -13,7 +13,6 @@ class ev3 extends BaseModule {
         this.sp = null;
         this.sensors = [];
         this.CHECK_PORT_MAP = {};
-        this.CHECK_SENSOR_MAP = {};
         this.SENSOR_COUNTER_LIST = {};
         this.returnData = {};
         this.motorMovementTypes = {
@@ -29,22 +28,22 @@ class ev3 extends BaseModule {
             NxtTemperature: 6,
             LMotor: 7,
             MMotor: 8,
-            Touch: 16,
-            Color: 29,
-            Ultrasonic: 30,
-            Gyroscope: 32,
-            Infrared: 33,
-            Initializing: 0x7d,
-            Empty: 0x7e,
-            WrongPort: 0x7f,
-            Unknown: 0xff,
+            Touch: 0x0E,
+            Color: 0x1D,
+            Ultrasonic: 0x1E,
+            Gyroscope: 0x20,
+            Infrared: 0x21,
+            Initializing: 0x7D,
+            Empty: 0x7E, // 126
+            WrongPort: 0x7F,
+            Unknown: 0xFF,
         };
         this.outputPort = {
             A: 1,
             B: 2,
             C: 4,
             D: 8,
-            ALL: 15,
+            ALL: 0x0F,
         };
         this.sensorMode = {
             Touch: 0,
@@ -101,7 +100,7 @@ class ev3 extends BaseModule {
      * @returns {Buffer} size(2byte) + counter(2byte) + mode(1byte) + header(2byte)
      */
     makeInitBuffer(mode) {
-        const size = new Buffer([255, 255]); // dummy 에 가깝다. #checkByteSize 에서 갱신된다.
+        const size = new Buffer([0xFF, 0xFF]); // dummy 에 가깝다. #checkByteSize 에서 갱신된다.
         const counter = this.getCounter();
         const reply = new Buffer(mode);
         return Buffer.concat([size, counter, reply]);
@@ -147,23 +146,6 @@ class ev3 extends BaseModule {
         }
     }
 
-    /**
-     * TODO
-     * 전체 디바이스 목록 중 찾고자 하는 결과를 가져온다.
-     * @param type 찾고자 하는 디바이스 타입 hex 값
-     * @returns {*} 존재하는 경우 디바이스 타입의 명칭, 없으면 null
-     */
-    getSensorType(type) {
-        let returnType;
-        for (const key in this.deviceTypes) {
-            if (this.deviceTypes[key] === type) {
-                returnType = key;
-                break;
-            }
-        }
-        return returnType;
-    }
-
     init(handler, config) {}
 
     lostController() {}
@@ -190,8 +172,8 @@ class ev3 extends BaseModule {
         }
 
         if (!this.isSendInitData) {
-            const initBuf = this.makeInitBuffer([128, 0, 0]);
-            const motorStop = new Buffer([163, 129, 0, 129, 15, 129, 0]);
+            const initBuf = this.makeInitBuffer([0x80, 0, 0]);
+            const motorStop = new Buffer([0xA3, 0x81, 0, 0x81, 0x0F, 0x81, 0]);
             const initMotor = Buffer.concat([initBuf, motorStop]);
             this.checkByteSize(initMotor);
             sp.write(initMotor, () => {
@@ -208,12 +190,12 @@ class ev3 extends BaseModule {
     handleLocalData(data) {
         // data: Native Buffer
         /* 97 이 header 에서 alloc size 고정으로 인해 0x61로 들어오게됨. 수정 요망*/
-        if (data[0] === 97 && data[1] === 0) {
+        if (data[0] === 0x61 && data[1] === 0) {
             const countKey = data.readInt16LE(2);
             if (countKey in this.SENSOR_COUNTER_LIST) {
                 this.isSensing = false;
                 delete this.SENSOR_COUNTER_LIST[countKey];
-                data = data.slice(5);
+                data = data.slice(5); // 앞의 4 byte 는 size, counter 에 해당한다. 이 값은 할당 후 삭제한다.
                 let index = 0;
                 Object.keys(this.SENSOR_MAP).forEach((p) => {
                     const port = Number(p) - 1;
@@ -224,7 +206,6 @@ class ev3 extends BaseModule {
                     let siValue = Number(
                         (data.readFloatLE(index + 2) || 0).toFixed(1)
                     );
-                    // siValue = Number(siValue.toFixed(1));
                     const readyRaw = data.readInt32LE(index + 6);
                     const readyPercent = data[index + 10];
 
@@ -262,8 +243,7 @@ class ev3 extends BaseModule {
     // 하드웨어에 전달할 데이터
     requestLocalData() {
         let isSendData = false;
-        const initBuf = this.makeInitBuffer([128, 0, 0]);
-        const time = 0;
+        const initBuf = this.makeInitBuffer([0x80, 0, 0]);
         let sendBody;
         this.sensorCheck();
         let skipOutput = false;
@@ -305,37 +285,37 @@ class ev3 extends BaseModule {
                     if (time <= 0) {
                         // ifinity output port mode
                         portOut = new Buffer([
-                            164,
-                            129,
+                            0xA4,
+                            0x81,
                             0,
-                            129,
+                            0x81,
                             this.outputPort[port],
-                            129,
+                            0x81,
                             power,
-                            166,
-                            129,
+                            0xA6,
+                            0x81,
                             0,
-                            129,
+                            0x81,
                             this.outputPort[port],
                         ]);
                     } else {
                         // timeset mode 232, 3 === 1000ms
                         frontBuffer = new Buffer([
-                            173,
-                            129,
+                            0xAD,
+                            0x81,
                             0,
-                            129,
+                            0x81,
                             this.outputPort[port],
-                            129,
+                            0x81,
                             power,
-                            131,
+                            0x83,
                             0,
                             0,
                             0,
                             0,
-                            131,
+                            0x83,
                         ]);
-                        backBuffer = new Buffer([131, 0, 0, 0, 0, 129, brake]);
+                        backBuffer = new Buffer([0x83, 0, 0, 0, 0, 0x81, brake]);
                         const timeBuffer = new Buffer(4);
                         timeBuffer.writeInt32LE(time);
                         portOut = Buffer.concat([
@@ -347,21 +327,21 @@ class ev3 extends BaseModule {
                 } else {
                     const degree = Number(portMap.degree) || 0;
                     frontBuffer = new Buffer([
-                        172,
-                        129,
+                        0xAC,
+                        0x81,
                         0,
-                        129,
+                        0x81,
                         this.outputPort[port],
-                        129,
+                        0x81,
                         power,
-                        131,
+                        0x83,
                         0,
                         0,
                         0,
                         0,
-                        131,
+                        0x83,
                     ]);
-                    backBuffer = new Buffer([131, 0, 0, 0, 0, 129, brake]);
+                    backBuffer = new Buffer([0x83, 0, 0, 0, 0, 0x81, brake]);
                     const degreeBuffer = new Buffer(4);
                     degreeBuffer.writeInt32LE(degree);
                     portOut = Buffer.concat([
@@ -387,7 +367,6 @@ class ev3 extends BaseModule {
             const totalLength = initBuf.length + sendBody.length;
             const sendBuffer = Buffer.concat([initBuf, sendBody], totalLength);
             this.checkByteSize(sendBuffer);
-            this.lastMotorData = sendBuffer;
             return sendBuffer;
         }
 
@@ -404,7 +383,7 @@ class ev3 extends BaseModule {
     sensorCheck() {
         if (!this.isSensing) {
             this.isSensing = true;
-            const initBuf = this.makeInitBuffer([0, 94, 0]);
+            const initBuf = this.makeInitBuffer([0, 0x5E, 0]);
             const counter = initBuf.readInt16LE(2); // initBuf의 index(2) 부터 2byte 는 counter 에 해당
             this.SENSOR_COUNTER_LIST[counter] = true;
             let sensorBody = [];
@@ -412,69 +391,68 @@ class ev3 extends BaseModule {
             Object.keys(this.SENSOR_MAP).forEach((p) => {
                 let mode = 0;
                 if (this.returnData[p] && this.returnData[p]['type']) {
-                    const type = this.getSensorType(this.returnData[p]['type']);
                     mode = this.SENSOR_MAP[p]['mode'] || 0;
                 }
                 const port = Number(p) - 1;
                 index = port * this.responseSize;
                 const modeSet = new Buffer([
-                    153,
-                    5,
-                    129,
+                    0x99,
+                    0x05,
+                    0x81,
                     0,
-                    129,
+                    0x81,
                     port,
-                    225,
+                    0xE1,
                     index,
-                    225,
+                    0xE1,
                     index + 1,
                 ]);
                 const readySi = new Buffer([
-                    153,
-                    29,
-                    129,
+                    0x99,
+                    0x1D,
+                    0x81,
                     0,
-                    129,
+                    0x81,
                     port,
-                    129,
+                    0x81,
                     0,
-                    129,
+                    0x81,
                     mode,
-                    129,
+                    0x81,
                     1,
-                    225,
+                    0xE1,
                     index + 2,
                 ]);
                 const readyRaw = new Buffer([
-                    153,
-                    28,
-                    129,
+                    0x99,
+                    0x1C,
+                    0x81,
                     0,
-                    129,
+                    0x81,
                     port,
-                    129,
+                    0x81,
                     0,
-                    129,
+                    0x81,
                     mode,
-                    129,
-                    1,
-                    225,
+                    0x81,
+                    0x01,
+                    0xE1,
                     index + 6,
                 ]);
                 const readyPercent = new Buffer([
-                    153,
-                    27,
-                    129,
+                    0x99,
+                    0x1B,
+                    0x81,
                     0,
-                    129,
+                    0x81,
                     port,
-                    129,
+                    0x81,
                     0,
-                    129,
+                    0x81,
                     mode,
-                    129,
+                    0x81,
                     1,
-                    225,
+                    0xE1,
                     index + 10,
                 ]);
 
