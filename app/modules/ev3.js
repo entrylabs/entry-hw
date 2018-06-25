@@ -207,8 +207,6 @@ class ev3 extends BaseModule {
                         type: type,
                         mode: mode,
                         siValue: siValue,
-                        readyRaw: readyRaw,
-                        readyPercent: readyPercent,
                     };
                 });
             }
@@ -417,53 +415,17 @@ class ev3 extends BaseModule {
                     0xE1,
                     index + 2,
                 ]);
-                const readyRaw = new Buffer([
-                    0x99,
-                    0x1C,
-                    0x81,
-                    0,
-                    0x81,
-                    port,
-                    0x81,
-                    0,
-                    0x81,
-                    mode,
-                    0x81,
-                    0x01,
-                    0xE1,
-                    index + 6,
-                ]);
-                const readyPercent = new Buffer([
-                    0x99,
-                    0x1B,
-                    0x81,
-                    0,
-                    0x81,
-                    port,
-                    0x81,
-                    0,
-                    0x81,
-                    mode,
-                    0x81,
-                    1,
-                    0xE1,
-                    index + 10,
-                ]);
 
                 if (!sensorBody.length) {
                     sensorBody = Buffer.concat([
                         modeSet,
                         readySi,
-                        readyRaw,
-                        readyPercent,
                     ]);
                 } else {
                     sensorBody = Buffer.concat([
                         sensorBody,
                         modeSet,
                         readySi,
-                        readyRaw,
-                        readyPercent,
                     ]);
                 }
             });
