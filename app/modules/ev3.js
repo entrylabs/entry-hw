@@ -203,14 +203,14 @@ class ev3 extends BaseModule {
 
     handleLocalData(data) {
         // data: Native Buffer
-        /* 97 이 header 에서 alloc size 고정으로 인해 0x61로 들어오게됨. 수정 요망*/
-        if (data[0] === 0x61 && data[1] === 0) {
+        if (data[0] === 0x35 && data[1] === 0) {
             const countKey = data.readInt16LE(2);
             if (countKey in this.SENSOR_COUNTER_LIST) {
                 this.isSensing = false;
                 delete this.SENSOR_COUNTER_LIST[countKey];
                 data = data.slice(5); // 앞의 4 byte 는 size, counter 에 해당한다. 이 값은 할당 후 삭제한다.
                 let index = 0;
+                console.log(data);
                 Object.keys(this.SENSOR_MAP).forEach((p) => {
                     const port = Number(p) - 1;
                     index = port * this.responseSize;
@@ -220,7 +220,7 @@ class ev3 extends BaseModule {
                     let siValue = Number(
                         (data.readFloatLE(index + 2) || 0).toFixed(1)
                     );
-                    console.log("portNum:" + p + "type:" + type + "mode:" + mode + "siValue:" + siValue);
+                    //console.log("portNum:" + p + "type:" + type + "mode:" + mode + "siValue:" + siValue);
                     this.returnData[p] = {
                         type: type,
                         mode: mode,
@@ -404,7 +404,7 @@ class ev3 extends BaseModule {
     sensorCheck() {
         if (!this.isSensing) {
             this.isSensing = true;
-            const initBuf = this.makeInitBuffer([0], [0x5E, 0]);
+            const initBuf = this.makeInitBuffer([0], [0x32, 0]);
             const counter = initBuf.readInt16LE(2); // initBuf의 index(2) 부터 2byte 는 counter 에 해당
             this.SENSOR_COUNTER_LIST[counter] = true;
             let sensorBody = [];
