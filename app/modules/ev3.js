@@ -63,6 +63,26 @@ class ev3 extends BaseModule {
                 power: 0,
             },
         };
+        this.BUTTON_MAP = {
+            UP: {
+                key: 1
+            },
+            DOWN: {
+                key: 3
+            },
+            LEFT: {
+                key: 5
+            },
+            RIGHT: {
+                key: 4
+            },
+            BACK: {
+                key: 6
+            },
+            ENTER: {
+                key: 2
+            }
+        };
         this.SENSOR_MAP = {
             '1': {
                 type: this.deviceTypes.Touch,
@@ -206,6 +226,17 @@ class ev3 extends BaseModule {
                         mode: mode,
                         siValue: siValue,
                     };
+                });
+
+                index = 4 * this.responseSize;
+                Object.keys(this.BUTTON_MAP).forEach((button) => {
+                    if(data[index] === 1) {
+                        console.log(button + " button is pressed");
+                    }
+
+                    this.returnData[button] = {
+                        pressed: data[index++] === 1
+                    }
                 });
             }
         }
@@ -388,9 +419,7 @@ class ev3 extends BaseModule {
                 const modeSet = new Buffer([
                     0x99,
                     0x05,
-                    0x81,
                     0,
-                    0x81,
                     port,
                     0xE1,
                     index,
@@ -400,15 +429,10 @@ class ev3 extends BaseModule {
                 const readySi = new Buffer([
                     0x99,
                     0x1D,
-                    0x81,
                     0,
-                    0x81,
                     port,
-                    0x81,
                     0,
-                    0x81,
                     mode,
-                    0x81,
                     1,
                     0xE1,
                     index + 2,
@@ -428,9 +452,25 @@ class ev3 extends BaseModule {
                 }
             });
             /*
-			* 이 부분에 is Button Pressed 관련 로직을 추가한다.
+			리팩토링 없는 isButtonPressed 시작
+			sensorBody
 			* */
+            let offsetAfterPortResponse = 4 * this.responseSize; // 포트는 [0~3] 까지다.
+            Object.keys(this.BUTTON_MAP).forEach((button) => {
+                const buttonPressedCommand = new Buffer([
+                    0x83, // opUI_BUTTON
+                    0x09, // pressed
+                    this.BUTTON_MAP[button].key,
+                    0xE1,
+                    offsetAfterPortResponse++
+                ]);
 
+                sensorBody = Buffer.concat([sensorBody, buttonPressedCommand]);
+            });
+
+            /*
+            리팩토링 없는 isButtonPressed 종료
+             */
             const totalLength = initBuf.length + sensorBody.length;
             const sendBuffer = Buffer.concat(
                 [initBuf, sensorBody],
