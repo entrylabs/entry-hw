@@ -97,13 +97,13 @@ class ev3 extends BaseModule {
             ORANGE: {
                 key: 3,
             },
-            GREEN_FLASHING: {
+            GREEN_FLASH: {
                 key: 4,
             },
-            RED_FLASHING: {
+            RED_FLASH: {
                 key: 5,
             },
-            ORANGE_FLASHING: {
+            ORANGE_FLASH: {
                 key: 6,
             },
             GREEN_PULSE: {
