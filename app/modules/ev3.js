@@ -6,7 +6,7 @@ class ev3 extends BaseModule {
         super();
         this.counter = 0;
         this.commandResponseSize = 8;
-        this.wholeResponseSize = 0x32; // port 당 11byte(type, siValue) 와 buttonPressed 11byte 를 포함한다.
+        this.wholeResponseSize = 0x32;
         this.isSendInitData = false;
         this.isSensorCheck = false;
         this.isConnect = false;
@@ -29,22 +29,22 @@ class ev3 extends BaseModule {
             NxtTemperature: 6,
             LMotor: 7,
             MMotor: 8,
-            Touch: 0x0E,
-            Color: 0x1D,
-            Ultrasonic: 0x1E,
+            Touch: 0x0e,
+            Color: 0x1d,
+            Ultrasonic: 0x1e,
             Gyroscope: 0x20,
             Infrared: 0x21,
-            Initializing: 0x7D,
-            Empty: 0x7E, // 126
-            WrongPort: 0x7F,
-            Unknown: 0xFF,
+            Initializing: 0x7d,
+            Empty: 0x7e, // 126
+            WrongPort: 0x7f,
+            Unknown: 0xff,
         };
         this.outputPort = {
             A: 1,
             B: 2,
             C: 4,
             D: 8,
-            ALL: 0x0F,
+            ALL: 0x0f,
         };
         this.PORT_MAP = {
             A: {
@@ -66,23 +66,59 @@ class ev3 extends BaseModule {
         };
         this.BUTTON_MAP = {
             UP: {
-                key: 1
+                key: 1,
             },
             DOWN: {
-                key: 3
+                key: 3,
             },
             LEFT: {
-                key: 5
+                key: 5,
             },
             RIGHT: {
-                key: 4
+                key: 4,
             },
             BACK: {
-                key: 6
+                key: 6,
             },
             ENTER: {
-                key: 2
-            }
+                key: 2,
+            },
+        };
+        this.STATUS_COLOR_MAP = {
+            OFF: {
+                key: 0,
+            },
+            GREEN: {
+                key: 1,
+            },
+            RED: {
+                key: 2,
+            },
+            ORANGE: {
+                key: 3,
+            },
+            GREEN_FLASHING: {
+                key: 4,
+            },
+            RED_FLASHING: {
+                key: 5,
+            },
+            ORANGE_FLASHING: {
+                key: 6,
+            },
+            GREEN_PULSE: {
+                key: 7,
+            },
+            RED_PULSE: {
+                key: 8,
+            },
+            ORANGE_PULSE: {
+                key: 9,
+            },
+        };
+        this.CURRENT_STATUS_COLOR = {
+            COLOR: this.STATUS_COLOR_MAP.GREEN,
+            APPLIED: true,
         };
         this.SENSOR_MAP = {
             '1': {
@@ -114,7 +150,7 @@ class ev3 extends BaseModule {
      * @param allocHeaderByte 할당된 결과값 byte 수를 나타낸다. 이 값이 4인 경우, 4byte 를 result value 로 사용한다.
      */
     makeInitBuffer(replyModeByte, allocHeaderByte) {
-        const size = new Buffer([0xFF, 0xFF]); // dummy 에 가깝다. #checkByteSize 에서 갱신된다.
+        const size = new Buffer([0xff, 0xff]); // dummy 에 가깝다. #checkByteSize 에서 갱신된다.
         const counter = this.getCounter();
         const reply = new Buffer(replyModeByte);
         const header = new Buffer(allocHeaderByte);
@@ -188,7 +224,7 @@ class ev3 extends BaseModule {
 
         if (!this.isSendInitData) {
             const initBuf = this.makeInitBuffer([0x80], [0, 0]);
-            const motorStop = new Buffer([0xA3, 0x81, 0, 0x81, 0x0F, 0x81, 0]);
+            const motorStop = new Buffer([0xa3, 0x81, 0, 0x81, 0x0f, 0x81, 0]);
             const initMotor = Buffer.concat([initBuf, motorStop]);
             this.checkByteSize(initMotor);
             sp.write(initMotor, () => {
@@ -230,13 +266,13 @@ class ev3 extends BaseModule {
 
                 index = 4 * this.commandResponseSize;
                 Object.keys(this.BUTTON_MAP).forEach((button) => {
-                    if(data[index] === 1) {
-                        console.log(button + " button is pressed");
+                    if (data[index] === 1) {
+                        console.log(button + ' button is pressed');
                     }
 
                     this.returnData[button] = {
-                        pressed: data[index++] === 1
-                    }
+                        pressed: data[index++] === 1,
+                    };
                 });
             }
         }
@@ -259,6 +295,19 @@ class ev3 extends BaseModule {
         Object.keys(this.SENSOR_MAP).forEach((port) => {
             this.SENSOR_MAP[port] = handler.read(port);
         });
+
+        const receivedStatusColor = this.STATUS_COLOR_MAP[
+            handler.read('STATUS_COLOR')
+        ];
+        if (
+            receivedStatusColor !== undefined &&
+            this.CURRENT_STATUS_COLOR.COLOR !== receivedStatusColor
+        ) {
+            this.CURRENT_STATUS_COLOR = {
+                COLOR: receivedStatusColor,
+                APPLIED: false,
+            };
+        }
     }
 
     // 하드웨어에 전달할 데이터
@@ -267,21 +316,62 @@ class ev3 extends BaseModule {
         const initBuf = this.makeInitBuffer([0x80], [0, 0]);
         let sendBody;
         this.sensorCheck();
-        let skipOutput = false;
+        let skipPortOutput = false;
+
+        //이전 포트결과에서 변한부분이 있는지 확인
         if (this.LAST_PORT_MAP) {
             const arr = Object.keys(this.PORT_MAP).filter((port) => {
                 const map1 = this.PORT_MAP[port];
                 const map2 = this.LAST_PORT_MAP[port];
                 return !(map1.type === map2.type && map1.power === map2.power);
             });
-            skipOutput = arr.length === 0;
+            skipPortOutput = arr.length === 0;
         }
 
-        if (skipOutput) {
-            return null;
+        //변한부분이 있다면 포트에 보낼 데이터를 생성
+        if (!skipPortOutput) {
+            isSendData = true;
+            this.LAST_PORT_MAP = _.cloneDeep(this.PORT_MAP);
+            sendBody = this.makePortCommandBuffer(isSendData);
         }
 
-        this.LAST_PORT_MAP = _.cloneDeep(this.PORT_MAP);
+        //상판 LED 컬러 변경 요청이 있는 경우 변경 커맨드를 페이로드에 추가
+        if (this.CURRENT_STATUS_COLOR.APPLIED === false) {
+            isSendData = true;
+            const statusLedCommand = this.makeStatusColorCommandBuffer(
+                sendBody
+            );
+
+            if (!sendBody) {
+                sendBody = statusLedCommand;
+            } else {
+                sendBody = Buffer.concat([sendBody, statusLedCommand]);
+            }
+        }
+
+        if (isSendData && sendBody) {
+            const totalLength = initBuf.length + sendBody.length;
+            const sendBuffer = Buffer.concat([initBuf, sendBody], totalLength);
+            this.checkByteSize(sendBuffer);
+            return sendBuffer;
+        }
+
+        return null;
+    }
+
+    makeStatusColorCommandBuffer() {
+        this.CURRENT_STATUS_COLOR.APPLIED = true;
+        const statusLedCommand = new Buffer([
+            0x82,
+            0x1b,
+            this.CURRENT_STATUS_COLOR.COLOR.key,
+        ]);
+
+        return new Buffer(statusLedCommand);
+    }
+
+    makePortCommandBuffer() {
+        let sendBody = null;
         Object.keys(this.PORT_MAP).forEach((port) => {
             let backBuffer;
             let frontBuffer;
@@ -289,7 +379,6 @@ class ev3 extends BaseModule {
             let brake = 0;
             let checkPortMap = this.CHECK_PORT_MAP[port];
             if (!checkPortMap || portMap.id !== checkPortMap.id) {
-                isSendData = true;
                 let portOut;
                 let power = Number(portMap.power);
                 if (portMap.type === this.motorMovementTypes.Power) {
@@ -304,25 +393,25 @@ class ev3 extends BaseModule {
                     }
 
                     if (time <= 0) {
-                        // ifinity output port mode
+                        // infinity output port mode
                         portOut = new Buffer([
-                            0xA4,
+                            0xa4,
                             0x81,
                             0,
                             0x81,
                             this.outputPort[port],
                             0x81,
                             power,
-                            0xA6,
+                            0xa6,
                             0x81,
                             0,
                             0x81,
                             this.outputPort[port],
                         ]);
                     } else {
-                        // timeset mode 232, 3 === 1000ms
+                        // time set mode 232, 3 === 1000ms
                         frontBuffer = new Buffer([
-                            0xAD,
+                            0xad,
                             0x81,
                             0,
                             0x81,
@@ -336,7 +425,15 @@ class ev3 extends BaseModule {
                             0,
                             0x83,
                         ]);
-                        backBuffer = new Buffer([0x83, 0, 0, 0, 0, 0x81, brake]);
+                        backBuffer = new Buffer([
+                            0x83,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0x81,
+                            brake,
+                        ]);
                         const timeBuffer = new Buffer(4);
                         timeBuffer.writeInt32LE(time);
                         portOut = Buffer.concat([
@@ -348,7 +445,7 @@ class ev3 extends BaseModule {
                 } else {
                     const degree = Number(portMap.degree) || 0;
                     frontBuffer = new Buffer([
-                        0xAC,
+                        0xac,
                         0x81,
                         0,
                         0x81,
@@ -383,15 +480,7 @@ class ev3 extends BaseModule {
                 this.CHECK_PORT_MAP[port] = this.PORT_MAP[port];
             }
         });
-
-        if (isSendData && sendBody) {
-            const totalLength = initBuf.length + sendBody.length;
-            const sendBuffer = Buffer.concat([initBuf, sendBody], totalLength);
-            this.checkByteSize(sendBuffer);
-            return sendBuffer;
-        }
-
-        return null;
+        return sendBody;
     }
 
     /**
@@ -404,7 +493,10 @@ class ev3 extends BaseModule {
     sensorCheck() {
         if (!this.isSensing) {
             this.isSensing = true;
-            const initBuf = this.makeInitBuffer([0], [this.wholeResponseSize, 0]);
+            const initBuf = this.makeInitBuffer(
+                [0],
+                [this.wholeResponseSize, 0]
+            );
             const counter = initBuf.readInt16LE(2); // initBuf의 index(2) 부터 2byte 는 counter 에 해당
             this.SENSOR_COUNTER_LIST[counter] = true;
             let sensorBody = [];
@@ -421,34 +513,27 @@ class ev3 extends BaseModule {
                     0x05,
                     0,
                     port,
-                    0xE1,
+                    0xe1,
                     index,
-                    0xE1,
+                    0xe1,
                     index + 1,
                 ]);
                 const readySi = new Buffer([
                     0x99,
-                    0x1D,
+                    0x1d,
                     0,
                     port,
                     0,
                     mode,
                     1,
-                    0xE1,
+                    0xe1,
                     index + 2,
                 ]);
 
                 if (!sensorBody.length) {
-                    sensorBody = Buffer.concat([
-                        modeSet,
-                        readySi,
-                    ]);
+                    sensorBody = Buffer.concat([modeSet, readySi]);
                 } else {
-                    sensorBody = Buffer.concat([
-                        sensorBody,
-                        modeSet,
-                        readySi,
-                    ]);
+                    sensorBody = Buffer.concat([sensorBody, modeSet, readySi]);
                 }
             });
             /*
@@ -461,8 +546,8 @@ class ev3 extends BaseModule {
                     0x83, // opUI_BUTTON
                     0x09, // pressed
                     this.BUTTON_MAP[button].key,
-                    0xE1,
-                    offsetAfterPortResponse++
+                    0xe1,
+                    offsetAfterPortResponse++,
                 ]);
 
                 sensorBody = Buffer.concat([sensorBody, buttonPressedCommand]);
@@ -490,14 +575,26 @@ class ev3 extends BaseModule {
             this.commandResponseSize = 11;
             this.isSendInitData = false;
             this.isSensorCheck = false;
-            // this.sp.flush();
             this.isConnect = false;
+            this.CURRENT_STATUS_COLOR = {
+                COLOR: this.STATUS_COLOR_MAP['GREEN'],
+                APPLIED: false,
+            };
 
+            /*
+            send disconnect command
+            no reply, OpProgram_Stop(programID=01)
+            */
             if (this.sp) {
+                this.sp.write(
+                    new Buffer('08005500800000821B01', 'hex'),
+                    (err) => {
+                        /* nothing to do. disconnect command execute */
+                    }
+                );
                 this.sp.write(
                     new Buffer('070055008000000201', 'hex'),
                     (err) => {
-                        // no reply, OpProgram_Stop(programID=01)
                         this.sp = null;
                         if (err) {
                             console.log(err);
