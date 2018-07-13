@@ -1,7 +1,7 @@
 pipeline {
   agent {
     docker {
-      image 'node:8'
+      image 'maven:3-alpine'
     }
 
   }
@@ -11,7 +11,7 @@ pipeline {
         script {
           def scannerHome = tool 'sonarqube-scanner';
           withSonarQubeEnv('sonar') {
-            sh "sudo ${scannerHome}/bin/sonar-scanner"
+            sh "${scannerHome}/bin/sonar-scanner"
           }
         }
 
