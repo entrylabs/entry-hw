@@ -11,7 +11,14 @@ pipeline {
         script {
           def scannerHome = tool 'sonarqube-scanner';
           withSonarQubeEnv('sonar') {
-            sh "${scannerHome}/bin/sonar-scanner"
+            sh '${scannerHome}/bin/sonar-scanner '+
+            '-f all/pom.xml ' +
+            '-Dsonar.projectKey=entry.entryHW ' +
+            '-Dsonar.projectName=EntryHW ' +
+            '-Dsonar.projectVersion=Version 0.0.1-SNAPSHOT ' +
+            '-Dsonar.sourceEncoding=UTF-8 ' +
+            '-Dsonar.analysis.mode=preview ' +
+            '-Dsonar.sources=app '
           }
         }
 
