@@ -284,9 +284,9 @@ Module.prototype.handleRemoteData = function(handler)
     entry_controller.seq = handler.read(DashCmd.CMD_SEQ);
     if(entry_controller.seq == 0)
     {
-      // Entry에서 정지를 했을 때 더이상 움직이지 않도록 함.
+      // Entry 초기화.
       if (nowSeq != 0) {
-        sendBuffers.push([0xFF, 0x55, 0x05, 0x00, 0x02, 0x00, 0x00, 0x00, 0x0A]);
+        sendBuffers.push([0xFF, 0x55, 0x01, 0x07, 0x0A]);
       }
       nowSeq = 0;
     }
