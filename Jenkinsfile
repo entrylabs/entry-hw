@@ -26,18 +26,18 @@ pipeline {
           }
         }
       }
-      stage('SonarQube scan') {
+    }
+    stage('SonarQube scan') {
       when { changeRequest() }
-        steps {
-          script {
-            def scannerHome = tool "sonarqube-scanner";
-            withSonarQubeEnv("sonar") {
-              sh "${scannerHome}/bin/sonar-scanner " +
-              "-Dsonar.projectKey=entry.entryHW " +
-              "-Dsonar.projectName=EntryHW " +
-              "-Dsonar.sourceEncoding=UTF-8 " +
-              "-Dsonar.sources=app "
-            }
+      steps {
+        script {
+          def scannerHome = tool "sonarqube-scanner";
+          withSonarQubeEnv("sonar") {
+            sh "${scannerHome}/bin/sonar-scanner " +
+            "-Dsonar.projectKey=entry.entryHW " +
+            "-Dsonar.projectName=EntryHW " +
+            "-Dsonar.sourceEncoding=UTF-8 " +
+            "-Dsonar.sources=app "
           }
         }
       }
