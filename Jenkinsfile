@@ -8,6 +8,8 @@ pipeline {
   stages {
     stage('SonarQube analysis') {
       steps {
+        echo 'echo ${GH_TOKEN}'
+        echo 'echo ${env.CHANGE_ID}'
         sh '''echo \'${GH_TOKEN}\'
 echo \'${env.CHANGE_ID}\''''
         script {
