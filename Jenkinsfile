@@ -9,8 +9,10 @@ pipeline {
     stage('SonarQube analysis') {
       steps {
         script {
+          echo "${env.CHANGE_ID}"
           def scannerHome = tool 'sonarqube-scanner';
           withSonarQubeEnv('sonar') {
+            echo "${env.CHANGE_ID}"
             echo "${scannerHome}/bin/sonar-scanner " +
             '-Dsonar.projectKey=entry.entryHW ' +
             '-Dsonar.projectName=EntryHW ' +
