@@ -10,8 +10,9 @@ pipeline {
       steps {
         echo 'echo ${GH_TOKEN}'
         echo 'echo ${env.CHANGE_ID}'
-        sh '''echo \'${GH_TOKEN}\'
-echo \'${env.CHANGE_ID}\''''
+        sh '''echo "${GH_TOKEN}"
+echo \'${env.CHANGE_ID}\'
+echo sh(script: \'env\', returnStdout: true)'''
         script {
           def scannerHome = tool 'sonarqube-scanner';
           withSonarQubeEnv('sonar') {
