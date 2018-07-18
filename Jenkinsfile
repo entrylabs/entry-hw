@@ -9,14 +9,20 @@ pipeline {
     stage('SonarQube analysis') {
       steps {
         script {
-          echo "${GH_TOKEN}"
-          echo '${env.CHANGE_ID}'
-          echo sh(script: 'env', returnStdout: true)
-        }
-
-        script {
           def scannerHome = tool 'sonarqube-scanner';
           withSonarQubeEnv('sonar') {
+            echo "${scannerHome}/bin/sonar-scanner " +
+            '-Dsonar.projectKey=entry.entryHW ' +
+            '-Dsonar.projectName=EntryHW ' +
+            '-Dsonar.sourceEncoding=UTF-8 ' +
+            '-Dsonar.analysis.mode=preview ' +
+            '-Dsonar.github.repository=entrylabs/entry-hw ' +
+            '-Dsonar.github.endpoint=https://api.github.com ' +
+            '-Dsonar.github.oauth=${GH_TOKEN} ' +
+            '-Dsonar.issuesReport.console.enable=true ' +
+            '-Dsonar.github.disableInlineComments=true ' +
+            '-Dsonar.github.pullRequest=${env.CHANGE_ID} ' +
+            '-Dsonar.sources=app '
             sh "${scannerHome}/bin/sonar-scanner " +
             '-Dsonar.projectKey=entry.entryHW ' +
             '-Dsonar.projectName=EntryHW ' +
