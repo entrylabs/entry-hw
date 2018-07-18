@@ -26,7 +26,7 @@ pipeline {
           }
         }
       }
-      stage('scan') {
+      stage('SonarQube scan') {
       when { changeRequest() }
         steps {
           script {
