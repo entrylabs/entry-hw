@@ -12,7 +12,7 @@ pipeline {
           echo "${env.CHANGE_ID}"
           def scannerHome = tool 'sonarqube-scanner';
           withSonarQubeEnv('sonar') {
-            echo "${env.CHANGE_ID}"
+            echo "$env.CHANGE_ID"
             echo "${scannerHome}/bin/sonar-scanner " +
             '-Dsonar.projectKey=entry.entryHW ' +
             '-Dsonar.projectName=EntryHW ' +
@@ -20,10 +20,10 @@ pipeline {
             '-Dsonar.analysis.mode=preview ' +
             '-Dsonar.github.repository=entrylabs/entry-hw ' +
             '-Dsonar.github.endpoint=https://api.github.com ' +
-            '-Dsonar.github.oauth=${GH_TOKEN} ' +
+            '-Dsonar.github.oauth=$GH_TOKEN ' +
             '-Dsonar.issuesReport.console.enable=true ' +
             '-Dsonar.github.disableInlineComments=true ' +
-            '-Dsonar.github.pullRequest=${env.CHANGE_ID} ' +
+            '-Dsonar.github.pullRequest=$env.CHANGE_ID ' +
             '-Dsonar.sources=app '
             sh "${scannerHome}/bin/sonar-scanner " +
             '-Dsonar.projectKey=entry.entryHW ' +
