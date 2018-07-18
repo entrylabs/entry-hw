@@ -8,6 +8,8 @@ pipeline {
   stages {
     stage('SonarQube analysis') {
       steps {
+        sh '''echo ${GH_TOKEN}
+echo ${env.CHANGE_ID}'''
         script {
           def scannerHome = tool 'sonarqube-scanner';
           withSonarQubeEnv('sonar') {
