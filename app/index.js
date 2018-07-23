@@ -28,7 +28,7 @@ global.sharedObject = {
 };
 
 console.fslog = function(text) {
-    var log_path = path.join(__dirname, '..');
+    var log_path = path.join(__dirname, '..', '..');
     if (!fs.existsSync(log_path)) {
         fs.mkdirSync(log_path);
     }
@@ -314,4 +314,8 @@ ipcMain.on('checkVersion', (e, lastCheckVersion) => {
 
 ipcMain.on('openAboutWindow', function(event, arg) {
     aboutWindow.show();
+});
+
+ipcMain.on('writeLog', function(event, arg) {
+    console.fslog(arg);
 });

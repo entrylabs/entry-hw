@@ -68,8 +68,8 @@ Router.prototype.connect = function(connector, config) {
         connector.connect(extension, function(state, data) {
 			if(state) {
 				self.emit('state', state);
-                if(extension.evevtContoller) {
-                    extension.evevtContoller(state);
+                if(extension.eventController) {
+                    extension.eventController(state);
                 }
 			} else {
 				if(extension.handleLocalData) {
