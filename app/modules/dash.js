@@ -104,7 +104,7 @@ var DashParamCmd_Sound_Say =
   //이동
   FIRESIREN:16, TRUCKHORN:17, CARENGINE:18, CARTIRESQUEEL:19, HELICOPTER:20, JETPLANE:21, BOAT:22, TRAIN:23,
   //이상한
-  BEEPS:24, LASERS:25, GOBBLE:26, BUZZ:27, AYYAIYAI:28, SQUEEL:29
+  BEEPS:24, LASERS:25, GOBBLE:26, BUZZ:27, AYYAIYAI:28, SQUEEK:29
 };
 
 
@@ -249,7 +249,7 @@ Module.prototype.handleLocalData = function(data)
         }
         else
         {
-          if((sensor_check_cnt++) == 3)
+          if((sensor_check_cnt++) == 25)
           {
             this.sendToEntry.isDriving = 0;
             sensor_check_cnt = 0;
@@ -334,20 +334,20 @@ Module.prototype.getDashCommand = function(c, a, cnt, pa, pb, pc, pd)
         case DashActionCmd_Drive.BACKWARD:
           var speed = 0;
           switch(pb) {
-          case 1: // 매우 느리게, 10cm/s
-            speed = 10;
+          case 1: // 매우 느리게, 17cm/s
+            speed = 17;
             break;
-          case 2: // 느리게, 15m/s
-            speed = 15;
+          case 2: // 느리게, 22m/s
+            speed = 22;
             break;
-          case 3: // 보통, 20cm/s
-            speed = 20;
+          case 3: // 보통, 27cm/s
+            speed = 27;
             break;
-          case 4: // 빠르게, 25cm/s
-            speed = 25;
+          case 4: // 빠르게, 32cm/s
+            speed = 32;
             break;
-          case 5: // 매우 빠르게, 30cm/s
-            speed = 30;
+          case 5: // 매우 빠르게, 37cm/s
+            speed = 37;
             break;
           }
           var time = parseInt((pa / speed) * 1000);
@@ -362,7 +362,7 @@ Module.prototype.getDashCommand = function(c, a, cnt, pa, pb, pc, pd)
           break;
         case DashActionCmd_Drive.TURN_CW:
         case DashActionCmd_Drive.TURN_CCW:
-          var time = parseInt(pa / 15) * 100;
+          var time = parseInt(pa / 30) * 100;
           var c4 = (time & 0xFF00) >> 8;
           var c5 = time & 0xFF;
           pa = a == DashActionCmd_Drive.TURN_CW ? pa = pa * -1: pa;
@@ -375,49 +375,43 @@ Module.prototype.getDashCommand = function(c, a, cnt, pa, pb, pc, pd)
           if(isDebugging)  console.log(buffer);
           break;
         case DashActionCmd_Drive.WHEEL:
-          // if(pb > 400 || pd > 500) return [];
-          // pb = pb*30;
-          // pd = pd*30;
-          // var wheel_speed = pa==2?0x800-pb:pb;
-          // var turn_speed = pc==2?0x800-pd:pd;
-          // buffer.push(0x02, wheel_speed&0xFF, turn_speed&0xFF, ((wheel_speed&0xFF00)>>8) + ((turn_speed&0xFF00)>>8 << 3));
           var left = 0;
           var right = 0;
           switch (pb) {
-            case 1: // 매우 느리게, 10cm/s
-              left = 10;
+            case 1: // 매우 느리게, 17cm/s
+              left = 17;
               break;
-            case 2: // 느리게, 15m/s
-              left = 15;
+            case 2: // 느리게, 22m/s
+              left = 22;
               break;
-            case 3: // 보통, 20cm/s
-              left = 20;
+            case 3: // 보통, 27cm/s
+              left = 27;
               break;
-            case 4: // 빠르게, 25cm/s
-              left = 25;
+            case 4: // 빠르게, 32cm/s
+              left = 32;
               break;
-            case 5: // 매우 빠르게, 30cm/s
-              left = 30;
+            case 5: // 매우 빠르게, 37cm/s
+              left = 37;
               break;
           }
           switch (pd) {
-            case 1: // 매우 느리게, 10cm/s
-              right = 10;
+            case 1: // 매우 느리게, 17cm/s
+              right = 17;
               break;
-            case 2: // 느리게, 15m/s
-              right = 15;
+            case 2: // 느리게, 22m/s
+              right = 22;
               break;
-            case 3: // 보통, 20cm/s
-              right = 20;
+            case 3: // 보통, 27cm/s
+              right = 27;
               break;
-            case 4: // 빠르게, 25cm/s
-              right = 25;
+            case 4: // 빠르게, 32cm/s
+              right = 32;
               break;
-            case 5: // 매우 빠르게, 30cm/s
-              right = 30;
+            case 5: // 매우 빠르게, 37cm/s
+              right = 37;
               break;
           }
-          if(pa == 0x01) {
+          if (pa == 0x01) {
             left *= 30;
           }
           else if(pa == 0x02) {
@@ -430,11 +424,9 @@ Module.prototype.getDashCommand = function(c, a, cnt, pa, pb, pc, pd)
             right *= (-30);
           }
           buffer.push(0x01, (left & 0xFF00) >> 8, left & 0xFF, (right & 0xFF00) >> 8, right & 0xff);
-          console.log(buffer);
           break;
         case DashActionCmd_Drive.STOP:
           buffer.push(0x02, 0x00, 0x00, 0x00);
-          console.log(buffer);
           break;
       }
       break;
