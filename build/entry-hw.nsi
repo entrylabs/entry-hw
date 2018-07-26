@@ -98,7 +98,9 @@ Section $(TEXT_ENTRY_TITLE) SectionEntry
   
   ; Set output path to the installation directory.
   ;SetOutPath $INSTDIR
-  
+
+  ; Delete roaming/entry_hw for initialize update check logic
+  RMDir /r "$PROFILE\AppData\Roaming\entry_hw"
 
   ; Put file there
   SetOutPath "$INSTDIR\locales"
@@ -182,6 +184,8 @@ Section "Uninstall"
   RMDir "$SMPROGRAMS\EntryLabs\${PRODUCT_NAME}"
   RMDir /r "$INSTDIR"
 
+  ; Remove roaming/entry_hw directory for next version's localStorage
+  RMDir /r "$PROFILE\AppData\Roaming\entry_hw"
 SectionEnd
 
 Function LaunchLink

@@ -21,9 +21,9 @@
             localStorage.removeItem('hasNewVersion');
             modal
                 .alert(
-                    Lang.Msgs.version_update_msg1.replace(
+                    Lang.Msgs.version_update_msg2.replace(
                         /%1/gi,
-                        hasNewVersion
+                        lastCheckVersion
                     ),
                     Lang.General.update_title,
                     {
@@ -44,8 +44,8 @@
             ipcRenderer.on(
                 'checkUpdateResult',
                 (e, { hasNewVersion, version } = {}) => {
-                    if (hasNewVersion && version != lastCheckVersion) {
-                        localStorage.setItem('hasNewVersion', version);
+                    if (hasNewVersion && version !== lastCheckVersion) {
+                        localStorage.setItem('hasNewVersion', hasNewVersion);
                         localStorage.setItem('lastCheckVersion', version);
                     }
                 }
