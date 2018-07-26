@@ -9,6 +9,7 @@ var ANALOG_MAPPING = 0x69;
 var ANALOG_REPORT = 0xc0;
 var ANALOG_MESSAGE = 0xe0;
 var DIGITAL_MESSAGE = 0x90;
+var DIGITAL_MESSAGE_SE = 0x91;
 var RESET = 0xfe;
 var DIGITAL_REPORT_LOW_CHANNEL = 0xd0;
 var DIGITAL_REPORT_HIGH_CHANNEL = 0xd1;
@@ -24,7 +25,7 @@ var ANALOG = 2;
 var PWM = 3;
 var SERVO = 4;
 
-var schoolKitFlag = false;
+// var schoolKitFlag = false;
 
 function Module() {
     this.digitalValue = new Array(14);
@@ -40,21 +41,21 @@ function Module() {
     this.step = 0;
 }
 
-Module.prototype.init = function(handler, config) {};
+Module.prototype.init = function (handler, config) {};
 
-Module.prototype.requestInitialData = function() {
+Module.prototype.requestInitialData = function () {
     return this.schoolkitInit();
 };
 
-Module.prototype.checkInitialData = function(data, config) {
+Module.prototype.checkInitialData = function (data, config) {
     return true;
 };
 
-Module.prototype.validateLocalData = function(data) {
+Module.prototype.validateLocalData = function (data) {
     return true;
 };
 
-Module.prototype.handleRemoteData = function(handler) {
+Module.prototype.handleRemoteData = function (handler) {
     var digitalValue = this.remoteDigitalValue;
     this.digitalPinMode = handler.read('digitalPinMode');
     // this.servo = handler.read('servo');
@@ -63,7 +64,7 @@ Module.prototype.handleRemoteData = function(handler) {
     }
 };
 
-Module.prototype.setPinMode = function() {
+Module.prototype.setPinMode = function () {
     var queryString = [];
 
     for (var i = 0; i < this.digitalPinMode.length; i++) {
@@ -77,13 +78,24 @@ Module.prototype.setPinMode = function() {
     return queryString;
 };
 
-Module.prototype.requestLocalData = function() {
-    var query = [];
+Module.prototype.pwmCheck = function () {
+    if (query == null) {
+        query = this.setPWM();
+    } else {
+        temp = this.setPWM();
+        for (var i = 0; i < temp.length; i++) {
+            query.push(temp[i]);
+        }
+    }
+    this.preDigitalPinMode[pin] = this.digitalPinMode[pin];
+}
+
+Module.prototype.requestLocalData = function () {
+
     var temp = [];
-
-    query = this.setPinMode();
-
+    var query = this.setPinMode();
     var digiData = this.digitalWrite();
+
     for (var dgIdx = 0; dgIdx < digiData.length; dgIdx++) {
         query.push(digiData[dgIdx]);
     }
@@ -96,60 +108,45 @@ Module.prototype.requestLocalData = function() {
             query.push(temp[i]);
         }
     }
+
     for (var pin = 0; pin < this.digitalPinMode.length; pin++) {
         switch (this.digitalPinMode[pin]) {
             case INPUT:
                 if (this.preDigitalPinMode[pin] != this.digitalPinMode[pin]) {
-                    if (query == null) {
-                        query = this.setPWM();
-                    } else {
-                        temp = this.setPWM();
-                        for (var i = 0; i < temp.length; i++) {
-                            query.push(temp[i]);
-                        }
-                    }
-                    this.preDigitalPinMode[pin] = this.digitalPinMode[pin];
+                    this.pwmCheck();
                 }
-
                 break;
+
             case OUTPUT:
                 this.preDigitalPinMode[pin] = this.digitalPinMode[pin];
                 break;
 
             case SERVO:
             case PWM:
-                if (query == null) {
-                    query = this.setPWM();
-                } else {
-                    temp = this.setPWM();
-                    for (var i = 0; i < temp.length; i++) {
-                        query.push(temp[i]);
-                    }
-                }
-                this.preDigitalPinMode[pin] = this.digitalPinMode[pin];
+                this.pwmCheck();
                 break;
         }
     }
     return query;
 };
 
-Module.prototype.handleLocalData = function(data) {
+function toHexString(byteArray) {
+    return Array.from(byteArray, function (byte) {
+        return ('0' + (byte & 0xff).toString(16)).slice(-2);
+    }).join(' ');
+}
+
+Module.prototype.handleLocalData = function (data) {
     // data: Native Buffer
+
+    console.log("dg: " + toHexString(data));
     for (var i = 0; i < data.length; i++) {
-        if (data[i] == 0xff) {
-            schoolKitFlag = true;
-        }
         var packet = data[i];
 
         switch (this.step) {
             case 0:
                 {
-                    if (
-                        packet >= DIGITAL_MESSAGE &&
-                        packet <= DIGITAL_MESSAGE + 6
-                    ) {
-                        this.packet[this.step++] = packet;
-                    } else if (packet >> 4 == 0x0e) {
+                    if ((packet >= DIGITAL_MESSAGE && packet <= DIGITAL_MESSAGE + 6) || packet >> 4 == 0x0e) {
                         this.packet[this.step++] = packet;
                     } else {
                         this.packet = [0, 0, 0];
@@ -165,45 +162,32 @@ Module.prototype.handleLocalData = function(data) {
             case 2:
                 {
                     this.packet[this.step] = packet;
-
                     var cmd = this.packet[0];
                     var LSB = this.packet[1];
                     var MSB = this.packet[2];
-                    var mode = 0; // off : 1, on : 2
+                    var dgValue = this.digitalValue;
 
-                    if (
-                        (cmd == DIGITAL_MESSAGE ||
-                            cmd == DIGITAL_MESSAGE + 1) &&
-                        (LSB != 0 || MSB != 0)
-                    ) {
-                        mode = 2;
-                    } else if (LSB == 0 && MSB == 0) {
-                        mode = 1;
-                    }
-
-                    if (mode == 2) {
-                        if (cmd == DIGITAL_MESSAGE) {
-                            this.digitalValue[0] = 1;
-                        } else if (cmd == DIGITAL_MESSAGE + 1) {
-                            var temp = 0;
-                            for (var pin = 8; pin < 14; pin++) {
-                                temp = LSB >> (pin - 8);
-                                if (temp == 1) {
-                                    this.digitalValue[pin - 7] = 1;
-                                }
+                    if (cmd == DIGITAL_MESSAGE && (LSB != 0 || MSB != 0)) {
+                        dgValue[0] = 1;
+                    } else if (cmd == DIGITAL_MESSAGE && (LSB == 0 || MSB == 0)) {
+                        dgValue[0] = 0;
+                    } else if (cmd == DIGITAL_MESSAGE_SE) {
+                        var dataCheck = 0;
+                        for (var pin = 8; pin < 14; pin++) {
+                            dataCheck = LSB >> (pin - 8);
+                            if (dataCheck == 1 && (LSB != 0 || MSB != 0)) {
+                                dgValue[pin - 7] = 1;
+                            } else {
+                                dgValue[pin - 7] = 0;
                             }
                         }
-                    } else if (mode == 1) {
-                        this.digitalValue[cmd - DIGITAL_MESSAGE] = 0;
                     }
-
                     if (cmd >> 4 == 0x0e) {
                         var pin = cmd & 0x0f;
                         if (pin == 8) {
-                            this.digitalValue[pin - 7] = LSB | (MSB << 7);
+                            dgValue[pin - 7] = LSB | (MSB << 7);
                         } else if (pin == 10) {
-                            this.digitalValue[pin - 7] =
-                                1023 - (LSB | (MSB << 7));
+                            dgValue[pin - 7] = 1023 - (LSB | (MSB << 7));
                         }
                     }
                     this.packet = [0, 0, 0];
@@ -214,7 +198,10 @@ Module.prototype.handleLocalData = function(data) {
     }
 };
 
-Module.prototype.requestRemoteData = function(handler) {
+
+
+
+Module.prototype.requestRemoteData = function (handler) {
     for (var i = 0; i < this.inputPin.length; i++) {
         var value = this.analogValue[i];
         handler.write('a' + this.inputPin[i], value);
@@ -226,7 +213,7 @@ Module.prototype.requestRemoteData = function(handler) {
     }
 };
 
-Module.prototype.reset = function() {
+Module.prototype.reset = function () {
     this.digitalValue = new Array(14);
     this.remoteDigitalValue = new Array(14).fill(0);
     this.analogValue = new Array(2);
@@ -242,7 +229,7 @@ Module.prototype.reset = function() {
 
 module.exports = new Module();
 
-Module.prototype.schoolkitInit = function() {
+Module.prototype.schoolkitInit = function () {
     var queryString = [];
     this.digitalValue = new Array(14);
     this.remoteDigitalValue = new Array(14).fill(0);
@@ -271,7 +258,7 @@ Module.prototype.schoolkitInit = function() {
     return queryString;
 };
 
-Module.prototype.motor = function() {
+Module.prototype.motor = function () {
     var queryString = [];
     var ChannelData = [0, 0];
     var temp = [0, 1];
@@ -308,7 +295,7 @@ Module.prototype.motor = function() {
     return queryString;
 };
 
-Module.prototype.digitalWrite = function() {
+Module.prototype.digitalWrite = function () {
     var queryString = [];
     var mask = 0;
 
@@ -324,7 +311,7 @@ Module.prototype.digitalWrite = function() {
     queryString.push(this.ports[0] & 0x7f);
     queryString.push(this.ports[0] >> 7);
 
-    queryString.push(DIGITAL_MESSAGE + 1);
+    queryString.push(DIGITAL_MESSAGE_SE);
     for (var i = 8; i < 14; i++) {
         mask = 1 << (i % 8);
         if (this.remoteDigitalValue[i] == 1) {
@@ -339,7 +326,7 @@ Module.prototype.digitalWrite = function() {
     return queryString;
 };
 
-Module.prototype.setPWM = function() {
+Module.prototype.setPWM = function () {
     var queryString = [];
     var value = 0;
 
