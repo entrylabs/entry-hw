@@ -34,6 +34,7 @@ function Module()
     button2 : 0,
     button3 : 0,
     clap : 0,
+    sound : 0,
     isPlaying : 0,
     pickup : 0,
     animation : 0,
@@ -214,6 +215,13 @@ Module.prototype.handleLocalData = function(data)
         this.sendToEntry.pickup = (hw_controller.data[11] & 0x4);
         this.sendToEntry.animation = (hw_controller.data[11] & 0x40);
         this.sendToEntry.soundDirection = hw_controller.data[15]==0x04;
+
+        if (hw_controller.data[7] > 30) {
+          this.sendToEntry.sound = 1;
+        }
+        else {
+          this.sendToEntry.sound = 0;
+        }
 
         if(wait_action && this.sendToEntry.soundDirection)
         {
