@@ -10,7 +10,7 @@ var REPORT_VERSION = 0xf9;
 var DIGITAL_MESSAGE = 0x90;
 var DIGITAL_MESSAGE_SE = 0x91;
 var SONAR_MESSAGE = 0x63;
-var CONNECTION_STATE = 0xff;
+var RESET = 0xff;
 var ANALOG_REPORT = 0xc0;
 var DIGITAL_REPORT_LOW_CHANNEL = 0xd0;
 var DIGITAL_REPORT_HIGH_CHANNEL = 0xd1;
@@ -50,9 +50,11 @@ Module.prototype.validateLocalData = function (data) {
   return true;
 };
 
+
 Module.prototype.handleRemoteData = function (handler) {
   var digitalValue = this.remoteDigitalValue;
   this.digitalPinMode = handler.read('digitalPinMode');
+
   for (var port = 0; port < 14; port++) {
     digitalValue[port] = handler.read(port);
   }
@@ -89,7 +91,6 @@ Module.prototype.requestLocalData = function () {
   for (var dgIdx = 0; dgIdx < digiData.length; dgIdx++) {
     query.push(digiData[dgIdx]);
   }
-
   for (var pin = 0; pin < digPinMode.length; pin++) {
     switch (digPinMode[pin]) {
       case INPUT:
@@ -175,6 +176,7 @@ Module.prototype.handleLocalData = function (data) {
       digPinValue[8] = 0;
     } else if (LSB == SONAR_MESSAGE) {
       var pin = data[i + 2];
+      console.log("test: " + pin);
       digPinValue[pin] = data[i + 3] + (data[i + 4] << 7);
     } else {
       var pin = cmd & 0x0f;
