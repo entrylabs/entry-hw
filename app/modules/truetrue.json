@@ -22,7 +22,7 @@
     "hardware": {
 		"type": "bluetooth",
 		"control": "slave",
-		"duration": 20,
+		"duration": 1000,
         "vendor": "Microsoft",
         "baudRate": 115200
 	}
