@@ -10,8 +10,8 @@
 	"url": "http://www.xbot.co.kr",
 	"email": "xbotqna@gmail.com",
 	"driver": {
-		"win32-ia32": "XBOT/XBOT Monitor V3.msi",
-		"win32-x64": "XBOT/XBOT Monitor V3.msi"
+		"win32-ia32": "XBOT/XBOT.exe",
+		"win32-x64": "XBOT/XBOT.exe"
 	},
 	"entry": {
 		"protocol": "json"
