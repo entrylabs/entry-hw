@@ -34,6 +34,7 @@ function Module()
     button2 : 0,
     button3 : 0,
     clap : 0,
+    sound : 0,
     isPlaying : 0,
     pickup : 0,
     animation : 0,
@@ -215,6 +216,13 @@ Module.prototype.handleLocalData = function(data)
         this.sendToEntry.animation = (hw_controller.data[11] & 0x40);
         this.sendToEntry.soundDirection = hw_controller.data[15]==0x04;
 
+        if (hw_controller.data[7] > 30) {
+          this.sendToEntry.sound = 1;
+        }
+        else {
+          this.sendToEntry.sound = 0;
+        }
+
         if(wait_action && this.sendToEntry.soundDirection)
         {
           var sound_dr = (hw_controller.data[13]<<8) + hw_controller.data[12];
@@ -284,9 +292,9 @@ Module.prototype.handleRemoteData = function(handler)
     entry_controller.seq = handler.read(DashCmd.CMD_SEQ);
     if(entry_controller.seq == 0)
     {
-      // Entry에서 정지를 했을 때 더이상 움직이지 않도록 함.
+      // Entry 초기화.
       if (nowSeq != 0) {
-        sendBuffers.push([0xFF, 0x55, 0x05, 0x00, 0x02, 0x00, 0x00, 0x00, 0x0A]);
+        sendBuffers.push([0xFF, 0x55, 0x01, 0x07, 0x0A]);
       }
       nowSeq = 0;
     }
@@ -535,7 +543,7 @@ Module.prototype.getDashCommand = function(c, a, cnt, pa, pb, pc, pd)
             case DashParamCmd_Sound_Say.BOAT:           buffer.push(0x54, 0x55, 0x47, 0x42, 0x4f, 0x41, 0x54, 0x5f, 0x30, 0x31);  break;
             case DashParamCmd_Sound_Say.TRAIN:          buffer.push(0x54, 0x52, 0x41, 0x49, 0x4e, 0x5f, 0x57, 0x48, 0x49, 0x53);  break;
             case DashParamCmd_Sound_Say.BEEPS:          buffer.push(0x42, 0x4f, 0x54, 0x5f, 0x43, 0x55, 0x54, 0x45, 0x5f, 0x30);  break;
-            case DashParamCmd_Sound_Say.LASERS:         buffer.push(0x4f, 0x54, 0x5f, 0x43, 0x55, 0x54, 0x45, 0x5f, 0x30, 0x33);  break;
+            case DashParamCmd_Sound_Say.LASERS:         buffer.push(0x4c, 0x41, 0x53, 0x45, 0x52, 0x53, 0x00, 0x00, 0x00, 0x00);  break;
             case DashParamCmd_Sound_Say.GOBBLE:         buffer.push(0x47, 0x4f, 0x42, 0x42, 0x4c, 0x45, 0x5f, 0x30, 0x30, 0x31);  break;
             case DashParamCmd_Sound_Say.BUZZ:           buffer.push(0x55, 0x53, 0x5f, 0x4c, 0x49, 0x50, 0x42, 0x55, 0x5a, 0x5a);  break;
             case DashParamCmd_Sound_Say.AYYAIYAI:       buffer.push(0x43, 0x4f, 0x4e, 0x46, 0x55, 0x53, 0x45, 0x44, 0x5f, 0x31);  break;
