@@ -14,10 +14,12 @@ class BaseModule {
 
     requestInitialData() {}
 
+    // actual parameter is (data, config)
     checkInitialData() {
         return true;
     }
 
+    // actual parameter is (data)
     validateLocalData() {
         return true;
     }
