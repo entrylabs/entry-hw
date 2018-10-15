@@ -17,7 +17,7 @@
     "protocol": "json"
   },
   "hardware": {
-    "type": "bluetooth",
+    "type": "serial",
     "control": "slave",
     "vendor": "STMicroelectronics",
     "duration": 32,
