@@ -1,16 +1,16 @@
 {
-	"id": "050201",
+	"id": "050301",
 	"name": {
-		"en": "NEOBOT Senosor Theme",
-		"ko": "네오봇 센서 테마"
+		"en": "NEOBOT Robot Theme",
+		"ko": "네오봇 로봇 테마"
 	},
 	"platform": ["win32", "darwin"],
-	"icon" : "neobot_sensor_theme.png",
-	"module": "neobot_sensor_theme.js",
+	"icon" : "neobot_robot_theme.png",
+	"module": "neobot_robot_theme.js",
 	"url": "http://neobot.co.kr/",
 	"email": "neobot@neobot.co.kr",
 	"video": "https://goo.gl/hAXFZT",
-        "reconnect" : true,
+	"reconnect" : true,
 	"entry": {
 		"protocol": "json"
 	},
@@ -31,6 +31,6 @@
 		"control": "master",
 		"vendor": ["Microsoft", "STMicroelectronics"],
 		"duration": 32,
-		"baudRate": 9600
+		"baudRate": 115200
 	}
 }

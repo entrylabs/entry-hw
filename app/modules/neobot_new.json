@@ -1,8 +1,8 @@
 {
-	"id": "050101",
+	"id": "050102",
 	"name": {
-		"en": "NEOBOT",
-		"ko": "네오봇"
+		"en": "NEOBOT-NEW",
+		"ko": "네오봇(전용 동글)"
 	},
 	"platform": ["win32", "darwin"],
 	"icon" : "neobot.png",
@@ -15,15 +15,15 @@
 		"darwin-x64": "Mac_OSX_VCP_Driver/SiLabsUSBDriverDisk.dmg"
 	},
         "reconnect" : true,
-        "select_com_port" : true,
 	"entry": {
 		"protocol": "json"
 	},
 	"hardware": {
 		"pnpId" : "PID",
-		"type": "bluetooth",
+		"type": "serial",
 		"control": "master",
-		"vendor": ["neobot", "Silicon Laps", "Microsoft"],
+		"vendor": "Silicon Laps",
+		"duration": 32,
 		"baudRate": 115200
 	}
 }
