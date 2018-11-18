@@ -513,9 +513,9 @@ Module.prototype.handlerForEntry = function(handler)
         let target                  = handler.e(DataType.TARGET)                    ? handler.read(DataType.TARGET)                 : 0xFF;
         let lightMode_mode          = handler.e(DataType.LIGHT_MODE_MODE)           ? handler.read(DataType.LIGHT_MODE_MODE)        : 0;
         let lightMode_interval      = handler.e(DataType.LIGHT_MODE_INTERVAL)       ? handler.read(DataType.LIGHT_MODE_INTERVAL)    : 0;
-        let lightColor_r            = 50;
-        let lightColor_g            = 200;
-        let lightColor_b            = 150;
+        let lightColor_r            = 50;       // 추후 변경할 것
+        let lightColor_g            = 200;      // 추후 변경할 것
+        let lightColor_b            = 150;      // 추후 변경할 것
         
         let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
         let dataLength = 6;                     // 데이터의 길이
@@ -620,8 +620,13 @@ Module.prototype.handlerForEntry = function(handler)
         let lightColor_r            = handler.e(DataType.LIGHT_COLOR_R)             ? handler.read(DataType.LIGHT_COLOR_R)              : 0;
         let lightColor_g            = handler.e(DataType.LIGHT_COLOR_G)             ? handler.read(DataType.LIGHT_COLOR_G)              : 0;
         let lightColor_b            = handler.e(DataType.LIGHT_COLOR_B)             ? handler.read(DataType.LIGHT_COLOR_B)              : 0;
-        let lightMode_mode          = handler.e(DataType.LIGHT_MODE_MODE)           ? handler.read(DataType.LIGHT_MODE_MODE)            : 0x12;
-        let lightMode_interval      = 220;      // 밝기
+        let lightMode_mode          = handler.e(DataType.LIGHT_MODE_MODE)           ? handler.read(DataType.LIGHT_MODE_MODE)            : 0;
+        let lightMode_interval      = 220;      // mode가 hold인 경우 interval은 밝기를 의미합니다.
+
+        if( (lightMode_mode == 0x15) || (lightMode_mode == 0x45) )      // EyeDimming = 0x15, ArmDimming = 0x45
+        {
+            lightMode_interval = 10;
+        }
 
         let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
         let dataLength = 6;                     // 데이터의 길이

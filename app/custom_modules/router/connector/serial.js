@@ -15,7 +15,9 @@ Connector.prototype.open = function(port, options, callback) {
 	_options.stopBits = options.stopBits || options.stopbits || 1;
 	_options.bufferSize = options.bufferSize || options.buffersize || 65536;
 	if(options.delimiter) {
-		_options.parser = serialport.parsers.readline(options.delimiter);
+		_options.parser = serialport.parsers.readline(options.delimiter, options.encoding);
+	} else if(options.byteDelimiter) {
+		_options.parser = serialport.parsers.byteDelimiter(options.byteDelimiter);
 	}
 	var flowcontrol = options.flowControl || options.flowcontrol;
 	if(flowcontrol === 'hardware') {

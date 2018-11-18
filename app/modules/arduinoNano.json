@@ -5,13 +5,13 @@
         "ko": "아두이노 Nano"
     },
     "platform": ["win32", "darwin"],
-    "icon" : "arduinoNano.png",
+    "icon": "arduinoNano.png",
     "module": "arduinoNano.js",
     "driver": {
         "win32-ia32": "arduino/dpinst-x86.exe",
         "win32-x64": "arduino/dpinst-amd64.exe"
     },
-    "reconnect" : true,
+    "reconnect": true,
     "firmwareBaudRate": 57600,
     "firmware": "arduino_nano",
     "entry": {

@@ -143,7 +143,7 @@ void parseData() {
   int port = readBuffer(6);
   switch(action){
     case GET:{
-      if(device == ULTRASONIC){
+      if(device == ULTRASONIC) {
         if(!isUltrasonic) {
           setUltrasonicMode(true);
           trigPin = readBuffer(6);
@@ -157,6 +157,8 @@ void parseData() {
           int trig = readBuffer(6);
           int echo = readBuffer(7);
           if(trig != trigPin || echo != echoPin) {
+            digitals[trigPin] = 0;
+            digitals[echoPin] = 0;
             trigPin = trig;
             echoPin = echo;
             digitals[trigPin] = 1;
@@ -170,6 +172,7 @@ void parseData() {
         setUltrasonicMode(false);
         digitals[port] = 0;
       } else {
+        setUltrasonicMode(false);
         digitals[port] = 0;
       }
     }

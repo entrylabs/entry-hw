@@ -1,21 +1,26 @@
 {
-	"id": "1B0101",
+	"id": "1D0101",
 	"name": {
 		"en": "JDKit",
-		"ko": "JDKit"
+		"ko": "제이디키트"
 	},
 	"platform": ["win32", "darwin"],
 	"icon" : "jdkit.png",
 	"module": "jdkit.js",
 	"url": "http://www.junilab.co.kr",
 	"driver": {
-		"win32-ia32": "arduino/dpinst-x86.exe",
-		"win32-x64": "arduino/dpinst-amd64.exe"
+		"win32-ia32": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
+		"win32-x64": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
+		"darwin-x64": "CH34x_Install_MAC_10_9_AND_ABOVE/CH34x_Install_V1.3.pkg"
 	},
-   "reconnect" : true,
+	"reconnect" : true,
+	"select_com_port": {
+		"win32": false,
+		"darwin": true
+	},
 	"firmware": "JDKit",
 	"firmwareBaudRate": 19200,
-  "firmwareMCUType": "atmega168",
+    "firmwareMCUType": "atmega168",
 	"entry": {
 		"protocol": "json"
 	},
