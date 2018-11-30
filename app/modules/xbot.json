@@ -9,9 +9,10 @@
 	"module": "xbot.js",
 	"url": "http://www.xbot.co.kr",
 	"email": "xbotqna@gmail.com",
+	"video": "https://goo.gl/xyyZMo",
 	"driver": {
-		"win32-ia32": "compat/SETUP.EXE",
-		"win32-x64": "compat/SETUP.EXE",
+		"win32-ia32": "XBOT/XBOT.exe",
+		"win32-x64": "XBOT/XBOT.exe",
 		"darwin-x64": "CH34x_Install_MAC_10_9_AND_ABOVE/CH34x_Install.pkg"
 	},	
 	"entry": {

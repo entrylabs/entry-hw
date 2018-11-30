@@ -1,7 +1,7 @@
 {
     "name": "entry_hw",
-    "version": "1.6.21",
-    "description": "엔트리 하드웨어 연결 프로그램",
+    "version": "1.6.30",
+    "description": "엔트리 하드웨어 연결 프로그램1",
     "author": "EntryLabs",
     "main": "app/index.js",
     "scripts": {
@@ -9,8 +9,8 @@
         "clean": "rimraf dist",
         "start": "set NODE_ENV=development&&electron -d app",
         "pack:win32": "build --arch ia32",
-        "make": "cross-env CSC_NAME=\"Developer ID Application: Connect Foundation (DLFUSDA3L5)\"&&build",
-        "make:osx": "cross-env CSC_NAME=\"Developer ID Application: Connect Foundation (DLFUSDA3L5)\"&&build",
+        "make": "cross-env CSC_NAME=\"Connect Foundation (DLFUSDA3L5)\"&&build",
+        "make:osx": "cross-env CSC_NAME=\"Connect Foundation (DLFUSDA3L5)\"&&build",
         "make:win32": "build --arch ia32 --platform=win32 && makensis ./build/entry-hw.nsi"
     },
     "build": {

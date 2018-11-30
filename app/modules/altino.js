@@ -81,7 +81,7 @@ Module.prototype.init = function(handler, config) {
 
 Module.prototype.lostController = function() {}
 
-Module.prototype.evevtContoller = function(state) {
+Module.prototype.eventController = function(state) {
     if (state === 'connected') {
         clearInterval(this.sensing);
     }

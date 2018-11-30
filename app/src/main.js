@@ -6,6 +6,7 @@
     window.modal = new Modal();
     const fs = require('fs');
     const path = require('path');
+    const _ = require('lodash');
     var options = {};
     var viewMode = 'main';
     var firmwareCount = 0;
@@ -20,9 +21,9 @@
             localStorage.removeItem('hasNewVersion');
             modal
                 .alert(
-                    Lang.Msgs.version_update_msg1.replace(
+                    Lang.Msgs.version_update_msg2.replace(
                         /%1/gi,
-                        hasNewVersion
+                        lastCheckVersion
                     ),
                     Lang.General.update_title,
                     {
@@ -43,8 +44,8 @@
             ipcRenderer.on(
                 'checkUpdateResult',
                 (e, { hasNewVersion, version } = {}) => {
-                    if (hasNewVersion && version != lastCheckVersion) {
-                        localStorage.setItem('hasNewVersion', version);
+                    if (hasNewVersion && version !== lastCheckVersion) {
+                        localStorage.setItem('hasNewVersion', hasNewVersion);
                         localStorage.setItem('lastCheckVersion', version);
                     }
                 }
@@ -116,6 +117,7 @@
 
     $('#reference .emailTitle').text(translator.translate('E-Mail : '));
     $('#reference .urlTitle').text(translator.translate('WebSite : '));
+    $('#reference .videoTitle').text(translator.translate('Video : '));
 
     $('#opensource_label').text(translator.translate('Opensource lincense'));
     $('#version_label').text(translator.translate('Version Info'));
@@ -172,9 +174,8 @@
         countRobot: 0,
         showRobotList: function() {
             viewMode = 'main';
-            if (flasherProcess) {
-                flasherProcess.kill();
-                flasherProcess = undefined;
+            if (flasher.flasherProcess) {
+                flasher.kill();
             }
             $('#alert')
                 .stop()
@@ -363,6 +364,26 @@
                         $('#urlArea').hide();
                     }
 
+                    if (config.video) {
+                        let video = config.video;
+                        if(typeof video === 'string') {
+                            video = [video];
+                        }
+                        $('#video').empty();
+                        video.forEach((link, idx) => {
+                            $('#video').append(`<span>${link}</span><br/>`);
+                            $('#videoArea').show();
+                        });
+                        $('#video').off('click');
+                        $('#video').on('click', 'span', (e) => {
+                            const index = $('#video span').index(e.target);
+                            console.log(video, index, video[index]);
+                            shell.openExternal(video[index]);
+                        });
+                    } else {
+                        $('#videoArea').hide();
+                    }
+
                     if (config.email) {
                         $('#email').text(config.email);
                         $('#emailArea').show();
@@ -407,13 +428,7 @@
                     }
                     if (config.firmware) {
                         $('#firmware').show();
-                        if (typeof config.firmware === 'string') {
-                            var $dom = $('<button class="hwPanelBtn">');
-                            $dom.text(translator.translate('Install Firmware'));
-                            $dom.prop('firmware', config.firmware);
-                            $dom.prop('config', config);
-                            $('#firmwareButtonSet').append($dom);
-                        } else if (Array.isArray(config.firmware)) {
+                        if (Array.isArray(config.firmware)) {
                             config.firmware.forEach(function(firmware, idx) {
                                 var $dom = $('<button class="hwPanelBtn">');
                                 $dom.text(
@@ -423,6 +438,12 @@
                                 $dom.prop('config', config);
                                 $('#firmwareButtonSet').append($dom);
                             });
+                        } else {
+                            var $dom = $('<button class="hwPanelBtn">');
+                            $dom.text(translator.translate('Install Firmware'));
+                            $dom.prop('firmware', config.firmware);
+                            $dom.prop('config', config);
+                            $('#firmwareButtonSet').append($dom);
                         }
                     }
                 });
@@ -453,20 +474,19 @@
                 var port = prevPort || router.connector.sp.path;
                 var baudRate = config.firmwareBaudRate;
                 var MCUType = config.firmwareMCUType;
+                var tryFlasherNumber = config.tryFlasherNumber || 10;
                 $('#firmwareButtonSet').hide();
                 ui.showAlert(translator.translate('Firmware Uploading...'));
                 router.close();
                 setTimeout(function() {
-                    flasherProcess = flasher.flash(
-                        firmware,
-                        port,
-                        {
+                    flasher
+                        .flash(firmware, port, {
                             baudRate: baudRate,
                             MCUType: MCUType,
-                        },
-                        function(error, stdout, stderr) {
+                        })
+                        .then(([ error, stdout, stderr ]) => {
                             if (error) {
-                                if (firmwareCount > 10) {
+                                if (firmwareCount >= tryFlasherNumber - 1) {
                                     firmwareCount = 0;
                                     $('#firmwareButtonSet').show();
                                     ui.showAlert(
@@ -493,10 +513,15 @@
                                 ui.showAlert(
                                     translator.translate('Firmware Uploaded!')
                                 );
-                                router.startScan(config);
+                                let timeout = 0;
+                                if (_.isPlainObject(firmware) && firmware.afterDelay) {
+                                    timeout = firmware.afterDelay;
+                                }
+                                setTimeout(() => {
+                                    router.startScan(config);    
+                                }, timeout);
                             }
-                        }
-                    );
+                        });
                 }, 500);
             } catch (e) {
                 $('#firmwareButtonSet').show();
@@ -553,7 +578,7 @@
                 var en = hardware.name.en.toLowerCase();
                 var ko = hardware.name.ko.toLowerCase();
                 var text = searchText.toLowerCase();
-                if (ko.indexOf(text) > -1 || en.indexOf(text) > -1) {
+                if ((ko.indexOf(text) > -1 || en.indexOf(text) > -1) && hardware.platform.indexOf(process.platform) > -1) {
                     ui.showRobot(hardware.id);
                     isNotFound = false;
                 } else {
@@ -752,7 +777,7 @@
             router.close();
         } else if (
             state === 'before_connect' &&
-            window.currentConfig.firmware
+            window.currentConfig && window.currentConfig.firmware
         ) {
             ui.showAlert(
                 translator.translate('Connecting to hardware device.') +

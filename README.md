@@ -1,7 +1,7 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/5qp10j3j20xyf7c0/branch/build?svg=true)](https://ci.appveyor.com/project/kimorkim/entry-hw/branch/build)
 
 # 엔트리 하드웨어 연결 프로그램(entry-hw)
-entry-hw는 엔트리 교육연구소에서 개발한 엔트리와 하드웨어를 연동하기 위한 프로그램  입니다. 엔트리 사이트에 접속하시면 엔트리를 사용한 블록코딩 환경과 하드웨어를 연동하는 모습을 확인해 볼 수 있습니다.
+entry-hw는 엔트리와 하드웨어를 연동하기 위한 프로그램 입니다. 엔트리 사이트에 접속하시면 엔트리를 사용한 블록코딩 환경과 하드웨어를 연동하는 모습을 확인해 볼 수 있습니다.
 
 [문서페이지](https://entrylabs.github.io/docs/)
 
@@ -9,7 +9,7 @@ entry-hw는 엔트리 교육연구소에서 개발한 엔트리와 하드웨어�
 
 The MIT License (MIT)
 
-Copyright (c) 2018 Entrylabs
+Copyright(c) 2018 CONNECT.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

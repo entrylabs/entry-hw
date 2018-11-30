@@ -9,6 +9,7 @@
     "module": "entry.js",
     "url": "http://www.neweducation.co.kr",
     "email": "join@neweducation.co.kr",
+    "video": "https://goo.gl/qSKsVi",
     "driver": [{
         "win32-ia32": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
         "win32-x64": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",

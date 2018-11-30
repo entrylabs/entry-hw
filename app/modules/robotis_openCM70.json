@@ -9,6 +9,7 @@
 	"module": "robotis_openCM70.js",
 	"url": "http://www.robotis.com",
 	"email": "kigate@robotis.com",
+	"video": "https://goo.gl/QaXNYy",
 	"reconnect" : true,
 	"entry": {
 		"protocol": "json"

@@ -14,7 +14,7 @@
 !define PRODUCT_NAME "Entry_HW"
 !define PROTOCOL_NAME "entryhw"
 !define APP_NAME "Entry_HW.exe"
-!define PRODUCT_VERSION "1.6.21"
+!define PRODUCT_VERSION "1.6.30"
 !define PRODUCT_PUBLISHER "EntryLabs"
 !define PRODUCT_WEB_SITE "http://www.play-entry.org/"
  
@@ -98,7 +98,9 @@ Section $(TEXT_ENTRY_TITLE) SectionEntry
   
   ; Set output path to the installation directory.
   ;SetOutPath $INSTDIR
-  
+
+  ; Delete roaming/entry_hw for initialize update check logic
+  RMDir /r "$PROFILE\AppData\Roaming\entry_hw"
 
   ; Put file there
   SetOutPath "$INSTDIR\locales"
@@ -182,6 +184,8 @@ Section "Uninstall"
   RMDir "$SMPROGRAMS\EntryLabs\${PRODUCT_NAME}"
   RMDir /r "$INSTDIR"
 
+  ; Remove roaming/entry_hw directory for next version's localStorage
+  RMDir /r "$PROFILE\AppData\Roaming\entry_hw"
 SectionEnd
 
 Function LaunchLink

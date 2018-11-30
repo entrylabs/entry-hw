@@ -227,59 +227,38 @@ Module.prototype.requestLocalData = function() {
 
 Module.prototype.handleLocalData = function(data) {
     // Robot data -> EntryHW, save to sensory data
+	var str = '';
+	var j = 100;
+	var sensory = this.sensory;
 
-    var str = '';
     if (data.length) {
         for (var i = 0; i < data.length; i++) {
             str = str + this.buf2hex(data[i]);
+			if( this.buf2hex(data[i]) == '5F' && this.buf2hex(data[i+1]) == '7E' && this.buf2hex(data[i+18]) == '0D' && this.buf2hex(data[i+19]) == '0A' ){
+				j = i;
+				sensory.L2 = data[j+2];
+				sensory.L1 = data[j+3];
+				sensory.R1 = data[j+4];
+				sensory.R2 = data[j+5];
+				sensory.ProxiLeft = data[j+6];
+				sensory.ProxiRight = data[j+7];
+
+				sensory.AccX = data[j+8];
+				sensory.AccY = data[j+9];
+				sensory.AccZ = data[j+10];
+				sensory.AccStatus = data[j+11];
+				
+				sensory.BColorKey = data[j+14];
+				sensory.BColorRed = data[j+15];
+				sensory.BColorGreen = data[j+16];
+				sensory.BColorBlue = data[j+17];
+				sensory.FColorLeftKey = data[j+12];
+				sensory.FColorRightKey = data[j+13];
+
+			}
         }
-        //console.log("D:"+str);
-        //console.log("L:"+data.length);
     }
-    /*
-	if(data.length != 19) return;
-
-	if(data[0] != 0x7E) return; // invalid data
-	var sensory = this.sensory;
-	
-	sensory.L2 = data[1];
-	sensory.L1 = data[2];
-	sensory.R1 = data[3];
-	sensory.R2 = data[4];
-	sensory.ProxiLeft = data[5];
-	sensory.ProxiRight = data[6];
-	sensory.AccX = data[7];
-	sensory.AccY = data[8];
-	sensory.AccZ = data[9];
-	sensory.AccStatus = data[10];
-	sensory.BColorKey = data[13];
-	sensory.BColorRed = data[14];
-	sensory.BColorGreen = data[15];
-	sensory.BColorBlue = data[16];
-	sensory.FColorLeftKey = data[11];
-	sensory.FColorRightKey = data[12];
-*/
-    if (data.length != 20) return;
-
-    if (data[0] != 0x5f) return; // invalid data
-    var sensory = this.sensory;
-
-    sensory.L2 = data[2];
-    sensory.L1 = data[3];
-    sensory.R1 = data[4];
-    sensory.R2 = data[5];
-    sensory.ProxiLeft = data[6];
-    sensory.ProxiRight = data[7];
-    sensory.AccX = data[8];
-    sensory.AccY = data[9];
-    sensory.AccZ = data[10];
-    sensory.AccStatus = data[11];
-    sensory.BColorKey = data[14];
-    sensory.BColorRed = data[15];
-    sensory.BColorGreen = data[16];
-    sensory.BColorBlue = data[17];
-    sensory.FColorLeftKey = data[12];
-    sensory.FColorRightKey = data[13];
+   
 };
 
 //0xff 0x55 0x6 0x0 0x1 0xa 0x9 0x0 0x0 0xa
