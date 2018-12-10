@@ -1,7 +1,7 @@
 {
 	"id": "050101",
 	"name": {
-		"en": "Neo Bot",
+		"en": "NEOBOT",
 		"ko": "네오봇"
 	},
 	"platform": ["win32", "darwin"],
@@ -9,8 +9,13 @@
 	"module": "neobot.js",
 	"url": "http://neobot.co.kr/",
 	"email": "neobot@neobot.co.kr",
-    "reconnect" : true,
-    "select_com_port" : true,
+	"driver": {
+		"win32-ia32": "CP210x_VCP_Windows/CP210xVCPInstaller_x86.exe",
+		"win32-x64": "CP210x_VCP_Windows/CP210xVCPInstaller_x64.exe",
+		"darwin-x64": "Mac_OSX_VCP_Driver/SiLabsUSBDriverDisk.dmg"
+	},
+	"reconnect" : true,
+	"select_com_port" : true,
 	"entry": {
 		"protocol": "json"
 	},
@@ -18,7 +23,7 @@
 		"pnpId" : "PID",
 		"type": "bluetooth",
 		"control": "master",
-		"vendor": "neobot",
+		"vendor": ["neobot", "Silicon Laps", "Microsoft"],
 		"baudRate": 115200
 	}
 }

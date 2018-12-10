@@ -135,6 +135,8 @@ void loop()
   //mySerial.write("b");
   //delay(1000);  
 
+  // lcd.print("123");
+
 #if 0
   if( isSoundInmode == false )
   {

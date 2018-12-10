@@ -6,10 +6,30 @@ var fs = require('fs');
 var Utils = require('../../src/js/utils');
 var platform = process.platform;
 
+var copyRecursiveSync = function(src, dest) {
+    var exists = fs.existsSync(src);
+    var stats = exists && fs.statSync(src);
+    var isDirectory = exists && stats.isDirectory();
+    if (exists && isDirectory) {
+        if(!fs.existsSync(dest)) {
+            fs.mkdirSync(dest);
+        }
+        fs.readdirSync(src).forEach(function(childItemName) {
+            copyRecursiveSync(path.join(src, childItemName),
+                        path.join(dest, childItemName));
+        });
+    } else {
+        var data = fs.readFileSync(src);
+        fs.writeFileSync(dest, data, {
+            mode: 0o755
+        });
+    }
+};
+
 class Flasher {
     constructor() {
         this.flasherProcess;
-        this.avrFileList = ['avrdude', 'avrdude.conf', 'avrdude.exe'];
+        this.avrFileList = ['avrdude', 'avrdude.conf', 'avrdude.exe', 'libusb0.dll'];
     }
 
     getAppPath(firmware) {
@@ -18,41 +38,8 @@ class Flasher {
             var asarIndex = __dirname.indexOf('app.asar');
             if (asarIndex > -1) {
                 var asarPath = __dirname.substr(0, asarIndex);
-                Utils.mkdir(path.join(asarPath, 'flasher'))
-                    .then(() => {
-                        const copyJob = [];
-                        copyJob.push(
-                            Utils.copyFile(
-                                path.join(__dirname, `${firmwareName}.hex`),
-                                path.join(
-                                    asarPath,
-                                    'flasher',
-                                    `${firmwareName}.hex`
-                                )
-                            )
-                        );
-                        for (let i = 0; i < this.avrFileList.length; i++) {
-                            copyJob.push(
-                                Utils.copyFile(
-                                    path.join(__dirname, this.avrFileList[i]),
-                                    path.join(
-                                        asarPath,
-                                        'flasher',
-                                        this.avrFileList[i]
-                                    ),
-                                    { mode: 0o755 }
-                                )
-                            );
-                        }
-                        return Promise.all(copyJob).then(() => {
-                            return new Promise((resolve, reject) => {
-                                resolve(asarPath);
-                            });
-                        });
-                    })
-                    .then(() => {
-                        resolve(asarPath);
-                    });
+                copyRecursiveSync(__dirname, path.join(asarPath, 'flasher'));
+                resolve(asarPath);
             } else {
                 resolve(path.join(__dirname, '..'));
             }
@@ -114,7 +101,9 @@ class Flasher {
                 const destPath = dialog.showOpenDialog({
                     properties: ['openDirectory'],
                 });
-
+                if(!destPath) {
+                    return resolve(['경로 미선택']);
+                }
                 Utils.copyFile(
                     path.join(appPath, 'flasher', `${firmware.name}.hex`),
                     path.join(destPath[0], `${firmware.name}.hex`)

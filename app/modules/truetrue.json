@@ -9,6 +9,7 @@
     "module": "truetrue.js",
     "url": "https://www.truetruebot.com",
     "email": "truetrue@sigongmedia.co.kr",
+    "video": "https://goo.gl/6f1VwT",
     "driver": {
         "win32-ia32": "truetrue/TrueTrueDrivers.exe",
         "win32-x64": "truetrue/TrueTrueDrivers.exe",

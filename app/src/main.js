@@ -21,9 +21,9 @@
             localStorage.removeItem('hasNewVersion');
             modal
                 .alert(
-                    Lang.Msgs.version_update_msg1.replace(
+                    Lang.Msgs.version_update_msg2.replace(
                         /%1/gi,
-                        hasNewVersion
+                        lastCheckVersion
                     ),
                     Lang.General.update_title,
                     {
@@ -44,8 +44,8 @@
             ipcRenderer.on(
                 'checkUpdateResult',
                 (e, { hasNewVersion, version } = {}) => {
-                    if (hasNewVersion && version != lastCheckVersion) {
-                        localStorage.setItem('hasNewVersion', version);
+                    if (hasNewVersion && version !== lastCheckVersion) {
+                        localStorage.setItem('hasNewVersion', hasNewVersion);
                         localStorage.setItem('lastCheckVersion', version);
                     }
                 }
@@ -117,6 +117,7 @@
 
     $('#reference .emailTitle').text(translator.translate('E-Mail : '));
     $('#reference .urlTitle').text(translator.translate('WebSite : '));
+    $('#reference .videoTitle').text(translator.translate('Video : '));
 
     $('#opensource_label').text(translator.translate('Opensource lincense'));
     $('#version_label').text(translator.translate('Version Info'));
@@ -363,6 +364,26 @@
                         $('#urlArea').hide();
                     }
 
+                    if (config.video) {
+                        let video = config.video;
+                        if(typeof video === 'string') {
+                            video = [video];
+                        }
+                        $('#video').empty();
+                        video.forEach((link, idx) => {
+                            $('#video').append(`<span>${link}</span><br/>`);
+                            $('#videoArea').show();
+                        });
+                        $('#video').off('click');
+                        $('#video').on('click', 'span', (e) => {
+                            const index = $('#video span').index(e.target);
+                            console.log(video, index, video[index]);
+                            shell.openExternal(video[index]);
+                        });
+                    } else {
+                        $('#videoArea').hide();
+                    }
+
                     if (config.email) {
                         $('#email').text(config.email);
                         $('#emailArea').show();
@@ -453,6 +474,7 @@
                 var port = prevPort || router.connector.sp.path;
                 var baudRate = config.firmwareBaudRate;
                 var MCUType = config.firmwareMCUType;
+                var tryFlasherNumber = config.tryFlasherNumber || 10;
                 $('#firmwareButtonSet').hide();
                 ui.showAlert(translator.translate('Firmware Uploading...'));
                 router.close();
@@ -464,7 +486,7 @@
                         })
                         .then(([ error, stdout, stderr ]) => {
                             if (error) {
-                                if (firmwareCount > 10) {
+                                if (firmwareCount >= tryFlasherNumber - 1) {
                                     firmwareCount = 0;
                                     $('#firmwareButtonSet').show();
                                     ui.showAlert(
@@ -556,7 +578,7 @@
                 var en = hardware.name.en.toLowerCase();
                 var ko = hardware.name.ko.toLowerCase();
                 var text = searchText.toLowerCase();
-                if (ko.indexOf(text) > -1 || en.indexOf(text) > -1) {
+                if ((ko.indexOf(text) > -1 || en.indexOf(text) > -1) && hardware.platform.indexOf(process.platform) > -1) {
                     ui.showRobot(hardware.id);
                     isNotFound = false;
                 } else {
