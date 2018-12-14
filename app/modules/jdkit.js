@@ -55,7 +55,7 @@ Module.prototype.requestLocalData = function() {
 Module.prototype.handleLocalData = function(data) { 
 		var sensorData = this.sensorData;
 
-		if((data[0] == 0xF0) && (data.length==11)){
+		if((data[0] == 0xF0) && ((data.length==11) || (data.length==15))){
 				data.forEach(function (value, idx) {
         		sensorData[idx] = value;
     		});
@@ -63,6 +63,25 @@ Module.prototype.handleLocalData = function(data) {
 };
 
 Module.prototype.requestRemoteData = function(handler) {
+			for (var i = 1; i < 11; i++) {
+        var value = this.sensorData[i];
+        if((i==1) || (i==3))
+        		handler.write('A' + i, 100-value);
+        else if(i==4)
+        		handler.write('A' + i, value-100);
+        else if(i==5)
+        		handler.write('A' + i, (~value)&0xFF);
+        else
+        		handler.write('A' + i, value);
+    }
+    var n = this.sensorData[8];
+    if(n > 127)	n = -1*(256-n);
+    handler.write('A8', n);
+    
+    n = this.sensorData[9];
+    if(n > 127)	n = -1*(256-n);
+    handler.write('A9', n);
+		//console.log(this.sensorData.length + ' ' + this.sensorData[7] + ' ' + this.sensorData[8] + ' ' + this.sensorData[9]);
 		handler.write("CMD", this.sensorData);     
 };
 

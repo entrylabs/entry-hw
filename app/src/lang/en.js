@@ -3948,6 +3948,7 @@ Lang.Menus = {
     "chocopi": "ChocoPi",
     "coconut": "coconut",
     "jdkit": "JDKit",
+    "jdcode": "JDCode",
     "practical_course": "Textbook",
     "entry_scholarship_title": "Entry scholarly data",
     "entry_scholarship_content": "Entry collaborates with researchers to strengthen learning effectiveness. Check out our data.",

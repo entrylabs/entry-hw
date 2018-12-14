@@ -3948,6 +3948,7 @@ Lang.Menus = {
     "chocopi": "초코파이보드",
     "coconut": "코코넛",
     "jdkit": "제이디키트",
+    "jdcode": "제이디코드",
     "practical_course": "교과용 만들기",
     "entry_scholarship_title": "엔트리 학술 자료",
     "entry_scholarship_content": "엔트리는 대학/학회 등과 함께 다양한 연구를 진행하여 전문성을 강화해나가고 있습니다. 엔트리에서 제공하는 연구용 자료를 확인해보세요",
