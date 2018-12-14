@@ -505,10 +505,10 @@ Module.prototype.setDisplay = function(moduleValue) {
 
     var clear = {
         c : 0x04,
-        s : 20,
+        s : 21,
         d : moduleValue.id,
-        b : "AAA=",
-        l : 2
+        b : "AQ==",
+        l : 1
     };
     this.requestData.push(JSON.stringify(clear));
 
