@@ -22,7 +22,10 @@
 	}],
     "firmware": [{
         "name": "smartboard",
-        "translate": "유/무선 통합 펌웨어"
+        "translate": "펌웨어"
+    },  {
+        "name": "smartboard_i2c",
+        "translate": "i2c 펌웨어"
     }],
 	"entry": {
 		"protocol": "json"
