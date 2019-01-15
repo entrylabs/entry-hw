@@ -1,16 +1,16 @@
 {
-	"id": "070201",
+	"id": "070301",
 	"name": {
-		"en": "ROBOTIS IoT",
-		"ko": "로보티즈 IoT"
+		"en": "ROBOTIS InfoRobot",
+		"ko": "로보티즈 실과"
 	},
 	"platform": ["win32"],
-	"icon" : "robotis_openCM70.png",
-	"module": "robotis_openCM70.js",
+	"icon" : "robotis_openCM70EDU.png",
+	"module": "robotis_openCM70EDU.js",
 	"url": "http://www.robotis.com",
 	"email": "kjs@robotis.com",
-	"video": "https://goo.gl/QaXNYy",
 	"reconnect" : true,
+	"select_com_port" : true,
 	"entry": {
 		"protocol": "json"
 	},
