@@ -128,7 +128,7 @@ Module.prototype.requestInitialData = function() {
 
     // ping : 0xFF, 0xFF, 0xFD, 0x00, 0xC8, 0x03, 0x00, 0x01, 0x3B, 0xFA
     //this.robotisBuffer.push([INST_READ, 87, 1, 0], [INST_READ, 87, 1, 0], [INST_READ, 87, 1, 0], [INST_WRITE, 21, 1, 8]);
-    this.robotisBuffer.push([INST_READ, 87, 1, 0], [INST_READ, 87, 1, 0], [INST_READ, 21, 1, 0]);
+    this.robotisBuffer.push([INST_READ, 87, 1, 0], [INST_READ, 87, 1, 0], [INST_WRITE, 21, 1, 8]);
     return this.readPacket(200, 87, 1);
 };
 
@@ -313,7 +313,6 @@ Module.prototype.requestLocalData = function() {
     } else {
 
             var data = this.robotisBuffer.shift();
-            //console.log("######## 1 : " + data);
         if (data == null) {
             return sendBuffer;
         }
@@ -321,7 +320,7 @@ Module.prototype.requestLocalData = function() {
         var address = data[1];
         var length = data[2];
         var value = data[3];
-        console.log('send address : ' + address + ', ' + value + ", " + length); // add by kjs 170426
+        //console.log('send address : ' + address + ', ' + value + ", " + length); // add by kjs 170426
         if (instruction == INST_WRITE) {
             if (length == 1) {
                 sendBuffer = this.writeBytePacket(200, address, value);
@@ -353,7 +352,7 @@ Module.prototype.requestLocalData = function() {
             if (sendBuffer[7] == 0x02) {
                 this.receiveAddress = address;
                 this.receiveLength = length;
-                this.defaultLength = data[4];
+                this.defaultLength = data[2];
                 isReadDataArrived = false;                
                 if (this.varTimeout != null) {
                     clearTimeout(this.varTimeout);
@@ -364,7 +363,6 @@ Module.prototype.requestLocalData = function() {
                 }, 100);
             }
         }
-        //console.log("send buffer : " + sendBuffer);
     }
     /* // original 170824
      var data = this.robotisBuffer.shift();
@@ -424,31 +422,102 @@ Module.prototype.requestLocalData = function() {
     */
     return sendBuffer;
 };
-
-Module.prototype.handleLocalData = function(data) { // data: Native Buffer
-    for (var i = 0; i < data.length; i++) {
-        this.receiveBuffer.push(data[i]);        
+Module.prototype.packetChecker = function (data) {
+    if(data[0] == 0xFF && data[1] == 0xFF  && data[2] == 0xFD)
+    {
+        return true;
+    }else
+    {
+        return false;
     }
-    //console.log("receiveBuffer : " + this.receiveBuffer);
-    //console.log("length : " + this.receiveBuffer.length);
-    /*if (this.receiveBuffer.length < 80) {
-        return;
-    }*/
+};
+Module.prototype.handleLocalData = function (data) { // data: Native Buffer    
+    console.log("data!!!! " + data.length + this.packetChecker(data));
+
+    var countData = 0;// 시작패킷 위치를 알기 위한 변수
+
+    if (this.packetChecker(data)) // 시작 패킷이 들어오면
+    {
+        for (var i = 0; i < data.length; i++) {
+            this.receiveBuffer.push(data[i]);
+        }
+        if (data.length < 6) // 패킷 length 정보 까지 들어오지 않으면 
+            return;
+        else if (this.receiveBuffer[5] != (this.receiveBuffer.length - 7)) // 패킷 Length 정보와 패킷 길이가 맞지 않으면
+        {
+            return;
+        }
+    } else { // 시작 패킷이 아니면
+        var ix = 0;
+        tempArray = [];
+        for (var j = 0; j < data.length; j++)
+        {
+            tempArray.push(data[j]);
+        }
+        while (!this.packetChecker(tempArray) && tempArray.length > 0) // 시작패킷을 발견할때까지 버퍼에 삽입
+        {
+            this.receiveBuffer.push(tempArray.shift());
+            countData = ix;
+        }
+        if(this.packetChecker(this.receiveBuffer))
+        {
+            if (this.receiveBuffer[5] != (this.receiveBuffer.length - 7))
+                return;
+        }
+    }
 
     /*
-    if (this.receiveBuffer.length != 80) {
-        console.log("!!!!!!!!!!!!!!warning!!!!!!!!!!!!!!!!!! : " + this.receiveBuffer.length);
+    console.log("### kjs data : " + this.receiveBuffer);
+    console.log("count before " + this.receiveBuffer.length);
+    var count = this.receiveBuffer.length;
+    for (var jj = 0 ; jj < count; jj++)
+    {
+        this.receiveBuffer.shift();
     }
-    else {
-        console.log(this.receiveBuffer.length);
+    console.log("count after " + this.receiveBuffer.length);
+    return;*/
+    /*
+    if (this.packetChecker(data)) // 시작 패킷이 들어오면
+    {
+        if(data.length > 5) // Length 정보 패킷까지 들어왔다면
+        {
+            if((data.length-7) == data[5]) // data의 length와 패킷의 length정보가 일치한다면
+            {
+                for(var i = 0; i< data.length; i++)
+                {
+                    this.receiveBuffer.push(data[i]);
+                }
+            }else // 그렇지 않으면 일단 data를 버퍼에 넣고 종료
+            {
+                for (var i = 0; i < data.length; i++) {
+                    this.receiveBuffer.push(data[i]);
+                }
+                return;
+            }
+        } else { // 그렇지 않으면 일단 data를 버퍼에 넣고 종료 
+            for (var i = 0; i < data.length; i++) {
+                this.receiveBuffer.push(data[i]);
+            }
+            return;
+        }
+    } else { // 시작 패킷이 아니라면
+        if (this.receiveBuffer.length < 6) {// 패킷의 length정보까지 안들어 왔을떄
+            //패킷 length정보까지 일단 읽기
+            for(var ix = 0; )
+        }
     }*/
-    //console.log('<< 2 : ' + this.receiveBuffer);
-    //console.log(this.receiveBuffer.length);
-    //console.log("######## buffer : " + this.receiveBuffer);
-    if (this.receiveBuffer.length >= 11 + this.receiveLength) {
+
+    /* // original source
+    for (var i = 0; i < data.length; i++) {
+        this.receiveBuffer.push(data[i]);
+    }*/
+
+    console.log('<< 2 length : '+ this.receiveBuffer.length + " data " + this.receiveBuffer);
+    
+    if (this.receiveBuffer.length >= 10 + this.receiveLength) {
         isConnected = true;
 
-        while (this.receiveBuffer.length >= 11 + this.receiveLength) {
+        while (this.receiveBuffer.length >= 10 + this.receiveLength) {
             if (this.receiveBuffer.shift() == 0xFF) {
                 if (this.receiveBuffer.shift() == 0xFF) {
                     if (this.receiveBuffer.shift() == 0xFD) {
@@ -508,13 +577,14 @@ Module.prototype.handleLocalData = function(data) { // data: Native Buffer
                                     }
                                     jx++;
                                 }
-
+                                //console.log('<< 3 length : ' + this.receiveBuffer.length + " data " + this.receiveBuffer);
                                 var packetLength = this.makeWord(this.receiveBuffer.shift(), this.receiveBuffer.shift());
-
+                                //console.log('<< 4 length : ' + this.receiveBuffer.length + " data " + this.receiveBuffer);
+                                console.log("<< receiveLength : " + this.receiveLength + " packetLength : " + packetLength);
                                 if (this.receiveLength == (packetLength - 4)) {
                                     this.receiveBuffer.shift(); // take 0x55 - status check byte
                                     this.receiveBuffer.shift(); // take 0x00 - error check byte
-
+                                    //console.log('<< 5 length : ' + this.receiveBuffer.length + " data " + this.receiveBuffer);
                                     var valueLength = packetLength - 4;
                                     var returnValue = [];
                                     for (var index = 0; index < valueLength / this.defaultLength; index++) {                                        
@@ -526,7 +596,7 @@ Module.prototype.handleLocalData = function(data) { // data: Native Buffer
                                             returnValue.push(this.receiveBuffer.shift() | (this.receiveBuffer.shift() << 8) | (this.receiveBuffer.shift() << 16) | (this.receiveBuffer.shift() << 24));
                                         }
                                     }
-
+                                    console.log('<< 6 length : ' + this.receiveBuffer.length + " data " + this.receiveBuffer);
                                     if (this.receiveAddress != -1) {
                                         if (this.varTimeout != null) {
                                             clearTimeout(this.varTimeout);
@@ -538,16 +608,20 @@ Module.prototype.handleLocalData = function(data) { // data: Native Buffer
 
                                         isReadDataArrived = true;
                                     } else {}
-
+                                    /*// 이걸 왜추가했지?
                                     var bufferValue_read_address_21 = this.receiveBuffer.shift();
+                                    console.log("bufferValue_read_address_21 : " + bufferValue_read_address_21);
                                     if (bufferValue_read_address_21 != 2) // add by kjs 20170824
-                                        isTemp = false;
-                                    this.receiveBuffer.shift(); // take crc check byte
-
+                                        isTemp = false;*/
+                                    this.receiveBuffer.shift(); // take crc1 check byte
+                                    this.receiveBuffer.shift(); // take crc2 check byte
+                                    //console.log('<< 7 length : ' + this.receiveBuffer.length + " data " + this.receiveBuffer);
                                     // break because this packet has no error.
                                     break;
                                 } else {
+                                    console.log("else :  packetLength " + packetLength);
                                     for (var i = 0; i < packetLength; i++) {
+                                        this.receiveBuffer.shift();// take bytes of write status
                                         //console.log("### 5 : " + this.receiveBuffer.shift()); // take bytes of write status
                                     }
                                 }
@@ -556,8 +630,16 @@ Module.prototype.handleLocalData = function(data) { // data: Native Buffer
                     }
                 }
             }
+            //console.log("this.receiveBuffer.length : " + this.receiveBuffer.length);
+        }
+    } else
+    {
+        var count = this.receiveBuffer.length;
+        for (var jj = 0 ; jj < count; jj++) {
+            this.receiveBuffer.shift();
         }
     }
+    console.log("loop end");
 };
 
 Module.prototype.reset = function() {
