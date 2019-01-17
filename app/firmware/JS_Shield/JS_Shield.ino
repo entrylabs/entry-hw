@@ -50,7 +50,7 @@ int echoPin = 12;
 
 //포트별 상태
 int analogs[6]={0,0,0,0,0,0};
-int digitals[14]={0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+int digitals[19]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 int servo_pins[8]={0,0,0,0,0,0,0,0};
 
 // 울트라소닉 최종 값
@@ -241,7 +241,7 @@ void runModule(int device) {
 
 void sendPinValues() {  
   int pinNumber = 0;
-  for (pinNumber = 0; pinNumber < 12; pinNumber++) {
+  for (pinNumber = 0; pinNumber < 20; pinNumber++) {
     if(digitals[pinNumber] == 0) {
       sendDigitalValue(pinNumber);
       callOK();
