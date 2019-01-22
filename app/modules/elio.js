@@ -34,6 +34,7 @@ function Module() {
 
 		V3: 4,
 		V5: 5,
+		
 		IO1: 6,
 		IO2: 7,
 		IO3: 8,
@@ -291,9 +292,8 @@ Module.prototype.validateLocalData = function(data) {
 
 Module.prototype.handleRemoteData = function(handler) {
 	 var self = this;
-	if (this.configSend == true) {
 	
-		this.localBuffer = new Array(12);
+		this.localBuffer = new Array(15);
 
 		this.localBuffer[0] = this.UDP;
 		this.localBuffer[1] = this.CMD_EXECUTE;
@@ -306,41 +306,12 @@ Module.prototype.handleRemoteData = function(handler) {
 			this.localBuffer[idx + 2] = value;
 		}
 		
+		this.localBuffer[12] = handler.read("SONIC")  == undefined ? 0 : handler.read("SONIC");
+		this.localBuffer[13] = handler.read("LINE1")  == undefined ? 0 : handler.read("LINE1");
+		this.localBuffer[14] = handler.read("LINE2")  == undefined ? 0 : handler.read("LINE2");
+	
 		this.localBuffer = this.encodePacket(this.localBuffer);
 		
-		//console.log('powerSend');
-	} else {
-			console.log('configSend');
-			this.localBuffer = new Array(5);
-
-			var  mask = 0;
-			
-			var sonic = handler.read("SONIC");
-			var line1 = handler.read("LINE1");
-			var line2 = handler.read("LINE2");
-            
-			if (sonic)
-                mask |= this.sensor_sonic;
-            
-			if (line1)
-                mask |= this.sensor_line1;
-            
-			if (line2)
-                mask |= this.sensor_line2;
-			
-			
-			
-			this.localBuffer[0] = 0xf0; // header1
-			this.localBuffer[1] = 7; // header2
-			this.localBuffer[2] = 0x00; // command
-			this.localBuffer[3] = 0x00; // length
-			this.localBuffer[4] = 0x00; // tail1
-			this.localBuffer = this.encodePacket(this.localBuffer);
-			 var timer = setTimeout(function() {
-							self.configSend = true;
-							console.log('------>configSend Timer');
-						}, 1000);
-	}
 };
 
 Module.prototype.requestLocalData = function() {
@@ -391,7 +362,7 @@ Module.prototype.reset = function() {
 
 
 Module.prototype.initialize = function() {
-	this.localBuffer = new Array(12);
+	this.localBuffer = new Array(15);
 		
 	this.localBuffer[0] = this.UDP;
 	this.localBuffer[1] = this.CMD_EXECUTE;
@@ -404,6 +375,9 @@ Module.prototype.initialize = function() {
 		this.localBuffer[idx + 2] = 0;
 	}
 
+	this.localBuffer[12] =0;
+	this.localBuffer[13] = 0;
+	this.localBuffer[14] =0;
 	
 	this.localBuffer = this.encodePacket(this.localBuffer);
 };
