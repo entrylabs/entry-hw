@@ -49,12 +49,12 @@ function Module() {
     this.prevState = []; // add by kjs 170623
 }
 
-Module.prototype.init = function(handler, config) {
+Module.prototype.init = function (handler, config) {
     //console.log("######### init");
 };
 
-Module.prototype.lostController = function(self, callback) {
-    self.timer = setInterval(function() {
+Module.prototype.lostController = function (self, callback) {
+    self.timer = setInterval(function () {
         if (self.connected) {
             if (self.received == false) {
                 if (isConnected == false) {
@@ -70,7 +70,7 @@ Module.prototype.lostController = function(self, callback) {
     }, 1000);
 };
 
-Module.prototype.requestInitialData = function() {
+Module.prototype.requestInitialData = function () {
     //console.log("######### requestInitialData");
     isReadDataArrived = true;
     isConnected = true;
@@ -132,17 +132,17 @@ Module.prototype.requestInitialData = function() {
     return this.readPacket(200, 87, 1);
 };
 
-Module.prototype.checkInitialData = function(data, config) {
+Module.prototype.checkInitialData = function (data, config) {
     console.log("######### checkInitialData");
 
     return true;
 };
 
-Module.prototype.validateLocalData = function(data) {
+Module.prototype.validateLocalData = function (data) {
     return true;
 };
 
-Module.prototype.requestRemoteData = function(handler) {
+Module.prototype.requestRemoteData = function (handler) {
 
     for (var indexA = 0; indexA < this.dataBuffer.length; indexA++) { // 일반형
         if (this.dataBuffer[indexA] != undefined) {
@@ -151,7 +151,7 @@ Module.prototype.requestRemoteData = function(handler) {
     }
     //실과형
     //console.log("###### value : " + this.detectedSound);
-    for (var i = 0; i < 4; i++) {        
+    for (var i = 0; i < 4; i++) {
         handler.write('TOUCH' + i, this.touchSensor[i]); // 접촉 센서
         handler.write('IR' + i, this.irSensor[i]); // 적외선 센서
         handler.write('LIGHT' + i, this.lightSensor[i]); // 조도 센서
@@ -164,7 +164,7 @@ Module.prototype.requestRemoteData = function(handler) {
     handler.write('USERBUTTONSTATE', this.userButtonState);
 };
 
-Module.prototype.handleRemoteData = function(handler) {
+Module.prototype.handleRemoteData = function (handler) {
     var data = handler.read('ROBOTIS_DATA');
 
     var setZero = handler.read('setZero');
@@ -212,7 +212,7 @@ Module.prototype.handleRemoteData = function(handler) {
                 doSend = false;
             } else {
                 if (this.prevServoCompare(address, value, length)) {
-                    
+
                 } else {
                     doSend = true;
                 }
@@ -278,7 +278,7 @@ Module.prototype.handleRemoteData = function(handler) {
     }
 };
 
-Module.prototype.requestLocalData = function() {
+Module.prototype.requestLocalData = function () {
     var sendBuffer = null;
     var dataLength = 0;
     if (isReadDataArrived == false) {
@@ -287,12 +287,12 @@ Module.prototype.requestLocalData = function() {
     }
     /////////////////
     if (!isConnected) {
-        this.receiveAddress = -1;        
+        this.receiveAddress = -1;
         return this.readPacket(200, 87, 1);
     }
 
-        if (!isTemp) { // add by kjs 20170824
-            sendBuffer = this.writeBytePacket(200, 21, 8);
+    if (!isTemp) { // add by kjs 20170824
+        sendBuffer = this.writeBytePacket(200, 21, 8);
 
         dataLength = this.makeWord(sendBuffer[5], sendBuffer[6]);
         if (sendBuffer[7] == 0x02) {
@@ -305,14 +305,14 @@ Module.prototype.requestLocalData = function() {
                 clearTimeout(this.varTimeout);
             }
 
-            this.varTimeout = setTimeout(function() {
+            this.varTimeout = setTimeout(function () {
                 isReadDataArrived = true;
             }, 100);
         }
         isTemp = true;
     } else {
 
-            var data = this.robotisBuffer.shift();
+        var data = this.robotisBuffer.shift();
         if (data == null) {
             return sendBuffer;
         }
@@ -353,7 +353,7 @@ Module.prototype.requestLocalData = function() {
                 this.receiveAddress = address;
                 this.receiveLength = length;
                 this.defaultLength = data[2];
-                isReadDataArrived = false;                
+                isReadDataArrived = false;
                 if (this.varTimeout != null) {
                     clearTimeout(this.varTimeout);
                 }
@@ -423,11 +423,9 @@ Module.prototype.requestLocalData = function() {
     return sendBuffer;
 };
 Module.prototype.packetChecker = function (data) {
-    if(data[0] == 0xFF && data[1] == 0xFF  && data[2] == 0xFD)
-    {
+    if (data[0] == 0xFF && data[1] == 0xFF && data[2] == 0xFD) {
         return true;
-    }else
-    {
+    } else {
         return false;
     }
 };
@@ -450,8 +448,7 @@ Module.prototype.handleLocalData = function (data) { // data: Native Buffer
     } else { // 시작 패킷이 아니면
         var ix = 0;
         tempArray = [];
-        for (var j = 0; j < data.length; j++)
-        {
+        for (var j = 0; j < data.length; j++) {
             tempArray.push(data[j]);
         }
         while (!this.packetChecker(tempArray) && tempArray.length > 0) // 시작패킷을 발견할때까지 버퍼에 삽입
@@ -459,8 +456,7 @@ Module.prototype.handleLocalData = function (data) { // data: Native Buffer
             this.receiveBuffer.push(tempArray.shift());
             countData = ix;
         }
-        if(this.packetChecker(this.receiveBuffer))
-        {
+        if (this.packetChecker(this.receiveBuffer)) {
             if (this.receiveBuffer[5] != (this.receiveBuffer.length - 7))
                 return;
         }
@@ -512,8 +508,8 @@ Module.prototype.handleLocalData = function (data) { // data: Native Buffer
         this.receiveBuffer.push(data[i]);
     }*/
 
-    console.log('<< 2 length : '+ this.receiveBuffer.length + " data " + this.receiveBuffer);
-    
+    console.log('<< 2 length : ' + this.receiveBuffer.length + " data " + this.receiveBuffer);
+
     if (this.receiveBuffer.length >= 10 + this.receiveLength) {
         isConnected = true;
 
@@ -587,7 +583,7 @@ Module.prototype.handleLocalData = function (data) { // data: Native Buffer
                                     //console.log('<< 5 length : ' + this.receiveBuffer.length + " data " + this.receiveBuffer);
                                     var valueLength = packetLength - 4;
                                     var returnValue = [];
-                                    for (var index = 0; index < valueLength / this.defaultLength; index++) {                                        
+                                    for (var index = 0; index < valueLength / this.defaultLength; index++) {
                                         if (this.defaultLength == 1) {
                                             returnValue.push(this.receiveBuffer.shift());
                                         } else if (this.defaultLength == 2) {
@@ -607,7 +603,7 @@ Module.prototype.handleLocalData = function (data) { // data: Native Buffer
                                         }
 
                                         isReadDataArrived = true;
-                                    } else {}
+                                    } else { }
                                     /*// 이걸 왜추가했지?
                                     var bufferValue_read_address_21 = this.receiveBuffer.shift();
                                     console.log("bufferValue_read_address_21 : " + bufferValue_read_address_21);
@@ -632,8 +628,7 @@ Module.prototype.handleLocalData = function (data) { // data: Native Buffer
             }
             //console.log("this.receiveBuffer.length : " + this.receiveBuffer.length);
         }
-    } else
-    {
+    } else {
         var count = this.receiveBuffer.length;
         for (var jj = 0 ; jj < count; jj++) {
             this.receiveBuffer.shift();
@@ -642,7 +637,7 @@ Module.prototype.handleLocalData = function (data) { // data: Native Buffer
     console.log("loop end");
 };
 
-Module.prototype.reset = function() {
+Module.prototype.reset = function () {
 
     this.addressToRead = [];
     this.varTimeout = null;
@@ -682,7 +677,7 @@ var INST_WRITE = 3;
 var isReadDataArrived = true;
 var isConnected = true;
 
-Module.prototype.writeBytePacket = function(id, address, value) {
+Module.prototype.writeBytePacket = function (id, address, value) {
     //console.log("######### writeBytepacket");
     var packet = [];
     packet.push(0xff);
@@ -702,7 +697,7 @@ Module.prototype.writeBytePacket = function(id, address, value) {
     return packet;
 };
 
-Module.prototype.writeWordPacket = function(id, address, value) {
+Module.prototype.writeWordPacket = function (id, address, value) {
     //console.log("######### writeWordPacket");
     var packet = [];
     packet.push(0xff);
@@ -723,7 +718,7 @@ Module.prototype.writeWordPacket = function(id, address, value) {
     return packet;
 };
 
-Module.prototype.writeDWordPacket = function(id, address, value) {
+Module.prototype.writeDWordPacket = function (id, address, value) {
     //console.log("######### writeDWordPacket");
     var packet = [];
     packet.push(0xff);
@@ -747,7 +742,7 @@ Module.prototype.writeDWordPacket = function(id, address, value) {
     return packet;
 };
 
-Module.prototype.writeDWordPacket2 = function(id, address, value, value2) {
+Module.prototype.writeDWordPacket2 = function (id, address, value, value2) {
     //console.log("######### writeDWordPacket2");
     var packet = [];
     packet.push(0xff);
@@ -771,7 +766,7 @@ Module.prototype.writeDWordPacket2 = function(id, address, value, value2) {
     return packet;
 };
 
-Module.prototype.prevServoCompare = function(address, value, length) {
+Module.prototype.prevServoCompare = function (address, value, length) {
     if ((address >= 108 && address <= 111) && value == 7) { //Module
         if (this.prevInstruction == INST_WRITE &&
             this.servoPrevAddres == address &&
@@ -814,7 +809,7 @@ Module.prototype.prevServoCompare = function(address, value, length) {
 
 }
 
-Module.prototype.prevServoSet = function(address, value, length) {
+Module.prototype.prevServoSet = function (address, value, length) {
     if ((address >= 108 && address <= 111) && value == 7) { //Module
         this.servoPrevAddres = address;
         this.servoPrevLength = length;
@@ -841,7 +836,7 @@ Module.prototype.prevServoSet = function(address, value, length) {
 
 }
 
-Module.prototype.readPacket = function(id, address, lengthToRead) {
+Module.prototype.readPacket = function (id, address, lengthToRead) {
     //console.log("######### readPacket");
     var packet = [];
     packet.push(0xff);
@@ -902,27 +897,27 @@ var crc_table = [0x0000,
     0x820D, 0x8207, 0x0202
 ];
 
-Module.prototype.makeWord = function(a, b) {
+Module.prototype.makeWord = function (a, b) {
     return ((a & 0xff) | ((b & 0xff) << 8));
 };
 
-Module.prototype.getLowByte = function(a) {
+Module.prototype.getLowByte = function (a) {
     return (a & 0xff);
 };
 
-Module.prototype.getHighByte = function(a) {
+Module.prototype.getHighByte = function (a) {
     return ((a >> 8) & 0xff);
 };
 
-Module.prototype.getLowWord = function(a) {
+Module.prototype.getLowWord = function (a) {
     return (a & 0xffff);
 };
 
-Module.prototype.getHighWord = function(a) {
+Module.prototype.getHighWord = function (a) {
     return ((a >> 16) & 0xffff);
 };
 
-Module.prototype.updateCRC = function(crc_accum, data_blk_ptr, data_blk_size) {
+Module.prototype.updateCRC = function (crc_accum, data_blk_ptr, data_blk_size) {
     var i, j;
 
     for (j = 0; j < data_blk_size; j++) {
