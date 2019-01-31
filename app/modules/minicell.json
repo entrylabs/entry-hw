@@ -1,0 +1,30 @@
+{
+	"id": "FFFF01",
+	"name": {
+		"en": "Minicell",
+		"ko": "미니셀"
+	},
+	"platform": ["win32"],
+	"icon": "minicell.png",
+	"module": "minicell.js",
+	"driver": {
+		"win32-x64": "minicell/CDM21224_Setup.exe"
+	},
+	"url": "",
+	"email": "codesign7976@gmail.com",
+    "reconnect" : true,
+	"firmware": "",
+	"firmwareBaudRate": "",
+	"select_com_port": false,
+	"entry": {
+		"protocol": "json"
+	},
+	"hardware": {
+		"type": "serial",
+		"control": "master",
+		"parity": "none",
+		"vendor": ["Silicon Labs"],
+		"baudRate": 115200,
+		"firmwarecheck": false
+	}
+}
