@@ -6,7 +6,7 @@ function Connector() {
 
 Connector.prototype.open = function(port, options, callback) {
 	var serialport = require('@serialport/stream'); // modify
-	serialport.Binding = require('../../@serialport/bindings');
+	serialport.Binding = require('@entrylabs/bindings');
 	this.options = options; // modify
 
 	this.lostTimer = options.lostTimer || 500;
