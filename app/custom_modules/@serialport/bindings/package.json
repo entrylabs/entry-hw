@@ -1,0 +1,49 @@
+{
+  "name": "@serialport/bindings",
+  "version": "2.0.7",
+  "main": "lib",
+  "keywords": [
+    "serialport-binding"
+  ],
+  "dependencies": {
+    "@serialport/binding-abstract": "^2.0.4",
+    "@serialport/parser-readline": "^2.0.2",
+    "bindings": "^1.3.0",
+    "debug": "^4.1.0",
+    "nan": "^2.12.1",
+    "prebuild-install": "^5.2.1"
+  },
+  "devDependencies": {
+    "@serialport/binding-mock": "^2.0.4"
+  },
+  "engines": {
+    "node": ">=6.0.0"
+  },
+  "scripts": {
+    "install": "prebuild-install --tag-prefix @serialport/bindings@ || node-gyp rebuild",
+    "lint": "cc --verbose",
+    "prebuild": "prebuild --all --force --strip --verbose --tag-prefix @serialport/bindings@",
+    "rebuild": "node-gyp rebuild"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/node-serialport/node-serialport.git"
+  },
+  "gypfile": true,
+  "cc": {
+    "filter": [
+      "legal/copyright",
+      "build/include"
+    ],
+    "files": [
+      "src/*.cpp",
+      "src/*.h"
+    ],
+    "linelength": "120"
+  },
+  "gitHead": "da63804ed3d65a28ef64ba6e7ba2c9ad23b23c97"
+}

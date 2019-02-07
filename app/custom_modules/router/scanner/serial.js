@@ -7,7 +7,8 @@ function checkObject(target) {
 }
 
 Scanner.prototype.startScan = function (extension, config, callback, router) {
-	var serialport = require('serialport'); // modify  ../../serialport --> serialport
+	var serialport = require('@serialport/stream'); // modify
+	serialport.Binding = require('../../@serialport/bindings');
 	var self = this;
 
 	self.router = router;
