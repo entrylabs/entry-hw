@@ -141,181 +141,180 @@ for (var i = 0; i < argv.length; i++) {
     }
 }
 
-// 어플리케이션을 중복 실행했습니다. 주 어플리케이션 인스턴스를 활성화 합니다.
-var shouldQuit = app.makeSingleInstance(function(argv, workingDirectory) {
-    var parseData = {};
-    if (argv.indexOf('entryhw:')) {
-        parseData = getArgsParseData(argv);
-    }
-
-    if (mainWindow) {
-        if (mainWindow.isMinimized()) mainWindow.restore();
-        mainWindow.focus();
-
-        if (mainWindow.webContents) {
-            if (roomId.indexOf(parseData) === -1) {
-                roomId.push(parseData);
-            }
-            mainWindow.webContents.send('customArgs', parseData);
-        }
-    }
-
-    return true;
-});
-
-if (shouldQuit) {
+if (!app.requestSingleInstanceLock()) {
     app.quit();
-}
+    process.exit(0);
+} else {
+    // 어플리케이션을 중복 실행했습니다. 주 어플리케이션 인스턴스를 활성화 합니다.
+    app.on('second-instance', (event, argv, workingDirectory) => {
+        let parseData = {};
+        if (argv.indexOf('entryhw:')) {
+            parseData = getArgsParseData(argv);
+        }
 
-ipcMain.on('reload', function(event, arg) {
-    app.relaunch({ args: process.argv.slice(1).concat(['--relaunch']) });
-    app.exit(0);
-});
+        if (mainWindow) {
+            if (mainWindow.isMinimized()) mainWindow.restore();
+            mainWindow.focus();
 
-ipcMain.on('roomId', function(event, arg) {
-    event.returnValue = roomId;
-});
-
-ipcMain.on('version', function(event, arg) {
-    event.returnValue = packageJson.version;
-});
-
-ipcMain.on('serverMode', function(event, mode) {
-    if (mainWindow && mainWindow.webContents) {
-        mainWindow.webContents.send('serverMode', mode);
-    }
-});
-
-app.commandLine.appendSwitch('enable-web-bluetooth', true);
-app.commandLine.appendSwitch('enable-experimental-web-platform-features', true);
-// app.commandLine.appendSwitch('enable-web-bluetooth');
-app.once('ready', function() {
-    let language = app.getLocale();
-
-    let title;
-
-    if (language === 'ko') {
-        title = '엔트리 하드웨어 v';
-    } else {
-        title = 'Entry Hardware v';
-    }
-
-    mainWindow = new BrowserWindow({
-        width: 800,
-        height: 650,
-        title: title + packageJson.version,
-        webPreferences: {
-            backgroundThrottling: false,
-        },
-    });
-
-    mainWindow.webContents.on(
-        'select-bluetooth-device',
-        (event, deviceList, callback) => {
-            event.preventDefault();
-            let result = deviceList.find((device) => {
-                return device.deviceName === 'LPF2 Smart Hub 2 I/O';
-            });
-            if (!result) {
-                callback('A0:E6:F8:1D:FB:E3');
-            } else {
-                callback(result.deviceId);
+            if (mainWindow.webContents) {
+                if (roomId.indexOf(parseData) === -1) {
+                    roomId.push(parseData);
+                }
+                mainWindow.webContents.send('customArgs', parseData);
             }
         }
-    );
+    });
 
-    mainWindow.loadURL('file:///' + path.join(__dirname, 'index.html'));
+    ipcMain.on('reload', function(event, arg) {
+        app.relaunch({ args: process.argv.slice(1).concat(['--relaunch']) });
+        app.exit(0);
+    });
 
-    if (option.debug) {
-        mainWindow.webContents.openDevTools();
-    }
+    ipcMain.on('roomId', function(event, arg) {
+        event.returnValue = roomId;
+    });
 
-    mainWindow.setMenu(null);
+    ipcMain.on('version', function(event, arg) {
+        event.returnValue = packageJson.version;
+    });
 
-    mainWindow.on('close', function(e) {
-        if (!isForceClose) {
-            e.preventDefault();
-            mainWindow.webContents.send('hardwareClose');
+    ipcMain.on('serverMode', function(event, mode) {
+        if (mainWindow && mainWindow.webContents) {
+            mainWindow.webContents.send('serverMode', mode);
         }
     });
 
-    mainWindow.on('closed', function() {
-        mainWindow = null;
-    });
+    app.commandLine.appendSwitch('enable-web-bluetooth', true);
+    app.commandLine.appendSwitch('enable-experimental-web-platform-features', true);
+    // app.commandLine.appendSwitch('enable-web-bluetooth');
+    app.once('ready', function() {
+        let language = app.getLocale();
 
-    let inspectorShortcut = '';
-    if (process.platform == 'darwin') {
-        inspectorShortcut = 'Command+Alt+i';
-    } else {
-        inspectorShortcut = 'Control+Shift+i';
-    }
+        let title;
 
-    globalShortcut.register(inspectorShortcut, (e) => {
-        const content = webContents.getFocusedWebContents();
-        if (content) {
-            webContents.getFocusedWebContents().openDevTools();
+        if (language === 'ko') {
+            title = '엔트리 하드웨어 v';
+        } else {
+            title = 'Entry Hardware v';
         }
-    });
 
-    createAboutWindow(mainWindow);
-});
-
-ipcMain.on('hardwareForceClose', () => {
-    isForceClose = true;
-    mainWindow.close();
-});
-
-ipcMain.on('showMessageBox', (e, msg) => {
-    dialog.showMessageBox({
-        type: 'none',
-        message: msg,
-        detail: msg,
-    });
-});
-
-ipcMain.on('checkUpdate', (e, msg) => {
-    const request = net.request({
-        method: 'POST',
-        host: hostURI,
-        protocol: hostProtocol,
-        path: '/api/checkVersion',
-    });
-    let body = '';
-    request.on('response', (res) => {
-        res.on('data', (chunk) => {
-            body += chunk.toString();
+        mainWindow = new BrowserWindow({
+            width: 800,
+            height: 650,
+            title: title + packageJson.version,
+            webPreferences: {
+                backgroundThrottling: false,
+            },
         });
-        res.on('end', () => {
-            let data = {};
-            try {
-                data = JSON.parse(body);
-            } catch (e) {}
-            e.sender.send('checkUpdateResult', data);
+
+        mainWindow.webContents.on(
+            'select-bluetooth-device',
+            (event, deviceList, callback) => {
+                event.preventDefault();
+                let result = deviceList.find((device) => {
+                    return device.deviceName === 'LPF2 Smart Hub 2 I/O';
+                });
+                if (!result) {
+                    callback('A0:E6:F8:1D:FB:E3');
+                } else {
+                    callback(result.deviceId);
+                }
+            }
+        );
+
+        mainWindow.loadURL('file:///' + path.join(__dirname, 'index.html'));
+
+        if (option.debug) {
+            mainWindow.webContents.openDevTools();
+        }
+
+        mainWindow.setMenu(null);
+
+        mainWindow.on('close', function(e) {
+            if (!isForceClose) {
+                e.preventDefault();
+                mainWindow.webContents.send('hardwareClose');
+            }
+        });
+
+        mainWindow.on('closed', function() {
+            mainWindow = null;
+        });
+
+        let inspectorShortcut = '';
+        if (process.platform == 'darwin') {
+            inspectorShortcut = 'Command+Alt+i';
+        } else {
+            inspectorShortcut = 'Control+Shift+i';
+        }
+
+        globalShortcut.register(inspectorShortcut, (e) => {
+            const content = webContents.getFocusedWebContents();
+            if (content) {
+                webContents.getFocusedWebContents().openDevTools();
+            }
+        });
+
+        createAboutWindow(mainWindow);
+    });
+
+    ipcMain.on('hardwareForceClose', () => {
+        isForceClose = true;
+        mainWindow.close();
+    });
+
+    ipcMain.on('showMessageBox', (e, msg) => {
+        dialog.showMessageBox({
+            type: 'none',
+            message: msg,
+            detail: msg,
         });
     });
-    request.on('error', (err) => {
+
+    ipcMain.on('checkUpdate', (e, msg) => {
+        const request = net.request({
+            method: 'POST',
+            host: hostURI,
+            protocol: hostProtocol,
+            path: '/api/checkVersion',
+        });
+        let body = '';
+        request.on('response', (res) => {
+            res.on('data', (chunk) => {
+                body += chunk.toString();
+            });
+            res.on('end', () => {
+                let data = {};
+                try {
+                    data = JSON.parse(body);
+                } catch (e) {}
+                e.sender.send('checkUpdateResult', data);
+            });
+        });
+        request.on('error', (err) => {
+        });
+        request.setHeader('content-type', 'application/json; charset=utf-8');
+        request.write(
+            JSON.stringify({
+                category: 'hardware',
+                version: packageJson.version,
+            })
+        );
+        request.end();
     });
-    request.setHeader('content-type', 'application/json; charset=utf-8');
-    request.write(
-        JSON.stringify({
-            category: 'hardware',
-            version: packageJson.version,
-        })
-    );
-    request.end();
-});
 
-ipcMain.on('checkVersion', (e, lastCheckVersion) => {
-    const version = getPaddedVersion(packageJson.version);
-    const lastVersion = getPaddedVersion(lastCheckVersion);
+    ipcMain.on('checkVersion', (e, lastCheckVersion) => {
+        const version = getPaddedVersion(packageJson.version);
+        const lastVersion = getPaddedVersion(lastCheckVersion);
 
-    e.sender.send('checkVersionResult', lastVersion > version);
-});
+        e.sender.send('checkVersionResult', lastVersion > version);
+    });
 
-ipcMain.on('openAboutWindow', function(event, arg) {
-    aboutWindow.show();
-});
+    ipcMain.on('openAboutWindow', function(event, arg) {
+        aboutWindow.show();
+    });
 
-ipcMain.on('writeLog', function(event, arg) {
-    console.fslog(arg);
-});
+    ipcMain.on('writeLog', function(event, arg) {
+        console.fslog(arg);
+    });
+}

@@ -7,7 +7,7 @@ function checkObject(target) {
 }
 
 Scanner.prototype.startScan = function (extension, config, callback, router) {
-	var serialport = require('../../serialport');
+	var serialport = require('serialport'); // modify  ../../serialport --> serialport
 	var self = this;
 
 	self.router = router;
@@ -150,12 +150,24 @@ Scanner.prototype.scan = function (serialport, extension, config, callback) {
 
 								if (control == 'master') {
 									if (extension.checkInitialData && extension.requestInitialData) {
-										sp.on('data', function (data) {
+
+										// modify start
+										var source = sp;
+										if(sp.parser) source = sp.parser;
+										source.on('data', function (data) {
+											// modify end
+
+											// modify start
+											if(config.hardware.stream == 'string') {
+												data = data.toString();
+											}
+											// modify end
+
 											var result = extension.checkInitialData(data, config);
 											if (result === undefined) {
 												connector.send(extension.requestInitialData());
 											} else {
-												sp.removeAllListeners('data');
+												source.removeAllListeners('data'); // modify  sp --> source
 												clearTimeout(flashFirmware);
 												if (result === true) {
 
