@@ -70,10 +70,10 @@
     "v8_typed_array_max_size_in_heap": 0,
     "v8_use_snapshot": "true",
     "want_separate_host_toolset": 0,
-    "nodedir": "C:\\Users\\USER\\.electron-gyp\\4.0.4",
+    "nodedir": "C:\\Users\\USER\\.electron-gyp\\.node-gyp\\4.0.0",
     "standalone_static_library": 1,
     "msbuild_path": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\BuildTools\\MSBuild\\15.0\\Bin\\MSBuild.exe",
-    "target": "4.0.4",
+    "target": "4.0.0",
     "build_from_source": "true",
     "disturl": "https://atom.io/download/electron",
     "runtime": "electron"

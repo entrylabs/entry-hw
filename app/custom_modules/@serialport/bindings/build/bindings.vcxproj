@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{A9F1FDC2-2090-FB63-E0CE-B6E7C50164C5}</ProjectGuid>
+    <ProjectGuid>{B77A0A36-8282-B675-7C2A-A342010B2568}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>bindings</RootNamespace>
     <IgnoreWarnCompileDuplicatedFilename>true</IgnoreWarnCompileDuplicatedFilename>
@@ -48,7 +48,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Users\USER\.electron-gyp\4.0.4\include\node;C:\Users\USER\.electron-gyp\4.0.4\src;C:\Users\USER\.electron-gyp\4.0.4\deps\openssl\config;C:\Users\USER\.electron-gyp\4.0.4\deps\openssl\openssl\include;C:\Users\USER\.electron-gyp\4.0.4\deps\uv\include;C:\Users\USER\.electron-gyp\4.0.4\deps\zlib;C:\Users\USER\.electron-gyp\4.0.4\deps\v8\include;..\..\..\nan;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\USER\.electron-gyp\.node-gyp\4.0.0\include\node;C:\Users\USER\.electron-gyp\.node-gyp\4.0.0\src;C:\Users\USER\.electron-gyp\.node-gyp\4.0.0\deps\openssl\config;C:\Users\USER\.electron-gyp\.node-gyp\4.0.0\deps\openssl\openssl\include;C:\Users\USER\.electron-gyp\.node-gyp\4.0.0\deps\uv\include;C:\Users\USER\.electron-gyp\.node-gyp\4.0.0\deps\zlib;C:\Users\USER\.electron-gyp\.node-gyp\4.0.0\deps\v8\include;..\node_modules\nan;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <BufferSecurityCheck>true</BufferSecurityCheck>
@@ -69,7 +69,7 @@
       <WarningLevel>Level3</WarningLevel>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;DelayImp.lib;&quot;C:\Users\USER\.electron-gyp\4.0.4\x64\node.lib&quot;</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;DelayImp.lib;&quot;C:\Users\USER\.electron-gyp\.node-gyp\4.0.0\x64\node.lib&quot;</AdditionalDependencies>
       <AdditionalOptions>/ignore:4199 %(AdditionalOptions)</AdditionalOptions>
       <AllowIsolation>true</AllowIsolation>
       <DataExecutionPrevention>true</DataExecutionPrevention>
@@ -84,13 +84,13 @@
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>C:\Users\USER\.electron-gyp\4.0.4\include\node;C:\Users\USER\.electron-gyp\4.0.4\src;C:\Users\USER\.electron-gyp\4.0.4\deps\openssl\config;C:\Users\USER\.electron-gyp\4.0.4\deps\openssl\openssl\include;C:\Users\USER\.electron-gyp\4.0.4\deps\uv\include;C:\Users\USER\.electron-gyp\4.0.4\deps\zlib;C:\Users\USER\.electron-gyp\4.0.4\deps\v8\include;..\..\..\nan;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\USER\.electron-gyp\.node-gyp\4.0.0\include\node;C:\Users\USER\.electron-gyp\.node-gyp\4.0.0\src;C:\Users\USER\.electron-gyp\.node-gyp\4.0.0\deps\openssl\config;C:\Users\USER\.electron-gyp\.node-gyp\4.0.0\deps\openssl\openssl\include;C:\Users\USER\.electron-gyp\.node-gyp\4.0.0\deps\uv\include;C:\Users\USER\.electron-gyp\.node-gyp\4.0.0\deps\zlib;C:\Users\USER\.electron-gyp\.node-gyp\4.0.0\deps\v8\include;..\node_modules\nan;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NODE_GYP_MODULE_NAME=bindings;USING_UV_SHARED=1;USING_V8_SHARED=1;V8_DEPRECATION_WARNINGS=1;WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_HAS_EXCEPTIONS=0;BUILDING_NODE_EXTENSION;DEBUG;_DEBUG;V8_ENABLE_CHECKS;%(PreprocessorDefinitions);%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Users\USER\.electron-gyp\4.0.4\include\node;C:\Users\USER\.electron-gyp\4.0.4\src;C:\Users\USER\.electron-gyp\4.0.4\deps\openssl\config;C:\Users\USER\.electron-gyp\4.0.4\deps\openssl\openssl\include;C:\Users\USER\.electron-gyp\4.0.4\deps\uv\include;C:\Users\USER\.electron-gyp\4.0.4\deps\zlib;C:\Users\USER\.electron-gyp\4.0.4\deps\v8\include;..\..\..\nan;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\USER\.electron-gyp\.node-gyp\4.0.0\include\node;C:\Users\USER\.electron-gyp\.node-gyp\4.0.0\src;C:\Users\USER\.electron-gyp\.node-gyp\4.0.0\deps\openssl\config;C:\Users\USER\.electron-gyp\.node-gyp\4.0.0\deps\openssl\openssl\include;C:\Users\USER\.electron-gyp\.node-gyp\4.0.0\deps\uv\include;C:\Users\USER\.electron-gyp\.node-gyp\4.0.0\deps\zlib;C:\Users\USER\.electron-gyp\.node-gyp\4.0.0\deps\v8\include;..\node_modules\nan;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
       <BufferSecurityCheck>true</BufferSecurityCheck>
       <CompileAsWinRT>false</CompileAsWinRT>
@@ -118,7 +118,7 @@
       <AdditionalOptions>/LTCG:INCREMENTAL %(AdditionalOptions)</AdditionalOptions>
     </Lib>
     <Link>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;DelayImp.lib;&quot;C:\Users\USER\.electron-gyp\4.0.4\x64\node.lib&quot;</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;DelayImp.lib;&quot;C:\Users\USER\.electron-gyp\.node-gyp\4.0.0\x64\node.lib&quot;</AdditionalDependencies>
       <AdditionalOptions>/ignore:4199 /LTCG:INCREMENTAL %(AdditionalOptions)</AdditionalOptions>
       <AllowIsolation>true</AllowIsolation>
       <DataExecutionPrevention>true</DataExecutionPrevention>
@@ -135,7 +135,7 @@
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>C:\Users\USER\.electron-gyp\4.0.4\include\node;C:\Users\USER\.electron-gyp\4.0.4\src;C:\Users\USER\.electron-gyp\4.0.4\deps\openssl\config;C:\Users\USER\.electron-gyp\4.0.4\deps\openssl\openssl\include;C:\Users\USER\.electron-gyp\4.0.4\deps\uv\include;C:\Users\USER\.electron-gyp\4.0.4\deps\zlib;C:\Users\USER\.electron-gyp\4.0.4\deps\v8\include;..\..\..\nan;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\USER\.electron-gyp\.node-gyp\4.0.0\include\node;C:\Users\USER\.electron-gyp\.node-gyp\4.0.0\src;C:\Users\USER\.electron-gyp\.node-gyp\4.0.0\deps\openssl\config;C:\Users\USER\.electron-gyp\.node-gyp\4.0.0\deps\openssl\openssl\include;C:\Users\USER\.electron-gyp\.node-gyp\4.0.0\deps\uv\include;C:\Users\USER\.electron-gyp\.node-gyp\4.0.0\deps\zlib;C:\Users\USER\.electron-gyp\.node-gyp\4.0.0\deps\v8\include;..\node_modules\nan;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NODE_GYP_MODULE_NAME=bindings;USING_UV_SHARED=1;USING_V8_SHARED=1;V8_DEPRECATION_WARNINGS=1;WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_HAS_EXCEPTIONS=0;BUILDING_NODE_EXTENSION;%(PreprocessorDefinitions);%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
   </ItemDefinitionGroup>
@@ -145,7 +145,7 @@
   <ItemGroup>
     <ClCompile Include="..\src\serialport.cpp"/>
     <ClCompile Include="..\src\serialport_win.cpp"/>
-    <ClCompile Include="C:\Users\USER\Desktop\entry\entry-hw\node_modules\node-gyp\src\win_delay_load_hook.cc"/>
+    <ClCompile Include="C:\Users\USER\AppData\Roaming\nvm\v10.14.2\node_modules\electron-rebuild\node_modules\node-gyp\src\win_delay_load_hook.cc"/>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets"/>
   <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.targets"/>
