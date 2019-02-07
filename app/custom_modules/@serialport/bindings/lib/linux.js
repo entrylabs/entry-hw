@@ -1,4 +1,4 @@
-const binding = require('bindings')('bindings.node')
+const binding = require('../build/Release/bindings')
 const AbstractBinding = require('@serialport/binding-abstract')
 const linuxList = require('./linux-list')
 const Poller = require('./poller')
