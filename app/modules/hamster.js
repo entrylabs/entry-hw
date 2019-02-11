@@ -71,11 +71,11 @@ Module.prototype.toHex = function(number) {
 	if(value.length > 1) return value;
 	else return '0' + value;
 };
-	
+
 Module.prototype.toHex3 = function(number) {
 	var value = parseInt(number);
 	if(value < 0) value += 0x1000000;
-	
+
 	value = value.toString(16).toUpperCase();
 	var result = '';
 	for(var i = value.length; i < 6; ++i) {
@@ -113,7 +113,7 @@ Module.prototype.handleLocalData = function(data) { // data: string
 	var str = data.slice(4, 5);
 	var value = parseInt(str, 16);
 	if(value != 1) return; // invalid data
-	
+
 	var sensory = this.sensory;
 	// signal strength
 	str = data.slice(6, 8);
@@ -279,7 +279,7 @@ Module.prototype.handleRemoteData = function(handler) {
 		t = handler.read(Hamster.LINE_TRACER_MODE_ID);
 		if(t != motoring.lineTracerModeId) {
 			motoring.lineTracerModeId = t;
-			
+
 			if(handler.e(Hamster.LINE_TRACER_MODE)) {
 				t = handler.read(Hamster.LINE_TRACER_MODE);
 				if(t < 0) t = 0;

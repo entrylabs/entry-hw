@@ -155,7 +155,7 @@ Module.prototype.toHex = function(number) {
 Module.prototype.toHex2 = function(number) {
 	var value = parseInt(number);
 	if(value < 0) value += 0x10000;
-	
+
 	value = value.toString(16).toUpperCase();
 	var result = '';
 	for(var i = value.length; i < 4; ++i) {
@@ -163,11 +163,11 @@ Module.prototype.toHex2 = function(number) {
 	}
 	return result + value;
 };
-	
+
 Module.prototype.toHex3 = function(number) {
 	var value = parseInt(number);
 	if(value < 0) value += 0x1000000;
-	
+
 	value = value.toString(16).toUpperCase();
 	var result = '';
 	for(var i = value.length; i < 6; ++i) {
@@ -301,9 +301,9 @@ Module.prototype.handleLocalData = function(data) { // data: string
 	var str = data.slice(0, 1);
 	var value = parseInt(str, 16);
 	if(value != 1) return; // invalid data
-	
+
 	var sensory = this.sensory;
-	
+
 	// r, g, b
 	str = data.slice(2, 6);
 	var red = parseInt(str, 16);
@@ -313,7 +313,7 @@ Module.prototype.handleLocalData = function(data) { // data: string
 	var blue = parseInt(str, 16);
 	str = data.slice(14, 16);
 	value = parseInt(str, 16);
-	
+
 	var r = parseInt(red * 255 / 1023);
 	var g = parseInt(green * 255 / 1023);
 	var b = parseInt(blue * 255 / 1023);
@@ -323,12 +323,12 @@ Module.prototype.handleLocalData = function(data) { // data: string
 	else if(g < 0) g = 0;
 	if(b > 255) b = 255;
 	else if(b < 0) b = 0;
-	
+
 	sensory.colorRed = r;
 	sensory.colorGreen = g;
 	sensory.colorBlue = b;
 	sensory.colorClear = value;
-	
+
 	// color number
 	var colorNumber = -1;
 	if(value < 75) {
@@ -359,7 +359,7 @@ Module.prototype.handleLocalData = function(data) { // data: string
 		event.colorNumber = colorNumber;
 		sensory.colorNumber = colorNumber;
 	}
-	
+
 	// clicked / double clicked / long pressed
 	str = data.slice(16, 18);
 	value = parseInt(str, 16);
@@ -386,7 +386,7 @@ Module.prototype.handleLocalData = function(data) { // data: string
 		sensory.longPressed = 1;
 		sensory.longPressedId = (sensory.longPressedId % 255) + 1;
 	}
-	
+
 	// floor
 	str = data.slice(18, 20);
 	value = parseInt(str, 16);
@@ -418,7 +418,7 @@ Module.prototype.handleLocalData = function(data) { // data: string
 		event.pulseCount = value;
 		sensory.pulseCount = value;
 	}
-	
+
 	var acc = this.acceleration;
 	if(acc.count < 10) {
 		++ acc.count;
@@ -805,7 +805,7 @@ Module.prototype.requestLocalData = function() {
 		}
 	}
 	if(motion.type == 0) wheel.pulse = motoring.pulse;
-	
+
 	var speed = motion.speed;
 	if(speed == 0) speed = Turtle.DEFAULT_SPEED;
 	switch(motion.type) {
@@ -842,31 +842,31 @@ Module.prototype.requestLocalData = function() {
 			rightWheel = 0;
 			break;
 		case 9: {
-				var slowSpeed = self.calculateSpeed(speed, motoring.motionRadius);
-				leftWheel = slowSpeed;
-				rightWheel = speed;
-			}
+			var slowSpeed = self.calculateSpeed(speed, motoring.motionRadius);
+			leftWheel = slowSpeed;
+			rightWheel = speed;
+		}
 			break;
 		case 10: {
-				var slowSpeed = self.calculateSpeed(speed, motoring.motionRadius);
-				leftWheel = -slowSpeed;
-				rightWheel = -speed;
-			}
+			var slowSpeed = self.calculateSpeed(speed, motoring.motionRadius);
+			leftWheel = -slowSpeed;
+			rightWheel = -speed;
+		}
 			break;
 		case 11: {
-				var slowSpeed = self.calculateSpeed(speed, motoring.motionRadius);
-				leftWheel = speed;
-				rightWheel = slowSpeed;
-			}
+			var slowSpeed = self.calculateSpeed(speed, motoring.motionRadius);
+			leftWheel = speed;
+			rightWheel = slowSpeed;
+		}
 			break;
 		case 12: {
-				var slowSpeed = self.calculateSpeed(speed, motoring.motionRadius);
-				leftWheel = -speed;
-				rightWheel = -slowSpeed;
-			}
+			var slowSpeed = self.calculateSpeed(speed, motoring.motionRadius);
+			leftWheel = -speed;
+			rightWheel = -slowSpeed;
+		}
 			break;
 	}
-	
+
 	var str = '10';
 	str += self.toHex2(leftWheel * 10.68 + 0.5);
 	str += self.toHex2(rightWheel * 10.68 + 0.5);
@@ -886,7 +886,7 @@ Module.prototype.requestLocalData = function() {
 	}
 	str += self.toHex(wheel.id);
 	str += self.toHex2(wheel.pulse);
-	
+
 	var lineTracer = self.lineTracer;
 	var tmp = 0;
 	switch(motoring.lineTracerMode) {
@@ -932,7 +932,7 @@ Module.prototype.requestLocalData = function() {
 	str += self.toHex(tmp);
 	str += self.toHex3(motoring.buzzer * 100);
 	str += self.toHex(motoring.note);
-	
+
 	var sound = self.sound;
 	tmp = 0;
 	switch(motoring.sound) {
@@ -992,7 +992,7 @@ Module.prototype.reset = function() {
 	motoring.motionSpeed = 0;
 	motoring.motionValue = 0;
 	motoring.motionRadius = 0;
-	
+
 	var sensory = this.sensory;
 	sensory.button = 0;
 	sensory.clicked = 0;
@@ -1011,23 +1011,23 @@ Module.prototype.reset = function() {
 	sensory.soundStateId = 0;
 	sensory.lineTracerState = 0;
 	sensory.lineTracerStateId = 0;
-	
+
 	var motion = this.motion;
 	motion.written = false;
 	motion.type = 0;
 	motion.speed = 0;
-	
+
 	var acc = this.acceleration;
 	acc.sumx = 0.0;
 	acc.sumy = 0.0;
 	acc.sumz = 0.0;
 	acc.index = 0;
 	acc.count = 0;
-	
+
 	var button = this.button;
 	button.clickId = -1;
 	button.longPressId = -1;
-	
+
 	var wheel = this.wheel;
 	wheel.written = false;
 	wheel.pulse = 0;
@@ -1035,19 +1035,19 @@ Module.prototype.reset = function() {
 	wheel.event = 0;
 	wheel.state = 0;
 	wheel.count = 0;
-	
+
 	var sound = this.sound;
 	sound.written = false;
 	sound.event = 0;
 	sound.state = 0;
 	sound.count = 0;
-	
+
 	var lineTracer = this.lineTracer;
 	lineTracer.written = false;
 	lineTracer.event = 0;
 	lineTracer.state = 0;
 	lineTracer.count = 0;
-	
+
 	var event = this.event;
 	event.button = 0;
 	event.colorNumber = -1;
