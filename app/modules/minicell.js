@@ -1,12 +1,12 @@
 function Module() {
-	this.hdLocalData = { // 12byte 배열 데이터 INDEX별 임시 저장 버퍼
+	this.hdLocalData = { 
 		type: [0, 0, 0, 0],
 		id: [0, 0, 0, 0],
 		no: [0, 0, 0, 0],
 		len: [0, 0, 0, 0],
 		data: [0, 0, 0, 0]
 	};
-	this.hdRemoteData = { // HCell로 보내는 데이터 객체. true = 전송 전, false = 전송 후
+	this.hdRemoteData = { 
 		TIME:[false, null, null, null, null],
 		DC_MOTOR:[false, null, null, null, null],
 		SERVO_MOTOR:[false, null, null, null, null],
@@ -16,16 +16,16 @@ function Module() {
 		LED_B:[false, null, null, null, null],
 		ALL_OFF: [false, null, null, null, null]
 	};
-	this.rqRemoteData = { // 엔트리로 보내는 데이터 객체. Backup 용으로 현재 저장기능만 수행.
+	this.rqRemoteData = { 
 		IR:[null, null, null, null],
 		CDS:[null, null, null, null],
 		POT:[null, null, null, null],
 		TACT_SWITCH:[null, null, null, null],
 	};
-	this.setZero = { // 엔트리 스크립트 종료시 true로 변경. hdRemoteData 객체 초기화.
+	this.setZero = { 
 		set_zero: false
 	};
-	this.receiveData = []; // HCell에서 올라온 데이터를 저장하는 임시 버퍼
+	this.receiveData = [];
 }
 
 var Minicell = {
@@ -62,10 +62,10 @@ var Minicell = {
 
 var InputCMD = {
 	0x00: "NULL", 
-	0x11: "IR", // 바닥감지센서
-	0x16: "CDS", // 조도센서
-	0x1d: "POT", // 가변저항
-	0x1e: "TACT_SWITCH", // 버튼
+	0x11: "IR", 
+	0x16: "CDS", 
+	0x1d: "POT", 
+	0x1e: "TACT_SWITCH", 
 	0x1f: "DIP_SWITCH"
 };
 
@@ -324,11 +324,6 @@ Module.prototype.reset = function() {
 	hdLocalData.crc = 0;
 };
 
-Module.prototype.lsb4BitExt = function(number){
-	var value = parseInt(number);
-	value = value & 0x0F;
-	return value;
-};
 
 Module.prototype.lsbToMsb = function(number){
 	var value = parseInt(number);
