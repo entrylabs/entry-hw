@@ -185,7 +185,7 @@ Module.prototype.requestLocalData = function() {
 	}
 	if(cnt == 0) return;
 	var bufs = new Array();
-	var rowLength = parseInt((cnt-1)/PalmKit.MAX_NUMBER_OF_MODULES)+1;
+	var rowLength = parseInt((cnt-1)/PalmKit.MAX_NUMBER_OF_MODULES, 10)+1;
 
 	for(var i=0; i<rowLength; i++)
 		bufs[i] = [	PalmKit.HEAD1, PalmKit.HEAD2, 
@@ -198,7 +198,7 @@ Module.prototype.requestLocalData = function() {
 			continue;
 		for(var i=1; i<5; i++) {
 			if(hdRemoteData[key][i] != null) {
-				var rows = parseInt(index/PalmKit.MAX_NUMBER_OF_MODULES),
+				var rows = parseInt(index/PalmKit.MAX_NUMBER_OF_MODULES, 10),
 					cols = index % PalmKit.MAX_NUMBER_OF_MODULES;
 				bufs[rows][PalmKit.TYPE_TX_IDX] |= (this.msbToLsb2Bit(OutputCMD[key]) << (6 - cols*2));
 				var data = hdRemoteData[key][i];
@@ -212,11 +212,11 @@ Module.prototype.requestLocalData = function() {
 		}
 	}
 
-	var rows = parseInt((cnt - 1) / PalmKit.PACKET_VALUE_MAX_SIZE);
-	var add = 4 - parseInt(1 * (parseInt((cnt+3)/4) - parseInt((cnt+2)/4))
-				  + 2 * (parseInt((cnt+2)/4) - parseInt((cnt+1)/4))
-				  + 3 * (parseInt((cnt+1)/4) - parseInt((cnt)/4))
-				  + 4 * (parseInt((cnt)/4) - parseInt((cnt-1)/4)));
+	var rows = parseInt((cnt - 1) / PalmKit.PACKET_VALUE_MAX_SIZE, 10);
+	var add = 4 - parseInt(1 * (parseInt((cnt+3)/4, 10) - parseInt((cnt+2)/4, 10))
+				  + 2 * (parseInt((cnt+2)/4, 10) - parseInt((cnt+1)/4, 10))
+				  + 3 * (parseInt((cnt+1)/4, 10) - parseInt((cnt)/4, 10))
+				  + 4 * (parseInt((cnt)/4, 10) - parseInt((cnt-1)/4, 10)));
 	for(var i=0; i<add; i++) {
 		bufs[rows].push(0);
 	}
@@ -326,31 +326,31 @@ Module.prototype.reset = function() {
 
 
 Module.prototype.lsbToMsb = function(number){
-	var value = parseInt(number);
+	var value = parseInt(number, 10);
 	value = (value << 4) & 0xF0;
 	return value;
 };
 
 Module.prototype.lsbToMsb2Bit = function(number){
-	var value = parseInt(number);
+	var value = parseInt(number, 10);
 	value = (value << 4) & 0x30;
 	return value;
 };
 
 Module.prototype.lsbTo2Bit = function(number) {
-	var value = parseInt(number);
+	var value = parseInt(number, 10);
 	value = (value << 2) & 0x0c;
 	return value;
 }
 	
 Module.prototype.lsb2BitExt = function(number) {
-	var value = parseInt(number);
+	var value = parseInt(number, 10);
 	value = value & 0x03;
 	return value;
 }
 
 Module.prototype.msbToLsb2Bit = function(number){
-	var value = parseInt(number);
+	var value = parseInt(number, 10);
 	value = (value >> 4) & 0x03;
 	return value;
 };
