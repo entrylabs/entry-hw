@@ -28,7 +28,7 @@ function Module() {
 	this.receiveData = [];
 }
 
-var Minicell = {
+var PalmKit = {
 	// minicell
 	HEAD1_IDX: 0,
 	HEAD2_IDX: 1,
@@ -98,73 +98,73 @@ Module.prototype.handleRemoteData = function(handler) {
 	var hdRemoteData = this.hdRemoteData;
 	var setZero = this.setZero;
 	var buf;
-	if(handler.e(Minicell.STOP) && ((!hdRemoteData.DC_MOTOR[Minicell.FLAG]) || (!hdRemoteData.SERVO_MOTOR[Minicell.FLAG]))) {
-		buf = handler.read(Minicell.STOP);
+	if(handler.e(PalmKit.STOP) && ((!hdRemoteData.DC_MOTOR[PalmKit.FLAG]) || (!hdRemoteData.SERVO_MOTOR[PalmKit.FLAG]))) {
+		buf = handler.read(PalmKit.STOP);
 		if(hdRemoteData.DC_MOTOR[1]!=0 || hdRemoteData.DC_MOTOR[2]!=0 || hdRemoteData.DC_MOTOR[3]!=0 || hdRemoteData.DC_MOTOR[4]!=0) {
-			hdRemoteData.DC_MOTOR[Minicell.FLAG] = true;
-			for(var i=0; i<Minicell.MAX_NUMBER_OF_MODULES; i++)
+			hdRemoteData.DC_MOTOR[PalmKit.FLAG] = true;
+			for(var i=0; i<PalmKit.MAX_NUMBER_OF_MODULES; i++)
 				hdRemoteData.DC_MOTOR[i+1] = 0;
 		}
 		if(hdRemoteData.SERVO_MOTOR[1]!=0 || hdRemoteData.SERVO_MOTOR[2]!=0 || hdRemoteData.SERVO_MOTOR[3]!=0 || hdRemoteData.SERVO_MOTOR[4]!=0) {
-			hdRemoteData.SERVO_MOTOR[Minicell.FLAG] = true;
-			for(var i=0; i<Minicell.MAX_NUMBER_OF_MODULES; i++)
+			hdRemoteData.SERVO_MOTOR[PalmKit.FLAG] = true;
+			for(var i=0; i<PalmKit.MAX_NUMBER_OF_MODULES; i++)
 				hdRemoteData.SERVO_MOTOR[i+1] = 0xff;
 		}
 	} 
-	if(handler.e(Minicell.DC_MOTOR)) {
-		buf = handler.read(Minicell.DC_MOTOR);
+	if(handler.e(PalmKit.DC_MOTOR)) {
+		buf = handler.read(PalmKit.DC_MOTOR);
 		var value = new Array();
 		value.push(buf.dir);
 		value.push(buf.speed); 
 		if(JSON.stringify(hdRemoteData.DC_MOTOR[buf.idx]) !== JSON.stringify(value) 
-			&& (!hdRemoteData.DC_MOTOR[Minicell.FLAG])) {
-			hdRemoteData.DC_MOTOR[Minicell.FLAG] = true;
+			&& (!hdRemoteData.DC_MOTOR[PalmKit.FLAG])) {
+			hdRemoteData.DC_MOTOR[PalmKit.FLAG] = true;
 			hdRemoteData.DC_MOTOR[buf.idx] = value;
 		}
 	} 
-	if(handler.e(Minicell.SERVO_MOTOR)) {
-		buf = handler.read(Minicell.SERVO_MOTOR);
+	if(handler.e(PalmKit.SERVO_MOTOR)) {
+		buf = handler.read(PalmKit.SERVO_MOTOR);
 		var value = new Array();
 		value.push(buf.angle);
 		value.push(buf.speed); 
 		if(JSON.stringify(hdRemoteData.SERVO_MOTOR[buf.idx]) !== JSON.stringify(value) 
-			&& (!hdRemoteData.DC_MOTOR[Minicell.FLAG])) {
-			hdRemoteData.SERVO_MOTOR[Minicell.FLAG] = true;
+			&& (!hdRemoteData.DC_MOTOR[PalmKit.FLAG])) {
+			hdRemoteData.SERVO_MOTOR[PalmKit.FLAG] = true;
 			hdRemoteData.SERVO_MOTOR[buf.idx] = value;
 		}
 	} 
-	if(handler.e(Minicell.BUZZER)) {
-		buf = handler.read(Minicell.BUZZER);
-		if(hdRemoteData.BUZZER[buf.idx]!=buf.value && (!hdRemoteData.BUZZER[Minicell.FLAG])) {
-			hdRemoteData.BUZZER[Minicell.FLAG] = true;
+	if(handler.e(PalmKit.BUZZER)) {
+		buf = handler.read(PalmKit.BUZZER);
+		if(hdRemoteData.BUZZER[buf.idx]!=buf.value && (!hdRemoteData.BUZZER[PalmKit.FLAG])) {
+			hdRemoteData.BUZZER[PalmKit.FLAG] = true;
 			hdRemoteData.BUZZER[buf.idx] = buf.value;	
 		}
 	} 
-	if(handler.e(Minicell.LED_R)) {
-		buf = handler.read(Minicell.LED_R);
-		if(hdRemoteData.LED_R[buf.idx]!=buf.value_r && (!hdRemoteData.LED_R[Minicell.FLAG])) {
-			hdRemoteData.LED_R[Minicell.FLAG] = true;
+	if(handler.e(PalmKit.LED_R)) {
+		buf = handler.read(PalmKit.LED_R);
+		if(hdRemoteData.LED_R[buf.idx]!=buf.value_r && (!hdRemoteData.LED_R[PalmKit.FLAG])) {
+			hdRemoteData.LED_R[PalmKit.FLAG] = true;
 			hdRemoteData.LED_R[buf.idx] = buf.value_r;
 		}
 	}
-	if(handler.e(Minicell.LED_G)) {
-		buf = handler.read(Minicell.LED_G);
-		if(hdRemoteData.LED_G[buf.idx]!=buf.value_g && (!hdRemoteData.LED_G[Minicell.FLAG])) {
-			hdRemoteData.LED_G[Minicell.FLAG] = true;
+	if(handler.e(PalmKit.LED_G)) {
+		buf = handler.read(PalmKit.LED_G);
+		if(hdRemoteData.LED_G[buf.idx]!=buf.value_g && (!hdRemoteData.LED_G[PalmKit.FLAG])) {
+			hdRemoteData.LED_G[PalmKit.FLAG] = true;
 			hdRemoteData.LED_G[buf.idx] = buf.value_g;
 		}
 	}
-	if(handler.e(Minicell.LED_B)) {
-		buf = handler.read(Minicell.LED_B);
-		if(hdRemoteData.LED_B[buf.idx]!=buf.value_b && (!hdRemoteData.LED_B[Minicell.FLAG])) {
-			hdRemoteData.LED_B[Minicell.FLAG] = true;
+	if(handler.e(PalmKit.LED_B)) {
+		buf = handler.read(PalmKit.LED_B);
+		if(hdRemoteData.LED_B[buf.idx]!=buf.value_b && (!hdRemoteData.LED_B[PalmKit.FLAG])) {
+			hdRemoteData.LED_B[PalmKit.FLAG] = true;
 			hdRemoteData.LED_B[buf.idx] = buf.value_b;
 		}
 	}
 
-	if(handler.e(Minicell.SET_ZERO)) { // Always footer position in handleRemoteData function
+	if(handler.e(PalmKit.SET_ZERO)) { // Always footer position in handleRemoteData function
 		setZero.set_zero = true;
-		hdRemoteData.ALL_OFF[Minicell.FLAG] = true;
+		hdRemoteData.ALL_OFF[PalmKit.FLAG] = true;
 		hdRemoteData.ALL_OFF[1] = 0;
 	}
 };
@@ -176,8 +176,8 @@ Module.prototype.requestLocalData = function() {
 	var cnt = 0, index = 0, rowLength; 
 	
 	for(var key in hdRemoteData) {
-		if(hdRemoteData[key][Minicell.FLAG]) {
-			for(var i=1; i<Minicell.MAX_NUMBER_OF_MODULES+1; i++) {
+		if(hdRemoteData[key][PalmKit.FLAG]) {
+			for(var i=1; i<PalmKit.MAX_NUMBER_OF_MODULES+1; i++) {
 				if(hdRemoteData[key][i] != null)
 					cnt += 1;
 			}
@@ -185,25 +185,25 @@ Module.prototype.requestLocalData = function() {
 	}
 	if(cnt == 0) return;
 	var bufs = new Array();
-	var rowLength = parseInt((cnt-1)/Minicell.MAX_NUMBER_OF_MODULES)+1;
+	var rowLength = parseInt((cnt-1)/PalmKit.MAX_NUMBER_OF_MODULES)+1;
 
 	for(var i=0; i<rowLength; i++)
-		bufs[i] = [	Minicell.HEAD1, Minicell.HEAD2, 
+		bufs[i] = [	PalmKit.HEAD1, PalmKit.HEAD2, 
 					0, 0, // TYPE_RX, TYPE_TX
 					0, // DATA_LENGTH
 					0, 0, 0, 0]; // ID,NO,LEN[1 ~ 4]
 
 	for(var key in hdRemoteData) {
-		if(!hdRemoteData[key][Minicell.FLAG])
+		if(!hdRemoteData[key][PalmKit.FLAG])
 			continue;
 		for(var i=1; i<5; i++) {
 			if(hdRemoteData[key][i] != null) {
-				var rows = parseInt(index/Minicell.MAX_NUMBER_OF_MODULES),
-					cols = index % Minicell.MAX_NUMBER_OF_MODULES;
-				bufs[rows][Minicell.TYPE_TX_IDX] |= (this.msbToLsb2Bit(OutputCMD[key]) << (6 - cols*2));
+				var rows = parseInt(index/PalmKit.MAX_NUMBER_OF_MODULES),
+					cols = index % PalmKit.MAX_NUMBER_OF_MODULES;
+				bufs[rows][PalmKit.TYPE_TX_IDX] |= (this.msbToLsb2Bit(OutputCMD[key]) << (6 - cols*2));
 				var data = hdRemoteData[key][i];
 				var bb = this.convertByteArray(data);
-				bufs[rows][Minicell.IDNOLEN_IDX[cols]] = this.lsbToMsb(OutputCMD[key]) + this.lsbTo2Bit(i-1) + this.lsb2BitExt(bb.length - 1);
+				bufs[rows][PalmKit.IDNOLEN_IDX[cols]] = this.lsbToMsb(OutputCMD[key]) + this.lsbTo2Bit(i-1) + this.lsb2BitExt(bb.length - 1);
 				for(var j=0; j<bb.length; j++) {
 					bufs[rows].push(bb[j]);
 				}
@@ -212,7 +212,7 @@ Module.prototype.requestLocalData = function() {
 		}
 	}
 
-	var rows = parseInt((cnt - 1) / Minicell.PACKET_VALUE_MAX_SIZE);
+	var rows = parseInt((cnt - 1) / PalmKit.PACKET_VALUE_MAX_SIZE);
 	var add = 4 - parseInt(1 * (parseInt((cnt+3)/4) - parseInt((cnt+2)/4))
 				  + 2 * (parseInt((cnt+2)/4) - parseInt((cnt+1)/4))
 				  + 3 * (parseInt((cnt+1)/4) - parseInt((cnt)/4))
@@ -223,7 +223,7 @@ Module.prototype.requestLocalData = function() {
 
 	for(var i=0; i<bufs.length; i++) {
 		var len = bufs[i].length + 1;
-		bufs[i][Minicell.DATA_LEN_IDX] = len;
+		bufs[i][PalmKit.DATA_LEN_IDX] = len;
 		bufs[i].push(this.generateCRC(bufs[i]));
 	}
 
@@ -234,7 +234,7 @@ Module.prototype.requestLocalData = function() {
 		setZero.set_zero = false;
 	} else {
 		for(var key in hdRemoteData)
-			hdRemoteData[key][Minicell.FLAG] = false;
+			hdRemoteData[key][PalmKit.FLAG] = false;
 	}
 
 	for(var i=0; i<bufs.length; i++){
@@ -248,23 +248,23 @@ Module.prototype.requestLocalData = function() {
 
 Module.prototype.requestRemoteData = function(handler) {
 	var rqRemoteData = this.rqRemoteData;
-	if(this.receiveData.length < Minicell.MIN_LEN) return;
-	while(this.receiveData.length >= Minicell.MIN_LEN) {
-		var _len = this.receiveData[Minicell.DATA_LEN_IDX];
+	if(this.receiveData.length < PalmKit.MIN_LEN) return;
+	while(this.receiveData.length >= PalmKit.MIN_LEN) {
+		var _len = this.receiveData[PalmKit.DATA_LEN_IDX];
 		var _data = this.receiveData.splice(0, _len);
 
 		var value;
 		var hdLocalData = this.hdLocalData;
 		var _type, _idnolen, _crc;
-		var data_idx = [Minicell.DATA_MIN_IDX, 0, 0, 0];
+		var data_idx = [PalmKit.DATA_MIN_IDX, 0, 0, 0];
 
-		_type = _data[Minicell.TYPE_RX_IDX];
+		_type = _data[PalmKit.TYPE_RX_IDX];
 		_idnolen = _data.slice(5, 9);
 		_crc = _data.pop();
 
 		if(!(_crc == this.generateCRC(_data))) continue;
 
-		for(var i=0; i<Minicell.PACKET_VALUE_MAX_SIZE; i++) {
+		for(var i=0; i<PalmKit.PACKET_VALUE_MAX_SIZE; i++) {
 			hdLocalData.type[i] = (_type >> (6 - i*2)) & 0x03;
 			var idnolen = _idnolen[i];
 			hdLocalData.id[i] = (idnolen >> 4) & 0x0f;
@@ -272,18 +272,18 @@ Module.prototype.requestRemoteData = function(handler) {
 			hdLocalData.len[i] = (idnolen & 0x03) + 1;
 		}
 
-		for(var i=1; i<Minicell.PACKET_VALUE_MAX_SIZE; i++) {
+		for(var i=1; i<PalmKit.PACKET_VALUE_MAX_SIZE; i++) {
 			data_idx[i] = data_idx[i-1] + hdLocalData.len[i-1];
 		}
 
-		for(var i=0; i<Minicell.PACKET_VALUE_MAX_SIZE; i++) {
+		for(var i=0; i<PalmKit.PACKET_VALUE_MAX_SIZE; i++) {
 			var data = _data.slice(data_idx[i], data_idx[i] + hdLocalData.len[i]);
 
 			hdLocalData.data[i] = this.convertInteger(data);
 		}
 
 		// data input ...
-		for(var i=0; i<Minicell.MAX_NUMBER_OF_MODULES; i++){ 
+		for(var i=0; i<PalmKit.MAX_NUMBER_OF_MODULES; i++){ 
 			var key = InputCMD[this.lsbToMsb2Bit(hdLocalData.type[i]) + hdLocalData.id[i]];
 			switch(key) {
 				case "NULL": break;
@@ -301,11 +301,11 @@ Module.prototype.requestRemoteData = function(handler) {
 
 Module.prototype.handleLocalData = function(data) {
 	Array.prototype.push.apply(this.receiveData, data);
-	if(this.receiveData[Minicell.HEAD1_IDX] != Minicell.HEAD1 ||
-		this.receiveData[Minicell.HEAD2_IDX] != Minicell.HEAD2) this.validateReceiveData();
+	if(this.receiveData[PalmKit.HEAD1_IDX] != PalmKit.HEAD1 ||
+		this.receiveData[PalmKit.HEAD2_IDX] != PalmKit.HEAD2) this.validateReceiveData();
 	else {
-		var len = this.receiveData[Minicell.DATA_LEN_IDX];
-		if(len < Minicell.MIN_LEN || len > this.receiveData.length) this.validateReceiveData();
+		var len = this.receiveData[PalmKit.DATA_LEN_IDX];
+		if(len < PalmKit.MIN_LEN || len > this.receiveData.length) this.validateReceiveData();
 	}
 };
 
@@ -421,15 +421,15 @@ Module.prototype.convertInteger = function(arr) {
 
 Module.prototype.validateReceiveData = function(){
 	for(var i=1; i<this.receiveData.length; i++) {
-		if(this.receiveData[i] == Minicell.HEAD1) {
+		if(this.receiveData[i] == PalmKit.HEAD1) {
 			this.receiveData = this.receiveData.splice(i, this.receiveData.length-i);
 			i = 0;
-			if(this.receiveData.length < Minicell.MIN_LEN) {
+			if(this.receiveData.length < PalmKit.MIN_LEN) {
 				this.receiveData = [];
 				return;
-			} else if(this.receiveData[Minicell.HEAD2_IDX] == Minicell.HEAD2) {
-				var len = this.receiveData[Minicell.DATA_LEN_IDX];
-				if(len <= this.receiveData.length && len >= Minicell.MIN_LEN) return; // OK;
+			} else if(this.receiveData[PalmKit.HEAD2_IDX] == PalmKit.HEAD2) {
+				var len = this.receiveData[PalmKit.DATA_LEN_IDX];
+				if(len <= this.receiveData.length && len >= PalmKit.MIN_LEN) return; // OK;
 				else {
 					this.receiveData = [];
 					return; // IndexOutofBoundsException, IllegalArgumentException

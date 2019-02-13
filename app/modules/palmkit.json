@@ -5,11 +5,11 @@
 		"ko": "팜킷"
 	},
 	"platform": ["win32"],
-	"icon": "minicell.png",
-	"module": "minicell.js",
+	"icon": "palmkit.png",
+	"module": "palmkit.js",
 	"driver": {
-		"win32-ia32": "minicell/CP210xVCPInstaller_x86.exe",
-		"win32-x64": "minicell/CP210xVCPInstaller_x64.exe"
+		"win32-ia32": "palmkit/CP210xVCPInstaller_x86.exe",
+		"win32-x64": "palmkit/CP210xVCPInstaller_x64.exe"
 	},
 	"url": "",
 	"email": "codesign7976@gmail.com",
