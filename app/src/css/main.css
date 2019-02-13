@@ -53,7 +53,8 @@ button {
 #header {
     flex: none;
     width: 100%;
-    height: 78px;
+    height: 100px;
+    z-index: 1;
     background-color: #5096f5;
     padding-left: 20px;
 }
@@ -499,25 +500,28 @@ button {
 
 #cloud_icon .cloud_icon {
     display: inline-block;
-    background: url('../images/cloud.png');
     background-size: contain;
-    background-repeat: no-repeat;
+    background: url('../images/cloud.png') no-repeat;
     width: 22px;
-    height: 13px;
+    height: 14px;
 }
 
 #cloud_icon .cloud_text {
     display: inline-block;
     vertical-align: top;
-    line-height: 13px;
-    font-size: 13px;
-    color: rgba(255, 255, 255, 0.5);
+    font-size: 14px;
+    font-weight: bold;
+    font-style: normal;
+    font-stretch: normal;
+    line-height: normal;
+    letter-spacing: -0.5px;
+    color: white;
 }
 
 #cloud_icon {
     display: none;
-    float: right;
-    margin-top: -12px;
+    float: left;
+    margin-top: 10px;
     margin-right: 20px;
     /*animation: blink_image 2s linear infinite;*/
 }
@@ -592,3 +596,24 @@ button {
     font-weight: bold;
     float: right;
 }
+
+ul {
+    float: right;
+    padding-right: 17px;
+    margin-top: 0px;
+}
+ul li {
+    border: 1px #4c94f8 solid;
+    width: 110px;
+    height: 30px;
+    padding: 5px 10px; z-index: 2;
+    list-style-type: none;
+    cursor: pointer;
+    font-size: 14px;
+    color: #4c94f8;
+    background-color: white;
+}
+ul li:not(.init) { display: none; }
+ul li:not(.init):hover, ul li.selected:not(.init) { background: #09f; }
+
+a#submit { z-index: 1; }

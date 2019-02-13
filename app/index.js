@@ -200,7 +200,7 @@ if (!app.requestSingleInstanceLock()) {
 
         mainWindow = new BrowserWindow({
             width: 800,
-            height: 650,
+            height: 670,
             title: title + packageJson.version,
             webPreferences: {
                 backgroundThrottling: false,
