@@ -99,9 +99,12 @@
 
     categoryDropdown.on("click", "li:not(.init)", function() {
         categoryDropdownOptions.removeClass('selected');
-        $(this).addClass('selected');
-        $("ul").children('.init').html($(this).html());
+
+        const target = $(this);
+        target.addClass('selected');
+        categoryDropdown.children('.init').html($(this).html());
         categoryDropdownOptions.toggle();
+        filterHardware(target.data('value'));
     });
 
     // dropdown setting end
@@ -616,6 +619,20 @@
             }
         } else {
             ui.showRobot();
+        }
+    }
+
+    function filterHardware(type) {
+        if (!type || type === 'all') {
+            ui.showRobot();
+        } else {
+            hardwareList.forEach((hardware) => {
+                if (hardware.category === type) {
+                    ui.showRobot(hardware.id);
+                } else {
+                    ui.hideRobot(hardware.id);
+                }
+            });
         }
     }
 

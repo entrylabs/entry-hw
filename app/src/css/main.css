@@ -614,6 +614,6 @@ ul.dropdown li {
     background-color: white;
 }
 ul.dropdown li:not(.init) { display: none; }
-ul.dropdown li:not(.init):hover, ul.dropdown li.selected:not(.init) { background: #09f; }
+ul.dropdown li:not(.init):hover, ul.dropdown li.selected:not(.init) { background: white; }
 
 a#submit { z-index: 1; }
