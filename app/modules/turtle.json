@@ -4,6 +4,7 @@
         "en": "Turtle",
         "ko": "거북이"
     },
+    "category": "robot",
     "platform": ["win32", "darwin"],
     "icon" : "turtle.png",
     "module": "turtle.js",

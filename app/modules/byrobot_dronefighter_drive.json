@@ -1,5 +1,6 @@
 {
     "id": "0F0201",
+    "category": "robot",
     "platform": ["win32"],
     "name": {
         "en": "BYROBOT Drone Fighter drive",

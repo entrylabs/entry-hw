@@ -4,6 +4,7 @@
         "en": "Hamster",
         "ko": "햄스터"
     },
+    "category": "robot",
     "platform": ["win32", "darwin"],
     "icon" : "hamster.png",
     "module": "hamster.js",

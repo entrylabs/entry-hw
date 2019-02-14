@@ -4,6 +4,7 @@
 		"en": "iboard",
 		"ko": "아이보드"
 	},
+	"category": "board",
 	"platform": ["win32", "darwin"],
 	"icon" : "iboard.png",
 	"module": "iboard.js",

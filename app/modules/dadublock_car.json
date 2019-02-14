@@ -4,6 +4,7 @@
         "en": "dadublock car",
         "ko": "다두블럭 자동차"
     },
+    "category": "robot",
     "platform": ["win32", "darwin"],
     "icon" : "dadublock_car.png",
     "module": "dadublock_car.js",

@@ -4,6 +4,7 @@
         "en": "funboard",
         "ko": "펀보드"
     },
+    "category": "board",
     "platform": ["win32", "darwin"],
     "icon": "FunBoard.png",
     "module": "FunBoard.js",

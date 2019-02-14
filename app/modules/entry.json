@@ -4,6 +4,7 @@
         "en": "E-Sensor board",
         "ko": "E-센서보드(유선연결)"
     },
+    "category": "board",
     "platform": ["win32", "darwin"],
     "icon" : "entry.png",
     "module": "entry.js",

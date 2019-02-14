@@ -1,9 +1,10 @@
 {
-	"id": "060201", 
+	"id": "060201",
 	"name": {
 		"en": "memaker",
 		"ko": "미메이커"
 	},
+	"category": "board",
 	"platform": ["win32"],
 	"icon" : "memaker.png",
 	"module": "memaker.js",

@@ -4,6 +4,7 @@
     "en": "sciencecube",
     "ko": "사이언스큐브"
   },
+  "category": "robot",
   "platform": [
     "win32",
     "darwin"

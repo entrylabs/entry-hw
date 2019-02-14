@@ -4,6 +4,7 @@
 		"en": "coconut",
 		"ko": "코코넛"
 	},
+	"category": "robot",
 	"platform": ["win32", "darwin"],
 	"icon" : "coconut.png",
 	"module": "coconut.js",
@@ -26,6 +27,6 @@
 		"vendor": ["Silicon Lab", "IntegriSys S.A."],
 		"baudRate": 115200,
 		"flowControl": "software",
-		"delimiter": "\r\n"   
+		"delimiter": "\r\n"
 	}
 }

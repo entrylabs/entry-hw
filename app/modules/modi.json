@@ -4,6 +4,7 @@
         "en": "MODI",
         "ko": "모디"
     },
+    "category": "module",
     "platform": ["win32","darwin"],
     "icon": "modi.png",
     "module": "modi.js",

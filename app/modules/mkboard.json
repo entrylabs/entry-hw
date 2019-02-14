@@ -1,9 +1,10 @@
 {
-	"id": "060101", 
+	"id": "060101",
 	"name": {
 		"en": "digital monkeyboard",
 		"ko": "디지털 몽키보드"
 	},
+	"category": "module",
 	"platform": ["win32"],
 	"icon" : "mkboard.png",
 	"module": "mkboard.js",

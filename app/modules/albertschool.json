@@ -4,6 +4,7 @@
 		"en": "Albert School Version",
 		"ko": "알버트 스쿨 버전"
 	},
+	"category": "robot",
 	"platform": ["win32", "darwin"],
 	"icon" : "albertschool.png",
 	"module": "albertschool.js",

@@ -4,6 +4,7 @@
 		"en": "EV3",
 		"ko": "EV3"
 	},
+	"category": "robot",
 	"platform": ["win32", "darwin"],
 	"icon" : "ev3.png",
 	"module": "ev3.js",

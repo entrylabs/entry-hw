@@ -4,6 +4,7 @@
 		"en": "XBOT(Bluetooth)",
 		"ko": "엑스봇(블루투스)"
 	},
+	"category": "robot",
 	"platform": ["win32", "darwin"],
 	"icon" : "xbotBT.png",
 	"module": "xbot.js",

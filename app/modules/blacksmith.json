@@ -4,6 +4,7 @@
         "en": "Blacksmith Board",
         "ko": "대장장이 보드"
     },
+    "category": "module",
     "platform": ["win32", "darwin"],
     "icon": "blacksmith.png",
     "module": "blacksmith.js",

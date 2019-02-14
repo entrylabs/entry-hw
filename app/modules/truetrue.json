@@ -4,6 +4,7 @@
         "en": "TrueTrueRobot",
         "ko": "뚜루뚜루"
     },
+    "category": "robot",
     "platform": ["win32", "darwin"],
     "icon" : "truetrue.png",
     "module": "truetrue.js",

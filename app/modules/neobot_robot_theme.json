@@ -4,6 +4,7 @@
 		"en": "NEOBOT Robot Theme",
 		"ko": "네오봇 로봇 테마"
 	},
+	"category": "module",
 	"platform": ["win32", "darwin"],
 	"icon" : "neobot_robot_theme.png",
 	"module": "neobot_robot_theme.js",

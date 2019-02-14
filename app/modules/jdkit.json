@@ -4,6 +4,7 @@
 		"en": "JDKit",
 		"ko": "제이디키트"
 	},
+	"category": "robot",
 	"platform": ["win32", "darwin"],
 	"icon" : "jdkit.png",
 	"module": "jdkit.js",

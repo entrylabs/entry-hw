@@ -4,6 +4,7 @@
         "en": "NEOBOT-NEW",
         "ko": "네오봇(전용 동글)"
     },
+    "category": "module",
     "platform": ["win32", "darwin"],
     "icon" : "neobot.png",
     "module": "neobot.js",

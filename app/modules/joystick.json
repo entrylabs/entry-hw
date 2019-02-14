@@ -4,6 +4,7 @@
 		"en": "joystick sensor shield",
 		"ko": "조이스틱 센서 쉴드"
 	},
+	"category": "board",
 	"platform": ["win32"],
 	"icon" : "joystick.png",
 	"module": "joystick.js",

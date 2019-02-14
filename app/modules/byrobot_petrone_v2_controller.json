@@ -1,5 +1,6 @@
 {
     "id": "0F0401",
+    "category": "robot",
     "platform": ["win32", "darwin"],
     "name": {
         "en": "BYROBOT PetroneV2 controller",

@@ -4,6 +4,7 @@
         "en": "Arduino Nano",
         "ko": "아두이노 Nano"
     },
+    "category": "board",
     "platform": ["win32", "darwin"],
     "icon": "arduinoNano.png",
     "module": "arduinoNano.js",

@@ -4,6 +4,7 @@
         "en": "Microbit",
         "ko": "마이크로빗"
     },
+    "category": "board",
     "platform": ["win32", "darwin"],
     "icon": "microbit.png",
     "module": "microbit.js",
@@ -22,7 +23,7 @@
     "driver": {
         "win32-ia32": "mbedWinSerial/mbedWinSerial_16466.exe",
         "win32-x64": "mbedWinSerial/mbedWinSerial_16466.exe"
-    },    
+    },
     "hardware": {
         "type": "serial",
         "control": "slave",
