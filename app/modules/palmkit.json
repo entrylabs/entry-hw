@@ -14,7 +14,7 @@
 	"url": "",
 	"email": "codesign7976@gmail.com",
     "reconnect" : true,
-	"firmware": "",
+	"firmware": "palmkit",
 	"firmwareBaudRate": "",
 	"select_com_port": false,
 	"entry": {
@@ -24,7 +24,7 @@
 		"type": "serial",
 		"control": "master",
 		"parity": "none",
-		"vendor": ["Silicon Labs"],
+		"vendor": ["Silicon Labs", "Arduino LLC"],
 		"baudRate": 115200,
 		"firmwarecheck": false
 	}
