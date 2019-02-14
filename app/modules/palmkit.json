@@ -24,7 +24,7 @@
 		"type": "serial",
 		"control": "master",
 		"parity": "none",
-		"vendor": ["Silicon Labs", "Arduino LLC"],
+		"vendor": ["Silicon Labs"],
 		"baudRate": 115200,
 		"firmwarecheck": false
 	}
