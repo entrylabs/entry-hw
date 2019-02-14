@@ -82,18 +82,29 @@
     var flasher = require('./custom_modules/flasher');
 
     $('html').addClass(process.platform);
+
     // ui & control
-    $("ul").on("click", ".init", function() {
-        $(this).closest("ul").children('li:not(.init)').toggle();
+    // dropdown setting start
+    const categoryDropdown = $("ul.dropdown");
+    const categoryDropdownOptions = categoryDropdown.children('li:not(.init)');
+
+    const hideCategory = () => {
+        categoryDropdown.hide();
+        categoryDropdownOptions.hide();
+    };
+
+    categoryDropdown.on("click", ".init", function() {
+        categoryDropdownOptions.toggle();
     });
 
-    var allOptions = $("ul").children('li:not(.init)');
-    $("ul").on("click", "li:not(.init)", function() {
-        allOptions.removeClass('selected');
+    categoryDropdown.on("click", "li:not(.init)", function() {
+        categoryDropdownOptions.removeClass('selected');
         $(this).addClass('selected');
         $("ul").children('.init').html($(this).html());
-        allOptions.toggle();
+        categoryDropdownOptions.toggle();
     });
+
+    // dropdown setting end
 
     $('.alertMsg .alertMsg1').text(
         translator.translate('If unexpected problem occurs while operating,')
@@ -196,6 +207,7 @@
             router.stopScan();
             delete window.currentConfig;
             $('#title').text(translator.translate('Select hardware'));
+            categoryDropdown.show();
             $('#hwList').show();
             $('#search_area').show();
             $('#hwPanel').css('display', 'none');
@@ -205,6 +217,7 @@
         },
         showConnecting: function() {
             $('#title').text(translator.translate('hardware > connecting'));
+            hideCategory();
             $('#hwList').hide();
             $('#search_area').hide();
             $('#hwPanel').css('display', 'flex');
@@ -215,6 +228,7 @@
         },
         showConnected: function() {
             $('#title').text(translator.translate('hardware > connected'));
+            hideCategory();
             $('#hwList').hide();
             $('#search_area').hide();
             $('#hwPanel').css('display', 'flex');
@@ -226,6 +240,7 @@
         },
         showDisconnected: function() {
             $('#title').text(translator.translate('hardware > disconnected'));
+            hideCategory();
             $('#hwList').hide();
             $('#search_area').hide();
             $('#hwPanel').css('display', 'flex');
@@ -238,24 +253,18 @@
         },
         showAlert: function(message, duration) {
             if (!$('#hwList').is(':visible')) {
-                $('#alert').removeClass('error');
-                $('#alert').text(message);
-
-                $('#alert').css({
-                    height: '0px',
-                });
-                $('#alert')
+                const $alert = $('#alert');
+                $alert.removeClass('error');
+                $alert.text(message);
+                $alert.css({ height: '0px' });
+                $alert
                     .stop()
-                    .animate({
-                        height: '35px',
-                    });
+                    .animate({ height: '35px' });
                 if (duration) {
                     setTimeout(function() {
-                        $('#alert')
+                        $alert
                             .stop()
-                            .animate({
-                                height: '0px',
-                            });
+                            .animate({ height: '0px' });
                     }, duration);
                 }
             }
