@@ -80,7 +80,7 @@ Module.prototype.requestRemoteData = function(handler) {
 };
 
 // 엔트리에서 전달된 데이터 처리(Entry.hw.sendQueue로 보낸 데이터)
-Module.prototype.handleRemoteData = function(handler) {;
+Module.prototype.handleRemoteData = function(handler) {
     // console.log("handleRemoteData");
 
     if(handler.e(Mindpiggy.Mood_NeoPixel)){
