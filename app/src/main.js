@@ -87,6 +87,7 @@
     // dropdown setting start
     const categoryDropdown = $("ul.dropdown");
     const categoryDropdownOptions = categoryDropdown.children('li:not(.init)');
+    const categoryDropdownCurrentSelected = categoryDropdown.children('.init');
 
     const hideCategory = () => {
         categoryDropdown.hide();
@@ -94,6 +95,7 @@
     };
 
     categoryDropdown.on("click", ".init", function() {
+        categoryDropdownCurrentSelected.toggleClass('open');
         categoryDropdownOptions.toggle();
     });
 
@@ -102,7 +104,14 @@
 
         const target = $(this);
         target.addClass('selected');
-        categoryDropdown.children('.init').html($(this).html());
+        categoryDropdownCurrentSelected.html($(this).html());
+
+        categoryDropdownCurrentSelected.append(
+            $('<div></div>')
+                .addClass('arrow')
+        );
+
+        categoryDropdownCurrentSelected.toggleClass('open');
         categoryDropdownOptions.toggle();
         filterHardware(target.data('value'));
     });

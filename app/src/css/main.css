@@ -604,16 +604,36 @@ ul.dropdown {
 }
 ul.dropdown li {
     border: 1px #4c94f8 solid;
-    width: 110px;
+    width: 138px;
     height: 30px;
-    padding: 5px 10px; z-index: 2;
     list-style-type: none;
     cursor: pointer;
     font-size: 14px;
     color: #4c94f8;
     background-color: white;
 }
+
+ul.dropdown li .content {
+    padding-left: 5px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
 ul.dropdown li:not(.init) { display: none; }
 ul.dropdown li:not(.init):hover, ul.dropdown li.selected:not(.init) { background: white; }
+ul.dropdown li.init .arrow {
+    width: 30px;
+    height: 30px;
+    float: right;
+    margin: -1px;
+    border: 1px #4c94f8 solid;
+    background-image: url('../images/arrow_up.png');
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+ul.dropdown li.init.open .arrow {
+    background-image: url('../images/arrow_down.png');
+}
 
 a#submit { z-index: 1; }
