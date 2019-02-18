@@ -608,15 +608,15 @@ ul.dropdown li {
     height: 30px;
     list-style-type: none;
     cursor: pointer;
-    font-size: 14px;
-    color: #4c94f8;
     background-color: white;
+    padding-left: 12px;
 }
 
 ul.dropdown li .content {
-    padding-left: 5px;
-    padding-top: 5px;
-    padding-bottom: 5px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #4c94f8;
+    line-height: 28px;
 }
 
 ul.dropdown li:not(.init) { display: none; }
