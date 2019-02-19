@@ -1,6 +1,6 @@
 'use strict';
 const Readline = require('@serialport/parser-readline'); // modify
-const ByteDelimiter = require('@serialport/parser-delimiter');
+const Delimiter = require('@serialport/parser-delimiter');
 
 function Connector() {
 }
@@ -44,7 +44,11 @@ Connector.prototype.open = function(port, options, callback) {
 		//_options.parser = serialport.parsers.readline(options.delimiter, options.encoding);
 		sp.parser = sp.pipe(new Readline(options));
 	} else if(options.byteDelimiter) {
-		sp.parser = sp.pipe(new ByteDelimiter({delimiter: options.byteDelimiter}))
+		// _options.parser = serialport.parsers.byteDelimiter(options.byteDelimiter);
+		sp.parser = sp.pipe(new Delimiter({
+			delimiter: options.byteDelimiter,
+			includeDelimiter: true,
+		}))
 	}
 	// modify end
 
@@ -81,6 +85,11 @@ Connector.prototype.connect = function(extension, callback) {
 		var source = sp;
 		if(self.options.delimiter) {
 			source = sp.parser = sp.pipe(new Readline(self.options));
+		} else if(self.options.byteDelimiter) {
+			source = sp.parser = sp.pipe(new Delimiter({
+				delimiter: self.options.byteDelimiter,
+				includeDelimiter: true,
+			}));
 		}
 		source.on('data', function(data) {
 			// modify end
