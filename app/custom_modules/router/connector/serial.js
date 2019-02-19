@@ -1,5 +1,6 @@
 'use strict';
 const Readline = require('@serialport/parser-readline'); // modify
+const ByteDelimiter = require('@serialport/parser-delimiter');
 
 function Connector() {
 }
@@ -43,7 +44,7 @@ Connector.prototype.open = function(port, options, callback) {
 		//_options.parser = serialport.parsers.readline(options.delimiter, options.encoding);
 		sp.parser = sp.pipe(new Readline(options));
 	} else if(options.byteDelimiter) {
-		_options.parser = serialport.parsers.byteDelimiter(options.byteDelimiter);
+		sp.parser = sp.pipe(new ByteDelimiter({delimiter: options.byteDelimiter}))
 	}
 	// modify end
 
