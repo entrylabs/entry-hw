@@ -599,11 +599,13 @@ button {
 
 ul.dropdown {
     float: right;
-    padding-right: 17px;
+    margin-right: 17px;
     margin-top: 0;
+    padding: 0;
+    border: 1px #4c94f8 solid;
 }
 ul.dropdown li {
-    border: 1px #4c94f8 solid;
+    /*border: 1px #4c94f8 solid;*/
     width: 138px;
     height: 30px;
     list-style-type: none;
@@ -621,12 +623,15 @@ ul.dropdown li .content {
 
 ul.dropdown li:not(.init) { display: none; }
 ul.dropdown li:not(.init):hover, ul.dropdown li.selected:not(.init) { background: white; }
+ul.dropdown li.init {
+    border-bottom: 1px #4c94f8 solid;
+}
 ul.dropdown li.init .arrow {
     width: 30px;
     height: 30px;
     float: right;
     margin: -1px;
-    border: 1px #4c94f8 solid;
+    border-left: 1px #4c94f8 solid;
     background-image: url('../images/arrow_up.png');
     background-repeat: no-repeat;
     background-position: center;
