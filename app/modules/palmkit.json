@@ -4,6 +4,7 @@
 		"en": "PALM KIT",
 		"ko": "팜킷"
 	},
+	"category": "module",
 	"platform": ["win32"],
 	"icon": "palmkit.png",
 	"module": "palmkit.js",

@@ -4,6 +4,7 @@
         "en": "elio",
         "ko": "elio"
     },
+    "category": "board",
     "platform": ["win32", "darwin"],
     "icon": "elio.png",
     "module": "elio.js",
@@ -12,12 +13,12 @@
 	"entry": {
 		"protocol": "json"
     },
-    
+
 	"driver": {
         "win32-ia32": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
         "win32-x64": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE"
-    },    
-      
+    },
+
 	"hardware": {
         "type": "serial",
 	    "control": "slave",

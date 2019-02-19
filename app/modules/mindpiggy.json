@@ -4,6 +4,7 @@
         "en": "Mindpiggy",
         "ko": "마인드피기"
     },
+    "category": "robot",
     "platform": ["win32", "darwin"],
     "icon": "mindpiggy.png",
     "module": "mindpiggy.js",
