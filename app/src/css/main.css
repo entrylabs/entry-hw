@@ -632,13 +632,13 @@ ul.dropdown li.init .arrow {
     float: right;
     margin: -1px;
     border-left: 1px #4c94f8 solid;
-    background-image: url('../images/arrow_up.png');
+    background-image: url('../images/arrow_down.png');
     background-repeat: no-repeat;
     background-position: center;
 }
 
 ul.dropdown li.init.open .arrow {
-    background-image: url('../images/arrow_down.png');
+    background-image: url('../images/arrow_up.png');
 }
 
 a#submit { z-index: 1; }
