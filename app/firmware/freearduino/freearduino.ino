@@ -64,7 +64,6 @@ unsigned long usTimer = 0;
 bool usFlag = false;
 
 void setup() {
-  Serial.begin(9600);
   if (USE_SOFTWARESERIAL) {
     bSerial = new NeoSWSerial(A4, A5);
     bSerial->begin(9600);
@@ -78,10 +77,6 @@ void setup() {
 }
 
 void initPin() {
-//  for (int pinNumber = 2; pinNumber < 14; pinNumber++) {
-//    pinMode(pinNumber, OUTPUT);
-//    digitalWrite(pinNumber, LOW);
-//  }
   if (USE_SOFTWARESERIAL) {
     pinState[18] = pinState[19] = STATE_LOCK;
   }
@@ -283,11 +278,11 @@ void updateData (char c) {
 void sendData(int phase) {
   if (phase == 1) {
     sendDigitalValues();
-    if (dhtFlag || true) {
+    if (dhtFlag) {
       sendSensorValue(SENSORVALUE_DHT_TEMP, (int)DHT.temperature);
       sendSensorValue(SENSORVALUE_DHT_HUMI, (int)DHT.humidity);
     }
-    if (usFlag || true)
+    if (usFlag)
       sendSensorValue(SENSORVALUE_US_DIST, (int)distance);
   }
   if (phase == 2) {
