@@ -49,18 +49,10 @@ class Scanner {
                     return;
                 }
 
-                var serverMode = this.config.serverMode;
-                var scanType = this.config.hardware.scanType;
-                var vendor = this.config.hardware.vendor;
-                var checkComName = this.config.hardware.comName;
-
-                var control = this.config.hardware.control;
-
-                var duration = this.config.hardware.duration;
-                var firmwarecheck = this.config.hardware.firmwarecheck;
-                var pnpId = this.config.hardware.pnpId;
-                var type = this.config.hardware.type;
-                var selectComPort = this.config.select_com_port;
+                const { serverMode, hardware } = this.config;
+                let { select_com_port:selectComPort } = this.config;
+                const { scanType, comName:checkComName, control, duration, firmwarecheck, pnpId, type } = hardware;
+                let { vendor } = hardware;
 
                 if (vendor && Scanner._isObject(vendor)) {
                     vendor = vendor[process.platform];
@@ -70,8 +62,8 @@ class Scanner {
                     selectComPort = selectComPort[process.platform];
                 }
 
-                var checkComPort = (selectComPort || type === 'bluetooth' || serverMode === 1) || false;
-                var myComPort = this.config.this_com_port;
+                const checkComPort = (selectComPort || type === 'bluetooth' || serverMode === 1) || false;
+                const myComPort = this.config.this_com_port;
 
                 if (checkComPort && !myComPort) {
                     this.router.emit('state', 'select_port', devices);
@@ -84,7 +76,7 @@ class Scanner {
                         this.scanCount++;
                     } else {
                         if (devices.some(function(device) {
-                            var isVendor = false;
+                            let isVendor = false;
                             if (Array.isArray(vendor)) {
                                 isVendor = vendor.some(function(v) {
                                     return device.manufacturer && device.manufacturer.indexOf(v) >= 0;
@@ -103,9 +95,9 @@ class Scanner {
                 }
 
                 devices.forEach((device) => {
-                    var isVendor = false;
-                    var isComName = false;
-                    var comName = device.comName || this.config.hardware.name;
+                    let isVendor = false;
+                    let isComName = false;
+                    const comName = device.comName || this.config.hardware.name;
 
                     if (Array.isArray(vendor)) {
                         isVendor = vendor.some(function(name) {
@@ -125,13 +117,12 @@ class Scanner {
 
                     if (!vendor || (device.manufacturer && isVendor) || (device.pnpId && device.pnpId.indexOf(pnpId) >= 0) || isComName || checkComPort) {
 
-                        if (checkComPort && comName != myComPort) {
+                        if (checkComPort && comName !== myComPort) {
                             return;
                         }
 
                         // comName = '/dev/tty.EV3-SerialPort';
-
-                        var connector = this.connectors[comName];
+                        let connector = this.connectors[comName];
                         if (connector === undefined) {
                             connector = require('../connector/serial').create();
                             this.connectors[comName] = connector;
@@ -144,7 +135,7 @@ class Scanner {
                                 } else {
                                     this.setConnector(connector);
                                     if (control) {
-                                        var flashFirmware;
+                                        let flashFirmware;
                                         if (firmwarecheck) {
                                             flashFirmware = setTimeout(() => {
                                                 sp.removeAllListeners('data');
@@ -156,19 +147,16 @@ class Scanner {
                                         if (control === 'master') {
                                             if (extension.checkInitialData && extension.requestInitialData) {
 
-                                                // modify start
-                                                var source = sp;
-                                                if (sp.parser) source = sp.parser;
+                                                let source = sp;
+                                                if (sp.parser){
+                                                    source = sp.parser;
+                                                }
                                                 source.on('data', (data) => {
-                                                    // modify end
-
-                                                    // modify start
                                                     if (this.config.hardware.stream === 'string') {
                                                         data = data.toString();
                                                     }
-                                                    // modify end
 
-                                                    var result = extension.checkInitialData(data, this.config);
+                                                    const result = extension.checkInitialData(data, this.config);
                                                     if (result === undefined) {
                                                         connector.send(extension.requestInitialData());
                                                     } else {
@@ -190,11 +178,11 @@ class Scanner {
                                         } else {
                                             if (duration && extension.checkInitialData && extension.requestInitialData) {
                                                 sp.on('data', (data) => {
-                                                    if (this.config.hardware.stream == 'string') {
+                                                    if (this.config.hardware.stream === 'string') {
                                                         data = data.toString();
                                                     }
 
-                                                    var result = extension.checkInitialData(data, this.config);
+                                                    const result = extension.checkInitialData(data, this.config);
                                                     if (result !== undefined) {
                                                         sp.removeAllListeners('data');
                                                         clearTimeout(flashFirmware);
@@ -211,7 +199,7 @@ class Scanner {
                                                         }
                                                     }
                                                 });
-                                                var slaveTimer = this.slaveTimers[comName];
+                                                let slaveTimer = this.slaveTimers[comName];
                                                 if (slaveTimer) {
                                                     clearInterval(slaveTimer);
                                                 }
@@ -237,10 +225,10 @@ class Scanner {
             clearInterval(this.timer);
             this.timer = undefined;
         }
-        var slaveTimers = this.slaveTimers;
+        const slaveTimers = this.slaveTimers;
         if (slaveTimers) {
-            var slaveTimer;
-            for (var key in slaveTimers) {
+            let slaveTimer;
+            for (const key in slaveTimers) {
                 slaveTimer = slaveTimers[key];
                 if (slaveTimer) {
                     clearInterval(slaveTimer);
@@ -267,10 +255,10 @@ class Scanner {
     };
 
     closeConnectors() {
-        var connectors = this.connectors;
+        const connectors = this.connectors;
         if (connectors) {
-            var connector;
-            for (var key in connectors) {
+            let connector;
+            for (const key in connectors) {
                 connector = connectors[key];
                 if (connector) {
                     connector.close();
