@@ -186,6 +186,10 @@ Scanner.prototype.scan = function (serialport, extension, config, callback) {
 								} else {
 									if (duration && extension.checkInitialData && extension.requestInitialData) {
 										sp.on('data', function (data) {
+											if(config.hardware.stream == 'string') {
+												data = data.toString();
+											}
+
 											var result = extension.checkInitialData(data, config);
 											if (result !== undefined) {
 												sp.removeAllListeners('data');
