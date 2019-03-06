@@ -35,7 +35,7 @@ class Scanner {
         this.closeConnectors();
     };
 
-    scan(extension, callback) {
+    scan(hwModule, callback) {
         this.serialport.list(
             /**
              * @param error{Error}
@@ -145,7 +145,7 @@ class Scanner {
                                         }
 
                                         if (control === 'master') {
-                                            if (extension.checkInitialData && extension.requestInitialData) {
+                                            if (hwModule.checkInitialData && hwModule.requestInitialData) {
 
                                                 let source = sp;
                                                 if (sp.parser){
@@ -156,16 +156,16 @@ class Scanner {
                                                         data = data.toString();
                                                     }
 
-                                                    const result = extension.checkInitialData(data, this.config);
+                                                    const result = hwModule.checkInitialData(data, this.config);
                                                     if (result === undefined) {
-                                                        connector.send(extension.requestInitialData());
+                                                        connector.send(hwModule.requestInitialData());
                                                     } else {
                                                         source.removeAllListeners('data'); // modify  sp --> source
                                                         clearTimeout(flashFirmware);
                                                         if (result === true) {
 
-                                                            if (extension.setSerialPort) {
-                                                                extension.setSerialPort(sp);
+                                                            if (hwModule.setSerialPort) {
+                                                                hwModule.setSerialPort(sp);
                                                             }
 
                                                             this.finalizeScan(comName, connector, callback);
@@ -176,22 +176,22 @@ class Scanner {
                                                 });
                                             }
                                         } else {
-                                            if (duration && extension.checkInitialData && extension.requestInitialData) {
+                                            if (duration && hwModule.checkInitialData && hwModule.requestInitialData) {
                                                 sp.on('data', (data) => {
                                                     if (this.config.hardware.stream === 'string') {
                                                         data = data.toString();
                                                     }
 
-                                                    const result = extension.checkInitialData(data, this.config);
+                                                    const result = hwModule.checkInitialData(data, this.config);
                                                     if (result !== undefined) {
                                                         sp.removeAllListeners('data');
                                                         clearTimeout(flashFirmware);
                                                         if (result === true) {
-                                                            if (extension.setSerialPort) {
-                                                                extension.setSerialPort(sp);
+                                                            if (hwModule.setSerialPort) {
+                                                                hwModule.setSerialPort(sp);
                                                             }
-                                                            if (extension.resetProperty) {
-                                                                connector.send(extension.resetProperty());
+                                                            if (hwModule.resetProperty) {
+                                                                connector.send(hwModule.resetProperty());
                                                             }
                                                             this.finalizeScan(comName, connector, callback);
                                                         } else if (callback) {
@@ -204,7 +204,7 @@ class Scanner {
                                                     clearInterval(slaveTimer);
                                                 }
                                                 slaveTimer = setInterval(() => {
-                                                    connector.send(extension.requestInitialData(sp));
+                                                    connector.send(hwModule.requestInitialData(sp));
                                                 }, duration);
                                                 this.slaveTimers[comName] = slaveTimer;
                                             }
