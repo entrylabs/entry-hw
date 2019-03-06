@@ -1,198 +1,168 @@
 'use strict';
 const Readline = require('@serialport/parser-readline'); // modify
 const Delimiter = require('@serialport/parser-delimiter');
+const SerialPort = require('@serialport/stream');
+SerialPort.Binding = require('@entrylabs/bindings');
 
-function Connector() {
-}
+class Connector {
+	open(port, options, callback) {
+		this.options = options;
 
-Connector.prototype.open = function(port, options, callback) {
-	var serialport = require('@serialport/stream'); // modify
-	serialport.Binding = require('@entrylabs/bindings');
-	this.options = options; // modify
-
-	this.lostTimer = options.lostTimer || 500;
-	// options
-	var _options = {};
-	_options.autoOpen = options.autoOpen || options.AutoOpen || true;
-	_options.baudRate = options.baudRate || options.baudrate || 9600;
-	_options.parity = options.parity || 'none';
-	_options.dataBits = options.dataBits || options.databits || 8;
-	_options.stopBits = options.stopBits || options.stopbits || 1;
-	_options.bufferSize = options.bufferSize || options.buffersize || 65536;
-
-	// modify start
-	//	if(options.delimiter) {
-	//		_options.parser = serialport.parsers.readline(options.delimiter, options.encoding);
-	//	} else if(options.byteDelimiter) {
-	//		_options.parser = serialport.parsers.byteDelimiter(options.byteDelimiter);
-	//	}
-	// modify end
-
-	var flowcontrol = options.flowControl || options.flowcontrol;
-	if(flowcontrol === 'hardware') {
-		//_options.flowControl = true;
-		_options.rtscts = true; // modify
-	} else if(flowcontrol === 'software') {
-		_options.flowControl = ['XON', 'XOFF'];
-	}
-
-	var sp = new serialport(port, _options); // modify serialport.SerialPort --> serialport
-	this.sp = sp;
-
-	// modify start
-	if(options.delimiter) {
-		//_options.parser = serialport.parsers.readline(options.delimiter, options.encoding);
-		sp.parser = sp.pipe(new Readline(options));
-	} else if(options.byteDelimiter) {
-		// _options.parser = serialport.parsers.byteDelimiter(options.byteDelimiter);
-		sp.parser = sp.pipe(new Delimiter({
-			delimiter: options.byteDelimiter,
-			includeDelimiter: true,
-		}))
-	}
-	// modify end
-
-	sp.on('error', function(error) {
-		console.error(error);
-		if(callback) {
-			callback(error);
-		}
-	});
-	sp.on('open', function(error) {
-		sp.removeAllListeners('open');
-		if(callback) {
-			callback(error, sp);
-		}
-	});
-};
-
-Connector.prototype.connect = function(extension, callback) {
-	console.log('connect!');
-	if(extension.connect) {
-		extension.connect();
-	}
-	var self = this;
-	if(self.sp) {
-		self.connected = false;
-		self.received = true;
-		var sp = self.sp;
-		callback('connect');
-		if(extension.afterConnect) {
-			extension.afterConnect(self, callback);
+		this.lostTimer = options.lostTimer || 500;
+		// options
+		const _options = {
+			autoOpen: true,
+			baudRate: 9600,
+			parity: 'none',
+			dataBits: 8,
+			stopBits: 1,
+			bufferSize: 65536,
+		};
+		if(options.flowControl === 'hardware') {
+			_options.rtscts = true;
+		} else if(options.flowControl === 'software') {
+			_options.xon = true;
+			_options.xoff = true;
 		}
 
-		// modify start
-		var source = sp;
-		if(self.options.delimiter) {
-			source = sp.parser = sp.pipe(new Readline(self.options));
-		} else if(self.options.byteDelimiter) {
-			source = sp.parser = sp.pipe(new Delimiter({
-				delimiter: self.options.byteDelimiter,
+		Object.assign(_options, this.options);
+
+		this.serialPort = new SerialPort(port, _options);
+
+		if(options.delimiter) {
+			this.serialPort.parser = this.serialPort.pipe(new Readline(options));
+		} else if(options.byteDelimiter) {
+			this.serialPort.parser = this.serialPort.pipe(new Delimiter({
+				delimiter: options.byteDelimiter,
 				includeDelimiter: true,
-			}));
+			}))
 		}
-		source.on('data', function(data) {
-			// modify end
-			// modify start
-			if(self.options.stream == 'string') {
-				data = data.toString();
-			}
-			// modify end
+		// modify end
 
-			var valid = true;
-			if(extension.validateLocalData) {
-				valid = extension.validateLocalData(data);
-			}
-			if(valid) {
-				if(self.connected == false) {
-					self.connected = true;
-					if(callback) {
-						callback('connected');
-					}
-				}
-				self.received = true;
-				if(callback) {
-					callback(null, data);
-				}
-			}
-		});
-		sp.on('disconnect', function() {
-			self.close();
+		this.serialPort.on('error', (error) => {
+			console.error(error);
 			if(callback) {
-				callback('disconnected');
+				callback(error);
 			}
 		});
-		if(extension.lostController) {
-			extension.lostController(self, callback);
-		} else {
-			self.timer = setInterval(function() {
-				if(self.connected) {
-					if(self.received == false) {
-						self.connected = false;
+		this.serialPort.on('open', (error) => {
+			this.serialPort.removeAllListeners('open');
+			if(callback) {
+				callback(error, this.serialPort);
+			}
+		});
+	};
+
+	connect(hwModule, callback) {
+		console.log('connect!');
+		if(hwModule.connect) {
+			hwModule.connect();
+		}
+		if(this.serialPort) {
+			this.connected = false;
+			this.received = true;
+			const serialPort = this.serialPort;
+			callback('connect');
+
+			if(hwModule.afterConnect) {
+				hwModule.afterConnect(this, callback);
+			}
+
+			// if(this.options.delimiter) {
+			// 	serialPort.parser = serialPort.pipe(new Readline(self.options));
+			// } else if(this.options.byteDelimiter) {
+			// 	serialPort.parser = serialPort.pipe(new Delimiter({
+			// 		delimiter: this.options.byteDelimiter,
+			// 		includeDelimiter: true,
+			// 	}));
+			// }
+
+			serialPort.on('data', (data) => {
+				if(this.options.stream === 'string') {
+					data = data.toString();
+				}
+
+				if(!hwModule.validateLocalData || hwModule.validateLocalData(data)) {
+					if(this.connected === false) {
+						this.connected = true;
 						if(callback) {
-							callback('lost');
+							callback('connected');
 						}
 					}
-					self.received = false;
-				}
-			}, this.lostTimer);
-		}
-	}
-};
-
-Connector.prototype.clear = function() {
-	this.connected = false;
-	if(this.timer) {
-		clearInterval(this.timer);
-		this.timer = undefined;
-	}
-	if(this.sp) {
-		this.sp.removeAllListeners();
-
-		// modify start
-		if(this.sp.parser) {
-			this.sp.parser.removeAllListeners();
-		}
-		// modify end
-	}
-};
-
-Connector.prototype.close = function() {
-	var self = this;
-	this.clear();
-	if(this.sp) {
-		if(this.sp.isOpen) { // modify isOpen
-			this.sp.close(function (e) {
-				self.sp = undefined;
-			});
-		}
-	}
-};
-
-Connector.prototype.send = function(data, callback) {
-	var that = this;
-	if(this.sp && this.sp.isOpen && data && !this.sp.isSending) { // modify isOpen
-		this.sp.isSending = true;
-
-		// modify start
-		if(this.options.stream == 'string') {
-			data = Buffer.from(data, 'utf8');
-		}
-		// modify end
-
-		this.sp.write(data, function () {
-			if(that.sp) {
-				that.sp.drain(function () {
-					that.sp.isSending = false;
-					if(callback){
-						callback();
+					this.received = true;
+					if(callback) {
+						callback(null, data);
 					}
+				}
+			});
+			serialPort.on('disconnect', () => {
+				this.close();
+				if(callback) {
+					callback('disconnected');
+				}
+			});
+
+			if(hwModule.lostController) {
+				hwModule.lostController(self, callback);
+			} else {
+				this.timer = setInterval(() => {
+					if(this.connected) {
+						if(this.received === false) {
+							this.connected = false;
+							if(callback) {
+								callback('lost');
+							}
+						}
+						this.received = false;
+					}
+				}, this.lostTimer);
+			}
+		}
+	};
+
+	clear() {
+		this.connected = false;
+		if(this.timer) {
+			clearInterval(this.timer);
+			this.timer = undefined;
+		}
+		if(this.serialPort) {
+			this.serialPort.removeAllListeners();
+			if(this.serialPort.parser) {
+				this.serialPort.parser.removeAllListeners();
+			}
+		}
+	};
+
+	close() {
+		this.clear();
+		if(this.serialPort) {
+			if(this.serialPort.isOpen) { // modify isOpen
+				this.serialPort.close((e) => {
+					this.serialPort = undefined;
 				});
 			}
-		});
-	}
-};
+		}
+	};
 
-module.exports.create = function() {
-	return new Connector();
-};
+	send(data, callback) {
+		if(this.serialPort && this.serialPort.isOpen && data && !this.serialPort.isSending) {
+			this.serialPort.isSending = true;
+
+			if(this.options.stream === 'string') {
+				data = Buffer.from(data, 'utf8');
+			}
+
+			this.serialPort.write(data, () => {
+				if(this.serialPort) {
+					this.serialPort.drain(() => {
+						this.serialPort.isSending = false;
+						callback && callback();
+					});
+				}
+			});
+		}
+	};
+}
+
+module.exports.create = () => new Connector();
