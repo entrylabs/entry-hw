@@ -32,8 +32,6 @@ class Router extends EventEmitter {
 		const advertise = config.hardware.advertise;
 		const extension = this.extension;
 		const server = this.server;
-		const type = config.hardware.type;
-		const h_type = type;
 
 		this.connector = connector;
 		if(this.connector['executeFlash']) {

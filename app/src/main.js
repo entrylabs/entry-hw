@@ -54,7 +54,8 @@
         }
     }
     // logger
-    var logger = {
+    const loggerModule = require('../logger');
+    loggerModule.set({
         v: function(str) {
             console.log(str);
         },
@@ -67,12 +68,12 @@
         e: function(str) {
             console.error('%c' + str, 'color: red');
         },
-    };
-    require('./custom_modules/logger').set(logger);
+    });
+    const logger = loggerModule.get();
 
     // server
     var server = require('./custom_modules/entry');
-    server.open(logger);
+    server.open();
 
     // router
     var router = require('./custom_modules/router').init(server);

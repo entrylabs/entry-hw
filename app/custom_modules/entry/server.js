@@ -1,10 +1,27 @@
 'use strict';
-var util = require('util');
-var fs = require('fs');
-var _ = require('lodash');
-var EventEmitter = require('events').EventEmitter;
-var client = require('socket.io-client');
+const util = require('util');
+const fs = require('fs');
+const _ = require('lodash');
+const EventEmitter = require('events').EventEmitter;
+const client = require('socket.io-client');
 const { ipcRenderer } = require('electron');
+const loggerModule = require('../logger');
+loggerModule.set({
+    v: function(str) {
+        console.log(str);
+    },
+    i: function(str) {
+        console.info('%c' + str, 'color: dodgerblue');
+    },
+    w: function(str) {
+        console.warn('%c' + str, 'color: orange');
+    },
+    e: function(str) {
+        console.error('%c' + str, 'color: red');
+    },
+});
+const logger = loggerModule.get();
+
 var masterRoomIds = [];
 var clientRoomId = '';
 var socketClient;
@@ -47,7 +64,7 @@ ipcRenderer.on('customArgs', function(e, data) {
     }
 });
 
-Server.prototype.open = function(logger) {
+Server.prototype.open = function() {
     var http, httpServer, address;
     var PORT = 23518;
     var self = this;
@@ -145,9 +162,7 @@ Server.prototype.open = function(logger) {
         runningMode = serverModeTypes.parent;
         console.log('%cI`M SERVER', 'background:orange; font-size: 30px');
         self.httpServer = httpServer;
-        if (logger) {
-            logger.i('Listening on port ' + PORT);
-        }
+        logger.i('Listening on port ' + PORT);
 
         var server = require('socket.io')(httpServer);
         server.set('transports', [
@@ -165,10 +180,8 @@ Server.prototype.open = function(logger) {
             self.connectionSet[connection.id] = connection;
             self.connections.push(connection);
             self.emit('connection');
-            
-            if (logger) {
-                logger.i('Entry connected.');
-            }
+
+            logger.i('Entry connected.');
 
             var roomId = connection.handshake.query.roomId;
             if (connection.handshake.query.childServer === 'true') {
@@ -255,9 +268,7 @@ Server.prototype.open = function(logger) {
             });
 
             connection.on('close', function(reasonCode, description) {
-                if (logger) {
-                    logger.w('Entry disconnected.');
-                }
+                logger.w('Entry disconnected.');
                 self.emit('close');
                 self.closeSingleConnection(this);
             });
