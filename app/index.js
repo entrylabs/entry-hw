@@ -327,4 +327,6 @@ if (!app.requestSingleInstanceLock()) {
     ipcMain.on('stopRequestLocalData', function() {
         clearInterval(requestLocalDataInterval);
     });
+
+    require('./main/mainRouter');
 }
