@@ -4,11 +4,15 @@ const Delimiter = require('@serialport/parser-delimiter');
 const SerialPort = require('@serialport/stream');
 SerialPort.Binding = require('@entrylabs/bindings');
 
+/**
+ * 스캔이 끝난 후, 선택된 포트로 시리얼포트를 오픈하는 클래스
+ */
 class Connector {
 	open(port, options, callback) {
 		this.options = options;
 
 		this.lostTimer = options.lostTimer || 500;
+
 		// options
 		const _options = {
 			autoOpen: true,
@@ -18,6 +22,7 @@ class Connector {
 			stopBits: 1,
 			bufferSize: 65536,
 		};
+
 		if(options.flowControl === 'hardware') {
 			_options.rtscts = true;
 		} else if(options.flowControl === 'software') {
@@ -29,15 +34,15 @@ class Connector {
 
 		this.serialPort = new SerialPort(port, _options);
 
-		if(options.delimiter) {
-			this.serialPort.parser = this.serialPort.pipe(new Readline(options));
-		} else if(options.byteDelimiter) {
-			this.serialPort.parser = this.serialPort.pipe(new Delimiter({
-				delimiter: options.byteDelimiter,
+		const { delimiter, byteDelimiter } = this.options;
+		if(delimiter) {
+			this.serialPort.parser = new Readline({ delimiter });
+		} else if(byteDelimiter) {
+			this.serialPort.parser = new Delimiter({
+				delimiter: byteDelimiter,
 				includeDelimiter: true,
-			}))
+			});
 		}
-		// modify end
 
 		this.serialPort.on('error', (error) => {
 			console.error(error);
@@ -68,20 +73,8 @@ class Connector {
 				hwModule.afterConnect(this, callback);
 			}
 
-			// if(this.options.delimiter) {
-			// 	serialPort.parser = serialPort.pipe(new Readline(self.options));
-			// } else if(this.options.byteDelimiter) {
-			// 	serialPort.parser = serialPort.pipe(new Delimiter({
-			// 		delimiter: this.options.byteDelimiter,
-			// 		includeDelimiter: true,
-			// 	}));
-			// }
-
-			serialPort.on('data', (data) => {
-				if(this.options.stream === 'string') {
-					data = data.toString();
-				}
-
+			const source = this.serialPort.parser ? this.serialPort.pipe(this.serialPort.parser) : this.serialPort;
+			source.on('data', (data) => {
 				if(!hwModule.validateLocalData || hwModule.validateLocalData(data)) {
 					if(this.connected === false) {
 						this.connected = true;
@@ -95,6 +88,7 @@ class Connector {
 					}
 				}
 			});
+
 			serialPort.on('disconnect', () => {
 				this.close();
 				if(callback) {

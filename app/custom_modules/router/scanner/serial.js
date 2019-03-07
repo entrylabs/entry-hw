@@ -39,9 +39,9 @@ class Scanner {
         this.serialport.list(
             /**
              * @param error{Error}
-             * @param devices{Array<Object>}
+             * @param ports{Array<Object>}
              */
-            (error, devices) => {
+            (error, ports) => {
                 if (error) {
                     if (callback) {
                         callback(error);
@@ -66,7 +66,7 @@ class Scanner {
                 const myComPort = this.config.this_com_port;
 
                 if (checkComPort && !myComPort) {
-                    this.router.emit('state', 'select_port', devices);
+                    this.router.emit('state', 'select_port', ports);
                     callback();
                     return;
                 }
@@ -75,7 +75,7 @@ class Scanner {
                     if (this.scanCount < 5) {
                         this.scanCount++;
                     } else {
-                        if (devices.some(function(device) {
+                        if (ports.some(function(device) {
                             let isVendor = false;
                             if (Array.isArray(vendor)) {
                                 isVendor = vendor.some(function(v) {
@@ -86,7 +86,6 @@ class Scanner {
                                     isVendor = true;
                                 }
                             }
-
                             return device.manufacturer && isVendor;
                         }) === false) {
                             vendor = undefined;
@@ -94,16 +93,16 @@ class Scanner {
                     }
                 }
 
-                devices.forEach((device) => {
+                ports.forEach((port) => {
                     let isVendor = false;
                     let isComName = false;
-                    const comName = device.comName || this.config.hardware.name;
+                    const comName = port.comName || this.config.hardware.name;
 
                     if (Array.isArray(vendor)) {
                         isVendor = vendor.some(function(name) {
-                            return device.manufacturer && device.manufacturer.indexOf(name) >= 0;
+                            return port.manufacturer && port.manufacturer.indexOf(name) >= 0;
                         });
-                    } else if (vendor && device.manufacturer && device.manufacturer.indexOf(vendor) >= 0) {
+                    } else if (vendor && port.manufacturer && port.manufacturer.indexOf(vendor) >= 0) {
                         isVendor = true;
                     }
 
@@ -115,7 +114,7 @@ class Scanner {
                         isComName = true;
                     }
 
-                    if (!vendor || (device.manufacturer && isVendor) || (device.pnpId && device.pnpId.indexOf(pnpId) >= 0) || isComName || checkComPort) {
+                    if (!vendor || (port.manufacturer && isVendor) || (port.pnpId && port.pnpId.indexOf(pnpId) >= 0) || isComName || checkComPort) {
 
                         if (checkComPort && comName !== myComPort) {
                             return;
@@ -126,92 +125,93 @@ class Scanner {
                         if (connector === undefined) {
                             connector = require('../connector/serial').create();
                             this.connectors[comName] = connector;
-                            connector.open(comName, this.config.hardware, (error, sp) => {
+                            connector.open(comName, this.config.hardware, (error, serialPort) => {
                                 if (error) {
                                     delete this.connectors[comName];
                                     if (callback) {
                                         callback(error);
                                     }
-                                } else {
-                                    this.setConnector(connector);
-                                    if (control) {
-                                        let flashFirmware;
-                                        if (firmwarecheck) {
-                                            flashFirmware = setTimeout(() => {
-                                                sp.removeAllListeners('data');
-                                                connector.executeFlash = true;
-                                                this.finalizeScan(comName, connector, callback);
-                                            }, 3000);
-                                        }
+                                    return;
+                                }
 
-                                        if (control === 'master') {
-                                            if (hwModule.checkInitialData && hwModule.requestInitialData) {
+                                this.setConnector(connector);
 
-                                                let source = sp;
-                                                if (sp.parser){
-                                                    source = sp.parser;
-                                                }
-                                                source.on('data', (data) => {
-                                                    if (this.config.hardware.stream === 'string') {
-                                                        data = data.toString();
-                                                    }
-
-                                                    const result = hwModule.checkInitialData(data, this.config);
-                                                    if (result === undefined) {
-                                                        connector.send(hwModule.requestInitialData());
-                                                    } else {
-                                                        source.removeAllListeners('data'); // modify  sp --> source
-                                                        clearTimeout(flashFirmware);
-                                                        if (result === true) {
-
-                                                            if (hwModule.setSerialPort) {
-                                                                hwModule.setSerialPort(sp);
-                                                            }
-
-                                                            this.finalizeScan(comName, connector, callback);
-                                                        } else if (callback) {
-                                                            callback(new Error('Invalid hardware'));
-                                                        }
-                                                    }
-                                                });
-                                            }
-                                        } else {
-                                            if (duration && hwModule.checkInitialData && hwModule.requestInitialData) {
-                                                sp.on('data', (data) => {
-                                                    if (this.config.hardware.stream === 'string') {
-                                                        data = data.toString();
-                                                    }
-
-                                                    const result = hwModule.checkInitialData(data, this.config);
-                                                    if (result !== undefined) {
-                                                        sp.removeAllListeners('data');
-                                                        clearTimeout(flashFirmware);
-                                                        if (result === true) {
-                                                            if (hwModule.setSerialPort) {
-                                                                hwModule.setSerialPort(sp);
-                                                            }
-                                                            if (hwModule.resetProperty) {
-                                                                connector.send(hwModule.resetProperty());
-                                                            }
-                                                            this.finalizeScan(comName, connector, callback);
-                                                        } else if (callback) {
-                                                            callback(new Error('Invalid hardware'));
-                                                        }
-                                                    }
-                                                });
-                                                let slaveTimer = this.slaveTimers[comName];
-                                                if (slaveTimer) {
-                                                    clearInterval(slaveTimer);
-                                                }
-                                                slaveTimer = setInterval(() => {
-                                                    connector.send(hwModule.requestInitialData(sp));
-                                                }, duration);
-                                                this.slaveTimers[comName] = slaveTimer;
-                                            }
-                                        }
-                                    } else {
-                                        this.finalizeScan(comName, connector, callback);
+                                if (control) {
+                                    let flashFirmware;
+                                    if (firmwarecheck) {
+                                        flashFirmware = setTimeout(() => {
+                                            serialPort.removeAllListeners('data');
+                                            connector.executeFlash = true;
+                                            this.finalizeScan(comName, connector, callback);
+                                        }, 3000);
                                     }
+
+                                    // 파서를 쓰는 경우는 파서로 데이터를 가져온다.
+                                    const source = serialPort.parser ? serialPort.pipe(serialPort.parser) : serialPort;
+                                    if (control === 'master') {
+                                        if (hwModule.checkInitialData && hwModule.requestInitialData) {
+                                            source.on('data', (data) => {
+                                                if (!this.config) {
+                                                    console.log('nono');
+                                                    return;
+                                                }
+
+                                                const result = hwModule.checkInitialData(data, this.config);
+                                                if (result === undefined) {
+                                                    connector.send(hwModule.requestInitialData());
+                                                } else {
+                                                    serialPort.removeAllListeners('data'); // modify  sp --> source
+                                                    source.removeAllListeners('data');
+                                                    clearTimeout(flashFirmware);
+                                                    if (result === true) {
+                                                        if (hwModule.setSerialPort) {
+                                                            hwModule.setSerialPort(serialPort);
+                                                        }
+                                                        this.finalizeScan(comName, connector, callback);
+                                                    } else if (callback) {
+                                                        callback(new Error('Invalid hardware'));
+                                                    }
+                                                }
+                                            });
+                                        }
+                                    } else { // if control type is slave
+                                        if (duration && hwModule.checkInitialData && hwModule.requestInitialData) {
+                                            source.on('data', (data) => {
+                                                if (!this.config) {
+                                                    console.log('nono');
+                                                    return;
+                                                }
+
+                                                const result = hwModule.checkInitialData(data, this.config);
+                                                if (result !== undefined) {
+                                                    serialPort.removeAllListeners('data'); // modify  sp --> source
+                                                    source.removeAllListeners('data');
+                                                    clearTimeout(flashFirmware);
+                                                    if (result === true) {
+                                                        if (hwModule.setSerialPort) {
+                                                            hwModule.setSerialPort(serialPort);
+                                                        }
+                                                        if (hwModule.resetProperty) {
+                                                            connector.send(hwModule.resetProperty());
+                                                        }
+                                                        this.finalizeScan(comName, connector, callback);
+                                                    } else if (callback) {
+                                                        callback(new Error('Invalid hardware'));
+                                                    }
+                                                }
+                                            });
+                                            let slaveTimer = this.slaveTimers[comName];
+                                            if (slaveTimer) {
+                                                clearInterval(slaveTimer);
+                                            }
+                                            slaveTimer = setInterval(() => {
+                                                connector.send(hwModule.requestInitialData(serialPort));
+                                            }, duration);
+                                            this.slaveTimers[comName] = slaveTimer;
+                                        }
+                                    }
+                                } else {
+                                    this.finalizeScan(comName, connector, callback);
                                 }
                             });
                         }
