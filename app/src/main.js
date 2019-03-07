@@ -492,7 +492,10 @@
                     $('#firmwareButtonSet').show();
                     return;
                 }
-                if (!router.connector || (!router.connector.sp && !prevPort)) {
+
+                const { connector } = router;
+                const { serialPort } = connector;
+                if (!connector || (!serialPort && !prevPort)) {
                     alert(
                         translator.translate('Hardware Device Is Not Connected')
                     );
@@ -502,14 +505,14 @@
                 }
                 if (
                     prevPort &&
-                    router.connector.sp &&
-                    prevPort != router.connector.sp.path
+                    serialPort &&
+                    prevPort != serialPort.path
                 ) {
                     $('#firmwareButtonSet').show();
                     return;
                 }
 
-                var port = prevPort || router.connector.sp.path;
+                var port = prevPort || serialPort.path;
                 var baudRate = config.firmwareBaudRate;
                 var MCUType = config.firmwareMCUType;
                 var tryFlasherNumber = config.tryFlasherNumber || 10;
