@@ -1,6 +1,7 @@
 'use strict';
-var util = require('util');
-var EventEmitter = require('events').EventEmitter;
+const util = require('util');
+const EventEmitter = require('events').EventEmitter;
+const { ipcRenderer } = require('electron');
 
 function Router() {
 	EventEmitter.call(this);
@@ -94,20 +95,23 @@ Router.prototype.connect = function(connector, config) {
 		});
 
         if(duration && control !== 'master') {
-            self.timer = setInterval(function() {
-                if(extension.requestLocalData) {
-                    var data = extension.requestLocalData();
-                    if(data) {
-                        connector.send(data);
-                    }
-                }
-                if(extension.getProperty) {
-                    var data = extension.getProperty();
-                    if(data) {
-                    	connector.send(data);
-                    }
-                }
-            }, duration);
+        	ipcRenderer.send('startRequestLocalData', duration);
+			ipcRenderer.removeAllListeners('sendingRequestLocalData');
+			ipcRenderer.on('sendingRequestLocalData', () => {
+				console.log('requestLocalData', Date.now());
+				if(extension.requestLocalData) {
+					const data = extension.requestLocalData();
+					if(data) {
+						connector.send(data);
+					}
+				}
+				if(extension.getProperty) {
+					const data = extension.getProperty();
+					if(data) {
+						connector.send(data);
+					}
+				}
+			});
         }
 
         if(advertise) {
@@ -137,10 +141,11 @@ Router.prototype.close = function() {
 			this.connector.close();
 		}
 	}
-    if(this.timer) {
-        clearInterval(this.timer);
-        this.timer = undefined;
-    }
+    // if(this.timer) {
+    //     clearInterval(this.timer);
+    //     this.timer = undefined;
+    // }
+	ipcRenderer.send('stopRequestLocalData');
 	if(this.advertise) {
 		clearInterval(this.advertise);
 		this.advertise = undefined;
