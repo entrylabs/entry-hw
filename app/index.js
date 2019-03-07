@@ -317,4 +317,14 @@ if (!app.requestSingleInstanceLock()) {
     ipcMain.on('writeLog', function(event, arg) {
         console.fslog(arg);
     });
+
+    let requestLocalDataInterval = -1;
+    ipcMain.on('startRequestLocalData', function(event, duration) {
+        requestLocalDataInterval = setInterval(() => {
+            event.sender.send('sendingRequestLocalData');
+        }, duration);
+    });
+    ipcMain.on('stopRequestLocalData', function() {
+        clearInterval(requestLocalDataInterval);
+    });
 }
