@@ -54,7 +54,7 @@
         }
     }
     // logger
-    const loggerModule = require('../logger');
+    const loggerModule = require('./custom_modules/logger');
     loggerModule.set({
         v: function(str) {
             console.log(str);
