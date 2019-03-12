@@ -18,6 +18,18 @@ loggerModule.set({
 });
 const logger = loggerModule.get();
 
+/**
+ * 하드웨어 <-> 엔트리 워크스페이스 통신간 사용되는 클래스.
+ * http[s] 서버와 socketIO 서버를 오픈한다.
+ * 클라우드 모드에서 서버가 EADDRINUSE 로 실패한 경우, 클라이언트 모드로 동작한다.
+ * 클라이언트 모드에서는 서버 PC 를 호스트로 엔트리와 통신한다.
+ *
+ * EventEmitter 는 외부로 아래와 같은 이벤트를 발생시킨다
+ * - connection : 웹소켓 서버가 엔트리와 연결된 경우
+ * - close : 소켓서버가 닫힘
+ * - closed : 소켓, httpServer 전체가 닫힘
+ * - data : 서버에서 받은 데이터. 인자는 data, type 를 발생시킨다.
+ */
 class Server extends EventEmitter {
     get SERVER_MODE_TYPES() {
         return {
@@ -287,6 +299,7 @@ class Server extends EventEmitter {
     _getHttpServer(port) {
         let httpServer;
         let address;
+        // global 떼면 안됩니다. 현재 위치가 아니고 최상위 위치에서 내려오기 위함
         if (fs.existsSync(path.resolve(global.__dirname, 'ssl', 'cert.pem'))) {
             httpServer = require('https').createServer(
                 {
