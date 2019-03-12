@@ -1,12 +1,13 @@
 'use strict';
 
 var path = require('path');
+const { remote } = require('electron');
 
 function Translator() {
 	var langs = {
 		ko: 'ko'
 	};
-	var lang = window.navigator.userLanguage || window.navigator.language;
+	var lang = remote.getCurrentWindow().curLang;
 	lang = langs[lang];
 	if(lang == undefined)
 		lang = 'en';
