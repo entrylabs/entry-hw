@@ -15,7 +15,7 @@ class MainRouter extends EventEmitter {
     constructor() {
         super();
         this.scanner = require('../custom_modules/router/scanner/serial');
-        this.server = require('../custom_modules/entry');
+        this.server = require('./server');
     }
 
     /**

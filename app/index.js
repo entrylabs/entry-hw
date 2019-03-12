@@ -328,5 +328,5 @@ if (!app.requestSingleInstanceLock()) {
         clearInterval(requestLocalDataInterval);
     });
 
-    require('./main/mainRouter');
+    // require('./main/mainRouter');
 }
