@@ -14,8 +14,9 @@ const { ipcMain } = require('electron');
 class MainRouter extends EventEmitter {
     constructor() {
         super();
-        this.scanner = require('../custom_modules/router/scanner/serial');
+        this.scanner = require('./scanner');
         this.server = require('./server');
+        // this.server.open();
     }
 
     /**
@@ -94,6 +95,9 @@ class MainRouter extends EventEmitter {
         // 엔트리 측에서 데이터를 받아온 경우 전달
         server.on('data', function(data, type) {
             handler.decode(data, type);
+
+            console.log('main server.data : ', handler.data);
+
             if(hwModule.handleRemoteData) {
                 hwModule.handleRemoteData(handler);
             }
@@ -125,6 +129,8 @@ class MainRouter extends EventEmitter {
          * 디바이스에서 데이터가 온 경우 발생한다.
          */
         connector.connect(hwModule, (state, data) => {
+            console.log('main connector.connect : ', data);
+
             if(state) {
                 event.sender.send('state', state);
                 // 연결 후 state 가 변경되었을 때 이벤트 발생

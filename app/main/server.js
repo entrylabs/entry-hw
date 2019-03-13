@@ -1,8 +1,9 @@
 'use strict';
 const fs = require('fs');
+const path = require('path');
 const EventEmitter = require('events').EventEmitter;
 const client = require('socket.io-client');
-const { app, ipcRenderer } = require('electron');
+const { app } = require('electron');
 const loggerModule = require('../custom_modules/logger');
 loggerModule.set({
     v: console.log,
@@ -51,9 +52,11 @@ class Server extends EventEmitter {
         this.runningMode = this.SERVER_MODE_TYPES.parent;
         this.masterRoomIds = [];
         this.clientRoomId = '';
-        this.socketClient;
+        this.socketClient = undefined; // 클라이언트인 경우 세팅됨
+        this.socketServer = undefined; // 호스트인 경우 세팅됨
 
-        ipcRenderer.on('customArgs', (e, data) => { this.addRoomIdsOnSecondInstance(data) });
+        //TODO main 에서 main Process args 받아야함.
+        // ipcRenderer.on('customArgs', (e, data) => { this.addRoomIdsOnSecondInstance(data) });
     }
 
     addRoomIdsOnSecondInstance(roomId) {
@@ -64,7 +67,7 @@ class Server extends EventEmitter {
         } else {
             if (data) {
                 this.clientRoomId = roomId;
-                this.socketClient.emit('matchTarget', { roomId });
+                this.socketClient && this.socketClient.emit('matchTarget', { roomId });
                 if (this.masterRoomIds.indexOf(roomId) === -1) {
                     this.masterRoomIds.push(roomId);
                 }
@@ -84,7 +87,7 @@ class Server extends EventEmitter {
          * 그런 경우 직접 로컬호스트발 소켓 클라이언트를 연다.
          */
         httpServer.on('error', (e) => {
-            ipcRenderer.send('serverMode', this.SERVER_MODE_TYPES.multi);
+            // ipcRenderer.send('serverMode', this.SERVER_MODE_TYPES.multi);
             this.runningMode = this.SERVER_MODE_TYPES.child;
             console.log(
                 '%cI`M CLIENT',
@@ -103,7 +106,7 @@ class Server extends EventEmitter {
          * 정상 오픈이 된 경우 socketIO 서버를 오픈한다.
          */
         httpServer.on('listening', (e) => {
-            const mRoomIds = ipcRenderer.sendSync('roomId');
+            const mRoomIds = [];/* = ipcRenderer.sendSync('roomId')*/
             if (mRoomIds.length > 0) {
                 mRoomIds.forEach((mRoomId) => {
                     if (this.masterRoomIds.indexOf(mRoomId) === -1 && mRoomId) {
@@ -116,7 +119,7 @@ class Server extends EventEmitter {
             this.httpServer = httpServer;
             logger.i('Listening on port ' + PORT);
 
-            this.server = this._createSocketServer(httpServer);
+            this.socketServer = this._createSocketServer(httpServer);
         });
 
         httpServer.listen(PORT);
@@ -135,7 +138,7 @@ class Server extends EventEmitter {
         });
 
         socket.on('connect', () => {
-            const roomIds = ipcRenderer.sendSync('roomId');
+            // const roomIds = ipcRenderer.sendSync('roomId');
             if (roomIds.length > 0) {
                 roomIds.forEach((roomId) => {
                     if (roomId) {
@@ -157,7 +160,7 @@ class Server extends EventEmitter {
         });
 
         socket.on('reconnect_failed', () => {
-            ipcRenderer.send('serverMode', this.SERVER_MODE_TYPES.single);
+            // ipcRenderer.send('serverMode', this.SERVER_MODE_TYPES.single);
             socket.close();
             this.socketClient = null;
             this.open();
@@ -207,10 +210,10 @@ class Server extends EventEmitter {
 
             const childServerListCnt = Object.keys(this.childServerList).length;
             if (childServerListCnt > 0) {
-                ipcRenderer.send('serverMode', this.SERVER_MODE_TYPES.multi);
+                // ipcRenderer.send('serverMode', this.SERVER_MODE_TYPES.multi);
                 server.emit('mode', this.SERVER_MODE_TYPES.multi);
             } else {
-                ipcRenderer.send('serverMode', this.SERVER_MODE_TYPES.single);
+                // ipcRenderer.send('serverMode', this.SERVER_MODE_TYPES.single);
                 server.emit('mode', this.SERVER_MODE_TYPES.single);
             }
 
@@ -246,7 +249,7 @@ class Server extends EventEmitter {
                         .length;
                     if (childServerListCnt <= 0) {
                         server.emit('mode', this.SERVER_MODE_TYPES.single);
-                        ipcRenderer.send('serverMode', this.SERVER_MODE_TYPES.single);
+                        // ipcRenderer.send('serverMode', this.SERVER_MODE_TYPES.single);
                     }
                 } else {
                     delete this.connectionSet[socket.id];
@@ -300,16 +303,18 @@ class Server extends EventEmitter {
     _getHttpServer(port) {
         let httpServer;
         let address;
-        // global 떼면 안됩니다. 현재 위치가 아니고 최상위 위치에서 내려오기 위함
-        if (fs.existsSync(path.resolve(global.__dirname, 'ssl', 'cert.pem'))) {
+
+        const rootDir = path.resolve(__dirname, '..', '..');
+        console.log(rootDir);
+        if (fs.existsSync(path.resolve(rootDir, 'ssl', 'cert.pem'))) {
             httpServer = require('https').createServer(
                 {
-                    key: fs.readFileSync(path.resolve(global.__dirname, 'ssl', 'hardware.key')),
-                    cert: fs.readFileSync(path.resolve(global.__dirname, 'ssl', 'cert.pem')),
+                    key: fs.readFileSync(path.resolve(rootDir, 'ssl', 'hardware.key')),
+                    cert: fs.readFileSync(path.resolve(rootDir, 'ssl', 'cert.pem')),
                     ca: [
-                        fs.readFileSync(path.resolve(global.__dirname, 'ssl', 'ChainCA1.crt')),
-                        fs.readFileSync(path.resolve(global.__dirname, 'ssl', 'ChainCA2.crt')),
-                        fs.readFileSync(path.resolve(global.__dirname, 'ssl', 'RootCA.crt')),
+                        fs.readFileSync(path.resolve(rootDir, 'ssl', 'ChainCA1.crt')),
+                        fs.readFileSync(path.resolve(rootDir, 'ssl', 'ChainCA2.crt')),
+                        fs.readFileSync(path.resolve(rootDir, 'ssl', 'RootCA.crt')),
                     ],
                 },
                 function(req, res) {
@@ -356,7 +361,7 @@ class Server extends EventEmitter {
             }
         } else if (this.masterRoomIds.length > 0) {
             this.masterRoomIds.forEach((masterRoomId) => {
-                this.server.to(masterRoomId).emit('message', payload);
+                this.socketServer.to(masterRoomId).emit('message', payload);
             });
         }
     };
@@ -386,9 +391,9 @@ class Server extends EventEmitter {
     };
 
     close() {
-        if (this.server) {
-            this.server.close();
-            this.server = undefined;
+        if (this.socketServer) {
+            this.socketServer.close();
+            this.socketServer = undefined;
         }
         if (this.httpServer) {
             this.httpServer.close();
