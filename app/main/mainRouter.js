@@ -1,5 +1,3 @@
-const EventEmitter = require('events').EventEmitter;
-const logger = require('../custom_modules/logger').get();
 const { ipcMain } = require('electron');
 const Scanner = require('./scanner');
 
@@ -12,9 +10,8 @@ const Scanner = require('./scanner');
  * server : entry workspace 와 통신하는 http/ws 서버
  * connector : 연결 성공 후의 실제 시리얼포트
  */
-class MainRouter extends EventEmitter {
+class MainRouter {
     constructor(mainWindow) {
-        super();
         this.browser = mainWindow;
         this.scanner = new Scanner(this);
         this.server = require('./server');
@@ -42,12 +39,12 @@ class MainRouter extends EventEmitter {
      * @param config
      */
     startScan(event, config) {
-        logger.i('scanning...');
+        console.log('scanning...');
         if(this.scanner) {
             this.hwModule = require('../modules/' + config.module);
             this.scanner.startScan(this.hwModule, config, (error, connector) => {
                 if(error) {
-                    logger.e(error);
+                    console.error(error);
                     return;
                 }
 
@@ -77,7 +74,6 @@ class MainRouter extends EventEmitter {
 
         if(this.connector.executeFlash) {
             this.sendEvent('state', 'flash');
-            this.emit('state', 'flash');
             return;
         }
 

@@ -3,21 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const EventEmitter = require('events').EventEmitter;
 const client = require('socket.io-client');
-const { version:appVersion } = require('../../package.json');
-const loggerModule = require('../custom_modules/logger');
-loggerModule.set({
-    v: console.log,
-    i(str) {
-        console.info('%c' + str, 'color: dodgerblue');
-    },
-    w(str) {
-        console.warn('%c' + str, 'color: orange');
-    },
-    e(str) {
-        console.error('%c' + str, 'color: red');
-    },
-});
-const logger = loggerModule.get();
+const { version: appVersion } = require('../../package.json');
 
 /**
  * 하드웨어 <-> 엔트리 워크스페이스 통신간 사용되는 클래스.
@@ -115,9 +101,9 @@ class Server extends EventEmitter {
                 });
             }
             this.runningMode = this.SERVER_MODE_TYPES.parent;
-            console.log('%cI`M SERVER', 'background:orange; font-size: 30px');
+            console.log('I`M SERVER');
             this.httpServer = httpServer;
-            logger.i('Listening on port ' + PORT);
+            console.log('Listening on port ' + PORT);
 
             this.socketServer = this._createSocketServer(httpServer);
         });
@@ -198,7 +184,7 @@ class Server extends EventEmitter {
             this.connections.push(socket);
             this.emit('connection');
 
-            logger.i('Entry connected.');
+            console.info('Entry connected.');
 
             const roomId = socket.handshake.query.roomId;
             if (socket.handshake.query.childServer === 'true') {
@@ -283,7 +269,7 @@ class Server extends EventEmitter {
             });
 
             socket.on('close', (reasonCode, description) => {
-                logger.w('Entry disconnected.');
+                console.warn('Entry disconnected.');
                 this.emit('close');
                 this.closeSingleConnection(this);
             });
