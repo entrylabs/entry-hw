@@ -1,8 +1,14 @@
 'use strict';
 
 const ConnectorCreator = require('./connector');
-const { ipcMain } = require('electron');
 
+/**
+ * 전체 포트를 검색한다.
+ * 검색 조건은 hwModule 의 config 에서 설정한다.
+ * pnpId, VendorName, select port 등등 이다.
+ *
+ * 결과의 송수신은 router 에 만들어진 함수로 보낸다.
+ */
 class Scanner {
     static get SCAN_INTERVAL_MILLS() {
         return 1500;
@@ -18,33 +24,37 @@ class Scanner {
         this.serialport.Binding = require('@entrylabs/bindings');
     }
 
-    startScan(extension, config, callback) {
+    startScan(hwModule, config, callback) {
+        this.stopScan();
+
         this.config = config;
+        this.hwModule = hwModule;
         this.slaveTimers = {};
         this.connectors = {};
         this.scanCount = 0;
-        this.closeConnectors();
-        this.clearTimers();
 
-        this.scan(extension, callback);
-        this.timer = setInterval(() => {
-            this.scan(extension, callback);
-        }, Scanner.SCAN_INTERVAL_MILLS);
+        try {
+            this.scan(callback);
+            this.scanTimer = setInterval(() => {
+                this.scan(callback);
+            }, Scanner.SCAN_INTERVAL_MILLS);
+        } catch (e) {
+            console.error(e);
+        }
     };
 
-    stopScan() {
-        this.config = undefined;
-        this.clearTimers();
-        this.closeConnectors();
-    };
+    scan(callback) {
+        const hwModule = this.hwModule;
 
-    scan(hwModule, callback) {
-        this.serialport.list((error, ports) => {
+        // noinspection JSIgnoredPromiseFromCall
+        this.serialport.list(
+            /**
+             * @param {Error} error
+             * @param {Array<Object>} ports
+             */
+            (error, ports) => {
             if (error) {
-                if (callback) {
-                    callback(error);
-                }
-                return;
+                throw error;
             }
 
             const { serverMode, hardware } = this.config;
@@ -64,12 +74,12 @@ class Scanner {
             const myComPort = this.config.this_com_port;
 
             if (checkComPort && !myComPort) {
-                this.router.sendEvent('state', 'select_port', ports);
-                // this.router.emit('state', 'select_port', ports);
+                this.router.sendState('select_port', ports);
                 callback();
                 return;
             }
 
+            //TODO 이게 왜 필요하죠 110 라인이랑 동일로직인것 같은
             if (scanType === 'data') {
                 if (this.scanCount < 5) {
                     this.scanCount++;
@@ -95,7 +105,7 @@ class Scanner {
             ports.forEach((port) => {
                 let isVendor = false;
                 let isComName = false;
-                const comName = port.comName || this.config.hardware.name;
+                const comName = port.comName || hardware.name;
 
                 if (Array.isArray(vendor)) {
                     isVendor = vendor.some(function(name) {
@@ -124,13 +134,10 @@ class Scanner {
                     if (connector === undefined) {
                         connector = ConnectorCreator.create();
                         this.connectors[comName] = connector;
-                        connector.open(comName, this.config.hardware, (error, serialPort) => {
+                        connector.open(comName, hardware, (error, serialPort) => {
                             if (error) {
                                 delete this.connectors[comName];
-                                if (callback) {
-                                    callback(error);
-                                }
-                                return;
+                                throw error;
                             }
 
                             this.setConnector(connector);
@@ -219,11 +226,19 @@ class Scanner {
         });
     };
 
+    stopScan() {
+        this.config = undefined;
+        this.clearTimers();
+        this.closeConnectors();
+    };
+
+
     clearTimers() {
-        if (this.timer) {
-            clearInterval(this.timer);
-            this.timer = undefined;
+        if (this.scanTimer) {
+            clearInterval(this.scanTimer);
+            this.scanTimer = undefined;
         }
+
         const slaveTimers = this.slaveTimers;
         if (slaveTimers) {
             let slaveTimer;
@@ -239,7 +254,7 @@ class Scanner {
 
     setConnector(connector) {
         this.router.connector = connector;
-        this.router.emit('state', 'before_connect');
+        this.router.sendState('before_connect');
     };
 
     finalizeScan(comName, connector, callback) {

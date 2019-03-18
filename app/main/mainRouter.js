@@ -18,17 +18,26 @@ class MainRouter {
         this.server = new EntryServer(this);
         this.server.open();
 
-        ipcMain.on('state', this.setState.bind(this));
+        ipcMain.on('state', this.onState.bind(this));
         ipcMain.on('startScan', this.startScan.bind(this));
         ipcMain.on('stopScan', this.stopScan.bind(this));
         ipcMain.on('close', this.close.bind(this));
+    }
+
+    /**
+     * renderer 에 state 인자를 보낸다. 주로 ui 변경을 위해 사용된다.
+     * @param {string} state 변경된 state
+     * @param {...*} args 추가로 보낼 인자
+     */
+    sendState(state, ...args) {
+        this.browser.webContents.send('state', state, ...args);
     }
 
     sendEvent(eventChannel, ...args) {
         this.browser.webContents.send(eventChannel, ...args);
     }
 
-    setState(state) {
+    onState(state) {
         this.server.setState(state);
     }
 
