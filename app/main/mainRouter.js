@@ -1,5 +1,6 @@
 const { ipcMain } = require('electron');
 const Scanner = require('./scanner');
+const EntryServer = require('./server');
 
 /**
  * scanner, server, connector 를 총괄하는 중앙 클래스.
@@ -14,10 +15,10 @@ class MainRouter {
     constructor(mainWindow) {
         this.browser = mainWindow;
         this.scanner = new Scanner(this);
-        this.server = require('./server');
+        this.server = new EntryServer(this);
         this.server.open();
 
-        ipcMain.on('state', this.changeState.bind(this));
+        ipcMain.on('state', this.setState.bind(this));
         ipcMain.on('startScan', this.startScan.bind(this));
         ipcMain.on('stopScan', this.stopScan.bind(this));
         ipcMain.on('close', this.close.bind(this));
@@ -27,7 +28,7 @@ class MainRouter {
         this.browser.webContents.send(eventChannel, ...args);
     }
 
-    changeState(state) {
+    setState(state) {
         this.server.setState(state);
     }
 
@@ -80,19 +81,18 @@ class MainRouter {
         // 엔트리측, 하드웨어측이 정상적으로 준비된 경우
         if(this.hwModule && this.server) {
             // 엔트리쪽으로 송수신시 변환할 방식. 현재 json 만 지원한다.
-            const handler = require('../custom_modules/router/datahandler/handler').create(config);
-            this._connectToServer(handler);
-            this._connectToDeviceConnector(handler, config);
+            this.handler = require('../custom_modules/router/datahandler/handler').create(config);
+            this._connectToServer();
+            this._connectToDeviceConnector(config);
         }
     }
 
     /**
      * 엔트리 워크스페이스와의 연결 담당 로직
      *
-     * @param handler jsonHandler
      * @private
      */
-    _connectToServer(handler) {
+    _connectToServer() {
         const hwModule = this.hwModule;
         const server = this.server;
 
@@ -105,17 +105,6 @@ class MainRouter {
             }
         });
 
-        // 엔트리 측에서 데이터를 받아온 경우 전달
-        server.on('data', function(data, type) {
-            handler.decode(data, type);
-
-            console.log('main server.data : ', handler.data);
-
-            if(hwModule.handleRemoteData) {
-                hwModule.handleRemoteData(handler);
-            }
-        });
-
         // 엔트리 실행이 종료된 경우 reset 명령어 호출
         server.on('close', function() {
             if(hwModule.reset) {
@@ -124,14 +113,26 @@ class MainRouter {
         });
     }
 
+    // 엔트리 측에서 데이터를 받아온 경우 전달
+    handleServerData({data, type}) {
+        const hwModule = this.hwModule;
+        const handler = this.handler;
+        handler.decode(data, type);
+
+        console.log('main server.data : ', handler.data);
+
+        if(hwModule.handleRemoteData) {
+            hwModule.handleRemoteData(handler);
+        }
+    }
+
     /**
      * 디바이스와의 연결 담당 로직.
      *
-     * @param handler jsonHandler
      * @param config module.json 파일정보
      * @private
      */
-   _connectToDeviceConnector(handler, config) {
+   _connectToDeviceConnector(config) {
         const hwModule = this.hwModule;
         const server = this.server;
         const connector = this.connector;
@@ -159,8 +160,8 @@ class MainRouter {
 
             // 데이터 전송 후, handler.write 로 작성된 데이터 서버에 전송
             if(hwModule.requestRemoteData) {
-                hwModule.requestRemoteData(handler);
-                const data = handler.encode();
+                hwModule.requestRemoteData(this.handler);
+                const data = this.handler.encode();
                 if(data) {
                     server.send(data);
                 }
@@ -199,7 +200,7 @@ class MainRouter {
         // handler 에 저장되어있는 데이터를 계속해서 디바이스로 송신
         if(advertise) {
             this.advertiseInterval = setInterval(function () {
-                const data = handler.encode();
+                const data = this.handler.encode();
                 if(data) {
                     server.send(data);
                 }
@@ -210,7 +211,6 @@ class MainRouter {
     close() {
         if(this.server) {
             this.server.disconnectHardware();
-            this.server.removeAllListeners();
         }
         if(this.scanner) {
             this.scanner.stopScan();
@@ -230,6 +230,9 @@ class MainRouter {
         if(this.advertiseInterval) {
             clearInterval(this.advertiseInterval);
             this.advertiseInterval = undefined;
+        }
+        if(this.handler) {
+            this.handler = undefined;
         }
     };
 }

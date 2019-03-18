@@ -27,8 +27,9 @@ class Server extends EventEmitter {
         }
     }
 
-    constructor() {
+    constructor(router) {
         super();
+        this.router = router;
         this.packet = new Buffer([0x01, 0x00, 0x00, 0x00]);
         this.connections = [];
         this.connectionSet = {};
@@ -75,10 +76,7 @@ class Server extends EventEmitter {
         httpServer.on('error', (e) => {
             // ipcRenderer.send('serverMode', this.SERVER_MODE_TYPES.multi);
             this.runningMode = this.SERVER_MODE_TYPES.child;
-            console.log(
-                '%cI`M CLIENT',
-                'background:black;color:yellow;font-size: 30px'
-            );
+            console.log('I`M CLIENT');
 
             const socket = this._createSocketClient(address);
             this.connections.push(socket);
@@ -137,9 +135,7 @@ class Server extends EventEmitter {
             }
         });
 
-        socket.on('message', (message) => {
-            this.emit('data', message.data, message.type);
-        });
+        socket.on('message', this.router.handleServerData);
 
         socket.on('mode', function(data) {
             socket.mode = data;
@@ -231,8 +227,7 @@ class Server extends EventEmitter {
                     delete this.connectionSet[socket.id];
                     delete this.childServerList[socket.id];
 
-                    var childServerListCnt = Object.keys(this.childServerList)
-                        .length;
+                    const childServerListCnt = Object.keys(this.childServerList).length;
                     if (childServerListCnt <= 0) {
                         server.emit('mode', this.SERVER_MODE_TYPES.single);
                         // ipcRenderer.send('serverMode', this.SERVER_MODE_TYPES.single);
@@ -247,6 +242,7 @@ class Server extends EventEmitter {
                     message.mode === this.SERVER_MODE_TYPES.single ||
                     this.masterRoomIds.indexOf(socket.roomId) >= 0
                 ) {
+                    this.router.handleServerData()
                     this.emit('data', message.data, message.type);
                 } else {
                     if (socket.handshake.query.childServer === 'true') {
@@ -390,4 +386,4 @@ class Server extends EventEmitter {
     };
 }
 
-module.exports = new Server();
+module.exports = Server;
