@@ -1,6 +1,7 @@
 'use strict';
 
 const electron = require('electron');
+const MainRouter = require('./main/mainRouter');
 const {
     app,
     BrowserWindow,
@@ -256,6 +257,7 @@ if (!app.requestSingleInstanceLock()) {
         });
 
         createAboutWindow(mainWindow);
+        new MainRouter(mainWindow);
     });
 
     ipcMain.on('hardwareForceClose', () => {
@@ -327,6 +329,4 @@ if (!app.requestSingleInstanceLock()) {
     ipcMain.on('stopRequestLocalData', function() {
         clearInterval(requestLocalDataInterval);
     });
-
-    require('./main/mainRouter');
 }

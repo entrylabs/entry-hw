@@ -1,6 +1,7 @@
 'use strict';
 
 const ConnectorCreator = require('./connector');
+const { ipcMain } = require('electron');
 
 class Scanner {
     static get SCAN_INTERVAL_MILLS() {
@@ -11,13 +12,13 @@ class Scanner {
         return Object.prototype.toString.call(target) === '[object Object]';
     }
 
-    constructor() {
+    constructor(router) {
+        this.router = router;
         this.serialport = require('@serialport/stream');
         this.serialport.Binding = require('@entrylabs/bindings');
     }
 
-    startScan(extension, config, callback, router) {
-        this.router = router;
+    startScan(extension, config, callback) {
         this.config = config;
         this.slaveTimers = {};
         this.connectors = {};
@@ -38,7 +39,7 @@ class Scanner {
     };
 
     scan(hwModule, callback) {
-        this.serialport.list.then((error, ports) => {
+        this.serialport.list((error, ports) => {
             if (error) {
                 if (callback) {
                     callback(error);
@@ -63,7 +64,8 @@ class Scanner {
             const myComPort = this.config.this_com_port;
 
             if (checkComPort && !myComPort) {
-                this.router.emit('state', 'select_port', ports);
+                this.router.sendEvent('state', 'select_port', ports);
+                // this.router.emit('state', 'select_port', ports);
                 callback();
                 return;
             }
@@ -266,4 +268,4 @@ class Scanner {
     };
 }
 
-module.exports = new Scanner();
+module.exports = Scanner;

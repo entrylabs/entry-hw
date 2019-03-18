@@ -12,11 +12,20 @@ const { ipcMain } = require('electron');
  * connector : 연결 성공 후의 실제 시리얼포트
  */
 class MainRouter extends EventEmitter {
-    constructor() {
+    constructor(mainWindow) {
         super();
-        this.scanner = require('./scanner');
+        this.browser = mainWindow;
+        this.scanner = new Scanner(this);
         this.server = require('./server');
         // this.server.open();
+    }
+
+    sendEvent(eventChannel, ...args) {
+        this.browser.webContents.send(eventChannel, ...args);
+    }
+
+    changeState(state) {
+        this.server.setState(state);
     }
 
     /**
@@ -37,10 +46,12 @@ class MainRouter extends EventEmitter {
                 }
 
                 if(connector) {
-                    event.sender.send('state', 'connected');
-                    this.connect(connector, config);
+                    this.sendEvent('state', 'connected');
+                    // event.sender.send('state', 'connected');
+                    // this.server.setState('connected');
+                    this._connect(connector, config);
                 }
-            }, this);
+            });
         }
     }
 
@@ -52,14 +63,14 @@ class MainRouter extends EventEmitter {
 
     /**
      * 연결이 정상적으로 된 경우 startScan 의 callback 에서 호출된다.
-     * @param event
      * @param connector
      * @param config
      */
-    connect(event, connector, config) {
+    _connect(connector, config) {
         this.connector = connector;
 
         if(this.connector.executeFlash) {
+            this.sendEvent('state', 'flash');
             this.emit('state', 'flash');
             return;
         }
@@ -69,7 +80,7 @@ class MainRouter extends EventEmitter {
             // 엔트리쪽으로 송수신시 변환할 방식. 현재 json 만 지원한다.
             const handler = require('../custom_modules/router/datahandler/handler').create(config);
             this._connectToServer(handler);
-            this._connectToDeviceConnector(event, handler, config);
+            this._connectToDeviceConnector(handler, config);
         }
     }
 
@@ -118,7 +129,7 @@ class MainRouter extends EventEmitter {
      * @param config module.json 파일정보
      * @private
      */
-   _connectToDeviceConnector(event, handler, config) {
+   _connectToDeviceConnector(handler, config) {
         const hwModule = this.hwModule;
         const server = this.server;
         const connector = this.connector;
@@ -129,10 +140,9 @@ class MainRouter extends EventEmitter {
          * 디바이스에서 데이터가 온 경우 발생한다.
          */
         connector.connect(hwModule, (state, data) => {
-            console.log('main connector.connect : ', data);
-
             if(state) {
-                event.sender.send('state', state);
+                this.sendEvent('state', state);
+                // event.sender.send('state', state);
                 // 연결 후 state 가 변경되었을 때 이벤트 발생
                 if(hwModule.eventController) {
                     hwModule.eventController(state);
@@ -205,8 +215,8 @@ class MainRouter extends EventEmitter {
         }
         if(this.connector) {
             console.log('disconnect');
-            if(this.extension.disconnect) {
-                this.extension.disconnect(this.connector);
+            if(this.hwModule.disconnect) {
+                this.hwModule.disconnect(this.connector);
             } else {
                 this.connector.close();
             }
@@ -220,6 +230,6 @@ class MainRouter extends EventEmitter {
             this.advertiseInterval = undefined;
         }
     };
-};
+}
 
-module.exports = new MainRouter();
+module.exports = MainRouter;
