@@ -1,6 +1,7 @@
 const EventEmitter = require('events').EventEmitter;
 const logger = require('../custom_modules/logger').get();
 const { ipcMain } = require('electron');
+const Scanner = require('./scanner');
 
 /**
  * scanner, server, connector 를 총괄하는 중앙 클래스.
@@ -17,7 +18,12 @@ class MainRouter extends EventEmitter {
         this.browser = mainWindow;
         this.scanner = new Scanner(this);
         this.server = require('./server');
-        // this.server.open();
+        this.server.open();
+
+        ipcMain.on('state', this.changeState.bind(this));
+        ipcMain.on('startScan', this.startScan.bind(this));
+        ipcMain.on('stopScan', this.stopScan.bind(this));
+        ipcMain.on('close', this.close.bind(this));
     }
 
     sendEvent(eventChannel, ...args) {

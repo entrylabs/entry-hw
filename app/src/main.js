@@ -1,16 +1,13 @@
 (function() {
     'use strict';
 
-    var VERSION = 1.1;
     // initialize options
     window.modal = new Modal();
     const fs = require('fs');
     const path = require('path');
     const _ = require('lodash');
-    var options = {};
     var viewMode = 'main';
     var firmwareCount = 0;
-    var flasherProcess;
     var hardwareList = [];
 
     var os = process.platform + '-' + (isOSWin64() ? 'x64' : process.arch);
@@ -72,11 +69,12 @@
     const logger = loggerModule.get();
 
     // server
-    var server = require('./custom_modules/entry');
-    server.open();
+    // var server = require('./custom_modules/entry');
+    // server.open();
 
     // router
-    var router = require('./custom_modules/router').init(server);
+    // var router = require('./custom_modules/router').init(server);
+    var router = require('./custom_modules/router/rendererRouter');
     window.router = router;
 
     // flasher
@@ -711,7 +709,7 @@
 
         if (isQuit) {
             router.close();
-            server.close();
+            // server.close();
             ipcRenderer.send('hardwareForceClose', true);
         }
     });
@@ -777,7 +775,8 @@
         }
     });
 
-    router.on('state', function(state, data) {
+    //router.on('state' ..
+    ipcRenderer.on('state', function(event, state, data) {
         console.log(state);
         if (state === 'select_port') {
             router.close();
@@ -854,7 +853,7 @@
             );
         }
         ui.setState(state);
-        server.setState(state);
+        // server.setState(state);
     });
 
     //ipcEvent
