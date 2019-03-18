@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const EventEmitter = require('events').EventEmitter;
 const client = require('socket.io-client');
-const { app } = require('electron');
+const { version:appVersion } = require('../../package.json');
 const loggerModule = require('../custom_modules/logger');
 loggerModule.set({
     v: console.log,
@@ -348,7 +348,7 @@ class Server extends EventEmitter {
 
     send(data) {
         const childServerListCnt = Object.keys(this.childServerList).length;
-        const payload = { data: data, version: app.getVersion() };
+        const payload = { data, version: appVersion };
 
         if (
             (this.runningMode === this.SERVER_MODE_TYPES.parent && childServerListCnt === 0) ||
