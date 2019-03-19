@@ -1,6 +1,7 @@
 const { ipcMain } = require('electron');
 const Scanner = require('./scanner');
 const EntryServer = require('./server');
+const HandlerCreator = require('../custom_modules/router/datahandler/handler');
 
 /**
  * scanner, server, connector 를 총괄하는 중앙 클래스.
@@ -50,9 +51,10 @@ class MainRouter {
      */
     startScan(event, config) {
         console.log('scanning...');
+        this.config = config;
         if (this.scanner) {
             this.hwModule = require(`../modules/${config.module}`);
-            this.scanner.startScan(this.hwModule, config, (error, connector) => {
+            this.scanner.startScan(this.hwModule, this.config, (error, connector) => {
                 if (error) {
                     console.error(error);
                     return;
@@ -60,9 +62,7 @@ class MainRouter {
 
                 if (connector) {
                     this.sendEvent('state', 'connected');
-                    // event.sender.send('state', 'connected');
-                    // this.server.setState('connected');
-                    this._connect(connector, config);
+                    this._connect(connector);
                 }
             });
         }
@@ -77,9 +77,8 @@ class MainRouter {
     /**
      * 연결이 정상적으로 된 경우 startScan 의 callback 에서 호출된다.
      * @param connector
-     * @param config
      */
-    _connect(connector, config) {
+    _connect(connector) {
         this.connector = connector;
 
         if (this.connector.executeFlash) {
@@ -90,9 +89,9 @@ class MainRouter {
         // 엔트리측, 하드웨어측이 정상적으로 준비된 경우
         if (this.hwModule && this.server) {
             // 엔트리쪽으로 송수신시 변환할 방식. 현재 json 만 지원한다.
-            this.handler = require('../custom_modules/router/datahandler/handler').create(config);
+            this.handler = HandlerCreator.create(this.config);
             this._connectToServer();
-            this._connectToDeviceConnector(config);
+            this._connectToDeviceConnector();
         }
     }
 
@@ -138,14 +137,13 @@ class MainRouter {
     /**
      * 디바이스와의 연결 담당 로직.
      *
-     * @param config module.json 파일정보
      * @private
      */
-   _connectToDeviceConnector(config) {
+   _connectToDeviceConnector() {
         const hwModule = this.hwModule;
         const server = this.server;
         const connector = this.connector;
-        const { control, duration, advertise } = config.hardware;
+        const { control, duration, advertise } = this.config.hardware;
 
         /**
          * connector 에서 callback(null, data) 으로 주기적으로 데이터 전송.
