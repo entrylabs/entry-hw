@@ -23,9 +23,9 @@ class Connector {
 			bufferSize: 65536,
 		};
 
-		if(options.flowControl === 'hardware') {
+		if (options.flowControl === 'hardware') {
 			_options.rtscts = true;
-		} else if(options.flowControl === 'software') {
+		} else if (options.flowControl === 'software') {
 			_options.xon = true;
 			_options.xoff = true;
 		}
@@ -35,9 +35,9 @@ class Connector {
 		this.serialPort = new SerialPort(port, _options);
 
 		const { delimiter, byteDelimiter } = this.options;
-		if(delimiter) {
+		if (delimiter) {
 			this.serialPort.parser = new Readline({ delimiter });
-		} else if(byteDelimiter) {
+		} else if (byteDelimiter) {
 			this.serialPort.parser = new Delimiter({
 				delimiter: byteDelimiter,
 				includeDelimiter: true,
@@ -46,13 +46,13 @@ class Connector {
 
 		this.serialPort.on('error', (error) => {
 			console.error(error);
-			if(callback) {
+			if (callback) {
 				callback(error);
 			}
 		});
 		this.serialPort.on('open', (error) => {
 			this.serialPort.removeAllListeners('open');
-			if(callback) {
+			if (callback) {
 				callback(error, this.serialPort);
 			}
 		});
@@ -60,30 +60,30 @@ class Connector {
 
 	connect(hwModule, callback) {
 		console.log('connect!');
-		if(hwModule.connect) {
+		if (hwModule.connect) {
 			hwModule.connect();
 		}
-		if(this.serialPort) {
+		if (this.serialPort) {
 			this.connected = false;
 			this.received = true;
 			const serialPort = this.serialPort;
 			callback('connect');
 
-			if(hwModule.afterConnect) {
+			if (hwModule.afterConnect) {
 				hwModule.afterConnect(this, callback);
 			}
 
 			const source = this.serialPort.parser ? this.serialPort.pipe(this.serialPort.parser) : this.serialPort;
 			source.on('data', (data) => {
-				if(!hwModule.validateLocalData || hwModule.validateLocalData(data)) {
-					if(this.connected === false) {
+				if (!hwModule.validateLocalData || hwModule.validateLocalData(data)) {
+					if (this.connected === false) {
 						this.connected = true;
-						if(callback) {
+						if (callback) {
 							callback('connected');
 						}
 					}
 					this.received = true;
-					if(callback) {
+					if (callback) {
 						callback(null, data);
 					}
 				}
@@ -91,19 +91,19 @@ class Connector {
 
 			serialPort.on('disconnect', () => {
 				this.close();
-				if(callback) {
+				if (callback) {
 					callback('disconnected');
 				}
 			});
 
-			if(hwModule.lostController) {
+			if (hwModule.lostController) {
 				hwModule.lostController(self, callback);
 			} else {
 				this.timer = setInterval(() => {
-					if(this.connected) {
-						if(this.received === false) {
+					if (this.connected) {
+						if (this.received === false) {
 							this.connected = false;
-							if(callback) {
+							if (callback) {
 								callback('lost');
 							}
 						}
@@ -116,13 +116,13 @@ class Connector {
 
 	clear() {
 		this.connected = false;
-		if(this.timer) {
+		if (this.timer) {
 			clearInterval(this.timer);
 			this.timer = undefined;
 		}
-		if(this.serialPort) {
+		if (this.serialPort) {
 			this.serialPort.removeAllListeners();
-			if(this.serialPort.parser) {
+			if (this.serialPort.parser) {
 				this.serialPort.parser.removeAllListeners();
 			}
 		}
@@ -130,8 +130,8 @@ class Connector {
 
 	close() {
 		this.clear();
-		if(this.serialPort) {
-			if(this.serialPort.isOpen) { // modify isOpen
+		if (this.serialPort) {
+			if (this.serialPort.isOpen) { // modify isOpen
 				this.serialPort.close((e) => {
 					this.serialPort = undefined;
 				});
@@ -140,15 +140,15 @@ class Connector {
 	};
 
 	send(data, callback) {
-		if(this.serialPort && this.serialPort.isOpen && data && !this.serialPort.isSending) {
+		if (this.serialPort && this.serialPort.isOpen && data && !this.serialPort.isSending) {
 			this.serialPort.isSending = true;
 
-			if(this.options.stream === 'string') {
+			if (this.options.stream === 'string') {
 				data = Buffer.from(data, 'utf8');
 			}
 
 			this.serialPort.write(data, () => {
-				if(this.serialPort) {
+				if (this.serialPort) {
 					this.serialPort.drain(() => {
 						this.serialPort.isSending = false;
 						callback && callback();

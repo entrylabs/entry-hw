@@ -59,7 +59,14 @@ class Scanner {
 
             const { serverMode, hardware } = this.config;
             let { select_com_port: selectComPort } = this.config;
-            const { scanType, comName: checkComName, control, duration, firmwarecheck, pnpId, type } = hardware;
+            const { scanType,
+                comName: checkComName,
+                control,
+                duration,
+                firmwarecheck,
+                pnpId,
+                type,
+            } = hardware;
             let { vendor } = hardware;
 
             if (vendor && Scanner._isObject(vendor)) {
@@ -70,7 +77,11 @@ class Scanner {
                 selectComPort = selectComPort[process.platform];
             }
 
-            const checkComPort = (selectComPort || type === 'bluetooth' || serverMode === 1) || false;
+            const checkComPort = (
+                selectComPort ||
+                type === 'bluetooth' ||
+                serverMode === 1
+            ) || false;
             const myComPort = this.config.this_com_port;
 
             if (checkComPort && !myComPort) {
@@ -87,7 +98,8 @@ class Scanner {
                     if (ports.some((device) => {
                         let isVendor = false;
                         if (Array.isArray(vendor)) {
-                            isVendor = vendor.some((v) => device.manufacturer && device.manufacturer.indexOf(v) >= 0);
+                            isVendor = vendor.some((v) =>
+                                device.manufacturer && device.manufacturer.indexOf(v) >= 0);
                         } else {
                             if (device.manufacturer && device.manufacturer.indexOf(vendor) >= 0) {
                                 isVendor = true;
@@ -106,7 +118,8 @@ class Scanner {
                 const comName = port.comName || hardware.name;
 
                 if (Array.isArray(vendor)) {
-                    isVendor = vendor.some((name) => port.manufacturer && port.manufacturer.indexOf(name) >= 0);
+                    isVendor = vendor.some((name) =>
+                        port.manufacturer && port.manufacturer.indexOf(name) >= 0);
                 } else if (vendor && port.manufacturer && port.manufacturer.indexOf(vendor) >= 0) {
                     isVendor = true;
                 }
@@ -117,7 +130,12 @@ class Scanner {
                     isComName = true;
                 }
 
-                if (!vendor || (port.manufacturer && isVendor) || (port.pnpId && port.pnpId.indexOf(pnpId) >= 0) || isComName || checkComPort) {
+                if (!vendor ||
+                    (port.manufacturer && isVendor) ||
+                    (port.pnpId && port.pnpId.indexOf(pnpId) >= 0) ||
+                    isComName ||
+                    checkComPort
+                ) {
                     if (checkComPort && comName !== myComPort) {
                         return;
                     }
@@ -146,7 +164,8 @@ class Scanner {
                                 }
 
                                 // 파서를 쓰는 경우는 파서로 데이터를 가져온다.
-                                const source = serialPort.parser ? serialPort.pipe(serialPort.parser) : serialPort;
+                                const source = serialPort.parser ?
+                                    serialPort.pipe(serialPort.parser) : serialPort;
                                 if (control === 'master') {
                                     if (hwModule.checkInitialData && hwModule.requestInitialData) {
                                         source.on('data', (data) => {
@@ -159,7 +178,7 @@ class Scanner {
                                             if (result === undefined) {
                                                 connector.send(hwModule.requestInitialData());
                                             } else {
-                                                serialPort.removeAllListeners('data'); // modify  sp --> source
+                                                serialPort.removeAllListeners('data');
                                                 source.removeAllListeners('data');
                                                 clearTimeout(flashFirmware);
                                                 if (result === true) {

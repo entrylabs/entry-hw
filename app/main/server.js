@@ -24,7 +24,7 @@ class Server extends EventEmitter {
             multi: 1,
             parent: 2,
             child: 3,
-        }
+        };
     }
 
     constructor(router) {
@@ -41,18 +41,18 @@ class Server extends EventEmitter {
         this.clientRoomId = '';
         this.socketClient = undefined; // 클라이언트인 경우 세팅됨
         this.socketServer = undefined; // 호스트인 경우 세팅됨
-
-        //TODO main 에서 main Process args 받아야함.
-        // ipcRenderer.on('customArgs', (e, data) => { this.addRoomIdsOnSecondInstance(data) });
     }
 
+    //TODO main 에서 main Process args 받아야함.
+    // ipcRenderer.on('customArgs', (e, data) => { this.addRoomIdsOnSecondInstance(data) });
+    //TODO 메인 -> 메인라우터 -> 여기로 호출
     addRoomIdsOnSecondInstance(roomId) {
         if (this.runningMode === this.SERVER_MODE_TYPES.parent) {
             if (this.masterRoomIds.indexOf(roomId) === -1) {
                 this.masterRoomIds.push(roomId);
             }
         } else {
-            if (data) {
+            if (roomId) {
                 this.clientRoomId = roomId;
                 this.socketClient && this.socketClient.emit('matchTarget', { roomId });
                 if (this.masterRoomIds.indexOf(roomId) === -1) {
@@ -90,6 +90,7 @@ class Server extends EventEmitter {
          * 정상 오픈이 된 경우 socketIO 서버를 오픈한다.
          */
         httpServer.on('listening', (e) => {
+            //TODO
             const mRoomIds = [];/* = ipcRenderer.sendSync('roomId')*/
             if (mRoomIds.length > 0) {
                 mRoomIds.forEach((mRoomId) => {
@@ -101,7 +102,7 @@ class Server extends EventEmitter {
             this.runningMode = this.SERVER_MODE_TYPES.parent;
             console.log('I`M SERVER');
             this.httpServer = httpServer;
-            console.log('Listening on port ' + PORT);
+            console.log(`Listening on port ${PORT}`);
 
             this.socketServer = this._createSocketServer(httpServer);
         });
@@ -122,6 +123,7 @@ class Server extends EventEmitter {
         });
 
         socket.on('connect', () => {
+            // TODO
             // const roomIds = ipcRenderer.sendSync('roomId');
             if (roomIds.length > 0) {
                 roomIds.forEach((roomId) => {
@@ -129,7 +131,7 @@ class Server extends EventEmitter {
                         if (this.masterRoomIds.indexOf(roomId) === -1) {
                             this.masterRoomIds.push(roomId);
                         }
-                        socket.emit('matchTarget', { roomId: roomId });
+                        socket.emit('matchTarget', { roomId });
                     }
                 });
             }
@@ -137,7 +139,7 @@ class Server extends EventEmitter {
 
         socket.on('message', this.router.handleServerData);
 
-        socket.on('mode', function(data) {
+        socket.on('mode', (data) => {
             socket.mode = data;
         });
 
@@ -220,7 +222,7 @@ class Server extends EventEmitter {
             socket.on('disconnect', (socket) => {
                 if (socket.handshake.query.childServer === 'true') {
                     if (socket.roomIds && socket.roomIds.length > 0) {
-                        socket.roomIds.forEach(function(roomId) {
+                        socket.roomIds.forEach((roomId) => {
                             server.to(roomId).emit('matching');
                         });
                     }
@@ -242,15 +244,14 @@ class Server extends EventEmitter {
                     message.mode === this.SERVER_MODE_TYPES.single ||
                     this.masterRoomIds.indexOf(socket.roomId) >= 0
                 ) {
-                    this.router.handleServerData()
-                    this.emit('data', message.data, message.type);
+                    this.router.handleServerData(message);
                 } else {
                     if (socket.handshake.query.childServer === 'true') {
                         if (
                             socket.roomIds &&
                             socket.roomIds.length > 0
                         ) {
-                            socket.roomIds.forEach(function(roomId) {
+                            socket.roomIds.forEach((roomId) => {
                                 server.to(roomId).emit('message', message);
                             });
                         }
@@ -258,7 +259,7 @@ class Server extends EventEmitter {
                         server.to(this.clientTargetList[socket.roomId]).emit('message', message);
                     }
                 }
-                if(ack) {
+                if (ack) {
                     const { key = true } = message;
                     ack(key);
                 }
@@ -286,7 +287,7 @@ class Server extends EventEmitter {
         let httpServer;
         let address;
 
-        const rootDir = path.resolve(__dirname, '..', '..');
+        const rootDir = path.resolve(__dirname, '..');
         console.log(rootDir);
         if (fs.existsSync(path.resolve(rootDir, 'ssl', 'cert.pem'))) {
             httpServer = require('https').createServer(
@@ -299,14 +300,14 @@ class Server extends EventEmitter {
                         fs.readFileSync(path.resolve(rootDir, 'ssl', 'RootCA.crt')),
                     ],
                 },
-                function(req, res) {
+                (req, res) => {
                     res.writeHead(200);
                     res.end();
                 }
             );
             address = `https://hardware.playentry.org:${port}`;
         } else {
-            httpServer = require('http').createServer(function(request, response) {
+            httpServer = require('http').createServer((request, response) => {
                 response.writeHead(200);
                 response.end();
             });
@@ -316,7 +317,7 @@ class Server extends EventEmitter {
         return {
             httpServer,
             address,
-        }
+        };
     }
 
     closeSingleConnection(connection) {
