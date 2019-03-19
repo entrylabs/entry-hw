@@ -84,12 +84,10 @@ class Scanner {
                 if (this.scanCount < 5) {
                     this.scanCount++;
                 } else {
-                    if (ports.some(function(device) {
+                    if (ports.some((device) => {
                         let isVendor = false;
                         if (Array.isArray(vendor)) {
-                            isVendor = vendor.some(function(v) {
-                                return device.manufacturer && device.manufacturer.indexOf(v) >= 0;
-                            });
+                            isVendor = vendor.some((v) => device.manufacturer && device.manufacturer.indexOf(v) >= 0);
                         } else {
                             if (device.manufacturer && device.manufacturer.indexOf(vendor) >= 0) {
                                 isVendor = true;
@@ -108,23 +106,18 @@ class Scanner {
                 const comName = port.comName || hardware.name;
 
                 if (Array.isArray(vendor)) {
-                    isVendor = vendor.some(function(name) {
-                        return port.manufacturer && port.manufacturer.indexOf(name) >= 0;
-                    });
+                    isVendor = vendor.some((name) => port.manufacturer && port.manufacturer.indexOf(name) >= 0);
                 } else if (vendor && port.manufacturer && port.manufacturer.indexOf(vendor) >= 0) {
                     isVendor = true;
                 }
 
                 if (Array.isArray(checkComName)) {
-                    isComName = checkComName.some(function(name) {
-                        return comName.indexOf(name) >= 0;
-                    });
+                    isComName = checkComName.some((name) => comName.indexOf(name) >= 0);
                 } else if (checkComName && comName.indexOf(checkComName) >= 0) {
                     isComName = true;
                 }
 
                 if (!vendor || (port.manufacturer && isVendor) || (port.pnpId && port.pnpId.indexOf(pnpId) >= 0) || isComName || checkComPort) {
-
                     if (checkComPort && comName !== myComPort) {
                         return;
                     }

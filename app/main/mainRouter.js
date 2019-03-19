@@ -50,15 +50,15 @@ class MainRouter {
      */
     startScan(event, config) {
         console.log('scanning...');
-        if(this.scanner) {
-            this.hwModule = require('../modules/' + config.module);
+        if (this.scanner) {
+            this.hwModule = require(`../modules/${config.module}`);
             this.scanner.startScan(this.hwModule, config, (error, connector) => {
-                if(error) {
+                if (error) {
                     console.error(error);
                     return;
                 }
 
-                if(connector) {
+                if (connector) {
                     this.sendEvent('state', 'connected');
                     // event.sender.send('state', 'connected');
                     // this.server.setState('connected');
@@ -69,7 +69,7 @@ class MainRouter {
     }
 
     stopScan() {
-        if(this.scanner) {
+        if (this.scanner) {
             this.scanner.stopScan();
         }
     }
@@ -82,13 +82,13 @@ class MainRouter {
     _connect(connector, config) {
         this.connector = connector;
 
-        if(this.connector.executeFlash) {
+        if (this.connector.executeFlash) {
             this.sendEvent('state', 'flash');
             return;
         }
 
         // 엔트리측, 하드웨어측이 정상적으로 준비된 경우
-        if(this.hwModule && this.server) {
+        if (this.hwModule && this.server) {
             // 엔트리쪽으로 송수신시 변환할 방식. 현재 json 만 지원한다.
             this.handler = require('../custom_modules/router/datahandler/handler').create(config);
             this._connectToServer();
@@ -109,28 +109,28 @@ class MainRouter {
 
         // 신규 연결시 해당 메세지 전송
         server.on('connection', () => {
-            if(hwModule.socketReconnection) {
+            if (hwModule.socketReconnection) {
                 hwModule.socketReconnection();
             }
         });
 
         // 엔트리 실행이 종료된 경우 reset 명령어 호출
-        server.on('close', function() {
-            if(hwModule.reset) {
+        server.on('close', () => {
+            if (hwModule.reset) {
                 hwModule.reset();
             }
         });
     }
 
     // 엔트리 측에서 데이터를 받아온 경우 전달
-    handleServerData({data, type}) {
+    handleServerData({ data, type }) {
         const hwModule = this.hwModule;
         const handler = this.handler;
         handler.decode(data, type);
 
         console.log('main server.data : ', handler.data);
 
-        if(hwModule.handleRemoteData) {
+        if (hwModule.handleRemoteData) {
             hwModule.handleRemoteData(handler);
         }
     }
@@ -152,35 +152,35 @@ class MainRouter {
          * 디바이스에서 데이터가 온 경우 발생한다.
          */
         connector.connect(hwModule, (state, data) => {
-            if(state) {
+            if (state) {
                 this.sendEvent('state', state);
                 // event.sender.send('state', state);
                 // 연결 후 state 가 변경되었을 때 이벤트 발생
-                if(hwModule.eventController) {
+                if (hwModule.eventController) {
                     hwModule.eventController(state);
                 }
                 return;
             }
 
             // 디바이스에 데이터 전송
-            if(hwModule.handleLocalData) {
+            if (hwModule.handleLocalData) {
                 hwModule.handleLocalData(data);
             }
 
             // 데이터 전송 후, handler.write 로 작성된 데이터 서버에 전송
-            if(hwModule.requestRemoteData) {
+            if (hwModule.requestRemoteData) {
                 hwModule.requestRemoteData(this.handler);
                 const data = this.handler.encode();
-                if(data) {
+                if (data) {
                     server.send(data);
                 }
             }
 
             // 만약 디바이스가 마스터모드인 경우, 디바이스에 바로 데이터 송신
-            if(control === 'master') {
-                if(hwModule.requestLocalData) {
+            if (control === 'master') {
+                if (hwModule.requestLocalData) {
                     const data = hwModule.requestLocalData();
-                    if(data) {
+                    if (data) {
                         connector.send(data);
                     }
                 }
@@ -188,17 +188,17 @@ class MainRouter {
         });
 
         // 마스터모드가 아닌 경우, duration 주기로 계속 서버에 데이터를 요청
-        if(duration && control !== 'master') {
+        if (duration && control !== 'master') {
             this.requestLocalDataInterval = setInterval(() => {
-                if(hwModule.requestLocalData) {
+                if (hwModule.requestLocalData) {
                     const data = hwModule.requestLocalData();
-                    if(data) {
+                    if (data) {
                         connector.send(data);
                     }
                 }
-                if(hwModule.getProperty) {
+                if (hwModule.getProperty) {
                     const data = hwModule.getProperty();
-                    if(data) {
+                    if (data) {
                         connector.send(data);
                     }
                 }
@@ -207,10 +207,10 @@ class MainRouter {
 
         // 만약 advertise 가 활성화 되어있는 경우,
         // handler 에 저장되어있는 데이터를 계속해서 디바이스로 송신
-        if(advertise) {
-            this.advertiseInterval = setInterval(function () {
+        if (advertise) {
+            this.advertiseInterval = setInterval(function() {
                 const data = this.handler.encode();
-                if(data) {
+                if (data) {
                     server.send(data);
                 }
             }, advertise);
@@ -218,29 +218,29 @@ class MainRouter {
     }
 
     close() {
-        if(this.server) {
+        if (this.server) {
             this.server.disconnectHardware();
         }
-        if(this.scanner) {
+        if (this.scanner) {
             this.scanner.stopScan();
         }
-        if(this.connector) {
+        if (this.connector) {
             console.log('disconnect');
-            if(this.hwModule.disconnect) {
+            if (this.hwModule.disconnect) {
                 this.hwModule.disconnect(this.connector);
             } else {
                 this.connector.close();
             }
         }
-        if(this.requestLocalDataInterval) {
+        if (this.requestLocalDataInterval) {
             clearInterval(this.requestLocalDataInterval);
             this.requestLocalDataInterval = undefined;
         }
-        if(this.advertiseInterval) {
+        if (this.advertiseInterval) {
             clearInterval(this.advertiseInterval);
             this.advertiseInterval = undefined;
         }
-        if(this.handler) {
+        if (this.handler) {
             this.handler = undefined;
         }
     };
