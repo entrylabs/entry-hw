@@ -171,9 +171,7 @@ Module.prototype.handleRemoteData = function(handler) {
                 if (!self.isRecentData(device, data.port, data)) {
                     // Check for recent data
 
-                    console.log(
-                        'D:' + device + ' P:' + data.port + ' A:' + data.dataA
-                    );
+					//console.log('D:'+device+' P:'+data.port+' A:'+data.dataA+' B:'+data.dataB+' C:'+data.dataC);
 
                     self.recentCheckData[device] = {
                         port: data.port,
@@ -267,16 +265,7 @@ Module.prototype.makeOutputBuffer = function(device, data) {
     var buffer;
     setting = this.setting;
 
-    console.log(
-        'D:' +
-            device +
-            ' P:' +
-            data.port +
-            ' B:' +
-            data.dataB +
-            ' C:' +
-            data.dataC
-    );
+    // console.log('D:'+device+' P:'+data.port+' A:'+data.dataA+' B:'+data.dataB+' C:'+data.dataC);
 
     //	if(device==setting.singlemotor){
     //		buffer = new Buffer([0xFF, 0x55, 6, 0, 2, device, data.port, data.dataA, data.dataB]);
