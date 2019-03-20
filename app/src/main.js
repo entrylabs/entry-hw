@@ -85,7 +85,7 @@
 
     // ui & control
     // dropdown setting start
-    const categoryDropdown = $("ul.dropdown");
+    const categoryDropdown = $("#filter_category");
     const categoryDropdownOptions = categoryDropdown.children('li:not(.init)');
     const categoryDropdownCurrentSelected = categoryDropdown.children('.init');
 
@@ -102,18 +102,23 @@
     categoryDropdown.on("click", "li:not(.init)", function() {
         categoryDropdownOptions.removeClass('selected');
 
-        const target = $(this);
-        target.addClass('selected');
-        categoryDropdownCurrentSelected.html($(this).html());
+        const selected = $(this);
+        const selectedCategory = selected.data('value');
+        selected.addClass('selected');
+        categoryDropdownCurrentSelected.html(selected.html());
 
         categoryDropdownCurrentSelected.append(
             $('<div></div>')
                 .addClass('arrow')
         );
 
+        // 카테고리 닫기
         categoryDropdownCurrentSelected.toggleClass('open');
         categoryDropdownOptions.toggle();
-        filterHardware(target.data('value'));
+
+        // 카테고리 목록, 선택 카테고리 데이터 변경
+        categoryDropdownCurrentSelected.data('value', selectedCategory);
+        filterHardware(selectedCategory);
     });
 
     // dropdown setting end
@@ -599,19 +604,24 @@
 
     $('#search_close_button').on('click', function() {
         $('#search_bar').val('');
-        searchHardware('');
         $(this).hide();
+        filterHardware(categoryDropdownCurrentSelected.data('value'));
     });
 
     function searchHardware(searchText) {
         // var searchText = $('#search_bar').val();
-        var isNotFound = true;
+        const currentCategory = $('#filter_category').children('.init').data('value');
+        let isNotFound = true;
         if (searchText) {
-            var hideList = hardwareList.filter(function(hardware) {
-                var en = hardware.name.en.toLowerCase();
-                var ko = hardware.name.ko.toLowerCase();
-                var text = searchText.toLowerCase();
-                if ((ko.indexOf(text) > -1 || en.indexOf(text) > -1) && hardware.platform.indexOf(process.platform) > -1) {
+            const hideList = hardwareList.filter(function(hardware) {
+                const en = hardware.name.en.toLowerCase();
+                const ko = hardware.name.ko.toLowerCase();
+                const text = searchText.toLowerCase();
+                if (
+                    (ko.indexOf(text) > -1 || en.indexOf(text) > -1) && // 검색결과가 있는지
+                    (hardware.platform.indexOf(process.platform) > -1) && // 현재 플랫폼과 동일한지
+                    (currentCategory === 'all' || hardware.category === currentCategory) // 현재 카테고리에 포함되었는지
+                ) {
                     ui.showRobot(hardware.id);
                     isNotFound = false;
                 } else {
@@ -631,7 +641,14 @@
         }
     }
 
+    /**
+     * 카테고리 별로 데이터를 표시한다.
+     * 카테고리 변경시 검색결과는 삭제된다.
+     * @param type{string} all|robot|module|board
+     */
     function filterHardware(type) {
+        $('#search_bar').val('');
+        $('#search_close_button').hide();
         if (!type || type === 'all') {
             ui.showRobot();
         } else {
