@@ -98,7 +98,6 @@ Router.prototype.connect = function(connector, config) {
         	ipcRenderer.send('startRequestLocalData', duration);
 			ipcRenderer.removeAllListeners('sendingRequestLocalData');
 			ipcRenderer.on('sendingRequestLocalData', () => {
-				console.log('requestLocalData', Date.now());
 				if(extension.requestLocalData) {
 					const data = extension.requestLocalData();
 					if(data) {

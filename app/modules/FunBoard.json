@@ -26,6 +26,7 @@
         "control": "slave",
         "duration": 32,
         "vendor": "",
-        "baudRate": 115200
+        "baudRate": 115200,
+        "byteDelimiter": [13, 10]
     }
 }
