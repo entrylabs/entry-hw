@@ -50,7 +50,7 @@ function make_packet(bytearray) {
 	} else {
 		data.push(checksum)
 	}
-	return new Uint8Array(data).buffer
+	return  Buffer.from(data)
 }
 
 Module.prototype.init = function (handler, config) { 
