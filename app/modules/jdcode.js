@@ -121,20 +121,38 @@ Module.prototype.handleRemoteData = function(handler) {
 		    cmdData[5] = sum&0xFF;
   	}
   	else{
-  			ctlData[6] = cmd[4];
-  			ctlData[7] = cmd[5];
-  			ctlData[8] = cmd[6];
-  			ctlData[9] = cmd[7];
-  			ctlData[10] = cmd[20];
-  			ctlData[11] = cmd[21];
-  			ctlData[12] = cmd[22];
-  			ctlData[13] = cmd[23];
-  			ctlData[14] = cmd[8];
-  			ctlData[15] = cmd[19];
-  			ctlData[16] = cmd[24];
-  			ctlData[17] = cmd[25];
-  			ctlData[18] = cmd[26];
-  			ctlData[19] = cmd[27];
+  		if((cmd[9]>0) || (cmd[10]>0) || (cmd[11]>0) || (cmd[12]>0)){
+  					this.oldOption = 0x8000;
+  					ctlData[6] = cmd[9];
+  					ctlData[7] = 0x00;
+  					ctlData[8] = cmd[10];
+  					ctlData[9] = 0x00;
+						ctlData[10] = cmd[11];
+  					ctlData[11] = 0x00;
+  					ctlData[12] = cmd[12];  					
+  					ctlData[13] = 0x00;
+  					ctlData[17] = 0x00;
+		  			ctlData[16] = 0x03;
+		  			ctlData[19] = 0x00;
+		  			ctlData[18] = 0x00;
+  				
+  			}
+  			else{
+	  			ctlData[6] = cmd[4];
+	  			ctlData[7] = cmd[5];
+	  			ctlData[8] = cmd[6];
+	  			ctlData[9] = cmd[7];
+	  			ctlData[10] = cmd[20];
+	  			ctlData[11] = cmd[21];
+	  			ctlData[12] = cmd[22];
+	  			ctlData[13] = cmd[23];
+	  			ctlData[14] = cmd[8];
+	  			ctlData[15] = cmd[19];
+	  			ctlData[16] = cmd[24];
+	  			ctlData[17] = cmd[25];
+	  			ctlData[18] = cmd[26];
+	  			ctlData[19] = cmd[27];
+	  		}
   			var sum = 0;
 				ctlData.forEach(function (value, idx) {
 						if(idx > 5)
@@ -152,7 +170,7 @@ Module.prototype.requestLocalData = function() {
 		var sum = 0;
 
 
-		if(this.emergency > 0){
+		if((this.oldOption!=0x8000) && (this.emergency>0)){
 				opt = this.oldOption & 0xFE;
 				this.emergency -= 1;
 		}
@@ -168,7 +186,8 @@ Module.prototype.requestLocalData = function() {
 				return this.cmdData;
 		}
 		else{
-				ctlData[14] = opt;
+				ctlData[14] = opt&0xFF;
+				ctlData[15] = (opt>>8)&0xFF;
 				ctlData.forEach(function (value, idx) {
 						if(idx > 5)
 		        	sum += value;
