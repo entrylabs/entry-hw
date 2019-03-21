@@ -248,14 +248,19 @@ Module.prototype.handleLocalData = function(data) {
     
     var key;
 	var value;
+    var base_idx;
     var self = this;
 	
 	console.log("HW Received...");
 	
 	for (var i = 0; i < 3; i++){
 		
-		key = (data[i * 2] & 0x78) >> 3;
-		value = ((data[i * 2] & 0x07) << 7 ) | (data[i * 2 + 1] & 0x7F);
+		//key = (data[i * 2] & 0x78) >> 3;
+		//value = ((data[i * 2] & 0x07) << 7 ) | (data[i * 2 + 1] & 0x7F);
+        
+        base_idx = i * 3;
+        key = data[base_idx];
+        value = data[base_idx + 1] & 0x000000ff | (data[base_idx + 2] << 8) & 0x0000ff00;
 		
 		console.log("["+ key + "] = " + value);
 		
@@ -345,7 +350,7 @@ Module.prototype.makeSensorReadBuffer = function(device, port, data) {
             convertPort,    // port
             0x04,           // command
             data,           // data
-            0x20,
+            0x00,
             0x34,
             0x56
         ]);
@@ -356,7 +361,7 @@ Module.prototype.makeSensorReadBuffer = function(device, port, data) {
             convertPort,    // port
             0x03,           // command
             data,           // data
-            0x20,
+            0x0,
             0x34,
             0x56
         ]);
@@ -453,7 +458,7 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
                 convertPort,    // port
                 0x05,           // command
                 data,           // 0~255
-                0x20,
+                0x00,
                 0x34,
                 0x56
             ]);
@@ -485,7 +490,7 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
                 convertPort,    // port
                 0x02,           // command
                 data,           // on-off 
-                0x20,
+                0x00,
                 0x34,
                 0x56
             ]);
