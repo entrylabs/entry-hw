@@ -1,6 +1,7 @@
 'use strict';
 
 const ConnectorCreator = require('./connector');
+const { SERVER_MODE_TYPES } = require('../src/common/constants');
 
 /**
  * 전체 포트를 검색한다.
@@ -43,7 +44,7 @@ class Scanner {
         }
     };
 
-    scan(callback) {
+    async scan(callback) {
         const hwModule = this.hwModule;
 
         // noinspection JSIgnoredPromiseFromCall
@@ -57,8 +58,10 @@ class Scanner {
                 throw error;
             }
 
-            const { serverMode, hardware } = this.config;
-            let { select_com_port: selectComPort } = this.config;
+            //TODO this_com_port 가 config 에서 설정될 수도 있고,
+            // renderer 에서 COM 선택한것도 여기로 들어온다.
+            const { serverMode, hardware, this_com_port: selectedComPort } = this.config;
+            let { select_com_port: needCOMPortSelect } = this.config;
             const { scanType,
                 comName: checkComName,
                 control,
@@ -69,22 +72,24 @@ class Scanner {
             } = hardware;
             let { vendor } = hardware;
 
+            // win, mac 플랫폼에 맞는 벤더명 설정
             if (vendor && Scanner._isObject(vendor)) {
                 vendor = vendor[process.platform];
             }
 
-            if (selectComPort && Scanner._isObject(selectComPort)) {
-                selectComPort = selectComPort[process.platform];
+            // win, mac 플랫폼에 맞춰 COMPort 확인창 필요한지 설정
+            if (needCOMPortSelect && Scanner._isObject(needCOMPortSelect)) {
+                needCOMPortSelect = needCOMPortSelect[process.platform];
             }
 
-            const checkComPort = (
-                selectComPort ||
+            //
+            const checkComPort =
+                needCOMPortSelect ||
                 type === 'bluetooth' ||
-                serverMode === 1
-            ) || false;
-            const myComPort = this.config.this_com_port;
+                serverMode === SERVER_MODE_TYPES.multi;
 
-            if (checkComPort && !myComPort) {
+            // COMPort 필요하면서, 선택이 되지 않은 경우는 선택되기 전까지 진행하지 않는다.
+            if (checkComPort && !selectedComPort) {
                 this.router.sendState('select_port', ports);
                 callback();
                 return;

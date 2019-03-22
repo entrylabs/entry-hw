@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const EventEmitter = require('events').EventEmitter;
 const client = require('socket.io-client');
+const { SERVER_MODE_TYPES } = require('../src/common/constants');
 const { version: appVersion } = require('../../package.json');
 
 /**
@@ -18,14 +19,6 @@ const { version: appVersion } = require('../../package.json');
  * - data : 서버에서 받은 데이터. 인자는 data, type 를 발생시킨다.
  */
 class Server extends EventEmitter {
-    get SERVER_MODE_TYPES() {
-        return {
-            single: 0,
-            multi: 1,
-            parent: 2,
-            child: 3,
-        };
-    }
 
     constructor(router) {
         super();
@@ -36,7 +29,7 @@ class Server extends EventEmitter {
         this.roomCnt = 0;
         this.childServerList = {};
         this.clientTargetList = {};
-        this.runningMode = this.SERVER_MODE_TYPES.parent;
+        this.runningMode = SERVER_MODE_TYPES.parent;
         this.masterRoomIds = [];
         this.clientRoomId = '';
         this.socketClient = undefined; // 클라이언트인 경우 세팅됨
@@ -44,7 +37,7 @@ class Server extends EventEmitter {
     }
 
     addRoomIdsOnSecondInstance(roomId) {
-        if (this.runningMode === this.SERVER_MODE_TYPES.parent) {
+        if (this.runningMode === SERVER_MODE_TYPES.parent) {
             if (this.masterRoomIds.indexOf(roomId) === -1) {
                 this.masterRoomIds.push(roomId);
             }
@@ -72,7 +65,7 @@ class Server extends EventEmitter {
          */
         httpServer.on('error', (e) => {
             // ipcRenderer.send('serverMode', this.SERVER_MODE_TYPES.multi);
-            this.runningMode = this.SERVER_MODE_TYPES.child;
+            this.runningMode = SERVER_MODE_TYPES.child;
             console.log('I`M CLIENT');
 
             const socket = this._createSocketClient(address);
@@ -95,7 +88,7 @@ class Server extends EventEmitter {
                     }
                 });
             }
-            this.runningMode = this.SERVER_MODE_TYPES.parent;
+            this.runningMode = SERVER_MODE_TYPES.parent;
             console.log('I`M SERVER');
             this.httpServer = httpServer;
             console.log(`Listening on port ${PORT}`);
@@ -190,10 +183,10 @@ class Server extends EventEmitter {
             const childServerListCnt = Object.keys(this.childServerList).length;
             if (childServerListCnt > 0) {
                 // ipcRenderer.send('serverMode', this.SERVER_MODE_TYPES.multi);
-                server.emit('mode', this.SERVER_MODE_TYPES.multi);
+                server.emit('mode', SERVER_MODE_TYPES.multi);
             } else {
                 // ipcRenderer.send('serverMode', this.SERVER_MODE_TYPES.single);
-                server.emit('mode', this.SERVER_MODE_TYPES.single);
+                server.emit('mode', SERVER_MODE_TYPES.single);
             }
 
             socket.on('matchTarget', (data) => {
@@ -226,7 +219,7 @@ class Server extends EventEmitter {
 
                     const childServerListCnt = Object.keys(this.childServerList).length;
                     if (childServerListCnt <= 0) {
-                        server.emit('mode', this.SERVER_MODE_TYPES.single);
+                        server.emit('mode', SERVER_MODE_TYPES.single);
                         // ipcRenderer.send('serverMode', this.SERVER_MODE_TYPES.single);
                     }
                 } else {
@@ -236,7 +229,7 @@ class Server extends EventEmitter {
 
             socket.on('message', (message, ack) => {
                 if (
-                    message.mode === this.SERVER_MODE_TYPES.single ||
+                    message.mode === SERVER_MODE_TYPES.single ||
                     this.masterRoomIds.indexOf(socket.roomId) >= 0
                 ) {
                     this.router.handleServerData(message);
@@ -329,8 +322,8 @@ class Server extends EventEmitter {
         const payload = { data, version: appVersion };
 
         if (
-            (this.runningMode === this.SERVER_MODE_TYPES.parent && childServerListCnt === 0) ||
-            this.runningMode === this.SERVER_MODE_TYPES.child
+            (this.runningMode === SERVER_MODE_TYPES.parent && childServerListCnt === 0) ||
+            this.runningMode === SERVER_MODE_TYPES.child
         ) {
             if (this.connections.length !== 0) {
                 this.connections.map((connection) => {
