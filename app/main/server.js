@@ -43,9 +43,6 @@ class Server extends EventEmitter {
         this.socketServer = undefined; // 호스트인 경우 세팅됨
     }
 
-    //TODO main 에서 main Process args 받아야함.
-    // ipcRenderer.on('customArgs', (e, data) => { this.addRoomIdsOnSecondInstance(data) });
-    //TODO 메인 -> 메인라우터 -> 여기로 호출
     addRoomIdsOnSecondInstance(roomId) {
         if (this.runningMode === this.SERVER_MODE_TYPES.parent) {
             if (this.masterRoomIds.indexOf(roomId) === -1) {
@@ -90,8 +87,7 @@ class Server extends EventEmitter {
          * 정상 오픈이 된 경우 socketIO 서버를 오픈한다.
          */
         httpServer.on('listening', (e) => {
-            //TODO
-            const mRoomIds = [];/* = ipcRenderer.sendSync('roomId')*/
+            const mRoomIds = this.router.getRoomIds();
             if (mRoomIds.length > 0) {
                 mRoomIds.forEach((mRoomId) => {
                     if (this.masterRoomIds.indexOf(mRoomId) === -1 && mRoomId) {
@@ -123,8 +119,7 @@ class Server extends EventEmitter {
         });
 
         socket.on('connect', () => {
-            // TODO
-            // const roomIds = ipcRenderer.sendSync('roomId');
+            const roomIds = this.router.getRoomIds();
             if (roomIds.length > 0) {
                 roomIds.forEach((roomId) => {
                     if (roomId) {

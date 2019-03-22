@@ -12,14 +12,13 @@ const {
     net,
 } = electron;
 const path = require('path');
-const fs = require('fs');
 const packageJson = require('../package.json');
 
 let mainWindow = null;
 let aboutWindow = null;
 let mainRouter = null;
 
-const roomId = [];
+const roomIds = [];
 
 let isForceClose = false;
 let hostURI = 'playentry.org';
@@ -27,6 +26,7 @@ let hostProtocol = 'https:';
 
 global.sharedObject = {
     appName: 'hardware',
+    roomIds,
 };
 
 function lpad(str, len) {
@@ -95,7 +95,7 @@ const argv = process.argv.slice(1);
 if (argv.indexOf('entryhw:')) {
     const data = getArgsParseData(argv);
     if (data) {
-        roomId.push(data);
+        roomIds.push(data);
     }
 }
 
@@ -148,8 +148,8 @@ if (!app.requestSingleInstanceLock()) {
             mainWindow.focus();
 
             if (mainWindow.webContents) {
-                if (roomId.indexOf(parseData) === -1) {
-                    roomId.push(parseData);
+                if (roomIds.indexOf(parseData) === -1) {
+                    roomIds.push(parseData);
                 }
                 mainWindow.webContents.send('customArgs', parseData);
                 mainRouter.addRoomId(parseData);
@@ -162,8 +162,9 @@ if (!app.requestSingleInstanceLock()) {
         app.exit(0);
     });
 
+    //deprecated soon
     ipcMain.on('roomId', (event, arg) => {
-        event.returnValue = roomId;
+        event.returnValue = roomIds;
     });
 
     ipcMain.on('version', (event, arg) => {

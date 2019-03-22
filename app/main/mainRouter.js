@@ -87,6 +87,10 @@ class MainRouter {
         this.server.addRoomIdsOnSecondInstance(roomId);
     }
 
+    getRoomIds() {
+        return global.sharedObject.roomIds || [];
+    }
+
     stopScan() {
         if (this.scanner) {
             this.scanner.stopScan();
