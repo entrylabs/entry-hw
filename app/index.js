@@ -29,19 +29,6 @@ global.sharedObject = {
     appName: 'hardware',
 };
 
-console.fslog = function(text) {
-    const logPath = path.join(__dirname, '..', '..');
-    if (!fs.existsSync(logPath)) {
-        fs.mkdirSync(logPath);
-    }
-    if (!fs.existsSync(path.join(logPath, 'debug.log'))) {
-        fs.writeFileSync(path.join(logPath, 'debug.log'), '', 'utf8');
-    }
-    let data = fs.readFileSync(path.join(logPath, 'debug.log'), 'utf8');
-    data += `\n\r${new Date()} : ${text}`;
-    fs.writeFileSync(path.join(logPath, 'debug.log'), data, 'utf8');
-};
-
 function lpad(str, len) {
     const strLen = str.length;
     if (strLen < len) {
@@ -318,10 +305,6 @@ if (!app.requestSingleInstanceLock()) {
 
     ipcMain.on('openAboutWindow', (event, arg) => {
         aboutWindow.show();
-    });
-
-    ipcMain.on('writeLog', (event, arg) => {
-        console.fslog(arg);
     });
 
     let requestLocalDataInterval = -1;
