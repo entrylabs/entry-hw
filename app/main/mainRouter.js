@@ -34,10 +34,19 @@ class MainRouter {
         this.browser.webContents.send('state', state, ...args);
     }
 
+    /**
+     * renderer 로 이벤트를 보낸다. sendState 는 sendEvent('state', args) 와 동일하다.
+     * @param eventChannel
+     * @param args
+     */
     sendEvent(eventChannel, ...args) {
         this.browser.webContents.send(eventChannel, ...args);
     }
 
+    /**
+     * ipcMain.on('state', ...) 처리함수
+     * @param state
+     */
     onState(state) {
         this.server.setState(state);
     }
@@ -66,6 +75,16 @@ class MainRouter {
                 }
             });
         }
+    }
+
+    /**
+     * 클라우드 모드 동작용.
+     * 신규 클라이언트 소켓생성되어 호스트에 연결되는 경우,
+     * 호스트 서버에서 관리하기 위해 해당 클라이언트용 roomId 를 추가한다.
+     * @param roomId
+     */
+    addRoomId(roomId) {
+        this.server.addRoomIdsOnSecondInstance(roomId);
     }
 
     stopScan() {
