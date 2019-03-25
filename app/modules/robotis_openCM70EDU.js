@@ -128,6 +128,7 @@ Module.prototype.requestInitialData = function () {
 
     // ping : 0xFF, 0xFF, 0xFD, 0x00, 0xC8, 0x03, 0x00, 0x01, 0x3B, 0xFA
     //this.robotisBuffer.push([INST_READ, 87, 1, 0], [INST_READ, 87, 1, 0], [INST_READ, 87, 1, 0], [INST_WRITE, 21, 1, 8]);
+    console.log("######### RequestInitialData");
     this.robotisBuffer.push([INST_READ, 87, 1, 0], [INST_READ, 87, 1, 0], [INST_WRITE, 21, 1, 8]);
     return this.readPacket(200, 87, 1);
 };
@@ -166,7 +167,7 @@ Module.prototype.requestRemoteData = function (handler) {
 
 Module.prototype.handleRemoteData = function (handler) {
     var data = handler.read('ROBOTIS_DATA');
-
+    console.log("handleRemoteData");
     var setZero = handler.read('setZero');
     if (setZero[0] == 1) {
         this.robotisBuffer = [];
@@ -430,37 +431,77 @@ Module.prototype.packetChecker = function (data) {
     }
 };
 Module.prototype.handleLocalData = function (data) { // data: Native Buffer    
-    console.log("data!!!! " + data.length + this.packetChecker(data));
-
-    var countData = 0;// 시작패킷 위치를 알기 위한 변수
-
-    if (this.packetChecker(data)) // 시작 패킷이 들어오면
+    //console.log("data!!!! " + data.length + " "+ this.packetChecker(data));
+    
+    for (var i = 0; i < data.length; i++)
     {
+        this.receiveBuffer.push(data[i]);
+    }
+    console.log("receiveBuffer1 : " + this.receiveBuffer);
+    while (!this.packetChecker(this.receiveBuffer) && this.receiveBuffer.length > 0) {
+        this.receiveBuffer.shift();
+    }
+    console.log("receiveBuffer2 : " + this.receiveBuffer + " length : " + this.receiveBuffer.length);
+    if (this.receiveBuffer.length < 6) { // 패킷 length 정보 까지 들어오지 않으면 
+        console.log(" dont receive length packet")
+        return;
+    }
+    else if (this.receiveBuffer[5] != 73) { //일반 리턴 패킷은 종료
+        console.log("general packet");
+        for (var ix = 0; i < this.receiveBuffer.length; i++) {
+            this.receiveBuffer.shift();
+        }
+    }
+    else if (this.receiveBuffer[5] != (this.receiveBuffer.length - 7)) // 패킷 Length 정보와 패킷 길이가 맞지 않으면
+    {
+        if (this.receiveBuffer[5] > this.receiveBuffer.length - 7) {
+            return
+        } else if (this.receiveBuffer[5] < this.receiveBuffer.length - 7)
+        {
+            while(this.receiveBuffer[5] < (this.receiveBuffer.length - 7)){
+                this.receiveBuffer.shift();
+            }
+        }
+        console.log("no length - 7 ");
+        return;
+    }
+    console.log("receiveBuffer3 : " + this.receiveBuffer + " length : " + this.receiveBuffer.length);
+    /*
+    if (this.packetChecker(data)) // 시작 패킷이 들어오면
+    {        
         for (var i = 0; i < data.length; i++) {
             this.receiveBuffer.push(data[i]);
         }
-        if (data.length < 6) // 패킷 length 정보 까지 들어오지 않으면 
-            return;
-        else if (this.receiveBuffer[5] != (this.receiveBuffer.length - 7)) // 패킷 Length 정보와 패킷 길이가 맞지 않으면
-        {
+        //console.log("start packet : " + this.receiveBuffer);
+        if (data.length < 6) { // 패킷 length 정보 까지 들어오지 않으면 
+            //console.log(" dont receive length packet")
             return;
         }
-    } else { // 시작 패킷이 아니면
+        else if (this.receiveBuffer[5] != (this.receiveBuffer.length - 7)) // 패킷 Length 정보와 패킷 길이가 맞지 않으면
+        {
+            //console.log("no length - 7 ");
+            return;
+        }
+    } else { // 시작 패킷이 아니면        
+        
         var ix = 0;
         tempArray = [];
         for (var j = 0; j < data.length; j++) {
             tempArray.push(data[j]);
         }
+        //console.log("no start packet : " + tempArray);
         while (!this.packetChecker(tempArray) && tempArray.length > 0) // 시작패킷을 발견할때까지 버퍼에 삽입
         {
             this.receiveBuffer.push(tempArray.shift());
             countData = ix;
         }
         if (this.packetChecker(this.receiveBuffer)) {
-            if (this.receiveBuffer[5] != (this.receiveBuffer.length - 7))
+            if (this.receiveBuffer[5] != (this.receiveBuffer.length - 7)) { // 패킷 Length 정보와 패킷 길이가 맞지 않으면
+                //console.log("no length - 7 22 ");
                 return;
+            }
         }
-    }
+    }*/
 
     /*
     console.log("### kjs data : " + this.receiveBuffer);
@@ -542,7 +583,7 @@ Module.prototype.handleLocalData = function (data) { // data: Native Buffer
                                 }
                                 if (this.receiveBuffer[9 - 5] != undefined) {
                                     this.userButtonState = this.receiveBuffer[9 - 5];
-                                    //console.log("userButton : " + this.userButtonState);
+                                    console.log("userButton : " + this.userButtonState);
                                 }
                                 if (this.receiveBuffer[11 - 5] != undefined) { // 최종 감지된 소리
                                     this.detectedSound = this.receiveBuffer[11 - 5];
@@ -628,13 +669,19 @@ Module.prototype.handleLocalData = function (data) { // data: Native Buffer
             }
             //console.log("this.receiveBuffer.length : " + this.receiveBuffer.length);
         }
-    } else {
+    } /*else {
         var count = this.receiveBuffer.length;
         for (var jj = 0 ; jj < count; jj++) {
             this.receiveBuffer.shift();
         }
+    }*/
+    
+    // 남아있는 패킷 비우기
+    var count = this.receiveBuffer.length;
+    for (var jj = 0 ; jj < count; jj++) {
+        this.receiveBuffer.shift();
     }
-    console.log("loop end");
+    console.log("loop end " + this.receiveBuffer.length);
 };
 
 Module.prototype.reset = function () {
