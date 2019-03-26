@@ -107,7 +107,7 @@ class Connector {
 			});
 
 			if (hwModule.lostController) {
-				hwModule.lostController(self, callback);
+				hwModule.lostController(this, callback);
 			} else {
 				this.timer = setInterval(() => {
 					if (this.connected) {

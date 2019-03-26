@@ -52,83 +52,82 @@ class Scanner {
         return await intervalScan();
     };
 
-    async scan() {
-        if (!this.config || !this.scanTimer) {
-            return;
-        }
-
-        //TODO this_com_port 가 config 에서 설정될 수도 있고,
-        // renderer 에서 COM 선택한것도 여기로 들어온다.
-        const { serverMode, hardware, this_com_port: selectedComPortName } = this.config;
-        let { select_com_port: needCOMPortSelect } = this.config;
-        const {
-            scanType,
-            comName: verificatedComPortNames,
-            control,
-            duration,
-            firmwarecheck,
-            pnpId,
-            type,
-        } = hardware;
-        let { vendor } = hardware;
-
-        // win, mac 플랫폼에 맞는 벤더명 설정
-        if (vendor && _.isPlainObject(vendor)) {
-            vendor = vendor[process.platform];
-        }
-
-        // win, mac 플랫폼에 맞춰 COMPort 확인창 필요한지 설정
-        if (needCOMPortSelect && _.isPlainObject(needCOMPortSelect)) {
-            needCOMPortSelect = needCOMPortSelect[process.platform];
-        }
-
-        // comPort 선택지가 필요한지 체크한다. 블루투스나 클라우드 모드인경우 무조건 검사한다.
-        const isComPortSelected =
-            needCOMPortSelect ||
-            type === 'bluetooth' ||
-            serverMode === SERVER_MODE_TYPES.multi;
-
-        try {
-            const comPorts = await this.getComPortList();
-            // COMPort 필요하면서, 선택이 되지 않은 경우는 선택되기 전까지 진행하지 않는다.
-            if (isComPortSelected && !selectedComPortName) {
-                this.router.sendState('select_port', comPorts);
+    scan() {
+        return new Promise(async (resolve, reject) => {
+            if (!this.config || !this.scanTimer) {
                 return;
             }
 
-            // TODO 스캔타입 삭제했습니다. 무조건 벤더검사 검사합니다. 190322 테스트 후 코멘트삭제요망
+            //TODO this_com_port 가 config 에서 설정될 수도 있고,
+            // renderer 에서 COM 선택한것도 여기로 들어온다.
+            const { serverMode, hardware, this_com_port: selectedComPortName } = this.config;
+            let { select_com_port: needCOMPortSelect } = this.config;
+            const {
+                scanType,
+                comName: verificatedComPortNames,
+                pnpId,
+                type,
+            } = hardware;
+            let { vendor } = hardware;
 
-            comPorts.forEach(async (port) => {
-                const comName = port.comName || hardware.name;
+            // win, mac 플랫폼에 맞는 벤더명 설정
+            if (vendor && _.isPlainObject(vendor)) {
+                vendor = vendor[process.platform];
+            }
 
-                // config 에 입력한 특정 벤더와 겹치는지 여부
-                const isVendor = this._indexOfStringOrArray(vendor, port.manufacturer);
+            // win, mac 플랫폼에 맞춰 COMPort 확인창 필요한지 설정
+            if (needCOMPortSelect && _.isPlainObject(needCOMPortSelect)) {
+                needCOMPortSelect = needCOMPortSelect[process.platform];
+            }
 
-                // config 에 입력한 특정 COMPortName과 겹치는지 여부
-                const isComName = this._indexOfStringOrArray(verificatedComPortNames, comName);
+            // comPort 선택지가 필요한지 체크한다. 블루투스나 클라우드 모드인경우 무조건 검사한다.
+            const isComPortSelected =
+                needCOMPortSelect ||
+                type === 'bluetooth' ||
+                serverMode === SERVER_MODE_TYPES.multi;
 
-                // config 에 입력한 특정 pnpId와 겹치는지 여부
-                const isPnpId = this._indexOfStringOrArray(pnpId, port.pnpId);
-
-                /*
-                연결동작 성사 여부 [아래
-                - 제조사, 플러그앤플레이, COMPort네임, ComPort 선택해야하고 현재 ComPort가 선택된 경우
-                 */
-                if (
-                    isVendor || isPnpId || isComName ||
-                    (needCOMPortSelect && comName === selectedComPortName)
-                ) {
-                    let connector = this.connectors[comName];
-                    if (connector === undefined) {
-                        connector = await this.prefareConnector(comName);
-                        this.connectors[comName] = connector;
-                    }
-                    return connector;
+            try {
+                const comPorts = await this.getComPortList();
+                // COMPort 필요하면서, 선택이 되지 않은 경우는 선택되기 전까지 진행하지 않는다.
+                if (isComPortSelected && !selectedComPortName) {
+                    this.router.sendState('select_port', comPorts);
+                    return;
                 }
-            });
-        } catch (e) {
-            console.error(e);
-        }
+
+                // TODO 스캔타입 삭제했습니다. 무조건 벤더검사 검사합니다. 190322 테스트 후 코멘트삭제요망
+
+                comPorts.forEach(async (port) => {
+                    const comName = port.comName || hardware.name;
+
+                    // config 에 입력한 특정 벤더와 겹치는지 여부
+                    const isVendor = this._indexOfStringOrArray(vendor, port.manufacturer);
+
+                    // config 에 입력한 특정 COMPortName과 겹치는지 여부
+                    const isComName = this._indexOfStringOrArray(verificatedComPortNames, comName);
+
+                    // config 에 입력한 특정 pnpId와 겹치는지 여부
+                    const isPnpId = this._indexOfStringOrArray(pnpId, port.pnpId);
+
+                    /*
+                    연결동작 성사 여부 [아래
+                    - 제조사, 플러그앤플레이, COMPort네임, ComPort 선택해야하고 현재 ComPort가 선택된 경우
+                     */
+                    if (
+                        isVendor || isPnpId || isComName ||
+                        (needCOMPortSelect && comName === selectedComPortName)
+                    ) {
+                        let connector = this.connectors[comName];
+                        if (connector === undefined) {
+                            connector = await this.prefareConnector(comName);
+                            this.connectors[comName] = connector;
+                        }
+                        resolve(connector);
+                    }
+                });
+            } catch (e) {
+                reject(e);
+            }
+        });
     };
 
     /**
@@ -136,107 +135,109 @@ class Scanner {
      * @param {string} connectedComName 연결을 성사하고자 하는 COMPort
      * @returns {Promise<Connector>}
      */
-    async prefareConnector(connectedComName) {
-        // 통신개시후 완료확인 받아 낸 후 넘기기
-        // 통신개시후 펌웨어 플래싱 필요한 경우 플래그 새기고 넘기기
-        const connector = new Connector();
-        const hwModule = this.hwModule;
-        const { hardware } = this.config;
-        const {
-            control,
-            duration,
-            firmwarecheck,
-        } = hardware;
+    prefareConnector(connectedComName) {
+        return new Promise(async (resolve, reject) => {
+            // 통신개시후 완료확인 받아 낸 후 넘기기
+            // 통신개시후 펌웨어 플래싱 필요한 경우 플래그 새기고 넘기기
+            const hwModule = this.hwModule;
+            const { hardware } = this.config;
+            const connector = new Connector(hwModule, hardware);
+            const {
+                control,
+                duration,
+                firmwarecheck,
+            } = hardware;
 
-        try {
-            const serialPort = await connector.open(connectedComName, hardware);
-            this.setConnector(connector);
-            if (control) {
-                let flashFirmware;
-                if (firmwarecheck) {
-                    flashFirmware = setTimeout(() => {
-                        serialPort.removeAllListeners('data');
-                        connector.executeFlash = true;
-                        this.finalizeScan(connectedComName);
-                        return connector;
-                    }, 3000);
-                }
-
-                // 파서를 쓰는 경우는 파서로 데이터를 가져온다.
-                const source = serialPort.parser ?
-                    serialPort.pipe(serialPort.parser) : serialPort;
-                if (control === 'master') {
-                    if (hwModule.checkInitialData && hwModule.requestInitialData) {
-                        source.on('data', (data) => {
-                            if (!this.config) {
-                                console.log('nono');
-                                return;
-                            }
-
-                            const result = hwModule.checkInitialData(data, this.config);
-                            if (result === undefined) {
-                                connector.send(hwModule.requestInitialData());
-                            } else {
-                                serialPort.removeAllListeners('data');
-                                source.removeAllListeners('data');
-                                clearTimeout(flashFirmware);
-                                if (result === true) {
-                                    if (hwModule.setSerialPort) {
-                                        hwModule.setSerialPort(serialPort);
-                                    }
-                                    this.finalizeScan(connectedComName);
-                                    return connector;
-                                } else {
-                                    throw new Error('Invalid hardware');
-                                }
-                            }
-                        });
+            try {
+                const serialPort = await connector.open(connectedComName, hardware);
+                this.setConnector(connector);
+                if (control) {
+                    let flashFirmware;
+                    if (firmwarecheck) {
+                        flashFirmware = setTimeout(() => {
+                            serialPort.removeAllListeners('data');
+                            connector.executeFlash = true;
+                            this.finalizeScan(connectedComName);
+                            resolve(connector);
+                        }, 3000);
                     }
-                } else { // if control type is slave
-                    if (duration && hwModule.checkInitialData && hwModule.requestInitialData) {
-                        source.on('data', (data) => {
-                            if (!this.config) {
-                                console.log('nono');
-                                return;
-                            }
 
-                            const result = hwModule.checkInitialData(data, this.config);
-                            if (result !== undefined) {
-                                serialPort.removeAllListeners('data');
-                                source.removeAllListeners('data');
-                                clearTimeout(flashFirmware);
-                                if (result === true) {
-                                    if (hwModule.setSerialPort) {
-                                        hwModule.setSerialPort(serialPort);
-                                    }
-                                    if (hwModule.resetProperty) {
-                                        connector.send(hwModule.resetProperty());
-                                    }
-                                    this.finalizeScan(connectedComName);
-                                    return connector;
-                                } else {
-                                    throw new Error('Invalid hardware');
+                    // 파서를 쓰는 경우는 파서로 데이터를 가져온다.
+                    const source = serialPort.parser ?
+                        serialPort.pipe(serialPort.parser) : serialPort;
+                    if (control === 'master') {
+                        if (hwModule.checkInitialData && hwModule.requestInitialData) {
+                            source.on('data', (data) => {
+                                if (!this.config) {
+                                    console.log('nono');
+                                    resolve();
                                 }
-                            }
-                        });
-                        let slaveTimer = this.slaveTimers[connectedComName];
-                        if (slaveTimer) {
-                            clearInterval(slaveTimer);
+
+                                const result = hwModule.checkInitialData(data, this.config);
+                                if (result === undefined) {
+                                    connector.send(hwModule.requestInitialData());
+                                } else {
+                                    serialPort.removeAllListeners('data');
+                                    source.removeAllListeners('data');
+                                    clearTimeout(flashFirmware);
+                                    if (result === true) {
+                                        if (hwModule.setSerialPort) {
+                                            hwModule.setSerialPort(serialPort);
+                                        }
+                                        this.finalizeScan(connectedComName);
+                                        resolve(connector);
+                                    } else {
+                                        reject(new Error('Invalid hardware'));
+                                    }
+                                }
+                            });
                         }
-                        slaveTimer = setInterval(() => {
-                            connector.send(hwModule.requestInitialData(serialPort));
-                        }, duration);
-                        this.slaveTimers[connectedComName] = slaveTimer;
+                    } else { // if control type is slave
+                        if (duration && hwModule.checkInitialData && hwModule.requestInitialData) {
+                            source.on('data', (data) => {
+                                if (!this.config) {
+                                    console.log('nono');
+                                    resolve();
+                                }
+
+                                const result = hwModule.checkInitialData(data, this.config);
+                                if (result !== undefined) {
+                                    serialPort.removeAllListeners('data');
+                                    source.removeAllListeners('data');
+                                    clearTimeout(flashFirmware);
+                                    if (result === true) {
+                                        if (hwModule.setSerialPort) {
+                                            hwModule.setSerialPort(serialPort);
+                                        }
+                                        if (hwModule.resetProperty) {
+                                            connector.send(hwModule.resetProperty());
+                                        }
+                                        this.finalizeScan(connectedComName);
+                                        resolve(connector);
+                                    } else {
+                                        reject(new Error('Invalid hardware'));
+                                    }
+                                }
+                            });
+                            let slaveTimer = this.slaveTimers[connectedComName];
+                            if (slaveTimer) {
+                                clearInterval(slaveTimer);
+                            }
+                            slaveTimer = setInterval(() => {
+                                connector.send(hwModule.requestInitialData(serialPort));
+                            }, duration);
+                            this.slaveTimers[connectedComName] = slaveTimer;
+                        }
                     }
+                } else {
+                    this.finalizeScan(connectedComName);
+                    resolve(connector);
                 }
-            } else {
-                this.finalizeScan(connectedComName);
-                return connector;
+            } catch (e) {
+                delete this.connectors[connectedComName];
+                reject(e);
             }
-        } catch (e) {
-            delete this.connectors[connectedComName];
-            throw e;
-        }
+        });
     }
 
     /**
@@ -256,7 +257,7 @@ class Scanner {
             return arrayOrString.some((item) => target.indexOf(item) >= 0);
         } else {
             // noinspection JSValidateTypes
-            return target.indexOf(arrayOrString);
+            return target.indexOf(arrayOrString) >= 0;
         }
     }
 

@@ -59,7 +59,6 @@ class MainRouter {
      * @param config
      */
     async startScan(event, config) {
-        console.log('scanning...');
         this.config = config;
         if (this.scanner) {
             this.hwModule = require(`../modules/${config.module}`);
@@ -248,6 +247,7 @@ class MainRouter {
             } else {
                 this.connector.close();
             }
+            this.connector = undefined;
         }
         if (this.requestLocalDataInterval) {
             clearInterval(this.requestLocalDataInterval);
