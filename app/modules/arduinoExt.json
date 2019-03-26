@@ -23,6 +23,7 @@
         "duration": 32,
         "vendor": ["Arduino", "wch.cn", "FTDI"],
         "baudRate": 115200,
-        "firmwarecheck": false
+        "firmwarecheck": false,
+        "byteDelimiter": [13, 10]
     }
 }
