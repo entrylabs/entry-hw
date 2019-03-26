@@ -8,12 +8,16 @@ SerialPort.Binding = require('@entrylabs/bindings');
  * 스캔이 끝난 후, 선택된 포트로 시리얼포트를 오픈하는 클래스
  */
 class Connector {
-	open(port, options, callback) {
-		this.options = options;
+	static get DEFAULT_CONNECT_LOST_MILLS() {
+		return 500;
+	}
 
-		this.lostTimer = options.lostTimer || 500;
+	constructor(hwModule, hardwareOptions) {
+		this.options = hardwareOptions;
+		this.hwModule = hwModule;
+	}
 
-		// options
+	makeSerialPortOptions(options) {
 		const _options = {
 			autoOpen: true,
 			baudRate: 9600,
@@ -30,31 +34,37 @@ class Connector {
 			_options.xoff = true;
 		}
 
-		Object.assign(_options, this.options);
+		Object.assign(_options, options);
+		return _options;
+	}
 
-		this.serialPort = new SerialPort(port, _options);
+	open(port, hardwareOptions) {
+		return new Promise((resolve, reject) => {
+			this.options = hardwareOptions;
+			this.lostTimer = hardwareOptions.lostTimer || Connector.DEFAULT_CONNECT_LOST_MILLS;
 
-		const { delimiter, byteDelimiter } = this.options;
-		if (delimiter) {
-			this.serialPort.parser = new Readline({ delimiter });
-		} else if (byteDelimiter) {
-			this.serialPort.parser = new Delimiter({
-				delimiter: byteDelimiter,
-				includeDelimiter: true,
+			const serialPort = new SerialPort(port, this.makeSerialPortOptions(hardwareOptions));
+			this.serialPort = serialPort;
+
+			const { delimiter, byteDelimiter } = hardwareOptions;
+			if (delimiter) {
+				serialPort.parser = new Readline({ delimiter });
+			} else if (byteDelimiter) {
+				serialPort.parser = new Delimiter({
+					delimiter: byteDelimiter,
+					includeDelimiter: true,
+				});
+			}
+
+			serialPort.on('error', reject);
+			serialPort.on('open', (error) => {
+				serialPort.removeAllListeners('open');
+				if (error) {
+					reject(error);
+				} else {
+					resolve(this.serialPort);
+				}
 			});
-		}
-
-		this.serialPort.on('error', (error) => {
-			console.error(error);
-			if (callback) {
-				callback(error);
-			}
-		});
-		this.serialPort.on('open', (error) => {
-			this.serialPort.removeAllListeners('open');
-			if (callback) {
-				callback(error, this.serialPort);
-			}
 		});
 	};
 
@@ -159,4 +169,4 @@ class Connector {
 	};
 }
 
-module.exports.create = () => new Connector();
+module.exports = Connector;

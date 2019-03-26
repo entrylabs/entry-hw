@@ -58,22 +58,18 @@ class MainRouter {
      * @param event
      * @param config
      */
-    startScan(event, config) {
+    async startScan(event, config) {
         console.log('scanning...');
         this.config = config;
         if (this.scanner) {
             this.hwModule = require(`../modules/${config.module}`);
-            this.scanner.startScan(this.hwModule, this.config, (error, connector) => {
-                if (error) {
-                    console.error(error);
-                    return;
-                }
-
-                if (connector) {
-                    this.sendEvent('state', 'connected');
-                    this._connect(connector);
-                }
-            });
+            const connector = await this.scanner.startScan(this.hwModule, this.config);
+            if (connector) {
+                this.sendEvent('state', 'connected');
+                this._connect(connector);
+            } else {
+                console.log('connector not found! [debug]');
+            }
         }
     }
 
