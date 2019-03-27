@@ -100,7 +100,9 @@ class MainRouter {
             // 엔트리쪽으로 송수신시 변환할 방식. 현재 json 만 지원한다.
             this.handler = HandlerCreator.create(this.config);
             this._connectToServer();
-            this._connectToDeviceConnector();
+
+            this.connector.setRouter(this);
+            this.connector.connect(); // router 설정 후 실제 기기와의 통신 시작
         }
     }
 
@@ -142,84 +144,15 @@ class MainRouter {
     }
 
     /**
-     * 디바이스와의 연결 담당 로직.
-     *
-     * @private
+     * 서버로 인코딩된 데이터를 보낸다. 핸들러 조작 함수가 없는 경우 그대로 보낸다. ex) advertise
+     * @param {function?} callback handler 내 데이터를 변경할 함수. ex. requestRemoteData
      */
-   _connectToDeviceConnector() {
-        const hwModule = this.hwModule;
-        const server = this.server;
-        const connector = this.connector;
-        const { control, duration, advertise } = this.config.hardware;
-
-        /**
-         * connector 에서 callback(null, data) 으로 주기적으로 데이터 전송.
-         * 디바이스에서 데이터가 온 경우 발생한다.
-         */
-        connector.connect(hwModule, (state, data) => {
-            if (state) {
-                this.sendState(state);
-                // event.sender.send('state', state);
-                // 연결 후 state 가 변경되었을 때 이벤트 발생
-                if (hwModule.eventController) {
-                    hwModule.eventController(state);
-                }
-                return;
-            }
-
-            // 디바이스에 데이터 전송
-            if (hwModule.handleLocalData) {
-                hwModule.handleLocalData(data);
-            }
-
-            // 데이터 전송 후, handler.write 로 작성된 데이터 서버에 전송
-            if (hwModule.requestRemoteData) {
-                hwModule.requestRemoteData(this.handler);
-                const data = this.handler.encode();
-                if (data) {
-                    server.send(data);
-                }
-            }
-
-            // 만약 디바이스가 마스터모드인 경우, 디바이스에 바로 데이터 송신
-            if (control === 'master') {
-                if (hwModule.requestLocalData) {
-                    const data = hwModule.requestLocalData();
-                    if (data) {
-                        connector.send(data);
-                    }
-                }
-            }
-        });
-
-        // 마스터모드가 아닌 경우, duration 주기로 계속 서버에 데이터를 요청
-        if (duration && control !== 'master') {
-            this.requestLocalDataInterval = setInterval(() => {
-                if (hwModule.requestLocalData) {
-                    const data = hwModule.requestLocalData();
-                    if (data) {
-                        connector.send(data);
-                    }
-                }
-                if (hwModule.getProperty) {
-                    const data = hwModule.getProperty();
-                    if (data) {
-                        connector.send(data);
-                    }
-                }
-            }, duration);
-        }
-
-        // 만약 advertise 가 활성화 되어있는 경우,
-        // handler 에 저장되어있는 데이터를 계속해서 디바이스로 송신
-        if (advertise) {
-            this.advertiseInterval = setInterval(function() {
-                const data = this.handler.encode();
-                if (data) {
-                    server.send(data);
-                }
-            }, advertise);
-        }
+    sendEncodedDataToServer(callback) {
+       callback && callback(this.handler);
+       const data = this.handler.encode();
+       if (data) {
+           this.server.send(data);
+       }
     }
 
     close() {

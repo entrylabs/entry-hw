@@ -144,7 +144,7 @@ class Scanner {
             const connector = new Connector(hwModule, hardware);
 
             try {
-                await connector.open(connectedComName, hardware);
+                await connector.open(connectedComName);
                 await connector.initialize();
                 this.setConnector(connector);
                 this.finalizeScan(connectedComName);
