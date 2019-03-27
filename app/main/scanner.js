@@ -142,97 +142,13 @@ class Scanner {
             const hwModule = this.hwModule;
             const { hardware } = this.config;
             const connector = new Connector(hwModule, hardware);
-            const {
-                control,
-                duration,
-                firmwarecheck,
-            } = hardware;
 
             try {
-                const serialPort = await connector.open(connectedComName, hardware);
+                await connector.open(connectedComName, hardware);
+                await connector.initialize();
                 this.setConnector(connector);
-                if (control) {
-                    let flashFirmware;
-                    if (firmwarecheck) {
-                        flashFirmware = setTimeout(() => {
-                            serialPort.removeAllListeners('data');
-                            connector.executeFlash = true;
-                            this.finalizeScan(connectedComName);
-                            resolve(connector);
-                        }, 3000);
-                    }
-
-                    // 파서를 쓰는 경우는 파서로 데이터를 가져온다.
-                    const source = serialPort.parser ?
-                        serialPort.pipe(serialPort.parser) : serialPort;
-                    if (control === 'master') {
-                        if (hwModule.checkInitialData && hwModule.requestInitialData) {
-                            source.on('data', (data) => {
-                                if (!this.config) {
-                                    console.log('nono');
-                                    resolve();
-                                }
-
-                                const result = hwModule.checkInitialData(data, this.config);
-                                if (result === undefined) {
-                                    connector.send(hwModule.requestInitialData());
-                                } else {
-                                    serialPort.removeAllListeners('data');
-                                    source.removeAllListeners('data');
-                                    clearTimeout(flashFirmware);
-                                    if (result === true) {
-                                        if (hwModule.setSerialPort) {
-                                            hwModule.setSerialPort(serialPort);
-                                        }
-                                        this.finalizeScan(connectedComName);
-                                        resolve(connector);
-                                    } else {
-                                        reject(new Error('Invalid hardware'));
-                                    }
-                                }
-                            });
-                        }
-                    } else { // if control type is slave
-                        if (duration && hwModule.checkInitialData && hwModule.requestInitialData) {
-                            source.on('data', (data) => {
-                                if (!this.config) {
-                                    console.log('nono');
-                                    resolve();
-                                }
-
-                                const result = hwModule.checkInitialData(data, this.config);
-                                if (result !== undefined) {
-                                    serialPort.removeAllListeners('data');
-                                    source.removeAllListeners('data');
-                                    clearTimeout(flashFirmware);
-                                    if (result === true) {
-                                        if (hwModule.setSerialPort) {
-                                            hwModule.setSerialPort(serialPort);
-                                        }
-                                        if (hwModule.resetProperty) {
-                                            connector.send(hwModule.resetProperty());
-                                        }
-                                        this.finalizeScan(connectedComName);
-                                        resolve(connector);
-                                    } else {
-                                        reject(new Error('Invalid hardware'));
-                                    }
-                                }
-                            });
-                            let slaveTimer = this.slaveTimers[connectedComName];
-                            if (slaveTimer) {
-                                clearInterval(slaveTimer);
-                            }
-                            slaveTimer = setInterval(() => {
-                                connector.send(hwModule.requestInitialData(serialPort));
-                            }, duration);
-                            this.slaveTimers[connectedComName] = slaveTimer;
-                        }
-                    }
-                } else {
-                    this.finalizeScan(connectedComName);
-                    resolve(connector);
-                }
+                this.finalizeScan(connectedComName);
+                resolve(connector);
             } catch (e) {
                 delete this.connectors[connectedComName];
                 reject(e);

@@ -19,7 +19,7 @@ class MainRouter {
         this.server = new EntryServer(this);
         this.server.open();
 
-        ipcMain.on('state', this.onState.bind(this));
+        ipcMain.on('state', this.onChangeState.bind(this));
         ipcMain.on('startScan', this.startScan.bind(this));
         ipcMain.on('stopScan', this.stopScan.bind(this));
         ipcMain.on('close', this.close.bind(this));
@@ -35,19 +35,10 @@ class MainRouter {
     }
 
     /**
-     * renderer 로 이벤트를 보낸다. sendState 는 sendEvent('state', args) 와 동일하다.
-     * @param eventChannel
-     * @param args
-     */
-    sendEvent(eventChannel, ...args) {
-        this.browser.webContents.send(eventChannel, ...args);
-    }
-
-    /**
      * ipcMain.on('state', ...) 처리함수
      * @param state
      */
-    onState(state) {
+    onChangeState(state) {
         this.server.setState(state);
     }
 
@@ -64,7 +55,7 @@ class MainRouter {
             this.hwModule = require(`../modules/${config.module}`);
             const connector = await this.scanner.startScan(this.hwModule, this.config);
             if (connector) {
-                this.sendEvent('state', 'connected');
+                this.sendState('connected');
                 this._connect(connector);
             } else {
                 console.log('connector not found! [debug]');
@@ -100,7 +91,7 @@ class MainRouter {
         this.connector = connector;
 
         if (this.connector.executeFlash) {
-            this.sendEvent('state', 'flash');
+            this.sendState('flash');
             return;
         }
 
@@ -145,8 +136,6 @@ class MainRouter {
         const handler = this.handler;
         handler.decode(data, type);
 
-        console.log('main server.data : ', handler.data);
-
         if (hwModule.handleRemoteData) {
             hwModule.handleRemoteData(handler);
         }
@@ -169,7 +158,7 @@ class MainRouter {
          */
         connector.connect(hwModule, (state, data) => {
             if (state) {
-                this.sendEvent('state', state);
+                this.sendState(state);
                 // event.sender.send('state', state);
                 // 연결 후 state 가 변경되었을 때 이벤트 발생
                 if (hwModule.eventController) {

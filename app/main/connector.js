@@ -12,12 +12,16 @@ class Connector {
 		return 500;
 	}
 
+	static get DEFAULT_SLAVE_DURATION() {
+		return 1000;
+	}
+
 	constructor(hwModule, hardwareOptions) {
 		this.options = hardwareOptions;
 		this.hwModule = hwModule;
 	}
 
-	makeSerialPortOptions(options) {
+	makeSerialPortOptions(serialPortOptions) {
 		const _options = {
 			autoOpen: true,
 			baudRate: 9600,
@@ -27,33 +31,36 @@ class Connector {
 			bufferSize: 65536,
 		};
 
-		if (options.flowControl === 'hardware') {
+		if (serialPortOptions.flowControl === 'hardware') {
 			_options.rtscts = true;
-		} else if (options.flowControl === 'software') {
+		} else if (serialPortOptions.flowControl === 'software') {
 			_options.xon = true;
 			_options.xoff = true;
 		}
 
-		Object.assign(_options, options);
+		Object.assign(_options, serialPortOptions);
 		return _options;
 	}
 
-	open(port, hardwareOptions) {
+	open(port) {
 		return new Promise((resolve, reject) => {
-			this.options = hardwareOptions;
+			const hardwareOptions = this.options;
 			this.lostTimer = hardwareOptions.lostTimer || Connector.DEFAULT_CONNECT_LOST_MILLS;
 
 			const serialPort = new SerialPort(port, this.makeSerialPortOptions(hardwareOptions));
 			this.serialPort = serialPort;
 
+			// TODO parser 를 해당 커넥터에서 공용으로 전부 적용되는지 파악 후 다른 재할당 로직 삭제
 			const { delimiter, byteDelimiter } = hardwareOptions;
 			if (delimiter) {
 				serialPort.parser = new Readline({ delimiter });
+                this.serialPort.pipe(serialPort.parser);
 			} else if (byteDelimiter) {
 				serialPort.parser = new Delimiter({
 					delimiter: byteDelimiter,
 					includeDelimiter: true,
 				});
+                this.serialPort.pipe(serialPort.parser);
 			}
 
 			serialPort.on('error', reject);
@@ -67,6 +74,85 @@ class Connector {
 			});
 		});
 	};
+
+	/**
+	 * checkInitialData, requestInitialData 가 둘다 존재하는 경우 handShake 를 진행한다.
+	 * 둘 중 하나라도 없는 경우는 로직을 종료한다.
+	 * 만약 firmwareCheck 옵션이 활성화 된 경우면 executeFlash 를 세팅하고 종료한다.
+	 * 이 플래그는 라우터에서 flasher 를 바로 사용해야하는지 판단한다.
+	 *
+	 * @returns {Promise<void>} 준비완료 or 펌웨어체크 준비
+	 */
+	initialize() {
+		return new Promise((resolve, reject) => {
+			const {
+			    control,
+                duration = Connector.DEFAULT_SLAVE_DURATION,
+                firmwarecheck,
+			} = this.options;
+			const hwModule = this.hwModule;
+
+			if (control) {
+				if (firmwarecheck) {
+					this.flashFirmware = setTimeout(() => {
+						this.serialPort.removeAllListeners('data');
+						this.executeFlash = true;
+						resolve();
+					});
+				}
+
+				// TODO 리팩토링 필요
+				if (hwModule.checkInitialData && hwModule.requestInitialData) {
+					if (control === 'master') {
+						this.serialPort.on('data', (data) => {
+							const result = hwModule.checkInitialData(data, this.options);
+
+                            if (result === undefined) {
+                                this.send(hwModule.requestInitialData());
+                            } else {
+                                this.serialPort.removeAllListeners('data');
+                                clearTimeout(this.flashFirmware);
+                                if (result === true) {
+                                    if (hwModule.setSerialPort) {
+                                        hwModule.setSerialPort(this.serialPort);
+                                    }
+                                    resolve();
+                                } else {
+                                    reject(new Error('Invalid hardware'));
+                                }
+                            }
+						});
+					} else {
+					    // control type is slave
+                        this.serialPort.on('data', (data) => {
+                            const result = hwModule.checkInitialData(data, this.options);
+                            if (result !== undefined) {
+                                this.serialPort.removeAllListeners('data');
+                                clearTimeout(this.flashFirmware);
+                                clearTimeout(this.slaveTimer);
+                                if (result === true) {
+                                    if (hwModule.setSerialPort) {
+                                        hwModule.setSerialPort(this.serialPort);
+                                    }
+                                    if (hwModule.resetProperty) {
+                                        this.send(hwModule.resetProperty());
+                                    }
+                                    resolve();
+                                } else {
+                                    reject(new Error('Invalid hardware'));
+                                }
+                            }
+                        });
+                        this.slaveTimer = setInterval(() => {
+                            this.send(hwModule.requestInitialData(this.serialPort));
+                        }, duration);
+                    }
+				} else {
+				    resolve();
+                }
+			}
+		});
+	}
 
 	connect(hwModule, callback) {
 		console.log('connect!');
