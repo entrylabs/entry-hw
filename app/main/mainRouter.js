@@ -171,14 +171,6 @@ class MainRouter {
             }
             this.connector = undefined;
         }
-        if (this.requestLocalDataInterval) {
-            clearInterval(this.requestLocalDataInterval);
-            this.requestLocalDataInterval = undefined;
-        }
-        if (this.advertiseInterval) {
-            clearInterval(this.advertiseInterval);
-            this.advertiseInterval = undefined;
-        }
         if (this.handler) {
             this.handler = undefined;
         }

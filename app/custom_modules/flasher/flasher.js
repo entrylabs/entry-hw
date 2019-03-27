@@ -1,27 +1,27 @@
 const { remote } = require('electron');
 const { dialog } = remote;
-var exec = require('child_process').exec;
-var path = require('path');
-var fs = require('fs');
-var Utils = require('../../src/js/utils');
-var platform = process.platform;
+const exec = require('child_process').exec;
+const path = require('path');
+const fs = require('fs');
+const Utils = require('../../src/js/utils');
+const platform = process.platform;
 
 var copyRecursiveSync = function(src, dest) {
-    var exists = fs.existsSync(src);
-    var stats = exists && fs.statSync(src);
-    var isDirectory = exists && stats.isDirectory();
+    const exists = fs.existsSync(src);
+    const stats = exists && fs.statSync(src);
+    const isDirectory = exists && stats.isDirectory();
     if (exists && isDirectory) {
-        if(!fs.existsSync(dest)) {
+        if (!fs.existsSync(dest)) {
             fs.mkdirSync(dest);
         }
-        fs.readdirSync(src).forEach(function(childItemName) {
+        fs.readdirSync(src).forEach((childItemName) => {
             copyRecursiveSync(path.join(src, childItemName),
-                        path.join(dest, childItemName));
+                path.join(dest, childItemName));
         });
     } else {
-        var data = fs.readFileSync(src);
+        const data = fs.readFileSync(src);
         fs.writeFileSync(dest, data, {
-            mode: 0o755
+            mode: 0o755,
         });
     }
 };
@@ -35,9 +35,9 @@ class Flasher {
     getAppPath(firmware) {
         return new Promise((resolve, reject) => {
             const firmwareName = typeof firmware === 'string' ? firmware : firmware.name;
-            var asarIndex = __dirname.indexOf('app.asar');
+            const asarIndex = __dirname.indexOf('app.asar');
             if (asarIndex > -1) {
-                var asarPath = __dirname.substr(0, asarIndex);
+                const asarPath = __dirname.substr(0, asarIndex);
                 copyRecursiveSync(__dirname, path.join(asarPath, 'flasher'));
                 resolve(asarPath);
             } else {
@@ -47,13 +47,12 @@ class Flasher {
     }
 
     flashArduino(firmware, port, options) {
-        return this.getAppPath(firmware).then((appPath) => {
-            return new Promise((resolve, reject) => {
-                var baudRate = options.baudRate || '115200';
-                var MCUType = options.MCUType || ' m328p';
-                var avrName;
-                var avrConf;
-                var portPrefix;
+        return this.getAppPath(firmware).then((appPath) => new Promise((resolve, reject) => {
+                const baudRate = options.baudRate || '115200';
+                const MCUType = options.MCUType || ' m328p';
+                let avrName;
+                let avrConf;
+                let portPrefix;
                 switch (platform) {
                     case 'darwin':
                         avrName = './avrdude';
@@ -66,7 +65,7 @@ class Flasher {
                         portPrefix = '\\\\.\\';
                         break;
                 }
-                var cmd = [
+                const cmd = [
                     avrName,
                     ' -p',
                     MCUType,
@@ -89,31 +88,28 @@ class Flasher {
                     },
                     (...args) => {
                         resolve(args);
-                    }
+                    },
                 );
-            });
-        });
+            }));
     }
 
     flashCopy(firmware, port, options, callBack) {
-        return this.getAppPath(firmware).then((appPath) => {
-            return new Promise((resolve, reject) => {
+        return this.getAppPath(firmware).then((appPath) => new Promise((resolve, reject) => {
                 const destPath = dialog.showOpenDialog({
                     properties: ['openDirectory'],
                 });
-                if(!destPath) {
+                if (!destPath) {
                     return resolve(['경로 미선택']);
                 }
                 Utils.copyFile(
                     path.join(appPath, 'flasher', `${firmware.name}.hex`),
-                    path.join(destPath[0], `${firmware.name}.hex`)
-                ).then(()=> {
+                    path.join(destPath[0], `${firmware.name}.hex`),
+                ).then(() => {
                     resolve([]);
-                }).catch((err)=> {
+                }).catch((err) => {
                     resolve([err]);
                 });
-            });
-        });
+            }));
     }
 
     flash(firmware, port, options) {
