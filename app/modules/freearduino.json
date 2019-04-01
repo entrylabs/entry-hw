@@ -1,0 +1,43 @@
+{
+    "id": "2B0101",
+    "name": {
+        "en": "FreeArduino",
+        "ko": "프리 아두이노"
+    },
+    "platform": ["win32", "darwin"],
+    "icon": "freearduino.png",
+    "module": "freearduino.js",
+    "url": "https://cafe.naver.com/robotclubmokdong",
+    "email": "sra07082421498@gmail.com",
+    "driver": [{
+        "win32-ia32": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
+        "win32-x64": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
+        "darwin-x64": "CH34x_Install_MAC_10_9_AND_ABOVE/CH34x_Install_V1.3.pkg",
+        "translate": "CH340 드라이버 (필요한 경우)"
+    }, {
+        "win32-ia32": "CP210x_VCP_Windows/CP210xVCPInstaller_x86.exe",
+        "win32-x64": "CP210x_VCP_Windows/CP210xVCPInstaller_x64.exe",
+        "darwin-x64": "Mac_OSX_VCP_Driver/SiLabsUSBDriverDisk.dmg",
+        "translate": "블루투스 드라이버 (필요한 경우)"
+    }],
+    "reconnect": true,
+    "select_com_port": true,
+    "firmware": [{
+        "name": "freearduino",
+        "translate": "유/무선 겸용 펌웨어 (D0:TX,D1:RX)"
+    }, {
+        "name": "freearduino_BT",
+        "translate": "무선 전용 펌웨어 (A4:TX,A5:RX)"
+    }],
+    "entry": {
+        "protocol": "json"
+    },
+    "hardware": {
+        "type": "bluetooth",
+        "control": "slave",
+        "duration": 32,
+        "vendor": "Arduino",
+        "baudRate": 9600,
+        "firmwarecheck": false
+    }
+}
