@@ -185,7 +185,9 @@ Scanner.prototype.scan = function (serialport, extension, config, callback) {
 									}
 								} else {
 									if (duration && extension.checkInitialData && extension.requestInitialData) {
-										sp.on('data', function (data) {
+										var source = sp;
+										if(sp.parser) source = sp.parser;
+										source.on('data', function (data) {
 											if(config.hardware.stream == 'string') {
 												data = data.toString();
 											}
