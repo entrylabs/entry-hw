@@ -6,12 +6,12 @@
     const fs = require('fs');
     const path = require('path');
     const _ = require('lodash');
-    var viewMode = 'main';
-    var firmwareCount = 0;
-    var hardwareList = [];
+    let viewMode = 'main';
+    let firmwareCount = 0;
+    const hardwareList = [];
 
-    var os = process.platform + '-' + (isOSWin64() ? 'x64' : process.arch);
-    var driverDefaultPath;
+    const os = `${process.platform}-${isOSWin64() ? 'x64' : process.arch}`;
+    let driverDefaultPath;
 
     if (sharedObject.appName === 'hardware' && navigator.onLine) {
         if (hasNewVersion) {
@@ -53,17 +53,17 @@
     // logger
     const loggerModule = require('./custom_modules/logger');
     loggerModule.set({
-        v: function(str) {
+        v(str) {
             console.log(str);
         },
-        i: function(str) {
-            console.info('%c' + str, 'color: dodgerblue');
+        i(str) {
+            console.info(`%c${str}`, 'color: dodgerblue');
         },
-        w: function(str) {
-            console.warn('%c' + str, 'color: orange');
+        w(str) {
+            console.warn(`%c${str}`, 'color: orange');
         },
-        e: function(str) {
-            console.error('%c' + str, 'color: red');
+        e(str) {
+            console.error(`%c${str}`, 'color: red');
         },
     });
     const logger = loggerModule.get();
@@ -74,11 +74,11 @@
 
     // router
     // var router = require('./custom_modules/router').init(server);
-    var router = require('./custom_modules/router/rendererRouter');
+    const router = require('./custom_modules/router/rendererRouter');
     window.router = router;
 
     // flasher
-    var flasher = require('./custom_modules/flasher');
+    const flasher = require('./custom_modules/flasher');
 
     $('html').addClass(process.platform);
 
@@ -93,7 +93,7 @@
         categoryDropdownOptions.hide();
     };
 
-    categoryDropdown.on("click", ".init", function() {
+    categoryDropdown.on("click", ".init", () => {
         categoryDropdownCurrentSelected.toggleClass('open');
         categoryDropdownOptions.toggle();
     });
@@ -168,8 +168,8 @@
 
     $('#driverButtonSet').on('click', 'button', function() {
         if (!driverDefaultPath) {
-            var sourcePath = path.join(__dirname, 'drivers');
-            var asarIndex = __dirname.indexOf('app.asar');
+            const sourcePath = path.join(__dirname, 'drivers');
+            const asarIndex = __dirname.indexOf('app.asar');
             if (asarIndex >= 0) {
                 driverDefaultPath = path.join(
                     __dirname.substr(0, asarIndex),
@@ -190,28 +190,28 @@
     });
 
     var copyRecursiveSync = function(src, dest) {
-        var exists = fs.existsSync(src);
-        var stats = exists && fs.statSync(src);
-        var isDirectory = exists && stats.isDirectory();
+        const exists = fs.existsSync(src);
+        const stats = exists && fs.statSync(src);
+        const isDirectory = exists && stats.isDirectory();
         if (exists && isDirectory) {
             if (!fs.existsSync(dest)) {
                 fs.mkdirSync(dest);
             }
-            fs.readdirSync(src).forEach(function(childItemName) {
+            fs.readdirSync(src).forEach((childItemName) => {
                 copyRecursiveSync(
                     path.join(src, childItemName),
                     path.join(dest, childItemName)
                 );
             });
         } else {
-            var data = fs.readFileSync(src);
+            const data = fs.readFileSync(src);
             fs.writeFileSync(dest, data);
         }
     };
 
     var ui = {
         countRobot: 0,
-        showRobotList: function() {
+        showRobotList() {
             viewMode = 'main';
             if (flasher.flasherProcess) {
                 flasher.kill();
@@ -231,7 +231,7 @@
             this.hideAlert();
             $('#back.navigate_button').removeClass('active');
         },
-        showConnecting: function() {
+        showConnecting() {
             $('#title').text(translator.translate('hardware > connecting'));
             hideCategory();
             $('#hwList').hide();
@@ -242,7 +242,7 @@
                 translator.translate('Connecting to hardware device.')
             );
         },
-        showConnected: function() {
+        showConnected() {
             $('#title').text(translator.translate('hardware > connected'));
             hideCategory();
             $('#hwList').hide();
@@ -254,7 +254,7 @@
                 2000
             );
         },
-        showDisconnected: function() {
+        showDisconnected() {
             $('#title').text(translator.translate('hardware > disconnected'));
             hideCategory();
             $('#hwList').hide();
@@ -267,7 +267,7 @@
                 )
             );
         },
-        showAlert: function(message, duration) {
+        showAlert(message, duration) {
             if (!$('#hwList').is(':visible')) {
                 const $alert = $('#alert');
                 $alert.removeClass('error');
@@ -277,7 +277,7 @@
                     .stop()
                     .animate({ height: '35px' });
                 if (duration) {
-                    setTimeout(function() {
+                    setTimeout(() => {
                         $alert
                             .stop()
                             .animate({ height: '0px' });
@@ -285,7 +285,7 @@
                 }
             }
         },
-        showError: function(message, duration) {
+        showError(message, duration) {
             if (!$('#hwList').is(':visible')) {
                 $('#alert').addClass('error');
                 $('#alert').text(message);
@@ -299,7 +299,7 @@
                         height: '35px',
                     });
                 if (duration) {
-                    setTimeout(function() {
+                    setTimeout(() => {
                         $('#alert')
                             .stop()
                             .animate({
@@ -309,28 +309,28 @@
                 }
             }
         },
-        hideAlert: function(message) {
+        hideAlert(message) {
             $('#alert')
                 .stop(true, true)
                 .animate({
                     height: '0px',
                 });
         },
-        hideRobot: function(id) {
-            $('#' + id).hide();
+        hideRobot(id) {
+            $(`#${id}`).hide();
         },
-        showRobot: function(id) {
+        showRobot(id) {
             if (id) {
-                $('#' + id).show();
+                $(`#${id}`).show();
             } else {
                 $('.hardwareType').show();
             }
         },
-        addRobot: function(config) {
+        addRobot(config) {
             ui.showRobotList();
-            var name, platform;
+            let name, platform;
             if (config.name) {
-                name = config.name[lang] || config.name['en'];
+                name = config.name[lang] || config.name.en;
             }
 
             if (
@@ -350,13 +350,13 @@
                 </div>
             `);
 
-            $('#' + config.id)
+            $(`#${config.id}`)
                 .off('click')
                 .on('click', function() {
                     viewMode = this.id;
                     $('#back.navigate_button').addClass('active');
 
-                    var checkComPort =
+                    const checkComPort =
                         config.select_com_port ||
                         config.hardware.type === 'bluetooth' ||
                         serverMode === 1 ||
@@ -364,9 +364,7 @@
                     is_select_port = checkComPort;
 
                     if (Array.isArray(selectedList)) {
-                        var newSelectList = selectedList.filter(function(item) {
-                            return item !== config.name.ko;
-                        });
+                        const newSelectList = selectedList.filter((item) => item !== config.name.ko);
                         newSelectList.push(config.name.ko);
                         localStorage.setItem(
                             'hardwareList',
@@ -387,14 +385,14 @@
                     router.startScan(config);
                     window.currentConfig = config;
 
-                    var icon = './modules/' + config.icon;
+                    const icon = `./modules/${config.icon}`;
                     $('#selectedHWThumb').attr('src', icon);
 
                     if (config.url) {
                         $('#url').text(config.url);
                         $('#urlArea').show();
                         $('#url').off('click');
-                        $('#url').on('click', function() {
+                        $('#url').on('click', () => {
                             shell.openExternal(config.url);
                         });
                     } else {
@@ -403,7 +401,7 @@
 
                     if (config.video) {
                         let video = config.video;
-                        if(typeof video === 'string') {
+                        if (typeof video === 'string') {
                             video = [video];
                         }
                         $('#video').empty();
@@ -426,7 +424,7 @@
                         $('#emailArea').show();
                         $('#email')
                             .off('click')
-                            .on('click', function() {
+                            .on('click', () => {
                                 clipboard.writeText(config.email);
                                 alert(
                                     translator.translate('Copied to clipboard')
@@ -451,9 +449,9 @@
                             $dom.prop('driverPath', config.driver[os]);
                             $('#driverButtonSet').append($dom);
                         } else if (Array.isArray(config.driver)) {
-                            config.driver.forEach(function(driver, idx) {
+                            config.driver.forEach((driver, idx) => {
                                 if (driver[os]) {
-                                    var $dom = $('<button class="hwPanelBtn">');
+                                    const $dom = $('<button class="hwPanelBtn">');
                                     $dom.text(
                                         translator.translate(driver.translate)
                                     );
@@ -466,8 +464,8 @@
                     if (config.firmware) {
                         $('#firmware').show();
                         if (Array.isArray(config.firmware)) {
-                            config.firmware.forEach(function(firmware, idx) {
-                                var $dom = $('<button class="hwPanelBtn">');
+                            config.firmware.forEach((firmware, idx) => {
+                                const $dom = $('<button class="hwPanelBtn">');
                                 $dom.text(
                                     translator.translate(firmware.translate)
                                 );
@@ -485,7 +483,7 @@
                     }
                 });
         },
-        flashFirmware: function(firmware, config, prevPort) {
+        flashFirmware(firmware, config, prevPort) {
             try {
                 if (viewMode === 'main' || viewMode != config.id) {
                     $('#firmwareButtonSet').show();
@@ -511,20 +509,20 @@
                     return;
                 }
 
-                var port = prevPort || serialPort.path;
-                var baudRate = config.firmwareBaudRate;
-                var MCUType = config.firmwareMCUType;
-                var tryFlasherNumber = config.tryFlasherNumber || 10;
+                const port = prevPort || serialPort.path;
+                const baudRate = config.firmwareBaudRate;
+                const MCUType = config.firmwareMCUType;
+                const tryFlasherNumber = config.tryFlasherNumber || 10;
                 $('#firmwareButtonSet').hide();
                 ui.showAlert(translator.translate('Firmware Uploading...'));
                 router.close();
-                setTimeout(function() {
+                setTimeout(() => {
                     flasher
                         .flash(firmware, port, {
-                            baudRate: baudRate,
-                            MCUType: MCUType,
+                            baudRate,
+                            MCUType,
                         })
-                        .then(([ error, stdout, stderr ]) => {
+                        .then(([error, stdout, stderr]) => {
                             if (error) {
                                 if (firmwareCount >= tryFlasherNumber - 1) {
                                     firmwareCount = 0;
@@ -540,7 +538,7 @@
                                     $('#firmwareButtonSet').show();
                                 } else {
                                     firmwareCount++;
-                                    setTimeout(function() {
+                                    setTimeout(() => {
                                         ui.flashFirmware(
                                             firmware,
                                             config,
@@ -567,7 +565,7 @@
                 $('#firmwareButtonSet').show();
             }
         },
-        setState: function(state) {
+        setState(state) {
             if (state == 'connected') {
                 ui.showConnected();
             } else if (state == 'lost') {
@@ -576,11 +574,11 @@
                 ui.showDisconnected();
             }
         },
-        quit: function() {},
-        showIeGuide: function() {
+        quit() {},
+        showIeGuide() {
             $('#errorAlert').show();
         },
-        hideIeGuide: function() {
+        hideIeGuide() {
             $('#errorAlert').hide();
         },
     };
@@ -600,7 +598,7 @@
         }
     });
 
-    $('#search_button').on('click', function() {
+    $('#search_button').on('click', () => {
         searchHardware($('#search_bar').val());
     });
 
@@ -615,7 +613,7 @@
         const currentCategory = $('#filter_category').children('.init').data('value');
         let isNotFound = true;
         if (searchText) {
-            const hideList = hardwareList.filter(function(hardware) {
+            const hideList = hardwareList.filter((hardware) => {
                 const en = hardware.name.en.toLowerCase();
                 const ko = hardware.name.ko.toLowerCase();
                 const text = searchText.toLowerCase();
@@ -634,7 +632,7 @@
             if (isNotFound) {
                 alert(translator.translate('No results found'));
             } else {
-                hideList.forEach(function(hardware) {
+                hideList.forEach((hardware) => {
                     ui.hideRobot(hardware.id);
                 });
             }
@@ -664,19 +662,19 @@
         }
     }
 
-    $('body').on('keyup', function(e) {
+    $('body').on('keyup', (e) => {
         if (e.keyCode === 8) {
             $('#back.navigate_button.active').trigger('click');
         }
     });
 
-    $('body').on('click', '#back.navigate_button.active', function(e) {
+    $('body').on('click', '#back.navigate_button.active', (e) => {
         is_select_port = true;
         delete window.currentConfig.this_com_port;
         ui.showRobotList();
     });
 
-    $('body').on('click', '#refresh', function(e) {
+    $('body').on('click', '#refresh', (e) => {
         if (
             confirm(translator.translate('Do you want to restart the program?'))
         ) {
@@ -684,7 +682,7 @@
         }
     });
 
-    $('.chromeButton').click(function(e) {
+    $('.chromeButton').click((e) => {
         shell.openExternal(
             'https://www.google.com/chrome/browser/desktop/index.html'
         );
@@ -697,8 +695,8 @@
         );
     }
 
-    ipcRenderer.on('hardwareClose', function() {
-        var isQuit = true;
+    ipcRenderer.on('hardwareClose', () => {
+        let isQuit = true;
         if (router.connector && router.connector.connected) {
             isQuit = confirm(
                 translator.translate(
@@ -714,12 +712,12 @@
         }
     });
 
-    $('#select_port').dblclick(function() {
+    $('#select_port').dblclick(() => {
         $('#btn_select_port').trigger('click');
     });
 
-    $('#btn_select_port').click(function(e) {
-        var com_port = $('#select_port').val();
+    $('#btn_select_port').click((e) => {
+        const com_port = $('#select_port').val();
         if (!com_port) {
             alert(translator.translate('Select the COM PORT to connect'));
         } else {
@@ -728,7 +726,7 @@
         }
     });
 
-    $('#select_port_box .cancel_event').click(function(e) {
+    $('#select_port_box .cancel_event').click((e) => {
         clear_select_port();
         clearTimeout(select_port_connection);
     });
@@ -739,34 +737,34 @@
         $('#select_port_box').css('display', 'none');
     }
 
-    $('#opensource_license_viewer .close_event').on('click', function() {
+    $('#opensource_license_viewer .close_event').on('click', () => {
         $('#opensource_license_viewer').css('display', 'none');
     });
 
-    $('#opensource_label').on('click', function() {
+    $('#opensource_label').on('click', () => {
         $('#opensource_license_viewer').css('display', 'flex');
     });
 
-    $('#version_label').on('click', function() {
+    $('#version_label').on('click', () => {
         ipcRenderer.send('openAboutWindow');
     });
 
-    var opensourceFile = path.resolve(__dirname, 'OPENSOURCE.md');
-    fs.readFile(opensourceFile, 'utf8', function(err, text) {
+    const opensourceFile = path.resolve(__dirname, 'OPENSOURCE.md');
+    fs.readFile(opensourceFile, 'utf8', (err, text) => {
         $('#opensource_content').val(text);
     });
 
     var _cache_object = '';
-    var _com_port = '';
+    const _com_port = '';
     var is_select_port = true;
-    var select_port_connection;
+    let select_port_connection;
     var serverMode = 0;
     // state
-    router.on('serverMode', function(state, data) {
+    router.on('serverMode', (state, data) => {
         // console.log(arguments);
     });
 
-    ipcRenderer.on('serverMode', function(event, mode) {
+    ipcRenderer.on('serverMode', (event, mode) => {
         serverMode = mode;
         if (mode === 1) {
             $('#cloud_icon').show();
@@ -776,24 +774,26 @@
     });
 
     //router.on('state' ..
-    ipcRenderer.on('state', function(event, state, data) {
+    let currentState = '';
+    ipcRenderer.on('state', (event, state, data) => {
         console.log(state);
+        currentState = state;
         if (state === 'select_port') {
             router.close();
-            var _temp = JSON.stringify(data);
+            const _temp = JSON.stringify(data);
             if (
                 _temp !== _cache_object &&
                 is_select_port &&
                 viewMode !== 'main'
             ) {
-                var port_html = '';
-                data.forEach(function(port) {
+                let port_html = '';
+                data.forEach((port) => {
                     port_html +=
-                        '<option title="' +
-                        port.comName +
-                        '">' +
-                        port.comName +
-                        '</option>';
+                        `<option title="${ 
+                        port.comName 
+                        }">${ 
+                        port.comName 
+                        }</option>`;
                 });
 
                 $('#select_port_box').css('display', 'flex');
@@ -802,7 +802,7 @@
                 _cache_object = _temp;
             }
             if (is_select_port) {
-                select_port_connection = setTimeout(function() {
+                select_port_connection = setTimeout(() => {
                     if (viewMode !== 'main') {
                         router.startScan(window.currentConfig);
                     }
@@ -815,19 +815,19 @@
             console.log('flash');
             $('#firmware').trigger('click');
         } else if (state === 'connect' && window.currentConfig.softwareReset) {
-            var sp = router.connector.sp;
+            const sp = router.connector.sp;
             sp.set(
                 {
                     dtr: false,
                 },
-                function() {}
+                () => {}
             );
-            setTimeout(function() {
+            setTimeout(() => {
                 sp.set(
                     {
                         dtr: true,
                     },
-                    function() {}
+                    () => {}
                 );
             }, 1000);
             return;
@@ -847,9 +847,9 @@
             window.currentConfig && window.currentConfig.firmware
         ) {
             ui.showAlert(
-                translator.translate('Connecting to hardware device.') +
-                    ' ' +
-                    translator.translate('Please select the firmware.')
+                `${translator.translate('Connecting to hardware device.') 
+                    } ${ 
+                    translator.translate('Please select the firmware.')}`
             );
         }
         ui.setState(state);
@@ -857,35 +857,33 @@
     });
 
     //ipcEvent
-    ipcRenderer.on('update-message', function(e, message) {});
+    ipcRenderer.on('update-message', (e, message) => {});
 
     // configuration
-    fs.readdir(path.join(__dirname, 'modules'), function(error, files) {
+    fs.readdir(path.join(__dirname, 'modules'), (error, files) => {
         if (error) {
             logger.e(error);
             return;
         }
 
         files
-            .filter(function(file) {
-                return /(?:\.([^.]+))?$/.exec(file)[1] == 'json';
-            })
-            .forEach(function(file) {
+            .filter((file) => /(?:\.([^.]+))?$/.exec(file)[1] == 'json')
+            .forEach((file) => {
                 try {
-                    var config = fs.readFileSync(
+                    const config = fs.readFileSync(
                         path.join(__dirname, 'modules', file)
                     );
                     hardwareList.push(JSON.parse(config));
                 } catch (e) {}
             });
 
-        hardwareList.sort(function(left, right) {
-            var lName = left.name.ko.trim();
-            var rName = right.name.ko.trim();
-            var lIndex = Array.isArray(selectedList)
+        hardwareList.sort((left, right) => {
+            const lName = left.name.ko.trim();
+            const rName = right.name.ko.trim();
+            const lIndex = Array.isArray(selectedList)
                 ? selectedList.indexOf(lName)
                 : 0;
-            var rIndex = Array.isArray(selectedList)
+            const rIndex = Array.isArray(selectedList)
                 ? selectedList.indexOf(rName)
                 : 0;
             if (lIndex < rIndex) {
@@ -901,7 +899,7 @@
             }
         });
 
-        hardwareList.forEach(function(config) {
+        hardwareList.forEach((config) => {
             ui.addRobot(config);
         });
     });
