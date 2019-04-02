@@ -134,6 +134,7 @@ if (!app.requestSingleInstanceLock()) {
     app.quit();
     process.exit(0);
 } else {
+    app.commandLine.appendSwitch("disable-renderer-backgrounding");
     // 어플리케이션을 중복 실행했습니다. 주 어플리케이션 인스턴스를 활성화 합니다.
     app.on('second-instance', (event, argv, workingDirectory) => {
         let parseData = {};

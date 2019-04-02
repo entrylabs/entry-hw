@@ -117,6 +117,16 @@ class MainRouter {
 
         server.removeAllListeners();
 
+        if (hwModule.init) {
+            hwModule.init();
+        }
+
+        if (hwModule.setSocket) {
+            hwModule.setSocket(server);
+        }
+
+
+
         // 신규 연결시 해당 메세지 전송
         server.on('connection', () => {
             if (hwModule.socketReconnection) {

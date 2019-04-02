@@ -208,7 +208,7 @@ class Server extends EventEmitter {
             });
 
             socket.on('disconnect', (socket) => {
-                if (socket.handshake.query.childServer === 'true') {
+                if (socket.handshake && socket.handshake.query.childServer === 'true') {
                     if (socket.roomIds && socket.roomIds.length > 0) {
                         socket.roomIds.forEach((roomId) => {
                             server.to(roomId).emit('matching');
