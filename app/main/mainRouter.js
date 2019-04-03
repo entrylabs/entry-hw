@@ -221,6 +221,11 @@ class MainRouter {
     handleServerData({ data, type }) {
         const hwModule = this.hwModule;
         const handler = this.handler;
+
+        if (!hwModule || !handler) {
+            return;
+        }
+
         handler.decode(data, type);
 
         if (hwModule.handleRemoteData) {

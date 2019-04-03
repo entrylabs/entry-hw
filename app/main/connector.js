@@ -87,9 +87,9 @@ class Connector {
 
             const { delimiter, byteDelimiter } = hardwareOptions;
             if (delimiter) {
-                serialPort.pipe(new Readline({ delimiter }));
+                serialPort.parser = serialPort.pipe(new Readline({ delimiter }));
             } else if (byteDelimiter) {
-                serialPort.pipe(new Delimiter({
+                serialPort.parser = serialPort.pipe(new Delimiter({
                     delimiter: byteDelimiter,
                     includeDelimiter: true,
                 }));
@@ -127,7 +127,10 @@ class Connector {
             if (control) {
                 if (firmwarecheck) {
                     this.flashFirmware = setTimeout(() => {
+                        this.serialPort.parser ?
+                        this.serialPort.parser.removeAllListeners('data') :
                         this.serialPort.removeAllListeners('data');
+
                         this.executeFlash = true;
                         resolve();
                     });
@@ -135,14 +138,17 @@ class Connector {
 
                 // TODO 리팩토링 필요
                 if (hwModule.checkInitialData && hwModule.requestInitialData) {
+                    const serialPortReadStream =
+                        this.serialPort.parser ? this.serialPort.parser : this.serialPort;
                     if (control === 'master') {
-                        this.serialPort.on('data', (data) => {
+                        serialPortReadStream.on('data', (data) => {
                             const result = hwModule.checkInitialData(data, this.options);
 
                             if (result === undefined) {
                                 this.send(hwModule.requestInitialData());
                             } else {
                                 this.serialPort.removeAllListeners('data');
+                                serialPortReadStream.removeAllListeners('data');
                                 clearTimeout(this.flashFirmware);
                                 if (result === true) {
                                     if (hwModule.setSerialPort) {
@@ -156,10 +162,11 @@ class Connector {
                         });
                     } else {
                         // control type is slave
-                        this.serialPort.on('data', (data) => {
+                        serialPortReadStream.on('data', (data) => {
                             const result = hwModule.checkInitialData(data, this.options);
                             if (result !== undefined) {
                                 this.serialPort.removeAllListeners('data');
+                                serialPortReadStream.removeAllListeners('data');
                                 clearTimeout(this.flashFirmware);
                                 clearTimeout(this.slaveTimer);
                                 if (result === true) {
@@ -227,7 +234,10 @@ class Connector {
             });
         }
 
-        serialPort.on('data', (data) => {
+        const serialPortReadStream =
+            serialPort.parser ? serialPort.pipe(serialPort.parser) : serialPort;
+
+        serialPortReadStream.on('data', (data) => {
             if (!hwModule.validateLocalData || hwModule.validateLocalData(data)) {
                 if (!this.connected) {
                     this.connected = true;
@@ -309,6 +319,9 @@ class Connector {
         }
         if (this.serialPort) {
             this.serialPort.removeAllListeners();
+        }
+        if (this.serialPort.parser) {
+            this.serialPort.parser.removeAllListeners();
         }
     };
 
