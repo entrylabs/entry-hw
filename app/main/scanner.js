@@ -31,7 +31,7 @@ class Scanner {
         this.connectors = {};
         this.scanCount = 0;
 
-        const intervalScan = () => new Promise((resolve, reject) => {
+        const intervalScan = () => new Promise((resolve) => {
             console.log('scanning...');
             this.scan()
                 .then((connector) => {
@@ -45,7 +45,13 @@ class Scanner {
                         }
                     }
                 })
-                .catch(reject);
+                .catch(() => {
+                    if (this.scanTimer) {
+                        setTimeout(() => {
+                            intervalScan().then(resolve);
+                        }, Scanner.SCAN_INTERVAL_MILLS);
+                    }
+                });
         });
 
         this.scanTimer = true;
@@ -96,7 +102,8 @@ class Scanner {
 
                 // TODO 스캔타입 삭제했습니다. 무조건 벤더검사 검사합니다. 190322 테스트 후 코멘트삭제요망
 
-                comPorts.forEach(async (port) => {
+                let selectedComName = undefined;
+                comPorts.some((port) => {
                     const comName = port.comName || hardware.name;
 
                     // config 에 입력한 특정 벤더와 겹치는지 여부
@@ -116,16 +123,21 @@ class Scanner {
                         isVendor || isPnpId || isComName ||
                         (needCOMPortSelect && comName === selectedComPortName)
                     ) {
-                        let connector = this.connectors[comName];
-                        if (connector === undefined) {
-                            connector = await this.prefareConnector(comName);
-                            this.connectors[comName] = connector;
-                        }
-                        resolve(connector);
-                    } else {
-                        resolve();
+                        selectedComName = comName;
+                        return true;
                     }
                 });
+
+                if (!selectedComName) {
+                    resolve();
+                } else {
+                    let connector = this.connectors[selectedComName];
+                    if (connector === undefined) {
+                        connector = await this.prefareConnector(selectedComName);
+                        this.connectors[selectedComName] = connector;
+                    }
+                    resolve(connector);
+                }
             } catch (e) {
                 reject(e);
             }
