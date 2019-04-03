@@ -122,6 +122,8 @@ class Scanner {
                             this.connectors[comName] = connector;
                         }
                         resolve(connector);
+                    } else {
+                        resolve();
                     }
                 });
             } catch (e) {
