@@ -1,13 +1,16 @@
 (function() {
     'use strict';
+    const { ipcRenderer, shell, clipboard, remote } = require('electron');
+    const lastCheckVersion = localStorage.getItem('lastCheckVersion');
+    const hasNewVersion = localStorage.getItem('hasNewVersion');
+    let selectedList = JSON.parse(localStorage.getItem('hardwareList'));
+    const sharedObject = remote.getGlobal('sharedObject');
 
     // initialize options
     window.modal = new Modal();
     const fs = require('fs');
     const path = require('path');
-    const _ = require('lodash');
     let viewMode = 'main';
-    let firmwareCount = 0;
     const hardwareList = [];
 
     const os = `${process.platform}-${isOSWin64() ? 'x64' : process.arch}`;

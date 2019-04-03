@@ -5,15 +5,14 @@ const Utils = require('../src/js/utils');
 const platform = process.platform;
 
 /**
- * 아두이노
+ * 아두이노 플래싱 및 데이터카피(마이크로빗) 기능을 담당한다.
+ * Flasher 가 기능을 하기전에 SerialPort 의 동작을 끊어야 한다. (COMPort 점유)
+ * 아두이노 계열 펌웨어의 hex 파일은 main/firmwares/core 에 있는 파일을 커맨드라인 실행한다.
+ *
  */
 class Flasher {
     static get firmwareDirectory() {
         return path.resolve('app', 'main', 'firmwares');
-    }
-
-    constructor() {
-        this.avrFileList = ['avrdude', 'avrdude.conf', 'avrdude.exe', 'libusb0.dll'];
     }
 
     _getFirmwareDirectoryPath() {
@@ -25,12 +24,11 @@ class Flasher {
             return asarPath;
         } else {
             return Flasher.firmwareDirectory;
-            // return path.join(__dirname, '..');
         }
     }
 
-    flashArduino(firmware, port, options) {
-        return new Promise((resolve, reject) => {
+    _flashArduino(firmware, port, options) {
+        return new Promise((resolve) => {
             const appPath = this._getFirmwareDirectoryPath(firmware);
             const baudRate = options.baudRate || '115200';
             const MCUType = options.MCUType || ' m328p';
@@ -79,7 +77,7 @@ class Flasher {
         });
     }
 
-    flashCopy(firmware, port, options) {
+    _flashCopy(firmware, port, options) {
         return new Promise((resolve, reject) => {
             const firmwareDirectory = this._getFirmwareDirectoryPath();
             const destPath = dialog.showOpenDialog({
@@ -101,9 +99,9 @@ class Flasher {
 
     flash(firmware, port, options) {
         if (typeof firmware === 'string' || firmware.type === 'arduino') {
-            return this.flashArduino(firmware, port, options);
+            return this._flashArduino(firmware, port, options);
         } else if (firmware.type === 'copy') {
-            return this.flashCopy(firmware, port, options);
+            return this._flashCopy(firmware, port, options);
         }
     }
 

@@ -46,7 +46,12 @@ class MainRouter {
         });
     }
 
-    flashFirmware(event) {
+    /**
+     * 펌웨어를 업로드한다.
+     * 펌웨어는 커넥터가 닫힌 상태에서 작업되어야 한다. (COMPort 점유)
+     * @returns {Promise<void|Error>}
+     */
+    flashFirmware() {
         if (this.connector && this.connector.serialPort && this.config) {
             const {
                 firmware,
@@ -72,7 +77,7 @@ class MainRouter {
                             if (error) {
                                 if (error === 'exit') {
                                     // 에러 메세지 없이 프로세스 종료
-                                    reject();
+                                    reject(new Error());
                                 } else if (++this.firmwareTryCount <= maxFlashTryCount) {
                                     setTimeout(() => {
                                         flashFunction().then(resolve);
@@ -88,18 +93,17 @@ class MainRouter {
                 }, 500);
             });
 
-            flashFunction()
+            return flashFunction()
                 .then(async () => {
                     console.log('flash successed');
                     await this.startScan(this.config);
                 })
-                .catch(() => {
+                .catch((e) => {
                     console.log('flash failed');
-                    // event.sender.send('whatever', 'error', new Error('Failed Firmware Upload'));
+                    throw e;
                 });
         } else {
-            //TODO 뭐라고 보내지? 연결되지 않은 경우 렌더러라우터가 받아서 처리하게 하고싶다.
-            event.sender.send('whatever', 'error', new Error('Hardware Device Is Not Connected'));
+            return Promise.reject(new Error('Hardware Device Is Not Connected'));
         }
     }
 
