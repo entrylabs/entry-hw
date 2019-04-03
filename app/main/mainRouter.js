@@ -24,6 +24,7 @@ class MainRouter {
         /** @type {Connector} */
         this.connector = undefined;
         this.hwModule = undefined;
+        /** @type {Object} */
         this.handler = undefined;
 
         this.server.open();
@@ -194,7 +195,7 @@ class MainRouter {
         server.removeAllListeners();
 
         if (hwModule.init) {
-            hwModule.init();
+            hwModule.init(this.handler, this.config);
         }
 
         if (hwModule.setSocket) {
