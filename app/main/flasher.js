@@ -6,14 +6,15 @@ const platform = process.platform;
 
 class Flasher {
     static get firmwareDirectory() {
-        return path.resolve('app', 'custom_modules', 'flasher');
+        return path.resolve('app', 'main', 'firmwares');
     }
 
     constructor() {
         this.avrFileList = ['avrdude', 'avrdude.conf', 'avrdude.exe', 'libusb0.dll'];
     }
 
-    _getAppPath() {
+    _getFirmwareDirectoryPath() {
+        //TODO app 패키징 후 위치 수정 필수
         const asarIndex = __dirname.indexOf('app.asar');
         if (asarIndex > -1) {
             const asarPath = __dirname.substr(0, asarIndex);
@@ -27,7 +28,7 @@ class Flasher {
 
     flashArduino(firmware, port, options) {
         return new Promise((resolve, reject) => {
-            const appPath = this._getAppPath(firmware);
+            const appPath = this._getFirmwareDirectoryPath(firmware);
             const baudRate = options.baudRate || '115200';
             const MCUType = options.MCUType || ' m328p';
 
@@ -37,13 +38,13 @@ class Flasher {
 
             switch (platform) {
                 case 'darwin':
-                    avrName = './firmwares/core/avrdude';
-                    avrConf = './firmwares/core/avrdude.conf';
+                    avrName = './core/avrdude';
+                    avrConf = './core/avrdude.conf';
                     portPrefix = '';
                     break;
                 default:
-                    avrName = './firmwares/core/avrdude.exe';
-                    avrConf = './firmwares/core/avrdude.conf';
+                    avrName = './core/avrdude.exe';
+                    avrConf = './core/avrdude.conf';
                     portPrefix = '\\\\.\\';
                     break;
             }
@@ -66,7 +67,7 @@ class Flasher {
             this.flasherProcess = exec(
                 cmd.join(''),
                 {
-                    cwd: path.resolve(appPath, 'flasher'),
+                    cwd: appPath,
                 },
                 (...args) => {
                     resolve(args);
@@ -76,7 +77,7 @@ class Flasher {
     }
 
     flashCopy(firmware, port, options, callBack) {
-        return this._getAppPath(firmware).then((appPath) => new Promise((resolve, reject) => {
+        return this._getFirmwareDirectoryPath(firmware).then((appPath) => new Promise((resolve, reject) => {
             const destPath = dialog.showOpenDialog({
                 properties: ['openDirectory'],
             });
@@ -110,4 +111,4 @@ class Flasher {
     }
 }
 
-module.exports = new Flasher();
+module.exports = Flasher;

@@ -1,6 +1,7 @@
 const { ipcMain } = require('electron');
 const Scanner = require('./scanner');
 const EntryServer = require('./server');
+const Flasher = require('./flasher');
 const HandlerCreator = require('../custom_modules/router/datahandler/handler');
 
 /**
@@ -17,12 +18,88 @@ class MainRouter {
         this.browser = mainWindow;
         this.scanner = new Scanner(this);
         this.server = new EntryServer(this);
+        this.flasher = new Flasher();
+
+        this.config = undefined;
+        /** @type {Connector} */
+        this.connector = undefined;
+        this.hwModule = undefined;
+        this.handler = undefined;
+
         this.server.open();
 
-        ipcMain.on('state', this.onChangeState.bind(this));
-        ipcMain.on('startScan', this.startScan.bind(this));
-        ipcMain.on('stopScan', this.stopScan.bind(this));
-        ipcMain.on('close', this.close.bind(this));
+        ipcMain.on('state', (e, state) => {
+            this.onChangeState(state);
+        });
+        ipcMain.on('startScan', async (e, config) => {
+            await this.startScan(config);
+        });
+        ipcMain.on('stopScan', () => {
+            this.stopScan();
+        });
+        ipcMain.on('close', () => {
+            this.close();
+        });
+        ipcMain.on('requestFlash', (e) => {
+            this.flashFirmware();
+        });
+    }
+
+    flashFirmware(event) {
+        if (this.connector && this.connector.serialPort && this.config) {
+            const {
+                firmware,
+                firmwareBaudRate: baudRate,
+                firmwareMCUType: MCUType,
+                tryFlasherNumber: maxFlashTryCount = 10,
+            } = this.config;
+            const lastSerialPortCOMPort = this.connector.serialPort.path;
+            this.firmwareTryCount = 0;
+
+            this.close(); // 서버 통신 중지, 시리얼포트 연결 해제
+
+            const flashFunction = () => new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    //연결 해제 완료시간까지 잠시 대기 후 로직 수행한다.
+                    this.flasher.flash(firmware, lastSerialPortCOMPort, { baudRate, MCUType })
+                        .then(([error]) => {
+                            // 플래시에 필요한것 = COMPort, baudRate, MCUType, tryFlasherNumber
+                            // 커넥터에서 에러가 발생한경우 tryFlasherNumber 에 따라 여러번 보낸다
+                            // 여러번 보내는건 퐈바박 보내지말고 setTImeout 으로 좀 기다렸다가 보낸다.
+                            // 그래도 실패하면 에러를 보낸다.
+                            // 잘되었으면 스캔을 다시한다.
+                            if (error) {
+                                if (error === 'exit') {
+                                    // 에러 메세지 없이 프로세스 종료
+                                    reject();
+                                } else if (++this.firmwareTryCount <= maxFlashTryCount) {
+                                    setTimeout(() => {
+                                        flashFunction().then(resolve);
+                                    }, 100);
+                                } else {
+                                    reject(new Error('Failed Firmware Upload'));
+                                }
+                            } else {
+                                resolve();
+                            }
+                        })
+                        .catch(reject);
+                }, 500);
+            });
+
+            flashFunction()
+                .then(async () => {
+                    console.log('flash successed');
+                    await this.startScan(this.config);
+                })
+                .catch(() => {
+                    console.log('flash failed');
+                    // event.sender.send('whatever', 'error', new Error('Failed Firmware Upload'));
+                });
+        } else {
+            //TODO 뭐라고 보내지? 연결되지 않은 경우 렌더러라우터가 받아서 처리하게 하고싶다.
+            event.sender.send('whatever', 'error', new Error('Hardware Device Is Not Connected'));
+        }
     }
 
     /**
@@ -46,10 +123,9 @@ class MainRouter {
      * 현재 컴퓨터에 연결된 포트들을 검색한다.
      * 특정 시간(Scanner.SCAN_INTERVAL_MILLS) 마다 체크한다.
      * 연결성공시 'state' 이벤트가 발생된다.
-     * @param event
      * @param config
      */
-    async startScan(event, config) {
+    async startScan(config) {
         this.config = config;
         if (this.scanner) {
             this.hwModule = require(`../modules/${config.module}`);
@@ -125,8 +201,6 @@ class MainRouter {
             hwModule.setSocket(server);
         }
 
-
-
         // 신규 연결시 해당 메세지 전송
         server.on('connection', () => {
             if (hwModule.socketReconnection) {
@@ -158,11 +232,11 @@ class MainRouter {
      * @param {function?} callback handler 내 데이터를 변경할 함수. ex. requestRemoteData
      */
     sendEncodedDataToServer(callback) {
-       callback && callback(this.handler);
-       const data = this.handler.encode();
-       if (data) {
-           this.server.send(data);
-       }
+        callback && callback(this.handler);
+        const data = this.handler.encode();
+        if (data) {
+            this.server.send(data);
+        }
     }
 
     close() {

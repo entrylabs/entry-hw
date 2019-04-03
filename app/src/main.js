@@ -186,6 +186,7 @@
     });
 
     $('#firmwareButtonSet').on('click', 'button', function() {
+        console.log(this.firmware, this.config);
         ui.flashFirmware(this.firmware, this.config);
     });
 
@@ -484,86 +485,87 @@
                 });
         },
         flashFirmware(firmware, config, prevPort) {
-            try {
-                if (viewMode === 'main' || viewMode != config.id) {
-                    $('#firmwareButtonSet').show();
-                    return;
-                }
-
-                const { connector } = router;
-                const { serialPort } = connector;
-                if (!connector || (!serialPort && !prevPort)) {
-                    alert(
-                        translator.translate('Hardware Device Is Not Connected')
-                    );
-                    ui.showConnecting();
-                    $('#firmwareButtonSet').show();
-                    return;
-                }
-                if (
-                    prevPort &&
-                    serialPort &&
-                    prevPort != serialPort.path
-                ) {
-                    $('#firmwareButtonSet').show();
-                    return;
-                }
-
-                const port = prevPort || serialPort.path;
-                const baudRate = config.firmwareBaudRate;
-                const MCUType = config.firmwareMCUType;
-                const tryFlasherNumber = config.tryFlasherNumber || 10;
-                $('#firmwareButtonSet').hide();
-                ui.showAlert(translator.translate('Firmware Uploading...'));
-                router.close();
-                setTimeout(() => {
-                    flasher
-                        .flash(firmware, port, {
-                            baudRate,
-                            MCUType,
-                        })
-                        .then(([error, stdout, stderr]) => {
-                            if (error) {
-                                if (firmwareCount >= tryFlasherNumber - 1) {
-                                    firmwareCount = 0;
-                                    $('#firmwareButtonSet').show();
-                                    ui.showAlert(
-                                        translator.translate(
-                                            'Failed Firmware Upload'
-                                        )
-                                    );
-                                    router.startScan(config);
-                                } else if (error === 'exit') {
-                                    // firmwareCount = 0;
-                                    $('#firmwareButtonSet').show();
-                                } else {
-                                    firmwareCount++;
-                                    setTimeout(() => {
-                                        ui.flashFirmware(
-                                            firmware,
-                                            config,
-                                            port
-                                        );
-                                    }, 100);
-                                }
-                            } else {
-                                $('#firmwareButtonSet').show();
-                                ui.showAlert(
-                                    translator.translate('Firmware Uploaded!')
-                                );
-                                let timeout = 0;
-                                if (_.isPlainObject(firmware) && firmware.afterDelay) {
-                                    timeout = firmware.afterDelay;
-                                }
-                                setTimeout(() => {
-                                    router.startScan(config);
-                                }, timeout);
-                            }
-                        });
-                }, 500);
-            } catch (e) {
-                $('#firmwareButtonSet').show();
-            }
+            router.requestFlash();
+            // try {
+            //     if (viewMode === 'main' || viewMode != config.id) {
+            //         $('#firmwareButtonSet').show();
+            //         return;
+            //     }
+            //
+            //     const { connector } = router;
+            //     const { serialPort } = connector;
+            //     if (!connector || (!serialPort && !prevPort)) {
+            //         alert(
+            //             translator.translate('Hardware Device Is Not Connected')
+            //         );
+            //         ui.showConnecting();
+            //         $('#firmwareButtonSet').show();
+            //         return;
+            //     }
+            //     if (
+            //         prevPort &&
+            //         serialPort &&
+            //         prevPort != serialPort.path
+            //     ) {
+            //         $('#firmwareButtonSet').show();
+            //         return;
+            //     }
+            //
+            //     const port = prevPort || serialPort.path;
+            //     const baudRate = config.firmwareBaudRate;
+            //     const MCUType = config.firmwareMCUType;
+            //     const tryFlasherNumber = config.tryFlasherNumber || 10;
+            //     $('#firmwareButtonSet').hide();
+            //     ui.showAlert(translator.translate('Firmware Uploading...'));
+            //     router.close();
+            //     setTimeout(() => {
+            //         flasher
+            //             .flash(firmware, port, {
+            //                 baudRate,
+            //                 MCUType,
+            //             })
+            //             .then(([error, stdout, stderr]) => {
+            //                 if (error) {
+            //                     if (firmwareCount >= tryFlasherNumber - 1) {
+            //                         firmwareCount = 0;
+            //                         $('#firmwareButtonSet').show();
+            //                         ui.showAlert(
+            //                             translator.translate(
+            //                                 'Failed Firmware Upload'
+            //                             )
+            //                         );
+            //                         router.startScan(config);
+            //                     } else if (error === 'exit') {
+            //                         // firmwareCount = 0;
+            //                         $('#firmwareButtonSet').show();
+            //                     } else {
+            //                         firmwareCount++;
+            //                         setTimeout(() => {
+            //                             ui.flashFirmware(
+            //                                 firmware,
+            //                                 config,
+            //                                 port
+            //                             );
+            //                         }, 100);
+            //                     }
+            //                 } else {
+            //                     $('#firmwareButtonSet').show();
+            //                     ui.showAlert(
+            //                         translator.translate('Firmware Uploaded!')
+            //                     );
+            //                     let timeout = 0;
+            //                     if (_.isPlainObject(firmware) && firmware.afterDelay) {
+            //                         timeout = firmware.afterDelay;
+            //                     }
+            //                     setTimeout(() => {
+            //                         router.startScan(config);
+            //                     }, timeout);
+            //                 }
+            //             });
+            //     }, 500);
+            // } catch (e) {
+            //     $('#firmwareButtonSet').show();
+            // }
         },
         setState(state) {
             if (state == 'connected') {
