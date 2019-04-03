@@ -189,7 +189,6 @@
     });
 
     $('#firmwareButtonSet').on('click', 'button', function() {
-        console.log(this.firmware, this.config);
         ui.flashFirmware(this.firmware, this.config);
     });
 
@@ -488,7 +487,34 @@
                 });
         },
         flashFirmware(firmware, config, prevPort) {
-            router.requestFlash();
+            if (currentState !== 'connected') {
+                alert(
+                    translator.translate('Hardware Device Is Not Connected')
+                );
+                ui.showConnecting();
+                $('#firmwareButtonSet').show();
+                return;
+            }
+
+            $('#firmwareButtonSet').hide();
+            ui.showAlert(translator.translate('Firmware Uploading...'));
+            router.requestFlash()
+                .then(() => {
+                    ui.showAlert(
+                        translator.translate('Firmware Uploaded!')
+                    );
+                })
+                .catch((e) => {
+                    ui.showAlert(
+                        translator.translate(
+                            'Failed Firmware Upload'
+                        )
+                    );
+                })
+                .finally(() => {
+                    $('#firmwareButtonSet').show();
+                });
+
             // try {
             //     if (viewMode === 'main' || viewMode != config.id) {
             //         $('#firmwareButtonSet').show();

@@ -42,7 +42,13 @@ class MainRouter {
             this.close();
         });
         ipcMain.on('requestFlash', (e) => {
-            this.flashFirmware();
+            this.flashFirmware()
+                .then(() => {
+                    e.sender.send('requestFlash');
+                })
+                .catch((e) => {
+                    e.sender.send('requestFlash', e);
+                });
         });
     }
 
@@ -94,13 +100,18 @@ class MainRouter {
             });
 
             return flashFunction()
-                .then(async () => {
+                .then(() => {
                     console.log('flash successed');
-                    await this.startScan(this.config);
                 })
                 .catch((e) => {
                     console.log('flash failed');
                     throw e;
+                })
+                .finally(async () => {
+                    if (firmware.afterDelay) {
+                        await new Promise((resolve) => setTimeout(resolve, firmware.afterDelay));
+                    }
+                    await this.startScan(this.config);
                 });
         } else {
             return Promise.reject(new Error('Hardware Device Is Not Connected'));

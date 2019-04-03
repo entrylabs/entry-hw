@@ -16,12 +16,17 @@ class RendererRouter extends EventEmitter {
     };
 
     requestFlash() {
-        ipcRenderer.send('requestFlash');
-        ipcRenderer.once('requestFlash', (error) => {
-            if (error instanceof Error) {
-                console.log(error.message);
-            }
-            console.log('success?', error);
+        return new Promise((resolve, reject) => {
+            ipcRenderer.send('requestFlash');
+            ipcRenderer.once('requestFlash', (error) => {
+                if (error instanceof Error) {
+                    console.log(error.message);
+                    reject(error);
+                } else {
+                    console.log('success?', error);
+                    resolve();
+                }
+            });
         });
     }
 }
