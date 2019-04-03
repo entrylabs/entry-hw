@@ -321,7 +321,9 @@ if (!app.requestSingleInstanceLock()) {
     let requestLocalDataInterval = -1;
     ipcMain.on('startRequestLocalData', function(event, duration) {
         requestLocalDataInterval = setInterval(() => {
-            event.sender.send('sendingRequestLocalData');
+            if (!event.sender.isDestroyed()) {
+                event.sender.send('sendingRequestLocalData');
+            }
         }, duration);
     });
     ipcMain.on('stopRequestLocalData', function() {
