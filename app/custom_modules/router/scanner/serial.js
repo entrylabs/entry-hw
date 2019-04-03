@@ -194,6 +194,7 @@ Scanner.prototype.scan = function (serialport, extension, config, callback) {
 
 											var result = extension.checkInitialData(data, config);
 											if (result !== undefined) {
+												source.removeAllListeners('data');
 												sp.removeAllListeners('data');
 												clearTimeout(flashFirmware);
 												if (result === true) {
