@@ -4,6 +4,9 @@ const path = require('path');
 const Utils = require('../src/js/utils');
 const platform = process.platform;
 
+/**
+ * 아두이노
+ */
 class Flasher {
     static get firmwareDirectory() {
         return path.resolve('app', 'main', 'firmwares');
@@ -76,8 +79,9 @@ class Flasher {
         });
     }
 
-    flashCopy(firmware, port, options, callBack) {
-        return this._getFirmwareDirectoryPath(firmware).then((appPath) => new Promise((resolve, reject) => {
+    flashCopy(firmware, port, options) {
+        return new Promise((resolve, reject) => {
+            const firmwareDirectory = this._getFirmwareDirectoryPath();
             const destPath = dialog.showOpenDialog({
                 properties: ['openDirectory'],
             });
@@ -85,14 +89,14 @@ class Flasher {
                 return resolve(['경로 미선택']);
             }
             Utils.copyFile(
-                path.join(appPath, 'flasher', `${firmware.name}.hex`),
+                path.join(firmwareDirectory, `${firmware.name}.hex`),
                 path.join(destPath[0], `${firmware.name}.hex`),
             ).then(() => {
                 resolve([]);
             }).catch((err) => {
                 resolve([err]);
             });
-        }));
+        });
     }
 
     flash(firmware, port, options) {
