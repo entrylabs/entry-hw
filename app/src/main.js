@@ -10,6 +10,7 @@
     const hasNewVersion = localStorage.getItem('hasNewVersion');
     let selectedList = JSON.parse(localStorage.getItem('hardwareList'));
     const sharedObject = remote.getGlobal('sharedObject');
+    const Utils = require('./src/js/utils.js');
     const Modal = require('./src/modal/app.js').default;
     const translator = require('./custom_modules/translator');
     const lang = translator.getLanguage();
@@ -178,7 +179,7 @@
                     'drivers'
                 );
                 if (!fs.existsSync(driverDefaultPath)) {
-                    copyRecursiveSync(sourcePath, driverDefaultPath);
+                    Utils.copyRecursiveSync(sourcePath, driverDefaultPath);
                 }
             } else {
                 driverDefaultPath = sourcePath;
@@ -190,26 +191,6 @@
     $('#firmwareButtonSet').on('click', 'button', function() {
         ui.flashFirmware(this.firmware, this.config);
     });
-
-    var copyRecursiveSync = function(src, dest) {
-        const exists = fs.existsSync(src);
-        const stats = exists && fs.statSync(src);
-        const isDirectory = exists && stats.isDirectory();
-        if (exists && isDirectory) {
-            if (!fs.existsSync(dest)) {
-                fs.mkdirSync(dest);
-            }
-            fs.readdirSync(src).forEach((childItemName) => {
-                copyRecursiveSync(
-                    path.join(src, childItemName),
-                    path.join(dest, childItemName)
-                );
-            });
-        } else {
-            const data = fs.readFileSync(src);
-            fs.writeFileSync(dest, data);
-        }
-    };
 
     var ui = {
         cachedPortList: [],
@@ -677,18 +658,18 @@
             alert(translator.translate('Select the COM PORT to connect'));
         } else {
             window.currentConfig.this_com_port = com_port[0];
-            clear_select_port();
+            clearSelectPort();
         }
     });
 
     $('#select_port_box .cancel_event').click((e) => {
-        clear_select_port();
+        clearSelectPort();
+        ui.cachedPortList = '';
         clearTimeout(selectPortConnectionTimeout);
     });
 
-    function clear_select_port() {
+    function clearSelectPort() {
         isSelectPort = false;
-        _cache_object = '';
         $('#select_port_box').css('display', 'none');
     }
 
@@ -709,15 +690,10 @@
         $('#opensource_content').val(text);
     });
 
-    var _cache_object = '';
-    const _com_port = '';
     var isSelectPort = true;
     let selectPortConnectionTimeout;
     var serverMode = 0;
     // state
-    router.on('serverMode', (state, data) => {
-        // console.log(arguments);
-    });
 
     ipcRenderer.on('serverMode', (event, mode) => {
         serverMode = mode;
