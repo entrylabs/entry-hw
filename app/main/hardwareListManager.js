@@ -19,6 +19,8 @@ module.exports = class {
                 .filter((file) => !!file.match(/\.json$/))
                 .map((file) => fs.readFileSync(path.join(this.moduleBasePath, file)))
                 .map(JSON.parse)
+                .filter((config) => config.platform &&
+                    config.platform.indexOf(process.platform) > -1)
                 .sort((left, right) => {
                     const lName = left.name.ko.trim();
                     const rName = right.name.ko.trim();

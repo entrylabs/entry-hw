@@ -8,7 +8,7 @@
 
     const lastCheckVersion = localStorage.getItem('lastCheckVersion');
     const hasNewVersion = localStorage.getItem('hasNewVersion');
-    let selectedList = JSON.parse(localStorage.getItem('hardwareList')) || [];
+    let priorHardwareList = JSON.parse(localStorage.getItem('hardwareList')) || [];
     const sharedObject = remote.getGlobal('sharedObject');
     const Modal = require('./src/modal/app.js').default;
     const translator = require('./custom_modules/translator');
@@ -292,24 +292,12 @@
         },
         addRobot(config) {
             ui.showRobotList();
-            let name, platform;
-            if (config.name) {
-                name = config.name[lang] || config.name.en;
-            }
-
-            if (
-                (config.platform &&
-                    config.platform.indexOf(process.platform) === -1) ||
-                !config.platform
-            ) {
-                return;
-            }
 
             $('#hwList').append(`
                 <div class="hardwareType" id="${config.id}">
                     <img class="hwThumb" src="./modules/${config.icon}">
                     <h2 class="hwTitle">
-                        ${name}
+                        ${config.name && config.name[lang] || config.name.en}
                     </h2>
                 </div>
             `);
@@ -320,43 +308,30 @@
                     viewMode = this.id;
                     $('#back.navigate_button').addClass('active');
 
-                    const checkComPort =
-                        config.select_com_port ||
+                    isSelectPort = config.select_com_port ||
                         config.hardware.type === 'bluetooth' ||
                         serverMode === 1 ||
                         false;
-                    isSelectPort = checkComPort;
 
-                    if (Array.isArray(selectedList)) {
-                        const newSelectList = selectedList.filter((item) => item !== config.name.ko);
-                        newSelectList.push(config.name.ko);
-                        localStorage.setItem(
-                            'hardwareList',
-                            JSON.stringify(newSelectList),
-                        );
-                        selectedList = newSelectList;
-                    } else {
-                        selectedList = [config.name.ko];
-                        localStorage.setItem(
-                            'hardwareList',
-                            JSON.stringify(selectedList),
-                        );
-                    }
-                    ui.hardware = config.id.substring(0, 4);
-                    ui.numLevel = 1;
-                    ui.showConnecting();
-                    config.serverMode = serverMode;
-                    router.startScan(config);
-                    window.currentConfig = config;
+                    const newSelectList = priorHardwareList
+                        .filter((item) => item !== config.name.ko);
+
+                    newSelectList.push(config.name.ko);
+                    localStorage.setItem(
+                        'hardwareList',
+                        JSON.stringify(newSelectList),
+                    );
+                    priorHardwareList = newSelectList;
 
                     const icon = `./modules/${config.icon}`;
                     $('#selectedHWThumb').attr('src', icon);
 
                     if (config.url) {
-                        $('#url').text(config.url);
+                        const $url = $('#url');
+                        $url.text(config.url);
                         $('#urlArea').show();
-                        $('#url').off('click');
-                        $('#url').on('click', () => {
+                        $url.off('click');
+                        $url.on('click', () => {
                             shell.openExternal(config.url);
                         });
                     } else {
@@ -365,16 +340,19 @@
 
                     if (config.video) {
                         let video = config.video;
+                        const $video = $('#video');
+
                         if (typeof video === 'string') {
                             video = [video];
                         }
-                        $('#video').empty();
+
+                        $video.empty();
                         video.forEach((link, idx) => {
-                            $('#video').append(`<span>${link}</span><br/>`);
+                            $video.append(`<span>${link}</span><br/>`);
                             $('#videoArea').show();
                         });
-                        $('#video').off('click');
-                        $('#video').on('click', 'span', (e) => {
+                        $video.off('click');
+                        $video.on('click', 'span', (e) => {
                             const index = $('#video span').index(e.target);
                             console.log(video, index, video[index]);
                             shell.openExternal(video[index]);
@@ -384,9 +362,10 @@
                     }
 
                     if (config.email) {
-                        $('#email').text(config.email);
+                        const $email = $('#email');
+                        $email.text(config.email);
                         $('#emailArea').show();
-                        $('#email')
+                        $email
                             .off('click')
                             .on('click', () => {
                                 clipboard.writeText(config.email);
@@ -406,14 +385,14 @@
                             $.isPlainObject(config.driver) &&
                             config.driver[os]
                         ) {
-                            var $dom = $('<button class="hwPanelBtn">');
+                            const $dom = $('<button class="hwPanelBtn">');
                             $dom.text(
                                 translator.translate('Install Device Driver'),
                             );
                             $dom.prop('driverPath', config.driver[os]);
                             $('#driverButtonSet').append($dom);
                         } else if (Array.isArray(config.driver)) {
-                            config.driver.forEach((driver, idx) => {
+                            config.driver.forEach((driver) => {
                                 if (driver[os]) {
                                     const $dom = $('<button class="hwPanelBtn">');
                                     $dom.text(
@@ -428,7 +407,7 @@
                     if (config.firmware) {
                         $('#firmware').show();
                         if (Array.isArray(config.firmware)) {
-                            config.firmware.forEach((firmware, idx) => {
+                            config.firmware.forEach((firmware) => {
                                 const $dom = $('<button class="hwPanelBtn">');
                                 $dom.text(
                                     translator.translate(firmware.translate),
@@ -438,13 +417,20 @@
                                 $('#firmwareButtonSet').append($dom);
                             });
                         } else {
-                            var $dom = $('<button class="hwPanelBtn">');
+                            const $dom = $('<button class="hwPanelBtn">');
                             $dom.text(translator.translate('Install Firmware'));
                             $dom.prop('firmware', config.firmware);
                             $dom.prop('config', config);
                             $('#firmwareButtonSet').append($dom);
                         }
                     }
+
+                    ui.hardware = config.id.substring(0, 4);
+                    ui.numLevel = 1;
+                    ui.showConnecting();
+                    config.serverMode = serverMode;
+                    router.startScan(config);
+                    window.currentConfig = config;
                 });
         },
         flashFirmware() {
@@ -735,7 +721,7 @@
 
     // configuration
     const routerHardwareList = router.getHardwareList();
-    selectedList.reverse().forEach((target, index) => {
+    priorHardwareList.reverse().forEach((target, index) => {
         const currentIndex = routerHardwareList.findIndex((item) => {
             return item.name.ko.trim() === target;
         });
