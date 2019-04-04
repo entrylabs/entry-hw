@@ -123,12 +123,33 @@ class MainRouter {
     }
 
     /**
+     * 연결을 끊고 새로 수립한다.
+     * disconnect 혹은 lost state 상태이고, config 에 reconnect: true 인 경우 발생한다.
+     * startScan 의 결과는 기다리지 않는다.
+     */
+    reconnect() {
+        this.close();
+        this.startScan(this.config);
+    }
+
+    /**
      * renderer 에 state 인자를 보낸다. 주로 ui 변경을 위해 사용된다.
      * @param {string} state 변경된 state
      * @param {...*} args 추가로 보낼 인자
      */
     sendState(state, ...args) {
-        this.browser.webContents.send('state', state, ...args);
+        let resultState = state;
+        if (state === 'lost' || state === 'disconnect') {
+            if (this.config && this.config.reconnect) {
+                this.reconnect();
+            } else {
+                // 연결 잃은 후 재연결 속성 없으면 연결해제처리
+                resultState = 'disconnect';
+                this.close();
+            }
+        }
+
+        this.browser.webContents.send('state', resultState, ...args);
     }
 
     /**

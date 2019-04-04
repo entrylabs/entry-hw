@@ -219,6 +219,7 @@ class Connector {
             control,
             duration = Connector.DEFAULT_SLAVE_DURATION,
             advertise,
+            softwareReset,
         } = this.options;
 
         this.connected = false;
@@ -228,6 +229,14 @@ class Connector {
             hwModule.connect();
         }
         this._sendState('connect');
+
+        if (softwareReset) {
+            serialPort.set({ dtr: false });
+            setTimeout(() => {
+                serialPort.set({ dtr: true });
+            },1000);
+        }
+
         if (hwModule.afterConnect) {
             hwModule.afterConnect(this, (state) => {
                 this.router.sendState(state);
@@ -271,12 +280,16 @@ class Connector {
         if (hwModule.lostController) {
             hwModule.lostController(this, router.sendState);
         } else {
-            this.timer = setInterval(() => {
+            /*
+             * this.lostTimer 타임 안에 데이터를 수신해야한다. 그렇지 않으면 연결해제처리한다.
+             */
+            this.connectionLostTimer = setInterval(() => {
                 if (this.connected) {
                     if (this.received === false) {
                         this.connected = false;
                         this._sendState('lost');
                     }
+                    this.received = false;
                 }
             }, this.lostTimer);
         }
@@ -305,9 +318,9 @@ class Connector {
 
     clear() {
         this.connected = false;
-        if (this.timer) {
-            clearInterval(this.timer);
-            this.timer = undefined;
+        if (this.connectionLostTimer) {
+            clearInterval(this.connectionLostTimer);
+            this.connectionLostTimer = undefined;
         }
         if (this.requestLocalDataInterval) {
             clearInterval(this.requestLocalDataInterval);

@@ -719,87 +719,65 @@
         }
     });
 
-    //router.on('state' ..
     let currentState = '';
     ipcRenderer.on('state', (event, state, data) => {
         console.log(state);
         currentState = state;
-        if (state === 'select_port') {
-            router.close();
-            const _temp = JSON.stringify(data);
-            if (
-                _temp !== _cache_object &&
-                is_select_port &&
-                viewMode !== 'main'
-            ) {
-                let port_html = '';
-                data.forEach((port) => {
-                    port_html +=
-                        `<option title="${ 
-                        port.comName 
-                        }">${ 
-                        port.comName 
-                        }</option>`;
-                });
+        switch (state) {
+            case 'select_port': {
+                router.close();
+                const _temp = JSON.stringify(data);
+                if (
+                    _temp !== _cache_object &&
+                    is_select_port &&
+                    viewMode !== 'main'
+                ) {
+                    let port_html = '';
+                    data.forEach((port) => {
+                        port_html +=
+                            `<option title="${
+                                port.comName
+                                }">${
+                                port.comName
+                                }</option>`;
+                    });
 
-                $('#select_port_box').css('display', 'flex');
-                $('#select_port_box select').html(port_html);
+                    $('#select_port_box').css('display', 'flex');
+                    $('#select_port_box select').html(port_html);
 
-                _cache_object = _temp;
+                    _cache_object = _temp;
+                }
+                if (is_select_port) {
+                    select_port_connection = setTimeout(() => {
+                        if (viewMode !== 'main') {
+                            router.startScan(window.currentConfig);
+                        }
+                    }, 1000);
+                } else {
+                    is_select_port = true;
+                }
+                return; // ui 변경 이루어지지 않음.
             }
-            if (is_select_port) {
-                select_port_connection = setTimeout(() => {
-                    if (viewMode !== 'main') {
-                        router.startScan(window.currentConfig);
-                    }
-                }, 1000);
-            } else {
-                is_select_port = true;
+            case 'flash': {
+                console.log('flash');
+                $('#firmware').trigger('click');
+                break;
             }
-            return;
-        } else if (state === 'flash') {
-            console.log('flash');
-            $('#firmware').trigger('click');
-        } else if (state === 'connect' && window.currentConfig.softwareReset) {
-            const sp = router.connector.sp;
-            sp.set(
-                {
-                    dtr: false,
-                },
-                () => {}
-            );
-            setTimeout(() => {
-                sp.set(
-                    {
-                        dtr: true,
-                    },
-                    () => {}
+            case 'before_connect': {
+                ui.showAlert(
+                    `${translator.translate('Connecting to hardware device.')
+                        } ${
+                        translator.translate('Please select the firmware.')}`
                 );
-            }, 1000);
-            return;
-        } else if (
-            (state === 'lost' || state === 'disconnected') &&
-            window.currentConfig.reconnect
-        ) {
-            router.close();
-            ui.showConnecting();
-            router.startScan(window.currentConfig);
-            return;
-        } else if (state === 'lost' || state === 'disconnected') {
-            state = 'disconnected';
-            router.close();
-        } else if (
-            state === 'before_connect' &&
-            window.currentConfig && window.currentConfig.firmware
-        ) {
-            ui.showAlert(
-                `${translator.translate('Connecting to hardware device.') 
-                    } ${ 
-                    translator.translate('Please select the firmware.')}`
-            );
+                break;
+            }
+            case 'lost':
+            case 'disconnected': {
+                ui.showConnecting();
+                break;
+            }
         }
         ui.setState(state);
-        // server.setState(state);
     });
 
     //ipcEvent
