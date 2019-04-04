@@ -1,4 +1,7 @@
-const { ipcMain } = require('electron');
+const { ipcMain, shell } = require('electron');
+const path = require('path');
+const fs = require('fs');
+const Utils = require('../src/js/utils');
 const Scanner = require('./scanner');
 const EntryServer = require('./server');
 const Flasher = require('./flasher');
@@ -49,6 +52,9 @@ class MainRouter {
                 .catch((e) => {
                     e.sender.send('requestFlash', e);
                 });
+        });
+        ipcMain.on('executeDriver', (e, driverPath) => {
+            this.executeDriver(driverPath);
         });
     }
 
@@ -305,6 +311,28 @@ class MainRouter {
             this.handler = undefined;
         }
     };
+
+    executeDriver(driverPath) {
+        if (!this.config) {
+            return;
+        }
+        let basePath = '';
+        const sourcePath = path.resolve('app', 'drivers');
+        const asarIndex = __dirname.indexOf('app.asar');
+        if (asarIndex >= 0) {
+            basePath = path.join(
+                __dirname.substr(0, asarIndex),
+                'drivers'
+            );
+            if (!fs.existsSync(basePath)) {
+                Utils.copyRecursiveSync(sourcePath, basePath);
+            }
+        } else {
+            basePath = sourcePath;
+        }
+
+        shell.openItem(path.resolve(basePath, driverPath));
+    }
 }
 
 module.exports = MainRouter;

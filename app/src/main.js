@@ -170,22 +170,7 @@
     $('#entry .text').text(translator.translate('Show Entry Web Page'));
 
     $('#driverButtonSet').on('click', 'button', function() {
-        if (!driverDefaultPath) {
-            const sourcePath = path.join(__dirname, 'drivers');
-            const asarIndex = __dirname.indexOf('app.asar');
-            if (asarIndex >= 0) {
-                driverDefaultPath = path.join(
-                    __dirname.substr(0, asarIndex),
-                    'drivers'
-                );
-                if (!fs.existsSync(driverDefaultPath)) {
-                    Utils.copyRecursiveSync(sourcePath, driverDefaultPath);
-                }
-            } else {
-                driverDefaultPath = sourcePath;
-            }
-        }
-        shell.openItem(path.resolve(driverDefaultPath, this.driverPath));
+        router.executeDriverFile(this.driverPath);
     });
 
     $('#firmwareButtonSet').on('click', 'button', function() {

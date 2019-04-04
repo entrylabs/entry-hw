@@ -1,8 +1,6 @@
-const EventEmitter = require('events').EventEmitter;
 const { ipcRenderer } = require('electron');
 
-class RendererRouter extends EventEmitter {
-
+class RendererRouter {
     startScan(config) {
         ipcRenderer.send('startScan', config);
     };
@@ -23,11 +21,14 @@ class RendererRouter extends EventEmitter {
                     console.log(error.message);
                     reject(error);
                 } else {
-                    console.log('success?', error);
                     resolve();
                 }
             });
         });
+    }
+
+    executeDriverFile(driverPath) {
+        ipcRenderer.send('executeDriver', driverPath);
     }
 }
 
