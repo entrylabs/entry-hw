@@ -99,6 +99,7 @@ class MainRouter {
                 }, 500);
             });
 
+            // 에러가 발생하거나, 정상종료가 되어도 일단 startScan 을 재시작한다.
             return flashFunction()
                 .then(() => {
                     console.log('flash successed');
