@@ -212,6 +212,7 @@
     };
 
     var ui = {
+        cachedPortList: [],
         countRobot: 0,
         showRobotList() {
             viewMode = 'main';
@@ -360,7 +361,7 @@
                         config.hardware.type === 'bluetooth' ||
                         serverMode === 1 ||
                         false;
-                    is_select_port = checkComPort;
+                    isSelectPort = checkComPort;
 
                     if (Array.isArray(selectedList)) {
                         const newSelectList = selectedList.filter((item) => item !== config.name.ko);
@@ -482,7 +483,7 @@
                     }
                 });
         },
-        flashFirmware(firmware, config, prevPort) {
+        flashFirmware() {
             if (currentState !== 'connected') {
                 alert(
                     translator.translate('Hardware Device Is Not Connected')
@@ -511,13 +512,21 @@
                     $('#firmwareButtonSet').show();
                 });
         },
-        setState(state) {
-            if (state == 'connected') {
-                ui.showConnected();
-            } else if (state == 'lost') {
-                $('#message').text(translator.translate('Connecting...'));
-            } else if (state == 'disconnected') {
-                ui.showDisconnected();
+        showPortSelectView(portList) {
+            if (
+                portList !== this.cachedPortList &&
+                isSelectPort &&
+                viewMode !== 'main'
+            ) {
+                let portHtml = '';
+                portList.forEach((port) => {
+                    portHtml +=
+                        `<option title="${port.comName}">${port.comName}</option>`;
+                });
+
+                $('#select_port_box').css('display', 'flex');
+                $('#select_port_box select').html(portHtml);
+                this.cachedPortList = portHtml;
             }
         },
         quit() {},
@@ -615,7 +624,7 @@
     });
 
     $('body').on('click', '#back.navigate_button.active', (e) => {
-        is_select_port = true;
+        isSelectPort = true;
         delete window.currentConfig.this_com_port;
         ui.showRobotList();
     });
@@ -674,11 +683,11 @@
 
     $('#select_port_box .cancel_event').click((e) => {
         clear_select_port();
-        clearTimeout(select_port_connection);
+        clearTimeout(selectPortConnectionTimeout);
     });
 
     function clear_select_port() {
-        is_select_port = false;
+        isSelectPort = false;
         _cache_object = '';
         $('#select_port_box').css('display', 'none');
     }
@@ -702,8 +711,8 @@
 
     var _cache_object = '';
     const _com_port = '';
-    var is_select_port = true;
-    let select_port_connection;
+    var isSelectPort = true;
+    let selectPortConnectionTimeout;
     var serverMode = 0;
     // state
     router.on('serverMode', (state, data) => {
@@ -726,41 +735,20 @@
         switch (state) {
             case 'select_port': {
                 router.close();
-                const _temp = JSON.stringify(data);
-                if (
-                    _temp !== _cache_object &&
-                    is_select_port &&
-                    viewMode !== 'main'
-                ) {
-                    let port_html = '';
-                    data.forEach((port) => {
-                        port_html +=
-                            `<option title="${
-                                port.comName
-                                }">${
-                                port.comName
-                                }</option>`;
-                    });
-
-                    $('#select_port_box').css('display', 'flex');
-                    $('#select_port_box select').html(port_html);
-
-                    _cache_object = _temp;
-                }
-                if (is_select_port) {
-                    select_port_connection = setTimeout(() => {
+                ui.showPortSelectView(data);
+                if (isSelectPort) {
+                    selectPortConnectionTimeout = setTimeout(() => {
                         if (viewMode !== 'main') {
                             router.startScan(window.currentConfig);
                         }
                     }, 1000);
                 } else {
-                    is_select_port = true;
+                    isSelectPort = true;
                 }
                 return; // ui 변경 이루어지지 않음.
             }
             case 'flash': {
-                console.log('flash');
-                $('#firmware').trigger('click');
+                ui.flashFirmware();
                 break;
             }
             case 'before_connect': {
@@ -772,12 +760,15 @@
                 break;
             }
             case 'lost':
-            case 'disconnected': {
                 ui.showConnecting();
                 break;
-            }
+            case 'disconnected':
+                ui.showDisconnected();
+                break;
+            case 'connected':
+                ui.showConnected();
+                break;
         }
-        ui.setState(state);
     });
 
     //ipcEvent
