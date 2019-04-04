@@ -82,9 +82,6 @@
     const router = require('./custom_modules/router/rendererRouter');
     window.router = router;
 
-    // flasher
-    const flasher = require('./custom_modules/flasher');
-
     $('html').addClass(process.platform);
 
     // ui & control
@@ -218,9 +215,6 @@
         countRobot: 0,
         showRobotList() {
             viewMode = 'main';
-            if (flasher.flasherProcess) {
-                flasher.kill();
-            }
             $('#alert')
                 .stop()
                 .clearQueue();

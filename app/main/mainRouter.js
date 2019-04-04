@@ -109,6 +109,9 @@ class MainRouter {
                     throw e;
                 })
                 .finally(async () => {
+                    if (this.flasher.flasherProcess) {
+                        this.flasher.kill();
+                    }
                     if (firmware.afterDelay) {
                         await new Promise((resolve) => setTimeout(resolve, firmware.afterDelay));
                     }
