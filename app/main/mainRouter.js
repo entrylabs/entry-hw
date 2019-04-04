@@ -5,6 +5,7 @@ const Utils = require('../src/js/utils');
 const Scanner = require('./scanner');
 const EntryServer = require('./server');
 const Flasher = require('./flasher');
+const HardwareListManager = require('./hardwareListManager');
 const HandlerCreator = require('../custom_modules/router/datahandler/handler');
 
 /**
@@ -22,6 +23,7 @@ class MainRouter {
         this.scanner = new Scanner(this);
         this.server = new EntryServer(this);
         this.flasher = new Flasher();
+        this.hardwareListManager = new HardwareListManager();
 
         this.config = undefined;
         /** @type {Connector} */
@@ -56,11 +58,17 @@ class MainRouter {
         ipcMain.on('executeDriver', (e, driverPath) => {
             this.executeDriver(driverPath);
         });
+
+        ipcMain.on('requestHardwareListSync', (e) => {
+            e.returnValue = this.hardwareListManager.allHardwareList;
+        });
     }
 
     /**
      * 펌웨어를 업로드한다.
      * 펌웨어는 커넥터가 닫힌 상태에서 작업되어야 한다. (COMPort 점유)
+     * 실패시 tryFlasherNumber 만큼 반복한다. 기본값은 10번이다.
+     * 로직 종료시 재스캔하여 연결을 수립한다.
      * @returns {Promise<void|Error>}
      */
     flashFirmware() {
@@ -81,11 +89,6 @@ class MainRouter {
                     //연결 해제 완료시간까지 잠시 대기 후 로직 수행한다.
                     this.flasher.flash(firmware, lastSerialPortCOMPort, { baudRate, MCUType })
                         .then(([error]) => {
-                            // 플래시에 필요한것 = COMPort, baudRate, MCUType, tryFlasherNumber
-                            // 커넥터에서 에러가 발생한경우 tryFlasherNumber 에 따라 여러번 보낸다
-                            // 여러번 보내는건 퐈바박 보내지말고 setTImeout 으로 좀 기다렸다가 보낸다.
-                            // 그래도 실패하면 에러를 보낸다.
-                            // 잘되었으면 스캔을 다시한다.
                             if (error) {
                                 if (error === 'exit') {
                                     // 에러 메세지 없이 프로세스 종료

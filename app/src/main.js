@@ -8,22 +8,20 @@
 
     const lastCheckVersion = localStorage.getItem('lastCheckVersion');
     const hasNewVersion = localStorage.getItem('hasNewVersion');
-    let selectedList = JSON.parse(localStorage.getItem('hardwareList'));
+    let selectedList = JSON.parse(localStorage.getItem('hardwareList')) || [];
     const sharedObject = remote.getGlobal('sharedObject');
-    const Utils = require('./src/js/utils.js');
     const Modal = require('./src/modal/app.js').default;
     const translator = require('./custom_modules/translator');
     const lang = translator.getLanguage();
-    window.Lang = require(path.resolve(__dirname, 'src', 'lang', lang + '.js')).Lang;
+    window.Lang = require(path.resolve(__dirname, 'src', 'lang', `${lang}.js`)).Lang;
 
     // initialize options
     window.modal = new Modal();
 
     let viewMode = 'main';
-    const hardwareList = [];
+    let hardwareList = [];
 
     const os = `${process.platform}-${isOSWin64() ? 'x64' : process.arch}`;
-    let driverDefaultPath;
 
     if (sharedObject.appName === 'hardware' && navigator.onLine) {
         if (hasNewVersion) {
@@ -32,7 +30,7 @@
                 .alert(
                     Lang.Msgs.version_update_msg2.replace(
                         /%1/gi,
-                        lastCheckVersion
+                        lastCheckVersion,
                     ),
                     Lang.General.update_title,
                     {
@@ -40,12 +38,12 @@
                         positiveButtonStyle: {
                             width: '180px',
                         },
-                    }
+                    },
                 )
                 .one('click', (event) => {
                     if (event === 'ok') {
                         shell.openExternal(
-                            'https://playentry.org/#!/offlineEditor'
+                            'https://playentry.org/#!/offlineEditor',
                         );
                     }
                 });
@@ -57,7 +55,7 @@
                         localStorage.setItem('hasNewVersion', hasNewVersion);
                         localStorage.setItem('lastCheckVersion', version);
                     }
-                }
+                },
             );
             ipcRenderer.send('checkUpdate');
         }
@@ -87,7 +85,7 @@
 
     // ui & control
     // dropdown setting start
-    const categoryDropdown = $("#filter_category");
+    const categoryDropdown = $('#filter_category');
     const categoryDropdownOptions = categoryDropdown.children('li:not(.init)');
     const categoryDropdownCurrentSelected = categoryDropdown.children('.init');
 
@@ -96,12 +94,12 @@
         categoryDropdownOptions.hide();
     };
 
-    categoryDropdown.on("click", ".init", () => {
+    categoryDropdown.on('click', '.init', () => {
         categoryDropdownCurrentSelected.toggleClass('open');
         categoryDropdownOptions.toggle();
     });
 
-    categoryDropdown.on("click", "li:not(.init)", function() {
+    categoryDropdown.on('click', 'li:not(.init)', function() {
         categoryDropdownOptions.removeClass('selected');
 
         const selected = $(this);
@@ -111,7 +109,7 @@
 
         categoryDropdownCurrentSelected.append(
             $('<div></div>')
-                .addClass('arrow')
+                .addClass('arrow'),
         );
 
         // 카테고리 닫기
@@ -126,35 +124,35 @@
     // dropdown setting end
 
     $('.alertMsg .alertMsg1').text(
-        translator.translate('If unexpected problem occurs while operating,')
+        translator.translate('If unexpected problem occurs while operating,'),
     );
     $('.alertMsg .alertMsg2').text(
         translator.translate(
-            'contact the hardware company to resolve the problem.'
-        )
+            'contact the hardware company to resolve the problem.',
+        ),
     );
     $('#errorAlert .comment').text(
         translator.translate(
-            '* Entry Labs is not responsible for the extension program and hardware products on this site.'
-        )
+            '* Entry Labs is not responsible for the extension program and hardware products on this site.',
+        ),
     );
 
     $('#select_port_box .title span').text(translator.translate('Select'));
     $('#select_port_box .description').text(
-        translator.translate('Select the COM PORT to connect')
+        translator.translate('Select the COM PORT to connect'),
     );
     $('#select_port_box #btn_select_port_cancel').text(
-        translator.translate('Cancel')
+        translator.translate('Cancel'),
     );
     $('#select_port_box #btn_select_port').text(
-        translator.translate('Connect')
+        translator.translate('Connect'),
     );
 
     $('#opensource_license_viewer .title span').text(
-        translator.translate('Opensource lincense')
+        translator.translate('Opensource lincense'),
     );
     $('#opensource_license_viewer #btn_close').text(
-        translator.translate('Close')
+        translator.translate('Close'),
     );
 
     $('#reference .emailTitle').text(translator.translate('E-Mail : '));
@@ -165,7 +163,7 @@
     $('#version_label').text(translator.translate('Version Info'));
     $('#firmware').text(translator.translate('Install Firmware'));
     $('#other-robot .text').text(
-        translator.translate('Connect Other Hardware')
+        translator.translate('Connect Other Hardware'),
     );
     $('#entry .text').text(translator.translate('Show Entry Web Page'));
 
@@ -205,7 +203,7 @@
             $('#hwPanel').css('display', 'flex');
             ui.hideIeGuide();
             this.showAlert(
-                translator.translate('Connecting to hardware device.')
+                translator.translate('Connecting to hardware device.'),
             );
         },
         showConnected() {
@@ -217,7 +215,7 @@
             ui.hideIeGuide();
             this.showAlert(
                 translator.translate('Connected to hardware device.'),
-                2000
+                2000,
             );
         },
         showDisconnected() {
@@ -229,8 +227,8 @@
             ui.hideIeGuide();
             this.showAlert(
                 translator.translate(
-                    'Hardware device is disconnected. Please restart this program.'
-                )
+                    'Hardware device is disconnected. Please restart this program.',
+                ),
             );
         },
         showAlert(message, duration) {
@@ -334,14 +332,14 @@
                         newSelectList.push(config.name.ko);
                         localStorage.setItem(
                             'hardwareList',
-                            JSON.stringify(newSelectList)
+                            JSON.stringify(newSelectList),
                         );
                         selectedList = newSelectList;
                     } else {
                         selectedList = [config.name.ko];
                         localStorage.setItem(
                             'hardwareList',
-                            JSON.stringify(selectedList)
+                            JSON.stringify(selectedList),
                         );
                     }
                     ui.hardware = config.id.substring(0, 4);
@@ -393,7 +391,7 @@
                             .on('click', () => {
                                 clipboard.writeText(config.email);
                                 alert(
-                                    translator.translate('Copied to clipboard')
+                                    translator.translate('Copied to clipboard'),
                                 );
                             });
                     } else {
@@ -410,7 +408,7 @@
                         ) {
                             var $dom = $('<button class="hwPanelBtn">');
                             $dom.text(
-                                translator.translate('Install Device Driver')
+                                translator.translate('Install Device Driver'),
                             );
                             $dom.prop('driverPath', config.driver[os]);
                             $('#driverButtonSet').append($dom);
@@ -419,7 +417,7 @@
                                 if (driver[os]) {
                                     const $dom = $('<button class="hwPanelBtn">');
                                     $dom.text(
-                                        translator.translate(driver.translate)
+                                        translator.translate(driver.translate),
                                     );
                                     $dom.prop('driverPath', driver[os]);
                                     $('#driverButtonSet').append($dom);
@@ -433,7 +431,7 @@
                             config.firmware.forEach((firmware, idx) => {
                                 const $dom = $('<button class="hwPanelBtn">');
                                 $dom.text(
-                                    translator.translate(firmware.translate)
+                                    translator.translate(firmware.translate),
                                 );
                                 $dom.prop('firmware', firmware.name);
                                 $dom.prop('config', config);
@@ -452,7 +450,7 @@
         flashFirmware() {
             if (currentState !== 'connected') {
                 alert(
-                    translator.translate('Hardware Device Is Not Connected')
+                    translator.translate('Hardware Device Is Not Connected'),
                 );
                 ui.showConnecting();
                 $('#firmwareButtonSet').show();
@@ -464,14 +462,14 @@
             router.requestFlash()
                 .then(() => {
                     ui.showAlert(
-                        translator.translate('Firmware Uploaded!')
+                        translator.translate('Firmware Uploaded!'),
                     );
                 })
                 .catch((e) => {
                     ui.showAlert(
                         translator.translate(
-                            'Failed Firmware Upload'
-                        )
+                            'Failed Firmware Upload',
+                        ),
                     );
                 })
                 .finally(() => {
@@ -495,7 +493,8 @@
                 this.cachedPortList = portHtml;
             }
         },
-        quit() {},
+        quit() {
+        },
         showIeGuide() {
             $('#errorAlert').show();
         },
@@ -505,10 +504,10 @@
     };
 
     $('#search_bar').on('keydown', function(e) {
-        if (e.which == 27) {
+        if (e.which === 27) {
             this.value = '';
             searchHardware('');
-        } else if (e.which == 13) {
+        } else if (e.which === 13) {
             searchHardware(this.value);
         }
 
@@ -605,7 +604,7 @@
 
     $('.chromeButton').click((e) => {
         shell.openExternal(
-            'https://www.google.com/chrome/browser/desktop/index.html'
+            'https://www.google.com/chrome/browser/desktop/index.html',
         );
     });
 
@@ -621,8 +620,8 @@
         if (router.connector && router.connector.connected) {
             isQuit = confirm(
                 translator.translate(
-                    'Connection to the hardware will terminate once program is closed.'
-                )
+                    'Connection to the hardware will terminate once program is closed.',
+                ),
             );
         }
 
@@ -716,7 +715,7 @@
                 ui.showAlert(
                     `${translator.translate('Connecting to hardware device.')
                         } ${
-                        translator.translate('Please select the firmware.')}`
+                        translator.translate('Please select the firmware.')}`,
                 );
                 break;
             }
@@ -733,50 +732,21 @@
     });
 
     //ipcEvent
-    ipcRenderer.on('update-message', (e, message) => {});
 
     // configuration
-    fs.readdir(path.join(__dirname, 'modules'), (error, files) => {
-        if (error) {
-            logger.e(error);
-            return;
+    const routerHardwareList = router.getHardwareList();
+    selectedList.reverse().forEach((target, index) => {
+        const currentIndex = routerHardwareList.findIndex((item) => {
+            return item.name.ko.trim() === target;
+        });
+        if (currentIndex > -1) {
+            const temp = routerHardwareList[currentIndex];
+            routerHardwareList[currentIndex] = routerHardwareList[index];
+            routerHardwareList[index] = temp;
         }
-
-        files
-            .filter((file) => /(?:\.([^.]+))?$/.exec(file)[1] == 'json')
-            .forEach((file) => {
-                try {
-                    const config = fs.readFileSync(
-                        path.join(__dirname, 'modules', file)
-                    );
-                    hardwareList.push(JSON.parse(config));
-                } catch (e) {}
-            });
-
-        hardwareList.sort((left, right) => {
-            const lName = left.name.ko.trim();
-            const rName = right.name.ko.trim();
-            const lIndex = Array.isArray(selectedList)
-                ? selectedList.indexOf(lName)
-                : 0;
-            const rIndex = Array.isArray(selectedList)
-                ? selectedList.indexOf(rName)
-                : 0;
-            if (lIndex < rIndex) {
-                return 1;
-            } else if (lIndex > rIndex) {
-                return -1;
-            } else if (lName > rName) {
-                return 1;
-            } else if (lName < rName) {
-                return -1;
-            } else {
-                return 0;
-            }
-        });
-
-        hardwareList.forEach((config) => {
-            ui.addRobot(config);
-        });
+    });
+    hardwareList = routerHardwareList;
+    hardwareList.forEach((config) => {
+        ui.addRobot(config);
     });
 })();

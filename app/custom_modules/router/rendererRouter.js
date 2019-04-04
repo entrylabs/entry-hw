@@ -27,6 +27,10 @@ class RendererRouter {
         });
     }
 
+    getHardwareList() {
+        return ipcRenderer.sendSync('requestHardwareListSync');
+    }
+
     executeDriverFile(driverPath) {
         ipcRenderer.send('executeDriver', driverPath);
     }
