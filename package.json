@@ -1,6 +1,6 @@
 {
     "name": "entry_hw",
-    "version": "1.6.36",
+    "version": "1.6.37",
     "description": "엔트리 하드웨어 연결 프로그램",
     "author": "EntryLabs",
     "main": "app/index.js",
