@@ -244,13 +244,18 @@ ff 55 idx size data a
 Module.prototype.handleLocalData = function(data) {
     var key;
     var value;
+    var base_idx;
     var self = this;
 
     console.log('HW Received...');
 
     for (var i = 0; i < 3; i++) {
-        key = (data[i * 2] & 0x78) >> 3;
-        value = ((data[i * 2] & 0x07) << 7) | (data[i * 2 + 1] & 0x7f);
+        base_idx = i * 3;
+        key = data[base_idx];
+        value = data[base_idx + 1] & 0x000000ff | (data[base_idx + 2] << 8) & 0x0000ff00;
+        
+        //key = (data[i * 2] & 0x78) >> 3;
+        //value = ((data[i * 2] & 0x07) << 7) | (data[i * 2 + 1] & 0x7f);
 
         console.log('[' + key + '] = ' + value);
 
