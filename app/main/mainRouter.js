@@ -6,7 +6,7 @@ const Scanner = require('./scanner');
 const EntryServer = require('./server');
 const Flasher = require('./flasher');
 const HardwareListManager = require('./hardwareListManager');
-const HandlerCreator = require('../custom_modules/router/datahandler/handler');
+const HandlerCreator = require('./datahandler/handler');
 
 /**
  * scanner, server, connector 를 총괄하는 중앙 클래스.
@@ -118,9 +118,7 @@ class MainRouter {
                     throw e;
                 })
                 .finally(async () => {
-                    if (this.flasher.flasherProcess) {
-                        this.flasher.kill();
-                    }
+                    this.flasher.kill();
                     if (firmware.afterDelay) {
                         await new Promise((resolve) => setTimeout(resolve, firmware.afterDelay));
                     }

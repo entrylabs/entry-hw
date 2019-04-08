@@ -603,7 +603,7 @@
 
     ipcRenderer.on('hardwareClose', () => {
         let isQuit = true;
-        if (router.connector && router.connector.connected) {
+        if (currentState === 'connected') {
             isQuit = confirm(
                 translator.translate(
                     'Connection to the hardware will terminate once program is closed.',
@@ -613,7 +613,6 @@
 
         if (isQuit) {
             router.close();
-            // server.close();
             ipcRenderer.send('hardwareForceClose', true);
         }
     });
