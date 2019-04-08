@@ -1,41 +1,61 @@
-var path = require('path');
-var fs = require('fs');
+const path = require('path');
+const fs = require('fs');
 
 class Utils {
+    static copyRecursiveSync(src, dest) {
+        const exists = fs.existsSync(src);
+        const stats = exists && fs.statSync(src);
+        const isDirectory = exists && stats.isDirectory();
+        if (exists && isDirectory) {
+            if (!fs.existsSync(dest)) {
+                fs.mkdirSync(dest);
+            }
+            fs.readdirSync(src).forEach((childItemName) => {
+                Utils.copyRecursiveSync(path.join(src, childItemName),
+                    path.join(dest, childItemName));
+            });
+        } else {
+            const data = fs.readFileSync(src);
+            fs.writeFileSync(dest, data, {
+                mode: 0o755,
+            });
+        }
+    };
+
     static copyFile(src, dest, option) {
-        return new Promise(function (resolve, reject) {
-            var crs = fs.createReadStream(src);
-            var cws = fs.createWriteStream(dest, option);
-            new Promise(function(res, rej) {
+        return new Promise(((resolve, reject) => {
+            const crs = fs.createReadStream(src);
+            const cws = fs.createWriteStream(dest, option);
+            new Promise(((res, rej) => {
                 crs.on('error', rej);
                 cws.on('error', rej);
                 cws.on('finish', res);
                 crs.pipe(cws);
-            }).then(resolve).catch(function(err) {
+            })).then(resolve).catch((err) => {
                 crs.destroy();
                 cws.end();
                 reject(err);
             });
-        });
+        }));
     }
 
     static mkdir(target) {
-        return new Promise(function (resolve, reject) {
-            fs.stat(target, function (err, stats) {
+        return new Promise(((resolve, reject) => {
+            fs.stat(target, (err, stats) => {
                 if (err) {
                     if (err.code === 'ENOENT') {
-                        var parser = path.parse(target);
-                        return this.mkdir(parser.dir).then(function () {
-                            fs.mkdir(target, function (err) {
+                        const parser = path.parse(target);
+                        return this.mkdir(parser.dir).then(() => {
+                            fs.mkdir(target, (err) => {
                                 if (err) {
-                                    if(err.code === 'EEXIST') {
+                                    if (err.code === 'EEXIST') {
                                         return resolve('EXIST');
                                     }
                                     return reject(err);
                                 }
                                 resolve(target);
                             });
-                        }).catch(function (err) {
+                        }).catch((err) => {
                             reject(err);
                         });
                     } else {
@@ -44,8 +64,8 @@ class Utils {
                 } else {
                     resolve('EXIST');
                 }
-            }.bind(this));
-        }.bind(this));
+            });
+        }));
     }
 }
 
