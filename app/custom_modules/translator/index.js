@@ -1,19 +1,18 @@
 'use strict';
 
-var path = require('path');
-
 function Translator() {
-	var langs = {
-		ko: 'ko'
+	const langs = {
+		ko: 'ko',
 	};
-	var lang = window.navigator.userLanguage || window.navigator.language;
+	let lang = window.navigator.userLanguage || window.navigator.language;
 	lang = langs[lang];
-	if(lang == undefined)
+	if (lang === undefined) {
 		lang = 'en';
+	}
 	this.lang = lang;
 
-	var Localize = require('../localize');
-	var loc = new Localize(__dirname);
+	const Localize = require('../localize');
+	const loc = new Localize(__dirname);
 	this.loc = loc;
 	loc.setLocale(lang);
 	loc.throwOnMissingTranslation(false);
@@ -24,7 +23,7 @@ Translator.prototype.getLanguage = function() {
 };
 
 Translator.prototype.translate = function(str) {
-	if(this.loc) {
+	if (this.loc) {
 		return this.loc.translate(str);
 	}
 };

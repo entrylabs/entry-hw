@@ -13,7 +13,7 @@
     const Modal = require('./src/modal/app.js').default;
     const translator = require('./custom_modules/translator');
     const lang = translator.getLanguage();
-    window.Lang = require(path.resolve(__dirname, 'src', 'lang', `${lang}.js`)).Lang;
+    window.Lang = require(`./src/lang/${lang}.js`).Lang;
 
     // initialize options
     window.modal = new Modal();
