@@ -5,6 +5,7 @@ const EventEmitter = require('events').EventEmitter;
 const client = require('socket.io-client');
 const { SERVER_MODE_TYPES } = require('../src/common/constants');
 const { version: appVersion } = require('../../package.json');
+const rendererConsole = require('./utils/rendererConsole');
 
 /**
  * 하드웨어 <-> 엔트리 워크스페이스 통신간 사용되는 클래스.
@@ -78,7 +79,6 @@ class Server extends EventEmitter {
          */
         httpServer.on('error', (e) => {
             this.runningMode = SERVER_MODE_TYPES.child;
-            console.log('I`M CLIENT');
             this.toggleServerMode(SERVER_MODE_TYPES.multi);
 
             const socket = this._createSocketClient(address);
@@ -102,10 +102,7 @@ class Server extends EventEmitter {
                 });
             }
             this.runningMode = SERVER_MODE_TYPES.parent;
-            this.router.sendConsole('I`M SERVER');
-            console.log('I`M SERVER');
             this.httpServer = httpServer;
-            console.log(`Listening on port ${PORT}`);
 
             this.socketServer = this._createSocketServer(httpServer);
         });
@@ -185,7 +182,7 @@ class Server extends EventEmitter {
             this.connections.push(connection);
             this.emit('connection');
 
-            console.info('Entry connected.');
+            rendererConsole.info('Entry connected.');
 
             const roomId = connection.handshake.query.roomId;
             if (connection.handshake.query.childServer === 'true') {
@@ -269,7 +266,7 @@ class Server extends EventEmitter {
             });
 
             connection.on('close', (reasonCode, description) => {
-                console.warn('Entry disconnected.');
+                rendererConsole.warn('Entry disconnected.');
                 this.emit('close');
                 this.closeSingleConnection(this);
             });

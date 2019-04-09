@@ -5,6 +5,7 @@ const Scanner = require('./scanner');
 const EntryServer = require('./server');
 const Flasher = require('./flasher');
 const Utils = require('../src/js/utils');
+const rendererConsole = require('./utils/rendererConsole');
 const HardwareListManager = require('./hardwareListManager');
 const HandlerCreator = require('./datahandler/handler');
 
@@ -20,6 +21,7 @@ const HandlerCreator = require('./datahandler/handler');
 class MainRouter {
     constructor(mainWindow) {
         this.browser = mainWindow;
+        rendererConsole.initialize(mainWindow);
         this.scanner = new Scanner(this);
         this.server = new EntryServer(this);
         this.flasher = new Flasher();
@@ -92,7 +94,7 @@ class MainRouter {
                     this.flasher.flash(firmware, lastSerialPortCOMPort, { baudRate, MCUType })
                         .then(([error, ...args]) => {
                             if (error) {
-                                this.sendConsole('flashError', error, ...args);
+                                rendererConsole.error('flashError', error, ...args);
                                 if (error === 'exit') {
                                     // 에러 메세지 없이 프로세스 종료
                                     reject(new Error());
@@ -114,11 +116,10 @@ class MainRouter {
             // 에러가 발생하거나, 정상종료가 되어도 일단 startScan 을 재시작한다.
             return flashFunction()
                 .then(() => {
-                    this.sendConsole('flash successed');
                     console.log('flash successed');
                 })
                 .catch((e) => {
-                    this.sendConsole('flash failed', e);
+                    rendererConsole.error('flash failed', e);
                     console.log('flash failed');
                     throw e;
                 })
@@ -162,10 +163,6 @@ class MainRouter {
         }
 
         this.browser.webContents.send('state', resultState, ...args);
-    }
-
-    sendConsole(...args) {
-        this.browser.webContents.send('console', ...args);
     }
 
     notifyServerMode(mode) {
@@ -329,7 +326,7 @@ class MainRouter {
             this.scanner.stopScan();
         }
         if (this.connector) {
-            this.sendConsole('disconnect');
+            rendererConsole.log('disconnect');
             if (this.hwModule.disconnect) {
                 this.hwModule.disconnect(this.connector);
             } else {
@@ -342,6 +339,11 @@ class MainRouter {
         }
     };
 
+    /**
+     * 드라이버를 실행한다. 최초 실행시 app.asar 에 파일이 들어가있는 경우,
+     * 외부로 복사하여 외부 파일을 사용한다.
+     * @param driverPath
+     */
     executeDriver(driverPath) {
         if (!this.config) {
             return;

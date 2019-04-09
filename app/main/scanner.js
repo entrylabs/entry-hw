@@ -1,6 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
+const rendererConsole = require('./utils/rendererConsole');
 const Connector = require('./connector');
 const { SERVER_MODE_TYPES } = require('../src/common/constants');
 
@@ -32,8 +33,7 @@ class Scanner {
         this.scanCount = 0;
 
         const intervalScan = () => new Promise((resolve) => {
-            this.router.sendConsole('scanning...');
-            console.log('scanning...');
+            rendererConsole.log('scanning...');
             this.scan()
                 .then((connector) => {
                     if (connector) {
