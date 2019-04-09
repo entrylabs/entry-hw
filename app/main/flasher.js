@@ -1,6 +1,7 @@
 const { dialog } = require('electron');
 const exec = require('child_process').exec;
 const path = require('path');
+const fs = require('fs');
 const Utils = require('../src/js/utils');
 const platform = process.platform;
 
@@ -11,25 +12,24 @@ const platform = process.platform;
  *
  */
 class Flasher {
-    static get firmwareDirectory() {
-        return path.resolve('app', 'main', 'firmwares');
-    }
-
-    _getFirmwareDirectoryPath() {
-        //TODO app 패키징 후 위치 수정 필수
+    static get firmwareDirectoryPath() {
         const asarIndex = __dirname.indexOf('app.asar');
         if (asarIndex > -1) {
             const asarPath = __dirname.substr(0, asarIndex);
-            Utils.copyRecursiveSync(__dirname, path.join(asarPath, 'flasher'));
-            return asarPath;
+            const externalFlahserPath = path.join(asarPath, 'firmwares');
+            const flasherPath = path.resolve(__dirname, 'firmwares');
+            if (!fs.existsSync(externalFlahserPath)) {
+                Utils.copyRecursiveSync(flasherPath, externalFlahserPath);
+            }
+            return externalFlahserPath;
         } else {
-            return Flasher.firmwareDirectory;
+            return path.resolve('app', 'main', 'firmwares');
         }
     }
 
     _flashArduino(firmware, port, options) {
         return new Promise((resolve) => {
-            const appPath = this._getFirmwareDirectoryPath(firmware);
+            const appPath = Flasher.firmwareDirectoryPath;
             const baudRate = options.baudRate || '115200';
             const MCUType = options.MCUType || ' m328p';
 
@@ -39,13 +39,13 @@ class Flasher {
 
             switch (platform) {
                 case 'darwin':
-                    avrName = './core/avrdude';
-                    avrConf = './core/avrdude.conf';
+                    avrName = './avrdude';
+                    avrConf = './avrdude.conf';
                     portPrefix = '';
                     break;
                 default:
-                    avrName = './core/avrdude.exe';
-                    avrConf = './core/avrdude.conf';
+                    avrName = './avrdude.exe';
+                    avrConf = './avrdude.conf';
                     portPrefix = '\\\\.\\';
                     break;
             }
@@ -79,7 +79,7 @@ class Flasher {
 
     _flashCopy(firmware, port, options) {
         return new Promise((resolve, reject) => {
-            const firmwareDirectory = this._getFirmwareDirectoryPath();
+            const firmwareDirectory = Flasher.firmwareDirectoryPath;
             const destPath = dialog.showOpenDialog({
                 properties: ['openDirectory'],
             });

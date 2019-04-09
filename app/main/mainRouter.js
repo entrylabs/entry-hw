@@ -1,7 +1,5 @@
 const { ipcMain, shell } = require('electron');
 const path = require('path');
-const fs = require('fs');
-const Utils = require('../src/js/utils');
 const Scanner = require('./scanner');
 const EntryServer = require('./server');
 const Flasher = require('./flasher');
@@ -58,9 +56,22 @@ class MainRouter {
         ipcMain.on('executeDriver', (e, driverPath) => {
             this.executeDriver(driverPath);
         });
-
+        ipcMain.on('getCurrentServerModeSync', (e) => {
+            e.returnValue = this.server.currentServerMode;
+        });
         ipcMain.on('requestHardwareListSync', (e) => {
             e.returnValue = this.hardwareListManager.allHardwareList;
+        });
+        ipcMain.on('test', (e) => {
+            const asarIndex = __dirname.indexOf('app.asar');
+            const asarPath = __dirname.substr(0, asarIndex);
+            const externalFlahserPath = path.join(asarPath, 'firmwares');
+            const flasherPath = path.resolve(__dirname, 'main', 'firmwares');
+
+            this.sendConsole('asarIndex', asarIndex);
+            this.sendConsole('asarPath',asarPath);
+            this.sendConsole('extenalFlasherPath', externalFlahserPath);
+            this.sendConsole('flasherPath', flasherPath);
         });
     }
 
@@ -88,8 +99,9 @@ class MainRouter {
                 setTimeout(() => {
                     //연결 해제 완료시간까지 잠시 대기 후 로직 수행한다.
                     this.flasher.flash(firmware, lastSerialPortCOMPort, { baudRate, MCUType })
-                        .then(([error]) => {
+                        .then(([error, ...args]) => {
                             if (error) {
+                                this.sendConsole('flashError', error, ...args);
                                 if (error === 'exit') {
                                     // 에러 메세지 없이 프로세스 종료
                                     reject(new Error());
@@ -111,9 +123,11 @@ class MainRouter {
             // 에러가 발생하거나, 정상종료가 되어도 일단 startScan 을 재시작한다.
             return flashFunction()
                 .then(() => {
+                    this.sendConsole('flash successed');
                     console.log('flash successed');
                 })
                 .catch((e) => {
+                    this.sendConsole('flash failed', e);
                     console.log('flash failed');
                     throw e;
                 })
@@ -159,6 +173,15 @@ class MainRouter {
         this.browser.webContents.send('state', resultState, ...args);
     }
 
+    sendConsole(...args) {
+        this.browser.webContents.send('console', ...args);
+    }
+
+    notifyServerMode(mode) {
+        console.log('notifyServerMode', mode);
+        this.browser.webContents.send('serverMode', mode);
+    }
+
     /**
      * ipcMain.on('state', ...) 처리함수
      * @param state
@@ -180,6 +203,7 @@ class MainRouter {
             const connector = await this.scanner.startScan(this.hwModule, this.config);
             if (connector) {
                 this.sendState('connected');
+                connector.setRouter(this);
                 this._connect(connector);
             } else {
                 console.log('connector not found! [debug]');
@@ -214,8 +238,14 @@ class MainRouter {
     _connect(connector) {
         this.connector = connector;
 
+        /*
+        해당 프로퍼티가 세팅된 경우는
+        - flashfirmware 가 config 에 세팅되어있고,
+        - 3000ms 동안 checkInitialData 가 정상적으로 이루어지지 않은 경우이다.
+         */
         if (this.connector.executeFlash) {
             this.sendState('flash');
+            delete this.connector.executeFlash;
             return;
         }
 
@@ -224,8 +254,6 @@ class MainRouter {
             // 엔트리쪽으로 송수신시 변환할 방식. 현재 json 만 지원한다.
             this.handler = HandlerCreator.create(this.config);
             this._connectToServer();
-
-            this.connector.setRouter(this);
             this.connector.connect(); // router 설정 후 실제 기기와의 통신 시작
         }
     }
@@ -281,14 +309,24 @@ class MainRouter {
     }
 
     /**
-     * 서버로 인코딩된 데이터를 보낸다. 핸들러 조작 함수가 없는 경우 그대로 보낸다. ex) advertise
-     * @param {function?} callback handler 내 데이터를 변경할 함수. ex. requestRemoteData
+     * 서버로 인코딩된 데이터를 보낸다.
      */
-    sendEncodedDataToServer(callback) {
-        callback && callback(this.handler);
+    sendEncodedDataToServer() {
+        if (this.hwModule.requestRemoteData) {
+            this.hwModule.requestRemoteData(this.handler);
+        }
         const data = this.handler.encode();
         if (data) {
             this.server.send(data);
+        }
+    }
+
+    /**
+     * 하드웨어 모듈의 requestRemoteData 를 통해 핸들러 내 데이터를 세팅한다.
+     */
+    setHandlerData() {
+        if (this.hwModule.requestRemoteData) {
+            this.hwModule.requestRemoteData(this.handler);
         }
     }
 
@@ -300,7 +338,7 @@ class MainRouter {
             this.scanner.stopScan();
         }
         if (this.connector) {
-            console.log('disconnect');
+            this.sendConsole('disconnect');
             if (this.hwModule.disconnect) {
                 this.hwModule.disconnect(this.connector);
             } else {
@@ -317,22 +355,8 @@ class MainRouter {
         if (!this.config) {
             return;
         }
-        let basePath = '';
-        const sourcePath = path.resolve('app', 'drivers');
-        const asarIndex = __dirname.indexOf('app.asar');
-        if (asarIndex >= 0) {
-            basePath = path.join(
-                __dirname.substr(0, asarIndex),
-                'drivers'
-            );
-            if (!fs.existsSync(basePath)) {
-                Utils.copyRecursiveSync(sourcePath, basePath);
-            }
-        } else {
-            basePath = sourcePath;
-        }
-
-        shell.openItem(path.resolve(basePath, driverPath));
+        const sourcePath = path.resolve(__dirname, '..', 'drivers');
+        shell.openItem(path.resolve(sourcePath, driverPath));
     }
 }
 

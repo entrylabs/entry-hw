@@ -130,10 +130,9 @@ class Connector {
                         this.serialPort.parser ?
                         this.serialPort.parser.removeAllListeners('data') :
                         this.serialPort.removeAllListeners('data');
-
                         this.executeFlash = true;
                         resolve();
-                    });
+                    }, 3000);
                 }
 
                 // TODO 리팩토링 필요
@@ -259,9 +258,8 @@ class Connector {
                 }
 
                 // 서버로 데이터를 요청한다.
-                if (hwModule.requestRemoteData) {
-                    router.sendEncodedDataToServer(hwModule.requestRemoteData);
-                }
+                router.setHandlerData();
+                router.sendEncodedDataToServer();
 
                 // 마스터모드인 경우, 데이터를 받자마자 디바이스로 데이터를 보낸다.
                 if (control === 'master' && hwModule.requestLocalData) {

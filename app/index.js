@@ -130,7 +130,8 @@ for (let i = 0; i < argv.length; i++) {
     }
 }
 
-if (!app.requestSingleInstanceLock()) {
+!app.requestSingleInstanceLock()
+if (false) {
     app.quit();
     process.exit(0);
 } else {
@@ -170,12 +171,6 @@ if (!app.requestSingleInstanceLock()) {
 
     ipcMain.on('version', (event, arg) => {
         event.returnValue = packageJson.version;
-    });
-
-    ipcMain.on('serverMode', (event, mode) => {
-        if (mainWindow && mainWindow.webContents) {
-            mainWindow.webContents.send('serverMode', mode);
-        }
     });
 
     app.commandLine.appendSwitch('enable-web-bluetooth', true);

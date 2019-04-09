@@ -19,7 +19,6 @@ const { version: appVersion } = require('../../package.json');
  * - data : 서버에서 받은 데이터. 인자는 data, type 를 발생시킨다.
  */
 class Server extends EventEmitter {
-
     constructor(router) {
         super();
         this.router = router;
@@ -52,6 +51,20 @@ class Server extends EventEmitter {
         }
     }
 
+    /**
+     * 연결된 클라우드 PC 여부에 따라
+     * single, multi 모드 전환한다.
+     * 렌더러에 이미지를 표기하기 위해 사용된다.
+     * currentServerMode 는 여기서 세팅만 되며,
+     * 최초 구동시 메인 프로세스보다 느리게 세팅되는 렌더러 쪽에서 현재 서버모드를
+     * 체크할때 가져간다.
+     * @param mode
+     */
+    toggleServerMode(mode) {
+        this.currentServerMode = mode;
+        this.router.notifyServerMode(mode);
+    }
+
     open() {
         const PORT = 23518;
         const { httpServer, address } = this._getHttpServer(PORT);
@@ -64,9 +77,9 @@ class Server extends EventEmitter {
          * 그런 경우 직접 로컬호스트발 소켓 클라이언트를 연다.
          */
         httpServer.on('error', (e) => {
-            // ipcRenderer.send('serverMode', this.SERVER_MODE_TYPES.multi);
             this.runningMode = SERVER_MODE_TYPES.child;
             console.log('I`M CLIENT');
+            this.toggleServerMode(SERVER_MODE_TYPES.multi);
 
             const socket = this._createSocketClient(address);
             this.connections.push(socket);
@@ -89,6 +102,7 @@ class Server extends EventEmitter {
                 });
             }
             this.runningMode = SERVER_MODE_TYPES.parent;
+            this.router.sendConsole('I`M SERVER');
             console.log('I`M SERVER');
             this.httpServer = httpServer;
             console.log(`Listening on port ${PORT}`);
@@ -132,8 +146,8 @@ class Server extends EventEmitter {
         });
 
         socket.on('reconnect_failed', () => {
-            // ipcRenderer.send('serverMode', this.SERVER_MODE_TYPES.single);
             socket.close();
+            this.toggleServerMode(SERVER_MODE_TYPES.single);
             this.socketClient = null;
             this.open();
         });
@@ -166,85 +180,86 @@ class Server extends EventEmitter {
         ]);
 
         server.on('connection', (socket) => {
-            this.connectionSet[socket.id] = socket;
-            this.connections.push(socket);
+            const connection = socket;
+            this.connectionSet[connection.id] = connection;
+            this.connections.push(connection);
             this.emit('connection');
 
             console.info('Entry connected.');
 
-            const roomId = socket.handshake.query.roomId;
-            if (socket.handshake.query.childServer === 'true') {
-                this.childServerList[socket.id] = true;
+            const roomId = connection.handshake.query.roomId;
+            if (connection.handshake.query.childServer === 'true') {
+                this.childServerList[connection.id] = true;
             } else {
-                socket.join(roomId);
-                socket.roomId = roomId;
+                connection.join(roomId);
+                connection.roomId = roomId;
             }
 
             const childServerListCnt = Object.keys(this.childServerList).length;
             if (childServerListCnt > 0) {
-                // ipcRenderer.send('serverMode', this.SERVER_MODE_TYPES.multi);
                 server.emit('mode', SERVER_MODE_TYPES.multi);
+                this.toggleServerMode(SERVER_MODE_TYPES.multi);
             } else {
-                // ipcRenderer.send('serverMode', this.SERVER_MODE_TYPES.single);
                 server.emit('mode', SERVER_MODE_TYPES.single);
+                this.toggleServerMode(SERVER_MODE_TYPES.single);
             }
 
-            socket.on('matchTarget', (data) => {
+            connection.on('matchTarget', (data) => {
                 if (
-                    socket.handshake.query.childServer === 'true' &&
+                    connection.handshake.query.childServer === 'true' &&
                     data.roomId
                 ) {
-                    if (!socket.roomIds) {
-                        socket.roomIds = [];
+                    if (!connection.roomIds) {
+                        connection.roomIds = [];
                     }
 
-                    if (socket.roomIds.indexOf(data.roomId) === -1) {
-                        socket.roomIds.push(data.roomId);
+                    if (connection.roomIds.indexOf(data.roomId) === -1) {
+                        connection.roomIds.push(data.roomId);
                     }
 
-                    this.clientTargetList[data.roomId] = socket.id;
-                    server.to(data.roomId).emit('matched', socket.id);
+                    this.clientTargetList[data.roomId] = connection.id;
+                    server.to(data.roomId).emit('matched', connection.id);
                 }
             });
 
-            socket.on('disconnect', (socket) => {
-                if (socket.handshake && socket.handshake.query.childServer === 'true') {
-                    if (socket.roomIds && socket.roomIds.length > 0) {
-                        socket.roomIds.forEach((roomId) => {
+            connection.on('disconnect', (socket) => {
+                if (connection.handshake && connection.handshake.query.childServer === 'true') {
+                    if (connection.roomIds && connection.roomIds.length > 0) {
+                        connection.roomIds.forEach((roomId) => {
                             server.to(roomId).emit('matching');
                         });
                     }
-                    delete this.connectionSet[socket.id];
-                    delete this.childServerList[socket.id];
+                    delete this.connectionSet[connection.id];
+                    delete this.childServerList[connection.id];
 
                     const childServerListCnt = Object.keys(this.childServerList).length;
                     if (childServerListCnt <= 0) {
                         server.emit('mode', SERVER_MODE_TYPES.single);
-                        // ipcRenderer.send('serverMode', this.SERVER_MODE_TYPES.single);
+                        this.toggleServerMode(SERVER_MODE_TYPES.single);
                     }
                 } else {
-                    delete this.connectionSet[socket.id];
+                    delete this.connectionSet[connection.id];
                 }
             });
 
-            socket.on('message', (message, ack) => {
+            connection.on('message', (message, ack) => {
                 if (
                     message.mode === SERVER_MODE_TYPES.single ||
-                    this.masterRoomIds.indexOf(socket.roomId) >= 0
+                    this.masterRoomIds.indexOf(connection.roomId) >= 0
                 ) {
                     this.router.handleServerData(message);
                 } else {
-                    if (socket.handshake.query.childServer === 'true') {
+                    if (connection.handshake.query.childServer === 'true') {
                         if (
-                            socket.roomIds &&
-                            socket.roomIds.length > 0
+                            connection.roomIds &&
+                            connection.roomIds.length > 0
                         ) {
-                            socket.roomIds.forEach((roomId) => {
+                            connection.roomIds.forEach((roomId) => {
                                 server.to(roomId).emit('message', message);
                             });
                         }
-                    } else if (this.clientTargetList[socket.roomId]) {
-                        server.to(this.clientTargetList[socket.roomId]).emit('message', message);
+                    } else if (this.clientTargetList[connection.roomId]) {
+                        server.to(this.clientTargetList[connection.roomId]).emit('message', message);
                     }
                 }
                 if (ack) {
@@ -253,7 +268,7 @@ class Server extends EventEmitter {
                 }
             });
 
-            socket.on('close', (reasonCode, description) => {
+            connection.on('close', (reasonCode, description) => {
                 console.warn('Entry disconnected.');
                 this.emit('close');
                 this.closeSingleConnection(this);
@@ -276,7 +291,6 @@ class Server extends EventEmitter {
         let address;
 
         const rootDir = path.resolve(__dirname, '..');
-        console.log(rootDir);
         if (fs.existsSync(path.resolve(rootDir, 'ssl', 'cert.pem'))) {
             httpServer = require('https').createServer(
                 {

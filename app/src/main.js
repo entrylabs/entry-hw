@@ -183,6 +183,7 @@
             $('#alert')
                 .stop()
                 .clearQueue();
+            currentState = 'disconnected';
             router.close();
             router.stopScan();
             delete window.currentConfig;
@@ -434,7 +435,7 @@
                 });
         },
         flashFirmware() {
-            if (currentState !== 'connected') {
+            if (currentState === 'disconnected' || currentState === 'lost' || currentState === 'select_port') {
                 alert(
                     translator.translate('Hardware Device Is Not Connected'),
                 );
@@ -664,7 +665,14 @@
     var serverMode = 0;
     // state
 
+    const initialServerMode = ipcRenderer.sendSync('getCurrentServerModeSync');
+    if (initialServerMode === 1) {
+        $('#cloud_icon').show();
+    } else {
+        $('#cloud_icon').hide();
+    }
     ipcRenderer.on('serverMode', (event, mode) => {
+        console.log('mode', mode);
         serverMode = mode;
         if (mode === 1) {
             $('#cloud_icon').show();
@@ -717,6 +725,9 @@
     });
 
     //ipcEvent
+    ipcRenderer.on('console', (event, ...args) => {
+        console.log(...args);
+    });
 
     // configuration
     const routerHardwareList = router.getHardwareList();

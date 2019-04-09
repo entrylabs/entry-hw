@@ -32,6 +32,7 @@ class Scanner {
         this.scanCount = 0;
 
         const intervalScan = () => new Promise((resolve) => {
+            this.router.sendConsole('scanning...');
             console.log('scanning...');
             this.scan()
                 .then((connector) => {
