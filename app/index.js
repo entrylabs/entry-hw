@@ -130,8 +130,7 @@ for (let i = 0; i < argv.length; i++) {
     }
 }
 
-!app.requestSingleInstanceLock()
-if (false) {
+if (!app.requestSingleInstanceLock()) {
     app.quit();
     process.exit(0);
 } else {

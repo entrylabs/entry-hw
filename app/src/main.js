@@ -677,7 +677,6 @@
     ipcRenderer.on('serverMode', (event, mode) => {
         serverMode = mode;
         if (mode === 1) {
-            console.log('%cI`M CLIENT', 'background:black;color:yellow;font-size: 30px');
             $('#cloud_icon').show();
         } else {
             console.log('%cI`M SERVER', 'background:orange; font-size: 30px');
