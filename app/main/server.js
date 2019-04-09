@@ -30,6 +30,7 @@ class Server extends EventEmitter {
         this.childServerList = {};
         this.clientTargetList = {};
         this.runningMode = SERVER_MODE_TYPES.parent;
+        this.currentServerMode = SERVER_MODE_TYPES.single;
         this.masterRoomIds = [];
         this.clientRoomId = '';
         this.socketClient = undefined; // 클라이언트인 경우 세팅됨
@@ -93,7 +94,7 @@ class Server extends EventEmitter {
          * 정상 오픈이 된 경우 socketIO 서버를 오픈한다.
          */
         httpServer.on('listening', (e) => {
-            const mRoomIds = this.router.getRoomIds();
+            const mRoomIds = this.router.roomIds;
             if (mRoomIds.length > 0) {
                 mRoomIds.forEach((mRoomId) => {
                     if (this.masterRoomIds.indexOf(mRoomId) === -1 && mRoomId) {
@@ -123,7 +124,7 @@ class Server extends EventEmitter {
         });
 
         socket.on('connect', () => {
-            const roomIds = this.router.getRoomIds();
+            const roomIds = this.router.roomIds;
             if (roomIds.length > 0) {
                 roomIds.forEach((roomId) => {
                     if (roomId) {

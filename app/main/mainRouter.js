@@ -19,6 +19,14 @@ const HandlerCreator = require('./datahandler/handler');
  * connector : 연결 성공 후의 실제 시리얼포트
  */
 class MainRouter {
+    get roomIds() {
+        return global.sharedObject.roomIds || [];
+    }
+
+    get currentServerMode() {
+        return this.server.currentServerMode;
+    }
+
     constructor(mainWindow) {
         this.browser = mainWindow;
         rendererConsole.initialize(mainWindow);
@@ -207,10 +215,6 @@ class MainRouter {
      */
     addRoomId(roomId) {
         this.server.addRoomIdsOnSecondInstance(roomId);
-    }
-
-    getRoomIds() {
-        return global.sharedObject.roomIds || [];
     }
 
     stopScan() {
