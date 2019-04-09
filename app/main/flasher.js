@@ -44,7 +44,7 @@ class Flasher {
                     portPrefix = '';
                     break;
                 default:
-                    avrName = './avrdude.exe';
+                    avrName = 'avrdude.exe';
                     avrConf = './avrdude.conf';
                     portPrefix = '\\\\.\\';
                     break;
