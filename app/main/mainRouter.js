@@ -1,8 +1,10 @@
 const { ipcMain, shell } = require('electron');
 const path = require('path');
+const fs = require('fs');
 const Scanner = require('./scanner');
 const EntryServer = require('./server');
 const Flasher = require('./flasher');
+const Utils = require('../src/js/utils');
 const HardwareListManager = require('./hardwareListManager');
 const HandlerCreator = require('./datahandler/handler');
 
@@ -344,7 +346,21 @@ class MainRouter {
         if (!this.config) {
             return;
         }
-        const sourcePath = path.resolve(__dirname, '..', 'drivers');
+
+        const asarIndex = __dirname.indexOf('app.asar');
+        let sourcePath = '';
+        if (asarIndex > -1) {
+            const asarPath = __dirname.substr(0, asarIndex);
+            const externalDriverPath = path.join(asarPath, 'drivers');
+            const internalDriverPath = path.resolve(__dirname, '..', 'drivers');
+            if (!fs.existsSync(externalDriverPath)) {
+                Utils.copyRecursiveSync(internalDriverPath, externalDriverPath);
+            }
+            sourcePath = externalDriverPath;
+        } else {
+            sourcePath = path.resolve(__dirname, '..', 'drivers');
+        }
+
         shell.openItem(path.resolve(sourcePath, driverPath));
     }
 }
