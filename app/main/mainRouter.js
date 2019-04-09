@@ -62,17 +62,6 @@ class MainRouter {
         ipcMain.on('requestHardwareListSync', (e) => {
             e.returnValue = this.hardwareListManager.allHardwareList;
         });
-        ipcMain.on('test', (e) => {
-            const asarIndex = __dirname.indexOf('app.asar');
-            const asarPath = __dirname.substr(0, asarIndex);
-            const externalFlahserPath = path.join(asarPath, 'firmwares');
-            const flasherPath = path.resolve(__dirname, 'main', 'firmwares');
-
-            this.sendConsole('asarIndex', asarIndex);
-            this.sendConsole('asarPath',asarPath);
-            this.sendConsole('extenalFlasherPath', externalFlahserPath);
-            this.sendConsole('flasherPath', flasherPath);
-        });
     }
 
     /**
