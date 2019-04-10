@@ -68,7 +68,9 @@ function createAboutWindow(mainWindow) {
         show: false,
     });
 
-    aboutWindow.loadURL(`file:///${path.resolve(__dirname, 'src', 'views', 'about.html')}`);
+    aboutWindow.loadURL(`file:///${
+        path.resolve(__dirname, 'src', 'renderer', 'views', 'about.html')
+    }`);
 
     aboutWindow.on('closed', () => {
         aboutWindow = null;

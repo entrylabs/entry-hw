@@ -3,17 +3,17 @@
     const { ipcRenderer, shell, clipboard, remote } = require('electron');
     const fs = require('fs');
     const path = require('path');
-    window.jQuery = require('./src/js/jquery-1.11.3.min.js');
+    window.jQuery = require('./src/renderer/js/jquery-1.11.3.min.js');
     window.$ = window.jQuery;
 
     const lastCheckVersion = localStorage.getItem('lastCheckVersion');
     const hasNewVersion = localStorage.getItem('hasNewVersion');
     let priorHardwareList = JSON.parse(localStorage.getItem('hardwareList')) || [];
     const sharedObject = remote.getGlobal('sharedObject');
-    const Modal = require('./src/modal/app.js').default;
+    const Modal = require('./src/renderer/modal/app.js').default;
     const translator = require('./custom_modules/translator');
     const lang = translator.getLanguage();
-    window.Lang = require(`./src/lang/${lang}.js`).Lang;
+    window.Lang = require(`./src/renderer/lang/${lang}.js`).Lang;
 
     // initialize options
     window.modal = new Modal();
@@ -60,7 +60,7 @@
             ipcRenderer.send('checkUpdate');
         }
     }
-    const router = require('./custom_modules/router/rendererRouter');
+    const router = require('./src/renderer/js/rendererRouter');
     window.router = router;
 
     $('html').addClass(process.platform);

@@ -2,7 +2,7 @@ const { dialog } = require('electron');
 const exec = require('child_process').exec;
 const path = require('path');
 const fs = require('fs');
-const Utils = require('../js/utils');
+const Utils = require('./utils/fileUtils');
 const platform = process.platform;
 
 /**

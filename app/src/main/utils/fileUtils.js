@@ -1,7 +1,7 @@
 const path = require('path');
 const fs = require('fs');
 
-class Utils {
+class FileUtils {
     static copyRecursiveSync(src, dest) {
         const exists = fs.existsSync(src);
         const stats = exists && fs.statSync(src);
@@ -11,7 +11,7 @@ class Utils {
                 fs.mkdirSync(dest);
             }
             fs.readdirSync(src).forEach((childItemName) => {
-                Utils.copyRecursiveSync(path.join(src, childItemName),
+                FileUtils.copyRecursiveSync(path.join(src, childItemName),
                     path.join(dest, childItemName));
             });
         } else {
@@ -69,4 +69,4 @@ class Utils {
     }
 }
 
-module.exports = Utils;
+module.exports = FileUtils;

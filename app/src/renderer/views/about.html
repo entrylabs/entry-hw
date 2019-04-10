@@ -36,7 +36,7 @@
 		const { shell, remote, ipcRenderer } = require('electron');
 		const aboutWindow = remote.getCurrentWindow();
 		const hardwareVersion = remote.getGlobal('sharedObject').hardwareVersion || '0.0.0';
-        const translator = require('../../custom_modules/translator');
+        const translator = require('../../../custom_modules/translator');
 		if(!localStorage.getItem('lang')) {
 			localStorage.setItem('lang', 'ko');
 		}
@@ -61,7 +61,7 @@
 
 			aboutWindow.on('show', () => {
                 const user_lang = translator.getLanguage();
-				window.Lang = require(`../lang/${user_lang}.js`).Lang;
+				window.Lang = require(`./app/src/renderer/lang`).Lang;
 				$(".btnVersionUpdate").text(Lang.General.recent_download2);
 				$(".txtAlreadyVersion").text(Lang.General.latest_version);
 
