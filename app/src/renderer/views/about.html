@@ -61,7 +61,7 @@
 
 			aboutWindow.on('show', () => {
                 const user_lang = translator.getLanguage();
-				window.Lang = require(`./app/src/renderer/lang`).Lang;
+				window.Lang = require(`../lang/${user_lang}.js`).Lang;
 				$(".btnVersionUpdate").text(Lang.General.recent_download2);
 				$(".txtAlreadyVersion").text(Lang.General.latest_version);
 

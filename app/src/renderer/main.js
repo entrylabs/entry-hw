@@ -306,7 +306,7 @@
                     );
                     priorHardwareList = newSelectList;
 
-                    const icon = `./modules/${config.icon}`;
+                    const icon = `../../../modules/${config.icon}`;
                     $('#selectedHWThumb').attr('src', icon);
 
                     if (config.url) {
