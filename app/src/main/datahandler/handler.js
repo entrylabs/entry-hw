@@ -1,7 +1,7 @@
 'use strict';
 function Handler(config) {
 	this.config = config;
-	switch(config.entry.protocol) {
+	switch (config.entry.protocol) {
 		case 'bytearray': {
 			this.sendHandler = require('./bytearray.js').create(config.id, config.entry.bufferSize || config.entry.buffersize);
 			break;
@@ -18,16 +18,16 @@ function Handler(config) {
 }
 
 Handler.prototype.encode = function() {
-	if(this.sendHandler) {
+	if (this.sendHandler) {
 		return this.sendHandler.encode();
 	}
 };
 
 Handler.prototype.decode = function(data, type) {
-	if(type == 'binary') {
-		if(data[1] != 0x00) {
-			if(!this.receiveHandler) {
-				switch(data[5]) {
+	if (type == 'binary') {
+		if (data[1] != 0x00) {
+			if (!this.receiveHandler) {
+				switch (data[5]) {
 					case 0x01: {
 						this.receiveHandler = require('./bytearray.js').create(this.config.id);
 						break;
@@ -38,36 +38,36 @@ Handler.prototype.decode = function(data, type) {
 //					}
 				}
 			}
-			if(this.receiveHandler) {
+			if (this.receiveHandler) {
 				this.receiveHandler.decode(data);
 			}
 		}
-	} else if(type == 'utf8') {
-		if(!this.receiveHandler) {
+	} else if (type == 'utf8') {
+		if (!this.receiveHandler) {
 			this.receiveHandler = require('./json.js').create(this.config.id);
 		}
-		if(this.receiveHandler) {
+		if (this.receiveHandler) {
 			this.receiveHandler.decode(data);
 		}
 	}
 };
 
 Handler.prototype.e = function(arg) {
-	if(this.receiveHandler) {
+	if (this.receiveHandler) {
 		return this.receiveHandler.e(arg);
 	}
 	return false;
 };
 
 Handler.prototype.read = function(arg) {
-	if(this.receiveHandler) {
+	if (this.receiveHandler) {
 		return this.receiveHandler.read(arg);
 	}
 	return 0;
 };
 
 Handler.prototype.write = function(arg1, arg2) {
-	if(this.sendHandler) {
+	if (this.sendHandler) {
 		return this.sendHandler.write(arg1, arg2);
 	}
 	return false;

@@ -1,10 +1,10 @@
 'use strict';
 function ByteArrayHandler(id, size) {
-	if(size && typeof size == 'number' && size > 0) {
-		var data = new Uint8Array(size + 6);
+	if (size && typeof size == 'number' && size > 0) {
+		const data = new Uint8Array(size + 6);
 		
 		data[0] = 0x01; // version
-		var str = id.slice(0, 2); // company id
+		let str = id.slice(0, 2); // company id
 		data[1] = parseInt(str, 16) & 0xff;
 		str = id.slice(2, 4); // model id
 		data[2] = parseInt(str, 16) & 0xff;
@@ -13,7 +13,7 @@ function ByteArrayHandler(id, size) {
 		data[4] = 0x00; // network id
 		data[5] = 0x01; // protocol
 		
-		for(var i = 6, len = data.length; i < len; ++i) {
+		for (let i = 6, len = data.length; i < len; ++i) {
 			data[i] = 0;
 		}
 		this.data = data;
@@ -21,7 +21,7 @@ function ByteArrayHandler(id, size) {
 }
 
 ByteArrayHandler.prototype.encode = function() {
-	if(this.data) {
+	if (this.data) {
 		return new Buffer(this.data);
 	}
 };
@@ -35,10 +35,10 @@ ByteArrayHandler.prototype.e = function(index) {
 };
 
 ByteArrayHandler.prototype.read = function(index) {
-	var data = this.data;
-	if(data && index >= 0 && index < data.length - 6) {
-		var value = data[index + 6];
-		if(value) {
+	const data = this.data;
+	if (data && index >= 0 && index < data.length - 6) {
+		const value = data[index + 6];
+		if (value) {
 			return value;
 		}
 	}
@@ -46,8 +46,8 @@ ByteArrayHandler.prototype.read = function(index) {
 };
 
 ByteArrayHandler.prototype.write = function(index, value) {
-	var data = this.data;
-	if(data && index >= 0 && index < data.length - 6) {
+	const data = this.data;
+	if (data && index >= 0 && index < data.length - 6) {
 		data[index + 6] = value;
 		return true;
 	}

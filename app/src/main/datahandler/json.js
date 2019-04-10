@@ -3,11 +3,11 @@ function JsonHandler(id) {
 	this.data = {
 		version: 0x01,
 		network: 0x00,
-		protocol: 'json'
+		protocol: 'json',
 	};
 	
-	var data = this.data;
-	var str = id.slice(0, 2); // company id
+	const data = this.data;
+	let str = id.slice(0, 2); // company id
 	data.company = parseInt(str, 16) & 0xff;
 	str = id.slice(2, 4); // model id
 	data.model = parseInt(str, 16) & 0xff;
@@ -17,7 +17,7 @@ function JsonHandler(id) {
 
 JsonHandler.prototype.encode = function() {
 	return this.data;
-	if(this.data) {
+	if (this.data) {
 		return JSON.stringify(this.data);
 	}
 };
@@ -30,10 +30,10 @@ JsonHandler.prototype.decode = function(data) { // data: array buffer
 };
 
 JsonHandler.prototype.e = function(key) {
-	var data = this.data;
-	if(data) {
-		var value = data[key];
-		if(value != undefined) {
+	const data = this.data;
+	if (data) {
+		const value = data[key];
+		if (value != undefined) {
 			return true;
 		}
 	}
@@ -41,10 +41,10 @@ JsonHandler.prototype.e = function(key) {
 };
 
 JsonHandler.prototype.read = function(key) {
-	var data = this.data;
-	if(data) {
-		var value = data[key];
-		if(value != undefined) {
+	const data = this.data;
+	if (data) {
+		const value = data[key];
+		if (value != undefined) {
 			return value;
 		}
 	}
@@ -52,8 +52,8 @@ JsonHandler.prototype.read = function(key) {
 };
 
 JsonHandler.prototype.write = function(key, value) {
-	var data = this.data;
-	if(data) {
+	const data = this.data;
+	if (data) {
 		data[key] = value;
 		return true;
 	}

@@ -717,9 +717,7 @@
     // configuration
     const routerHardwareList = router.getHardwareList();
     priorHardwareList.reverse().forEach((target, index) => {
-        const currentIndex = routerHardwareList.findIndex((item) => {
-            return item.name.ko.trim() === target;
-        });
+        const currentIndex = routerHardwareList.findIndex((item) => item.name.ko.trim() === target);
         if (currentIndex > -1) {
             const temp = routerHardwareList[currentIndex];
             routerHardwareList[currentIndex] = routerHardwareList[index];
