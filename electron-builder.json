@@ -1,0 +1,53 @@
+{
+    "mac": {
+        "target": "dmg",
+        "category": "public.app-category.education",
+        "identity": "Connect Foundation (DLFUSDA3L5)",
+        "extendInfo": {
+            "URL Types": [
+                {
+                    "URL Identifie": "org.playentry.entryhw",
+                    "URL Schemes": [
+                        "entryhw"
+                    ]
+                }
+            ],
+            "CFBundleURLTypes": [
+                {
+                    "CFBundleURLName": "org.playentry.entryhw",
+                    "CFBundleURLSchemes": [
+                        "entryhw"
+                    ]
+                }
+            ]
+        }
+    },
+    "dmg": {
+        "icon": "build/icon.icns",
+        "iconSize": 80,
+        "background": "build/background.png",
+        "contents": [
+            {
+                "x": 240,
+                "y": 120
+            },
+            {
+                "x": 240,
+                "y": 380,
+                "type": "link",
+                "path": "/Applications"
+            }
+        ]
+    },
+    "win": {
+        "target": "dir"
+    },
+    "files": [
+        "app",
+        "!app/firmwares/examples",
+        "!app/test.html"
+    ],
+    "asar": true,
+    "appId": "org.playentry.entryhw",
+    "productName": "Entry_HW"
+}

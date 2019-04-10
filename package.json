@@ -14,53 +14,6 @@
         "make:osx": "cross-env CSC_NAME=\"Connect Foundation (DLFUSDA3L5)\"&&build",
         "make:win32": "build --arch ia32 --platform=win32 && makensis ./build/entry-hw.nsi"
     },
-    "build": {
-        "mac": {
-            "target": "dmg",
-            "category": "public.app-category.education",
-            "extendInfo": {
-                "URL Types": [
-                    {
-                        "URL Identifie": "org.playentry.entryhw",
-                        "URL Schemes": [
-                            "entryhw"
-                        ]
-                    }
-                ],
-                "CFBundleURLTypes": [
-                    {
-                        "CFBundleURLName": "org.playentry.entryhw",
-                        "CFBundleURLSchemes": [
-                            "entryhw"
-                        ]
-                    }
-                ]
-            }
-        },
-        "dmg": {
-            "icon": "build/icon.icns",
-            "iconSize": 80,
-            "background": "build/background.png",
-            "contents": [
-                {
-                    "x": 240,
-                    "y": 120
-                },
-                {
-                    "x": 240,
-                    "y": 380,
-                    "type": "link",
-                    "path": "/Applications"
-                }
-            ]
-        },
-        "win": {
-            "target": "dir"
-        },
-        "asar": true,
-        "appId": "org.playentry.entryhw",
-        "productName": "Entry_HW"
-    },
     "devDependencies": {
         "cross-env": "^5.1.3",
         "electron": "4.0.0",
