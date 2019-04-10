@@ -34,8 +34,8 @@
 	<script>
 		window.$ = window.jQuery = require('../js/jquery-1.11.3.min.js');
 		const { shell, remote, ipcRenderer } = require('electron');
-		const { app } = remote;
 		const aboutWindow = remote.getCurrentWindow();
+		const hardwareVersion = remote.getGlobal('sharedObject').hardwareVersion || '0.0.0';
         const translator = require('../../custom_modules/translator');
 		if(!localStorage.getItem('lang')) {
 			localStorage.setItem('lang', 'ko');
@@ -57,7 +57,7 @@
 				);
 			});
 
-			$("#version").text(app.getVersion());
+			$("#version").text(hardwareVersion);
 
 			aboutWindow.on('show', () => {
                 const user_lang = translator.getLanguage();

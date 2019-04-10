@@ -26,6 +26,7 @@ let hostProtocol = 'https:';
 
 global.sharedObject = {
     appName: 'hardware',
+    hardwareVersion: packageJson.version,
     roomIds,
 };
 
@@ -134,7 +135,6 @@ if (!app.requestSingleInstanceLock()) {
     app.quit();
     process.exit(0);
 } else {
-    app.commandLine.appendSwitch("disable-renderer-backgrounding");
     // 어플리케이션을 중복 실행했습니다. 주 어플리케이션 인스턴스를 활성화 합니다.
     app.on('second-instance', (event, argv, workingDirectory) => {
         let parseData = {};
@@ -163,17 +163,9 @@ if (!app.requestSingleInstanceLock()) {
         app.exit(0);
     });
 
-    //deprecated soon
-    ipcMain.on('roomId', (event, arg) => {
-        event.returnValue = roomIds;
-    });
-
-    ipcMain.on('version', (event, arg) => {
-        event.returnValue = packageJson.version;
-    });
-
     app.commandLine.appendSwitch('enable-web-bluetooth', true);
     app.commandLine.appendSwitch('enable-experimental-web-platform-features', true);
+    app.commandLine.appendSwitch("disable-renderer-backgrounding");
     // app.commandLine.appendSwitch('enable-web-bluetooth');
     app.once('ready', () => {
         const language = app.getLocale();
