@@ -27,7 +27,16 @@ class RendererRouter {
         });
     }
 
-    getHardwareList() {
+    getOpensourceContents() {
+        return new Promise((resolve) => {
+            ipcRenderer.send('getOpensourceText');
+            ipcRenderer.once('getOpensourceText', (e, text) => {
+                resolve(text);
+            });
+        });
+    }
+
+    getHardwareListSync() {
         return ipcRenderer.sendSync('requestHardwareListSync');
     }
 

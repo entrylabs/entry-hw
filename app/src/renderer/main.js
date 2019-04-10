@@ -1,8 +1,6 @@
 (function() {
     'use strict';
     const { ipcRenderer, shell, clipboard, remote } = require('electron');
-    const fs = require('fs');
-    const path = require('path');
     window.jQuery = require('../js/jquery-1.11.3.min.js');
     window.$ = window.jQuery;
 
@@ -637,8 +635,7 @@
         ipcRenderer.send('openAboutWindow');
     });
 
-    const opensourceFile = path.resolve(__dirname, '..', '..', 'OPENSOURCE.md');
-    fs.readFile(opensourceFile, 'utf8', (err, text) => {
+    router.getOpensourceContents().then((text) => {
         $('#opensource_content').val(text);
     });
 
@@ -657,11 +654,14 @@
         $('#cloud_icon').hide();
     }
     ipcRenderer.on('serverMode', (event, mode) => {
+        if (serverMode === mode && mode === 1) {
+            console.log('%cI`M SERVER', 'background:orange; font-size: 30px');
+        }
+
         serverMode = mode;
         if (mode === 1) {
             $('#cloud_icon').show();
         } else {
-            console.log('%cI`M SERVER', 'background:orange; font-size: 30px');
             $('#cloud_icon').hide();
         }
     });
@@ -715,7 +715,7 @@
     });
 
     // configuration
-    const routerHardwareList = router.getHardwareList();
+    const routerHardwareList = router.getHardwareListSync();
     priorHardwareList.reverse().forEach((target, index) => {
         const currentIndex = routerHardwareList.findIndex((item) => item.name.ko.trim() === target);
         if (currentIndex > -1) {

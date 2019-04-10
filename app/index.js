@@ -12,6 +12,7 @@ const {
     net,
 } = electron;
 const path = require('path');
+const fs = require('fs');
 const packageJson = require('../package.json');
 
 let mainWindow = null;
@@ -284,6 +285,13 @@ if (!app.requestSingleInstanceLock()) {
             })
         );
         request.end();
+    });
+
+    ipcMain.on('getOpensourceText', (e) => {
+        const opensourceFile = path.resolve(__dirname, 'OPENSOURCE.md');
+        fs.readFile(opensourceFile, 'utf8', (err, text) => {
+            e.sender.send('getOpensourceText', text);
+        });
     });
 
     ipcMain.on('checkVersion', (e, lastCheckVersion) => {
