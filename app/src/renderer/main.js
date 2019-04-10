@@ -637,7 +637,7 @@
         ipcRenderer.send('openAboutWindow');
     });
 
-    const opensourceFile = path.resolve(__dirname, 'OPENSOURCE.md');
+    const opensourceFile = path.resolve(__dirname, '..', '..', 'OPENSOURCE.md');
     fs.readFile(opensourceFile, 'utf8', (err, text) => {
         $('#opensource_content').val(text);
     });
