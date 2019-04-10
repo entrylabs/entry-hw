@@ -3,8 +3,8 @@ const fs = require('fs');
 const path = require('path');
 const EventEmitter = require('events').EventEmitter;
 const client = require('socket.io-client');
-const { SERVER_MODE_TYPES } = require('../src/common/constants');
-const { version: appVersion } = require('../../package.json');
+const { SERVER_MODE_TYPES } = require('../common/constants');
+const { version: appVersion } = require('../../../package.json');
 const rendererConsole = require('./utils/rendererConsole');
 
 /**
@@ -288,7 +288,7 @@ class Server extends EventEmitter {
         let httpServer;
         let address;
 
-        const rootDir = path.resolve(__dirname, '..');
+        const rootDir = path.resolve(__dirname, '..', '..');
         if (fs.existsSync(path.resolve(rootDir, 'ssl', 'cert.pem'))) {
             httpServer = require('https').createServer(
                 {

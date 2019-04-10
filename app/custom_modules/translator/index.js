@@ -11,7 +11,7 @@ function Translator() {
 	}
 	this.lang = lang;
 
-	const Localize = require('../localize');
+	const Localize = require('./localize');
 	const loc = new Localize(__dirname);
 	this.loc = loc;
 	loc.setLocale(lang);

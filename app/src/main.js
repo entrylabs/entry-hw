@@ -60,24 +60,6 @@
             ipcRenderer.send('checkUpdate');
         }
     }
-    // logger
-    const loggerModule = require('./custom_modules/logger');
-    loggerModule.set({
-        v(str) {
-            console.log(str);
-        },
-        i(str) {
-            console.info(`%c${str}`, 'color: dodgerblue');
-        },
-        w(str) {
-            console.warn(`%c${str}`, 'color: orange');
-        },
-        e(str) {
-            console.error(`%c${str}`, 'color: red');
-        },
-    });
-    const logger = loggerModule.get();
-
     const router = require('./custom_modules/router/rendererRouter');
     window.router = router;
 

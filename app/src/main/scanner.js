@@ -3,7 +3,7 @@
 const _ = require('lodash');
 const rendererConsole = require('./utils/rendererConsole');
 const Connector = require('./connector');
-const { SERVER_MODE_TYPES } = require('../src/common/constants');
+const { SERVER_MODE_TYPES } = require('../common/constants');
 
 /**
  * 전체 포트를 검색한다.

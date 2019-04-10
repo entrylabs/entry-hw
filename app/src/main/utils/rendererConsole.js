@@ -24,7 +24,7 @@ module.exports = class {
         this.sender.send('console', `%c${contents}`, 'color: orange');
     }
 
-    static error(contents) {
-        this.sender.send('console', `%c${contents}`, 'color: red');
+    static error(contents, error) {
+        this.sender.send('console', `%c${contents}`, 'color: red', error);
     }
 };

@@ -39,7 +39,7 @@
     "node": "*"
   },
   "bin": {
-    "xlocalize": "./bin/xlocalize.js"
+    "xlocalize": "bin/xlocalize.js"
   },
   "scripts": {
     "jshint": "jshint --verbose .",

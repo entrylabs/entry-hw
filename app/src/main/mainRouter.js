@@ -4,7 +4,7 @@ const fs = require('fs');
 const Scanner = require('./scanner');
 const EntryServer = require('./server');
 const Flasher = require('./flasher');
-const Utils = require('../src/js/utils');
+const Utils = require('../js/utils');
 const rendererConsole = require('./utils/rendererConsole');
 const HardwareListManager = require('./hardwareListManager');
 const HandlerCreator = require('./datahandler/handler');
@@ -195,7 +195,7 @@ class MainRouter {
     async startScan(config) {
         this.config = config;
         if (this.scanner) {
-            this.hwModule = require(`../modules/${config.module}`);
+            this.hwModule = require(`../../modules/${config.module}`);
             const connector = await this.scanner.startScan(this.hwModule, this.config);
             if (connector) {
                 this.sendState('connected');
@@ -358,13 +358,13 @@ class MainRouter {
         if (asarIndex > -1) {
             const asarPath = __dirname.substr(0, asarIndex);
             const externalDriverPath = path.join(asarPath, 'drivers');
-            const internalDriverPath = path.resolve(__dirname, '..', 'drivers');
+            const internalDriverPath = path.resolve(__dirname, '..', '..', 'drivers');
             if (!fs.existsSync(externalDriverPath)) {
                 Utils.copyRecursiveSync(internalDriverPath, externalDriverPath);
             }
             sourcePath = externalDriverPath;
         } else {
-            sourcePath = path.resolve(__dirname, '..', 'drivers');
+            sourcePath = path.resolve(__dirname, '..', '..', 'drivers');
         }
 
         shell.openItem(path.resolve(sourcePath, driverPath));

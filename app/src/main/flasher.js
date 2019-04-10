@@ -2,7 +2,7 @@ const { dialog } = require('electron');
 const exec = require('child_process').exec;
 const path = require('path');
 const fs = require('fs');
-const Utils = require('../src/js/utils');
+const Utils = require('../js/utils');
 const platform = process.platform;
 
 /**
@@ -17,13 +17,13 @@ class Flasher {
         if (asarIndex > -1) {
             const asarPath = __dirname.substr(0, asarIndex);
             const externalFlahserPath = path.join(asarPath, 'firmwares');
-            const flasherPath = path.resolve(__dirname, 'firmwares');
+            const flasherPath = path.resolve(__dirname, '..', '..', 'firmwares');
             if (!fs.existsSync(externalFlahserPath)) {
                 Utils.copyRecursiveSync(flasherPath, externalFlahserPath);
             }
             return externalFlahserPath;
         } else {
-            return path.resolve('app', 'main', 'firmwares');
+            return path.resolve('app', 'firmwares');
         }
     }
 

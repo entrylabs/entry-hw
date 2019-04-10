@@ -1,7 +1,7 @@
 'use strict';
 
 const electron = require('electron');
-const MainRouter = require('./main/mainRouter');
+const MainRouter = require('./src/main/mainRouter');
 const {
     app,
     BrowserWindow,
