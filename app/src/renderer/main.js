@@ -1,6 +1,7 @@
 (function() {
     'use strict';
     const { ipcRenderer, shell, clipboard, remote } = require('electron');
+    const Translator = require('../js/translator');
     window.jQuery = require('../js/jquery-1.11.3.min.js');
     window.$ = window.jQuery;
 
@@ -9,8 +10,8 @@
     let priorHardwareList = JSON.parse(localStorage.getItem('hardwareList')) || [];
     const sharedObject = remote.getGlobal('sharedObject');
     const Modal = require('../modal/app.js').default;
-    const translator = require('../../../custom_modules/translator');
-    const lang = translator.getLanguage();
+    const translator = new Translator();
+    const lang = translator.currentLangauge;
     window.Lang = require(`../lang/${lang}.js`).Lang;
 
     // initialize options
