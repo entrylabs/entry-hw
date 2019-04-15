@@ -446,7 +446,7 @@
         },
         showPortSelectView(portList) {
             if (
-                portList !== this.cachedPortList &&
+                JSON.stringify(portList) !== this.cachedPortList &&
                 isSelectPort &&
                 viewMode !== 'main'
             ) {
@@ -458,7 +458,7 @@
 
                 $('#select_port_box').css('display', 'flex');
                 $('#select_port_box select').html(portHtml);
-                this.cachedPortList = portHtml;
+                this.cachedPortList = JSON.stringify(portList);
             }
         },
         quit() {
