@@ -199,6 +199,7 @@ class MainRouter {
             const connector = await this.scanner.startScan(this.hwModule, this.config);
             if (connector) {
                 this.sendState('connected');
+                this.connector = connector;
                 connector.setRouter(this);
                 this._connect(connector);
             } else {

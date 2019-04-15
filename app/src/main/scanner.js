@@ -161,8 +161,16 @@ class Scanner {
 
             try {
                 await connector.open(connectedComName);
+                if (this.config.firmware) {
+                    /*
+                    펌웨어가 없는 상태에서 통신이 이루어지지 않는 경우,
+                    before_connect 로 임시 연결됨 상태로 만들어서 펌웨어 버튼은 동작할 수 있게끔
+                    만든다.
+                     */
+                    this.router.connector = connector;
+                    this.router.sendState('before_connect');
+                }
                 await connector.initialize();
-                this.setConnector(connector);
                 this.finalizeScan(connectedComName);
                 resolve(connector);
             } catch (e) {
@@ -229,11 +237,6 @@ class Scanner {
             }
         }
         this.slaveTimers = {};
-    };
-
-    setConnector(connector) {
-        this.router.connector = connector;
-        this.router.sendState('before_connect');
     };
 
     finalizeScan(comName) {

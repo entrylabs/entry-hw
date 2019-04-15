@@ -241,6 +241,7 @@ class Server extends EventEmitter {
             });
 
             connection.on('message', (message, ack) => {
+                console.log('socketServer receive : ', message);
                 if (
                     message.mode === SERVER_MODE_TYPES.single ||
                     this.masterRoomIds.indexOf(connection.roomId) >= 0

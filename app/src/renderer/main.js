@@ -416,7 +416,7 @@
                 });
         },
         flashFirmware() {
-            if (currentState === 'disconnected' || currentState === 'lost' || currentState === 'select_port') {
+            if (currentState === 'disconnected' || currentState === 'lost') {
                 alert(
                     translator.translate('Hardware Device Is Not Connected'),
                 );
@@ -670,7 +670,12 @@
     let currentState = '';
     ipcRenderer.on('state', (event, state, data) => {
         console.log(state);
-        currentState = state;
+
+        // select_port 는 기록해두어도 쓸모가 없으므로 표기하지 않는다
+        if (state !== 'select_port') {
+            currentState = state;
+        }
+
         switch (state) {
             case 'select_port': {
                 router.close();
