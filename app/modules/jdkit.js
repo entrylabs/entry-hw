@@ -76,11 +76,11 @@ Module.prototype.requestRemoteData = function(handler) {
     }
     var n = this.sensorData[8];
     if(n > 127)	n = -1*(256-n);
-    handler.write('A8', n);
+    handler.write('A8', -1*n);
     
     n = this.sensorData[9];
     if(n > 127)	n = -1*(256-n);
-    handler.write('A9', n);
+    handler.write('A9', -1*n);
 		//console.log(this.sensorData.length + ' ' + this.sensorData[7] + ' ' + this.sensorData[8] + ' ' + this.sensorData[9]);
 		handler.write("CMD", this.sensorData);     
 };
