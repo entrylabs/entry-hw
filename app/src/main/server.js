@@ -6,6 +6,7 @@ const client = require('socket.io-client');
 const { SERVER_MODE_TYPES } = require('../common/constants');
 const { version: appVersion } = require('../../../package.json');
 const rendererConsole = require('./utils/rendererConsole');
+const serverModuleReceiverPlugin = require('./plugins/serverModuleReceiverPlugin');
 
 /**
  * 하드웨어 <-> 엔트리 워크스페이스 통신간 사용되는 클래스.
@@ -301,17 +302,11 @@ class Server extends EventEmitter {
                         fs.readFileSync(path.resolve(rootDir, 'ssl', 'RootCA.crt')),
                     ],
                 },
-                (req, res) => {
-                    res.writeHead(200);
-                    res.end();
-                }
+                serverModuleReceiverPlugin
             );
             address = `https://hardware.playentry.org:${port}`;
         } else {
-            httpServer = require('http').createServer((request, response) => {
-                response.writeHead(200);
-                response.end();
-            });
+            httpServer = require('http').createServer(serverModuleReceiverPlugin);
             address = `http://127.0.0.1:${port}`;
         }
 
