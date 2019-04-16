@@ -302,11 +302,15 @@ class Server extends EventEmitter {
                         fs.readFileSync(path.resolve(rootDir, 'ssl', 'RootCA.crt')),
                     ],
                 },
-                serverModuleReceiverPlugin
+                (req, res) => {
+                    serverModuleReceiverPlugin(req, res, this.router);
+                }
             );
             address = `https://hardware.playentry.org:${port}`;
         } else {
-            httpServer = require('http').createServer(serverModuleReceiverPlugin);
+            httpServer = require('http').createServer((req, res) => {
+                serverModuleReceiverPlugin(req, res, this.router);
+            });
             address = `http://127.0.0.1:${port}`;
         }
 
