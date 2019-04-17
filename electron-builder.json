@@ -45,7 +45,7 @@
     "files": [
         "app",
         "!app/firmwares/examples",
-        "!app/test.html"
+        "!test"
     ],
     "asar": true,
     "appId": "org.playentry.entryhw",

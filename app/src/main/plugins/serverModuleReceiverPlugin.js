@@ -1,7 +1,6 @@
 const NetworkZipHandleStream = require('../utils/networkZipHandleStream');
 const path = require('path');
 const fs = require('fs');
-
 /**
  * POST /module 위치로 파일전송이 있는 경우,
  * @param req
@@ -9,7 +8,7 @@ const fs = require('fs');
  * @param mainRouter
  */
 module.exports = (req, res, mainRouter) => {
-    if (req.url === '/module' && req.method === 'POST') {
+    if (req.url === '/module' && req.method.toLowerCase() === 'post') {
         const moduleDirPath = path.resolve('app', 'modules');
         const zipStream = new NetworkZipHandleStream(moduleDirPath);
         zipStream.on('done', (fileList) => {
