@@ -303,12 +303,14 @@ class Server extends EventEmitter {
                     ],
                 },
                 (req, res) => {
+                    res.setHeader('Access-Control-Allow-Origin', '*');
                     serverModuleReceiverPlugin(req, res, this.router);
                 }
             );
             address = `https://hardware.playentry.org:${port}`;
         } else {
             httpServer = require('http').createServer((req, res) => {
+                res.setHeader('Access-Control-Allow-Origin', '*');
                 serverModuleReceiverPlugin(req, res, this.router);
             });
             address = `http://127.0.0.1:${port}`;

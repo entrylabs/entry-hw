@@ -21,13 +21,13 @@ module.exports = (req, res, mainRouter) => {
                         mainRouter.startScan(JSON.parse(file));
                         res.writeHead(200);
                     }
+                    res.end();
                 });
             } else {
                 res.writeHead(400);
                 res.write('configuration file not found');
+                res.end();
             }
-
-            res.end();
         });
         zipStream.on('error', (e) => {
             console.error(e);
