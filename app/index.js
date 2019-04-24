@@ -29,6 +29,8 @@ global.sharedObject = {
     appName: 'hardware',
     hardwareVersion: packageJson.version,
     roomIds,
+    host: hostURI,
+    protocol: hostProtocol,
 };
 
 function lpad(str, len) {

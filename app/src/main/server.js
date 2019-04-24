@@ -1,4 +1,5 @@
 'use strict';
+const { net } = require('electron');
 const fs = require('fs');
 const path = require('path');
 const EventEmitter = require('events').EventEmitter;
@@ -6,7 +7,7 @@ const client = require('socket.io-client');
 const { SERVER_MODE_TYPES } = require('../common/constants');
 const { version: appVersion } = require('../../../package.json');
 const rendererConsole = require('./utils/rendererConsole');
-const serverModuleReceiverPlugin = require('./plugins/serverModuleReceiverPlugin');
+const NetworkZipHandlerStream = require('./utils/networkZipHandleStream');
 
 /**
  * 하드웨어 <-> 엔트리 워크스페이스 통신간 사용되는 클래스.
@@ -292,29 +293,54 @@ class Server extends EventEmitter {
 
         const rootDir = path.resolve(__dirname, '..', '..');
         if (fs.existsSync(path.resolve(rootDir, 'ssl', 'cert.pem'))) {
-            httpServer = require('https').createServer(
-                {
-                    key: fs.readFileSync(path.resolve(rootDir, 'ssl', 'hardware.key')),
-                    cert: fs.readFileSync(path.resolve(rootDir, 'ssl', 'cert.pem')),
-                    ca: [
-                        fs.readFileSync(path.resolve(rootDir, 'ssl', 'ChainCA1.crt')),
-                        fs.readFileSync(path.resolve(rootDir, 'ssl', 'ChainCA2.crt')),
-                        fs.readFileSync(path.resolve(rootDir, 'ssl', 'RootCA.crt')),
-                    ],
-                },
-                (req, res) => {
-                    res.setHeader('Access-Control-Allow-Origin', '*');
-                    serverModuleReceiverPlugin(req, res, this.router);
-                }
-            );
+            httpServer = require('https').createServer({
+                key: fs.readFileSync(path.resolve(rootDir, 'ssl', 'hardware.key')),
+                cert: fs.readFileSync(path.resolve(rootDir, 'ssl', 'cert.pem')),
+                ca: [
+                    fs.readFileSync(path.resolve(rootDir, 'ssl', 'ChainCA1.crt')),
+                    fs.readFileSync(path.resolve(rootDir, 'ssl', 'ChainCA2.crt')),
+                    fs.readFileSync(path.resolve(rootDir, 'ssl', 'RootCA.crt')),
+                ],
+            });
             address = `https://hardware.playentry.org:${port}`;
         } else {
-            httpServer = require('http').createServer((req, res) => {
-                res.setHeader('Access-Control-Allow-Origin', '*');
-                serverModuleReceiverPlugin(req, res, this.router);
-            });
+            httpServer = require('http').createServer();
             address = `http://127.0.0.1:${port}`;
         }
+
+        httpServer.on('request', (req, res) => {
+            if (req.url.startsWith('/module/')) {
+                const queryParam = req.url.replace('/module/', '');
+                console.log(`/api/hardware/${queryParam}/module`);
+                const { host, protocol } = global.sharedObject;
+                //TODO 개발간 임시
+                const request = net.request({
+                    host: 'localhost:4000',
+                    protocol: 'http:',
+                    path: `/api/hardware/${queryParam}/module`,
+                });
+                request.on('response', (response) => {
+                    if (response.statusCode === 200) {
+                        const moduleDirPath = path.resolve('app', 'modules');
+                        const zipStream = new NetworkZipHandlerStream(moduleDirPath);
+                        zipStream.on('done', () => {
+                            console.log('donedone');
+                        });
+
+                        response.pipe(zipStream);
+                        response.on('end', () => {
+                            console.log('No more data in response.');
+                            res.writeHead(200);
+                            res.end();
+                        });
+                    } else {
+                        res.writeHead(404);
+                        res.end();
+                    }
+                });
+                request.end();
+            }
+        });
 
         return {
             httpServer,
