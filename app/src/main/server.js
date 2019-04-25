@@ -310,21 +310,27 @@ class Server extends EventEmitter {
 
         httpServer.on('request', (req, res) => {
             if (req.url.startsWith('/module/')) {
-                const queryParam = req.url.replace('/module/', '');
-                console.log(`/api/hardware/${queryParam}/module`);
+                const moduleName = req.url.replace('/module/', '');
+                console.log(`/api/hardware/${moduleName}/module`);
                 const { host, protocol } = global.sharedObject;
                 //TODO 개발간 임시
                 const request = net.request({
                     host: 'localhost:4000',
                     protocol: 'http:',
-                    path: `/api/hardware/${queryParam}/module`,
+                    path: `/api/hardware/${moduleName}/module`,
                 });
                 request.on('response', (response) => {
+                    // TODO 수신완료시점을 200으로? 모듈로드 완료시점을 200으로?
                     if (response.statusCode === 200) {
                         const moduleDirPath = path.resolve('app', 'modules');
                         const zipStream = new NetworkZipHandlerStream(moduleDirPath);
                         zipStream.on('done', () => {
                             console.log('donedone');
+                            fs.readFile(
+                                path.join(moduleDirPath, `${moduleName}.json`),
+                                (err, data) => {
+                                    this.router.startScan(JSON.parse(data));
+                                });
                         });
 
                         response.pipe(zipStream);
