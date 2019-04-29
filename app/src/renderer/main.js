@@ -456,10 +456,10 @@
                         `<option title="${port.comName}">${port.comName}</option>`;
                 });
 
-                $('#select_port_box').css('display', 'flex');
                 $('#select_port_box select').html(portHtml);
                 this.cachedPortList = JSON.stringify(portList);
             }
+            $('#select_port_box').css('display', 'flex');
         },
         quit() {
         },
