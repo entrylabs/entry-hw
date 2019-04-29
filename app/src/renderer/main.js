@@ -183,6 +183,7 @@
             $('#hwList').hide();
             $('#search_area').hide();
             $('#hwPanel').css('display', 'flex');
+            $('#back.navigate_button').addClass('active');
             ui.hideIeGuide();
             this.showAlert(
                 translator.translate('Connecting to hardware device.'),
@@ -194,6 +195,7 @@
             $('#hwList').hide();
             $('#search_area').hide();
             $('#hwPanel').css('display', 'flex');
+            $('#back.navigate_button').addClass('active');
             ui.hideIeGuide();
             this.showAlert(
                 translator.translate('Connected to hardware device.'),
@@ -288,7 +290,7 @@
                 .off('click')
                 .on('click', function() {
                     viewMode = this.id;
-                    $('#back.navigate_button').addClass('active');
+                    // $('#back.navigate_button').addClass('active');
 
                     isSelectPort = config.select_com_port ||
                         config.hardware.type === 'bluetooth' ||
@@ -558,7 +560,7 @@
 
     $('body').on('click', '#back.navigate_button.active', (e) => {
         isSelectPort = true;
-        delete window.currentConfig.this_com_port;
+        window.currentConfig && delete window.currentConfig.this_com_port;
         ui.showRobotList();
     });
 
