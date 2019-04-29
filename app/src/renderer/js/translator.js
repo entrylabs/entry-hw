@@ -21,7 +21,7 @@ module.exports = class {
     }
 
     translate(str) {
-        const value = this.data[str];
+        const value = this.data[str] || [];
         return value[this.lang] || str;
     }
 };
