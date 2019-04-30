@@ -244,6 +244,11 @@ class Server extends EventEmitter {
 
             connection.on('message', (message, ack) => {
                 console.log('socketServer receive : ', message);
+                if (message.action === 'init') {
+                    const { name } = JSON.parse(message.data);
+                    this._requestHardware(name);
+                }
+
                 if (
                     message.mode === SERVER_MODE_TYPES.single ||
                     this.masterRoomIds.indexOf(connection.roomId) >= 0
@@ -308,50 +313,53 @@ class Server extends EventEmitter {
             address = `http://127.0.0.1:${port}`;
         }
 
-        httpServer.on('request', (req, res) => {
-            if (req.url.startsWith('/module/')) {
-                const moduleName = req.url.replace('/module/', '');
-                console.log(`/api/hardware/${moduleName}/module`);
-                const { host, protocol } = global.sharedObject;
-                //TODO 개발간 임시
-                const request = net.request({
-                    host: 'localhost:4000',
-                    protocol: 'http:',
-                    path: `/api/hardware/${moduleName}/module`,
-                });
-                request.on('response', (response) => {
-                    // TODO 수신완료시점을 200으로? 모듈로드 완료시점을 200으로?
-                    if (response.statusCode === 200) {
-                        const moduleDirPath = path.resolve('app', 'modules');
-                        const zipStream = new NetworkZipHandlerStream(moduleDirPath);
-                        zipStream.on('done', () => {
-                            console.log('donedone');
-                            fs.readFile(
-                                path.join(moduleDirPath, `${moduleName}.json`),
-                                (err, data) => {
-                                    this.router.startScan(JSON.parse(data));
-                                });
-                        });
-
-                        response.pipe(zipStream);
-                        response.on('end', () => {
-                            console.log('No more data in response.');
-                            res.writeHead(200);
-                            res.end();
-                        });
-                    } else {
-                        res.writeHead(404);
-                        res.end();
-                    }
-                });
-                request.end();
-            }
-        });
-
         return {
             httpServer,
             address,
         };
+    }
+
+    _requestHardware(moduleName) {
+        return new Promise((resolve, reject) => {
+            if (!moduleName) {
+                reject();
+                return;
+            }
+
+            console.log(`/api/hardware/${moduleName}/module`);
+            const { host, protocol } = global.sharedObject;
+            //TODO 개발간 임시
+            const request = net.request({
+                host: 'localhost:4000',
+                protocol: 'http:',
+                path: `/api/hardware/${moduleName}/module`,
+            });
+            request.on('response', (response) => {
+                // TODO 수신완료시점을 200으로? 모듈로드 완료시점을 200으로?
+                response.on('error', reject);
+                if (response.statusCode === 200) {
+                    const moduleDirPath = path.resolve('app', 'modules');
+                    const zipStream = new NetworkZipHandlerStream(moduleDirPath);
+                    zipStream.on('done', () => {
+                        console.log('donedone');
+                        fs.readFile(
+                            path.join(moduleDirPath, `${moduleName}.json`),
+                            (err, data) => {
+                                this.router.startScan(JSON.parse(data));
+                            });
+                        resolve();
+                    });
+
+                    response.pipe(zipStream);
+                    response.on('end', () => {
+                        // nothing to do
+                    });
+                } else {
+                    reject();
+                }
+            });
+            request.end();
+        });
     }
 
     closeSingleConnection(connection) {
