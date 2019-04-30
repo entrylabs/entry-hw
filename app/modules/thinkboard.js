@@ -16,6 +16,7 @@ function Module()
         WRT_BT: 10,
         RGBLED: 11,
         MOTOR: 12,
+        LASER: 13,
     }
 
     this.actionTypes = 
@@ -37,7 +38,13 @@ function Module()
 
     this.sensorData = 
 	{
-        USONIC: 0,
+        USONIC: 
+		{
+            '0': 0,
+            '1': 0,	
+            '2': 0,
+            '3': 0,						
+		},
         DIGITAL: 
 		{
             '0': 0,
@@ -64,9 +71,19 @@ function Module()
             '4': 0,
             '5': 0,
         },
-        TEMP: 0,
+        TEMP: 
+		{
+            '0': 0,
+            '1': 0,			
+		},
         TIMER: 0,
-		SERVO: 0,
+        SERVO: 
+		{
+            '0': 0,
+            '1': 0,	
+            '2': 0,
+            '3': 0,						
+		},        
         RD_BT: 0
     }
 
@@ -161,11 +178,21 @@ Module.prototype.handleLocalData = function(data)
         if(data.length <= 4 || data[0] !== 255 || data[1] !== 85) return;                
 		var readData = data.subarray(2, data.length);
 		
-        var value;
+        var type = readData[readData.length - 1];
+        var port = readData[readData.length - 2];
+		
+        var value, value2;
         switch(readData[0]) {
-            case self.sensorValueSize.FLOAT: {
+            case self.sensorValueSize.FLOAT: 
+			{
                 value = new Buffer(readData.subarray(1, 5)).readFloatLE();
-                value = Math.round(value * 100) / 100;                    
+                value = Math.round(value * 100) / 100;      
+            
+				if(type === self.sensorTypes.TEMP)  // Add for TEMP Sensor
+                {                  
+                    value2 = new Buffer(readData.subarray(6, 10)).readFloatLE();                   
+                    value2 = Math.round(value2 * 100) / 100;                    
+                }				
                 break;
             }
             case self.sensorValueSize.SHORT: {
@@ -183,9 +210,6 @@ Module.prototype.handleLocalData = function(data)
                 break;
             }
         }
-
-        var type = readData[readData.length - 1];
-        var port = readData[readData.length - 2];
 	
         switch(type) {
             case self.sensorTypes.DIGITAL: {
@@ -197,15 +221,18 @@ Module.prototype.handleLocalData = function(data)
                 break;
             }
             case self.sensorTypes.TEMP: {
-                self.sensorData.TEMP = value;
+                self.sensorData.TEMP[0] = value;
+                self.sensorData.TEMP[1] = value2;  
+//             console.log("TEMP[0~1]: %s %s", value, value2);	           
                 break;
             }			
             case self.sensorTypes.USONIC: {
-                self.sensorData.USONIC = value;			
+                self.sensorData.USONIC[port] = value;		 	
                 break;
             }
             case self.sensorTypes.SERVO: {
-                self.sensorData.SERVO = value;
+                self.sensorData.SERVO[port] = value;
+//                console.log("port: %s value: %s", port, value);	             
                 break;
             }			
             case self.sensorTypes.TIMER: {
@@ -363,6 +390,9 @@ Module.prototype.isRecentData = function(port, type, data)
         }
     }
 
+    // Add for TEMP/USONIC/SERVO
+    if ((type === '6')||(type === '7')||(type === '4')) isRecent = false;
+
     return isRecent;
 }
 
@@ -379,15 +409,18 @@ Module.prototype.makeSensorReadBuffer = function(device, port, data)
 	
     if(device == this.sensorTypes.USONIC) 
 	{
-        buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port[0], port[1], 10]);	
+        buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.GET, device, port, 10]);	
+  //   console.log("%s %s %s %s", sensorIdx, this.actionTypes.GET, device, port);	
 	}
     else if(device == this.sensorTypes.TEMP) 
 	{
-        buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port[0], port[1], 10]);			
+        buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.GET, device, port, 10]);    
+//        console.log("GET: %s %s %s %s", sensorIdx, this.actionTypes.GET, device, port);	                
     } 
     else if(device == this.sensorTypes.SERVO) 
 	{
         buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port[0], port[1], 10]);	
+//        console.log("GET: %s %s %s %s %s", sensorIdx, this.actionTypes.GET, device, port[0], port[1]);	        
     } 	
 	else if(device == this.sensorTypes.RD_BT) 
 	{
@@ -424,12 +457,14 @@ Module.prototype.makeOutputBuffer = function(device, port, data)
 	{
         case this.sensorTypes.MOTOR:
 				buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.SET, device, port, data[0], data[1]]);
-				buffer = Buffer.concat([buffer, dummy]);
+                buffer = Buffer.concat([buffer, dummy]);
+    //            console.log("SET: %s %s %s %s %s %s", sensorIdx, this.actionTypes.SET, device, port, data[0], data[1]);	                   
 				break;        
 				
         case this.sensorTypes.SERVO:
 				buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.SET, device, port, data[0], data[1]]);
-				buffer = Buffer.concat([buffer, dummy]);
+                buffer = Buffer.concat([buffer, dummy]);
+//                console.log("SET: %s %s %s %s %s %s", sensorIdx, this.actionTypes.SET, device, port, data[0], data[1]);	                  
 				break;        
 				
 		case this.sensorTypes.DIGITAL:
@@ -439,16 +474,21 @@ Module.prototype.makeOutputBuffer = function(device, port, data)
 				break;
 
 		case this.sensorTypes.BUZZER: 
-//				value.writeInt16LE(data); //writeFloatLE//!@#$
-				buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.SET, device, port, data]);
+                buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.SET, device, port, data]);     
 				buffer = Buffer.concat([buffer, dummy]);
 				break;
-			
+            
+        case this.sensorTypes.LASER: 
+                buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.SET, device, port, data]);
+//                console.log("SET: %s %s %s %s %s", sensorIdx, this.actionTypes.GET, device, port, data);	                   
+                buffer = Buffer.concat([buffer, dummy]);                 
+                break;
+
         case this.sensorTypes.RGBLED: 
 				buffer = new Buffer([255, 85, 7, sensorIdx, this.actionTypes.SET, device, port, data.r, data.g, data.b]);
 				buffer = Buffer.concat([buffer, dummy]);
 				break;
-
+                                
         case this.sensorTypes.TONE: 
 				var time = new Buffer(2);
 				if($.isPlainObject(data)) 
