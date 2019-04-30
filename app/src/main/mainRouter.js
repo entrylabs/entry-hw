@@ -310,7 +310,7 @@ class MainRouter {
         }
         const data = this.handler.encode();
         if (data) {
-            this.server.send(data);
+            this.server.send({ data });
         }
     }
 

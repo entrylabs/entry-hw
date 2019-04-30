@@ -5,7 +5,6 @@ const path = require('path');
 const EventEmitter = require('events').EventEmitter;
 const client = require('socket.io-client');
 const { SERVER_MODE_TYPES } = require('../common/constants');
-const { version: appVersion } = require('../../../package.json');
 const rendererConsole = require('./utils/rendererConsole');
 const NetworkZipHandlerStream = require('./utils/networkZipHandleStream');
 
@@ -371,10 +370,12 @@ class Server extends EventEmitter {
         }
     };
 
-    send(data) {
+    /**
+     *
+     * @param payload {Object} {action:String, data:Object}
+     */
+    send(payload) {
         const childServerListCnt = Object.keys(this.childServerList).length;
-        const payload = { data };
-
         if (
             (this.runningMode === SERVER_MODE_TYPES.parent && childServerListCnt === 0) ||
             this.runningMode === SERVER_MODE_TYPES.child
@@ -397,22 +398,27 @@ class Server extends EventEmitter {
             const packet = this.packet;
             if (state === 'connecting') {
                 packet[3] = 0x01;
-                this.send(packet);
+                this.send({ data: packet });
             } else if (state === 'connected') {
                 packet[3] = 0x02;
-                this.send(packet);
+                this.send({ data: packet });
             } else if (state === 'lost') {
                 packet[3] = 0x03;
-                this.send(packet);
+                this.send({ data: packet });
             } else if (state === 'disconnected') {
                 packet[3] = 0x04;
-                this.send(packet);
+                this.send({ data: packet });
             }
         }
     };
 
     disconnectHardware() {
-        this.send('disconnectHardware');
+        this.send({
+            action: 'state',
+            data: {
+                statement: 'disconnectHardware',
+            },
+        });
     };
 
     close() {
