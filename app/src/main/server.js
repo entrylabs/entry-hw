@@ -373,7 +373,7 @@ class Server extends EventEmitter {
 
     send(data) {
         const childServerListCnt = Object.keys(this.childServerList).length;
-        const payload = { data, version: appVersion };
+        const payload = { data };
 
         if (
             (this.runningMode === SERVER_MODE_TYPES.parent && childServerListCnt === 0) ||
