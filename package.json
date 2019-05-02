@@ -82,5 +82,7 @@
         "object.assign": "^4.0.4",
         "socket.io": "^1.5.0",
         "socket.io-client": "^1.5.1"
-    }
+    },
+    "repository": "https://github.com/entrylabs/entry-hw.git",
+    "license": "MIT"
 }
