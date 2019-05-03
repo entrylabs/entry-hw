@@ -35,7 +35,8 @@ class AsomeBoard extends BaseModule {
 
     connect() {
         setTimeout(() => {
-            this.sp.write(this.makeData('RST'));
+            // this.sp.write(this.makeData('RST'));
+            // this.sp.write(Buffer.from("turnoff_pins()\r", "ascii"));
         }, 500);
         // this.sp.write(this.makeData('RST'));
     }
@@ -45,7 +46,8 @@ class AsomeBoard extends BaseModule {
     }
 
     requestInitialData() {
-        return this.makeData('RST');
+        return Buffer.from("p = OutputPin(4)\r", "ascii");
+        // return this.makeData('RST');
     }
 
     setSerialPort(sp) {
@@ -74,23 +76,25 @@ class AsomeBoard extends BaseModule {
         }
 
         console.log("handleRemoteData");
-        console.log(handlerData);
+        // console.log(handlerData);
 
-        this.sp.write(Buffer.from("print('Hi')\r", 'ascii'));
+        // this.sp.write(Buffer.from("print('Hi')\r", 'ascii'));
 
          Object.keys(handlerData).forEach((id) => {
-            const { type, data } = handlerData[id] || {};
-            if (
-                _.findIndex(this.sendBuffers, { id }) === -1 &&
-                this.executeCheckList.indexOf(id) === -1
-            ) {
-                const sendData = this.makeData(type, data);
-                this.sendBuffers.push({
-                    id,
-                    data: sendData,
-                    index: this.executeCount,
-                });
+            if (id == 'SET') {
+                const source = handlerData[id];
+                const keys = Object.keys(source);
+                const type = source[keys[0]]["type"];
+                const data = source[keys[0]]["data"];
+                console.log(source, id, keys, type, data);
+
+                if (data == 0) {
+                    this.sp.write(Buffer.from("p.off()\r", 'ascii'));
+                } else {
+                    this.sp.write(Buffer.from("p.on()\r", 'ascii'));
+                }
             }
+            
         });
     }
 
