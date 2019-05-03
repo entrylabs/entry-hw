@@ -19,7 +19,7 @@ const FUNCTION_KEYS = {
     RESET: 0xfe,
 };
 
-class Microbit extends BaseModule {
+class AsomeBoard extends BaseModule {
     constructor() {
         super();
         this.sendIndex = 0;
@@ -73,7 +73,12 @@ class Microbit extends BaseModule {
             return;
         }
 
-        Object.keys(handlerData).forEach((id) => {
+        console.log("handleRemoteData");
+        console.log(handlerData);
+
+        this.sp.write(Buffer.from("print('Hi')\r", 'ascii'));
+
+         Object.keys(handlerData).forEach((id) => {
             const { type, data } = handlerData[id] || {};
             if (
                 _.findIndex(this.sendBuffers, { id }) === -1 &&
@@ -93,18 +98,25 @@ class Microbit extends BaseModule {
         if (!this.isDraing && this.sendBuffers.length > 0) {
             const sendData = this.sendBuffers.shift();
             this.isDraing = true;
-            this.sp.write(sendData.data, () => {
-                if (this.sp) {
-                    this.sp.drain(() => {
-                        this.executeCheckList[sendData.index] = sendData.id;
-                    });
-                }
-            });
+
+            console.log("requestLocalData");
+            console.log(sendData.data);
+
+            // this.sp.write(sendData.data, () => {
+            //     if (this.sp) {
+            //         this.sp.drain(() => {
+            //             this.executeCheckList[sendData.index] = sendData.id;
+            //         });
+            //     }
+            // });
         }
         return;
     }
 
     handleLocalData(data) {
+        console.log("handleLocalData");
+        console.log(data);
+
         const count = data[data.length - 3];
         const blockId = this.executeCheckList[count];
         if (blockId) {
@@ -337,4 +349,4 @@ class Microbit extends BaseModule {
     }
 }
 
-module.exports = new Microbit();
+module.exports = new AsomeBoard();
