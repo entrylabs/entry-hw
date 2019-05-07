@@ -1,0 +1,32 @@
+{
+	"id": "F0F001",
+	"name": {
+		"en": "AsomeBot",
+		"ko": "AsomeBot"
+	},
+	"category": "board",
+	"platform": [
+		"win32",
+		"darwin"
+	],
+	"icon": "AsomeBot.png",
+	"module": "asomebot.js",
+	"driver": {
+        "win32-ia32": "CP210x_VCP_Windows/CP210xVCPInstaller_x86.exe",
+        "win32-x64": "CP210x_VCP_Windows/CP210xVCPInstaller_x64.exe",
+        "darwin-x64": "Mac_OSX_VCP_Driver/SiLabsUSBDriverDisk.dmg"
+	},
+	"reconnect": true,
+	"entry": {
+		"protocol": "json"
+	},
+	"hardware": {
+		"type": "serial",
+		"control": "slave",
+		"duration": 32,
+		"vendor": "Silicon Labs",
+		"baudRate": 115200,
+		"lostTimer": 1000,
+		"firmwarecheck": false
+	}
+}
