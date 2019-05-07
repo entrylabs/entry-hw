@@ -153,7 +153,8 @@
     });
 
     $('#firmwareButtonSet').on('click', 'button', function() {
-        ui.flashFirmware(this.firmware, this.config);
+        // 여기서의 this 는 $dom 의 props 이다. arrow function 금지
+        ui.flashFirmware(this.firmware);
     });
 
     var ui = {
@@ -415,7 +416,7 @@
                     window.currentConfig = config;
                 });
         },
-        flashFirmware() {
+        flashFirmware(firmwareName) {
             if (currentState === 'disconnected' || currentState === 'lost') {
                 alert(
                     translator.translate('Hardware Device Is Not Connected'),
@@ -427,13 +428,14 @@
 
             $('#firmwareButtonSet').hide();
             ui.showAlert(translator.translate('Firmware Uploading...'));
-            router.requestFlash()
+            router.requestFlash(firmwareName)
                 .then(() => {
                     ui.showAlert(
                         translator.translate('Firmware Uploaded!'),
                     );
                 })
                 .catch((e) => {
+                    console.error(e);
                     ui.showAlert(
                         translator.translate(
                             'Failed Firmware Upload',
