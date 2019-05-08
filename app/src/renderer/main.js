@@ -417,7 +417,7 @@
                 });
         },
         flashFirmware(firmwareName) {
-            if (currentState === 'disconnected' || currentState === 'lost') {
+            if (currentState !== 'before_connect' && currentState === 'connected') {
                 alert(
                     translator.translate('Hardware Device Is Not Connected'),
                 );
