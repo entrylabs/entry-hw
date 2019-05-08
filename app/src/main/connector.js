@@ -127,10 +127,12 @@ class Connector {
             if (control) {
                 if (firmwarecheck) {
                     this.flashFirmware = setTimeout(() => {
-                        this.serialPort.parser ?
-                        this.serialPort.parser.removeAllListeners('data') :
-                        this.serialPort.removeAllListeners('data');
-                        this.executeFlash = true;
+                        if (this.serialPort) {
+                            this.serialPort.parser ?
+                                this.serialPort.parser.removeAllListeners('data') :
+                                this.serialPort.removeAllListeners('data');
+                            this.executeFlash = true;
+                        }
                         resolve();
                     }, 3000);
                 }
