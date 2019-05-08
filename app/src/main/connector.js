@@ -330,9 +330,9 @@ class Connector {
         }
         if (this.serialPort) {
             this.serialPort.removeAllListeners();
-        }
-        if (this.serialPort.parser) {
-            this.serialPort.parser.removeAllListeners();
+            if (this.serialPort.parser) {
+                this.serialPort.parser.removeAllListeners();
+            }
         }
     };
 
