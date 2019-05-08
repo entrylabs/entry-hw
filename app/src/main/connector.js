@@ -336,6 +336,10 @@ class Connector {
                 this.serialPort.parser.removeAllListeners();
             }
         }
+        if (this.flashFirmware) {
+            clearTimeout(this.flashFirmware);
+            this.flashFirmware = undefined;
+        }
     };
 
     close() {
