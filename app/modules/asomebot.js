@@ -8,6 +8,7 @@ class AsomeBot extends BaseModule {
         this.msg_id = '';
         this.sendToEntry = {
             msg_id: "",
+            distance: 0,
         };
     }
 
