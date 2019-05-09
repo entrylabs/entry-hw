@@ -311,9 +311,6 @@ class MainRouter {
      * 서버로 인코딩된 데이터를 보낸다.
      */
     sendEncodedDataToServer() {
-        if (this.hwModule.requestRemoteData) {
-            this.hwModule.requestRemoteData(this.handler);
-        }
         const data = this.handler.encode();
         if (data) {
             this.server.send(data);
