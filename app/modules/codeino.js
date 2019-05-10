@@ -1,5 +1,7 @@
 'use strict';
 
+const _isPlainObject = require('lodash/isPlainObject');
+
 function Module() {
     this.sp = null;
     this.sensorTypes = {
@@ -321,7 +323,7 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
         }
         case this.sensorTypes.TONE: {
             var time = new Buffer(2);
-            if($.isPlainObject(data)) {
+            if(_isPlainObject(data)) {
                 value.writeInt16LE(data.value);
                 time.writeInt16LE(data.duration);
             } else {

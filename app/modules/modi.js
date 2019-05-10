@@ -298,7 +298,7 @@ Module.prototype.handleJsonMessage = function( object ) {
     obj.c = object.c;
     obj.id = object.s;
 
-    var byteTemp = atob(object.b);
+    var byteTemp = Buffer.from(object.b, 'base64').toString();
     var buffer = this.str2ab(byteTemp);
 
     switch(obj.c) {
@@ -481,7 +481,7 @@ Module.prototype.setProperty = function(moduleValue) {
         view[2] = moduleValue.value3;
     }
 
-    var b64 = btoa(this.ab2str(buffer));
+    var b64 = Buffer.from(this.ab2str(buffer)).toString('base64');
 
     obj.c = 0x04;
     obj.s = setProperty[moduleValue.module];//function ID
@@ -520,7 +520,7 @@ Module.prototype.setDisplay = function(moduleValue) {
         for(var j = 0; j < strArray[i].length; j++) {
             view[j] = strArray[i].charCodeAt(j);
         }
-        var b64 = btoa(this.ab2str(buffer));
+        var b64 = Buffer.from(this.ab2str(buffer)).toString('base64');
 
         obj.c = 0x04;
         obj.s = setProperty[moduleValue.module];    //function ID
@@ -567,7 +567,7 @@ Module.prototype.setTune = function(moduleValue) {
         view[i+4] = volView.getUint8(3-i);
     }
 
-    var b64 = btoa(this.ab2str(buffer));
+    var b64 = Buffer.from(this.ab2str(buffer)).toString('base64');
 
     obj.c = 0x04;
     obj.s = setProperty[moduleValue.module];//function ID
@@ -608,7 +608,7 @@ Module.prototype.getPropertyJson = function(propertyNum, moduleID) {
     var view = new Uint8Array(buffer);
     view[0] = propertyNum;
     view[2] = 97;
-    var b64 = btoa(this.ab2str(buffer));
+    var b64 = Buffer.from(this.ab2str(buffer)).toString('base64');
 
     obj.s = 0;
     obj.d = moduleID;
@@ -619,13 +619,13 @@ Module.prototype.getPropertyJson = function(propertyNum, moduleID) {
 };
 
 Module.prototype.requestRemoteData = function(handler) {
-    var arr = new Object();
-    $.each(connect_,function(index) {
-        if(index != path) {
-            if(arr[connect_[index].moduleT] == undefined) {
-                arr[connect_[index].moduleT] = new Array();
-            }      
-            arr[connect_[index].moduleT][connect_[index].num] = JSON.stringify(connect_[index]);
+    var arr = {};
+    Object.entries(connect_).forEach(([key, value]) => {
+        if (key !== path) {
+            if (arr[value.moduleT] === undefined) {
+                arr[value.moduleT] = [];
+            }
+            arr[value.moduleT][value.num] = JSON.stringify(value);
         }
     });
     handler.write("module", arr);
@@ -681,7 +681,7 @@ Module.prototype.resetProperty = function() {
     var buffer = new ArrayBuffer(1);
     var view = new Uint8Array(buffer);
     view[0] = 0x06;
-    var b64 = btoa(this.ab2str(buffer));
+    var b64 = Buffer.from(this.ab2str(buffer)).toString('base64');
 
     obj.s = 0;
     obj.d = 0xFFF;

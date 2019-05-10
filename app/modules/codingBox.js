@@ -1,3 +1,5 @@
+const _isPlainObject = require('lodash/isPlainObject');
+
 function Module() {
   this.sp = null;
   this.sensorTypes = {
@@ -418,7 +420,7 @@ Module.prototype.makeOutputBuffer = function (device, port, data) {
     }
     case this.sensorTypes.TONE: {
       var time = new Buffer(2);
-      if ($.isPlainObject(data)) {
+      if (_isPlainObject(data)) {
         value.writeInt16LE(data.value);
         time.writeInt16LE(data.duration);
       } else {
@@ -444,7 +446,7 @@ Module.prototype.makeOutputBuffer = function (device, port, data) {
       var textLen = 0;
       var textLenBuf = Buffer(1);
 
-      if ($.isPlainObject(data)) {
+      if (_isPlainObject(data)) {
 //        numeric 데이터로 들어오는 경우가 있으므로, 문자열로 변경하기
         textLen = ('' + data.text).length;
         text = Buffer.from("" + data.text, 'ascii');
