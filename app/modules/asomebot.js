@@ -20,7 +20,8 @@ class AsomeBot extends BaseModule {
     }
 
     requestInitialData() {
-        return Buffer.from("import asomebot; asomebot.ready(5, 6, 7,8); asomebot.home()\r", "ascii");
+        var init_str = "import asomebot; import hcsr04; asomebot.ready(5, 6, 7,8); hcsr04.open(3, 2)\r";
+        return Buffer.from(init_str, "ascii");
     }
 
     setSerialPort(sp) {
@@ -60,7 +61,7 @@ class AsomeBot extends BaseModule {
 
             this.msg_id = handlerData.msg_id;
             this.sp.write(Buffer.from(handlerData.msg + "\r", 'ascii'));
-            this.sp.write(Buffer.from("# " + this.msg_id + "\r", 'ascii'));
+            this.sp.write(Buffer.from("#ID " + this.msg_id + "\r", 'ascii'));
         }
     }
 
@@ -69,9 +70,16 @@ class AsomeBot extends BaseModule {
 
     handleLocalData(data) {
         const text = data.toString();
+        if (text.indexOf('#') < 0) return;
+
         console.log("from AsomeBot: ", text);
 
-        if (text.indexOf('#') >= 0) this.sendToEntry.msg_id = text;
+        if (text.indexOf('#DT') == 0) {
+            var values = text.split(" ");
+            if (values.length > 1) this.sendToEntry.distance = values[1];
+        }
+
+        if (text.indexOf('#ID') >= 0) this.sendToEntry.msg_id = text;
     }
 
     setSocketData({ socketData, data }) {
