@@ -344,7 +344,9 @@ class Server extends EventEmitter {
                         fs.readFile(
                             path.join(moduleDirPath, `${moduleName}.json`),
                             (err, data) => {
-                                this.router.startScan(JSON.parse(data));
+                                const config = JSON.parse(data);
+                                this.router.sendState('show_robot', config);
+                                this.router.startScan(config);
                             });
                         resolve();
                     });

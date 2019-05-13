@@ -1,6 +1,13 @@
 const { ipcRenderer } = require('electron');
 
 class RendererRouter {
+    constructor() {
+        //ipcEvent
+        ipcRenderer.on('console', (event, ...args) => {
+            console.log(...args);
+        });
+    }
+
     startScan(config) {
         ipcRenderer.send('startScan', config);
     };

@@ -129,6 +129,15 @@
         translator.translate('Connect'),
     );
 
+    $('#reference .emailTitle').text(translator.translate('E-Mail : '));
+    $('#reference .urlTitle').text(translator.translate('WebSite : '));
+    $('#reference .videoTitle').text(translator.translate('Video : '));
+
+    const $openSourceLabel = $('#opensource_label');
+    $openSourceLabel.text(translator.translate('Opensource lincense'));
+    $openSourceLabel.on('click', () => {
+        $('#opensource_license_viewer').css('display', 'flex');
+    });
     $('#opensource_license_viewer .title span').text(
         translator.translate('Opensource lincense'),
     );
@@ -136,12 +145,12 @@
         translator.translate('Close'),
     );
 
-    $('#reference .emailTitle').text(translator.translate('E-Mail : '));
-    $('#reference .urlTitle').text(translator.translate('WebSite : '));
-    $('#reference .videoTitle').text(translator.translate('Video : '));
+    const $versionLabel = $('#version_label');
+    $versionLabel.text(translator.translate('Version Info'));
+    $versionLabel.on('click', () => {
+        ipcRenderer.send('openAboutWindow');
+    });
 
-    $('#opensource_label').text(translator.translate('Opensource lincense'));
-    $('#version_label').text(translator.translate('Version Info'));
     $('#firmware').text(translator.translate('Install Firmware'));
     $('#other-robot .text').text(
         translator.translate('Connect Other Hardware'),
@@ -156,7 +165,7 @@
         ui.flashFirmware(this.firmware, this.config);
     });
 
-    var ui = {
+    const ui = {
         cachedPortList: [],
         countRobot: 0,
         showRobotList() {
@@ -257,7 +266,7 @@
                 }
             }
         },
-        hideAlert(message) {
+        hideAlert() {
             $('#alert')
                 .stop(true, true)
                 .animate({
@@ -267,9 +276,134 @@
         hideRobot(id) {
             $(`#${id}`).hide();
         },
-        showRobot(id) {
-            if (id) {
-                $(`#${id}`).show();
+        showRobot(hardware) {
+            if (hardware.id) {
+                $(`#${hardware.id}`).show();
+                viewMode = this.id;
+                // $('#back.navigate_button').addClass('active');
+
+                isSelectPort = hardware.select_com_port ||
+                    hardware.hardware.type === 'bluetooth' ||
+                    serverMode === 1 ||
+                    false;
+
+                const newSelectList = priorHardwareList
+                    .filter((item) => item !== hardware.name.ko);
+
+                newSelectList.push(hardware.name.ko);
+                localStorage.setItem(
+                    'hardwareList',
+                    JSON.stringify(newSelectList),
+                );
+                priorHardwareList = newSelectList;
+
+                const icon = `../../../modules/${hardware.icon}`;
+                $('#selectedHWThumb').attr('src', icon);
+
+                if (hardware.url) {
+                    const $url = $('#url');
+                    $url.text(hardware.url);
+                    $('#urlArea').show();
+                    $url.off('click');
+                    $url.on('click', () => {
+                        shell.openExternal(hardware.url);
+                    });
+                } else {
+                    $('#urlArea').hide();
+                }
+
+                if (hardware.video) {
+                    let video = hardware.video;
+                    const $video = $('#video');
+
+                    if (typeof video === 'string') {
+                        video = [video];
+                    }
+
+                    $video.empty();
+                    video.forEach((link, idx) => {
+                        $video.append(`<span>${link}</span><br/>`);
+                        $('#videoArea').show();
+                    });
+                    $video.off('click');
+                    $video.on('click', 'span', (e) => {
+                        const index = $('#video span').index(e.target);
+                        console.log(video, index, video[index]);
+                        shell.openExternal(video[index]);
+                    });
+                } else {
+                    $('#videoArea').hide();
+                }
+
+                if (hardware.email) {
+                    const $email = $('#email');
+                    $email.text(hardware.email);
+                    $('#emailArea').show();
+                    $email
+                        .off('click')
+                        .on('click', () => {
+                            clipboard.writeText(hardware.email);
+                            alert(
+                                translator.translate('Copied to clipboard'),
+                            );
+                        });
+                } else {
+                    $('#emailArea').hide();
+                }
+
+                $('#driverButtonSet button').remove();
+                $('#firmwareButtonSet button').remove();
+
+                if (hardware.driver) {
+                    if (
+                        $.isPlainObject(hardware.driver) &&
+                        hardware.driver[os]
+                    ) {
+                        const $dom = $('<button class="hwPanelBtn">');
+                        $dom.text(
+                            translator.translate('Install Device Driver'),
+                        );
+                        $dom.prop('driverPath', hardware.driver[os]);
+                        $('#driverButtonSet').append($dom);
+                    } else if (Array.isArray(hardware.driver)) {
+                        hardware.driver.forEach((driver) => {
+                            if (driver[os]) {
+                                const $dom = $('<button class="hwPanelBtn">');
+                                $dom.text(
+                                    translator.translate(driver.translate),
+                                );
+                                $dom.prop('driverPath', driver[os]);
+                                $('#driverButtonSet').append($dom);
+                            }
+                        });
+                    }
+                }
+                if (hardware.firmware) {
+                    $('#firmware').show();
+                    if (Array.isArray(hardware.firmware)) {
+                        hardware.firmware.forEach((firmware) => {
+                            const $dom = $('<button class="hwPanelBtn">');
+                            $dom.text(
+                                translator.translate(firmware.translate),
+                            );
+                            $dom.prop('firmware', firmware.name);
+                            $dom.prop('config', hardware);
+                            $('#firmwareButtonSet').append($dom);
+                        });
+                    } else {
+                        const $dom = $('<button class="hwPanelBtn">');
+                        $dom.text(translator.translate('Install Firmware'));
+                        $dom.prop('firmware', hardware.firmware);
+                        $dom.prop('config', hardware);
+                        $('#firmwareButtonSet').append($dom);
+                    }
+                }
+
+                ui.hardware = hardware.id.substring(0, 4);
+                ui.numLevel = 1;
+                ui.showConnecting();
+                hardware.serverMode = serverMode;
+                window.currentConfig = hardware;
             } else {
                 $('.hardwareType').show();
             }
@@ -288,133 +422,9 @@
 
             $(`#${config.id}`)
                 .off('click')
-                .on('click', function() {
-                    viewMode = this.id;
-                    // $('#back.navigate_button').addClass('active');
-
-                    isSelectPort = config.select_com_port ||
-                        config.hardware.type === 'bluetooth' ||
-                        serverMode === 1 ||
-                        false;
-
-                    const newSelectList = priorHardwareList
-                        .filter((item) => item !== config.name.ko);
-
-                    newSelectList.push(config.name.ko);
-                    localStorage.setItem(
-                        'hardwareList',
-                        JSON.stringify(newSelectList),
-                    );
-                    priorHardwareList = newSelectList;
-
-                    const icon = `../../../modules/${config.icon}`;
-                    $('#selectedHWThumb').attr('src', icon);
-
-                    if (config.url) {
-                        const $url = $('#url');
-                        $url.text(config.url);
-                        $('#urlArea').show();
-                        $url.off('click');
-                        $url.on('click', () => {
-                            shell.openExternal(config.url);
-                        });
-                    } else {
-                        $('#urlArea').hide();
-                    }
-
-                    if (config.video) {
-                        let video = config.video;
-                        const $video = $('#video');
-
-                        if (typeof video === 'string') {
-                            video = [video];
-                        }
-
-                        $video.empty();
-                        video.forEach((link, idx) => {
-                            $video.append(`<span>${link}</span><br/>`);
-                            $('#videoArea').show();
-                        });
-                        $video.off('click');
-                        $video.on('click', 'span', (e) => {
-                            const index = $('#video span').index(e.target);
-                            console.log(video, index, video[index]);
-                            shell.openExternal(video[index]);
-                        });
-                    } else {
-                        $('#videoArea').hide();
-                    }
-
-                    if (config.email) {
-                        const $email = $('#email');
-                        $email.text(config.email);
-                        $('#emailArea').show();
-                        $email
-                            .off('click')
-                            .on('click', () => {
-                                clipboard.writeText(config.email);
-                                alert(
-                                    translator.translate('Copied to clipboard'),
-                                );
-                            });
-                    } else {
-                        $('#emailArea').hide();
-                    }
-
-                    $('#driverButtonSet button').remove();
-                    $('#firmwareButtonSet button').remove();
-
-                    if (config.driver) {
-                        if (
-                            $.isPlainObject(config.driver) &&
-                            config.driver[os]
-                        ) {
-                            const $dom = $('<button class="hwPanelBtn">');
-                            $dom.text(
-                                translator.translate('Install Device Driver'),
-                            );
-                            $dom.prop('driverPath', config.driver[os]);
-                            $('#driverButtonSet').append($dom);
-                        } else if (Array.isArray(config.driver)) {
-                            config.driver.forEach((driver) => {
-                                if (driver[os]) {
-                                    const $dom = $('<button class="hwPanelBtn">');
-                                    $dom.text(
-                                        translator.translate(driver.translate),
-                                    );
-                                    $dom.prop('driverPath', driver[os]);
-                                    $('#driverButtonSet').append($dom);
-                                }
-                            });
-                        }
-                    }
-                    if (config.firmware) {
-                        $('#firmware').show();
-                        if (Array.isArray(config.firmware)) {
-                            config.firmware.forEach((firmware) => {
-                                const $dom = $('<button class="hwPanelBtn">');
-                                $dom.text(
-                                    translator.translate(firmware.translate),
-                                );
-                                $dom.prop('firmware', firmware.name);
-                                $dom.prop('config', config);
-                                $('#firmwareButtonSet').append($dom);
-                            });
-                        } else {
-                            const $dom = $('<button class="hwPanelBtn">');
-                            $dom.text(translator.translate('Install Firmware'));
-                            $dom.prop('firmware', config.firmware);
-                            $dom.prop('config', config);
-                            $('#firmwareButtonSet').append($dom);
-                        }
-                    }
-
-                    ui.hardware = config.id.substring(0, 4);
-                    ui.numLevel = 1;
-                    ui.showConnecting();
-                    config.serverMode = serverMode;
+                .on('click', () => {
+                    ui.showRobot(config);
                     router.startScan(config);
-                    window.currentConfig = config;
                 });
         },
         flashFirmware() {
@@ -512,7 +522,7 @@
                     (hardware.platform.indexOf(process.platform) > -1) && // 현재 플랫폼과 동일한지
                     (currentCategory === 'all' || hardware.category === currentCategory) // 현재 카테고리에 포함되었는지
                 ) {
-                    ui.showRobot(hardware.id);
+                    ui.showRobot(hardware);
                     isNotFound = false;
                 } else {
                     return true;
@@ -544,7 +554,7 @@
         } else {
             hardwareList.forEach((hardware) => {
                 if (hardware.category === type) {
-                    ui.showRobot(hardware.id);
+                    ui.showRobot(hardware);
                 } else {
                     ui.hideRobot(hardware.id);
                 }
@@ -552,19 +562,20 @@
         }
     }
 
-    $('body').on('keyup', (e) => {
+    const $body = $('body');
+    $body.on('keyup', (e) => {
         if (e.keyCode === 8) {
             $('#back.navigate_button.active').trigger('click');
         }
     });
 
-    $('body').on('click', '#back.navigate_button.active', (e) => {
+    $body.on('click', '#back.navigate_button.active', (e) => {
         isSelectPort = true;
         window.currentConfig && delete window.currentConfig.this_com_port;
         ui.showRobotList();
     });
 
-    $('body').on('click', '#refresh', (e) => {
+    $body.on('click', '#refresh', (e) => {
         if (
             confirm(translator.translate('Do you want to restart the program?'))
         ) {
@@ -572,7 +583,7 @@
         }
     });
 
-    $('.chromeButton').click((e) => {
+    $('.chromeButton').on('click', (e) => {
         shell.openExternal(
             'https://www.google.com/chrome/browser/desktop/index.html',
         );
@@ -630,13 +641,6 @@
         $('#opensource_license_viewer').css('display', 'none');
     });
 
-    $('#opensource_label').on('click', () => {
-        $('#opensource_license_viewer').css('display', 'flex');
-    });
-
-    $('#version_label').on('click', () => {
-        ipcRenderer.send('openAboutWindow');
-    });
 
     router.getOpensourceContents().then((text) => {
         $('#opensource_content').val(text);
@@ -679,6 +683,10 @@
         }
 
         switch (state) {
+            case 'show_robot': {
+                ui.showRobot(data);
+                break;
+            }
             case 'select_port': {
                 router.close();
                 ui.showPortSelectView(data);
@@ -715,11 +723,6 @@
                 ui.showConnected();
                 break;
         }
-    });
-
-    //ipcEvent
-    ipcRenderer.on('console', (event, ...args) => {
-        console.log(...args);
     });
 
     // configuration
