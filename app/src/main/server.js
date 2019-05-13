@@ -1,12 +1,11 @@
 'use strict';
-const { net } = require('electron');
 const fs = require('fs');
 const path = require('path');
 const EventEmitter = require('events').EventEmitter;
 const client = require('socket.io-client');
 const { SERVER_MODE_TYPES } = require('../common/constants');
 const rendererConsole = require('./utils/rendererConsole');
-const NetworkZipHandlerStream = require('./utils/networkZipHandleStream');
+const moduleRequestFromServer = require('./utils/moduleRequest');
 
 /**
  * 하드웨어 <-> 엔트리 워크스페이스 통신간 사용되는 클래스.
@@ -319,48 +318,14 @@ class Server extends EventEmitter {
     }
 
     _requestHardware(moduleName) {
-        return new Promise((resolve, reject) => {
-            if (!moduleName) {
-                reject();
-                return;
-            }
-
-            console.log(`/api/hardware/${moduleName}/module`);
-            const { host, protocol } = global.sharedObject;
-            //TODO 개발간 임시
-            const request = net.request({
-                host: 'localhost:4000',
-                protocol: 'http:',
-                path: `/api/hardware/${moduleName}/module`,
+        moduleRequestFromServer(moduleName)
+            .then((config) => {
+                this.router.sendState('show_robot', config);
+                this.router.startScan(config);
+            })
+            .catch((e) => {
+                console.error('request hardware error', e);
             });
-            request.on('response', (response) => {
-                // TODO 수신완료시점을 200으로? 모듈로드 완료시점을 200으로?
-                response.on('error', reject);
-                if (response.statusCode === 200) {
-                    const moduleDirPath = path.resolve('app', 'modules');
-                    const zipStream = new NetworkZipHandlerStream(moduleDirPath);
-                    zipStream.on('done', () => {
-                        console.log('donedone');
-                        fs.readFile(
-                            path.join(moduleDirPath, `${moduleName}.json`),
-                            (err, data) => {
-                                const config = JSON.parse(data);
-                                this.router.sendState('show_robot', config);
-                                this.router.startScan(config);
-                            });
-                        resolve();
-                    });
-
-                    response.pipe(zipStream);
-                    response.on('end', () => {
-                        // nothing to do
-                    });
-                } else {
-                    reject();
-                }
-            });
-            request.end();
-        });
     }
 
     closeSingleConnection(connection) {
