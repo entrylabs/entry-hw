@@ -9,6 +9,7 @@ class AsomeBot extends BaseModule {
         this.sendToEntry = {
             msg_id: "",
             distance: 0,
+            udp_msg: "",
         };
     }
 
@@ -75,6 +76,11 @@ class AsomeBot extends BaseModule {
         console.log("from AsomeBot: ", text);
 
         if (text.indexOf('#DT') == 0) {
+            var values = text.split(" ");
+            if (values.length > 1) this.sendToEntry.distance = values[1];
+        }
+
+        if (text.indexOf('#UDP') == 0) {
             var values = text.split(" ");
             if (values.length > 1) this.sendToEntry.distance = values[1];
         }
