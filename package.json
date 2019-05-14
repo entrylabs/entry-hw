@@ -8,7 +8,7 @@
         "lint": "eslint app",
         "clean": "rimraf dist",
         "start": "set NODE_ENV=development&&electron -d app",
-        "debug": "set NODE_ENV=development&&electron -d app --inspect",
+        "debug": "set NODE_ENV=development&&electron -d app --inspect=9223",
         "pack:win32": "build --arch ia32",
         "make": "cross-env CSC_NAME=\"Connect Foundation (DLFUSDA3L5)\"&&build",
         "make:osx": "cross-env CSC_NAME=\"Connect Foundation (DLFUSDA3L5)\"&&build",
@@ -34,6 +34,6 @@
         "object.assign": "^4.0.4",
         "socket.io": "^1.5.0",
         "socket.io-client": "^1.5.1",
-        "unzipper": "^0.9.11"
+        "tar": "^4.4.8"
     }
 }
