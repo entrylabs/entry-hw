@@ -5,6 +5,9 @@ class AsomeBot extends BaseModule {
     constructor() {
         super();
 
+        this.isDraing = false;
+        this.sendBuffer = [];
+
         this.msg_id = '';
         this.sendToEntry = {
             msg_id: "",
@@ -61,12 +64,26 @@ class AsomeBot extends BaseModule {
             console.log("from Entry: ", handlerData);
 
             this.msg_id = handlerData.msg_id;
-            this.sp.write(Buffer.from(handlerData.msg + "\r", 'ascii'));
-            this.sp.write(Buffer.from("#ID " + this.msg_id + "\r", 'ascii'));
+            this.sendBuffer.push(Buffer.from(handlerData.msg + "\r", 'ascii'));
+            this.sendBuffer.push(Buffer.from("#ID " + this.msg_id + "\r", 'ascii'));
         }
     }
 
     requestLocalData() {
+        var self = this;
+
+        if (!this.isDraing && this.sendBuffer.length > 0) {
+            this.isDraing = true;
+            this.sp.write(this.sendBuffer.shift(), function() {
+                if (self.sp) {
+                    self.sp.drain(function() {
+                        self.isDraing = false;
+                    });
+                }
+            });
+        }
+    
+        return null;
     }
 
     handleLocalData(data) {
@@ -101,7 +118,7 @@ class AsomeBot extends BaseModule {
     reset() {
         this.sp = null;
         this.isPlaying.set(0);
-        this.sendBuffers = [];
+        this.sendBuffer = [];
     }
 }
 
