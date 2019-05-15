@@ -8,6 +8,8 @@ class AsomeBot extends BaseModule {
         this.isDraing = false;
         this.sendBuffer = [];
 
+        this.receivedText = "";
+
         this.msg_id = '';
         this.sendToEntry = {
             msg_id: "",
@@ -46,7 +48,7 @@ class AsomeBot extends BaseModule {
 
     requestRemoteData(handler) {
         var sendToEntry = this.sendToEntry;
-        console.log("to Entry: ", sendToEntry);
+        // console.log("to Entry: ", sendToEntry);
 
         for (var key in sendToEntry) {
             handler.write(key, sendToEntry[key]);
@@ -87,22 +89,28 @@ class AsomeBot extends BaseModule {
     }
 
     handleLocalData(data) {
-        const text = data.toString();
-        if (text.indexOf('#') < 0) return;
+        this.receivedText = this.receivedText + data.toString();
+        var index = this.receivedText.indexOf('\r');
+        if (index < 0) return;
 
-        console.log("from AsomeBot: ", text);
+        var line = this.receivedText.substring(0, index);
+        this.receivedText = this.receivedText.substring(index + 1);
 
-        if (text.indexOf('#DT') == 0) {
-            var values = text.split(" ");
+        if (line.indexOf('#') < 0) return;
+
+        console.log("from AsomeBot line: ", line);
+
+        if (line.indexOf('#DT') == 0) {
+            var values = line.split(" ");
             if (values.length > 1) this.sendToEntry.distance = values[1];
         }
 
-        if (text.indexOf('#UDP') == 0) {
-            var values = text.split(" ");
+        if (line.indexOf('#UDP') == 0) {
+            var values = line.split(" ");
             if (values.length > 1) this.sendToEntry.distance = values[1];
         }
 
-        if (text.indexOf('#ID') >= 0) this.sendToEntry.msg_id = text;
+        if (line.indexOf('#ID') >= 0) this.sendToEntry.msg_id = line;
     }
 
     setSocketData({ socketData, data }) {
@@ -119,6 +127,7 @@ class AsomeBot extends BaseModule {
         this.sp = null;
         this.isPlaying.set(0);
         this.sendBuffer = [];
+        this.receivedText = "";
     }
 }
 
