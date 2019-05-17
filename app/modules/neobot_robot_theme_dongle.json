@@ -24,7 +24,7 @@
         "pnpId" : "PID",
         "type": "serial",
         "control": "master",
-        "vendor": "Silicon Laps",
+        "vendor": "Silicon Labs",
         "duration": 32,
         "baudRate": 115200
 	}
