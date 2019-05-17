@@ -193,12 +193,18 @@ class MainRouter {
      * @param config
      */
     async startScan(config) {
+        if (this.currentHardwareConfig &&
+            this.currentHardwareConfig.id === config.id) {
+            return;
+        }
+
         this.config = config;
         if (this.scanner) {
             this.hwModule = require(`../../modules/${config.module}`);
             const connector = await this.scanner.startScan(this.hwModule, this.config);
             if (connector) {
                 this.sendState('connected');
+                this.currentHardwareConfig = config;
                 this.connector = connector;
                 connector.setRouter(this);
                 this._connect(connector);
@@ -338,6 +344,7 @@ class MainRouter {
                 this.connector.close();
             }
             this.connector = undefined;
+            this.currentHardwareConfig = undefined;
         }
         if (this.handler) {
             this.handler = undefined;
