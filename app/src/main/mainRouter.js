@@ -5,6 +5,7 @@ const Scanner = require('./scanner');
 const EntryServer = require('./server');
 const Flasher = require('./flasher');
 const Utils = require('./utils/fileUtils');
+const { HARDWARE_STATEMENT : HardwareStatement } = require('../common/constants');
 const rendererConsole = require('./utils/rendererConsole');
 const HardwareListManager = require('./hardwareListManager');
 const HandlerCreator = require('./datahandler/handler');
@@ -160,21 +161,23 @@ class MainRouter {
      */
     sendState(state, ...args) {
         let resultState = state;
-        if (state === 'lost' || state === 'disconnect') {
+        const { lost, disconnected } = HardwareStatement;
+
+        if (state === lost || state === disconnected) {
             if (this.config && this.config.reconnect) {
                 this.reconnect();
             } else {
                 // 연결 잃은 후 재연결 속성 없으면 연결해제처리
-                resultState = 'disconnect';
+                resultState = disconnected;
                 this.close();
             }
         }
 
+        this.server.sendState(resultState);
         this.browser.webContents.send('state', resultState, ...args);
     }
 
     notifyServerMode(mode) {
-        console.log('notifyServerMode', mode);
         this.browser.webContents.send('serverMode', mode);
     }
 

@@ -2,6 +2,7 @@
     'use strict';
     const { ipcRenderer, shell, clipboard, remote } = require('electron');
     const Translator = require('../js/translator');
+    const { HARDWARE_STATEMENT: Statement } = require('../../common/constants');
     window.jQuery = require('../js/jquery-1.11.3.min.js');
     window.$ = window.jQuery;
 
@@ -676,18 +677,27 @@
     let currentState = '';
     ipcRenderer.on('state', (event, state, data) => {
         console.log(state);
+        const {
+            showRobot,
+            lost,
+            disconnected,
+            selectPort,
+            flash,
+            beforeConnect,
+            connected,
+        } = Statement;
 
         // select_port 는 기록해두어도 쓸모가 없으므로 표기하지 않는다
-        if (state !== 'select_port') {
+        if (state !== selectPort) {
             currentState = state;
         }
 
         switch (state) {
-            case 'show_robot': {
+            case showRobot: {
                 ui.showRobot(data);
                 break;
             }
-            case 'select_port': {
+            case selectPort: {
                 router.close();
                 ui.showPortSelectView(data);
                 if (isSelectPort) {
@@ -701,11 +711,11 @@
                 }
                 return; // ui 변경 이루어지지 않음.
             }
-            case 'flash': {
+            case flash: {
                 ui.flashFirmware();
                 break;
             }
-            case 'before_connect': {
+            case beforeConnect: {
                 ui.showAlert(
                     `${translator.translate('Connecting to hardware device.')
                         } ${
@@ -713,13 +723,13 @@
                 );
                 break;
             }
-            case 'lost':
+            case lost:
                 ui.showConnecting();
                 break;
-            case 'disconnected':
+            case disconnected:
                 ui.showDisconnected();
                 break;
-            case 'connected':
+            case connected:
                 ui.showConnected();
                 break;
         }

@@ -242,10 +242,7 @@ class Server extends EventEmitter {
 
             connection.on('message', (message, ack) => {
                 console.log('socketServer receive : ', message);
-                if (message.action === 'init') {
-                    const { name } = JSON.parse(message.data);
-                    this._requestHardware(name);
-                }
+                this._handleReceivedMessage(message);
 
                 if (
                     message.mode === SERVER_MODE_TYPES.single ||
@@ -280,6 +277,36 @@ class Server extends EventEmitter {
             this.setState(this.state);
         });
         return server;
+    }
+
+    /**
+     * 서버에서 전달받은 메세지에 따라 로직을 분기한다.
+     * @param message {object}
+     * @param message.action {string} raw string for action
+     * @param message.data {string} json serializedString from websocket
+     * @private
+     */
+    _handleReceivedMessage(message) {
+        if (message.action === 'init') {
+            const { name } = JSON.parse(message.data);
+            this._requestHardware(name);
+        }
+    }
+
+    /**
+     * 엔트리로 현재 하드웨어 프로그램에서의 하드웨어 상태를 보낸다.
+     * 추가로, 과거 하드웨어 연결해제 로직을 위해
+     * disconnectHardware statement 가 들어올 수도 있다.
+     *
+     * @param statement
+     * @see constants#HARDWARE_STATEMENT
+     * @see this.disconnectHardware
+     */
+    sendState(statement) {
+        this.send({
+            action: 'state',
+            data: { statement },
+        });
     }
 
     /**
@@ -380,12 +407,7 @@ class Server extends EventEmitter {
     };
 
     disconnectHardware() {
-        this.send({
-            action: 'state',
-            data: {
-                statement: 'disconnectHardware',
-            },
-        });
+        this.sendState('disconnectHardware');
     };
 
     close() {
