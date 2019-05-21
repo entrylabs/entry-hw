@@ -17,11 +17,13 @@ module.exports = class NetworkZipHandleStream extends Stream.PassThrough {
         const fileWriteStreamPromises = [];
         const tarParse = new tar.Parse();
         // eslint-disable-next-line new-cap
+        tarParse.on('error', (e) => {
+            throw e;
+        });
         this.on('error', (e) => {
             throw e;
         });
 
-        this.pipe(tarParse);
         tarParse.on('entry', (entry) => {
                 const type = entry.type;
                 const fileName = entry.path;
@@ -46,5 +48,7 @@ module.exports = class NetworkZipHandleStream extends Stream.PassThrough {
                     this.emit('error', e);
                 });
         });
+
+        this.pipe(tarParse);
     }
 };
