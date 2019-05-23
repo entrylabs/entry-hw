@@ -199,6 +199,14 @@ setInterval(function disconnectHandler() {// disconnect cheak
     }
 }, 500);
 
+function btoa(data) {
+    return Buffer.from(data).toString('base64');
+}
+
+function atob(data) {
+    return Buffer.from(data, 'base64').toString();
+}
+
 function unsetConnect( id, port ) {
     var obj = connect_[id];
     if (port !== undefined && connect_[port] !== undefined) {
@@ -620,7 +628,8 @@ Module.prototype.getPropertyJson = function(propertyNum, moduleID) {
 
 Module.prototype.requestRemoteData = function(handler) {
     var arr = new Object();
-    $.each(connect_,function(index) {
+    $.forEach(connect_,function(value, index) {
+        console.log(connect_, index);
         if(index != path) {
             if(arr[connect_[index].moduleT] == undefined) {
                 arr[connect_[index].moduleT] = new Array();

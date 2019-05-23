@@ -25,6 +25,7 @@ let isForceClose = false;
 let hostURI = 'playentry.org';
 let hostProtocol = 'https:';
 
+global.$ = require('lodash');
 global.sharedObject = {
     appName: 'hardware',
     hardwareVersion: packageJson.version,
