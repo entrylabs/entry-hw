@@ -102,6 +102,8 @@ class Flasher {
             return this._flashArduino(firmware, port, options);
         } else if (firmware.type === 'copy') {
             return this._flashCopy(firmware, port, options);
+        } else {
+            return Promise.reject(new Error());
         }
     }
 

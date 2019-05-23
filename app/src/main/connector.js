@@ -11,7 +11,7 @@ SerialPort.Binding = require('@entrylabs/bindings');
  */
 class Connector {
     static get DEFAULT_CONNECT_LOST_MILLS() {
-        return 500;
+        return 1000;
     }
 
     static get DEFAULT_SLAVE_DURATION() {
@@ -127,10 +127,12 @@ class Connector {
             if (control) {
                 if (firmwarecheck) {
                     this.flashFirmware = setTimeout(() => {
-                        this.serialPort.parser ?
-                        this.serialPort.parser.removeAllListeners('data') :
-                        this.serialPort.removeAllListeners('data');
-                        this.executeFlash = true;
+                        if (this.serialPort) {
+                            this.serialPort.parser ?
+                                this.serialPort.parser.removeAllListeners('data') :
+                                this.serialPort.removeAllListeners('data');
+                            this.executeFlash = true;
+                        }
                         resolve();
                     }, 3000);
                 }
@@ -276,7 +278,7 @@ class Connector {
 
         // 디바이스 연결 잃어버린 상태에 대한 관리를 모듈에 맡기거나, 직접 관리한다.
         if (hwModule.lostController) {
-            hwModule.lostController(this, router.sendState);
+            hwModule.lostController(this, router.sendState.bind(router));
         } else {
             /*
              * this.lostTimer 타임 안에 데이터를 수신해야한다. 그렇지 않으면 연결해제처리한다.
@@ -330,9 +332,13 @@ class Connector {
         }
         if (this.serialPort) {
             this.serialPort.removeAllListeners();
+            if (this.serialPort.parser) {
+                this.serialPort.parser.removeAllListeners();
+            }
         }
-        if (this.serialPort.parser) {
-            this.serialPort.parser.removeAllListeners();
+        if (this.flashFirmware) {
+            clearTimeout(this.flashFirmware);
+            this.flashFirmware = undefined;
         }
     };
 
