@@ -385,6 +385,7 @@ class Davinci extends BaseModule {
     }
 
     lostController() {
+    }
 
     disconnect(connect) {
         connect.close();
