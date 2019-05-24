@@ -212,7 +212,7 @@ class MainRouter {
             this.hwModule = require(`../../modules/${config.module}`);
             const connector = await this.scanner.startScan(this.hwModule, this.config);
             if (connector) {
-                this.sendState('connected');
+                this.sendState(HardwareStatement.connected);
                 this.currentHardwareConfig = config;
                 this.connector = connector;
                 connector.setRouter(this);
@@ -252,7 +252,7 @@ class MainRouter {
         - 3000ms 동안 checkInitialData 가 정상적으로 이루어지지 않은 경우이다.
          */
         if (this.connector.executeFlash) {
-            this.sendState('flash');
+            this.sendState(HardwareStatement.flash);
             delete this.connector.executeFlash;
             return;
         }

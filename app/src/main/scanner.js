@@ -3,6 +3,7 @@
 const _ = require('lodash');
 const rendererConsole = require('./utils/rendererConsole');
 const Connector = require('./connector');
+const { HARDWARE_STATEMENT: HardwareStatement } = require('../common/constants');
 const { SERVER_MODE_TYPES } = require('../common/constants');
 
 /**
@@ -98,7 +99,7 @@ class Scanner {
                 const comPorts = await this.getComPortList();
                 // COMPort 필요하면서, 선택이 되지 않은 경우는 선택되기 전까지 진행하지 않는다.
                 if (isComPortSelected && !selectedComPortName) {
-                    this.router.sendState('select_port', comPorts);
+                    this.router.sendState(HardwareStatement.selectPort, comPorts);
                     return;
                 }
 
@@ -168,7 +169,7 @@ class Scanner {
                     만든다.
                      */
                     this.router.connector = connector;
-                    this.router.sendState('before_connect');
+                    this.router.sendState(HardwareStatement.beforeConnect);
                 }
                 await connector.initialize();
                 this.finalizeScan(connectedComName);

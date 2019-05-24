@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const EventEmitter = require('events').EventEmitter;
 const client = require('socket.io-client');
-const { SERVER_MODE_TYPES } = require('../common/constants');
+const { SERVER_MODE_TYPES, HARDWARE_STATEMENT: HardwareStatement } = require('../common/constants');
 const rendererConsole = require('./utils/rendererConsole');
 const moduleRequestFromServer = require('./utils/moduleRequest');
 
@@ -347,7 +347,7 @@ class Server extends EventEmitter {
     _requestHardware(moduleName) {
         moduleRequestFromServer(moduleName)
             .then((config) => {
-                this.router.sendState('show_robot', config);
+                this.router.sendState(HardwareStatement.showRobot, config);
                 this.router.startScan(config);
             })
             .catch((e) => {
