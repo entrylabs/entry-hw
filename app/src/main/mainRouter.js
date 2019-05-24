@@ -57,8 +57,8 @@ class MainRouter {
         ipcMain.on('close', () => {
             this.close();
         });
-        ipcMain.on('requestFlash', (e) => {
-            this.flashFirmware()
+        ipcMain.on('requestFlash', (e, firmwareName) => {
+            this.flashFirmware(firmwareName)
                 .then(() => {
                     e.sender.send('requestFlash');
                 })
@@ -82,18 +82,24 @@ class MainRouter {
      * 펌웨어는 커넥터가 닫힌 상태에서 작업되어야 한다. (COMPort 점유)
      * 실패시 tryFlasherNumber 만큼 반복한다. 기본값은 10번이다.
      * 로직 종료시 재스캔하여 연결을 수립한다.
+     * @param firmwareName 다중 펌웨어 존재시 펌웨어명을 명시
      * @returns {Promise<void|Error>}
      */
-    flashFirmware() {
+    flashFirmware(firmwareName) {
         if (this.connector && this.connector.serialPort && this.config) {
+            let firmware = firmwareName;
             const {
-                firmware,
+                configfirmware,
                 firmwareBaudRate: baudRate,
                 firmwareMCUType: MCUType,
                 tryFlasherNumber: maxFlashTryCount = 10,
             } = this.config;
             const lastSerialPortCOMPort = this.connector.serialPort.path;
             this.firmwareTryCount = 0;
+
+            if (firmwareName === undefined || firmwareName === '') {
+                firmware = configfirmware;
+            }
 
             this.close(); // 서버 통신 중지, 시리얼포트 연결 해제
 
@@ -314,9 +320,6 @@ class MainRouter {
      * 서버로 인코딩된 데이터를 보낸다.
      */
     sendEncodedDataToServer() {
-        if (this.hwModule.requestRemoteData) {
-            this.hwModule.requestRemoteData(this.handler);
-        }
         const data = this.handler.encode();
         if (data) {
             this.server.send({ data });

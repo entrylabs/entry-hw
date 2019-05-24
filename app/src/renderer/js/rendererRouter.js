@@ -20,9 +20,9 @@ class RendererRouter {
         ipcRenderer.send('close');
     };
 
-    requestFlash() {
+    requestFlash(firmwareName) {
         return new Promise((resolve, reject) => {
-            ipcRenderer.send('requestFlash');
+            ipcRenderer.send('requestFlash', firmwareName);
             ipcRenderer.once('requestFlash', (error) => {
                 if (error instanceof Error) {
                     console.log(error.message);

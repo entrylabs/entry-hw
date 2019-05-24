@@ -163,7 +163,8 @@
     });
 
     $('#firmwareButtonSet').on('click', 'button', function() {
-        ui.flashFirmware(this.firmware, this.config);
+        // 여기서의 this 는 $dom 의 props 이다. arrow function 금지
+        ui.flashFirmware(this.firmware);
     });
 
     const ui = {
@@ -428,8 +429,8 @@
                     router.startScan(config);
                 });
         },
-        flashFirmware() {
-            if (currentState === 'disconnected' || currentState === 'lost') {
+        flashFirmware(firmwareName) {
+            if (currentState !== 'before_connect' && currentState !== 'connected') {
                 alert(
                     translator.translate('Hardware Device Is Not Connected'),
                 );
@@ -440,13 +441,14 @@
 
             $('#firmwareButtonSet').hide();
             ui.showAlert(translator.translate('Firmware Uploading...'));
-            router.requestFlash()
+            router.requestFlash(firmwareName)
                 .then(() => {
                     ui.showAlert(
                         translator.translate('Firmware Uploaded!'),
                     );
                 })
                 .catch((e) => {
+                    console.error(e);
                     ui.showAlert(
                         translator.translate(
                             'Failed Firmware Upload',
@@ -469,10 +471,10 @@
                         `<option title="${port.comName}">${port.comName}</option>`;
                 });
 
-                $('#select_port_box').css('display', 'flex');
                 $('#select_port_box select').html(portHtml);
                 this.cachedPortList = JSON.stringify(portList);
             }
+            $('#select_port_box').css('display', 'flex');
         },
         quit() {
         },
