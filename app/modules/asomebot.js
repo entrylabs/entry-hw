@@ -62,12 +62,16 @@ class AsomeBot extends BaseModule {
             return;
         }
 
+        if (handlerData.msg_id == undefined) {
+            return;
+        }
+
         if (handlerData.msg_id != this.msg_id) {
             console.log("from Entry: ", handlerData);
 
             this.msg_id = handlerData.msg_id;
             this.sendBuffer.push(Buffer.from(handlerData.msg + "\r", 'ascii'));
-            this.sendBuffer.push(Buffer.from("#ID " + this.msg_id + "\r", 'ascii'));
+            this.sendBuffer.push(Buffer.from("'#ID " + this.msg_id + "'\r", 'ascii'));
         }
     }
 
