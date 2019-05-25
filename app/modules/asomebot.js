@@ -96,9 +96,9 @@ class AsomeBot extends BaseModule {
         var line = this.receivedText.substring(0, index);
         this.receivedText = this.receivedText.substring(index + 1);
 
-        if (line.indexOf('#') < 0) return;
+        console.log("from AsomeBot: ", line);
 
-        // console.log("from AsomeBot: ", line);
+        if (line.indexOf('#') < 0) return;
 
         if (line.indexOf('#DT') >= 0) {
             var values = line.split(" ");
@@ -108,7 +108,7 @@ class AsomeBot extends BaseModule {
 
         if (line.indexOf('#UDP') >= 0) {
             var values = line.split(" ");
-            if (values.length > 1) this.sendToEntry.distance = values[1];
+            if (values.length > 1) this.sendToEntry.udp_msg = values[1];
         }
 
         if (line.indexOf('#ID') >= 0) this.sendToEntry.msg_id = line;
