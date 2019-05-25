@@ -98,14 +98,15 @@ class AsomeBot extends BaseModule {
 
         if (line.indexOf('#') < 0) return;
 
-        console.log("from AsomeBot line: ", line);
+        // console.log("from AsomeBot: ", line);
 
-        if (line.indexOf('#DT') == 0) {
+        if (line.indexOf('#DT') >= 0) {
             var values = line.split(" ");
             if (values.length > 1) this.sendToEntry.distance = values[1];
+            console.log("distance: ", values);
         }
 
-        if (line.indexOf('#UDP') == 0) {
+        if (line.indexOf('#UDP') >= 0) {
             var values = line.split(" ");
             if (values.length > 1) this.sendToEntry.distance = values[1];
         }
