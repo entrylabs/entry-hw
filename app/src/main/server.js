@@ -275,8 +275,23 @@ class Server extends EventEmitter {
                 this.closeSingleConnection(this);
             });
             this.setState(this.state);
+            this._requestInitBlock();
         });
         return server;
+    }
+
+    /**
+     * 연결된 워크스페이스에 특정 블록데이터를 로드하도록 신호를 보낸다.
+     * @private
+     */
+    _requestInitBlock() {
+        if (this.router && this.router.connector && this.router.config) {
+            // const { name } =
+            this.send({
+                action: 'init',
+                data: { name: 'testino' },
+            });
+        }
     }
 
     /**
@@ -299,13 +314,14 @@ class Server extends EventEmitter {
      * disconnectHardware statement 가 들어올 수도 있다.
      *
      * @param statement
+     * @param {...*} args
      * @see constants#HARDWARE_STATEMENT
      * @see this.disconnectHardware
      */
-    sendState(statement) {
+    sendState(statement, ...args) {
         this.send({
             action: 'state',
-            data: { statement },
+            data: { statement, args },
         });
     }
 

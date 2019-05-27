@@ -179,7 +179,7 @@ class MainRouter {
             }
         }
 
-        this.server.sendState(resultState);
+        this.server.sendState(resultState, ...args);
         this.browser.webContents.send('state', resultState, ...args);
     }
 
@@ -212,7 +212,9 @@ class MainRouter {
             this.hwModule = require(`../../modules/${config.module}`);
             const connector = await this.scanner.startScan(this.hwModule, this.config);
             if (connector) {
-                this.sendState(HardwareStatement.connected);
+                // TODO module 속성 임시사용. 해당 값 규정 다시 필요함
+                this.sendState(HardwareStatement.connected,
+                    this.config.module.substring(0, this.config.module.length - 3));
                 this.currentHardwareConfig = config;
                 this.connector = connector;
                 connector.setRouter(this);
