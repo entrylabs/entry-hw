@@ -1,11 +1,10 @@
 const { ipcMain, shell } = require('electron');
 const path = require('path');
-const fs = require('fs');
 const Scanner = require('./scanner');
 const EntryServer = require('./server');
 const Flasher = require('./flasher');
-const Utils = require('./utils/fileUtils');
-const { HARDWARE_STATEMENT : HardwareStatement } = require('../common/constants');
+const commonUtils = require('./utils/commonUtils');
+const { HARDWARE_STATEMENT: HardwareStatement } = require('../common/constants');
 const rendererConsole = require('./utils/rendererConsole');
 const HardwareListManager = require('./hardwareListManager');
 const HandlerCreator = require('./datahandler/handler');
@@ -369,17 +368,12 @@ class MainRouter {
             return;
         }
 
-        const asarIndex = __dirname.indexOf('app.asar');
-        let sourcePath = '';
-        if (asarIndex > -1) {
-            sourcePath = path.join(
-                __dirname.replace('app.asar', 'app.asar.unpacked'),
-                'app',
-                'drivers'
-            );
-        } else {
-            sourcePath = path.resolve(__dirname, '..', '..', 'drivers');
-        }
+        const sourcePath = path.join(
+            commonUtils.getAsarUnpackPath(__dirname),
+            '..',
+            '..',
+            'drivers',
+        );
 
         shell.openItem(path.resolve(sourcePath, driverPath));
     }
