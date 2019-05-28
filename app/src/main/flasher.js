@@ -1,7 +1,6 @@
 const { dialog } = require('electron');
 const exec = require('child_process').exec;
 const path = require('path');
-const fs = require('fs');
 const Utils = require('./utils/fileUtils');
 const platform = process.platform;
 
@@ -15,13 +14,11 @@ class Flasher {
     static get firmwareDirectoryPath() {
         const asarIndex = __dirname.indexOf('app.asar');
         if (asarIndex > -1) {
-            const asarPath = __dirname.substr(0, asarIndex);
-            const externalFlahserPath = path.join(asarPath, 'firmwares');
-            const flasherPath = path.resolve(__dirname, '..', '..', 'firmwares');
-            if (!fs.existsSync(externalFlahserPath)) {
-                Utils.copyRecursiveSync(flasherPath, externalFlahserPath);
-            }
-            return externalFlahserPath;
+            return path.join(
+                __dirname.replace('app.asar', 'app.asar.unpacked'),
+                'app',
+                'firmwares'
+            );
         } else {
             return path.resolve('app', 'firmwares');
         }
@@ -37,17 +34,14 @@ class Flasher {
             let avrConf;
             let portPrefix;
 
-            switch (platform) {
-                case 'darwin':
-                    avrName = './avrdude';
-                    avrConf = './avrdude.conf';
-                    portPrefix = '';
-                    break;
-                default:
-                    avrName = 'avrdude.exe';
-                    avrConf = './avrdude.conf';
-                    portPrefix = '\\\\.\\';
-                    break;
+            if (platform === 'darwin') {
+                avrName = './avrdude';
+                avrConf = './avrdude.conf';
+                portPrefix = '';
+            } else {
+                avrName = 'avrdude.exe';
+                avrConf = './avrdude.conf';
+                portPrefix = '\\\\.\\';
             }
             const cmd = [
                 avrName,

@@ -372,13 +372,11 @@ class MainRouter {
         const asarIndex = __dirname.indexOf('app.asar');
         let sourcePath = '';
         if (asarIndex > -1) {
-            const asarPath = __dirname.substr(0, asarIndex);
-            const externalDriverPath = path.join(asarPath, 'drivers');
-            const internalDriverPath = path.resolve(__dirname, '..', '..', 'drivers');
-            if (!fs.existsSync(externalDriverPath)) {
-                Utils.copyRecursiveSync(internalDriverPath, externalDriverPath);
-            }
-            sourcePath = externalDriverPath;
+            sourcePath = path.join(
+                __dirname.replace('app.asar', 'app.asar.unpacked'),
+                'app',
+                'drivers'
+            );
         } else {
             sourcePath = path.resolve(__dirname, '..', '..', 'drivers');
         }

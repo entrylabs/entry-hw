@@ -48,6 +48,11 @@
         "!test"
     ],
     "asar": true,
+    "compression": "maximum",
+    "asarUnpack": [
+        "app/firmwares/**/*",
+        "app/drivers/**/*"
+    ],
     "appId": "org.playentry.entryhw",
     "productName": "Entry_HW"
 }
