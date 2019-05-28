@@ -1,11 +1,10 @@
 const { ipcMain, shell } = require('electron');
 const path = require('path');
-const fs = require('fs');
 const Scanner = require('./scanner');
 const EntryServer = require('./server');
 const Flasher = require('./flasher');
-const Utils = require('./utils/fileUtils');
-const { HARDWARE_STATEMENT : HardwareStatement } = require('../common/constants');
+const commonUtils = require('./utils/commonUtils');
+const { HARDWARE_STATEMENT: HardwareStatement } = require('../common/constants');
 const rendererConsole = require('./utils/rendererConsole');
 const HardwareListManager = require('./hardwareListManager');
 const HandlerCreator = require('./datahandler/handler');
@@ -179,7 +178,7 @@ class MainRouter {
             }
         }
 
-        this.server.sendState(resultState);
+        this.server.sendState(resultState, ...args);
         this.browser.webContents.send('state', resultState, ...args);
     }
 
@@ -212,7 +211,9 @@ class MainRouter {
             this.hwModule = require(`../../modules/${config.module}`);
             const connector = await this.scanner.startScan(this.hwModule, this.config);
             if (connector) {
-                this.sendState('connected');
+                // TODO module 속성 임시사용. 해당 값 규정 다시 필요함
+                this.sendState(HardwareStatement.connected,
+                    this.config.module.substring(0, this.config.module.length - 3));
                 this.currentHardwareConfig = config;
                 this.connector = connector;
                 connector.setRouter(this);
@@ -252,7 +253,7 @@ class MainRouter {
         - 3000ms 동안 checkInitialData 가 정상적으로 이루어지지 않은 경우이다.
          */
         if (this.connector.executeFlash) {
-            this.sendState('flash');
+            this.sendState(HardwareStatement.flash);
             delete this.connector.executeFlash;
             return;
         }
@@ -367,19 +368,12 @@ class MainRouter {
             return;
         }
 
-        const asarIndex = __dirname.indexOf('app.asar');
-        let sourcePath = '';
-        if (asarIndex > -1) {
-            const asarPath = __dirname.substr(0, asarIndex);
-            const externalDriverPath = path.join(asarPath, 'drivers');
-            const internalDriverPath = path.resolve(__dirname, '..', '..', 'drivers');
-            if (!fs.existsSync(externalDriverPath)) {
-                Utils.copyRecursiveSync(internalDriverPath, externalDriverPath);
-            }
-            sourcePath = externalDriverPath;
-        } else {
-            sourcePath = path.resolve(__dirname, '..', '..', 'drivers');
-        }
+        const sourcePath = path.join(
+            commonUtils.getAsarUnpackPath(__dirname),
+            '..',
+            '..',
+            'drivers',
+        );
 
         shell.openItem(path.resolve(sourcePath, driverPath));
     }

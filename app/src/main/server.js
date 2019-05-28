@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const EventEmitter = require('events').EventEmitter;
 const client = require('socket.io-client');
-const { SERVER_MODE_TYPES } = require('../common/constants');
+const { SERVER_MODE_TYPES, HARDWARE_STATEMENT: HardwareStatement } = require('../common/constants');
 const rendererConsole = require('./utils/rendererConsole');
 const moduleRequestFromServer = require('./utils/moduleRequest');
 
@@ -275,8 +275,23 @@ class Server extends EventEmitter {
                 this.closeSingleConnection(this);
             });
             this.setState(this.state);
+            this._requestInitBlock();
         });
         return server;
+    }
+
+    /**
+     * 연결된 워크스페이스에 특정 블록데이터를 로드하도록 신호를 보낸다.
+     * @private
+     */
+    _requestInitBlock() {
+        if (this.router && this.router.connector && this.router.config) {
+            // const { name } =
+            this.send({
+                action: 'init',
+                data: { name: 'testino' },
+            });
+        }
     }
 
     /**
@@ -299,13 +314,14 @@ class Server extends EventEmitter {
      * disconnectHardware statement 가 들어올 수도 있다.
      *
      * @param statement
+     * @param {...*} args
      * @see constants#HARDWARE_STATEMENT
      * @see this.disconnectHardware
      */
-    sendState(statement) {
+    sendState(statement, ...args) {
         this.send({
             action: 'state',
-            data: { statement },
+            data: { statement, args },
         });
     }
 
@@ -347,7 +363,7 @@ class Server extends EventEmitter {
     _requestHardware(moduleName) {
         moduleRequestFromServer(moduleName)
             .then((config) => {
-                this.router.sendState('show_robot', config);
+                this.router.sendState(HardwareStatement.showRobot, config);
                 this.router.startScan(config);
             })
             .catch((e) => {
@@ -408,6 +424,7 @@ class Server extends EventEmitter {
 
     disconnectHardware() {
         this.sendState('disconnectHardware');
+        this.send('disconnectHardware');
     };
 
     close() {

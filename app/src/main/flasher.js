@@ -1,8 +1,8 @@
 const { dialog } = require('electron');
 const exec = require('child_process').exec;
 const path = require('path');
-const fs = require('fs');
-const Utils = require('./utils/fileUtils');
+const fileUtils = require('./utils/fileUtils');
+const commonUtils = require('./utils/commonUtils');
 const platform = process.platform;
 
 /**
@@ -13,18 +13,12 @@ const platform = process.platform;
  */
 class Flasher {
     static get firmwareDirectoryPath() {
-        const asarIndex = __dirname.indexOf('app.asar');
-        if (asarIndex > -1) {
-            const asarPath = __dirname.substr(0, asarIndex);
-            const externalFlahserPath = path.join(asarPath, 'firmwares');
-            const flasherPath = path.resolve(__dirname, '..', '..', 'firmwares');
-            if (!fs.existsSync(externalFlahserPath)) {
-                Utils.copyRecursiveSync(flasherPath, externalFlahserPath);
-            }
-            return externalFlahserPath;
-        } else {
-            return path.resolve('app', 'firmwares');
-        }
+        return path.join(
+            commonUtils.getAsarUnpackPath(__dirname),
+            '..',
+            '..',
+            'firmwares',
+        );
     }
 
     _flashArduino(firmware, port, options) {
@@ -37,17 +31,14 @@ class Flasher {
             let avrConf;
             let portPrefix;
 
-            switch (platform) {
-                case 'darwin':
-                    avrName = './avrdude';
-                    avrConf = './avrdude.conf';
-                    portPrefix = '';
-                    break;
-                default:
-                    avrName = 'avrdude.exe';
-                    avrConf = './avrdude.conf';
-                    portPrefix = '\\\\.\\';
-                    break;
+            if (platform === 'darwin') {
+                avrName = './avrdude';
+                avrConf = './avrdude.conf';
+                portPrefix = '';
+            } else {
+                avrName = 'avrdude.exe';
+                avrConf = './avrdude.conf';
+                portPrefix = '\\\\.\\';
             }
             const cmd = [
                 avrName,
@@ -86,7 +77,7 @@ class Flasher {
             if (!destPath) {
                 return resolve(['경로 미선택']);
             }
-            Utils.copyFile(
+            fileUtils.copyFile(
                 path.join(firmwareDirectory, `${firmware.name}.hex`),
                 path.join(destPath[0], `${firmware.name}.hex`),
             ).then(() => {
