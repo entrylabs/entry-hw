@@ -47,6 +47,10 @@ function Module() {
     this.userButtonState = 0;
     this.isUpdate = []; // add by kjs 170623
     this.prevState = []; // add by kjs 170623
+    this.servotemp = [];
+
+    this.isEdu = false;
+    this.prevIsEdu = true;
 }
 
 Module.prototype.init = function (handler, config) {
@@ -129,7 +133,8 @@ Module.prototype.requestInitialData = function () {
     // ping : 0xFF, 0xFF, 0xFD, 0x00, 0xC8, 0x03, 0x00, 0x01, 0x3B, 0xFA
     //this.robotisBuffer.push([INST_READ, 87, 1, 0], [INST_READ, 87, 1, 0], [INST_READ, 87, 1, 0], [INST_WRITE, 21, 1, 8]);
     console.log("######### RequestInitialData");
-    this.robotisBuffer.push([INST_READ, 87, 1, 0], [INST_READ, 87, 1, 0], [INST_WRITE, 21, 1, 8]);
+    //this.robotisBuffer.push([INST_READ, 87, 1, 0], [INST_READ, 87, 1, 0], [INST_WRITE, 21, 1, 8]);
+    this.robotisBuffer.push([INST_READ, 87, 1, 0], [INST_READ, 87, 1, 0]);
     return this.readPacket(200, 87, 1);
 };
 
@@ -140,6 +145,16 @@ Module.prototype.checkInitialData = function (data, config) {
 };
 
 Module.prototype.validateLocalData = function (data) {
+    console.log("######### validateLocalData");
+    if(this.isEdu)
+        this.robotisBuffer.push([INST_WRITE, 21, 1, 8]);
+    else {
+        if (this.isEdu != this.prevIsEdu) {
+            console.log("handleRemoteData3 validateLocaldata : " + this.isEdu + "   " + this.prevIsEdu);
+            this.robotisBuffer.push([INST_WRITE, 21, 1, 2]);
+            this.prevIsEdu = this.isEdu;
+        }
+    }
     return true;
 };
 
@@ -167,11 +182,17 @@ Module.prototype.requestRemoteData = function (handler) {
 
 Module.prototype.handleRemoteData = function (handler) {
     var data = handler.read('ROBOTIS_DATA');
-    console.log("handleRemoteData");
+
+    this.prevIsEdu = this.isEdu;
+    this.isEdu = handler.read('IS_EDU');
+
+    console.log("handleRemoteData : " + this.isEdu + "   " + this.prevIsEdu);
     var setZero = handler.read('setZero');
     if (setZero[0] == 1) {
         this.robotisBuffer = [];
-
+        this.isEdu = false;
+        this.prevIsEdu = true;
+        console.log("handleRemoteData2 : " + this.isEdu + "   " + this.prevIsEdu);
         this.servoPrevAddres = []; // add by kjs 20170627 
         this.servoPrevLength = []; // add by kjs 20170627 
         this.servoPrevValue = [];  // add by kjs 20170627 
@@ -237,6 +258,9 @@ Module.prototype.handleRemoteData = function (handler) {
         }
 
         if (setZero[0] == 1) {
+            this.isEdu = false;
+            this.prevIsEdu = true;
+
             this.prevInstruction = 0;
             this.prevAddress = [];
             this.prevLength = [];
@@ -462,7 +486,15 @@ Module.prototype.handleLocalData = function (data) { // data: Native Buffer
                 this.receiveBuffer.shift();
             }
         }
-        console.log("no length - 7 ");
+        if (this.receiveBuffer.length > 80) {
+
+            console.log("22  length : " + this.receiveBuffer.length);
+
+            while (this.receiveBuffer.length > 0) {
+                this.receiveBuffer.shift();
+            }
+        }
+        console.log("no length - 7  length : " + this.receiveBuffer.length);
         return;
     }
     console.log("receiveBuffer3 : " + this.receiveBuffer + " length : " + this.receiveBuffer.length);
@@ -561,6 +593,12 @@ Module.prototype.handleLocalData = function (data) { // data: Native Buffer
                         if (this.receiveBuffer.shift() == 0x00) {
                             if (this.receiveBuffer.shift() == 0xC8) {
                                 var jx = 0;
+                                for (var ix = 14; ix < 21; ix = ix + 2) { // 임시 서보모터 190419
+                                    if (this.receiveBuffer[ix - 5] != undefined) {
+                                        this.servotemp[jx] = this.receiveBuffer[ix - 5] | this.receiveBuffer[ix - 5 + 1] << 8;
+                                    }
+                                    jx++;
+                                }
                                 for (var ix = 30; ix < 34; ix++) { // 터치 센서
                                     if (this.receiveBuffer[ix - 5] != undefined) {
                                         this.touchSensor[jx] = this.receiveBuffer[ix - 5];
@@ -574,6 +612,7 @@ Module.prototype.handleLocalData = function (data) { // data: Native Buffer
                                     }
                                     jx++;
                                 }
+                                console.log("kjsDebug port3 servo : " + this.servotemp[0] + " port3 ir : " + this.irSensor[0]);
                                 jx = 0;
                                 for (var ix = 70; ix < 77; ix = ix + 2) { // 조도 센서
                                     if (this.receiveBuffer[ix - 5] != undefined) {
