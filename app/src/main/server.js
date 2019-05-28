@@ -424,6 +424,7 @@ class Server extends EventEmitter {
 
     disconnectHardware() {
         this.sendState('disconnectHardware');
+        this.send('disconnectHardware');
     };
 
     close() {
