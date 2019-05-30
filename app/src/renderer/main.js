@@ -599,7 +599,7 @@
         );
     }
 
-    ipcRenderer.on('hardwareClose', () => {
+    ipcRenderer.on('hardwareCloseConfirm', () => {
         let isQuit = true;
         if (currentState === 'connected') {
             isQuit = confirm(

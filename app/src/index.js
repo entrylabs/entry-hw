@@ -16,6 +16,7 @@ global.$ = require('lodash');
 const MainRouter = require('./main/mainRouter');
 const windowManager = require('./main/utils/windowManager');
 const configInit = require('./main/utils/functions/configInitialize');
+const registerGlobalShortcut = require('./main/utils/functions/registerGlobalShortcut');
 const commonUtils = require('./main/utils/commonUtils');
 
 let mainWindow = null;
@@ -25,11 +26,6 @@ const configuration = configInit();
 
 const { roomIds = [], hardwareVersion } = configuration;
 let { hostURI, hostProtocol } = configuration;
-let isForceClose = false;
-
-app.on('window-all-closed', () => {
-    app.quit();
-});
 
 const argv = process.argv.slice(1);
 
@@ -106,84 +102,17 @@ if (!app.requestSingleInstanceLock()) {
     app.commandLine.appendSwitch('enable-web-bluetooth', true);
     app.commandLine.appendSwitch('enable-experimental-web-platform-features', true);
     app.commandLine.appendSwitch('disable-renderer-backgrounding');
-    // app.commandLine.appendSwitch('enable-web-bluetooth');
     app.once('ready', () => {
-        const language = app.getLocale();
-
-        let title;
-
-        if (language === 'ko') {
-            title = '엔트리 하드웨어 v';
-        } else {
-            title = 'Entry Hardware v';
-        }
-
-        mainWindow = new BrowserWindow({
-            width: 800,
-            height: 670,
-            title: title + hardwareVersion,
-            webPreferences: {
-                backgroundThrottling: false,
-            },
-        });
-
-        mainWindow.webContents.on(
-            'select-bluetooth-device',
-            (event, deviceList, callback) => {
-                event.preventDefault();
-                const result = deviceList.find(
-                    (device) => device.deviceName === 'LPF2 Smart Hub 2 I/O',
-                );
-                if (!result) {
-                    callback('A0:E6:F8:1D:FB:E3');
-                } else {
-                    callback(result.deviceId);
-                }
-            },
-        );
-
-        const mainWindowPath = `file:///${
-            path.join(__dirname, 'renderer', 'views', 'index.html')
-            }`;
-        mainWindow.loadURL(mainWindowPath);
-
-        if (option.debug) {
-            mainWindow.webContents.openDevTools();
-        }
-
-        mainWindow.setMenu(null);
-
-        mainWindow.on('close', (e) => {
-            if (!isForceClose) {
-                e.preventDefault();
-                mainWindow.webContents.send('hardwareClose');
-            }
-        });
-
-        mainWindow.on('closed', () => {
-            mainWindow = null;
-        });
-
-        let inspectorShortcut = '';
-        if (process.platform === 'darwin') {
-            inspectorShortcut = 'Command+Alt+i';
-        } else {
-            inspectorShortcut = 'Control+Shift+i';
-        }
-
-        globalShortcut.register(inspectorShortcut, (e) => {
-            const content = webContents.getFocusedWebContents();
-            if (content) {
-                webContents.getFocusedWebContents().openDevTools();
-            }
-        });
-
+        windowManager.createMainWindow({ debug: option.debug });
+        mainWindow = windowManager.mainWindow;
         windowManager.createAboutWindow(mainWindow);
+
+        registerGlobalShortcut();
         mainRouter = new MainRouter(mainWindow);
     });
 
     ipcMain.on('hardwareForceClose', () => {
-        isForceClose = true;
+        windowManager.mainWindowCloseConfirmed = true;
         mainWindow.close();
     });
 

@@ -1,11 +1,19 @@
-const { BrowserWindow } = require('electron');
+const { app, BrowserWindow } = require('electron');
 const path = require('path');
 
+const viewDirectoryPath = path.resolve(__dirname, '..', '..', 'renderer', 'views');
 module.exports = new class {
     constructor() {
         this.aboutWindow = undefined;
         this.mainWindow = undefined;
         this.mainRouter = undefined;
+
+        /*
+        하드웨어 메인 윈도우는 하드웨어 연결중인 경우는 꺼지지 않도록 기획되었다.
+        그러므로 close native event 가 발생했을 때, 렌더러에 다시 물어본 후
+        해당 값을 세팅 한 뒤 다시 close 를 호출 하는 식으로 종료한다.
+         */
+        this.mainWindowCloseConfirmed = false;
     }
 
     createAboutWindow(parent) {
@@ -21,18 +29,18 @@ module.exports = new class {
             show: false,
         });
 
-        this.aboutWindow.loadURL(`file:///${
-            path.resolve(__dirname, '..', '..', 'renderer', 'views', 'about.html')
-            }`);
+        this.aboutWindow.loadURL(`file:///${path.resolve(viewDirectoryPath, 'about.html')}`);
 
         this.aboutWindow.on('closed', () => {
             this.aboutWindow = undefined;
         });
-
-        return this.aboutWindow;
     }
 
-    createMainWindow() {
+    createMainWindow({ debug }) {
+        const language = app.getLocale();
+        const title = language === 'ko' ? '엔트리 하드웨어 v' : 'Entry Hardware v';
+        const { hardwareVersion } = global.sharedObject;
+
         this.mainWindow = new BrowserWindow({
             width: 800,
             height: 670,
@@ -57,26 +65,23 @@ module.exports = new class {
             },
         );
 
-        const mainWindowPath = `file:///${
-            path.join(__dirname, 'src', 'renderer', 'views', 'index.html')
-            }`;
-        this.mainWindow.loadURL(mainWindowPath);
+        this.mainWindow.loadURL(`file:///${path.resolve(viewDirectoryPath, 'index.html')}`);
 
-        if (option.debug) {
+        if (debug) {
             this.mainWindow.webContents.openDevTools();
         }
 
         this.mainWindow.setMenu(null);
 
         this.mainWindow.on('close', (e) => {
-            if (!isForceClose) {
+            if (!this.mainWindowCloseConfirmed) {
                 e.preventDefault();
                 this.mainWindow.webContents.send('hardwareCloseConfirm');
             }
         });
 
         this.mainWindow.on('closed', () => {
-            this.mainWindow = undefined;
+            this.mainWindow = null;
         });
     }
 }();
