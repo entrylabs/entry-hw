@@ -13,26 +13,19 @@ const {
 } = electron;
 const path = require('path');
 const fs = require('fs');
+const configInit = require('./src/main/utils/functions/configInitialize');
 const packageJson = require('../package.json');
 
 let mainWindow = null;
 let aboutWindow = null;
 let mainRouter = null;
 
-const roomIds = [];
+const configuration = configInit();
 
+const { roomIds = [] } = configuration;
+let { hostURI, hostProtocol } = configuration;
 let isForceClose = false;
-let hostURI = 'playentry.org';
-let hostProtocol = 'https:';
-
 global.$ = require('lodash');
-global.sharedObject = {
-    appName: 'hardware',
-    hardwareVersion: packageJson.version,
-    roomIds,
-    host: hostURI,
-    protocol: hostProtocol,
-};
 
 function lpad(str, len) {
     const strLen = str.length;
@@ -74,7 +67,7 @@ function createAboutWindow(mainWindow) {
 
     aboutWindow.loadURL(`file:///${
         path.resolve(__dirname, 'src', 'renderer', 'views', 'about.html')
-    }`);
+        }`);
 
     aboutWindow.on('closed', () => {
         aboutWindow = null;
@@ -171,7 +164,7 @@ if (!app.requestSingleInstanceLock()) {
 
     app.commandLine.appendSwitch('enable-web-bluetooth', true);
     app.commandLine.appendSwitch('enable-experimental-web-platform-features', true);
-    app.commandLine.appendSwitch("disable-renderer-backgrounding");
+    app.commandLine.appendSwitch('disable-renderer-backgrounding');
     // app.commandLine.appendSwitch('enable-web-bluetooth');
     app.once('ready', () => {
         const language = app.getLocale();
@@ -198,14 +191,14 @@ if (!app.requestSingleInstanceLock()) {
             (event, deviceList, callback) => {
                 event.preventDefault();
                 const result = deviceList.find(
-                    (device) => device.deviceName === 'LPF2 Smart Hub 2 I/O'
+                    (device) => device.deviceName === 'LPF2 Smart Hub 2 I/O',
                 );
                 if (!result) {
                     callback('A0:E6:F8:1D:FB:E3');
                 } else {
                     callback(result.deviceId);
                 }
-            }
+            },
         );
 
         mainWindow.loadURL(`file:///${path.join(__dirname, 'src', 'renderer', 'views', 'index.html')}`);
@@ -228,7 +221,7 @@ if (!app.requestSingleInstanceLock()) {
         });
 
         let inspectorShortcut = '';
-        if (process.platform == 'darwin') {
+        if (process.platform === 'darwin') {
             inspectorShortcut = 'Command+Alt+i';
         } else {
             inspectorShortcut = 'Control+Shift+i';
@@ -274,7 +267,8 @@ if (!app.requestSingleInstanceLock()) {
                 let data = {};
                 try {
                     data = JSON.parse(body);
-                } catch (e) {}
+                } catch (e) {
+                }
                 e.sender.send('checkUpdateResult', data);
             });
         });
@@ -285,7 +279,7 @@ if (!app.requestSingleInstanceLock()) {
             JSON.stringify({
                 category: 'hardware',
                 version: packageJson.version,
-            })
+            }),
         );
         request.end();
     });
