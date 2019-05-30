@@ -17,6 +17,7 @@ const MainRouter = require('./main/mainRouter');
 const windowManager = require('./main/utils/windowManager');
 const configInit = require('./main/utils/functions/configInitialize');
 const registerGlobalShortcut = require('./main/utils/functions/registerGlobalShortcut');
+const checkUpdate = require('./main/network/checkUpdate');
 const commonUtils = require('./main/utils/commonUtils');
 
 let mainWindow = null;
@@ -124,37 +125,14 @@ if (!app.requestSingleInstanceLock()) {
         });
     });
 
-    ipcMain.on('checkUpdate', (e, msg) => {
-        const request = net.request({
-            method: 'POST',
-            host: hostURI,
-            protocol: hostProtocol,
-            path: '/api/checkVersion',
-        });
-        let body = '';
-        request.on('response', (res) => {
-            res.on('data', (chunk) => {
-                body += chunk.toString();
-            });
-            res.on('end', () => {
-                let data = {};
-                try {
-                    data = JSON.parse(body);
-                } catch (e) {
-                }
+    ipcMain.on('checkUpdate', (e) => {
+        checkUpdate()
+            .then((data) => {
                 e.sender.send('checkUpdateResult', data);
+            })
+            .catch((e) => {
+                console.error(`checkUpdate error : ${e}`);
             });
-        });
-        request.on('error', (err) => {
-        });
-        request.setHeader('content-type', 'application/json; charset=utf-8');
-        request.write(
-            JSON.stringify({
-                category: 'hardware',
-                version: hardwareVersion,
-            }),
-        );
-        request.end();
     });
 
     ipcMain.on('getOpensourceText', (e) => {
