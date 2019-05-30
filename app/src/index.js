@@ -11,6 +11,7 @@ const windowManager = require('./main/utils/windowManager');
 const commonUtils = require('./main/utils/commonUtils');
 
 // functions
+const parseCommaneLine = require('./main/utils/functions/parseCommandLine');
 const configInit = require('./main/utils/functions/configInitialize');
 const registerGlobalShortcut = require('./main/utils/functions/registerGlobalShortcut');
 const checkUpdate = require('./main/network/checkUpdate');
@@ -21,46 +22,17 @@ let mainRouter = null;
 const configuration = configInit();
 
 const { roomIds = [], hardwareVersion } = configuration;
-let { hostURI, hostProtocol } = configuration;
 
 const argv = process.argv.slice(1);
-
+const commandLineOptions = parseCommaneLine(argv);
 if (argv.indexOf('entryhw:')) {
     const data = commonUtils.getArgsParseData(argv);
     if (data) {
         roomIds.push(data);
     }
 }
-
-const option = {
-    file: null,
-    help: null,
-    version: null,
-    webdriver: null,
-    modules: [],
-};
-for (let i = 0; i < argv.length; i++) {
-    if (argv[i] == '--version' || argv[i] == '-v') {
-        option.version = true;
-        break;
-    } else if (argv[i].match(/^--app=/)) {
-        option.file = argv[i].split('=')[1];
-        break;
-    } else if (argv[i] == '--debug' || argv[i] == '-d') {
-        option.debug = true;
-        continue;
-    } else if (argv[i].match(/^--host=/) || argv[i].match(/^-h=/)) {
-        hostURI = argv[i].split('=')[1];
-        continue;
-    } else if (argv[i].match(/^--protocol=/) || argv[i].match(/^-p=/)) {
-        hostProtocol = argv[i].split('=')[1];
-        continue;
-    } else if (argv[i][0] == '-') {
-        continue;
-    } else {
-        option.file = argv[i];
-        break;
-    }
+if (commandLineOptions.version) {
+    global.sharedObject.hardwareVersion = commandLineOptions.version;
 }
 
 if (!app.requestSingleInstanceLock()) {
@@ -99,7 +71,7 @@ if (!app.requestSingleInstanceLock()) {
     app.commandLine.appendSwitch('enable-experimental-web-platform-features', true);
     app.commandLine.appendSwitch('disable-renderer-backgrounding');
     app.once('ready', () => {
-        windowManager.createMainWindow({ debug: option.debug });
+        windowManager.createMainWindow({ debug: commandLineOptions.debug });
         mainWindow = windowManager.mainWindow;
         windowManager.createAboutWindow(mainWindow);
 
