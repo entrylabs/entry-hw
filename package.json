@@ -10,7 +10,7 @@
         "start": "set NODE_ENV=development&&electron -d app",
         "debug": "set NODE_ENV=development&&electron -d app --inspect=9223",
         "dist:win32": "build --arch ia32",
-        "dist:mac": "cross-env CSC_NAME=\"Connect Foundation (DLFUSDA3L5)\"&&build",
+        "dist:mac": "cross-env CSC_NAME=\"Connect Foundation (DLFUSDA3L5)\"&&build"
     },
     "devDependencies": {
         "cross-env": "^5.1.3",
