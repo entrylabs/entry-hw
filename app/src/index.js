@@ -1,24 +1,19 @@
 'use strict';
 
-const {
-    app,
-    BrowserWindow,
-    globalShortcut,
-    ipcMain,
-    webContents,
-    dialog,
-    net,
-} = require('electron');
+const { app, ipcMain, dialog } = require('electron');
 const path = require('path');
 const fs = require('fs');
 global.$ = require('lodash');
 
+// classes
 const MainRouter = require('./main/mainRouter');
 const windowManager = require('./main/utils/windowManager');
+const commonUtils = require('./main/utils/commonUtils');
+
+// functions
 const configInit = require('./main/utils/functions/configInitialize');
 const registerGlobalShortcut = require('./main/utils/functions/registerGlobalShortcut');
 const checkUpdate = require('./main/network/checkUpdate');
-const commonUtils = require('./main/utils/commonUtils');
 
 let mainWindow = null;
 let mainRouter = null;
