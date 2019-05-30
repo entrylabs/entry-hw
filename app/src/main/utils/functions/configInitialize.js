@@ -5,7 +5,7 @@ const fs = require('fs');
 
 /**
  * 외부 config 파일이 존재하지 않는 경우의 기본값.
- * 아래 로직상 여기에 없는 키는 적용되지 않는다..
+ * 아래 로직상 여기에 없는 키는 적용되지 않는다.
  */
 const defaultConfigSchema = {
     'baseUrl': 'https://playentry.org',
@@ -15,8 +15,7 @@ const defaultConfigSchema = {
 };
 
 /**
- * 외부 설정이 아닌 내부에
- * @type {{roomIds: Array, appName: string, hostURI: string, hostProtocol: string, hardwareVersion}}
+ * 외부 설정이 아닌 내부에서 정의되며, 변경될 여지가 없는 하드코드의 경우 이쪽에 선언한다.
  */
 const internalConfig = {
     appName: 'hardware',
