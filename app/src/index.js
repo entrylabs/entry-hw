@@ -11,9 +11,11 @@ const {
 } = require('electron');
 const path = require('path');
 const fs = require('fs');
-const MainRouter = require('./src/main/mainRouter');
-const configInit = require('./src/main/utils/functions/configInitialize');
-const commonUtils = require('./src/main/utils/commonUtils');
+global.$ = require('lodash');
+
+const MainRouter = require('./main/mainRouter');
+const configInit = require('./main/utils/functions/configInitialize');
+const commonUtils = require('./main/utils/commonUtils');
 
 let mainWindow = null;
 let aboutWindow = null;
@@ -24,7 +26,6 @@ const configuration = configInit();
 const { roomIds = [], hardwareVersion } = configuration;
 let { hostURI, hostProtocol } = configuration;
 let isForceClose = false;
-global.$ = require('lodash');
 
 function createAboutWindow(mainWindow) {
     aboutWindow = new BrowserWindow({
