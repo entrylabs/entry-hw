@@ -5,7 +5,7 @@ const EventEmitter = require('events').EventEmitter;
 const client = require('socket.io-client');
 const { SERVER_MODE_TYPES, HARDWARE_STATEMENT: HardwareStatement } = require('../common/constants');
 const rendererConsole = require('./utils/rendererConsole');
-const moduleRequestFromServer = require('./utils/moduleRequest');
+const moduleRequestFromServer = require('./network/moduleRequest');
 
 /**
  * 하드웨어 <-> 엔트리 워크스페이스 통신간 사용되는 클래스.
