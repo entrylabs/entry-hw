@@ -19,6 +19,7 @@ const properties = {
         ['app'],
         ['host', 'h'],
         ['protocol', 'p'],
+        ['config', 'c'],
     ],
 };
 

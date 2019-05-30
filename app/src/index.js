@@ -19,20 +19,15 @@ const checkUpdate = require('./main/network/checkUpdate');
 let mainWindow = null;
 let mainRouter = null;
 
-const configuration = configInit();
-
-const { roomIds = [], hardwareVersion } = configuration;
-
 const argv = process.argv.slice(1);
 const commandLineOptions = parseCommaneLine(argv);
+const configuration = configInit(commandLineOptions.config);
+const { roomIds = [], hardwareVersion } = configuration;
 if (argv.indexOf('entryhw:')) {
     const data = commonUtils.getArgsParseData(argv);
     if (data) {
         roomIds.push(data);
     }
-}
-if (commandLineOptions.version) {
-    global.sharedObject.hardwareVersion = commandLineOptions.version;
 }
 
 if (!app.requestSingleInstanceLock()) {

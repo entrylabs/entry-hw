@@ -43,7 +43,7 @@ module.exports = (configName = 'ko') => {
     console.log(`load ${configFilePath}...`);
 
     const fileData = fs.readFileSync(configFilePath);
-    const externalConfig = getMergedConfig(fileData.toJSON());
+    const externalConfig = getMergedConfig(JSON.parse(fileData));
 
     const mergedConfig = merge({}, internalConfig, externalConfig);
 
