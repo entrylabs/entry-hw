@@ -1,7 +1,5 @@
 'use strict';
 
-const electron = require('electron');
-const MainRouter = require('./src/main/mainRouter');
 const {
     app,
     BrowserWindow,
@@ -10,11 +8,12 @@ const {
     webContents,
     dialog,
     net,
-} = electron;
+} = require('electron');
 const path = require('path');
 const fs = require('fs');
+const MainRouter = require('./src/main/mainRouter');
 const configInit = require('./src/main/utils/functions/configInitialize');
-const packageJson = require('../package.json');
+const commonUtils = require('./src/main/utils/commonUtils');
 
 let mainWindow = null;
 let aboutWindow = null;
@@ -22,35 +21,10 @@ let mainRouter = null;
 
 const configuration = configInit();
 
-const { roomIds = [] } = configuration;
+const { roomIds = [], hardwareVersion } = configuration;
 let { hostURI, hostProtocol } = configuration;
 let isForceClose = false;
 global.$ = require('lodash');
-
-function lpad(str, len) {
-    const strLen = str.length;
-    if (strLen < len) {
-        for (let i = 0; i < len - strLen; i++) {
-            str = `0${str}`;
-        }
-    }
-    return String(str);
-};
-
-function getPaddedVersion(version) {
-    if (!version) {
-        return '';
-    }
-    version = String(version);
-
-    const padded = [];
-    const splitVersion = version.split('.');
-    splitVersion.forEach((item) => {
-        padded.push(lpad(item, 4));
-    });
-
-    return padded.join('.');
-}
 
 function createAboutWindow(mainWindow) {
     aboutWindow = new BrowserWindow({
@@ -74,18 +48,6 @@ function createAboutWindow(mainWindow) {
     });
 }
 
-function getArgsParseData(argv) {
-    const regexRoom = /roomId:(.*)/;
-    const arrRoom = regexRoom.exec(argv) || ['', ''];
-    let roomId = arrRoom[1];
-
-    if (roomId === 'undefined') {
-        roomId = '';
-    }
-
-    return roomId.replace(/\//g, '');
-}
-
 app.on('window-all-closed', () => {
     app.quit();
 });
@@ -93,7 +55,7 @@ app.on('window-all-closed', () => {
 const argv = process.argv.slice(1);
 
 if (argv.indexOf('entryhw:')) {
-    const data = getArgsParseData(argv);
+    const data = commonUtils.getArgsParseData(argv);
     if (data) {
         roomIds.push(data);
     }
@@ -138,7 +100,7 @@ if (!app.requestSingleInstanceLock()) {
     app.on('second-instance', (event, argv, workingDirectory) => {
         let parseData = {};
         if (argv.indexOf('entryhw:')) {
-            parseData = getArgsParseData(argv);
+            parseData = commonUtils.getArgsParseData(argv);
         }
 
         if (mainWindow) {
@@ -180,7 +142,7 @@ if (!app.requestSingleInstanceLock()) {
         mainWindow = new BrowserWindow({
             width: 800,
             height: 670,
-            title: title + packageJson.version,
+            title: title + hardwareVersion,
             webPreferences: {
                 backgroundThrottling: false,
             },
@@ -201,7 +163,10 @@ if (!app.requestSingleInstanceLock()) {
             },
         );
 
-        mainWindow.loadURL(`file:///${path.join(__dirname, 'src', 'renderer', 'views', 'index.html')}`);
+        const mainWindowPath = `file:///${
+            path.join(__dirname, 'src', 'renderer', 'views', 'index.html')
+            }`;
+        mainWindow.loadURL(mainWindowPath);
 
         if (option.debug) {
             mainWindow.webContents.openDevTools();
@@ -278,7 +243,7 @@ if (!app.requestSingleInstanceLock()) {
         request.write(
             JSON.stringify({
                 category: 'hardware',
-                version: packageJson.version,
+                version: hardwareVersion,
             }),
         );
         request.end();
@@ -292,8 +257,8 @@ if (!app.requestSingleInstanceLock()) {
     });
 
     ipcMain.on('checkVersion', (e, lastCheckVersion) => {
-        const version = getPaddedVersion(packageJson.version);
-        const lastVersion = getPaddedVersion(lastCheckVersion);
+        const version = commonUtils.getPaddedVersion(hardwareVersion);
+        const lastVersion = commonUtils.getPaddedVersion(lastCheckVersion);
 
         e.sender.send('checkVersionResult', lastVersion > version);
     });
