@@ -9,10 +9,8 @@
         "clean": "rimraf dist",
         "start": "set NODE_ENV=development&&electron -d app",
         "debug": "set NODE_ENV=development&&electron -d app --inspect=9223",
-        "pack:win32": "build --arch ia32",
-        "make": "cross-env CSC_NAME=\"Connect Foundation (DLFUSDA3L5)\"&&build",
-        "make:osx": "cross-env CSC_NAME=\"Connect Foundation (DLFUSDA3L5)\"&&build",
-        "make:win32": "build --arch ia32 --platform=win32 && makensis ./build/entry-hw.nsi"
+        "dist:win32": "build --arch ia32",
+        "dist:mac": "cross-env CSC_NAME=\"Connect Foundation (DLFUSDA3L5)\"&&build",
     },
     "devDependencies": {
         "cross-env": "^5.1.3",
