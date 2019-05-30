@@ -14,11 +14,11 @@ const fs = require('fs');
 global.$ = require('lodash');
 
 const MainRouter = require('./main/mainRouter');
+const windowManager = require('./main/utils/windowManager');
 const configInit = require('./main/utils/functions/configInitialize');
 const commonUtils = require('./main/utils/commonUtils');
 
 let mainWindow = null;
-let aboutWindow = null;
 let mainRouter = null;
 
 const configuration = configInit();
@@ -26,28 +26,6 @@ const configuration = configInit();
 const { roomIds = [], hardwareVersion } = configuration;
 let { hostURI, hostProtocol } = configuration;
 let isForceClose = false;
-
-function createAboutWindow(mainWindow) {
-    aboutWindow = new BrowserWindow({
-        parent: mainWindow,
-        width: 380,
-        height: 290,
-        resizable: false,
-        movable: false,
-        center: true,
-        frame: false,
-        modal: true,
-        show: false,
-    });
-
-    aboutWindow.loadURL(`file:///${
-        path.resolve(__dirname, 'src', 'renderer', 'views', 'about.html')
-        }`);
-
-    aboutWindow.on('closed', () => {
-        aboutWindow = null;
-    });
-}
 
 app.on('window-all-closed', () => {
     app.quit();
@@ -165,7 +143,7 @@ if (!app.requestSingleInstanceLock()) {
         );
 
         const mainWindowPath = `file:///${
-            path.join(__dirname, 'src', 'renderer', 'views', 'index.html')
+            path.join(__dirname, 'renderer', 'views', 'index.html')
             }`;
         mainWindow.loadURL(mainWindowPath);
 
@@ -200,7 +178,7 @@ if (!app.requestSingleInstanceLock()) {
             }
         });
 
-        createAboutWindow(mainWindow);
+        windowManager.createAboutWindow(mainWindow);
         mainRouter = new MainRouter(mainWindow);
     });
 
@@ -265,7 +243,7 @@ if (!app.requestSingleInstanceLock()) {
     });
 
     ipcMain.on('openAboutWindow', (event, arg) => {
-        aboutWindow.show();
+        windowManager.aboutWindow.show();
     });
 
     let requestLocalDataInterval = -1;
