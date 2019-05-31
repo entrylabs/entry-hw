@@ -1,19 +1,10 @@
 const { net } = require('electron');
 
 module.exports = () => new Promise((resolve, reject) => {
-    const { baseUrl, versionCheckApi, hardwareVersion } = global.sharedObject;
-    const request = net.request({
-        method: 'POST',
-        url: `${baseUrl}${versionCheckApi}`,
-    });
+    const { baseUrl, moduleCheckApi } = global.sharedObject;
 
-    request.setHeader('content-type', 'application/json; charset=utf-8');
-    request.write(
-        JSON.stringify({
-            category: 'hardware',
-            version: hardwareVersion,
-        }),
-    );
+    //TODO 개발간 임시
+    const request = net.request(`${baseUrl}${moduleCheckApi}`);
     request.on('response', (response) => {
         let buffer = '';
         response.on('error', reject);
