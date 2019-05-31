@@ -9,15 +9,10 @@ module.exports = (moduleName) => new Promise((resolve, reject) => {
         return;
     }
 
-    const { host, protocol } = global.sharedObject;
+    const { baseUrl, baseResource } = global.sharedObject;
 
     //TODO 개발간 임시
-    const request = net.request({
-        host: 'localhost:4000',
-        protocol: 'http:',
-        path: `/api/hardware/${moduleName}/module`,
-    });
-
+    const request = net.request(`${baseUrl}${baseResource}/${moduleName}/module`);
     request.on('response', (response) => {
         response.on('error', reject);
         if (response.statusCode === 200) {

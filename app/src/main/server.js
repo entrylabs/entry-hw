@@ -5,7 +5,7 @@ const EventEmitter = require('events').EventEmitter;
 const client = require('socket.io-client');
 const { SERVER_MODE_TYPES, HARDWARE_STATEMENT: HardwareStatement } = require('../common/constants');
 const rendererConsole = require('./utils/rendererConsole');
-const moduleRequestFromServer = require('./network/moduleRequest');
+const downloadModule = require('./network/downloadModule');
 
 /**
  * 하드웨어 <-> 엔트리 워크스페이스 통신간 사용되는 클래스.
@@ -361,7 +361,7 @@ class Server extends EventEmitter {
     }
 
     _requestHardware(moduleName) {
-        moduleRequestFromServer(moduleName)
+        downloadModule(moduleName)
             .then((config) => {
                 this.router.sendState(HardwareStatement.showRobot, config);
                 this.router.startScan(config);
