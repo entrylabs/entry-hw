@@ -7,7 +7,7 @@
     "scripts": {
         "lint": "eslint app",
         "clean": "rimraf dist",
-        "start": "set NODE_ENV=development&&electron .",
+        "start": "set NODE_ENV=development&&electron . -c=dev",
         "debug": "set NODE_ENV=development&&electron . --inspect=9223",
         "dist:win32": "build --arch ia32",
         "dist:mac": "cross-env CSC_NAME=\"Connect Foundation (DLFUSDA3L5)\"&&build"

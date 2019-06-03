@@ -14,4 +14,9 @@ module.exports = {
         connected: 'connected',
         showRobot: 'show_robot',
     },
+    AVAILABLE_TYPE: {
+        available: 'available',
+        needUpdate: 'needUpdate',
+        needDownload: 'needDownload',
+    },
 };

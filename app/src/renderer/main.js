@@ -2,7 +2,11 @@
     'use strict';
     const { ipcRenderer, shell, clipboard, remote } = require('electron');
     const Translator = require('../js/translator');
-    const { HARDWARE_STATEMENT: Statement } = require('../../common/constants');
+    const RendererRouter = require('../js/rendererRouter');
+    const {
+        HARDWARE_STATEMENT: Statement,
+        AVAILABLE_TYPE: AvaliableType,
+    } = require('../../common/constants');
     window.jQuery = require('../js/jquery-1.11.3.min.js');
     window.$ = window.jQuery;
 
@@ -19,7 +23,7 @@
     window.modal = new Modal();
 
     let viewMode = 'main';
-    let hardwareList = [];
+    const hardwareList = [];
 
     const os = `${process.platform}-${isOSWin64() ? 'x64' : process.arch}`;
 
@@ -60,9 +64,6 @@
             ipcRenderer.send('checkUpdate');
         }
     }
-    const router = require('../js/rendererRouter');
-    window.router = router;
-
     $('html').addClass(process.platform);
 
     // ui & control
@@ -413,21 +414,64 @@
         addRobot(config) {
             ui.showRobotList();
 
-            $('#hwList').append(`
+            switch (config.availableType) {
+                case AvaliableType.available: {
+                    $('#hwList').append(`
                 <div class="hardwareType" id="${config.id}">
-                    <img class="hwThumb" src="../../../modules/${config.icon}">
+                    <img class="hwThumb" src="../../../modules/${config.icon}" alt="">
                     <h2 class="hwTitle">
                         ${config.name && config.name[lang] || config.name.en}
                     </h2>
                 </div>
             `);
 
-            $(`#${config.id}`)
-                .off('click')
-                .on('click', () => {
-                    ui.showRobot(config);
-                    router.startScan(config);
-                });
+                    $(`#${config.id}`)
+                        .off('click')
+                        .on('click', () => {
+                            ui.showRobot(config);
+                            router.startScan(config);
+                        });
+                    break;
+                }
+                case AvaliableType.needDownload: {
+                    $('#hwList').append(`
+                <div class="hardwareType"
+                id="${config.id}"
+                style="filter: grayscale(100%); opacity: 0.5">
+                    <img class="hwThumb" src="${config.image}" alt="">
+                    <h2 class="hwTitle">
+                        ${config.name && config.name[lang] || config.name.en || config.name}
+                    </h2>
+                </div>
+            `);
+                    $(`#${config.id}`)
+                        .off('click')
+                        .on('click', () => {
+                            router.requestDownloadModule(config);
+                            // ui.showRobot(config);
+                            // router.startScan(config);
+                        });
+                    break;
+                }
+                case AvaliableType.needUpdate: {
+                    $('#hwList').append(`
+                <div class="hardwareType" id="${config.id}">
+                    <img class="hwThumb" src="../../../modules/${config.icon}" alt="">
+                    <h2 class="hwTitle">
+                        [업]${config.name && config.name[lang] || config.name.en}
+                    </h2>
+                </div>
+            `);
+
+                    $(`#${config.id}`)
+                        .off('click')
+                        .on('click', () => {
+                            ui.showRobot(config);
+                            router.startScan(config);
+                        });
+                    break;
+                }
+            }
         },
         flashFirmware(firmwareName) {
             if (currentState !== 'before_connect' && currentState !== 'connected') {
@@ -485,6 +529,8 @@
             $('#errorAlert').hide();
         },
     };
+    const router = new RendererRouter(ui);
+    window.router = router;
 
     $('#search_bar').on('keydown', function(e) {
         if (e.which === 27) {
@@ -738,17 +784,5 @@
     });
 
     // configuration
-    const routerHardwareList = router.getHardwareListSync();
-    priorHardwareList.reverse().forEach((target, index) => {
-        const currentIndex = routerHardwareList.findIndex((item) => item.name.ko.trim() === target);
-        if (currentIndex > -1) {
-            const temp = routerHardwareList[currentIndex];
-            routerHardwareList[currentIndex] = routerHardwareList[index];
-            routerHardwareList[index] = temp;
-        }
-    });
-    hardwareList = routerHardwareList;
-    hardwareList.forEach((config) => {
-        ui.addRobot(config);
-    });
+    router.refreshHardwareModules();
 })();

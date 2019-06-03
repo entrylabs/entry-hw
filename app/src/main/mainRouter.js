@@ -33,7 +33,7 @@ class MainRouter {
         this.scanner = new Scanner(this);
         this.server = new EntryServer(this);
         this.flasher = new Flasher();
-        this.hardwareListManager = new HardwareListManager();
+        this.hardwareListManager = new HardwareListManager(mainWindow);
 
         this.config = undefined;
         /** @type {Connector} */
@@ -179,11 +179,15 @@ class MainRouter {
         }
 
         this.server.sendState(resultState, ...args);
-        this.browser.webContents.send('state', resultState, ...args);
+        this._sendEventToRenderer('state', resultState, ...args);
     }
 
     notifyServerMode(mode) {
-        this.browser.webContents.send('serverMode', mode);
+        this._sendEventToRenderer('serverMode', mode);
+    }
+
+    _sendEventToRenderer(eventName, ...args) {
+        this.browser.webContents.send(eventName, ...args);
     }
 
     /**

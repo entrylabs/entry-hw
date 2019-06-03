@@ -12,7 +12,7 @@ module.exports = () => new Promise((resolve, reject) => {
             buffer += chunk.toString();
         });
         response.on('end', () => {
-            let data = {};
+            let data = [];
             try {
                 data = JSON.parse(buffer);
             } catch (e) {
