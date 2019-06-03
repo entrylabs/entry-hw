@@ -304,7 +304,7 @@ class Server extends EventEmitter {
     _handleReceivedMessage(message) {
         if (message.action === 'init') {
             const { name } = JSON.parse(message.data);
-            this._requestHardware(name);
+            this.requestHardware(name);
         }
     }
 
@@ -360,11 +360,10 @@ class Server extends EventEmitter {
         };
     }
 
-    _requestHardware(moduleName) {
+    requestHardware(moduleName) {
         downloadModule(moduleName)
             .then((config) => {
-                this.router.sendState(HardwareStatement.showRobot, config);
-                this.router.startScan(config);
+
             })
             .catch((e) => {
                 console.error('request hardware error', e);

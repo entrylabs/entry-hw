@@ -279,6 +279,9 @@
         hideRobot(id) {
             $(`#${id}`).hide();
         },
+        clearRobot() {
+            $('#hwList').empty();
+        },
         showRobot(hardware) {
             if (hardware.id) {
                 $(`#${hardware.id}`).show();

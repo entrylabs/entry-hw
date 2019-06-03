@@ -74,6 +74,7 @@ class RendererRouter {
             }
         });
         this.hardwareList = routerHardwareList;
+        this.ui.clearRobot();
         this.hardwareList.forEach(this.ui.addRobot.bind(this.ui));
     }
 }

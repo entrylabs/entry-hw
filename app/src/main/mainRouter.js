@@ -2,6 +2,7 @@ const { ipcMain, shell } = require('electron');
 const path = require('path');
 const Scanner = require('./scanner');
 const EntryServer = require('./server');
+const requestModuleDownload = require('./network/downloadModule');
 const Flasher = require('./flasher');
 const commonUtils = require('./utils/commonUtils');
 const { HARDWARE_STATEMENT: HardwareStatement } = require('../common/constants');
@@ -73,6 +74,15 @@ class MainRouter {
         });
         ipcMain.on('requestHardwareListSync', (e) => {
             e.returnValue = this.hardwareListManager.allHardwareList;
+        });
+        ipcMain.on('requestHardwareModule', (e, config) => {
+            requestModuleDownload(config)
+                .then((config) => {
+                    this.hardwareListManager.updateHardwareList([config]);
+                })
+                .catch((e) => {
+                    console.error(e);
+                });
         });
     }
 

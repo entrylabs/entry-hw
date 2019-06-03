@@ -3,7 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const NetworkZipHandlerStream = require('../utils/networkZipHandleStream');
 
-module.exports = (moduleName) => new Promise((resolve, reject) => {
+module.exports = ({ name, version, moduleName }) => new Promise((resolve, reject) => {
     if (!moduleName) {
         reject();
         return;
@@ -12,7 +12,7 @@ module.exports = (moduleName) => new Promise((resolve, reject) => {
     const { baseUrl, baseResource } = global.sharedObject;
 
     //TODO 개발간 임시
-    const request = net.request(`${baseUrl}${baseResource}/${moduleName}/module`);
+    const request = net.request(`${baseUrl}${baseResource}/${name}/${version}/${moduleName}`);
     request.on('response', (response) => {
         response.on('error', reject);
         if (response.statusCode === 200) {
@@ -20,7 +20,7 @@ module.exports = (moduleName) => new Promise((resolve, reject) => {
             const zipStream = new NetworkZipHandlerStream(moduleDirPath);
             zipStream.on('done', () => {
                 fs.readFile(
-                    path.join(moduleDirPath, `${moduleName}.json`),
+                    path.join(moduleDirPath, `${name}.json`),
                     (err, data) => {
                         if (err) {
                             reject(err);

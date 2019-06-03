@@ -64,25 +64,26 @@ module.exports = class {
                 }
 
                 const onlineHardwareList = moduleList.map((moduleElement) => {
-                    const { name, imageFile, version, title, _id: id } = moduleElement;
+                    const { moduleName, name, imageFile, version, title, _id: id } = moduleElement;
                     return {
                         id,
                         version,
                         image: `${resourceUrl}/${name}/${version}/${imageFile}`,
                         name,
                         title,
+                        moduleName,
                         availableType: AVAILABLE_TYPE.needDownload,
                     };
                 });
-                this.allHardwareList =
-                    this._mergeHardwareList(this.allHardwareList, onlineHardwareList);
-                this.browser.send('onlineHardwareUpdated');
+                this.updateHardwareList(onlineHardwareList);
             });
     }
 
-    _mergeHardwareList(original, source) {
+    updateHardwareList(source) {
         const src = _.cloneDeep(source);
-        const mergedList = original.map((oriElem) => {
+        const availables = this._getAllHardwareModulesFromDisk();
+        this.allHardwareList = [];
+        const mergedList = availables.map((oriElem) => {
             const foundElem = src.find((srcElem, index) => {
                 if (this._getNameOrModuleName(srcElem) === this._getNameOrModuleName(oriElem)) {
                     delete src[index];
@@ -99,7 +100,19 @@ module.exports = class {
             return oriElem;
         });
 
-        return mergedList.concat(src).sort(nameSortComparator);
+        this.allHardwareList = mergedList.concat(src || []).sort(nameSortComparator);
+        this.browser.send('onlineHardwareUpdated');
+    }
+
+    _getAllHardwareModulesFromDisk() {
+        return fs.readdirSync(this.moduleBasePath)
+            .filter((file) => !!file.match(/\.json$/))
+            .map((file) => fs.readFileSync(path.join(this.moduleBasePath, file)))
+            .map(JSON.parse)
+            .map((config) => {
+                config.availableType = AVAILABLE_TYPE.available;
+                return config;
+            });
     }
 
     _getNameOrModuleName(moduleObject) {
