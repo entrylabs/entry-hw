@@ -32,21 +32,11 @@ module.exports = class {
 
     /**
      * 파일을 읽어와 리스트에 작성한다.
-     *
      */
     initialize() {
         // noinspection JSCheckFunctionSignatures
         try {
-            fs.readdirSync(this.moduleBasePath)
-                .filter((file) => !!file.match(/\.json$/))
-                .map((file) => fs.readFileSync(path.join(this.moduleBasePath, file)))
-                .map(JSON.parse)
-                .filter(platformFilter)
-                .sort(nameSortComparator)
-                .map((config) => {
-                    config.availableType = AVAILABLE_TYPE.available;
-                    return config;
-                })
+            this._getAllHardwareModulesFromDisk()
                 .forEach((config) => this.allHardwareList.push(config));
         } catch (e) {
             console.error('error occurred while reading module json files');
@@ -69,7 +59,8 @@ module.exports = class {
         const { baseUrl, baseResource } = global.sharedObject;
         const resourceUrl = `${baseUrl}${baseResource}`;
 
-        const { moduleName, moduleFile, imageFile, version, name, _id: id } = metadata;
+        const { moduleName, moduleFile, imageFile, version, name, hardware } = metadata;
+        const { id, platform } = hardware;
         return {
             id,
             version,
@@ -77,6 +68,7 @@ module.exports = class {
             name,
             moduleName,
             moduleFile,
+            platform,
             availableType: AVAILABLE_TYPE.needDownload,
         };
     }
@@ -87,22 +79,26 @@ module.exports = class {
         this.allHardwareList = [];
         const mergedList = availables.map((oriElem) => {
             const foundElem = src.find((srcElem, index) => {
-                if (this._getModuleName(srcElem) === this._getModuleName(oriElem)) {
-                    delete src[index];
+                if (this._isSameModule(oriElem, srcElem)) {
+                    src.splice(index, 1);
                     return true;
                 }
                 return false;
             });
 
             if (foundElem) {
-                if (!oriElem.version || oriElem.version !== foundElem.version) {
+                // != 의 경우 일부러 그랬습니다. 문자열 / 숫자를 상관하지 않게 하기 위함
+                if (!oriElem.version || oriElem.version != foundElem.version) {
                     oriElem.availableType = AVAILABLE_TYPE.needUpdate;
                 }
             }
             return oriElem;
         });
 
-        this.allHardwareList = mergedList.concat(src || []).sort(nameSortComparator);
+        this.allHardwareList = mergedList
+            .concat(src || [])
+            .filter(platformFilter)
+            .sort(nameSortComparator);
         this.browser.send('onlineHardwareUpdated');
     }
 
@@ -124,28 +120,21 @@ module.exports = class {
     }
 
     /**
-     * available config.json 에서는 module property 의 앞부분을
-     * module metadata 라면 모듈명에 해당하는 name 을 가져온다.
-     *
-     * TODO 이는 하나로 통일되어야 한다.
-     * @param moduleObject
-     * @returns {string|undefined}
+     * 현재 모듈과 특정 외부 모듈이 동일한 모듈인지 판단한다.
+     * 함수가 따로 존재하는 이유는, 기존 모듈 데이터가 legacy 라서
+     * moduleName 프로퍼티가 없고 id 만 존재할 수 있기 때문이다.
+     * 이 함수는 moduleName 이 없으면 id 로 비교하고 있으면 moduleName 으로 비교한다.
+     * id 비교시엔 outdated 경고를 출력한다.
+     * @param original 기존에 가지고 있던 모듈데이터
+     * @param source 신규로 추가된 모듈데이터
      * @private
      */
-    _getModuleName(moduleObject) {
-        if (!moduleObject) {
-            return;
-        }
-
-        // 수정된 하드웨어모듈 json 혹은 metadata 의 경우
-        if (moduleObject.moduleName) {
-            return moduleObject.moduleName;
-        }
-
-        // 아직 수정되지 않은 오리지널 하드웨어모듈 json 의 경우
-        // 모듈 프로퍼티의 .js 를 뗀 값을 모듈명으로 상정한다.
-        if (moduleObject.module) {
-            return moduleObject.module.substring(0, moduleObject.module.indexOf('.'));
+    _isSameModule(original, source) {
+        if (original.moduleName) {
+            return original.moduleName === source.moduleName;
+        } else {
+            console.warn(`${original.id} was outdated. please modulize`);
+            return original.id === source.id;
         }
     }
 };
