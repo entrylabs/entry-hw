@@ -5,8 +5,8 @@ const requestModules = require('./network/getModuleList');
 const { AVAILABLE_TYPE } = require('../common/constants');
 
 const nameSortComparator = function(left, right) {
-    const lName = left.name.ko ? left.name.ko.trim() : left.title;
-    const rName = right.name.ko ? right.name.ko.trim() : right.title;
+    const lName = left.name && left.name.en.trim();
+    const rName = right.name && right.name.en.trim();
 
     if (lName > rName) {
         return 1;
@@ -56,27 +56,29 @@ module.exports = class {
     _requestModuleList() {
         requestModules()
             .then((moduleList) => {
-                const { baseUrl, baseResource } = global.sharedObject;
-                const resourceUrl = `${baseUrl}${baseResource}`;
-
                 if (!moduleList || moduleList.length === 0) {
                     return;
                 }
 
-                const onlineHardwareList = moduleList.map((moduleElement) => {
-                    const { moduleName, name, imageFile, version, title, _id: id } = moduleElement;
-                    return {
-                        id,
-                        version,
-                        image: `${resourceUrl}/${name}/${version}/${imageFile}`,
-                        name,
-                        title,
-                        moduleName,
-                        availableType: AVAILABLE_TYPE.needDownload,
-                    };
-                });
+                const onlineHardwareList = moduleList.map(this._convertMetadataToHardwareConfig);
                 this.updateHardwareList(onlineHardwareList);
             });
+    }
+
+    _convertMetadataToHardwareConfig(metadata) {
+        const { baseUrl, baseResource } = global.sharedObject;
+        const resourceUrl = `${baseUrl}${baseResource}`;
+
+        const { moduleName, moduleFile, imageFile, version, name, _id: id } = metadata;
+        return {
+            id,
+            version,
+            image: `${resourceUrl}/${moduleName}/${version}/${imageFile}`,
+            name,
+            moduleName,
+            moduleFile,
+            availableType: AVAILABLE_TYPE.needDownload,
+        };
     }
 
     updateHardwareList(source) {
@@ -85,7 +87,7 @@ module.exports = class {
         this.allHardwareList = [];
         const mergedList = availables.map((oriElem) => {
             const foundElem = src.find((srcElem, index) => {
-                if (this._getNameOrModuleName(srcElem) === this._getNameOrModuleName(oriElem)) {
+                if (this._getModuleName(srcElem) === this._getModuleName(oriElem)) {
                     delete src[index];
                     return true;
                 }
@@ -104,6 +106,12 @@ module.exports = class {
         this.browser.send('onlineHardwareUpdated');
     }
 
+    /**
+     * 현재 디스크에 있는 모듈들을 전부 가져온다.
+     * 해당 모듈은 전부 available 플래그이다.
+     * @returns {Object[]} module objects
+     * @private
+     */
     _getAllHardwareModulesFromDisk() {
         return fs.readdirSync(this.moduleBasePath)
             .filter((file) => !!file.match(/\.json$/))
@@ -115,13 +123,29 @@ module.exports = class {
             });
     }
 
-    _getNameOrModuleName(moduleObject) {
+    /**
+     * available config.json 에서는 module property 의 앞부분을
+     * module metadata 라면 모듈명에 해당하는 name 을 가져온다.
+     *
+     * TODO 이는 하나로 통일되어야 한다.
+     * @param moduleObject
+     * @returns {string|undefined}
+     * @private
+     */
+    _getModuleName(moduleObject) {
         if (!moduleObject) {
             return;
         }
 
-        return typeof moduleObject.name === 'object' ?
-            moduleObject.module.substring(0, moduleObject.module.indexOf('.')) :
-            moduleObject.name;
+        // 수정된 하드웨어모듈 json 혹은 metadata 의 경우
+        if (moduleObject.moduleName) {
+            return moduleObject.moduleName;
+        }
+
+        // 아직 수정되지 않은 오리지널 하드웨어모듈 json 의 경우
+        // 모듈 프로퍼티의 .js 를 뗀 값을 모듈명으로 상정한다.
+        if (moduleObject.module) {
+            return moduleObject.module.substring(0, moduleObject.module.indexOf('.'));
+        }
     }
 };
