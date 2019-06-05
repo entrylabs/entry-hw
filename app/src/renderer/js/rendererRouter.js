@@ -1,17 +1,32 @@
 const { ipcRenderer, shell, remote } = require('electron');
 
+/**
+ * 렌더러 비즈니스로직을 담은 클래스.
+ * 해당 클래스는 preload 페이즈에서 선언되므로 nodejs, electron 관련 import가 가능
+ *
+ */
 class RendererRouter {
+    get serverMode() {
+        return this._serverMode;
+    }
+
     constructor(ui) {
         this.ui = ui;
         this.priorHardwareList = JSON.parse(localStorage.getItem('hardwareList')) || [];
+        this._serverMode = ipcRenderer.sendSync('getCurrentServerModeSync') || 0;
         this.hardwareList = [];
 
         this._checkProgramUpdate();
+        this._consoleWriteServerMode();
         //ipcEvent
         ipcRenderer.on('console', (event, ...args) => {
             console.log(...args);
         });
         ipcRenderer.on('onlineHardwareUpdated', this.refreshHardwareModules.bind(this));
+        ipcRenderer.on('serverMode', (event, mode) => {
+            this._serverMode = mode;
+            this._consoleWriteServerMode();
+        });
     }
 
     startScan(config) {
@@ -25,6 +40,10 @@ class RendererRouter {
     close() {
         ipcRenderer.send('close');
     };
+
+    requestOpenAboutWindow() {
+        ipcRenderer.send('openAboutWindow');
+    }
 
     requestFlash(firmwareName) {
         return new Promise((resolve, reject) => {
@@ -122,6 +141,16 @@ class RendererRouter {
                 );
                 ipcRenderer.send('checkUpdate');
             }
+        }
+    }
+
+    _consoleWriteServerMode() {
+        if (this.serverMode === 1) {
+            console.log('%cI`M CLIENT', 'background:black;color:yellow;font-size: 30px');
+            this.ui.setCloudMode(true);
+        } else {
+            console.log('%cI`M SERVER', 'background:orange; font-size: 30px');
+            this.ui.setCloudMode(false);
         }
     }
 }

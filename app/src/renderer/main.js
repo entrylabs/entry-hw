@@ -103,7 +103,7 @@ $('#opensource_license_viewer #btn_close').text(
 const $versionLabel = $('#version_label');
 $versionLabel.text(translator.translate('Version Info'));
 $versionLabel.on('click', () => {
-    ipcRenderer.send('openAboutWindow');
+    router.requestOpenAboutWindow();
 });
 
 $('#firmware').text(translator.translate('Install Firmware'));
@@ -467,6 +467,16 @@ const ui = new class {
     hideIeGuide() {
         $('#errorAlert').hide();
     }
+
+
+    setCloudMode(isCloudMode) {
+        const $cloudIcon = $('#cloud_icon');
+        if (isCloudMode) {
+            $cloudIcon.show();
+        } else {
+            $cloudIcon.hide();
+        }
+    }
 }();
 const router = new RendererRouter(ui);
 window.router = router;
@@ -627,31 +637,8 @@ router.getOpensourceContents().then((text) => {
 
 let isSelectPort = true;
 let selectPortConnectionTimeout;
-let serverMode = 0;
+
 // state
-
-const initialServerMode = ipcRenderer.sendSync('getCurrentServerModeSync');
-serverMode = initialServerMode;
-if (initialServerMode === 1) {
-    console.log('%cI`M CLIENT', 'background:black;color:yellow;font-size: 30px');
-    $('#cloud_icon').show();
-} else {
-    console.log('%cI`M SERVER', 'background:orange; font-size: 30px');
-    $('#cloud_icon').hide();
-}
-ipcRenderer.on('serverMode', (event, mode) => {
-    if (serverMode === mode && mode === 1) {
-        console.log('%cI`M SERVER', 'background:orange; font-size: 30px');
-    }
-
-    serverMode = mode;
-    if (mode === 1) {
-        $('#cloud_icon').show();
-    } else {
-        $('#cloud_icon').hide();
-    }
-});
-
 let currentState = '';
 ipcRenderer.on('state', (event, state, data) => {
     console.log(state);
