@@ -29,6 +29,7 @@ class RendererRouter {
         });
         ipcRenderer.on('onlineHardwareUpdated', this.refreshHardwareModules.bind(this));
         ipcRenderer.on('state', this._setHardwareState.bind(this));
+        ipcRenderer.on('hardwareCloseConfirm', this._confirmHardwareClose.bind(this));
         ipcRenderer.on('serverMode', (event, mode) => {
             this._serverMode = mode;
             this._consoleWriteServerMode();
@@ -88,6 +89,10 @@ class RendererRouter {
 
     requestDownloadModule(config) {
         ipcRenderer.send('requestHardwareModule', config);
+    }
+
+    reloadApplication() {
+        ipcRenderer.send('reload');
     }
 
     refreshHardwareModules() {
@@ -209,6 +214,23 @@ class RendererRouter {
             case connected:
                 ui.showConnected();
                 break;
+        }
+    }
+
+    _confirmHardwareClose() {
+        const { translate } = window;
+        let isQuit = true;
+        if (this.currentState === 'connected') {
+            isQuit = confirm(
+                translate(
+                    'Connection to the hardware will terminate once program is closed.',
+                ),
+            );
+        }
+
+        if (isQuit) {
+            this.close();
+            ipcRenderer.send('hardwareForceClose', true);
         }
     }
 }

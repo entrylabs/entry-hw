@@ -1,7 +1,6 @@
 'use strict';
 const {
-    ipcRenderer, clipboard, remote, RendererRouter, constants,
-    Lang, translator, platform, os,
+    clipboard, RendererRouter, constants, translator, platform, os,
 } = window.preload;
 const langType = translator.currentLangauge;
 const Modal = window.Modal.default;
@@ -587,28 +586,12 @@ $body.on('click', '#refresh', (e) => {
     if (
         confirm(translator.translate('Do you want to restart the program?'))
     ) {
-        ipcRenderer.send('reload');
+        router.reloadApplication();
     }
 });
 
 $('.chromeButton').on('click', (e) => {
     router.openExternalUrl('https://www.google.com/chrome/browser/desktop/index.html');
-});
-
-ipcRenderer.on('hardwareCloseConfirm', () => {
-    let isQuit = true;
-    if (router.currentState === 'connected') {
-        isQuit = confirm(
-            translator.translate(
-                'Connection to the hardware will terminate once program is closed.',
-            ),
-        );
-    }
-
-    if (isQuit) {
-        router.close();
-        ipcRenderer.send('hardwareForceClose', true);
-    }
 });
 
 $('#select_port').dblclick(() => {
