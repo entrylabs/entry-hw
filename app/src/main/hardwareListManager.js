@@ -111,11 +111,11 @@ module.exports = class {
     _getAllHardwareModulesFromDisk() {
         return fs.readdirSync(this.moduleBasePath)
             .filter((file) => !!file.match(/\.json$/))
-            .map((file) => fs.readFileSync(path.join(this.moduleBasePath, file)))
-            .map(JSON.parse)
-            .map((config) => {
-                config.availableType = AVAILABLE_TYPE.available;
-                return config;
+            .map((file) => {
+                const bufferData = fs.readFileSync(path.join(this.moduleBasePath, file));
+                const configJson = JSON.parse(bufferData.toString());
+                configJson.availableType = AVAILABLE_TYPE.available;
+                return configJson;
             });
     }
 
