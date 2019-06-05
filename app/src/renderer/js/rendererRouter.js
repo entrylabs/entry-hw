@@ -1,10 +1,12 @@
-const { ipcRenderer } = require('electron');
+const { ipcRenderer, shell, remote } = require('electron');
 
 class RendererRouter {
     constructor(ui) {
         this.ui = ui;
         this.priorHardwareList = JSON.parse(localStorage.getItem('hardwareList')) || [];
         this.hardwareList = [];
+
+        this._checkProgramUpdate();
         //ipcEvent
         ipcRenderer.on('console', (event, ...args) => {
             console.log(...args);
@@ -76,6 +78,47 @@ class RendererRouter {
         this.hardwareList = routerHardwareList;
         this.ui.clearRobot();
         this.hardwareList.forEach(this.ui.addRobot.bind(this.ui));
+    }
+
+    _checkProgramUpdate() {
+        const lastCheckVersion = localStorage.getItem('lastCheckVersion');
+        const hasNewVersion = localStorage.getItem('hasNewVersion');
+        const { getLang } = window;
+        const { appName } = remote.getGlobal('sharedObject');
+
+        if (appName === 'hardware' && navigator.onLine) {
+            if (hasNewVersion) {
+                localStorage.removeItem('hasNewVersion');
+                this.ui.showModal(
+                    getLang('Msgs.version_update_msg2').replace(/%1/gi,lastCheckVersion),
+                    getLang('General.update_title'),
+                    {
+                        positiveButtonText: getLang('General.recent_download'),
+                        positiveButtonStyle: {
+                            width: '180px',
+                        },
+                    },
+                    (event) => {
+                        if (event === 'ok') {
+                            shell.openExternal(
+                                'https://playentry.org/#!/offlineEditor',
+                            );
+                        }
+                    }
+                );
+            } else {
+                ipcRenderer.on(
+                    'checkUpdateResult',
+                    (e, { hasNewVersion, version } = {}) => {
+                        if (hasNewVersion && version !== lastCheckVersion) {
+                            localStorage.setItem('hasNewVersion', hasNewVersion);
+                            localStorage.setItem('lastCheckVersion', version);
+                        }
+                    },
+                );
+                ipcRenderer.send('checkUpdate');
+            }
+        }
     }
 }
 
