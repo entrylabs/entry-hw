@@ -47,6 +47,8 @@ module.exports = new class {
             title: title + hardwareVersion,
             webPreferences: {
                 backgroundThrottling: false,
+                nodeIntegration: false,
+                preload: path.join(viewDirectoryPath, '..', 'preload.js'),
             },
         });
 

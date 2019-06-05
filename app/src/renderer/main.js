@@ -1,70 +1,70 @@
 (function() {
     'use strict';
-    const { ipcRenderer, shell, clipboard, remote } = require('electron');
-    const Translator = require('../js/translator');
-    const RendererRouter = require('../js/rendererRouter');
+    // const { ipcRenderer, shell, clipboard, remote } = require('electron');
+    // const Translator = require('../js/translator');
+    // const RendererRouter = require('../js/rendererRouter');
     const {
         HARDWARE_STATEMENT: Statement,
         AVAILABLE_TYPE: AvaliableType,
-    } = require('../../common/constants');
-    window.jQuery = require('../js/jquery-1.11.3.min.js');
-    window.$ = window.jQuery;
+    } = constants;
+    // window.jQuery = require('../js/jquery-1.11.3.min.js');
+    // window.$ = window.jQuery;
 
-    const lastCheckVersion = localStorage.getItem('lastCheckVersion');
-    const hasNewVersion = localStorage.getItem('hasNewVersion');
+    // const lastCheckVersion = localStorage.getItem('lastCheckVersion');
+    // const hasNewVersion = localStorage.getItem('hasNewVersion');
     let priorHardwareList = JSON.parse(localStorage.getItem('hardwareList')) || [];
-    const sharedObject = remote.getGlobal('sharedObject');
-    const Modal = require('../modal/app.js').default;
-    const translator = new Translator();
-    const lang = translator.currentLangauge;
-    window.Lang = require(`../lang/${lang}.js`).Lang;
+    // const sharedObject = remote.getGlobal('sharedObject');
+    // const Modal = require('../modal/app.js').default;
+    // const translator = new Translator();
+    // const lang = translator.currentLangauge;
+    // window.Lang = require(`../lang/${lang}.js`).Lang;
 
     // initialize options
-    window.modal = new Modal();
+    // window.modal = new Modal();
 
     let viewMode = 'main';
     const hardwareList = [];
 
-    const os = `${process.platform}-${isOSWin64() ? 'x64' : process.arch}`;
 
-    if (sharedObject.appName === 'hardware' && navigator.onLine) {
-        if (hasNewVersion) {
-            localStorage.removeItem('hasNewVersion');
-            modal
-                .alert(
-                    Lang.Msgs.version_update_msg2.replace(
-                        /%1/gi,
-                        lastCheckVersion,
-                    ),
-                    Lang.General.update_title,
-                    {
-                        positiveButtonText: Lang.General.recent_download,
-                        positiveButtonStyle: {
-                            width: '180px',
-                        },
-                    },
-                )
-                .one('click', (event) => {
-                    if (event === 'ok') {
-                        shell.openExternal(
-                            'https://playentry.org/#!/offlineEditor',
-                        );
-                    }
-                });
-        } else {
-            ipcRenderer.on(
-                'checkUpdateResult',
-                (e, { hasNewVersion, version } = {}) => {
-                    if (hasNewVersion && version !== lastCheckVersion) {
-                        localStorage.setItem('hasNewVersion', hasNewVersion);
-                        localStorage.setItem('lastCheckVersion', version);
-                    }
-                },
-            );
-            ipcRenderer.send('checkUpdate');
-        }
-    }
-    $('html').addClass(process.platform);
+
+    // if (sharedObject.appName === 'hardware' && navigator.onLine) {
+    //     if (hasNewVersion) {
+    //         localStorage.removeItem('hasNewVersion');
+    //         modal
+    //             .alert(
+    //                 Lang.Msgs.version_update_msg2.replace(
+    //                     /%1/gi,
+    //                     lastCheckVersion,
+    //                 ),
+    //                 Lang.General.update_title,
+    //                 {
+    //                     positiveButtonText: Lang.General.recent_download,
+    //                     positiveButtonStyle: {
+    //                         width: '180px',
+    //                     },
+    //                 },
+    //             )
+    //             .one('click', (event) => {
+    //                 if (event === 'ok') {
+    //                     shell.openExternal(
+    //                         'https://playentry.org/#!/offlineEditor',
+    //                     );
+    //                 }
+    //             });
+    //     } else {
+    //         ipcRenderer.on(
+    //             'checkUpdateResult',
+    //             (e, { hasNewVersion, version } = {}) => {
+    //                 if (hasNewVersion && version !== lastCheckVersion) {
+    //                     localStorage.setItem('hasNewVersion', hasNewVersion);
+    //                     localStorage.setItem('lastCheckVersion', version);
+    //                 }
+    //             },
+    //         );
+    //         ipcRenderer.send('checkUpdate');
+    //     }
+    // }
+    $('html').addClass(platform);
 
     // ui & control
     // dropdown setting start
@@ -640,13 +640,6 @@
             'https://www.google.com/chrome/browser/desktop/index.html',
         );
     });
-
-    function isOSWin64() {
-        return (
-            process.arch === 'x64' ||
-            process.env.hasOwnProperty('PROCESSOR_ARCHITEW6432')
-        );
-    }
 
     ipcRenderer.on('hardwareCloseConfirm', () => {
         let isQuit = true;
