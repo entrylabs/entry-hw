@@ -120,12 +120,15 @@ $('#firmwareButtonSet').on('click', 'button', function() {
     ui.flashFirmware(this.firmware);
 });
 
-const ui = {
-    cachedPortList: [],
-    countRobot: 0,
+const ui = new class {
+    constructor() {
+        this.cachedPortList = [];
+    }
+
     showModal(message, title = '', styleOptions = {}, onclickCallback) {
         modal.alert(message, title, styleOptions).one('click', onclickCallback);
-    },
+    };
+
     showRobotList() {
         viewMode = 'main';
         $('#alert')
@@ -143,7 +146,8 @@ const ui = {
         ui.showIeGuide();
         this.hideAlert();
         $('#back.navigate_button').removeClass('active');
-    },
+    }
+
     showConnecting() {
         $('#title').text(translator.translate('hardware > connecting'));
         hideCategory();
@@ -155,7 +159,7 @@ const ui = {
         this.showAlert(
             translator.translate('Connecting to hardware device.'),
         );
-    },
+    }
     showConnected() {
         $('#title').text(translator.translate('hardware > connected'));
         hideCategory();
@@ -168,7 +172,7 @@ const ui = {
             translator.translate('Connected to hardware device.'),
             2000,
         );
-    },
+    }
     showDisconnected() {
         $('#title').text(translator.translate('hardware > disconnected'));
         hideCategory();
@@ -181,7 +185,8 @@ const ui = {
                 'Hardware device is disconnected. Please restart this program.',
             ),
         );
-    },
+    }
+
     showAlert(message, duration) {
         if (!$('#hwList').is(':visible')) {
             const $alert = $('#alert');
@@ -199,44 +204,24 @@ const ui = {
                 }, duration);
             }
         }
-    },
-    showError(message, duration) {
-        if (!$('#hwList').is(':visible')) {
-            $('#alert').addClass('error');
-            $('#alert').text(message);
+    }
 
-            $('#alert').css({
-                height: '0px',
-            });
-            $('#alert')
-                .stop()
-                .animate({
-                    height: '35px',
-                });
-            if (duration) {
-                setTimeout(() => {
-                    $('#alert')
-                        .stop()
-                        .animate({
-                            height: '0px',
-                        });
-                }, duration);
-            }
-        }
-    },
     hideAlert() {
         $('#alert')
             .stop(true, true)
             .animate({
                 height: '0px',
             });
-    },
+    }
+
     hideRobot(id) {
         $(`#${id}`).hide();
-    },
+    }
+
     clearRobot() {
         $('#hwList').empty();
-    },
+    }
+
     showRobot(hardware) {
         if (hardware.id) {
             $(`#${hardware.id}`).show();
@@ -368,7 +353,8 @@ const ui = {
         } else {
             $('.hardwareType').show();
         }
-    },
+    }
+
     addRobot(config) {
         ui.showRobotList();
 
@@ -430,7 +416,8 @@ const ui = {
                 break;
             }
         }
-    },
+    }
+
     flashFirmware(firmwareName) {
         if (currentState !== 'before_connect' && currentState !== 'connected') {
             alert(
@@ -460,7 +447,8 @@ const ui = {
             .finally(() => {
                 $('#firmwareButtonSet').show();
             });
-    },
+    }
+
     showPortSelectView(portList) {
         if (
             JSON.stringify(portList) !== this.cachedPortList &&
@@ -477,16 +465,19 @@ const ui = {
             this.cachedPortList = JSON.stringify(portList);
         }
         $('#select_port_box').css('display', 'flex');
-    },
+    }
+
     quit() {
-    },
+    }
+
     showIeGuide() {
         $('#errorAlert').show();
-    },
+    }
+
     hideIeGuide() {
         $('#errorAlert').hide();
-    },
-};
+    }
+}();
 const router = new RendererRouter(ui);
 window.router = router;
 
