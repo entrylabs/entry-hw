@@ -1,4 +1,8 @@
 const { ipcRenderer, shell, remote } = require('electron');
+const {
+    HARDWARE_STATEMENT: Statement,
+    AVAILABLE_TYPE: AvaliableType,
+} = require('../../common/constants');
 
 /**
  * 렌더러 비즈니스로직을 담은 클래스.
@@ -14,6 +18,7 @@ class RendererRouter {
         this.ui = ui;
         this.priorHardwareList = JSON.parse(localStorage.getItem('hardwareList')) || [];
         this._serverMode = ipcRenderer.sendSync('getCurrentServerModeSync') || 0;
+        this.currentState = Statement.disconnected;
         this.hardwareList = [];
 
         this._checkProgramUpdate();
@@ -23,6 +28,7 @@ class RendererRouter {
             console.log(...args);
         });
         ipcRenderer.on('onlineHardwareUpdated', this.refreshHardwareModules.bind(this));
+        ipcRenderer.on('state', this._setHardwareState.bind(this));
         ipcRenderer.on('serverMode', (event, mode) => {
             this._serverMode = mode;
             this._consoleWriteServerMode();
@@ -106,14 +112,14 @@ class RendererRouter {
     _checkProgramUpdate() {
         const lastCheckVersion = localStorage.getItem('lastCheckVersion');
         const hasNewVersion = localStorage.getItem('hasNewVersion');
-        const { getLang } = window;
         const { appName } = remote.getGlobal('sharedObject');
+        const { getLang } = window;
 
         if (appName === 'hardware' && navigator.onLine) {
             if (hasNewVersion) {
                 localStorage.removeItem('hasNewVersion');
                 this.ui.showModal(
-                    getLang('Msgs.version_update_msg2').replace(/%1/gi,lastCheckVersion),
+                    getLang('Msgs.version_update_msg2').replace(/%1/gi, lastCheckVersion),
                     getLang('General.update_title'),
                     {
                         positiveButtonText: getLang('General.recent_download'),
@@ -127,7 +133,7 @@ class RendererRouter {
                                 'https://playentry.org/#!/offlineEditor',
                             );
                         }
-                    }
+                    },
                 );
             } else {
                 ipcRenderer.on(
@@ -151,6 +157,58 @@ class RendererRouter {
         } else {
             console.log('%cI`M SERVER', 'background:orange; font-size: 30px');
             this.ui.setCloudMode(false);
+        }
+    }
+
+    _setHardwareState(event, state, data) {
+        const { translate } = window;
+        const ui = this.ui;
+        const {
+            showRobot,
+            lost,
+            disconnected,
+            selectPort,
+            flash,
+            beforeConnect,
+            connected,
+        } = Statement;
+
+        console.log(state);
+        // select_port 는 기록해두어도 쓸모가 없으므로 표기하지 않는다
+        if (state !== selectPort) {
+            this.currentState = state;
+        }
+        switch (state) {
+            case showRobot: {
+                this.ui.showRobot(data);
+                break;
+            }
+            case selectPort: {
+                this.close();
+                this.ui.showPortSelectView(data);
+                return; // ui 변경 이루어지지 않음.
+            }
+            case flash: {
+                ui.flashFirmware();
+                break;
+            }
+            case beforeConnect: {
+                ui.showAlert(`${
+                    translate('Connecting to hardware device.')
+                    } ${
+                    translate('Please select the firmware.')
+                    }`);
+                break;
+            }
+            case lost:
+                ui.showConnecting();
+                break;
+            case disconnected:
+                ui.showDisconnected();
+                break;
+            case connected:
+                ui.showConnected();
+                break;
         }
     }
 }

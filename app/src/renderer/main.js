@@ -8,13 +8,11 @@ const Modal = window.Modal.default;
 const modal = new Modal();
 
 const {
-    HARDWARE_STATEMENT: Statement,
     AVAILABLE_TYPE: AvaliableType,
 } = constants;
 let priorHardwareList = JSON.parse(localStorage.getItem('hardwareList')) || [];
 
 let viewMode = 'main';
-const hardwareList = [];
 
 
 $('html').addClass(platform);
@@ -135,7 +133,7 @@ const ui = new class {
         $('#alert')
             .stop()
             .clearQueue();
-        currentState = 'disconnected';
+        router.currentState = 'disconnected';
         router.close();
         router.stopScan();
         delete window.currentConfig;
@@ -217,132 +215,8 @@ const ui = new class {
     }
 
     showRobot(hardware) {
-        if (hardware.id) {
+        if (hardware && hardware.id) {
             $(`#${hardware.id}`).show();
-            viewMode = this.id;
-
-            isSelectPort = hardware.select_com_port ||
-                hardware.hardware.type === 'bluetooth' ||
-                serverMode === 1 ||
-                false;
-
-            const newSelectList = priorHardwareList
-                .filter((item) => item !== hardware.name.ko);
-
-            newSelectList.push(hardware.name.ko);
-            localStorage.setItem(
-                'hardwareList',
-                JSON.stringify(newSelectList),
-            );
-            priorHardwareList = newSelectList;
-
-            const icon = `../../../modules/${hardware.icon}`;
-            $('#selectedHWThumb').attr('src', icon);
-
-            if (hardware.url) {
-                const $url = $('#url');
-                $url.text(hardware.url);
-                $('#urlArea').show();
-                $url.off('click');
-                $url.on('click', () => {
-                    router.openExternalUrl(hardware.url);
-                });
-            } else {
-                $('#urlArea').hide();
-            }
-
-            if (hardware.video) {
-                let video = hardware.video;
-                const $video = $('#video');
-
-                if (typeof video === 'string') {
-                    video = [video];
-                }
-
-                $video.empty();
-                video.forEach((link) => {
-                    $video.append(`<span>${link}</span><br/>`);
-                    $('#videoArea').show();
-                });
-                $video.off('click');
-                $video.on('click', 'span', (e) => {
-                    const index = $('#video span').index(e.target);
-                    console.log(video, index, video[index]);
-                    router.openExternalUrl(video[index]);
-                });
-            } else {
-                $('#videoArea').hide();
-            }
-
-            if (hardware.email) {
-                const $email = $('#email');
-                $email.text(hardware.email);
-                $('#emailArea').show();
-                $email
-                    .off('click')
-                    .on('click', () => {
-                        clipboard.writeText(hardware.email);
-                        alert(
-                            translator.translate('Copied to clipboard'),
-                        );
-                    });
-            } else {
-                $('#emailArea').hide();
-            }
-
-            $('#driverButtonSet button').remove();
-            $('#firmwareButtonSet button').remove();
-
-            if (hardware.driver) {
-                if (
-                    $.isPlainObject(hardware.driver) &&
-                    hardware.driver[os]
-                ) {
-                    const $dom = $('<button class="hwPanelBtn">');
-                    $dom.text(
-                        translator.translate('Install Device Driver'),
-                    );
-                    $dom.prop('driverPath', hardware.driver[os]);
-                    $('#driverButtonSet').append($dom);
-                } else if (Array.isArray(hardware.driver)) {
-                    hardware.driver.forEach((driver) => {
-                        if (driver[os]) {
-                            const $dom = $('<button class="hwPanelBtn">');
-                            $dom.text(
-                                translator.translate(driver.translate),
-                            );
-                            $dom.prop('driverPath', driver[os]);
-                            $('#driverButtonSet').append($dom);
-                        }
-                    });
-                }
-            }
-            if (hardware.firmware) {
-                $('#firmware').show();
-                if (Array.isArray(hardware.firmware)) {
-                    hardware.firmware.forEach((firmware) => {
-                        const $dom = $('<button class="hwPanelBtn">');
-                        $dom.text(
-                            translator.translate(firmware.translate),
-                        );
-                        $dom.prop('firmware', firmware.name);
-                        $dom.prop('config', hardware);
-                        $('#firmwareButtonSet').append($dom);
-                    });
-                } else {
-                    const $dom = $('<button class="hwPanelBtn">');
-                    $dom.text(translator.translate('Install Firmware'));
-                    $dom.prop('firmware', hardware.firmware);
-                    $dom.prop('config', hardware);
-                    $('#firmwareButtonSet').append($dom);
-                }
-            }
-
-            ui.hardware = hardware.id.substring(0, 4);
-            ui.numLevel = 1;
-            ui.showConnecting();
-            hardware.serverMode = serverMode;
-            window.currentConfig = hardware;
         } else {
             $('.hardwareType').show();
         }
@@ -365,7 +239,7 @@ const ui = new class {
                 $(`#${config.id}`)
                     .off('click')
                     .on('click', () => {
-                        ui.showRobot(config);
+                        this._showHardwareConnectingPage(config);
                         router.startScan(config);
                     });
                 break;
@@ -409,7 +283,7 @@ const ui = new class {
     }
 
     flashFirmware(firmwareName) {
-        if (currentState !== 'before_connect' && currentState !== 'connected') {
+        if (router.currentState !== 'before_connect' && router.currentState !== 'connected') {
             alert(
                 translator.translate('Hardware Device Is Not Connected'),
             );
@@ -440,6 +314,15 @@ const ui = new class {
     }
 
     showPortSelectView(portList) {
+        if (isSelectPort) {
+            selectPortConnectionTimeout = setTimeout(() => {
+                if (viewMode !== 'main') {
+                    router.startScan(window.currentConfig);
+                }
+            }, 1000);
+        } else {
+            isSelectPort = true;
+        }
         if (
             JSON.stringify(portList) !== this.cachedPortList &&
             isSelectPort &&
@@ -477,6 +360,133 @@ const ui = new class {
             $cloudIcon.hide();
         }
     }
+
+    _showHardwareConnectingPage(hardware) {
+        viewMode = hardware.id;
+
+        isSelectPort = hardware.select_com_port ||
+            hardware.hardware.type === 'bluetooth' ||
+            router.serverMode === 1 ||
+            false;
+
+        const newSelectList = priorHardwareList
+            .filter((item) => item !== hardware.name.ko);
+
+        newSelectList.push(hardware.name.ko);
+        localStorage.setItem(
+            'hardwareList',
+            JSON.stringify(newSelectList),
+        );
+        priorHardwareList = newSelectList;
+
+        const icon = `../../../modules/${hardware.icon}`;
+        $('#selectedHWThumb').attr('src', icon);
+
+        if (hardware.url) {
+            const $url = $('#url');
+            $url.text(hardware.url);
+            $('#urlArea').show();
+            $url.off('click');
+            $url.on('click', () => {
+                router.openExternalUrl(hardware.url);
+            });
+        } else {
+            $('#urlArea').hide();
+        }
+
+        if (hardware.video) {
+            let video = hardware.video;
+            const $video = $('#video');
+
+            if (typeof video === 'string') {
+                video = [video];
+            }
+
+            $video.empty();
+            video.forEach((link) => {
+                $video.append(`<span>${link}</span><br/>`);
+                $('#videoArea').show();
+            });
+            $video.off('click');
+            $video.on('click', 'span', (e) => {
+                const index = $('#video span').index(e.target);
+                console.log(video, index, video[index]);
+                router.openExternalUrl(video[index]);
+            });
+        } else {
+            $('#videoArea').hide();
+        }
+
+        if (hardware.email) {
+            const $email = $('#email');
+            $email.text(hardware.email);
+            $('#emailArea').show();
+            $email
+                .off('click')
+                .on('click', () => {
+                    clipboard.writeText(hardware.email);
+                    alert(
+                        translator.translate('Copied to clipboard'),
+                    );
+                });
+        } else {
+            $('#emailArea').hide();
+        }
+
+        $('#driverButtonSet button').remove();
+        $('#firmwareButtonSet button').remove();
+
+        if (hardware.driver) {
+            if (
+                $.isPlainObject(hardware.driver) &&
+                hardware.driver[os]
+            ) {
+                const $dom = $('<button class="hwPanelBtn">');
+                $dom.text(
+                    translator.translate('Install Device Driver'),
+                );
+                $dom.prop('driverPath', hardware.driver[os]);
+                $('#driverButtonSet').append($dom);
+            } else if (Array.isArray(hardware.driver)) {
+                hardware.driver.forEach((driver) => {
+                    if (driver[os]) {
+                        const $dom = $('<button class="hwPanelBtn">');
+                        $dom.text(
+                            translator.translate(driver.translate),
+                        );
+                        $dom.prop('driverPath', driver[os]);
+                        $('#driverButtonSet').append($dom);
+                    }
+                });
+            }
+        }
+        if (hardware.firmware) {
+            $('#firmware').show();
+            if (Array.isArray(hardware.firmware)) {
+                hardware.firmware.forEach((firmware) => {
+                    const $dom = $('<button class="hwPanelBtn">');
+                    $dom.text(
+                        translator.translate(firmware.translate),
+                    );
+                    $dom.prop('firmware', firmware.name);
+                    $dom.prop('config', hardware);
+                    $('#firmwareButtonSet').append($dom);
+                });
+            } else {
+                const $dom = $('<button class="hwPanelBtn">');
+                $dom.text(translator.translate('Install Firmware'));
+                $dom.prop('firmware', hardware.firmware);
+                $dom.prop('config', hardware);
+                $('#firmwareButtonSet').append($dom);
+            }
+        }
+
+        ui.hardware = hardware.id.substring(0, 4);
+        ui.numLevel = 1;
+        ui.showConnecting();
+        hardware.serverMode = router.serverMode;
+        window.currentConfig = hardware;
+    }
 }();
 const router = new RendererRouter(ui);
 window.router = router;
@@ -511,13 +521,13 @@ function searchHardware(searchText) {
     const currentCategory = $('#filter_category').children('.init').data('value');
     let isNotFound = true;
     if (searchText) {
-        const hideList = hardwareList.filter((hardware) => {
+        const hideList = router.hardwareList.filter((hardware) => {
             const en = hardware.name.en.toLowerCase();
             const ko = hardware.name.ko.toLowerCase();
             const text = searchText.toLowerCase();
             if (
                 (ko.indexOf(text) > -1 || en.indexOf(text) > -1) && // 검색결과가 있는지
-                (hardware.platform.indexOf(process.platform) > -1) && // 현재 플랫폼과 동일한지
+                (hardware.platform.indexOf(platform) > -1) && // 현재 플랫폼과 동일한지
                 (currentCategory === 'all' || hardware.category === currentCategory) // 현재 카테고리에 포함되었는지
             ) {
                 ui.showRobot(hardware);
@@ -550,7 +560,7 @@ function filterHardware(type) {
     if (!type || type === 'all') {
         ui.showRobot();
     } else {
-        hardwareList.forEach((hardware) => {
+        router.hardwareList.forEach((hardware) => {
             if (hardware.category === type) {
                 ui.showRobot(hardware);
             } else {
@@ -587,7 +597,7 @@ $('.chromeButton').on('click', (e) => {
 
 ipcRenderer.on('hardwareCloseConfirm', () => {
     let isQuit = true;
-    if (currentState === 'connected') {
+    if (router.currentState === 'connected') {
         isQuit = confirm(
             translator.translate(
                 'Connection to the hardware will terminate once program is closed.',
@@ -637,68 +647,6 @@ router.getOpensourceContents().then((text) => {
 
 let isSelectPort = true;
 let selectPortConnectionTimeout;
-
-// state
-let currentState = '';
-ipcRenderer.on('state', (event, state, data) => {
-    console.log(state);
-    const {
-        showRobot,
-        lost,
-        disconnected,
-        selectPort,
-        flash,
-        beforeConnect,
-        connected,
-    } = Statement;
-
-    // select_port 는 기록해두어도 쓸모가 없으므로 표기하지 않는다
-    if (state !== selectPort) {
-        currentState = state;
-    }
-
-    switch (state) {
-        case showRobot: {
-            ui.showRobot(data);
-            break;
-        }
-        case selectPort: {
-            router.close();
-            ui.showPortSelectView(data);
-            if (isSelectPort) {
-                selectPortConnectionTimeout = setTimeout(() => {
-                    if (viewMode !== 'main') {
-                        router.startScan(window.currentConfig);
-                    }
-                }, 1000);
-            } else {
-                isSelectPort = true;
-            }
-            return; // ui 변경 이루어지지 않음.
-        }
-        case flash: {
-            ui.flashFirmware();
-            break;
-        }
-        case beforeConnect: {
-            ui.showAlert(
-                `${translator.translate('Connecting to hardware device.')
-                    } ${
-                    translator.translate('Please select the firmware.')}`,
-            );
-            break;
-        }
-        case lost:
-            ui.showConnecting();
-            break;
-        case disconnected:
-            ui.showDisconnected();
-            break;
-        case connected:
-            ui.showConnected();
-            break;
-    }
-});
 
 // configuration
 router.refreshHardwareModules();

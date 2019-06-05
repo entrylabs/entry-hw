@@ -27,7 +27,9 @@ function getInitializeList() {
     return preload;
 }
 
+// TODO Lang 에 있는 하드웨어 관련 템플릿 전부 translator 로 처리
 (function() {
     window.preload = getInitializeList();
     window.getLang = (template) => _get(window.preload.Lang, template);
+    window.translate = (template) => window.preload.translator.translate(template);
 })();
