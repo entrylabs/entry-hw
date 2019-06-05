@@ -188,6 +188,8 @@ if (!app.requestSingleInstanceLock()) {
             title: title + packageJson.version,
             webPreferences: {
                 backgroundThrottling: false,
+                nodeIntegration: false,
+                preload: path.resolve(__dirname, 'src', 'renderer', 'preload.js'),
             },
         });
 
@@ -217,7 +219,7 @@ if (!app.requestSingleInstanceLock()) {
         mainWindow.on('close', (e) => {
             if (!isForceClose) {
                 e.preventDefault();
-                mainWindow.webContents.send('hardwareClose');
+                mainWindow.webContents.send('hardwareCloseConfirm');
             }
         });
 
