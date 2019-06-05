@@ -14,7 +14,6 @@ function getInitializeList() {
 
     const translator = new Translator();
     const lang = translator.currentLangauge;
-    preload.lang = lang;
     preload.Lang = require(`./lang/${lang}.js`).Lang;
     preload.translator = translator;
 

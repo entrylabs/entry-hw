@@ -1,8 +1,9 @@
 'use strict';
 const {
     ipcRenderer, clipboard, remote, RendererRouter, constants,
-    lang, Lang, translator, platform, os,
+    Lang, translator, platform, os,
 } = window.preload;
+const langType = translator.currentLangauge;
 const Modal = window.Modal.default;
 const modal = new Modal();
 
@@ -160,6 +161,7 @@ const ui = new class {
             translator.translate('Connecting to hardware device.'),
         );
     }
+
     showConnected() {
         $('#title').text(translator.translate('hardware > connected'));
         hideCategory();
@@ -173,6 +175,7 @@ const ui = new class {
             2000,
         );
     }
+
     showDisconnected() {
         $('#title').text(translator.translate('hardware > disconnected'));
         hideCategory();
@@ -190,28 +193,19 @@ const ui = new class {
     showAlert(message, duration) {
         if (!$('#hwList').is(':visible')) {
             const $alert = $('#alert');
-            $alert.removeClass('error');
             $alert.text(message);
             $alert.css({ height: '0px' });
-            $alert
-                .stop()
-                .animate({ height: '35px' });
+            $alert.stop().animate({ height: '35px' });
             if (duration) {
                 setTimeout(() => {
-                    $alert
-                        .stop()
-                        .animate({ height: '0px' });
+                    $alert.stop().animate({ height: '0px' });
                 }, duration);
             }
         }
     }
 
     hideAlert() {
-        $('#alert')
-            .stop(true, true)
-            .animate({
-                height: '0px',
-            });
+        $('#alert').stop(true, true).animate({ height: '0px' });
     }
 
     hideRobot(id) {
@@ -226,7 +220,6 @@ const ui = new class {
         if (hardware.id) {
             $(`#${hardware.id}`).show();
             viewMode = this.id;
-            // $('#back.navigate_button').addClass('active');
 
             isSelectPort = hardware.select_com_port ||
                 hardware.hardware.type === 'bluetooth' ||
@@ -267,7 +260,7 @@ const ui = new class {
                 }
 
                 $video.empty();
-                video.forEach((link, idx) => {
+                video.forEach((link) => {
                     $video.append(`<span>${link}</span><br/>`);
                     $('#videoArea').show();
                 });
@@ -364,7 +357,7 @@ const ui = new class {
                 <div class="hardwareType" id="${config.id}">
                     <img class="hwThumb" src="../../../modules/${config.icon}" alt="">
                     <h2 class="hwTitle">
-                        ${config.name && config.name[lang] || config.name.en}
+                        ${config.name && config.name[langType] || config.name.en}
                     </h2>
                 </div>
             `);
@@ -384,7 +377,7 @@ const ui = new class {
                 style="filter: grayscale(100%); opacity: 0.5">
                     <img class="hwThumb" src="${config.image}" alt="">
                     <h2 class="hwTitle">
-                        ${config.name && config.name[lang] || config.name.en || config.name}
+                        ${config.name && config.name[langType] || config.name.en || config.name}
                     </h2>
                 </div>
             `);
@@ -392,8 +385,6 @@ const ui = new class {
                     .off('click')
                     .on('click', () => {
                         router.requestDownloadModule(config);
-                        // ui.showRobot(config);
-                        // router.startScan(config);
                     });
                 break;
             }
@@ -402,7 +393,7 @@ const ui = new class {
                 <div class="hardwareType" id="${config.id}">
                     <img class="hwThumb" src="../../../modules/${config.icon}" alt="">
                     <h2 class="hwTitle">
-                        [업]${config.name && config.name[lang] || config.name.en}
+                        [업]${config.name && config.name[langType] || config.name.en}
                     </h2>
                 </div>
             `);
@@ -410,8 +401,7 @@ const ui = new class {
                 $(`#${config.id}`)
                     .off('click')
                     .on('click', () => {
-                        ui.showRobot(config);
-                        router.startScan(config);
+                        router.requestDownloadModule(config);
                     });
                 break;
             }
@@ -606,11 +596,11 @@ $('#select_port').dblclick(() => {
 });
 
 $('#btn_select_port').click((e) => {
-    const com_port = $('#select_port').val();
-    if (!com_port) {
+    const comPort = $('#select_port').val();
+    if (!comPort) {
         alert(translator.translate('Select the COM PORT to connect'));
     } else {
-        window.currentConfig.this_com_port = com_port[0];
+        window.currentConfig.this_com_port = comPort[0];
         clearSelectPort();
     }
 });
@@ -635,9 +625,9 @@ router.getOpensourceContents().then((text) => {
     $('#opensource_content').val(text);
 });
 
-var isSelectPort = true;
+let isSelectPort = true;
 let selectPortConnectionTimeout;
-var serverMode = 0;
+let serverMode = 0;
 // state
 
 const initialServerMode = ipcRenderer.sendSync('getCurrentServerModeSync');
