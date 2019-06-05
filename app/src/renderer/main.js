@@ -1,6 +1,6 @@
 'use strict';
 const {
-    ipcRenderer, shell, clipboard, remote, RendererRouter, constants,
+    ipcRenderer, clipboard, remote, RendererRouter, constants,
     lang, Lang, translator, platform, os,
 } = window.preload;
 const Modal = window.Modal.default;
@@ -252,7 +252,7 @@ const ui = new class {
                 $('#urlArea').show();
                 $url.off('click');
                 $url.on('click', () => {
-                    shell.openExternal(hardware.url);
+                    router.openExternalUrl(hardware.url);
                 });
             } else {
                 $('#urlArea').hide();
@@ -275,7 +275,7 @@ const ui = new class {
                 $video.on('click', 'span', (e) => {
                     const index = $('#video span').index(e.target);
                     console.log(video, index, video[index]);
-                    shell.openExternal(video[index]);
+                    router.openExternalUrl(video[index]);
                 });
             } else {
                 $('#videoArea').hide();
@@ -582,9 +582,7 @@ $body.on('click', '#refresh', (e) => {
 });
 
 $('.chromeButton').on('click', (e) => {
-    shell.openExternal(
-        'https://www.google.com/chrome/browser/desktop/index.html',
-    );
+    router.openExternalUrl('https://www.google.com/chrome/browser/desktop/index.html');
 });
 
 ipcRenderer.on('hardwareCloseConfirm', () => {

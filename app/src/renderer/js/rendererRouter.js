@@ -40,6 +40,10 @@ class RendererRouter {
         });
     }
 
+    openExternalUrl(url) {
+        shell.openExternal(url);
+    }
+
     getOpensourceContents() {
         return new Promise((resolve) => {
             ipcRenderer.send('getOpensourceText');

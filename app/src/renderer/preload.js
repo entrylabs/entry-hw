@@ -1,4 +1,4 @@
-const { ipcRenderer, shell, clipboard, remote } = require('electron');
+const { ipcRenderer, clipboard, remote } = require('electron');
 const { get: _get } = require('lodash');
 const Translator = require('./js/translator');
 const RendererRouter = require('./js/rendererRouter');
@@ -7,7 +7,6 @@ const constants = require('../common/constants');
 function getInitializeList() {
     const preload = {};
     preload.ipcRenderer = ipcRenderer;
-    preload.shell = shell;
     preload.clipboard = clipboard;
     preload.remote = remote;
     preload.RendererRouter = RendererRouter;
