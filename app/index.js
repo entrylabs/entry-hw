@@ -301,7 +301,9 @@ if (!app.requestSingleInstanceLock()) {
         const version = getPaddedVersion(packageJson.version);
         const lastVersion = getPaddedVersion(lastCheckVersion);
 
-        e.sender.send('checkVersionResult', lastVersion > version);
+        if (!e.sender.isDestroyed()) {
+            e.sender.send('checkVersionResult', lastVersion > version);
+        }
     });
 
     ipcMain.on('openAboutWindow', (event, arg) => {
