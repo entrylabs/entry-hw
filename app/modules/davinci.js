@@ -20,6 +20,8 @@ const FUNCTION_KEYS = {
     GET_MAGNET: 0x3A,
     GET_SOUND_LEVEL: 0x3B,
     PLAY_MELODY: 0x3C,
+    SET_ANALOG: 0x3D,
+    SET_DIGITAL: 0x3E,
     RESET: 0xfe,
 };
 
@@ -243,6 +245,25 @@ class Davinci extends BaseModule {
                     Buffer([FUNCTION_KEYS.SET_IMAGE, value]),
                     0,
                     2
+                );
+                break;
+            }
+            case 'SET_ANALOG': {
+                const { pin, value } = data;
+                returnData.fill(
+                    Buffer([FUNCTION_KEYS.SET_ANALOG, pin, 0, 0]),
+                    0,
+                    4
+                );
+                returnData.writeInt16LE(value, 1);
+                break;
+            }
+            case 'SET_DIGITAL': {
+                const { pin, value } = data;
+                returnData.fill(
+                    Buffer([FUNCTION_KEYS.SET_DIGITAL, pin, value]),
+                    0,
+                    3
                 );
                 break;
             }
