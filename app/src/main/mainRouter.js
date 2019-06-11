@@ -28,6 +28,7 @@ class MainRouter {
     }
 
     constructor(mainWindow) {
+        global.$ = require('lodash');
         this.browser = mainWindow;
         rendererConsole.initialize(mainWindow);
         this.scanner = new Scanner(this);
