@@ -629,7 +629,6 @@ Module.prototype.getPropertyJson = function(propertyNum, moduleID) {
 Module.prototype.requestRemoteData = function(handler) {
     var arr = new Object();
     $.forEach(connect_,function(value, index) {
-        console.log(connect_, index);
         if(index != path) {
             if(arr[connect_[index].moduleT] == undefined) {
                 arr[connect_[index].moduleT] = new Array();
