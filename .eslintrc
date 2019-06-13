@@ -1,5 +1,14 @@
 {
     "extends": ["prettier"],
+    "overrides": [
+        {
+            "parser": "@typescript-eslint/parser",
+            "files": ["./app/src/**/*.ts"],
+            "rules": {
+                "no-unused-vars": "off"
+            }
+        }
+    ],
     "parserOptions": {
         "ecmaVersion": 2018,
         "sourceType": "module"

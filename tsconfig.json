@@ -73,6 +73,7 @@
         // "emitDecoratorMetadata": true,         /* Enables experimental support for emitting type metadata for decorators. */
     },
     "files": [
-        "./app/src/main/connector.ts"
+        "./app/src/main/connector.ts",
+        "./app/src/main/utils/fileUtils.ts"
     ]
 }
