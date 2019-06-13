@@ -7,10 +7,6 @@ import Bindings from '@entrylabs/bindings';
 
 SerialPort.Binding = Bindings;
 
-type Router = any;
-type HardwareOptions = any;
-type HardwareModule = any;
-
 interface SerialPortOptions extends SerialPortTypes.OpenOptions {
     flowControl?: string;
 }
