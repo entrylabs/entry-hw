@@ -9,7 +9,7 @@ SerialPort.Binding = require('@entrylabs/bindings');
  * 스캐너에서 open, initialize 가 일어나고,
  * 라우터에서 setRouter, connect 를 거쳐 통신한다.
  */
-class Connector {
+class Connector_old {
     static get DEFAULT_CONNECT_LOST_MILLS() {
         return 1000;
     }
@@ -80,7 +80,7 @@ class Connector {
     open(port) {
         return new Promise((resolve, reject) => {
             const hardwareOptions = this.options;
-            this.lostTimer = hardwareOptions.lostTimer || Connector.DEFAULT_CONNECT_LOST_MILLS;
+            this.lostTimer = hardwareOptions.lostTimer || Connector_old.DEFAULT_CONNECT_LOST_MILLS;
 
             const serialPort = new SerialPort(port, this._makeSerialPortOptions(hardwareOptions));
             this.serialPort = serialPort;
@@ -119,7 +119,7 @@ class Connector {
         return new Promise((resolve, reject) => {
             const {
                 control,
-                duration = Connector.DEFAULT_SLAVE_DURATION,
+                duration = Connector_old.DEFAULT_SLAVE_DURATION,
                 firmwarecheck,
             } = this.options;
             const hwModule = this.hwModule;
@@ -223,7 +223,7 @@ class Connector {
         const hwModule = this.hwModule;
         const {
             control,
-            duration = Connector.DEFAULT_SLAVE_DURATION,
+            duration = Connector_old.DEFAULT_SLAVE_DURATION,
             advertise,
             softwareReset,
         } = this.options;
@@ -381,4 +381,4 @@ class Connector {
     };
 }
 
-module.exports = Connector;
+module.exports = Connector_old;
