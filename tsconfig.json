@@ -74,6 +74,7 @@
     },
     "files": [
         "./app/src/main/connector.ts",
-        "./app/src/main/utils/fileUtils.ts"
+        "./app/src/main/utils/fileUtils.ts",
+        "./app/src/main/utils/rendererConsole.ts"
     ]
 }
