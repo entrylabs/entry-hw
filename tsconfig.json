@@ -75,6 +75,7 @@
     "files": [
         "./app/src/main/connector.ts",
         "./app/src/main/flasher.ts",
+        "./app/src/main/hardwareListManager.ts",
         "./app/src/main/utils/fileUtils.ts",
         "./app/src/main/utils/rendererConsole.ts"
     ]
