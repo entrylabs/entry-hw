@@ -76,6 +76,8 @@
         "./app/src/main/connector.ts",
         "./app/src/main/flasher.ts",
         "./app/src/main/hardwareListManager.ts",
+        "./app/src/main/scanner.ts",
+        "./app/src/common/constants.ts",
         "./app/src/main/utils/fileUtils.ts",
         "./app/src/main/utils/rendererConsole.ts"
     ]

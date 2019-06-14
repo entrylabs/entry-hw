@@ -2,6 +2,7 @@
 declare type ObjectLike = {[key:string]: any};
 
 /* for Entry Hardware */
+declare type HardwareModuleOptions = any;
 declare type HardwareOptions = any;
 declare type HardwareModule = any;
 declare type Firmware = {

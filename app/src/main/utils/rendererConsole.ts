@@ -1,6 +1,6 @@
 import { BrowserWindow, webContents } from 'electron';
 
-module.exports = class {
+class rendererConsole {
     static sender: webContents;
     /**
      * @param rendererWindow{BrowserWindow}
@@ -33,3 +33,6 @@ module.exports = class {
         }
     }
 };
+
+module.exports = rendererConsole;
+export default rendererConsole;

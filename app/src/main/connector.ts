@@ -1,14 +1,24 @@
 'use strict';
-import * as SerialPortTypes from 'serialport';
 import Readline from '@serialport/parser-readline'; // modify
 import Delimiter from '@serialport/parser-delimiter';
 import SerialPort from '@serialport/stream';
 import Bindings from '@entrylabs/bindings';
+import SerialPortType = require('serialport');
 
 SerialPort.Binding = Bindings;
 
-interface SerialPortOptions extends SerialPortTypes.OpenOptions {
+interface SerialPortOptions extends SerialPortType.OpenOptions {
     flowControl?: string;
+}
+
+interface SerialPortWithParser extends SerialPortType {
+    parser?:
+        SerialPortType.parsers.ByteLength |
+        SerialPortType.parsers.CCTalk |
+        SerialPortType.parsers.Delimiter |
+        SerialPortType.parsers.Readline |
+        SerialPortType.parsers.Ready |
+        SerialPortType.parsers.Regex;
 }
 
 /**
@@ -20,7 +30,7 @@ class Connector {
     options: HardwareOptions;
     hwModule: HardwareModule;
     router?: Router;
-    serialPort?: any;
+    serialPort?: SerialPortWithParser;
     connected: boolean;
     received: boolean;
     lostTimer: number;
@@ -127,6 +137,7 @@ class Connector {
      */
     initialize() {
         return new Promise((resolve, reject) => {
+            const serialPort = this.serialPort as SerialPortWithParser;
             const {
                 control,
                 duration = Connector.DEFAULT_SLAVE_DURATION,
@@ -134,7 +145,7 @@ class Connector {
             } = this.options;
             const hwModule = this.hwModule;
             const serialPortReadStream =
-                this.serialPort.parser ? this.serialPort.parser : this.serialPort;
+                serialPort.parser ? serialPort.parser : serialPort;
 
             const runAsMaster = () => {
                 serialPortReadStream.on('data', (data: any) => {
@@ -143,12 +154,12 @@ class Connector {
                     if (result === undefined) {
                         this.send(hwModule.requestInitialData());
                     } else {
-                        this.serialPort.removeAllListeners('data');
+                        serialPort.removeAllListeners('data');
                         serialPortReadStream.removeAllListeners('data');
                         this.flashFirmware && clearTimeout(this.flashFirmware);
                         if (result === true) {
                             if (hwModule.setSerialPort) {
-                                hwModule.setSerialPort(this.serialPort);
+                                hwModule.setSerialPort(serialPort);
                             }
                             resolve();
                         } else {
@@ -163,7 +174,7 @@ class Connector {
                 serialPortReadStream.on('data', (data: any) => {
                     const result = hwModule.checkInitialData(data, this.options);
                     if (result !== undefined) {
-                        this.serialPort.removeAllListeners('data');
+                        this.serialPort && this.serialPort.removeAllListeners('data');
                         serialPortReadStream.removeAllListeners('data');
                         this.flashFirmware && clearTimeout(this.flashFirmware);
                         this.slaveTimer && clearTimeout(this.slaveTimer);
@@ -361,7 +372,7 @@ class Connector {
         if (this.serialPort && this.serialPort.isOpen) {
             this.serialPort.close(() => {
                 this.serialPort = undefined;
-            }, null);
+            });
         }
     };
 
@@ -388,4 +399,4 @@ class Connector {
     };
 }
 
-module.exports = Connector;
+export default Connector;
