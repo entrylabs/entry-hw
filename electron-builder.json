@@ -44,6 +44,8 @@
     },
     "files": [
         "app",
+        "!app/**/*.ts",
+        "!app/**/*.map",
         "!app/firmwares/examples",
         "!app/test.html"
     ],

@@ -7,10 +7,10 @@
   resolved "https://registry.yarnpkg.com/7zip-bin/-/7zip-bin-4.1.0.tgz#33eff662a5c39c0c2061170cc003c5120743fff0"
   integrity sha512-AsnBZN3a8/JcNt+KPkGGODaA4c7l3W5+WpeKgGSbstSLxqWtTXqd1ieJGBQ8IFCtRg8DmmKUcSkIkUc0A4p3YA==
 
-"@entrylabs/bindings@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@entrylabs/bindings/-/bindings-1.0.1.tgz#d9c35e984fd01b272068ddcfdf5d0814224c3d5b"
-  integrity sha512-30RQgVWn1DtyeSkMDieeUiurzOkoI2v4mlJinvG/C0cZMhxD4ioion6Zy1/H7DC8VMmsAMFPz2H7WtuOBlDdyw==
+"@entrylabs/bindings@1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@entrylabs/bindings/-/bindings-1.0.0.tgz#0479dc09517686dc45bc022f3125641694b591cc"
+  integrity sha512-t9wnmrRxg9WvGCVHnr6jrmWLlAAnOC2RnSApBEweb/SsbzMkMQbL+V6JEdx1qkazLK7LGvo9mNP8hTGXqtxnDQ==
   dependencies:
     "@serialport/binding-abstract" "^2.0.4"
     "@serialport/parser-readline" "^2.0.2"

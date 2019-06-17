@@ -9,10 +9,8 @@
         "clean": "node scripts/clean.js",
         "start": "tsc&&set NODE_ENV=development&&electron -d app",
         "debug": "set NODE_ENV=development&&electron -d app --inspect",
-        "pack:win32": "build --arch ia32",
-        "make": "cross-env CSC_NAME=\"Connect Foundation (DLFUSDA3L5)\"&&build",
-        "make:osx": "cross-env CSC_NAME=\"Connect Foundation (DLFUSDA3L5)\"&&build",
-        "make:win32": "build --arch ia32 --platform=win32 && makensis ./build/entry-hw.nsi"
+        "pack:win32": "tsc&&build --arch ia32",
+        "make": "tsc&&cross-env CSC_NAME=\"Connect Foundation (DLFUSDA3L5)\" && build"
     },
     "devDependencies": {
         "@types/electron": "^1.6.10",
@@ -35,7 +33,7 @@
         "typescript": "^3.5.1"
     },
     "dependencies": {
-        "@entrylabs/bindings": "^1.0.1",
+        "@entrylabs/bindings": "1.0.0",
         "@serialport/binding-abstract": "^2.0.4",
         "@serialport/parser-readline": "^2.0.2",
         "@serialport/stream": "^2.0.4",
