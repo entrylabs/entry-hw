@@ -2,7 +2,7 @@ import { ipcMain, shell, BrowserWindow } from 'electron';
 import path from 'path';
 import fs from 'fs';
 import Scanner from './scanner';
-import EntryServer from './server';
+import EntryServer from './entryServer';
 import Flasher from './flasher';
 import Utils from './utils/fileUtils';
 import rendererConsole from './utils/rendererConsole';

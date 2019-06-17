@@ -80,7 +80,7 @@
         "./app/src/main/flasher.ts",
         "./app/src/main/hardwareListManager.ts",
         "./app/src/main/scanner.ts",
-        "./app/src/main/server.ts",
+        "./app/src/main/entryServer.ts",
         "./app/src/main/mainRouter.ts",
         "./app/src/common/constants.ts",
         "./app/src/main/utils/fileUtils.ts",
