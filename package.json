@@ -6,7 +6,7 @@
     "main": "app/index.js",
     "scripts": {
         "lint": "eslint app",
-        "clean": "rimraf dist",
+        "clean": "node scripts/clean.js",
         "start": "tsc&&set NODE_ENV=development&&electron -d app",
         "debug": "set NODE_ENV=development&&electron -d app --inspect",
         "pack:win32": "build --arch ia32",
