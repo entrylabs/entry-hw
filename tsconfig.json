@@ -73,6 +73,7 @@
         // "emitDecoratorMetadata": true,         /* Enables experimental support for emitting type metadata for decorators. */
     },
     "files": [
+        "./app/index.ts",
         "./app/src/main/datahandler/bytearray.ts",
         "./app/src/main/datahandler/handler.ts",
         "./app/src/main/datahandler/json.ts",
@@ -85,8 +86,5 @@
         "./app/src/common/constants.ts",
         "./app/src/main/utils/fileUtils.ts",
         "./app/src/main/utils/rendererConsole.ts"
-    ],
-    "exclude": [
-        "./app/src/main/datahandler/*"
     ]
 }

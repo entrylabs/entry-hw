@@ -18,3 +18,5 @@ app/ssl/
 app/src/main/**/*.js
 app/src/main/**/*.map
 app/src/common/*.map
+app/index.js
+app/index.js.map

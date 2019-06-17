@@ -394,4 +394,4 @@ class MainRouter {
     }
 }
 
-module.exports = MainRouter;
+export default MainRouter;

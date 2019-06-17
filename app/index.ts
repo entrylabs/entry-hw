@@ -1,8 +1,7 @@
 'use strict';
 
-const electron = require('electron');
-const MainRouter = require('./src/main/mainRouter');
-const {
+import MainRouter from './src/main/mainRouter';
+import {
     app,
     BrowserWindow,
     globalShortcut,
@@ -10,16 +9,16 @@ const {
     webContents,
     dialog,
     net,
-} = electron;
-const path = require('path');
-const fs = require('fs');
-const packageJson = require('../package.json');
+} from 'electron';
+import path from 'path';
+import fs from 'fs';
+import packageJson from '../package.json';
 
-let mainWindow = null;
-let aboutWindow = null;
-let mainRouter = null;
+let mainWindow: undefined | BrowserWindow = undefined;
+let aboutWindow: undefined | BrowserWindow  = undefined;
+let mainRouter: undefined | MainRouter = undefined;
 
-const roomIds = [];
+const roomIds: string[] = [];
 
 let isForceClose = false;
 let hostURI = 'playentry.org';
@@ -31,7 +30,7 @@ global.sharedObject = {
     roomIds,
 };
 
-function lpad(str, len) {
+function lpad(str: string, len: number) {
     const strLen = str.length;
     if (strLen < len) {
         for (let i = 0; i < len - strLen; i++) {
@@ -39,15 +38,15 @@ function lpad(str, len) {
         }
     }
     return String(str);
-};
+}
 
-function getPaddedVersion(version) {
+function getPaddedVersion(version: number | string) {
     if (!version) {
         return '';
     }
     version = String(version);
 
-    const padded = [];
+    const padded: string[] = [];
     const splitVersion = version.split('.');
     splitVersion.forEach((item) => {
         padded.push(lpad(item, 4));
@@ -56,7 +55,7 @@ function getPaddedVersion(version) {
     return padded.join('.');
 }
 
-function createAboutWindow(mainWindow) {
+function createAboutWindow(mainWindow ?: BrowserWindow) {
     aboutWindow = new BrowserWindow({
         parent: mainWindow,
         width: 380,
@@ -71,14 +70,14 @@ function createAboutWindow(mainWindow) {
 
     aboutWindow.loadURL(`file:///${
         path.resolve(__dirname, 'src', 'renderer', 'views', 'about.html')
-    }`);
+        }`);
 
     aboutWindow.on('closed', () => {
-        aboutWindow = null;
+        aboutWindow = undefined;
     });
 }
 
-function getArgsParseData(argv) {
+function getArgsParseData(argv: any) {
     const regexRoom = /roomId:(.*)/;
     const arrRoom = regexRoom.exec(argv) || ['', ''];
     let roomId = arrRoom[1];
@@ -104,9 +103,10 @@ if (argv.indexOf('entryhw:')) {
 }
 
 const option = {
-    file: null,
+    file: '',
     help: null,
-    version: null,
+    version: false,
+    debug: false,
     webdriver: null,
     modules: [],
 };
@@ -140,7 +140,7 @@ if (!app.requestSingleInstanceLock()) {
 } else {
     // 어플리케이션을 중복 실행했습니다. 주 어플리케이션 인스턴스를 활성화 합니다.
     app.on('second-instance', (event, argv, workingDirectory) => {
-        let parseData = {};
+        let parseData = '';
         if (argv.indexOf('entryhw:')) {
             parseData = getArgsParseData(argv);
         }
@@ -156,19 +156,19 @@ if (!app.requestSingleInstanceLock()) {
                     roomIds.push(parseData);
                 }
                 mainWindow.webContents.send('customArgs', parseData);
-                mainRouter.addRoomId(parseData);
+                mainRouter && mainRouter.addRoomId(parseData);
             }
         }
     });
 
-    ipcMain.on('reload', (event, arg) => {
+    ipcMain.on('reload', (event: Electron.Event, arg: any) => {
         app.relaunch({ args: process.argv.slice(1).concat(['--relaunch']) });
         app.exit(0);
     });
 
-    app.commandLine.appendSwitch('enable-web-bluetooth', true);
-    app.commandLine.appendSwitch('enable-experimental-web-platform-features', true);
-    app.commandLine.appendSwitch("disable-renderer-backgrounding");
+    app.commandLine.appendSwitch('enable-web-bluetooth', 'true');
+    app.commandLine.appendSwitch('enable-experimental-web-platform-features', 'true');
+    app.commandLine.appendSwitch('disable-renderer-backgrounding');
     // app.commandLine.appendSwitch('enable-web-bluetooth');
     app.once('ready', () => {
         const language = app.getLocale();
@@ -197,14 +197,14 @@ if (!app.requestSingleInstanceLock()) {
             (event, deviceList, callback) => {
                 event.preventDefault();
                 const result = deviceList.find(
-                    (device) => device.deviceName === 'LPF2 Smart Hub 2 I/O'
+                    (device) => device.deviceName === 'LPF2 Smart Hub 2 I/O',
                 );
                 if (!result) {
                     callback('A0:E6:F8:1D:FB:E3');
                 } else {
                     callback(result.deviceId);
                 }
-            }
+            },
         );
 
         mainWindow.loadURL(`file:///${path.join(__dirname, 'src', 'renderer', 'views', 'index.html')}`);
@@ -218,12 +218,12 @@ if (!app.requestSingleInstanceLock()) {
         mainWindow.on('close', (e) => {
             if (!isForceClose) {
                 e.preventDefault();
-                mainWindow.webContents.send('hardwareCloseConfirm');
+                (mainWindow as BrowserWindow).webContents.send('hardwareCloseConfirm');
             }
         });
 
         mainWindow.on('closed', () => {
-            mainWindow = null;
+            mainWindow = undefined;
         });
 
         let inspectorShortcut = '';
@@ -233,7 +233,7 @@ if (!app.requestSingleInstanceLock()) {
             inspectorShortcut = 'Control+Shift+i';
         }
 
-        globalShortcut.register(inspectorShortcut, (e) => {
+        globalShortcut.register(inspectorShortcut, (e: Electron.Event) => {
             const content = webContents.getFocusedWebContents();
             if (content) {
                 webContents.getFocusedWebContents().openDevTools();
@@ -246,10 +246,10 @@ if (!app.requestSingleInstanceLock()) {
 
     ipcMain.on('hardwareForceClose', () => {
         isForceClose = true;
-        mainWindow.close();
+        mainWindow && mainWindow.close();
     });
 
-    ipcMain.on('showMessageBox', (e, msg) => {
+    ipcMain.on('showMessageBox', (e: Electron.Event, msg: string) => {
         dialog.showMessageBox({
             type: 'none',
             message: msg,
@@ -257,7 +257,7 @@ if (!app.requestSingleInstanceLock()) {
         });
     });
 
-    ipcMain.on('checkUpdate', (e, msg) => {
+    ipcMain.on('checkUpdate', (e: Electron.Event, msg: string) => {
         const request = net.request({
             method: 'POST',
             host: hostURI,
@@ -273,7 +273,8 @@ if (!app.requestSingleInstanceLock()) {
                 let data = {};
                 try {
                     data = JSON.parse(body);
-                } catch (e) {}
+                } catch (e) {
+                }
                 e.sender.send('checkUpdateResult', data);
             });
         });
@@ -284,19 +285,19 @@ if (!app.requestSingleInstanceLock()) {
             JSON.stringify({
                 category: 'hardware',
                 version: packageJson.version,
-            })
+            }),
         );
         request.end();
     });
 
-    ipcMain.on('getOpensourceText', (e) => {
+    ipcMain.on('getOpensourceText', (e: Electron.Event) => {
         const opensourceFile = path.resolve(__dirname, 'OPENSOURCE.md');
         fs.readFile(opensourceFile, 'utf8', (err, text) => {
             e.sender.send('getOpensourceText', text);
         });
     });
 
-    ipcMain.on('checkVersion', (e, lastCheckVersion) => {
+    ipcMain.on('checkVersion', (e: Electron.Event, lastCheckVersion: any) => {
         const version = getPaddedVersion(packageJson.version);
         const lastVersion = getPaddedVersion(lastCheckVersion);
 
@@ -305,12 +306,12 @@ if (!app.requestSingleInstanceLock()) {
         }
     });
 
-    ipcMain.on('openAboutWindow', (event, arg) => {
-        aboutWindow.show();
+    ipcMain.on('openAboutWindow', (event: Electron.Event, arg: any) => {
+        aboutWindow && aboutWindow.show();
     });
 
-    let requestLocalDataInterval = -1;
-    ipcMain.on('startRequestLocalData', (event, duration) => {
+    let requestLocalDataInterval: undefined | NodeJS.Timeout = undefined;
+    ipcMain.on('startRequestLocalData', (event: Electron.Event, duration: number) => {
         requestLocalDataInterval = setInterval(() => {
             if (!event.sender.isDestroyed()) {
                 event.sender.send('sendingRequestLocalData');
@@ -318,6 +319,6 @@ if (!app.requestSingleInstanceLock()) {
         }, duration);
     });
     ipcMain.on('stopRequestLocalData', () => {
-        clearInterval(requestLocalDataInterval);
+        requestLocalDataInterval && clearInterval(requestLocalDataInterval);
     });
 }
