@@ -1,0 +1,28 @@
+{
+    "id": "2D0101",
+    "name": {
+        "en": "Davinci AI",
+        "ko": "다빈치 AI"
+    },
+    "platform": ["win32", "darwin"],
+    "icon": "davinci.png",
+    "module": "davinci.js",
+    "url": "http://www.dasanbooks.com",
+    "driver": {
+        "win32-ia32": "arduino/dpinst-x86.exe",
+        "win32-x64": "arduino/dpinst-amd64.exe"
+    },
+    "select_com_port": true,
+    "reconnect": true,
+    "entry": {
+        "protocol": "json"
+    },
+    "hardware": {
+        "type": "serial",
+        "control": "slave",
+        "duration": 16,
+        "byteDelimiter": [13, 10],
+        "vendor": "Arduino",
+        "baudRate": 115200
+    }
+}
