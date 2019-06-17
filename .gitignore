@@ -17,5 +17,4 @@ app/ssl/
 # typescript builds
 app/src/main/**/*.js
 app/src/main/**/*.map
-app/src/common/*.js
 app/src/common/*.map
