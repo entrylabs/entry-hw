@@ -36,7 +36,7 @@ class Scanner {
         this.scanCount = 0;
     }
 
-    async startScan(hwModule: HardwareModule, config: HardwareModuleOptions) {
+    async startScan(hwModule: HardwareModule, config: HardwareModuleOptions): Promise<Connector> {
         this.stopScan();
 
         this.config = config;
@@ -45,7 +45,7 @@ class Scanner {
         this.connectors = {};
         this.scanCount = 0;
 
-        const intervalScan = () => new Promise((resolve) => {
+        const intervalScan = (): Promise<Connector> => new Promise((resolve) => {
             rendererConsole.log('scanning...');
             this.scan()
                 .then((connector) => {
@@ -72,7 +72,7 @@ class Scanner {
         return await intervalScan();
     };
 
-    scan() {
+    scan(): Promise<Connector> {
         return new Promise(async (resolve, reject) => {
             if (!this.config || !this.scanTimer) {
                 return;
@@ -275,4 +275,4 @@ class Scanner {
     };
 }
 
-module.exports = Scanner;
+export default Scanner;

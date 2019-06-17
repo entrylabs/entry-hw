@@ -16,9 +16,9 @@
         "sourceMap": true,
         /* Generates corresponding '.map' file. */
         // "outFile": "./",                       /* Concatenate and emit output to single file. */
-//        "outDir": "./ts_build",
+        //        "outDir": "./ts_build",
         /* Redirect output structure to the directory. */
-//        "rootDir": "./app",
+        //        "rootDir": "./app",
         /* Specify the root directory of input files. Use to control the output directory structure with --outDir. */
         // "composite": true,                     /* Enable project compilation */
         // "tsBuildInfoFile": "./",               /* Specify file to store incremental compilation information */
@@ -29,7 +29,6 @@
         // "downlevelIteration": true,            /* Provide full support for iterables in 'for-of', spread, and destructuring when targeting 'ES5' or 'ES3'. */
         // "isolatedModules": true,               /* Transpile each file as a separate module (similar to 'ts.transpileModule'). */
         "resolveJsonModule": true,
-
         /* Strict Type-Checking Options */
         "strict": true,
         /* Enable all strict type-checking options. */
@@ -74,13 +73,20 @@
         // "emitDecoratorMetadata": true,         /* Enables experimental support for emitting type metadata for decorators. */
     },
     "files": [
+        "./app/src/main/datahandler/bytearray.ts",
+        "./app/src/main/datahandler/handler.ts",
+        "./app/src/main/datahandler/json.ts",
         "./app/src/main/connector.ts",
         "./app/src/main/flasher.ts",
         "./app/src/main/hardwareListManager.ts",
         "./app/src/main/scanner.ts",
         "./app/src/main/server.ts",
+        "./app/src/main/mainRouter.ts",
         "./app/src/common/constants.ts",
         "./app/src/main/utils/fileUtils.ts",
         "./app/src/main/utils/rendererConsole.ts"
+    ],
+    "exclude": [
+        "./app/src/main/datahandler/*"
     ]
 }

@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
-module.exports = class {
+export default class {
     moduleBasePath: string;
     allHardwareList: HardwareModule[];
 

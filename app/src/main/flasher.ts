@@ -77,7 +77,7 @@ class Flasher {
         });
     }
 
-    _flashCopy(firmware: Firmware, port: string, options: HardwareOptions): Promise<any[]> {
+    _flashCopy(firmware: FirmwareObject, port: string, options: HardwareOptions): Promise<any[]> {
         return new Promise((resolve, reject) => {
             const firmwareDirectory = Flasher._firmwareDirectoryPath;
             const destPath = dialog.showOpenDialog({
@@ -97,13 +97,13 @@ class Flasher {
         });
     }
 
-    flash(firmware: string | Firmware, port: string, options: HardwareOptions): Promise<any[]> {
-        if (typeof firmware === 'string') {
-            return this._flashArduino(firmware, port, options);
+    flash(firmware: Firmware, port: string, options: HardwareOptions): Promise<any[]> {
+        if (typeof (firmware as string) === 'string') {
+            return this._flashArduino((firmware as string), port, options);
         }
 
-        if (firmware.type === 'copy') {
-            return this._flashCopy(firmware, port, options);
+        if ((firmware as FirmwareObject).type === 'copy') {
+            return this._flashCopy((firmware as FirmwareObject), port, options);
         }
 
         return Promise.reject(new Error());
@@ -117,4 +117,4 @@ class Flasher {
     }
 }
 
-module.exports = Flasher;
+export default Flasher;

@@ -31,7 +31,7 @@ interface ConnectionSocket extends Socket {
  * - closed : 소켓, httpServer 전체가 닫힘
  * - data : 서버에서 받은 데이터. 인자는 data, type 를 발생시킨다.
  */
-class Server extends EventEmitter {
+class EntryServer extends EventEmitter {
     router: Router;
     packet: Buffer;
     connections: (ConnectionSocket | SocketIoClientSocket)[];
@@ -191,8 +191,8 @@ class Server extends EventEmitter {
     /**
      * httpServer 오픈에 성공한 뒤, SocketIO 서버를 오픈한다.
      *
-     * @param httpServer{Server}
-     * @return {SocketIO.Server}
+     * @param httpServer{EntryServer}
+     * @return {SocketIO.EntryServer}
      * @private
      */
     _createSocketServer(httpServer: Http.Server | Https.Server) {
@@ -312,7 +312,7 @@ class Server extends EventEmitter {
      * 그렇지 않은 경우는 http 서버를 오픈한다.
      *
      * @param port{number} 오픈할 포트번호
-     * @return {{address: string, httpServer: Server}}
+     * @return {{address: string, httpServer: EntryServer}}
      * @private
      */
     _getHttpServer(port: number): { address: string, httpServer: Http.Server } {
@@ -422,4 +422,4 @@ class Server extends EventEmitter {
     };
 }
 
-module.exports = Server;
+export default EntryServer;

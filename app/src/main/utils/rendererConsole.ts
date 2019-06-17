@@ -27,12 +27,11 @@ class rendererConsole {
         }
     }
 
-    static error(contents: any, error: any) {
+    static error(contents: any, ...error: any) {
         if (!this.sender.isDestroyed()) {
             this.sender.send('console', `%c${contents}`, 'color: red', error);
         }
     }
-};
+}
 
-module.exports = rendererConsole;
 export default rendererConsole;

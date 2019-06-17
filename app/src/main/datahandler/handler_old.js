@@ -1,5 +1,5 @@
 'use strict';
-function Handler(config) {
+function Handler_old(config) {
 	this.config = config;
 	switch (config.entry.protocol) {
 		case 'bytearray': {
@@ -17,13 +17,13 @@ function Handler(config) {
 	}
 }
 
-Handler.prototype.encode = function() {
+Handler_old.prototype.encode = function() {
 	if (this.sendHandler) {
 		return this.sendHandler.encode();
 	}
 };
 
-Handler.prototype.decode = function(data, type) {
+Handler_old.prototype.decode = function(data, type) {
 	if (type == 'binary') {
 		if (data[1] != 0x00) {
 			if (!this.receiveHandler) {
@@ -52,21 +52,21 @@ Handler.prototype.decode = function(data, type) {
 	}
 };
 
-Handler.prototype.e = function(arg) {
+Handler_old.prototype.e = function(arg) {
 	if (this.receiveHandler) {
 		return this.receiveHandler.e(arg);
 	}
 	return false;
 };
 
-Handler.prototype.read = function(arg) {
+Handler_old.prototype.read = function(arg) {
 	if (this.receiveHandler) {
 		return this.receiveHandler.read(arg);
 	}
 	return 0;
 };
 
-Handler.prototype.write = function(arg1, arg2) {
+Handler_old.prototype.write = function(arg1, arg2) {
 	if (this.sendHandler) {
 		return this.sendHandler.write(arg1, arg2);
 	}
@@ -74,5 +74,5 @@ Handler.prototype.write = function(arg1, arg2) {
 };
 
 module.exports.create = function(config) {
-	return new Handler(config);
+	return new Handler_old(config);
 };
