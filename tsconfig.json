@@ -28,6 +28,7 @@
         // "importHelpers": true,                 /* Import emit helpers from 'tslib'. */
         // "downlevelIteration": true,            /* Provide full support for iterables in 'for-of', spread, and destructuring when targeting 'ES5' or 'ES3'. */
         // "isolatedModules": true,               /* Transpile each file as a separate module (similar to 'ts.transpileModule'). */
+        "resolveJsonModule": true,
 
         /* Strict Type-Checking Options */
         "strict": true,
@@ -77,6 +78,7 @@
         "./app/src/main/flasher.ts",
         "./app/src/main/hardwareListManager.ts",
         "./app/src/main/scanner.ts",
+        "./app/src/main/server.ts",
         "./app/src/common/constants.ts",
         "./app/src/main/utils/fileUtils.ts",
         "./app/src/main/utils/rendererConsole.ts"
