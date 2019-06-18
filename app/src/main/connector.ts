@@ -27,7 +27,7 @@ interface SerialPortWithParser extends SerialPortType {
  * 라우터에서 setRouter, connect 를 거쳐 통신한다.
  */
 class Connector {
-    options: HardwareOptions;
+    options: HardwareConfig;
     hwModule: HardwareModule;
     router?: Router;
     serialPort?: SerialPortWithParser;
@@ -50,7 +50,7 @@ class Connector {
         return 1000;
     }
 
-    constructor(hwModule: HardwareModule, hardwareOptions: HardwareOptions) {
+    constructor(hwModule: HardwareModule, hardwareOptions: HardwareConfig) {
         this.options = hardwareOptions;
         this.hwModule = hwModule;
 

@@ -5,6 +5,8 @@ import fs from 'fs';
 import Utils from './utils/fileUtils';
 const platform = process.platform;
 
+
+type firmwareType = {baudRate?: number, MCUType?: string};
 /**
  * 아두이노 플래싱 및 데이터카피(마이크로빗) 기능을 담당한다.
  * Flasher 가 기능을 하기전에 SerialPort 의 동작을 끊어야 한다. (COMPort 점유)
@@ -29,7 +31,7 @@ class Flasher {
         }
     }
 
-    _flashArduino(firmware: string, port: string, options: HardwareOptions): Promise<any[]> {
+    _flashArduino(firmware: string, port: string, options: firmwareType): Promise<any[]> {
         return new Promise((resolve) => {
             const appPath = Flasher._firmwareDirectoryPath;
             const baudRate = options.baudRate || '115200';
@@ -77,7 +79,7 @@ class Flasher {
         });
     }
 
-    _flashCopy(firmware: FirmwareObject, port: string, options: HardwareOptions): Promise<any[]> {
+    _flashCopy(firmware: FirmwareObject, port: string, options: firmwareType): Promise<any[]> {
         return new Promise((resolve, reject) => {
             const firmwareDirectory = Flasher._firmwareDirectoryPath;
             const destPath = dialog.showOpenDialog({
@@ -97,7 +99,7 @@ class Flasher {
         });
     }
 
-    flash(firmware: Firmware, port: string, options: HardwareOptions): Promise<any[]> {
+    flash(firmware: Firmware, port: string, options: firmwareType): Promise<any[]> {
         if (typeof (firmware as string) === 'string') {
             return this._flashArduino((firmware as string), port, options);
         }

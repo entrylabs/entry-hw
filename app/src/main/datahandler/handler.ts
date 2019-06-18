@@ -2,15 +2,15 @@ import * as ByteArrayHandler from './bytearray';
 import * as JsonHandler from './json';
 
 class Handler {
-    config: HardwareModuleOptions;
+    config: HardwareModuleConfig;
     sendHandler: any;
     receiveHandler: any;
 
-    constructor(config: HardwareModuleOptions) {
+    constructor(config: HardwareModuleConfig) {
         this.config = config;
         switch (config.entry.protocol) {
             case 'bytearray': {
-                this.sendHandler = ByteArrayHandler.create(config.id, config.entry.bufferSize || config.entry.buffersize);
+                this.sendHandler = ByteArrayHandler.create(config.id, config.entry.bufferSize);
                 break;
             }
             case 'json': {
@@ -70,4 +70,4 @@ class Handler {
     }
 }
 
-export const create: (config: string) => Handler = (config: string) => new Handler(config);
+export const create: (config: HardwareModuleConfig) => Handler = (config: HardwareModuleConfig) => new Handler(config);

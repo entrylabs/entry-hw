@@ -7,6 +7,7 @@ import { SERVER_MODE_TYPES } from '../common/constants';
 import SerialPort from '@serialport/stream';
 import Binding from '@entrylabs/bindings';
 import * as SerialPortType from 'serialport';
+import { ObjectLike } from '../../types';
 SerialPort.Binding = Binding;
 
 /**
@@ -18,7 +19,7 @@ SerialPort.Binding = Binding;
  */
 class Scanner {
     router: Router;
-    config: HardwareModuleOptions;
+    config?: HardwareModuleConfig;
     hwModule: HardwareModule;
     slaveTimers: {[key: string]:NodeJS.Timeout};
     connectors: {[key: string]:Connector | undefined};
@@ -36,7 +37,7 @@ class Scanner {
         this.scanCount = 0;
     }
 
-    async startScan(hwModule: HardwareModule, config: HardwareModuleOptions): Promise<Connector> {
+    async startScan(hwModule: HardwareModule, config: HardwareModuleConfig): Promise<Connector> {
         this.stopScan();
 
         this.config = config;
@@ -84,7 +85,6 @@ class Scanner {
             const { hardware, this_com_port: selectedComPortName } = this.config;
             let { select_com_port: needCOMPortSelect } = this.config;
             const {
-                scanType,
                 comName: verificatedComPortNames,
                 pnpId,
                 type,
@@ -93,12 +93,12 @@ class Scanner {
 
             // win, mac 플랫폼에 맞는 벤더명 설정
             if (vendor && _.isPlainObject(vendor)) {
-                vendor = vendor[process.platform];
+                vendor = (vendor as ObjectLike)[process.platform];
             }
 
             // win, mac 플랫폼에 맞춰 COMPort 확인창 필요한지 설정
             if (needCOMPortSelect && _.isPlainObject(needCOMPortSelect)) {
-                needCOMPortSelect = needCOMPortSelect[process.platform];
+                needCOMPortSelect = (needCOMPortSelect as ObjectLike)[process.platform];
             }
 
             // comPort 선택지가 필요한지 체크한다. 블루투스나 클라우드 모드인경우 무조건 검사한다.
@@ -119,7 +119,7 @@ class Scanner {
 
                 let selectedComName = undefined;
                 comPorts.some((port) => {
-                    const comName = port.comName || hardware.name;
+                    const comName = port.comName;
 
                     // config 에 입력한 특정 벤더와 겹치는지 여부
                     const isVendor = this._indexOfStringOrArray(vendor, port.manufacturer);
@@ -148,7 +148,7 @@ class Scanner {
                 } else {
                     let connector = this.connectors[selectedComName];
                     if (connector === undefined) {
-                        connector = await this.prefareConnector(selectedComName);
+                        connector = await this.prepareConnector(selectedComName);
                         this.connectors[selectedComName] = connector;
                     }
                     resolve(connector);
@@ -164,17 +164,21 @@ class Scanner {
      * @param {string} connectedComName 연결을 성사하고자 하는 COMPort
      * @returns {Promise<Connector>}
      */
-    prefareConnector(connectedComName: string): Promise<Connector> {
+    prepareConnector(connectedComName: string): Promise<Connector> {
         return new Promise(async (resolve, reject) => {
+            if (!this.config) {
+                reject();
+                return;
+            }
             // 통신개시후 완료확인 받아 낸 후 넘기기
             // 통신개시후 펌웨어 플래싱 필요한 경우 플래그 새기고 넘기기
             const hwModule = this.hwModule;
-            const { hardware } = this.config;
+            const { hardware, firmware } = this.config;
             const connector = new Connector(hwModule, hardware);
 
             try {
                 await connector.open(connectedComName);
-                if (this.config.firmware) {
+                if (firmware) {
                     /*
                     펌웨어가 없는 상태에서 통신이 이루어지지 않는 경우,
                     before_connect 로 임시 연결됨 상태로 만들어서 펌웨어 버튼은 동작할 수 있게끔

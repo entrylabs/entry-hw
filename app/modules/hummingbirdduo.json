@@ -15,11 +15,11 @@
 	},
 	"select_com_port": true,
 	"reconnect": true,
-	"softwareReset": true,
 	"entry": {
 		"protocol": "json"
 	},
 	"hardware": {
+		"softwareReset": true,
 		"type": "serial",
 		"duration": 64,
 		"vendor": "BirdBrain Technologies, LLC.",

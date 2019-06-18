@@ -25,7 +25,7 @@ class MainRouter {
     scanner: Scanner;
     flasher: Flasher;
     hardwareListManager: HardwareListManager;
-    config: HardwareModuleOptions;
+    config?: HardwareModuleConfig;
     connector?: Connector;
     hwModule: HardwareModule;
     handler: DataHandler;
@@ -59,7 +59,7 @@ class MainRouter {
         ipcMain.on('state', (e: Error, state: string) => {
             this.onChangeState(state);
         });
-        ipcMain.on('startScan', async (e: Electron.Event, config: HardwareModuleOptions) => {
+        ipcMain.on('startScan', async (e: Electron.Event, config: HardwareModuleConfig) => {
             await this.startScan(config);
         });
         ipcMain.on('stopScan', () => {
@@ -102,9 +102,9 @@ class MainRouter {
      */
     flashFirmware(firmwareName: Firmware) {
         if (this.connector && this.connector.serialPort && this.config) {
-            let firmware = firmwareName;
+            let firmware: Firmware | undefined = firmwareName;
             const {
-                configfirmware,
+                firmware: configfirmware,
                 firmwareBaudRate: baudRate,
                 firmwareMCUType: MCUType,
                 tryFlasherNumber: maxFlashTryCount = 10,
@@ -121,6 +121,11 @@ class MainRouter {
             const flashFunction = () => new Promise((resolve, reject) => {
                 setTimeout(() => {
                     //연결 해제 완료시간까지 잠시 대기 후 로직 수행한다.
+                    if (!firmware) {
+                        resolve();
+                        return;
+                    }
+
                     this.flasher.flash(firmware, lastSerialPortCOMPort, { baudRate, MCUType })
                         .then(([error, ...args]) => {
                             if (error) {
@@ -158,7 +163,7 @@ class MainRouter {
                     if ((firmware as FirmwareObject).afterDelay) {
                         await new Promise((resolve) => setTimeout(resolve, (firmware as FirmwareObject).afterDelay));
                     }
-                    await this.startScan(this.config);
+                    this.config && await this.startScan(this.config);
                 });
         } else {
             return Promise.reject(new Error('Hardware Device Is Not Connected'));
@@ -172,7 +177,7 @@ class MainRouter {
      */
     reconnect() {
         this.close();
-        this.startScan(this.config);
+        this.config && this.startScan(this.config);
     }
 
     /**
@@ -217,7 +222,7 @@ class MainRouter {
      * 연결성공시 'state' 이벤트가 발생된다.
      * @param config
      */
-    async startScan(config: HardwareModuleOptions) {
+    async startScan(config: HardwareModuleConfig) {
         this.config = config;
         if (this.scanner) {
             this.hwModule = require(`../../modules/${config.module}`);
@@ -268,7 +273,7 @@ class MainRouter {
         }
 
         // 엔트리측, 하드웨어측이 정상적으로 준비된 경우
-        if (this.hwModule && this.server) {
+        if (this.hwModule && this.server && this.config) {
             // 엔트리쪽으로 송수신시 변환할 방식. 현재 json 만 지원한다.
             this.handler = HandlerCreator.create(this.config);
             this._connectToServer();

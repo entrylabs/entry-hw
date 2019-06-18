@@ -16,11 +16,11 @@
     },
     "select_com_port": true,
     "reconnect": false,
-    "softwareReset": true,
     "entry": {
         "protocol": "json"
     },
     "hardware": {
+        "softwareReset": true,
         "type": "serial",
         "control": "slave",
         "duration": 32,
