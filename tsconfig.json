@@ -72,19 +72,13 @@
         // "experimentalDecorators": true,        /* Enables experimental support for ES7 decorators. */
         // "emitDecoratorMetadata": true,         /* Enables experimental support for emitting type metadata for decorators. */
     },
-    "files": [
-        "./app/index.ts",
-        "./app/src/main/datahandler/bytearray.ts",
-        "./app/src/main/datahandler/handler.ts",
-        "./app/src/main/datahandler/json.ts",
-        "./app/src/main/connector.ts",
-        "./app/src/main/flasher.ts",
-        "./app/src/main/hardwareListManager.ts",
-        "./app/src/main/scanner.ts",
-        "./app/src/main/entryServer.ts",
-        "./app/src/main/mainRouter.ts",
-        "./app/src/common/constants.ts",
-        "./app/src/main/utils/fileUtils.ts",
-        "./app/src/main/utils/rendererConsole.ts"
+    "include": [
+        "./app/src/common/*",
+        "./app/src/main/*"
+    ],
+    "exclude": [
+        "./app/modules/**/*",
+        "./app/firmwares/**/*",
+        "./app/drivers/**/*"
     ]
 }

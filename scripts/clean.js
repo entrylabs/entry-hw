@@ -18,6 +18,7 @@ const getFileListFromPath = (directoryPath) => {
         return [];
     }
 
+    const excludes = ['constants.ts'];
     const files = fs.readdirSync(directoryPath);
     const result = [];
 
@@ -25,7 +26,7 @@ const getFileListFromPath = (directoryPath) => {
         const filePath = path.join(directoryPath, filename);
         if (fs.lstatSync(filePath).isDirectory()) {
             result.push(...getFileListFromPath(filePath));
-        } else if (!filename.match(/\.tsx?$/)) {
+        } else if (!filename.match(/\.tsx?$/) && excludes.indexOf(filename) === -1) {
             result.push(filePath);
         }
     });
