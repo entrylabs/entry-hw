@@ -1,4 +1,4 @@
-﻿{
+{
     "id": "210101",
     "name": {
         "en": "funboard",
@@ -26,7 +26,7 @@
     }],
     "entry": {
         "protocol": "json"
-    },cd
+    },
     "hardware": {
         "type": "serial",
         "control": "slave",
