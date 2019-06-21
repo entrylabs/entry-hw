@@ -270,13 +270,18 @@ class Ozobot extends BaseModule {
 								buffer.push((entryData.p2 & 0xFF00) >> 8);
 								buffer.push((entryData.p2 & 0xFF));
 							}
-							console.log(buffer);					
 							break;
 						case 0x01:
 							buffer.push(entryData.act);
+							buffer.push(entryData.p1);
+							buffer.push(entryData.p2);
 							break;
 						case 0x02:
 							buffer.push(entryData.act);
+							buffer.push(entryData.p1);
+							buffer.push(entryData.p2);
+							buffer.push((entryData.p3 & 0xFF00) >> 8);
+							buffer.push((entryData.p3 & 0xFF));
 							break;
 						case 0x03:
 							buffer.push(entryData.act);
