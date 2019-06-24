@@ -9,9 +9,10 @@ import { getArgsParseData, getPaddedVersion } from './src/main/utils/commonUtils
 import parseCommandLine from './src/main/utils/functions/parseCommandLine';
 import configInitialize from './src/main/utils/functions/configInitialize';
 import registerGlobalShortcut from './src/main/utils/functions/registerGlobalShortcut';
+import checkUpdate from './src/main/network/checkUpdate';
 
 let mainWindow: undefined | BrowserWindow = undefined;
-let aboutWindow: undefined | BrowserWindow  = undefined;
+let aboutWindow: undefined | BrowserWindow = undefined;
 let mainRouter: undefined | MainRouter = undefined;
 
 let isForceClose = false;
@@ -162,36 +163,14 @@ if (!app.requestSingleInstanceLock()) {
     });
 
     ipcMain.on('checkUpdate', (e: Electron.Event, msg: string) => {
-        const request = net.request({
-            method: 'POST',
-            host: hostURI,
-            protocol: hostProtocol,
-            path: '/api/checkVersion',
-        });
-        let body = '';
-        request.on('response', (res) => {
-            res.on('data', (chunk) => {
-                body += chunk.toString();
-            });
-            res.on('end', () => {
-                let data = {};
-                try {
-                    data = JSON.parse(body);
-                } catch (e) {
-                }
+        checkUpdate()
+            .then((data) => {
+                console.log(`checkUpdate Result: ${JSON.stringify(data || {})}`);
                 e.sender.send('checkUpdateResult', data);
+            })
+            .catch((e) => {
+                console.error(`checkUpdate error : ${e}`);
             });
-        });
-        request.on('error', (err) => {
-        });
-        request.setHeader('content-type', 'application/json; charset=utf-8');
-        request.write(
-            JSON.stringify({
-                category: 'hardware',
-                version: packageJson.version,
-            }),
-        );
-        request.end();
     });
 
     ipcMain.on('getOpensourceText', (e: Electron.Event) => {
