@@ -1,59 +1,22 @@
 'use strict';
 
 import MainRouter from './src/main/mainRouter';
-import {
-    app,
-    BrowserWindow,
-    globalShortcut,
-    ipcMain,
-    webContents,
-    dialog,
-    net,
-} from 'electron';
+import { app, BrowserWindow, dialog, ipcMain, net } from 'electron';
 import path from 'path';
 import fs from 'fs';
 import packageJson from '../package.json';
+import { getArgsParseData, getPaddedVersion } from './src/main/utils/commonUtils';
+import parseCommandLine from './src/main/utils/functions/parseCommandLine';
+import configInitialize from './src/main/utils/functions/configInitialize';
+import registerGlobalShortcut from './src/main/utils/functions/registerGlobalShortcut';
 
 let mainWindow: undefined | BrowserWindow = undefined;
 let aboutWindow: undefined | BrowserWindow  = undefined;
 let mainRouter: undefined | MainRouter = undefined;
 
-const roomIds: string[] = [];
-
 let isForceClose = false;
 let hostURI = 'playentry.org';
 let hostProtocol = 'https:';
-
-global.sharedObject = {
-    appName: 'hardware',
-    hardwareVersion: packageJson.version,
-    roomIds,
-};
-
-function lpad(str: string, len: number) {
-    const strLen = str.length;
-    if (strLen < len) {
-        for (let i = 0; i < len - strLen; i++) {
-            str = `0${str}`;
-        }
-    }
-    return String(str);
-}
-
-function getPaddedVersion(version: number | string) {
-    if (!version) {
-        return '';
-    }
-    version = String(version);
-
-    const padded: string[] = [];
-    const splitVersion = version.split('.');
-    splitVersion.forEach((item) => {
-        padded.push(lpad(item, 4));
-    });
-
-    return padded.join('.');
-}
 
 function createAboutWindow(mainWindow ?: BrowserWindow) {
     aboutWindow = new BrowserWindow({
@@ -77,24 +40,10 @@ function createAboutWindow(mainWindow ?: BrowserWindow) {
     });
 }
 
-function getArgsParseData(argv: any) {
-    const regexRoom = /roomId:(.*)/;
-    const arrRoom = regexRoom.exec(argv) || ['', ''];
-    let roomId = arrRoom[1];
-
-    if (roomId === 'undefined') {
-        roomId = '';
-    }
-
-    return roomId.replace(/\//g, '');
-}
-
-app.on('window-all-closed', () => {
-    app.quit();
-});
-
 const argv = process.argv.slice(1);
-
+const commandLineOptions = parseCommandLine(argv);
+const configuration = configInitialize(commandLineOptions.config);
+const { roomIds, hardwareVersion } = configuration;
 if (argv.indexOf('entryhw:')) {
     const data = getArgsParseData(argv);
     if (data) {
@@ -102,42 +51,14 @@ if (argv.indexOf('entryhw:')) {
     }
 }
 
-const option = {
-    file: '',
-    help: null,
-    version: false,
-    debug: false,
-    webdriver: null,
-    modules: [],
-};
-for (let i = 0; i < argv.length; i++) {
-    if (argv[i] == '--version' || argv[i] == '-v') {
-        option.version = true;
-        break;
-    } else if (argv[i].match(/^--app=/)) {
-        option.file = argv[i].split('=')[1];
-        break;
-    } else if (argv[i] == '--debug' || argv[i] == '-d') {
-        option.debug = true;
-        continue;
-    } else if (argv[i].match(/^--host=/) || argv[i].match(/^-h=/)) {
-        hostURI = argv[i].split('=')[1];
-        continue;
-    } else if (argv[i].match(/^--protocol=/) || argv[i].match(/^-p=/)) {
-        hostProtocol = argv[i].split('=')[1];
-        continue;
-    } else if (argv[i][0] == '-') {
-        continue;
-    } else {
-        option.file = argv[i];
-        break;
-    }
-}
-
 if (!app.requestSingleInstanceLock()) {
     app.quit();
     process.exit(0);
 } else {
+    app.on('window-all-closed', () => {
+        app.quit();
+    });
+
     // 어플리케이션을 중복 실행했습니다. 주 어플리케이션 인스턴스를 활성화 합니다.
     app.on('second-instance', (event, argv, workingDirectory) => {
         let parseData = '';
@@ -209,7 +130,7 @@ if (!app.requestSingleInstanceLock()) {
 
         mainWindow.loadURL(`file:///${path.join(__dirname, 'src', 'renderer', 'views', 'index.html')}`);
 
-        if (option.debug) {
+        if (commandLineOptions.debug) {
             mainWindow.webContents.openDevTools();
         }
 
@@ -222,25 +143,8 @@ if (!app.requestSingleInstanceLock()) {
             }
         });
 
-        mainWindow.on('closed', () => {
-            mainWindow = undefined;
-        });
-
-        let inspectorShortcut = '';
-        if (process.platform == 'darwin') {
-            inspectorShortcut = 'Command+Alt+i';
-        } else {
-            inspectorShortcut = 'Control+Shift+i';
-        }
-
-        globalShortcut.register(inspectorShortcut, (e: Electron.Event) => {
-            const content = webContents.getFocusedWebContents();
-            if (content) {
-                webContents.getFocusedWebContents().openDevTools();
-            }
-        });
-
         createAboutWindow(mainWindow);
+        registerGlobalShortcut();
         mainRouter = new MainRouter(mainWindow);
     });
 
@@ -298,7 +202,7 @@ if (!app.requestSingleInstanceLock()) {
     });
 
     ipcMain.on('checkVersion', (e: Electron.Event, lastCheckVersion: any) => {
-        const version = getPaddedVersion(packageJson.version);
+        const version = getPaddedVersion(hardwareVersion);
         const lastVersion = getPaddedVersion(lastCheckVersion);
 
         if (!e.sender.isDestroyed()) {
