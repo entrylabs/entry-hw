@@ -25,17 +25,9 @@ const properties = {
     ],
 };
 
-const flags: CommandLineFlags = {
-    debug: false,
-    version: false,
-};
+const flags: CommandLineFlags = {};
 
-const pairs: CommandLinePairs = {
-    app: undefined,
-    host: '',
-    protocol: '',
-    config: '',
-};
+const pairs: CommandLinePairs = {};
 
 function parseFlags(key: string) {
     for (let i = 0; i < properties.flag.length; i++) {

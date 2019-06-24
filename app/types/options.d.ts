@@ -20,15 +20,15 @@ declare type Configurations =  ExternalConfigurations & InternalConfigurations;
 // CommandLine Options
 
 declare type CommandLineFlags = {
-    debug: boolean;
+    debug?: boolean;
     version?: boolean;
 }
 
 declare type CommandLinePairs = {
-    app: any;
-    host: string;
-    protocol: string;
-    config: string;
+    app?: any;
+    host?: string;
+    protocol?: string;
+    config?: string;
 }
 
 declare type CommandLineOptions = CommandLineFlags & CommandLinePairs;
