@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
-
 <head>
 	<meta charset="utf-8">
 	<title>엔트리</title>
+	<link rel='stylesheet' href='../css/about.css' />
 </head>
 
 <body>
@@ -30,13 +30,12 @@
 			</div>
 		</div>
 	</div>
-	<link rel='stylesheet' href='../css/about.css' />
+	<script src="../js/jquery-1.11.3.min.js"></script>
 	<script>
-		window.$ = window.jQuery = require('../js/jquery-1.11.3.min.js');
-		const { shell, remote, ipcRenderer } = require('electron');
-		const aboutWindow = remote.getCurrentWindow();
-		const hardwareVersion = remote.getGlobal('sharedObject').hardwareVersion || '0.0.0';
-        const translator = require('../../renderer/js/translator');
+		const Lang = preload.Lang;
+		const ipcRenderer = preload.ipcRenderer;
+		const aboutWindow = preload.getAboutWindow();
+		const hardwareVersion = preload.hardwareVersion;
 		if(!localStorage.getItem('lang')) {
 			localStorage.setItem('lang', 'ko');
 		}
@@ -48,11 +47,11 @@
 
 			$('#playEntryBtn').on('click', function (e) {
 				e.preventDefault();
-				shell.openExternal('https://playentry.org');
+				preload.openExternal('https://playentry.org');
 			});
 
 			$('.btnVersionUpdate').on('click', () => {
-				shell.openExternal(
+				preload.openExternal(
 					'https://playentry.org/#!/offlineEditor'
 				);
 			});
@@ -60,8 +59,6 @@
 			$("#version").text(hardwareVersion);
 
 			aboutWindow.on('show', () => {
-                const user_lang = translator.getLanguage();
-				window.Lang = require(`../lang/${user_lang}.js`).Lang;
 				$(".btnVersionUpdate").text(Lang.General.recent_download2);
 				$(".txtAlreadyVersion").text(Lang.General.latest_version);
 
@@ -77,6 +74,7 @@
 
 				const lastCheckVersion =
 					localStorage.getItem('lastCheckVersion') || '0.0.0';
+
 				ipcRenderer.send('checkVersion', lastCheckVersion);
 			});
 		});

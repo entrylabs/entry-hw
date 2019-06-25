@@ -1,10 +1,10 @@
 // configuration for entire program setting
 
 declare interface ExternalConfigurations {
-    'baseUrl': string,
-    'baseResource': string,
-    'versionCheckApi': string,
-    'moduleCheckApi': string,
+    baseUrl: string,
+    baseResource: string,
+    versionCheckApi: string,
+    moduleCheckApi: string,
 }
 
 declare interface InternalConfigurations {

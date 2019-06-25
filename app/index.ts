@@ -1,10 +1,10 @@
 'use strict';
 
 import MainRouter from './src/main/mainRouter';
-import { app, BrowserWindow, dialog, ipcMain, net } from 'electron';
+import { app, BrowserWindow, dialog, ipcMain } from 'electron';
 import path from 'path';
 import fs from 'fs';
-import packageJson from '../package.json';
+import windowManager from './src/main/utils/browserWindowManager';
 import { getArgsParseData, getPaddedVersion } from './src/main/utils/commonUtils';
 import parseCommandLine from './src/main/utils/functions/parseCommandLine';
 import configInitialize from './src/main/utils/functions/configInitialize';
@@ -12,34 +12,7 @@ import registerGlobalShortcut from './src/main/utils/functions/registerGlobalSho
 import checkUpdate from './src/main/network/checkUpdate';
 
 let mainWindow: undefined | BrowserWindow = undefined;
-let aboutWindow: undefined | BrowserWindow = undefined;
 let mainRouter: undefined | MainRouter = undefined;
-
-let isForceClose = false;
-let hostURI = 'playentry.org';
-let hostProtocol = 'https:';
-
-function createAboutWindow(mainWindow ?: BrowserWindow) {
-    aboutWindow = new BrowserWindow({
-        parent: mainWindow,
-        width: 380,
-        height: 290,
-        resizable: false,
-        movable: false,
-        center: true,
-        frame: false,
-        modal: true,
-        show: false,
-    });
-
-    aboutWindow.loadURL(`file:///${
-        path.resolve(__dirname, 'src', 'renderer', 'views', 'about.html')
-        }`);
-
-    aboutWindow.on('closed', () => {
-        aboutWindow = undefined;
-    });
-}
 
 const argv = process.argv.slice(1);
 const commandLineOptions = parseCommandLine(argv);
@@ -91,66 +64,17 @@ if (!app.requestSingleInstanceLock()) {
     app.commandLine.appendSwitch('enable-web-bluetooth', 'true');
     app.commandLine.appendSwitch('enable-experimental-web-platform-features', 'true');
     app.commandLine.appendSwitch('disable-renderer-backgrounding');
-    // app.commandLine.appendSwitch('enable-web-bluetooth');
     app.once('ready', () => {
-        const language = app.getLocale();
+        windowManager.createMainWindow(commandLineOptions);
+        mainWindow = windowManager.mainWindow;
+        windowManager.createAboutWindow(mainWindow);
 
-        let title;
-
-        if (language === 'ko') {
-            title = '엔트리 하드웨어 v';
-        } else {
-            title = 'Entry Hardware v';
-        }
-
-        mainWindow = new BrowserWindow({
-            width: 800,
-            height: 670,
-            title: title + packageJson.version,
-            webPreferences: {
-                backgroundThrottling: false,
-                nodeIntegration: false,
-                preload: path.resolve(__dirname, 'src', 'renderer', 'preload.js'),
-            },
-        });
-
-        mainWindow.webContents.on(
-            'select-bluetooth-device',
-            (event, deviceList, callback) => {
-                event.preventDefault();
-                const result = deviceList.find(
-                    (device) => device.deviceName === 'LPF2 Smart Hub 2 I/O',
-                );
-                if (!result) {
-                    callback('A0:E6:F8:1D:FB:E3');
-                } else {
-                    callback(result.deviceId);
-                }
-            },
-        );
-
-        mainWindow.loadURL(`file:///${path.join(__dirname, 'src', 'renderer', 'views', 'index.html')}`);
-
-        if (commandLineOptions.debug) {
-            mainWindow.webContents.openDevTools();
-        }
-
-        mainWindow.setMenu(null);
-
-        mainWindow.on('close', (e) => {
-            if (!isForceClose) {
-                e.preventDefault();
-                (mainWindow as BrowserWindow).webContents.send('hardwareCloseConfirm');
-            }
-        });
-
-        createAboutWindow(mainWindow);
         registerGlobalShortcut();
-        mainRouter = new MainRouter(mainWindow);
+        mainRouter = new MainRouter(mainWindow as BrowserWindow);
     });
 
     ipcMain.on('hardwareForceClose', () => {
-        isForceClose = true;
+        windowManager.mainWindowCloseConfirmed = true;
         mainWindow && mainWindow.close();
     });
 
@@ -190,7 +114,7 @@ if (!app.requestSingleInstanceLock()) {
     });
 
     ipcMain.on('openAboutWindow', (event: Electron.Event, arg: any) => {
-        aboutWindow && aboutWindow.show();
+        windowManager.aboutWindow && windowManager.aboutWindow.show();
     });
 
     let requestLocalDataInterval: undefined | NodeJS.Timeout = undefined;
