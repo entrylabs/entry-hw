@@ -12,7 +12,8 @@ function getInitializeList() {
     preload.RendererRouter = RendererRouter;
     preload.constants = constants;
 
-    const translator = new Translator();
+    const language = remote.getGlobal('sharedObject').language;
+    const translator = new Translator(language);
     const lang = translator.currentLanguage;
     preload.Lang = require(`./lang/${lang}.js`).Lang;
     preload.translator = translator;

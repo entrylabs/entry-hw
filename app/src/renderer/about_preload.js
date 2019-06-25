@@ -5,7 +5,8 @@ function getInitializeList() {
     const preload = {};
     preload.ipcRenderer = ipcRenderer;
 
-    const translator = new Translator();
+    const language = remote.getGlobal('sharedObject').language;
+    const translator = new Translator(language);
     const lang = translator.currentLanguage;
     preload.Lang = require(`./lang/${lang}.js`).Lang;
 

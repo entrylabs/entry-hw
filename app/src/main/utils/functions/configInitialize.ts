@@ -29,9 +29,7 @@ const internalConfig: InternalConfigurations = {
 function mergeExistProperties(target: ExternalConfigurations, src: ExternalConfigurations): ExternalConfigurations {
     const result: ExternalConfigurations = target;
     forEach(src, (value: any, key: keyof ExternalConfigurations) => {
-        if (result[key] !== undefined) {
-            result[key] = value;
-        }
+        result[key] = value;
     });
     return result;
 }
