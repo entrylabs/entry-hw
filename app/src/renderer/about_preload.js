@@ -6,7 +6,7 @@ function getInitializeList() {
     preload.ipcRenderer = ipcRenderer;
 
     const translator = new Translator();
-    const lang = translator.currentLangauge;
+    const lang = translator.currentLanguage;
     preload.Lang = require(`./lang/${lang}.js`).Lang;
 
     preload.getAboutWindow = () => remote.getCurrentWindow();

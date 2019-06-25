@@ -1,5 +1,5 @@
 module.exports = class {
-    get currentLangauge() {
+    get currentLanguage() {
         return this.lang;
     }
 
@@ -8,15 +8,18 @@ module.exports = class {
             throw Error('translator must be created on browser environment');
         }
 
-        let selectedLang = lang || 'ko';
+        /*
+         langType 의 우선순위
+         1. constructor 의 인자값 - 하드코딩
+         2. config.[name].json 파일의 language 값
+         3. window.navigator 의 값 (chromium)
+         4. default 값 = 'ko'
+         */
         const browserLanguage = window.navigator.userLanguage || window.navigator.language;
-        if (browserLanguage) {
-            selectedLang = browserLanguage.substr(0, 2);
-        }
-        // else { selectedLang = 'en' }
-        // 기존 로직은 위와 같으나 translations.json 구조상 key 가 en 언어셋이므로 key 를 리턴하기로 함.
-
-        this.lang = selectedLang;
+        this.lang = lang ||
+            global.sharedObject.language ||
+            (browserLanguage && browserLanguage.substr(0, 2)) ||
+            'ko';
         this.data = require('./translations.json');
     }
 
