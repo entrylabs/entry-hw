@@ -286,6 +286,9 @@ class Ozobot extends BaseModule {
 						case 0x03:
 							buffer.push(entryData.act);
 							break;
+						case 0x04:
+							buffer.push(entryData.act);
+							break;
 						default:
 						// error
 					}
