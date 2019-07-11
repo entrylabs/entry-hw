@@ -1,5 +1,3 @@
-const _isPlainObject = require('lodash/isPlainObject');
-
 function Module() {
     this.sp = null;
     this.sensorTypes = {
@@ -396,7 +394,7 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
         }
         case this.sensorTypes.TONE: {
             var time = new Buffer(2);
-            if (_isPlainObject(data)) {
+            if ($.isPlainObject(data)) {
                 value.writeInt16LE(data.value);
                 time.writeInt16LE(data.duration);
             } else {
@@ -462,7 +460,7 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
             var text13 = new Buffer(2);
             var text14 = new Buffer(2);
             var text15 = new Buffer(2);
-            if (_isPlainObject(data)) {
+            if ($.isPlainObject(data)) {
                 text0.writeInt16LE(data.text0);
                 text1.writeInt16LE(data.text1);
                 text2.writeInt16LE(data.text2);
@@ -538,7 +536,7 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
             var value6 = new Buffer(2);
             var value7 = new Buffer(2);
             var value8 = new Buffer(2);
-            if (_isPlainObject(data)) {
+            if ($.isPlainObject(data)) {
                 value0.writeInt16LE(data.value0);
                 value1.writeInt16LE(data.value1);
                 value2.writeInt16LE(data.value2);

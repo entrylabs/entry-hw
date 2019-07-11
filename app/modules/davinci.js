@@ -251,11 +251,10 @@ class Davinci extends BaseModule {
             case 'SET_ANALOG': {
                 const { pin, value } = data;
                 returnData.fill(
-                    Buffer([FUNCTION_KEYS.SET_ANALOG, pin, 0, 0]),
+                    Buffer([FUNCTION_KEYS.SET_ANALOG, pin, value]),
                     0,
-                    4
+                    3
                 );
-                returnData.writeInt16LE(value, 1);
                 break;
             }
             case 'SET_DIGITAL': {

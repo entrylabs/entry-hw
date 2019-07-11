@@ -199,6 +199,14 @@ setInterval(function disconnectHandler() {// disconnect cheak
     }
 }, 500);
 
+function btoa(data) {
+    return Buffer.from(data).toString('base64');
+}
+
+function atob(data) {
+    return Buffer.from(data, 'base64').toString();
+}
+
 function unsetConnect( id, port ) {
     var obj = connect_[id];
     if (port !== undefined && connect_[port] !== undefined) {
@@ -619,13 +627,14 @@ Module.prototype.getPropertyJson = function(propertyNum, moduleID) {
 };
 
 Module.prototype.requestRemoteData = function(handler) {
-    var arr = {};
-    Object.entries(connect_).forEach(([key, value]) => {
-        if (key !== path) {
-            if (arr[value.moduleT] === undefined) {
-                arr[value.moduleT] = [];
-            }
-            arr[value.moduleT][value.num] = JSON.stringify(value);
+    var arr = new Object();
+    $.forEach(connect_,function(value, index) {
+        if(index != path) {
+            if(arr[connect_[index].moduleT] == undefined) {
+                arr[connect_[index].moduleT] = new Array();
+            }      
+            arr[connect_[index].moduleT][connect_[index].num] = JSON.stringify(connect_[index]);
+
         }
     });
     handler.write("module", arr);

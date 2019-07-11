@@ -187,6 +187,8 @@ if (!app.requestSingleInstanceLock()) {
             title: title + packageJson.version,
             webPreferences: {
                 backgroundThrottling: false,
+                nodeIntegration: false,
+                preload: path.resolve(__dirname, 'src', 'renderer', 'preload.js'),
             },
         });
 
@@ -216,7 +218,7 @@ if (!app.requestSingleInstanceLock()) {
         mainWindow.on('close', (e) => {
             if (!isForceClose) {
                 e.preventDefault();
-                mainWindow.webContents.send('hardwareClose');
+                mainWindow.webContents.send('hardwareCloseConfirm');
             }
         });
 
@@ -298,7 +300,9 @@ if (!app.requestSingleInstanceLock()) {
         const version = getPaddedVersion(packageJson.version);
         const lastVersion = getPaddedVersion(lastCheckVersion);
 
-        e.sender.send('checkVersionResult', lastVersion > version);
+        if (!e.sender.isDestroyed()) {
+            e.sender.send('checkVersionResult', lastVersion > version);
+        }
     });
 
     ipcMain.on('openAboutWindow', (event, arg) => {
