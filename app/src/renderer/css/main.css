@@ -1,6 +1,41 @@
+/* EntryFont-700 - latin_japanese */
 @font-face {
-    font-family: NanumGothic;
-    src: url('../fonts/NanumGothic.woff');
+    font-family: 'EntryFont';
+    font-style: normal;
+    font-weight: 700;
+    src: local('メイリオ'), local('Meiryo'), local('ヒラギノ角ゴ Pro W3'),
+        local('Hiragino Kaku Gothic Pro'), local('ＭＳ Ｐゴシック'), local('MS PGothic'),
+        local('-apple-system'), local('system'), local('sans-serif');
+}
+
+/* EntryFont-700 - latin_japanese */
+@font-face {
+    font-family: 'EntryFont';
+    font-style: normal;
+    font-weight: bold;
+    src: local('メイリオ'), local('Meiryo'), local('ヒラギノ角ゴ Pro W3'),
+        local('Hiragino Kaku Gothic Pro'), local('ＭＳ Ｐゴシック'), local('MS PGothic'),
+        local('-apple-system'), local('system'), local('sans-serif');
+}
+
+/* EntryFont-regular - latin_japanese */
+@font-face {
+    font-family: 'EntryFont';
+    font-style: normal;
+    font-weight: 400;
+    src: local('メイリオ'), local('Meiryo'), local('ヒラギノ角ゴ Pro W3'),
+        local('Hiragino Kaku Gothic Pro'), local('ＭＳ Ｐゴシック'), local('MS PGothic'),
+        local('-apple-system'), local('system'), local('sans-serif');
+}
+
+/* EntryFont-regular - latin_japanese */
+@font-face {
+    font-family: 'EntryFont';
+    font-style: normal;
+    font-weight: normal;
+    src: local('メイリオ'), local('Meiryo'), local('ヒラギノ角ゴ Pro W3'),
+        local('Hiragino Kaku Gothic Pro'), local('ＭＳ Ｐゴシック'), local('MS PGothic'),
+        local('-apple-system'), local('system'), local('sans-serif');
 }
 
 .darwin ::-webkit-scrollbar {
@@ -16,7 +51,7 @@
 }
 
 * {
-    font-family: NanumGothic !important;
+    font-family: EntryFont !important;
     box-sizing: border-box;
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
@@ -26,7 +61,7 @@
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
-    font-family: NanumGothic;
+    font-family: EntryFont;
     outline: none;
     -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
 }
@@ -185,7 +220,7 @@ button {
 .hwTitle {
     font-size: 12px;
     color: #595757;
-    margin-top: 15px;
+    /* margin-top: 15px; */
     cursor: pointer;
 }
 
@@ -494,8 +529,8 @@ button {
     display: block;
     font-size: 17px;
     font-weight: bold;
-    color: #fa5536;
-    margin-bottom: 6px;
+    color: #fb5533;
+    /* margin-bottom: 6px; */
 }
 
 #errorAlert .comment {
@@ -605,7 +640,7 @@ button {
 
 ul.dropdown {
     float: right;
-    margin-right: 17px;
+    margin-right: 20px;
     margin-top: 0;
     padding: 0;
     border: 1px #00b900 solid;
@@ -624,7 +659,7 @@ ul.dropdown li .content {
     font-size: 14px;
     font-weight: bold;
     color: #00b900;
-    line-height: 28px;
+    line-height: 32px;
 }
 
 ul.dropdown li:not(.init) { display: none; }
