@@ -89,7 +89,7 @@ button {
     flex: none;
     width: 100%;
     height: 100px;
-    /*z-index: 1;*/
+    z-index: 1;
     background-color: #00b900;
     padding-left: 20px;
 }
@@ -148,7 +148,6 @@ button {
 }
 
 #hwList {
-    z-index: -1;
     padding: 40px;
     overflow-y: auto;
     height: 100%;
@@ -335,6 +334,7 @@ button {
     height: 100%;
     justify-content: center;
     align-items: center;
+    z-index: 1;
 }
 
 #select_port_box .select_port_child {

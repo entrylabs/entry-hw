@@ -572,7 +572,8 @@ function filterHardware(type) {
 
 const $body = $('body');
 $body.on('keyup', (e) => {
-    if (e.keyCode === 8) {
+    if (e.keyCode === 8 || e.keyCode === 27) {
+        $('#select_port_box .cancel_event').trigger('click');
         $('#back.navigate_button.active').trigger('click');
     }
 });
