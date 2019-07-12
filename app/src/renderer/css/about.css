@@ -1,10 +1,45 @@
+/* EntryFont-700 - latin_japanese */
 @font-face {
-    font-family: NanumGothic;
-    src: url('../fonts/NanumGothic.woff');
+    font-family: 'EntryFont';
+    font-style: normal;
+    font-weight: 700;
+    src: local('メイリオ'), local('Meiryo'), local('ヒラギノ角ゴ Pro W3'),
+    local('Hiragino Kaku Gothic Pro'), local('ＭＳ Ｐゴシック'), local('MS PGothic'),
+    local('-apple-system'), local('system'), local('sans-serif');
+}
+
+/* EntryFont-700 - latin_japanese */
+@font-face {
+    font-family: 'EntryFont';
+    font-style: normal;
+    font-weight: bold;
+    src: local('メイリオ'), local('Meiryo'), local('ヒラギノ角ゴ Pro W3'),
+    local('Hiragino Kaku Gothic Pro'), local('ＭＳ Ｐゴシック'), local('MS PGothic'),
+    local('-apple-system'), local('system'), local('sans-serif');
+}
+
+/* EntryFont-regular - latin_japanese */
+@font-face {
+    font-family: 'EntryFont';
+    font-style: normal;
+    font-weight: 400;
+    src: local('メイリオ'), local('Meiryo'), local('ヒラギノ角ゴ Pro W3'),
+    local('Hiragino Kaku Gothic Pro'), local('ＭＳ Ｐゴシック'), local('MS PGothic'),
+    local('-apple-system'), local('system'), local('sans-serif');
+}
+
+/* EntryFont-regular - latin_japanese */
+@font-face {
+    font-family: 'EntryFont';
+    font-style: normal;
+    font-weight: normal;
+    src: local('メイリオ'), local('Meiryo'), local('ヒラギノ角ゴ Pro W3'),
+    local('Hiragino Kaku Gothic Pro'), local('ＭＳ Ｐゴシック'), local('MS PGothic'),
+    local('-apple-system'), local('system'), local('sans-serif');
 }
 
 * {
-    font-family: NanumGothic !important;
+    font-family: 'EntryFont' !important;
     user-select: none;
     cursor: default;
 }
@@ -12,7 +47,7 @@
 html,
 body {
     height: 100%;
-    margin: 0px;
+    margin: 0;
     background-color: #ecf4ff;
 }
 
@@ -41,16 +76,17 @@ body {
     height: 142px;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-end;
 }
 
 .container .container_inner .logo_wrapper .logo {
-    width: 204px;
-    height: 42px;
+    width: 168px;
+    height: 32px;
+    padding-bottom: 32px;
 }
 
 .container .container_inner .txtVersion {
-    font-size: 16px;
+    font-size: 14px;
     margin: 16px 0 10px;
 }
 
@@ -61,7 +97,7 @@ body {
     padding-right: 14px;
     height: 42px;
     line-height: 42px;
-    background-color: #ffffff;
+    background-color: #00b900;
     border-radius: 3px;
     color: #ffffff;
 }
