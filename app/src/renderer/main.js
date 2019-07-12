@@ -331,7 +331,7 @@ const ui = new class {
             let portHtml = '';
             portList.forEach((port) => {
                 portHtml +=
-                    `<option title="${port.comName}">${port.comName}</option>`;
+                    `<option title="${port.comName}" style="color: black;">${port.comName}</option>`;
             });
 
             $('#select_port_box select').html(portHtml);

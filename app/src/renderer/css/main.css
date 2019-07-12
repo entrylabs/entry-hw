@@ -89,7 +89,7 @@ button {
     flex: none;
     width: 100%;
     height: 100px;
-    z-index: 1;
+    /*z-index: 1;*/
     background-color: #00b900;
     padding-left: 20px;
 }
@@ -267,7 +267,7 @@ button {
     width: 210px;
     height: 35px;
     text-align: center;
-    background-color: #6e5ae6;
+    background-color: #00B900;
     color: #fff;
     font-size: 14px;
     border-radius: 4px;
@@ -296,7 +296,7 @@ button {
     flex: none;
     width: 100%;
     height: 100px;
-    background-color: #0e68e3;
+    background-color: #00B900;
     text-align: center;
     padding-top: 20px;
 }
@@ -311,7 +311,7 @@ button {
     margin-top: 14px;
     width: 397px;
     background-color: #96bdfa;
-    color: #0e68e3;
+    color: #00B900;
     border: none;
     height: 34px;
     border-radius: 3px;
@@ -340,14 +340,14 @@ button {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width: 360px;
-    height: 379px;
+    width: 388px;
+    height: 448px;
     flex-direction: column;
 }
 
 #select_port_box .select_port_child .title {
-    border-top-left-radius: 3px;
-    border-top-right-radius: 3px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
     height: 57px;
     padding-left: 20px;
     line-height: 57px;
@@ -355,7 +355,7 @@ button {
     font-weight: bold;
     font-size: 20px;
     width: 100%;
-    background-color: #2a7def;
+    background-color: #1c8850;
 }
 
 #select_port_box .select_port_child .title .cancel_icon {
@@ -372,52 +372,68 @@ button {
 }
 
 #select_port_box .select_port_child .content {
-    border-bottom-left-radius: 3px;
-    border-bottom-right-radius: 3px;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
     background-color: #fff;
-    text-align: center;
+    text-align: left;
+    padding-left: 38px;
     flex: 1;
 }
 
 #select_port_box .select_port_child .content .description {
-    font-size: 18px;
-    color: #232323;
+    font-size: 16px;
+    color: #333333;
     margin: 30px 0 20px 0;
 }
 
 #select_port_box .select_port_child select {
-    height: 142px;
-    width: 247px;
+    display: inline-table;
+    height: 192px;
+    width: 308px;
     font-size: 16px;
-    color: #2c2c2c;
+    color: #333333;
     margin-bottom: 33px;
 }
 
 #select_port_box .select_port_child select option {
-    padding: 8px 20px 8px 20px;
+    padding-top: 11px;
+    padding-left: 11px;
+    padding-bottom: 11px;
+    width: 100%;
+    color: #333333;
+    border: solid 1px transparent;
+    border-bottom: solid 1px #d4d4d4;
+}
+
+#select_port_box .select_port_child option:checked{
+    color: black ;
+    -webkit-text-fill-color: black;
+    background: white linear-gradient(0deg, white 0%, white 100%);
+    border: solid 1px #1c8850;
 }
 
 #select_port_box .select_port_child button {
     cursor: pointer;
-    height: 47px;
-    width: 110px;
+    height: 48px;
+    width: 146px;
+    border-radius: 4px;
 }
 
 #select_port_box .select_port_child #btn_select_port {
-    background: #6e5ae6;
-    font-size: 16px;
+    background: #1c8850;
+    font-size: 14px;
+    font-weight: bold;
     color: #fff;
-    border: 0px;
-    border-radius: 3px;
+    border: 0;
 }
 
 #select_port_box .select_port_child #btn_select_port_cancel {
-    background: #dbdbdb;
-    font-size: 16px;
-    color: #9e9e9f;
-    border: 0px;
-    border-radius: 3px;
-    margin-right: 11px;
+    background-color: white;
+    font-size: 14px;
+    font-weight: bold;
+    color: #1c8850;
+    margin-right: 16px;
+    border: solid 1px #1c8850;
 }
 
 #opensource_license_viewer {
