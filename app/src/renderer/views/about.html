@@ -38,9 +38,6 @@
 		const hardwareVersion = remote.getGlobal('sharedObject').hardwareVersion || '0.0.0';
         const Translator = require('../../renderer/js/translator');
         const translator = new Translator();
-		if(!localStorage.getItem('lang')) {
-			localStorage.setItem('lang', 'ko');
-		}
 
 		$(function () {
 			$('body').on('click', function () {
@@ -75,7 +72,7 @@
 				});
 
 				const lastCheckVersion =
-					localStorage.getItem('lastCheckVersion') || '0.0.0';
+					localStorage.getItem('line:lastCheckVersion') || '0.0.0';
 				ipcRenderer.send('checkVersion', lastCheckVersion);
 			});
 		});

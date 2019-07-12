@@ -148,6 +148,7 @@ button {
 }
 
 #hwList {
+    z-index: -1;
     padding: 40px;
     overflow-y: auto;
     height: 100%;
@@ -554,6 +555,7 @@ button {
 }
 
 #cloud_icon .cloud_icon {
+    margin-top: 3px;
     display: inline-block;
     background-size: contain;
     background: url('../images/cloud.png') no-repeat;
@@ -576,7 +578,7 @@ button {
 #cloud_icon {
     display: none;
     float: left;
-    margin-top: 10px;
+    margin-top: 3px;
     margin-right: 20px;
     /*animation: blink_image 2s linear infinite;*/
 }

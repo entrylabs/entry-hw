@@ -15,7 +15,7 @@ class RendererRouter {
 
     constructor(ui) {
         this.ui = ui;
-        this.priorHardwareList = JSON.parse(localStorage.getItem('hardwareList')) || [];
+        this.priorHardwareList = JSON.parse(localStorage.getItem('line:hardwareList')) || [];
         this._serverMode = ipcRenderer.sendSync('getCurrentServerModeSync') || 0;
         this.currentState = Statement.disconnected;
         this.hardwareList = [];
@@ -114,14 +114,14 @@ class RendererRouter {
     }
 
     _checkProgramUpdate() {
-        const lastCheckVersion = localStorage.getItem('lastCheckVersion');
-        const hasNewVersion = localStorage.getItem('hasNewVersion');
+        const lastCheckVersion = localStorage.getItem('line:lastCheckVersion');
+        const hasNewVersion = localStorage.getItem('line:hasNewVersion');
         const { appName } = remote.getGlobal('sharedObject');
         const { getLang } = window;
 
         if (appName === 'hardware' && navigator.onLine) {
             if (hasNewVersion) {
-                localStorage.removeItem('hasNewVersion');
+                localStorage.removeItem('line:hasNewVersion');
                 this.ui.showModal(
                     getLang('Msgs.version_update_msg2').replace(/%1/gi, lastCheckVersion),
                     getLang('General.update_title'),
@@ -144,8 +144,8 @@ class RendererRouter {
                     'checkUpdateResult',
                     (e, { hasNewVersion, version } = {}) => {
                         if (hasNewVersion && version !== lastCheckVersion) {
-                            localStorage.setItem('hasNewVersion', hasNewVersion);
-                            localStorage.setItem('lastCheckVersion', version);
+                            localStorage.setItem('line:hasNewVersion', hasNewVersion);
+                            localStorage.setItem('line:lastCheckVersion', version);
                         }
                     },
                 );

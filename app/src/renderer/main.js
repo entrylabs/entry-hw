@@ -9,7 +9,7 @@ const modal = new Modal();
 const {
     AVAILABLE_TYPE: AvaliableType,
 } = constants;
-let priorHardwareList = JSON.parse(localStorage.getItem('hardwareList')) || [];
+let priorHardwareList = JSON.parse(localStorage.getItem('line:hardwareList')) || [];
 
 let viewMode = 'main';
 
@@ -374,7 +374,7 @@ const ui = new class {
 
         newSelectList.push(hardware.name.ko);
         localStorage.setItem(
-            'hardwareList',
+            'line:hardwareList',
             JSON.stringify(newSelectList),
         );
         priorHardwareList = newSelectList;
