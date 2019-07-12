@@ -2,7 +2,7 @@
 const {
     clipboard, RendererRouter, constants, translator, platform, os,
 } = window.preload;
-const langType = translator.currentLangauge;
+const langType = translator.currentLanguage;
 const Modal = window.Modal.default;
 const modal = new Modal();
 

@@ -12,10 +12,7 @@ function getInitializeList() {
     preload.RendererRouter = RendererRouter;
     preload.constants = constants;
 
-    const translator = new Translator();
-    const lang = translator.currentLangauge;
-    preload.Lang = require(`./lang/${lang}.js`).Lang;
-    preload.translator = translator;
+    preload.translator = new Translator();
 
 
     preload.platform = process.platform;
