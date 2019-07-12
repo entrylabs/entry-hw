@@ -228,14 +228,14 @@ class Ozobot extends BaseModule {
 							buffer.push((entryData.p2) & 0xFF);
 							buffer.push(((entryData.p3) & 0xFF00) >> 8);
 							buffer.push((entryData.p3) & 0xFF);
-							buffer.push((0x5A & 0xFF00) >> 8);
-							buffer.push(0x5A & 0xFF);
 							break;
 						case 0x02:
 							buffer.push(entryData.act);
 							buffer.push(entryData.p1);
 							buffer.push(((entryData.p2) & 0xFF00) >> 8);
 							buffer.push((entryData.p2) & 0xFF);
+							buffer.push((0x5A & 0xFF00) >> 8);
+							buffer.push(0x5A & 0xFF);
 							break;
 						default:
 						// error
