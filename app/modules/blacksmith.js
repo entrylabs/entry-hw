@@ -1,5 +1,3 @@
-const _isPlainObject = require('lodash/isPlainObject');
-
 function Module() {
     this.sp = null;
     this.sensorTypes = {
@@ -344,7 +342,7 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
             var redValue = new Buffer(2);
             var greenValue = new Buffer(2);
             var blueValue = new Buffer(2);
-            if(_isPlainObject(data)) {
+            if($.isPlainObject(data)) {
                 redValue.writeInt16LE(data.redValue);
                 greenValue.writeInt16LE(data.greenValue);
                 blueValue.writeInt16LE(data.blueValue);
@@ -359,7 +357,7 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
         }
         case this.sensorTypes.TONE: {
             var time = new Buffer(2);
-            if(_isPlainObject(data)) {
+            if($.isPlainObject(data)) {
                 value.writeInt16LE(data.value);
                 time.writeInt16LE(data.duration);
             } else {
@@ -375,7 +373,7 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
             var speedPort = new Buffer(2);
             var directionValue = new Buffer(2);
             var speedValue = new Buffer(2);
-            if(_isPlainObject(data)) {
+            if($.isPlainObject(data)) {
                 directionPort.writeInt16LE(data.port0);
                 speedPort.writeInt16LE(data.port1);
                 directionValue.writeInt16LE(data.value0);
@@ -408,7 +406,7 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
             var text13 = new Buffer(2);
             var text14 = new Buffer(2);
             var text15 = new Buffer(2);
-            if(_isPlainObject(data)) {
+            if($.isPlainObject(data)) {
                 text0.writeInt16LE(data.text0);
                 text1.writeInt16LE(data.text1);
                 text2.writeInt16LE(data.text2);
@@ -466,7 +464,7 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
             var text13 = new Buffer(2);
             var text14 = new Buffer(2);
             var text15 = new Buffer(2);
-            if(_isPlainObject(data)) {
+            if($.isPlainObject(data)) {
                 coodinate_x.writeInt16LE(data.value0);
                 coodinate_y.writeInt16LE(data.value1);
                 text0.writeInt16LE(data.text0);

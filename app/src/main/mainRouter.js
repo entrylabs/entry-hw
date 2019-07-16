@@ -28,6 +28,7 @@ class MainRouter {
     }
 
     constructor(mainWindow) {
+        global.$ = require('lodash');
         this.browser = mainWindow;
         rendererConsole.initialize(mainWindow);
         this.scanner = new Scanner(this);
@@ -59,10 +60,14 @@ class MainRouter {
         ipcMain.on('requestFlash', (e, firmwareName) => {
             this.flashFirmware(firmwareName)
                 .then(() => {
-                    e.sender.send('requestFlash');
+                    if (!e.sender.isDestroyed()) {
+                        e.sender.send('requestFlash');
+                    }
                 })
                 .catch((e) => {
-                    e.sender.send('requestFlash', e);
+                    if (!e.sender.isDestroyed()) {
+                        e.sender.send('requestFlash', e);
+                    }
                 });
         });
         ipcMain.on('executeDriver', (e, driverPath) => {
@@ -176,12 +181,16 @@ class MainRouter {
             }
         }
 
-        this.browser.webContents.send('state', resultState, ...args);
+        if (!this.browser.isDestroyed()) {
+            this.browser.webContents.send('state', resultState, ...args);
+        }
     }
 
     notifyServerMode(mode) {
         console.log('notifyServerMode', mode);
-        this.browser.webContents.send('serverMode', mode);
+        if (!this.browser.isDestroyed()) {
+            this.browser.webContents.send('serverMode', mode);
+        }
     }
 
     /**
