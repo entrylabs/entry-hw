@@ -231,10 +231,10 @@ class Connector {
         this.connected = false;
         this.received = true;
 
+        this._sendState('connect');
         if (hwModule.connect) {
             hwModule.connect();
         }
-        this._sendState('connect');
 
         if (softwareReset) {
             serialPort.set({ dtr: false });
@@ -319,6 +319,9 @@ class Connector {
                 router.sendEncodedDataToServer();
             }, advertise);
         }
+
+        this.connected = true;
+        this._sendState('connected');
     }
 
     clear() {

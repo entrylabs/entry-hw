@@ -30,6 +30,7 @@
         "byteDelimiter": [13, 10],
         "duration": 64,
         "vendor": "",
-        "baudRate": 115200
+        "baudRate": 115200,
+        "lostTimer": -1
     }
 }

@@ -23,6 +23,10 @@ const functionKeys = {
     GET_ACCELEROMETER: 0x38,
 };
 
+const microbitStatus = {
+    ready: 'ready',
+    pending: 'pending',
+};
 
 class Microbit2 extends BaseModule {
     constructor() {
@@ -31,7 +35,23 @@ class Microbit2 extends BaseModule {
         this.recentCheckData = [];
         this.startChecksum = [0xff, 0x01];
         this.endChecksum = [0x0d, 0x0a];
-        this.statusChangedProperty = undefined;
+        this.isCommandChanged = false;
+        this.microbitStatusMap = {
+            status: microbitStatus.ready,
+            payload: undefined,
+        };
+        this.currentCommand = new Proxy({
+            id: undefined,
+            type: undefined,
+            payload: undefined,
+        }, {
+            set: (target, prop, value) => {
+                console.log('currentCommand Setted!!!');
+                this.isCommandChanged = true;
+                target[prop] = value;
+                return true;
+            },
+        });
     }
 
     /**
@@ -89,47 +109,41 @@ class Microbit2 extends BaseModule {
     }
 
     requestRemoteData(handler) {
-        handler.write('keykey', this.microbitStatusMap);
+        handler.write('payload', this.microbitStatusMap);
+    }
+
+    lostController(connector, stateCallback) {
+        // 아무일도 안하지만, 해당 함수가 선언되면 lostTimer 가 선언되지 않음.
     }
 
     handleRemoteData(handler) {
-        const commandType = handler.read('type');
-        const data = handler.read('data');
+        const id = handler.read('id');
+        const type = handler.read('type');
+        const payload = handler.read('data');
 
-        // console.log('received From Entry : ', commandType, data);
-
-        switch (commandType) {
-            // microbit2_led_toggle
-            case functionKeys.SET_LED: {
-                break;
-            }
-            case functionKeys.RESET: {
-                break;
-            }
+        if (this.currentCommand.id === id) {
+            return;
         }
-        // const { data: handlerData } = receiveHandler;
-        // if (_.isEmpty(handlerData)) {
-        //     return;
-        // }
-        //
-        // Object.keys(handlerData).forEach((id) => {
-        //     const { type, data } = handlerData[id] || {};
-        //     if (
-        //         _.findIndex(this.sendBuffers, { id }) === -1 &&
-        //         this.executeCheckList.indexOf(id) === -1
-        //     ) {
-        //         const sendData = this.makeData(type, data);
-        //         this.sendBuffers.push({
-        //             id,
-        //             data: sendData,
-        //             index: this.executeCount,
-        //         });
-        //     }
-        // });
+
+        this.currentCommand = {
+            id, type, payload,
+        };
     }
 
     requestLocalData() {
-        return this.makeBuffer(functionKeys.TEST_MESSAGE);
+        console.log('want to request localData? : ', this.isCommandChanged);
+        if (this.isCommandChanged) {
+            this.isCommandChanged = false;
+            const { type, payload } = this.currentCommand;
+            switch (type) {
+                case functionKeys.SET_LED: {
+                    const { x, y, value } = payload;
+                    console.log(x, y, value);
+                }
+            }
+            return this.makeBuffer(functionKeys.TEST_MESSAGE);
+            // return this.makeBuffer(type, payload);
+        }
         // 0xff, 0x01 = startChecksum
         // ~8 개
         // switch (str) {
