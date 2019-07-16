@@ -9,21 +9,21 @@ function Module() {
         TONE: 5,
         PULSEIN: 6,
         ULTRASONIC: 7,
-        TIMER: 8
+        TIMER: 8,
     }
 
     this.actionTypes = {
         GET: 1,
         SET: 2,
-        RESET: 3
+        RESET: 3,
     };
 
     this.sensorValueSize = {
         FLOAT: 2,
-        SHORT: 3
+        SHORT: 3,
     }
 
-    this.digitalPortTimeList = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    this.digitalPortTimeList = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
     this.sensorData = {
         ULTRASONIC: 0,
@@ -41,7 +41,11 @@ function Module() {
             '10': 0,
             '11': 0,
             '12': 0,
-            '13': 0
+            '13': 0,
+            '14': 0,
+            '15': 0,
+            '16': 0,
+            '17': 0,
         },
         ANALOG: {
             '0': 0,
@@ -53,17 +57,13 @@ function Module() {
             '6': 0,
             '7': 0,
         },
-        PULSEIN: {
-        },
+        PULSEIN: {},
         TIMER: 0,
     }
 
-    this.defaultOutput = {
-    }
+    this.defaultOutput = {};
 
-    this.recentCheckData = {
-
-    }
+    this.recentCheckData = {};
 
     this.sendBuffers = [];
 
@@ -158,7 +158,7 @@ Module.prototype.handleRemoteData = function(handler) {
                         type: key,
                         data: dataObj.data
                     }
-                    buffer = Buffer.concat([buffer, self.makeSensorReadBuffer(key, dataObj.port, dataObj.data)]);
+                    buffer = Buffer.concat([buffer, self.makeSensorReadBuffer(key, dataObj.port, dataObj.data),]);
                 }
             }
         });        
@@ -175,9 +175,9 @@ Module.prototype.handleRemoteData = function(handler) {
                     if(!self.isRecentData(port, data.type, data.data)) {
                         self.recentCheckData[port] = {
                             type: data.type,
-                            data: data.data
+                            data: data.data,
                         }
-                        buffer = Buffer.concat([buffer, self.makeOutputBuffer(data.type, port, data.data)]);
+                        buffer = Buffer.concat([buffer, self.makeOutputBuffer(data.type, port, data.data),]);
                     }
                 }
             }
@@ -287,13 +287,13 @@ Module.prototype.makeSensorReadBuffer = function(device, port, data) {
     var buffer;
     var dummy = new Buffer([10]);
     if(device == this.sensorTypes.ULTRASONIC) {
-        buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port[0], port[1], 10]);
+        buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port[0], port[1], 10,]);
     } else if(!data) {
-        buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.GET, device, port, 10]);
+        buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.GET, device, port, 10,]);
     } else {
         value = new Buffer(2);
         value.writeInt16LE(data);
-        buffer = new Buffer([255, 85, 7, sensorIdx, this.actionTypes.GET, device, port, 10]);
+        buffer = new Buffer([255, 85, 7, sensorIdx, this.actionTypes.GET, device, port, 10,]);
         buffer = Buffer.concat([buffer, value, dummy]);
     }
     sensorIdx++;
@@ -314,8 +314,8 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
         case this.sensorTypes.DIGITAL:
         case this.sensorTypes.PWM: {
             value.writeInt16LE(data);
-            buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.SET, device, port]);
-            buffer = Buffer.concat([buffer, value, dummy]);
+            buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.SET, device, port,]);
+            buffer = Buffer.concat([buffer, value, dummy,]);
             break;
         }
         case this.sensorTypes.TONE: {
@@ -364,8 +364,7 @@ Module.prototype.reset = function() {
     this.lastTime = 0;
     this.lastSendTime = 0;
 
-     this.sensorData.PULSEIN = {
-    }
+     this.sensorData.PULSEIN = {};
 };
 
 module.exports = new Module();
