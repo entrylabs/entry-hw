@@ -1,0 +1,30 @@
+{
+    "id": "330101",
+    "name": {
+        "ko": "Xylobot",
+        "en": "Xylobot"
+    },
+    "category": "robot",
+    "platform": ["win32", "darwin"],
+    "icon": "hyact_xylobot.png",
+    "module": "hyact_xylobot.js",
+    "url": "http://www.hyact.net",
+    "email": "sales@hyact.net",
+    "driver": {
+        "win32-ia32": "ftdi/dpinst-x86.exe",
+        "win32-x64": "ftdi/dpinst-amd64.exe",
+        "darwin-x64": "FTDIUSBSerial/FTDIUSBSerial.pkg"
+    },
+    "reconnect": true,
+    "select_com_port": true,
+    "entry": {
+        "protocol": "json"
+    },
+    "hardware": {
+        "type": "serial",
+        "control": "slave",
+        "duration": 20,
+        "vendor": "FTDI",
+        "baudRate": 115200
+    }
+}
