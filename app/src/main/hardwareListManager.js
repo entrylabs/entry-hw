@@ -1,9 +1,10 @@
 const fs = require('fs');
+const { app } = require('electron');
 const path = require('path');
 
 module.exports = class {
     constructor() {
-        this.moduleBasePath = path.resolve(__dirname, '..', '..', 'modules');
+        this.moduleBasePath = path.resolve(app.getAppPath(), __dirname, '..', '..', 'modules');
         this.allHardwareList = [];
         this.initialize();
     }
