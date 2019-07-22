@@ -4,10 +4,6 @@ module.exports = class {
     }
 
     constructor(lang) {
-        if (!window.navigator) {
-            throw Error('translator must be created on browser environment');
-        }
-
         // let selectedLang = lang || 'jp';
         // const browserLanguage = window.navigator.userLanguage || window.navigator.language;
         // if (browserLanguage) {
