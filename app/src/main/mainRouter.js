@@ -49,7 +49,11 @@ class MainRouter {
             this.onChangeState(state);
         });
         ipcMain.on('startScan', async (e, config) => {
-            await this.startScan(config);
+            try {
+                await this.startScan(config);
+            } catch (e) {
+                rendererConsole.error(`startScan err : `, e);
+            }
         });
         ipcMain.on('stopScan', () => {
             this.stopScan();

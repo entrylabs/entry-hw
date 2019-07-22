@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const BaseModule = require('./BaseModule');
+const BaseModule = require('./baseModule');
 
 class hyact_xylobot extends BaseModule
 {
