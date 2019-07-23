@@ -241,7 +241,6 @@ class Server extends EventEmitter {
             });
 
             connection.on('message', (message, ack) => {
-                console.log('socketServer receive : ', message);
                 if (
                     message.mode === SERVER_MODE_TYPES.single ||
                     this.masterRoomIds.indexOf(connection.roomId) >= 0
@@ -272,6 +271,13 @@ class Server extends EventEmitter {
                 this.emit('close');
                 this.closeSingleConnection(this);
             });
+
+            /*
+            - 최초 연결시 이미 하드웨어가 연결되어있는 경우
+            - 해당 하드웨어가 주기적으로 데이터를 보내는 상태가 아닐 경우
+            위 경우에도 현재 하드웨어가 연결되었음을 알려주기 위한 heartbeat 패킷
+             */
+            this.router.sendEncodedDataToServer();
             this.setState(this.state);
         });
         return server;
@@ -330,7 +336,7 @@ class Server extends EventEmitter {
         }
     };
 
-    send(data) {
+    send(data = {}) {
         const childServerListCnt = Object.keys(this.childServerList).length;
         const payload = { data, version: appVersion };
 

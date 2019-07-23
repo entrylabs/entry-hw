@@ -319,9 +319,11 @@ class MainRouter {
      * 서버로 인코딩된 데이터를 보낸다.
      */
     sendEncodedDataToServer() {
-        const data = this.handler.encode();
-        if (data) {
-            this.server.send(data);
+        if (this.handler) {
+            const data = this.handler.encode();
+            if (data) {
+                this.server.send(data);
+            }
         }
     }
 

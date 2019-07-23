@@ -124,7 +124,7 @@ class Connector {
             } = this.options;
             const hwModule = this.hwModule;
             const serialPortReadStream =
-                        this.serialPort.parser ? this.serialPort.parser : this.serialPort;
+                this.serialPort.parser ? this.serialPort.parser : this.serialPort;
 
             const runAsMaster = () => {
                 serialPortReadStream.on('data', (data) => {
@@ -152,7 +152,7 @@ class Connector {
                 // control type is slave
                 serialPortReadStream.on('data', (data) => {
                     const result = hwModule.checkInitialData(data, this.options);
-                    if (result !== undefined) {
+                    if (result !== undefined && result !== false) {
                         this.serialPort.removeAllListeners('data');
                         serialPortReadStream.removeAllListeners('data');
                         clearTimeout(this.flashFirmware);
@@ -209,6 +209,14 @@ class Connector {
         this.router.sendState(state);
     }
 
+    /**
+     * SerialPort 통신 성립 후 데이터 송수신 대기상태로 만든다.
+     * 로직의 순서는 아래와 같다.
+     * - 'connect' state 전파 및 모듈 내 connect() 실행
+     * - 소프트웨어 리셋 / afterConnect 실행. 이 함수는 state 조작이 가능하다.
+     * - data, disconnect, advertise, lostTimer 이벤트 결합.
+     * - 워크스페이스에 heartbeat 용 데이터 송신 / connected flag on
+     */
     connect() {
         if (!this.router) {
             throw new Error('router must be set');
@@ -231,16 +239,18 @@ class Connector {
         this.connected = false;
         this.received = true;
 
+        // 연결 중 상태임을 알림.
         this._sendState('connect');
         if (hwModule.connect) {
             hwModule.connect();
         }
 
+        // 소프트웨어 리셋 플래그 및 afterConnect. 이 때 펌웨어가 없는 경우 업로드 가능
         if (softwareReset) {
             serialPort.set({ dtr: false });
             setTimeout(() => {
                 serialPort.set({ dtr: true });
-            },1000);
+            }, 1000);
         }
 
         if (hwModule.afterConnect) {
@@ -252,6 +262,7 @@ class Connector {
         const serialPortReadStream =
             serialPort.parser ? serialPort.pipe(serialPort.parser) : serialPort;
 
+        // 기기와의 데이터 통신 수립
         serialPortReadStream.on('data', (data) => {
             if (!hwModule.validateLocalData || hwModule.validateLocalData(data)) {
                 if (!this.connected) {
@@ -320,7 +331,12 @@ class Connector {
             }, advertise);
         }
 
+        /*
+        연결이 완료되고 나서, connected 및 연결수립을 알리는 더미데이터를 보낸다.
+        이후 lost | disconnect 상태로 변환되는 것은 기기 선택상 문제이다.
+         */
         this.connected = true;
+        this.router.sendEncodedDataToServer();
         this._sendState('connected');
     }
 
