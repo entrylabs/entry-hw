@@ -106,6 +106,7 @@ class Server extends EventEmitter {
             this.httpServer = httpServer;
 
             this.socketServer = this._createSocketServer(httpServer);
+            this.toggleServerMode(SERVER_MODE_TYPES.single);
         });
 
         httpServer.listen(PORT);
