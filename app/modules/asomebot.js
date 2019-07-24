@@ -71,7 +71,7 @@ class AsomeBot extends BaseModule {
 
             this.msg_id = handlerData.msg_id;
             this.sendBuffer.push(Buffer.from(handlerData.msg + "\r", 'ascii'));
-            this.sendBuffer.push(Buffer.from("'#ID " + this.msg_id + "'\r", 'ascii'));
+            this.sendBuffer.push(Buffer.from("'#ID " + handlerData.msg_id + "'\r", 'ascii'));
         }
     }
 
