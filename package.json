@@ -28,7 +28,7 @@
         "@serialport/binding-abstract": "^2.0.4",
         "@serialport/parser-readline": "^2.0.2",
         "@serialport/stream": "^2.0.4",
-        "lodash": "^4.16.4",
+        "lodash": "^4.17.13",
         "object.assign": "^4.0.4",
         "socket.io": "^1.5.0",
         "socket.io-client": "^1.5.1"
