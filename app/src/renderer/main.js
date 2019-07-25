@@ -5,6 +5,7 @@ const {
 const langType = translator.currentLanguage;
 const Modal = window.Modal.default;
 const modal = new Modal();
+modal.setAlert('LINE');
 
 const {
     AVAILABLE_TYPE: AvaliableType,
@@ -17,44 +18,6 @@ let viewMode = 'main';
 $('html').addClass(platform);
 
 // ui & control
-// dropdown setting start
-const categoryDropdown = $('#filter_category');
-const categoryDropdownOptions = categoryDropdown.children('li:not(.init)');
-const categoryDropdownCurrentSelected = categoryDropdown.children('.init');
-
-const hideCategory = () => {
-    categoryDropdown.hide();
-    categoryDropdownOptions.hide();
-};
-
-categoryDropdown.on('click', '.init', () => {
-    categoryDropdownCurrentSelected.toggleClass('open');
-    categoryDropdownOptions.toggle();
-});
-
-categoryDropdown.on('click', 'li:not(.init)', function() {
-    categoryDropdownOptions.removeClass('selected');
-
-    const selected = $(this);
-    const selectedCategory = selected.data('value');
-    selected.addClass('selected');
-    categoryDropdownCurrentSelected.html(selected.html());
-
-    categoryDropdownCurrentSelected.append(
-        $('<div></div>')
-            .addClass('arrow'),
-    );
-
-    // 카테고리 닫기
-    categoryDropdownCurrentSelected.toggleClass('open');
-    categoryDropdownOptions.toggle();
-
-    // 카테고리 목록, 선택 카테고리 데이터 변경
-    categoryDropdownCurrentSelected.data('value', selectedCategory);
-    filterHardware(selectedCategory);
-});
-
-// dropdown setting end
 
 $('.alertMsg .alertMsg1').text(
     translator.translate('If unexpected problem occurs while operating,'),
@@ -137,7 +100,6 @@ const ui = new class {
         router.stopScan();
         delete window.currentConfig;
         $('#title').text(translator.translate('Select hardware'));
-        categoryDropdown.show();
         $('#hwList').show();
         $('#search_area').show();
         $('#hwPanel').css('display', 'none');
@@ -148,7 +110,6 @@ const ui = new class {
 
     showConnecting() {
         $('#title').text(translator.translate('hardware > connecting'));
-        hideCategory();
         $('#hwList').hide();
         $('#search_area').hide();
         $('#hwPanel').css('display', 'flex');
@@ -161,7 +122,6 @@ const ui = new class {
 
     showConnected() {
         $('#title').text(translator.translate('hardware > connected'));
-        hideCategory();
         $('#hwList').hide();
         $('#search_area').hide();
         $('#hwPanel').css('display', 'flex');
@@ -175,7 +135,6 @@ const ui = new class {
 
     showDisconnected() {
         $('#title').text(translator.translate('hardware > disconnected'));
-        hideCategory();
         $('#hwList').hide();
         $('#search_area').hide();
         $('#hwPanel').css('display', 'flex');
@@ -513,12 +472,10 @@ $('#search_button').on('click', () => {
 $('#search_close_button').on('click', function() {
     $('#search_bar').val('');
     $(this).hide();
-    filterHardware(categoryDropdownCurrentSelected.data('value'));
 });
 
 function searchHardware(searchText) {
     // var searchText = $('#search_bar').val();
-    const currentCategory = $('#filter_category').children('.init').data('value');
     let isNotFound = true;
     if (searchText) {
         const hideList = router.hardwareList.filter((hardware) => {
@@ -527,8 +484,7 @@ function searchHardware(searchText) {
             const text = searchText.toLowerCase();
             if (
                 (ko.indexOf(text) > -1 || en.indexOf(text) > -1) && // 검색결과가 있는지
-                (hardware.platform.indexOf(platform) > -1) && // 현재 플랫폼과 동일한지
-                (currentCategory === 'all' || hardware.category === currentCategory) // 현재 카테고리에 포함되었는지
+                (hardware.platform.indexOf(platform) > -1) // 현재 플랫폼과 동일한지
             ) {
                 ui.showRobot(hardware);
                 isNotFound = false;
@@ -546,27 +502,6 @@ function searchHardware(searchText) {
         }
     } else {
         ui.showRobot();
-    }
-}
-
-/**
- * 카테고리 별로 데이터를 표시한다.
- * 카테고리 변경시 검색결과는 삭제된다.
- * @param type{string} all|robot|module|board
- */
-function filterHardware(type) {
-    $('#search_bar').val('');
-    $('#search_close_button').hide();
-    if (!type || type === 'all') {
-        ui.showRobot();
-    } else {
-        router.hardwareList.forEach((hardware) => {
-            if (hardware.category === type) {
-                ui.showRobot(hardware);
-            } else {
-                ui.hideRobot(hardware.id);
-            }
-        });
     }
 }
 
