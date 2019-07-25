@@ -6,35 +6,35 @@
 	},
 	"If unexpected problem occurs while operating,": {
 		"ko": "하드웨어 연결과 작동 시 예기치 못한 문제가 발생할 수 있습니다.",
-		"jp": "ハードウェアとの接続と作動時に予期せぬエラーが発生する可能性があります"
+		"jp": "ハードウェア接続においてエラーが発生した場合は、"
 	},
 	"contact the hardware company to resolve the problem.": {
 		"ko": "문제 발생 시 해당 하드웨어 업체에 문의해주세요.",
-		"jp": "エラー発生した場合、そのハードウェアの製作元にお問い合わせください。"
+		"jp": "ハードウェアの製造元に問い合わせてください。"
 	},
 	"* Entry Labs is not responsible for the extension program and hardware products on this site.": {
 		"ko": "* 하드웨어 연결 프로그램에 등록된 하드웨어들은 각 업체가 제공하고 개발한 것이며, 엔트리는 본 프로그램 이외에는 책임지지 않습니다.",
-		"jp": "※ハードウェア接続ソフトに登録されたハードウェアは各製作元が提供し、開発したものであり、LINE entryはこのプログラム以外には責任を負いません。"
+		"jp": "※ハードウェアは各製造元が開発・提供するものであり、LINE株式会社はLINE entryのプログラム以外に責任を負いませんので、ご了承ください。"
 	},
 	"Choose a hardware to connect.": {
 		"ko": "연결할 하드웨어를 선택해 주세요.",
-		"jp": "接続するハードウェアを選択してください"
+		"jp": "接続させたいハードウェアを選択してください"
 	},
 	"Have you installed the device driver?": {
 		"ko": "디바이스 드라이버를 설치하셨나요?",
-		"jp": "デバイスのドライバをセットアップしましたか"
+		"jp": "デバイスのドライバをインストールしましたか"
 	},
 	"Install Device Driver": {
 		"ko": "드라이버 설치",
-		"jp": "ドライバのセットアップ"
+		"jp": "ドライバのインストール"
 	},
 	"Install Firmware": {
 		"ko": "펌웨어 설치",
-		"jp": "ファームウェアのセットアップ"
+		"jp": "ファームウェアのインストール"
 	},
 	"Possible Install Firmware": {
 		"ko": "펌웨어 설치 가능",
-		"jp": "ファームウェアのセットアップ可能"
+		"jp": "ファームウェアのインストール可能"
 	},
 	"Install Firmware(Sensor Board)": {
 		"ko": "센서/확장보드 유선 펌웨어",
@@ -50,11 +50,11 @@
 	},
 	"Hardware Device Is Not Connected": {
 		"ko": "하드웨어 장치가 아직 연결되지 않았습니다.",
-		"jp": "ハードウェアの装置がまだ接続されていません"
+		"jp": "ハードウェア装置がまだ接続されていません"
 	},
 	"Connect Other Hardware": {
 		"ko": "다른 하드웨어 연결",
-		"jp": "他のハードウェアを接続"
+		"jp": "他のハードウェアを接続する"
 	},
 	"Show Entry Web Page": {
 		"ko": "엔트리 웹 페이지 보이기",
@@ -64,17 +64,9 @@
 		"ko": "하드웨어 다시 연결",
 		"jp": "ハードウェアをもう一度接続する"
 	},
-	"Connecting...": {
-		"ko": "연결 중입니다.",
-		"jp": "接続中です"
-	},
-	"Connected": {
-		"ko": "연결되었습니다.",
-		"jp": "接続されました"
-	},
 	"Select hardware": {
 		"ko": "하드웨어 선택",
-		"jp": "ハードウェア選択"
+		"jp": "ハードウェアを選択"
 	},
 	"Version Info": {
 		"ko": "버전 정보",
@@ -93,8 +85,8 @@
 		"jp": "ファームウェアのアップロード中..."
 	},
 	"hardware > connecting": {
-		"ko": "하드웨어 > 연결 중",
-		"jp": "ハードウェア > 接続中"
+		"ko": "하드웨어 > 연결 대기",
+		"jp": "ハードウェア > 接続待機"
 	},
 	"hardware > connected": {
 		"ko": "하드웨어 > 연결 성공",
@@ -105,8 +97,8 @@
 		"jp": "ハードウェア > 接続解除"
 	},
 	"Connecting to hardware device.": {
-		"ko": "하드웨어와 연결 중입니다.",
-		"jp": "ハードウェアと接続中です"
+		"ko": "하드웨어와 연결을 시도하고 있습니다.",
+		"jp": "ハードウェアとの接続を試みています"
 	},
 	"Connected to hardware device.": {
 		"ko": "하드웨어와 연결되었습니다.",
@@ -179,13 +171,5 @@
 	"Close": {
 		"ko": "닫기",
 		"jp": "閉じる"
-	},
-	"You are running the latest version.": {
-		"ko": "최신 버전입니다.",
-		"jp": "最新バージョンです。"
-	},
-	"Download the latest version": {
-		"ko": "최신버전 다운로드",
-		"jp": "最新バージョンをダウンロード"
 	}
 }
