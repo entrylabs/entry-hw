@@ -615,8 +615,8 @@ button {
 
 #search_button {
     position: absolute;
-    top: 2px;
-    right: 4px;
+    top: 5px;
+    right: 5px;
     background: none;
     border: none;
 }
