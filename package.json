@@ -24,7 +24,7 @@
         "rimraf": "^2.6.3"
     },
     "dependencies": {
-        "@entrylabs/bindings": "^1.0.0",
+        "@entrylabs/bindings": "1.0.0",
         "@serialport/binding-abstract": "^2.0.4",
         "@serialport/parser-readline": "^2.0.2",
         "@serialport/stream": "^2.0.4",
