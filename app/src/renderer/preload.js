@@ -1,5 +1,4 @@
 const { ipcRenderer, clipboard, remote } = require('electron');
-const { get: _get } = require('lodash');
 const Translator = require('./js/translator');
 const RendererRouter = require('./js/rendererRouter');
 const constants = require('../common/constants');
@@ -12,11 +11,7 @@ function getInitializeList() {
     preload.RendererRouter = RendererRouter;
     preload.constants = constants;
 
-    const translator = new Translator();
-    const lang = translator.currentLangauge;
-    preload.Lang = require(`./lang/${lang}.js`).Lang;
-    preload.translator = translator;
-
+    preload.translator = new Translator();
 
     preload.platform = process.platform;
     preload.os = `${process.platform}-${(() => (
@@ -30,6 +25,5 @@ function getInitializeList() {
 // TODO Lang 에 있는 하드웨어 관련 템플릿 전부 translator 로 처리
 (function() {
     window.preload = getInitializeList();
-    window.getLang = (template) => _get(window.preload.Lang, template);
     window.translate = (template) => window.preload.translator.translate(template);
 })();

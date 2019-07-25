@@ -117,16 +117,17 @@ class RendererRouter {
         const lastCheckVersion = localStorage.getItem('lastCheckVersion');
         const hasNewVersion = localStorage.getItem('hasNewVersion');
         const { appName } = remote.getGlobal('sharedObject');
-        const { getLang } = window;
+        const { translate } = window;
 
         if (appName === 'hardware' && navigator.onLine) {
             if (hasNewVersion) {
                 localStorage.removeItem('hasNewVersion');
                 this.ui.showModal(
-                    getLang('Msgs.version_update_msg2').replace(/%1/gi, lastCheckVersion),
-                    getLang('General.update_title'),
+                    translate('You can use the latest Entry Hardware version(%1).')
+                        .replace(/%1/gi, lastCheckVersion),
+                    translate('Alert'),
                     {
-                        positiveButtonText: getLang('General.recent_download'),
+                        positiveButtonText: translate('Download'),
                         positiveButtonStyle: {
                             width: '180px',
                         },
