@@ -137,7 +137,9 @@ class Server extends EventEmitter {
             }
         });
 
-        socket.on('message', this.router.handleServerData);
+        socket.on('message', (message) => {
+            this.router.handleServerData(message);
+        });
 
         socket.on('mode', (data) => {
             socket.mode = data;
