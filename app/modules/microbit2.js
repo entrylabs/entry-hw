@@ -1,14 +1,14 @@
 const _ = require('lodash');
 const BaseModule = require('./baseModule');
 
-const MICROBIT_BUFFER_SIZE = 10;
+const MICROBIT_BUFFER_SIZE = 16;
 const functionKeys = {
     TEST_MESSAGE: 0xfa,
     RESET: 0xfe,
     CHECK_READY: 0xff,
-
     SET_LED: 0x01,
     SET_STRING: 0x02,
+
     SET_IMAGE: 0x03,
     PLAY_NOTE: 0x04,
     CHANGE_BPM: 0x05,
@@ -23,11 +23,6 @@ const functionKeys = {
     GET_ACCELEROMETER: 0x38,
 };
 
-const microbitStatus = {
-    ready: 'ready',
-    pending: 'pending',
-};
-
 class Microbit2 extends BaseModule {
     constructor() {
         super();
@@ -35,23 +30,19 @@ class Microbit2 extends BaseModule {
         this.recentCheckData = [];
         this.startChecksum = [0xff, 0x01];
         this.endChecksum = [0x0d, 0x0a];
-        this.isCommandChanged = false;
+        this.BUFFER_END_ACK_FLAG = 0xff;
+
         this.microbitStatusMap = {
-            status: microbitStatus.ready,
             payload: undefined,
-        };
-        this.currentCommand = new Proxy({
-            id: undefined,
-            type: undefined,
-            payload: undefined,
-        }, {
-            set: (target, prop, value) => {
-                console.log('currentCommand Setted!!!');
-                this.isCommandChanged = true;
-                target[prop] = value;
-                return true;
+            sensorData: {
+                accelerometer: {
+                    x: 0,
+                    y: 0,
+                    strength: 0,
+                },
             },
-        });
+        };
+        this.commandQueue = [];
     }
 
     /**
@@ -63,17 +54,21 @@ class Microbit2 extends BaseModule {
     makeBuffer(key, payload) {
         const payloadLength = MICROBIT_BUFFER_SIZE
             - this.startChecksum.length
-            - this.endChecksum.length;
+            - this.endChecksum.length
+            - 1; // key length
 
         // payload 는 최대 payloadLength 까지. 이보다 적은 경우 0 으로 fill.
         // payload 가 없는 경우는 빈 배열로 대체한다.
-        const slicedPayload = payload ? _
-            .clone(payload)
-            .fill(0, MICROBIT_BUFFER_SIZE)
-            .slice(0, payloadLength) : [];
+        const slicedPayload = _
+            .chain(_.fill(Array(payloadLength), 0))
+            .zipWith(payload || [], (original, input) => input || 0)
+            .slice(0, payloadLength)
+            .value();
+
         return Buffer.from(
             this.startChecksum
-                .concat([key, ...slicedPayload])
+                .concat([key])
+                .concat(...slicedPayload)
                 .concat(this.endChecksum),
         );
     }
@@ -83,28 +78,39 @@ class Microbit2 extends BaseModule {
     // }
 
     requestInitialData() {
-        return this.makeBuffer(functionKeys.CHECK_READY);
+        const aa = this.makeBuffer(functionKeys.CHECK_READY);
+        console.log('send to : ', aa);
+        return aa;
     }
+
+    // validateLocalData(data) {
+    //     return data[0] === this.BUFFER_END_ACK_FLAG;
+    // }
 
     // setSerialPort(sp) {
     //     this.sp = sp;
     // }
 
-    // setSocket(socket) {
-    //     this.socket = socket;
-    // }
+    setSocket(socket) {
+        this.socket = socket;
+    }
 
     /**
-     *
+     * 정상 handshake response 는 [ff 11 22 33 ~ 0d 0a] 이다.
      * @param {Buffer} data
      * @param config
      * @returns {boolean}
      */
     checkInitialData(data, config) {
+        // data[1~4] 는 commandId 로, 체크하지 않는다.
+        console.log('checkInitialData : ', data);
+        return true;
         return (
-            data[0] === 0x11 &&
-            data[1] === 0x22 &&
-            data[2] === 0x33
+            data[0] === this.BUFFER_END_ACK_FLAG &&
+            data[1] === functionKeys.CHECK_READY &&
+            data[2] === 0x11 &&
+            data[3] === 0x22 &&
+            data[4] === 0x33
         );
     }
 
@@ -117,32 +123,44 @@ class Microbit2 extends BaseModule {
     }
 
     handleRemoteData(handler) {
-        const id = handler.read('id');
-        const type = handler.read('type');
-        const payload = handler.read('data');
+        const id = handler.read('id') || undefined;
+        const type = handler.read('type') || undefined;
+        const payload = handler.read('payload') || {};
 
-        if (this.currentCommand.id === id) {
-            return;
-        }
 
-        this.currentCommand = {
+        // 리퀘스트 목록이 마지막으로 확인한 버전과 다르기 때문에, 업데이트한다.
+        // 업데이트는 중복되지 않는 id 의 커맨드만 뒤에 추가한다.
+        this.commandQueue.push({
             id, type, payload,
-        };
+        });
     }
 
     requestLocalData() {
-        console.log('want to request localData? : ', this.isCommandChanged);
-        if (this.isCommandChanged) {
-            this.isCommandChanged = false;
-            const { type, payload } = this.currentCommand;
+        if (this.commandQueue.length !== 0) {
+            const { type, payload } = this.commandQueue.shift();
+            console.log(`type : ${type} payload : ${payload}`);
             switch (type) {
                 case functionKeys.SET_LED: {
                     const { x, y, value } = payload;
-                    console.log(x, y, value);
+                    const valueType = {
+                        on: 1,
+                        off: 0,
+                        toggle: 2,
+                    };
+                    return this.makeBuffer(functionKeys.SET_LED, [x, y, valueType[value]]);
                 }
+                case functionKeys.RESET:
+                    return this.makeBuffer(functionKeys.RESET);
+                case functionKeys.SET_STRING:
+                    return this.makeBuffer(
+                        functionKeys.SET_STRING,
+                        Buffer.from(payload).toJSON().data,
+                    );
+                case functionKeys.GET_ACCELEROMETER:
+                    return this.makeBuffer(functionKeys.GET_ACCELEROMETER);
+                default:
+                    return this.makeBuffer(functionKeys.TEST_MESSAGE);
             }
-            return this.makeBuffer(functionKeys.TEST_MESSAGE);
-            // return this.makeBuffer(type, payload);
         }
         // 0xff, 0x01 = startChecksum
         // ~8 개
@@ -288,6 +306,13 @@ class Microbit2 extends BaseModule {
 
     handleLocalData(data) {
         console.log('received from microbit : ', data);
+        const receivedCommandType = data[1];
+        const payload = data[2];
+        switch (receivedCommandType) {
+            case functionKeys.GET_ACCELEROMETER:
+                this.microbitStatusMap.sensorData.accelerometer.strength = payload;
+        }
+        // this.socket.send('abcde');
         // const count = data[data.length - 3];
         // const blockId = this.executeCheckList[count];
         // if (blockId) {

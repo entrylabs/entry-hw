@@ -31,6 +31,6 @@
         "duration": 64,
         "vendor": "",
         "baudRate": 115200,
-        "lostTimer": -1
+        "bufferSize": 16
     }
 }
