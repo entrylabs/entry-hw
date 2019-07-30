@@ -366,7 +366,7 @@ class MainRouter {
             return;
         }
 
-        const asarIndex = app.getAppPath().indexOf('/app.asar');
+        const asarIndex = app.getAppPath().indexOf(`${path.sep}app.asar`);
         let sourcePath = '';
         if (asarIndex > -1) {
             const asarPath = app.getAppPath().substr(0, asarIndex);
