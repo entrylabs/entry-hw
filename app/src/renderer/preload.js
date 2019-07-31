@@ -11,7 +11,11 @@ function getInitializeList() {
     preload.RendererRouter = RendererRouter;
     preload.constants = constants;
 
-    preload.translator = new Translator();
+    const translator = new Translator();
+    const lang = translator.currentLanguage;
+    preload.Lang = require(`./lang/${lang}.js`).Lang;
+    preload.translator = translator;
+
 
     preload.platform = process.platform;
     preload.os = `${process.platform}-${(() => (
@@ -24,6 +28,6 @@ function getInitializeList() {
 
 // TODO Lang 에 있는 하드웨어 관련 템플릿 전부 translator 로 처리
 (function() {
-    window.preload = getInitializeList();
-    window.translate = (template) => window.preload.translator.translate(template);
+    Object.assign(window, getInitializeList());
+    window.translate = (template) => window.translator.translate(template);
 })();

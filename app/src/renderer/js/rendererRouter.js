@@ -114,44 +114,44 @@ class RendererRouter {
     }
 
     _checkProgramUpdate() {
-        const lastCheckVersion = localStorage.getItem('lastCheckVersion');
-        const hasNewVersion = localStorage.getItem('hasNewVersion');
         const { appName } = remote.getGlobal('sharedObject');
-        const { translate } = window;
+        const { translate, Modal } = window;
+        const modal = new Modal.default();
 
         if (appName === 'hardware' && navigator.onLine) {
-            if (hasNewVersion) {
-                localStorage.removeItem('hasNewVersion');
-                this.ui.showModal(
-                    translate('You can use the latest Entry Hardware version(%1).')
-                        .replace(/%1/gi, lastCheckVersion),
-                    translate('Alert'),
-                    {
-                        positiveButtonText: translate('Download'),
-                        positiveButtonStyle: {
-                            width: '180px',
-                        },
-                    },
-                    (event) => {
-                        if (event === 'ok') {
-                            shell.openExternal(
-                                'https://playentry.org/#!/offlineEditor',
-                            );
-                        }
-                    },
-                );
-            } else {
-                ipcRenderer.on(
-                    'checkUpdateResult',
-                    (e, { hasNewVersion, version } = {}) => {
-                        if (hasNewVersion && version !== lastCheckVersion) {
-                            localStorage.setItem('hasNewVersion', hasNewVersion);
-                            localStorage.setItem('lastCheckVersion', version);
-                        }
-                    },
-                );
-                ipcRenderer.send('checkUpdate');
-            }
+            ipcRenderer.send('checkUpdate');
+            ipcRenderer.on(
+                'checkUpdateResult',
+                (e, { hasNewVersion, version: latestVersion } = {}) => {
+                    const lastDontCheckedVersion = localStorage.getItem('lastDontCheckedVersion');
+                    if (hasNewVersion && (!lastDontCheckedVersion || lastDontCheckedVersion < latestVersion)) {
+                        modal.alert(
+                            translate('You can use the latest Entry Hardware version(%1).')
+                                .replace(/%1/gi, latestVersion),
+                            translate('Alert'),
+                            {
+                                theme: 'LINE',
+                                positiveButtonText: translate('Download'),
+                                positiveButtonStyle: {
+                                    marginTop: '16px',
+                                    marginBottom: '16px',
+                                    width: '180px',
+                                },
+                                parentClassName: 'versionAlert',
+                                withDontShowAgain: true,
+                            }).one('click', (event, { dontShowChecked }) => {
+                            if (event === 'ok') {
+                                shell.openExternal(
+                                    'https://playentry.org/#!/offlineEditor',
+                                );
+                            }
+                            if (dontShowChecked) {
+                                localStorage.setItem('lastDontCheckedVersion', latestVersion);
+                            }
+                        });
+                    }
+                },
+            );
         }
     }
 
