@@ -39,7 +39,7 @@ body {
     outline: 0;
     font-family: Arial, Dotum;
     font-size: 10pt;
-    overflow: hidden;
+    overflow: hidden !important;
     display: flex;
     flex-direction: column;
     width: 100%;
