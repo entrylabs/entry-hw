@@ -26,6 +26,8 @@ class AsomeBot extends BaseModule {
     }
 
     requestInitialData() {
+        console.log("requestInitialData");
+
         var init_str = "import asomebot_align; import asomebot; import hcsr04; asomebot.ready(5, 6, 7,8); hcsr04.open(3, 2)\r";
         return Buffer.from(init_str, "ascii");
     }
@@ -63,6 +65,7 @@ class AsomeBot extends BaseModule {
         }
 
         if (handlerData.msg_id == undefined) {
+            console.log("from handlerData.msg_id == undefined", handlerData);
             return;
         }
 
@@ -80,7 +83,9 @@ class AsomeBot extends BaseModule {
 
         if (!this.isDraing && this.sendBuffer.length > 0) {
             this.isDraing = true;
-            this.sp.write(this.sendBuffer.shift(), function() {
+            var msg = this.sendBuffer.shift();
+            console.log("to AsomeBot: ", msg.toString(), this.sendBuffer.length);
+            this.sp.write(msg, function() {
                 if (self.sp) {
                     self.sp.drain(function() {
                         self.isDraing = false;
@@ -93,29 +98,30 @@ class AsomeBot extends BaseModule {
     }
 
     handleLocalData(data) {
+        // console.log("handleLocalData: ", this.receivedText);
+
         this.receivedText = this.receivedText + data.toString();
+
         var index = this.receivedText.indexOf('\r');
-        if (index < 0) return;
+        while (index >= 0) {
+            var line = this.receivedText.substring(0, index);
+            this.receivedText = this.receivedText.substring(index + 1);
 
-        var line = this.receivedText.substring(0, index);
-        this.receivedText = this.receivedText.substring(index + 1);
+            console.log("from AsomeBot: ", line);
 
-        console.log("from AsomeBot: ", line);
+            if (line.indexOf('#DT') >= 0) {
+                var values = line.split(" ");
+                if (values.length > 1) this.sendToEntry.distance = values[1];
+                console.log("distance: ", values);
+            }
+            if (line.indexOf('#UDP') >= 0) {
+                var values = line.split(" ");
+                if (values.length > 1) this.sendToEntry.udp_msg = values[1];
+            }
+            if (line.indexOf('#ID') >= 0) this.sendToEntry.msg_id = line;
 
-        if (line.indexOf('#') < 0) return;
-
-        if (line.indexOf('#DT') >= 0) {
-            var values = line.split(" ");
-            if (values.length > 1) this.sendToEntry.distance = values[1];
-            console.log("distance: ", values);
+            index = this.receivedText.indexOf('\r');
         }
-
-        if (line.indexOf('#UDP') >= 0) {
-            var values = line.split(" ");
-            if (values.length > 1) this.sendToEntry.udp_msg = values[1];
-        }
-
-        if (line.indexOf('#ID') >= 0) this.sendToEntry.msg_id = line;
     }
 
     setSocketData({ socketData, data }) {
