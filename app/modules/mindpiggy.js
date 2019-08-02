@@ -1,10 +1,10 @@
+const rendererConsole = require('../src/main/utils/rendererConsole');
 const BaseModule = require('./baseModule');
 
 class Mindpiggy extends BaseModule{
     constructor(){
         // console.log("Module");
         super();
-        this.isRemoteData=false;
         this.sp = null;
 
         this.sensorTypes={
@@ -50,28 +50,27 @@ class Mindpiggy extends BaseModule{
     // 하드웨어에서 받은 데이터의 검증이 필요한 경우
     validateLocalData(data){
         // console.log("validateLocalData");
-        //작품 정지 했을때 초기화버퍼 생성
-
-        var self=this
-        if(this.isRemoteData==false){
-            this.sendBuffers=[];
-                var buffer = new Buffer([]);
-                Object.keys(self.recentSET).forEach(function(port){
-                    buffer = Buffer.concat([buffer,self.makeResetBuffer(port,self.recentSET[port].type)]);
-                });
-            if(buffer.length)
-                this.sendBuffers.push(buffer);
-        }else this.isRemoteData=false;
 
         return true;
     }
 
     // 엔트리에 전달할 데이터.
     requestRemoteData(handler){
+        var self = this;
+        if(Object.keys(handler.read('GET')).length===0 && Object.keys(handler.read('SET')).length===0 && this.recentSET){
+            this.sendBuffers=[];
+            var buffer = new Buffer([]);
+            Object.keys(self.recentSET).forEach(function(port){
+                buffer = Buffer.concat([buffer,self.makeResetBuffer(port,self.recentSET[port].type)]);
+            });
+            delete this.recentSET;
+            if(buffer.length)
+                this.sendBuffers.push(buffer);
+        }
+
         for(var getPort in this.recentGET) {
             handler.write(getPort, this.portData[getPort]);
         }
-
         // //요청포트만 전달
         // if(this.recentGET){
         //     for(var getPort in this.recentGET) {
@@ -89,10 +88,15 @@ class Mindpiggy extends BaseModule{
         var self = this;
         var getDatas = handler.read('GET');
         var setDatas = handler.read('SET');
-        if(!this.recentSET)this.recentSET={};
-        for(var key in setDatas)self.recentSET[key] = setDatas[key];
-        if(!this.recentGET)this.recentGET={};
-        for(var key in getDatas)self.recentGET[key] = getDatas[key];
+        if(Object.keys(setDatas).length > 0){
+            if(!this.recentSET)this.recentSET={};
+            for(var key in setDatas)self.recentSET[key] = setDatas[key];
+        }
+        if(Object.keys(getDatas).length > 0){
+            if(!this.recentGET)this.recentGET={};
+            for(var key in getDatas)self.recentGET[key] = getDatas[key];
+        }
+
         var buffer = new Buffer([]);
         if(getDatas){
             var getkeys = Object.keys(getDatas);
@@ -111,13 +115,12 @@ class Mindpiggy extends BaseModule{
 
         if(buffer.length)
             this.sendBuffers.push(buffer);
-        this.isRemoteData=true;
     }
 
     // 하드웨어에 명령을 전송합니다.
     requestLocalData(){
         // console.log("requestLocalData");
-
+        // rendererConsole.log(this.sendBuffers);
         var self = this;
         if (!this.isDraing && this.sendBuffers.length > 0) {
             this.isDraing = true;
