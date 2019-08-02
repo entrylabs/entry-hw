@@ -3,9 +3,6 @@ const {
     clipboard, RendererRouter, constants, translator, platform, os,
 } = window.preload;
 const langType = translator.currentLanguage;
-const Modal = window.Modal.default;
-const modal = new Modal();
-modal.setAlert('LINE');
 
 const {
     AVAILABLE_TYPE: AvaliableType,
@@ -85,10 +82,6 @@ const ui = new class {
     constructor() {
         this.cachedPortList = [];
     }
-
-    showModal(message, title = '', styleOptions = {}, onclickCallback) {
-        modal.alert(message, title, styleOptions).one('click', onclickCallback);
-    };
 
     showRobotList() {
         viewMode = 'main';
