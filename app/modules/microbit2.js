@@ -46,6 +46,7 @@ class Microbit2 extends BaseModule {
                 digital: {},
                 analog: {},
                 led: {},
+                button: false,
                 lightLevel: 0,
                 temperature: 0,
                 compassHeading: 0,
@@ -192,7 +193,14 @@ class Microbit2 extends BaseModule {
                 }
                 case functionKeys.SET_ANALOG: {
                     const { pinNumber, value } = payload;
-                    return this.makeBuffer(functionKeys.SET_ANALOG, [pinNumber, value]);
+                    const uInt8Value = [];
+                    let targetValue = value;
+                    while (targetValue) {
+                        uInt8Value.push(targetValue & 0xFF);
+                        targetValue >>= 8;
+                    }
+
+                    return this.makeBuffer(functionKeys.SET_ANALOG, [pinNumber, ...uInt8Value]);
                 }
                 // 필요한 값이 value property 하나인 경우 전부
                 case functionKeys.GET_ANALOG:
@@ -395,8 +403,8 @@ class Microbit2 extends BaseModule {
                 const buttonState = data[1];
                 _.set(
                     this.microbitStatusMap,
-                    ['sensorData', 'button', !!buttonState],
-                    0,
+                    ['sensorData', 'button'],
+                    !!buttonState,
                 );
                 break;
             }
