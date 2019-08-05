@@ -205,13 +205,13 @@ class Microbit2 extends BaseModule {
                 // 필요한 값이 value property 하나인 경우 전부
                 case functionKeys.GET_ANALOG:
                 case functionKeys.GET_DIGITAL:
-                case functionKeys.GET_BUTTON:
                 case functionKeys.SET_IMAGE:
                 case functionKeys.GET_ACCELEROMETER: {
                     const { value } = payload;
                     return this.makeBuffer(type, [value]);
                 }
-                // 그냥 값 없이 바로 커맨드만 보내는 종
+                // 그냥 값 없이 바로 커맨드만 보내는 경우
+                case functionKeys.GET_BUTTON:
                 case functionKeys.GET_LIGHT_LEVEL:
                 case functionKeys.GET_TEMPERATURE:
                 case functionKeys.GET_COMPASS_HEADING:
@@ -404,7 +404,7 @@ class Microbit2 extends BaseModule {
                 _.set(
                     this.microbitStatusMap,
                     ['sensorData', 'button'],
-                    !!buttonState,
+                    buttonState,
                 );
                 break;
             }
