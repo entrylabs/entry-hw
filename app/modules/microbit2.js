@@ -9,6 +9,7 @@ const functionKeys = {
     SET_LED: 0x01,
     SET_STRING: 0x02,
     SET_IMAGE: 0x03,
+    RESET_SCREEN: 0x09,
     GET_LED: 0x31,
     GET_ANALOG: 0x32,
     GET_DIGITAL: 0x33,
@@ -175,27 +176,6 @@ class Microbit2 extends BaseModule {
                     const { x, y } = payload;
                     return this.makeBuffer(functionKeys.GET_LED, [x, y]);
                 }
-                case functionKeys.GET_ANALOG: {
-                    const { value } = payload;
-                    return this.makeBuffer(functionKeys.GET_ANALOG, [value]);
-                }
-                case functionKeys.GET_DIGITAL: {
-                    const { value } = payload;
-                    return this.makeBuffer(functionKeys.GET_DIGITAL, [value]);
-                }
-                case functionKeys.GET_BUTTON: {
-                    const { value } = payload; // 1=A, 2=B, 3=A+B
-                    return this.makeBuffer(functionKeys.GET_BUTTON, [value]);
-                }
-                case functionKeys.GET_LIGHT_LEVEL: {
-                    return this.makeBuffer(functionKeys.GET_LIGHT_LEVEL);
-                }
-                case functionKeys.GET_TEMPERATURE: {
-                    return this.makeBuffer(functionKeys.GET_TEMPERATURE);
-                }
-                case functionKeys.GET_COMPASS_HEADING: {
-                    return this.makeBuffer(functionKeys.GET_COMPASS_HEADING);
-                }
                 case functionKeys.RESET:
                     this.resetMicrobitStatusMap();
                     return this.makeBuffer(functionKeys.RESET);
@@ -204,14 +184,21 @@ class Microbit2 extends BaseModule {
                         functionKeys.SET_STRING,
                         Buffer.from(payload).toJSON().data,
                     );
-                case functionKeys.SET_IMAGE: {
-                    const { value } = payload;
-                    return this.makeBuffer(functionKeys.SET_IMAGE, [value]);
-                }
+                // 필요한 값이 value property 하나인 경우 전부
+                case functionKeys.GET_ANALOG:
+                case functionKeys.GET_DIGITAL:
+                case functionKeys.GET_BUTTON:
+                case functionKeys.SET_IMAGE:
                 case functionKeys.GET_ACCELEROMETER: {
                     const { value } = payload;
-                    return this.makeBuffer(functionKeys.GET_ACCELEROMETER, [value]);
+                    return this.makeBuffer(type, [value]);
                 }
+                // 그냥 값 없이 바로 커맨드만 보내는 종
+                case functionKeys.GET_LIGHT_LEVEL:
+                case functionKeys.GET_TEMPERATURE:
+                case functionKeys.GET_COMPASS_HEADING:
+                case functionKeys.RESET_SCREEN:
+                    return this.makeBuffer(type);
                 default:
                     return this.makeBuffer(functionKeys.TEST_MESSAGE);
             }
