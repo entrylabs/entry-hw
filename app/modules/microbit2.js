@@ -10,10 +10,6 @@ const functionKeys = {
     SET_STRING: 0x02,
     SET_IMAGE: 0x03,
     GET_LED: 0x31,
-
-    PLAY_NOTE: 0x04,
-    CHANGE_BPM: 0x05,
-    SET_BPM: 0x06,
     GET_ANALOG: 0x32,
     GET_DIGITAL: 0x33,
     GET_BUTTON: 0x34,
@@ -21,6 +17,10 @@ const functionKeys = {
     GET_TEMPERATURE: 0x36,
     GET_COMPASS_HEADING: 0x37,
     GET_ACCELEROMETER: 0x38,
+
+    PLAY_NOTE: 0x04,
+    CHANGE_BPM: 0x05,
+    SET_BPM: 0x06,
 };
 
 class Microbit2 extends BaseModule {
@@ -40,6 +40,12 @@ class Microbit2 extends BaseModule {
         this.microbitStatusMap = {
             payload: undefined,
             sensorData: {
+                digital: {},
+                analog: {},
+                led: {},
+                lightLevel: 0,
+                temperature: 0,
+                compassHeading: 0,
                 accelerometer: {
                     x: 0,
                     y: 0,
@@ -168,6 +174,27 @@ class Microbit2 extends BaseModule {
                 case functionKeys.GET_LED: {
                     const { x, y } = payload;
                     return this.makeBuffer(functionKeys.GET_LED, [x, y]);
+                }
+                case functionKeys.GET_ANALOG: {
+                    const { value } = payload;
+                    return this.makeBuffer(functionKeys.GET_ANALOG, [value]);
+                }
+                case functionKeys.GET_DIGITAL: {
+                    const { value } = payload;
+                    return this.makeBuffer(functionKeys.GET_DIGITAL, [value]);
+                }
+                case functionKeys.GET_BUTTON: {
+                    const { value } = payload; // 1=A, 2=B, 3=A+B
+                    return this.makeBuffer(functionKeys.GET_BUTTON, [value]);
+                }
+                case functionKeys.GET_LIGHT_LEVEL: {
+                    return this.makeBuffer(functionKeys.GET_LIGHT_LEVEL);
+                }
+                case functionKeys.GET_TEMPERATURE: {
+                    return this.makeBuffer(functionKeys.GET_TEMPERATURE);
+                }
+                case functionKeys.GET_COMPASS_HEADING: {
+                    return this.makeBuffer(functionKeys.GET_COMPASS_HEADING);
                 }
                 case functionKeys.RESET:
                     this.resetMicrobitStatusMap();
@@ -345,6 +372,62 @@ class Microbit2 extends BaseModule {
                 const x = data[1];
                 const y = data[2];
                 _.set(this.microbitStatusMap, ['sensorData', 'led', x, y], data[3]);
+                break;
+            }
+            case functionKeys.GET_ANALOG: {
+                const pinNumber = data[1];
+                const value = Buffer.from([data[2], data[3]]);
+                _.set(
+                    this.microbitStatusMap,
+                    ['sensorData', 'analog', pinNumber],
+                    value.readInt16LE(0),
+                );
+                break;
+            }
+            case functionKeys.GET_DIGITAL: {
+                const pinNumber = data[1];
+                const value = data[2];
+                _.set(
+                    this.microbitStatusMap,
+                    ['sensorData', 'digital', pinNumber],
+                    value,
+                );
+                break;
+            }
+            case functionKeys.GET_BUTTON: {
+                const buttonState = data[1];
+                _.set(
+                    this.microbitStatusMap,
+                    ['sensorData', 'button', !!buttonState],
+                    0,
+                );
+                break;
+            }
+            case functionKeys.GET_LIGHT_LEVEL: {
+                const lightLevel = Buffer.from([data[1]]).readUInt8(0);
+                _.set(
+                    this.microbitStatusMap,
+                    ['sensorData', 'lightLevel'],
+                    lightLevel,
+                );
+                break;
+            }
+            case functionKeys.GET_TEMPERATURE: {
+                const temperature = Buffer.from([data[1]]).readInt8(0);
+                _.set(
+                    this.microbitStatusMap,
+                    ['sensorData', 'temperature'],
+                    temperature,
+                );
+                break;
+            }
+            case functionKeys.GET_COMPASS_HEADING: {
+                const compassHeading = Buffer.from([data[1], data[2]]).readUInt16LE(0);
+                _.set(
+                    this.microbitStatusMap,
+                    ['sensorData', 'compassHeading'],
+                    compassHeading,
+                );
                 break;
             }
         }
