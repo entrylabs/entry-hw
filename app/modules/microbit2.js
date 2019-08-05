@@ -9,6 +9,8 @@ const functionKeys = {
     SET_LED: 0x01,
     SET_STRING: 0x02,
     SET_IMAGE: 0x03,
+    SET_DIGITAL: 0x07,
+    SET_ANALOG: 0x08,
     RESET_SCREEN: 0x09,
     GET_LED: 0x31,
     GET_ANALOG: 0x32,
@@ -184,6 +186,14 @@ class Microbit2 extends BaseModule {
                         functionKeys.SET_STRING,
                         Buffer.from(payload).toJSON().data,
                     );
+                case functionKeys.SET_DIGITAL: {
+                    const { pinNumber, value } = payload;
+                    return this.makeBuffer(functionKeys.SET_DIGITAL, [pinNumber, value]);
+                }
+                case functionKeys.SET_ANALOG: {
+                    const { pinNumber, value } = payload;
+                    return this.makeBuffer(functionKeys.SET_ANALOG, [pinNumber, value]);
+                }
                 // 필요한 값이 value property 하나인 경우 전부
                 case functionKeys.GET_ANALOG:
                 case functionKeys.GET_DIGITAL:
