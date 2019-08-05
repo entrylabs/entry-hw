@@ -8,8 +8,8 @@ const functionKeys = {
     CHECK_READY: 0xff,
     SET_LED: 0x01,
     SET_STRING: 0x02,
-
     SET_IMAGE: 0x03,
+
     PLAY_NOTE: 0x04,
     CHANGE_BPM: 0x05,
     SET_BPM: 0x06,
@@ -87,9 +87,9 @@ class Microbit2 extends BaseModule {
     //     return data[0] === this.BUFFER_END_ACK_FLAG;
     // }
 
-    // setSerialPort(sp) {
-    //     this.sp = sp;
-    // }
+    setSerialPort(sp) {
+        this.sp = sp;
+    }
 
     setSocket(socket) {
         this.socket = socket;
@@ -104,13 +104,12 @@ class Microbit2 extends BaseModule {
     checkInitialData(data, config) {
         // data[1~4] 는 commandId 로, 체크하지 않는다.
         console.log('checkInitialData : ', data);
-        return true;
+        // return true;
         return (
-            data[0] === this.BUFFER_END_ACK_FLAG &&
-            data[1] === functionKeys.CHECK_READY &&
-            data[2] === 0x11 &&
-            data[3] === 0x22 &&
-            data[4] === 0x33
+            data[0] === functionKeys.CHECK_READY &&
+            data[1] === 0x11 &&
+            data[2] === 0x22 &&
+            data[3] === 0x33
         );
     }
 
@@ -136,7 +135,8 @@ class Microbit2 extends BaseModule {
     }
 
     requestLocalData() {
-        if (this.commandQueue.length !== 0) {
+        if (this.commandQueue.length !== 0 && !this.pending) {
+            this.pending = true;
             const { type, payload } = this.commandQueue.shift();
             console.log(`type : ${type} payload : ${payload}`);
             switch (type) {
@@ -156,8 +156,14 @@ class Microbit2 extends BaseModule {
                         functionKeys.SET_STRING,
                         Buffer.from(payload).toJSON().data,
                     );
-                case functionKeys.GET_ACCELEROMETER:
-                    return this.makeBuffer(functionKeys.GET_ACCELEROMETER);
+                case functionKeys.SET_IMAGE: {
+                    const { value } = payload;
+                    return this.makeBuffer(functionKeys.SET_IMAGE, [value]);
+                }
+                case functionKeys.GET_ACCELEROMETER: {
+                    const { value } = payload;
+                    return this.makeBuffer(functionKeys.GET_ACCELEROMETER, [value]);
+                }
                 default:
                     return this.makeBuffer(functionKeys.TEST_MESSAGE);
             }
@@ -305,12 +311,13 @@ class Microbit2 extends BaseModule {
 
 
     handleLocalData(data) {
+        this.pending = false;
         console.log('received from microbit : ', data);
-        const receivedCommandType = data[1];
-        const payload = data[2];
+        const receivedCommandType = data[0];
         switch (receivedCommandType) {
             case functionKeys.GET_ACCELEROMETER:
-                this.microbitStatusMap.sensorData.accelerometer.strength = payload;
+                const value = Buffer.from([data[1], data[2]]);
+                this.microbitStatusMap.sensorData.accelerometer = value.readInt16LE(0);
         }
         // this.socket.send('abcde');
         // const count = data[data.length - 3];
