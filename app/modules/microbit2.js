@@ -9,11 +9,11 @@ const functionKeys = {
     SET_LED: 0x01,
     SET_STRING: 0x02,
     SET_IMAGE: 0x03,
+    GET_LED: 0x31,
 
     PLAY_NOTE: 0x04,
     CHANGE_BPM: 0x05,
     SET_BPM: 0x06,
-    GET_LED: 0x31,
     GET_ANALOG: 0x32,
     GET_DIGITAL: 0x33,
     GET_BUTTON: 0x34,
@@ -32,6 +32,11 @@ class Microbit2 extends BaseModule {
         this.endChecksum = [0x0d, 0x0a];
         this.BUFFER_END_ACK_FLAG = 0xff;
 
+        this.resetMicrobitStatusMap();
+        this.commandQueue = [];
+    }
+
+    resetMicrobitStatusMap() {
         this.microbitStatusMap = {
             payload: undefined,
             sensorData: {
@@ -42,7 +47,6 @@ class Microbit2 extends BaseModule {
                 },
             },
         };
-        this.commandQueue = [];
     }
 
     /**
@@ -147,9 +151,26 @@ class Microbit2 extends BaseModule {
                         off: 0,
                         toggle: 2,
                     };
+                    // 임시로 statusMap 을 업데이트 한다.
+                    // 실제 값은 getLED 시 다시 업데이트 된다.
+                    let dummyCacheLedValue = 0;
+                    if (value === 'toggle') {
+                        dummyCacheLedValue = _.get(
+                            this.microbitStatusMap,
+                            ['sensorData', 'led', x, y],
+                            0) === 0 ? 1 : 0;
+                    } else {
+                        dummyCacheLedValue = valueType[value];
+                    }
+                    _.set(this.microbitStatusMap, ['sensorData', 'led', x, y], dummyCacheLedValue);
                     return this.makeBuffer(functionKeys.SET_LED, [x, y, valueType[value]]);
                 }
+                case functionKeys.GET_LED: {
+                    const { x, y } = payload;
+                    return this.makeBuffer(functionKeys.GET_LED, [x, y]);
+                }
                 case functionKeys.RESET:
+                    this.resetMicrobitStatusMap();
                     return this.makeBuffer(functionKeys.RESET);
                 case functionKeys.SET_STRING:
                     return this.makeBuffer(
@@ -315,9 +336,17 @@ class Microbit2 extends BaseModule {
         console.log('received from microbit : ', data);
         const receivedCommandType = data[0];
         switch (receivedCommandType) {
-            case functionKeys.GET_ACCELEROMETER:
+            case functionKeys.GET_ACCELEROMETER: {
                 const value = Buffer.from([data[1], data[2]]);
-                this.microbitStatusMap.sensorData.accelerometer = value.readInt16LE(0);
+                _.set(this.microbitStatusMap, 'sensorData.accelerometer', value.readInt16LE(0));
+                break;
+            }
+            case functionKeys.GET_LED: {
+                const x = data[1];
+                const y = data[2];
+                _.set(this.microbitStatusMap, ['sensorData', 'led', x, y], data[3]);
+                break;
+            }
         }
         // this.socket.send('abcde');
         // const count = data[data.length - 3];
