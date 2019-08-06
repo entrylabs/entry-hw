@@ -13,6 +13,8 @@ const functionKeys = {
     SET_ANALOG: 0x08,
     RESET_SCREEN: 0x09,
     SET_ANALOG_PERIOD: 0x10,
+    SET_SERVO: 0x11,
+    SET_SERVE_PERIOD: 0x12,
     GET_LED: 0x31,
     GET_ANALOG: 0x32,
     GET_DIGITAL: 0x33,
@@ -34,7 +36,6 @@ class Microbit2 extends BaseModule {
         this.recentCheckData = [];
         this.startChecksum = [0xff, 0x01];
         this.endChecksum = [0x0d, 0x0a];
-        this.BUFFER_END_ACK_FLAG = 0xff;
 
         this.resetMicrobitStatusMap();
         this.commandQueue = [];
@@ -192,17 +193,9 @@ class Microbit2 extends BaseModule {
                     const { pinNumber, value } = payload;
                     return this.makeBuffer(functionKeys.SET_DIGITAL, [pinNumber, value]);
                 }
-                case functionKeys.SET_ANALOG: {
-                    const { pinNumber, value } = payload;
-                    const uInt8Value = [];
-                    let targetValue = value;
-                    while (targetValue) {
-                        uInt8Value.push(targetValue & 0xFF);
-                        targetValue >>= 8;
-                    }
-
-                    return this.makeBuffer(functionKeys.SET_ANALOG, [pinNumber, ...uInt8Value]);
-                }
+                // 전달값이 uint8_t 이상인 경우
+                case functionKeys.SET_ANALOG:
+                case functionKeys.SET_SERVE_PERIOD:
                 case functionKeys.SET_ANALOG_PERIOD: {
                     const { pinNumber, value } = payload;
                     const uInt8Value = [];
@@ -211,10 +204,13 @@ class Microbit2 extends BaseModule {
                         uInt8Value.push(targetValue & 0xFF);
                         targetValue >>= 8;
                     }
-
-                    return this.makeBuffer(functionKeys.SET_ANALOG_PERIOD, [pinNumber, ...uInt8Value]);
+                    return this.makeBuffer(
+                        functionKeys.SET_ANALOG_PERIOD,
+                        [pinNumber, ...uInt8Value],
+                    );
                 }
                 // 필요한 값이 value property 하나인 경우 전부
+                case functionKeys.SET_SERVO:
                 case functionKeys.GET_ANALOG:
                 case functionKeys.GET_DIGITAL:
                 case functionKeys.SET_IMAGE:
