@@ -91,6 +91,18 @@ LangString DESC_START_MENU ${LANG_ENGLISH} "Create shortcut on start menu"
 LangString DESC_DESKTOP ${LANG_ENGLISH} "Create shortcut on desktop"
 LangString SETUP_UNINSTALL_MSG ${LANG_ENGLISH} "Entry_HW is already installed. $\n$\nClick 'OK' to remove the previous version or 'Cancel' to cancel this upgrade."
 
+!insertmacro MUI_LANGUAGE "Japanese"
+
+LangString TEXT_ENTRY ${LANG_JAPANESE} "LINE entry ハードウェア接続ソフト"
+LangString TEXT_ENTRY_DELETE ${LANG_JAPANESE} "LINE entry ハードウェア接続ソフトを削除"
+LangString TEXT_ENTRY_TITLE ${LANG_JAPANESE} "LINE entry ハードウェア接続ソフト"
+LangString TEXT_START_MENU_TITLE ${LANG_JAPANESE} "スタートメニュー・ショートカット"
+LangString TEXT_DESKTOP_TITLE ${LANG_JAPANESE} "デスクトップ・ショートカット"
+LangString DESC_ENTRY ${LANG_JAPANESE} "LINE entry ハードウェア接続ソフト"
+LangString START_ENTRY ${LANG_JAPANESE} "LINE entry ハードウェア接続ソフトを実行する"
+LangString DESC_START_MENU ${LANG_JAPANESE} "スタートメニューにショートカットを追加します。"
+LangString DESC_DESKTOP ${LANG_JAPANESE} "デスクトップにショートカットを追加します。"
+LangString SETUP_UNINSTALL_MSG ${LANG_JAPANESE} "LINE entry ハードウェア接続ソフトが既にインストールされています。 $\n$\nClick 'OK' ボタンを押すと前のバージョンを削除し、再インストールします。'キャンセル' ボタンを押すとアップグレードを取り消します。"
 
 ; The stuff to install
 Section $(TEXT_ENTRY_TITLE) SectionEntry
