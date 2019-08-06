@@ -12,6 +12,7 @@ const functionKeys = {
     SET_DIGITAL: 0x07,
     SET_ANALOG: 0x08,
     RESET_SCREEN: 0x09,
+    SET_ANALOG_PERIOD: 0x10,
     GET_LED: 0x31,
     GET_ANALOG: 0x32,
     GET_DIGITAL: 0x33,
@@ -201,6 +202,17 @@ class Microbit2 extends BaseModule {
                     }
 
                     return this.makeBuffer(functionKeys.SET_ANALOG, [pinNumber, ...uInt8Value]);
+                }
+                case functionKeys.SET_ANALOG_PERIOD: {
+                    const { pinNumber, value } = payload;
+                    const uInt8Value = [];
+                    let targetValue = value;
+                    while (targetValue) {
+                        uInt8Value.push(targetValue & 0xFF);
+                        targetValue >>= 8;
+                    }
+
+                    return this.makeBuffer(functionKeys.SET_ANALOG_PERIOD, [pinNumber, ...uInt8Value]);
                 }
                 // 필요한 값이 value property 하나인 경우 전부
                 case functionKeys.GET_ANALOG:
