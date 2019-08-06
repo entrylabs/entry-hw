@@ -1,10 +1,10 @@
 'use strict';
 
 const electron = require('electron');
+const MainRouter = require('./src/main/mainRouter');
 const {
     app,
     BrowserWindow,
-    Menu,
     globalShortcut,
     ipcMain,
     webContents,
@@ -14,51 +14,42 @@ const {
 const path = require('path');
 const fs = require('fs');
 const packageJson = require('../package.json');
-const ChildProcess = require('child_process');
+
 let mainWindow = null;
 let aboutWindow = null;
-var isClose = true;
-var roomId = [];
+let mainRouter = null;
+
+const roomIds = [];
+
 let isForceClose = false;
 let hostURI = 'playentry.org';
 let hostProtocol = 'https:';
 
 global.sharedObject = {
     appName: 'hardware',
-};
-
-console.fslog = function(text) {
-    var log_path = path.join(__dirname, '..', '..');
-    if (!fs.existsSync(log_path)) {
-        fs.mkdirSync(log_path);
-    }
-    if (!fs.existsSync(path.join(log_path, 'debug.log'))) {
-        fs.writeFileSync(path.join(log_path, 'debug.log'), '', 'utf8');
-    }
-    var data = fs.readFileSync(path.join(log_path, 'debug.log'), 'utf8');
-    data += '\n\r' + new Date() + ' : ' + text;
-    fs.writeFileSync(path.join(log_path, 'debug.log'), data, 'utf8');
+    hardwareVersion: packageJson.version,
+    roomIds,
 };
 
 function lpad(str, len) {
-    var strLen = str.length;
+    const strLen = str.length;
     if (strLen < len) {
-        for (var i=0; i<len-strLen; i++) {
-            str = "0" + str;
+        for (let i = 0; i < len - strLen; i++) {
+            str = `0${str}`;
         }
     }
     return String(str);
 };
 
 function getPaddedVersion(version) {
-    if(!version) {
+    if (!version) {
         return '';
     }
     version = String(version);
 
-    var padded = [];
-    var splitVersion = version.split('.');
-    splitVersion.forEach(function (item) {
+    const padded = [];
+    const splitVersion = version.split('.');
+    splitVersion.forEach((item) => {
         padded.push(lpad(item, 4));
     });
 
@@ -78,17 +69,19 @@ function createAboutWindow(mainWindow) {
         show: false,
     });
 
-    aboutWindow.loadURL('file:///' + path.resolve(__dirname, 'src', 'views', 'about.html'));
+    aboutWindow.loadURL(`file:///${
+        path.resolve(__dirname, 'src', 'renderer', 'views', 'about.html')
+    }`);
 
-    aboutWindow.on('closed', ()=> {
+    aboutWindow.on('closed', () => {
         aboutWindow = null;
     });
 }
 
 function getArgsParseData(argv) {
-    var regexRoom = /roomId:(.*)/;
-    var arrRoom = regexRoom.exec(argv) || ['', ''];
-    var roomId = arrRoom[1];
+    const regexRoom = /roomId:(.*)/;
+    const arrRoom = regexRoom.exec(argv) || ['', ''];
+    let roomId = arrRoom[1];
 
     if (roomId === 'undefined') {
         roomId = '';
@@ -97,27 +90,27 @@ function getArgsParseData(argv) {
     return roomId.replace(/\//g, '');
 }
 
-app.on('window-all-closed', function() {
+app.on('window-all-closed', () => {
     app.quit();
 });
 
-var argv = process.argv.slice(1);
+const argv = process.argv.slice(1);
 
 if (argv.indexOf('entryhw:')) {
-    var data = getArgsParseData(argv);
+    const data = getArgsParseData(argv);
     if (data) {
-        roomId.push(data);
+        roomIds.push(data);
     }
 }
 
-var option = {
+const option = {
     file: null,
     help: null,
     version: null,
     webdriver: null,
     modules: [],
 };
-for (var i = 0; i < argv.length; i++) {
+for (let i = 0; i < argv.length; i++) {
     if (argv[i] == '--version' || argv[i] == '-v') {
         option.version = true;
         break;
@@ -153,42 +146,32 @@ if (!app.requestSingleInstanceLock()) {
         }
 
         if (mainWindow) {
-            if (mainWindow.isMinimized()) mainWindow.restore();
+            if (mainWindow.isMinimized()) {
+                mainWindow.restore();
+            }
             mainWindow.focus();
 
             if (mainWindow.webContents) {
-                if (roomId.indexOf(parseData) === -1) {
-                    roomId.push(parseData);
+                if (roomIds.indexOf(parseData) === -1) {
+                    roomIds.push(parseData);
                 }
                 mainWindow.webContents.send('customArgs', parseData);
+                mainRouter.addRoomId(parseData);
             }
         }
     });
 
-    ipcMain.on('reload', function(event, arg) {
+    ipcMain.on('reload', (event, arg) => {
         app.relaunch({ args: process.argv.slice(1).concat(['--relaunch']) });
         app.exit(0);
     });
 
-    ipcMain.on('roomId', function(event, arg) {
-        event.returnValue = roomId;
-    });
-
-    ipcMain.on('version', function(event, arg) {
-        event.returnValue = packageJson.version;
-    });
-
-    ipcMain.on('serverMode', function(event, mode) {
-        if (mainWindow && mainWindow.webContents) {
-            mainWindow.webContents.send('serverMode', mode);
-        }
-    });
-
     app.commandLine.appendSwitch('enable-web-bluetooth', true);
     app.commandLine.appendSwitch('enable-experimental-web-platform-features', true);
+    app.commandLine.appendSwitch("disable-renderer-backgrounding");
     // app.commandLine.appendSwitch('enable-web-bluetooth');
-    app.once('ready', function() {
-        let language = app.getLocale();
+    app.once('ready', () => {
+        const language = app.getLocale();
 
         let title;
 
@@ -204,6 +187,8 @@ if (!app.requestSingleInstanceLock()) {
             title: title + packageJson.version,
             webPreferences: {
                 backgroundThrottling: false,
+                nodeIntegration: false,
+                preload: path.resolve(__dirname, 'src', 'renderer', 'preload.js'),
             },
         });
 
@@ -211,9 +196,9 @@ if (!app.requestSingleInstanceLock()) {
             'select-bluetooth-device',
             (event, deviceList, callback) => {
                 event.preventDefault();
-                let result = deviceList.find((device) => {
-                    return device.deviceName === 'LPF2 Smart Hub 2 I/O';
-                });
+                const result = deviceList.find(
+                    (device) => device.deviceName === 'LPF2 Smart Hub 2 I/O'
+                );
                 if (!result) {
                     callback('A0:E6:F8:1D:FB:E3');
                 } else {
@@ -222,7 +207,7 @@ if (!app.requestSingleInstanceLock()) {
             }
         );
 
-        mainWindow.loadURL('file:///' + path.join(__dirname, 'index.html'));
+        mainWindow.loadURL(`file:///${path.join(__dirname, 'src', 'renderer', 'views', 'index.html')}`);
 
         if (option.debug) {
             mainWindow.webContents.openDevTools();
@@ -230,14 +215,14 @@ if (!app.requestSingleInstanceLock()) {
 
         mainWindow.setMenu(null);
 
-        mainWindow.on('close', function(e) {
+        mainWindow.on('close', (e) => {
             if (!isForceClose) {
                 e.preventDefault();
-                mainWindow.webContents.send('hardwareClose');
+                mainWindow.webContents.send('hardwareCloseConfirm');
             }
         });
 
-        mainWindow.on('closed', function() {
+        mainWindow.on('closed', () => {
             mainWindow = null;
         });
 
@@ -256,6 +241,7 @@ if (!app.requestSingleInstanceLock()) {
         });
 
         createAboutWindow(mainWindow);
+        mainRouter = new MainRouter(mainWindow);
     });
 
     ipcMain.on('hardwareForceClose', () => {
@@ -303,30 +289,35 @@ if (!app.requestSingleInstanceLock()) {
         request.end();
     });
 
+    ipcMain.on('getOpensourceText', (e) => {
+        const opensourceFile = path.resolve(__dirname, 'OPENSOURCE.md');
+        fs.readFile(opensourceFile, 'utf8', (err, text) => {
+            e.sender.send('getOpensourceText', text);
+        });
+    });
+
     ipcMain.on('checkVersion', (e, lastCheckVersion) => {
         const version = getPaddedVersion(packageJson.version);
         const lastVersion = getPaddedVersion(lastCheckVersion);
 
-        e.sender.send('checkVersionResult', lastVersion > version);
+        if (!e.sender.isDestroyed()) {
+            e.sender.send('checkVersionResult', lastVersion > version);
+        }
     });
 
-    ipcMain.on('openAboutWindow', function(event, arg) {
+    ipcMain.on('openAboutWindow', (event, arg) => {
         aboutWindow.show();
     });
 
-    ipcMain.on('writeLog', function(event, arg) {
-        console.fslog(arg);
-    });
-
     let requestLocalDataInterval = -1;
-    ipcMain.on('startRequestLocalData', function(event, duration) {
+    ipcMain.on('startRequestLocalData', (event, duration) => {
         requestLocalDataInterval = setInterval(() => {
             if (!event.sender.isDestroyed()) {
                 event.sender.send('sendingRequestLocalData');
             }
         }, duration);
     });
-    ipcMain.on('stopRequestLocalData', function() {
+    ipcMain.on('stopRequestLocalData', () => {
         clearInterval(requestLocalDataInterval);
     });
 }

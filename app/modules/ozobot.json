@@ -1,0 +1,32 @@
+{
+    "id": "240201",
+    "name": {
+        "en": "Ozobot Evo",
+        "ko": "오조봇 이보"
+    },
+    "category": "robot",
+    "platform": "win32",
+    "icon": "ozobot.png",
+    "module": "ozobot.js",
+    "url": "http://www.ozobot.kr",
+    "driver": {
+        "win32-ia32": "OZOBOT/PL2303_Prolific_DriverInstaller_v1190.exe",
+        "win32-x64": "OZOBOT/PL2303_Prolific_DriverInstaller_v1190.exe"
+    },
+    "reconnect": true,
+    "entry": {
+        "protocol": "json"
+    },
+    "hardware": {
+	"type": "serial",
+	"control": "master",
+	"scanType": "data",
+	"bufferSize" : "32",
+    "vendor": ["Prolific"],
+	"baudRate": 115200,
+	"firmwarecheck": false,
+	"delimiter": "\r\n",
+    "stream": "string",
+	"lostTimer": 1000
+    }
+}
