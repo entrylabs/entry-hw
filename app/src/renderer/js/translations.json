@@ -171,5 +171,25 @@
 	"Close": {
 		"ko": "닫기",
 		"jp": "閉じる"
+	},
+	"You are running the latest version.": {
+		"ko": "최신 버전입니다.",
+		"jp": "最新バージョンです。"
+	},
+	"Download the latest version": {
+		"ko": "최신버전 다운로드",
+		"jp": "最新バージョンをダウンロード"
+	},
+	"You can use the latest Entry Hardware version(%1).": {
+		"ko": "엔트리 하드웨어 새 버전(%1)을\n사용하실 수 있습니다.",
+		"jp": "エントリーハードウェアの最新バージョン(%1)を\nご使用いただけます。"
+	},
+	"Alert": {
+		"ko": "업데이트 알림",
+		"jp": "アップデート通知"
+	},
+	"Download": {
+		"ko": "최신 버전 다운로드",
+		"jp": "今すぐアップデート"
 	}
 }
