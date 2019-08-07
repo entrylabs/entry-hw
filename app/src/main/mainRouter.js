@@ -1,4 +1,4 @@
-const { ipcMain, shell } = require('electron');
+const { app, ipcMain, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const Scanner = require('./scanner');
@@ -49,7 +49,11 @@ class MainRouter {
             this.onChangeState(state);
         });
         ipcMain.on('startScan', async (e, config) => {
-            await this.startScan(config);
+            try {
+                await this.startScan(config);
+            } catch (e) {
+                rendererConsole.error(`startScan err : `, e);
+            }
         });
         ipcMain.on('stopScan', () => {
             this.stopScan();
@@ -366,12 +370,12 @@ class MainRouter {
             return;
         }
 
-        const asarIndex = __dirname.indexOf('app.asar');
+        const asarIndex = app.getAppPath().indexOf(`${path.sep}app.asar`);
         let sourcePath = '';
         if (asarIndex > -1) {
-            const asarPath = __dirname.substr(0, asarIndex);
+            const asarPath = app.getAppPath().substr(0, asarIndex);
             const externalDriverPath = path.join(asarPath, 'drivers');
-            const internalDriverPath = path.resolve(__dirname, '..', '..', 'drivers');
+            const internalDriverPath = path.resolve(app.getAppPath(), __dirname, '..', '..', 'drivers');
             if (!fs.existsSync(externalDriverPath)) {
                 Utils.copyRecursiveSync(internalDriverPath, externalDriverPath);
             }
