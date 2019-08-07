@@ -171,18 +171,9 @@ if (!app.requestSingleInstanceLock()) {
     app.commandLine.appendSwitch("disable-renderer-backgrounding");
     // app.commandLine.appendSwitch('enable-web-bluetooth');
     app.once('ready', () => {
-        const language = app.getLocale();
-
-        let title;
-
-        if (language === 'ko') {
-            title = '엔트리 하드웨어 v';
-        } else {
-            title = 'Entry Hardware v';
-        }
-
+        const title = 'LINE entry ハードウェア接続ソフト v';
         mainWindow = new BrowserWindow({
-            width: 800,
+            width: 820,
             height: 670,
             title: title + packageJson.version,
             webPreferences: {
