@@ -14,7 +14,7 @@ const functionKeys = {
     RESET_SCREEN: 0x09,
     SET_ANALOG_PERIOD: 0x10,
     SET_SERVO: 0x11,
-    SET_SERVE_PERIOD: 0x12,
+    SET_SERVO_PERIOD: 0x12,
     GET_LED: 0x31,
     GET_ANALOG: 0x32,
     GET_DIGITAL: 0x33,
@@ -195,7 +195,7 @@ class Microbit2 extends BaseModule {
                 }
                 // 전달값이 uint8_t 이상인 경우
                 case functionKeys.SET_ANALOG:
-                case functionKeys.SET_SERVE_PERIOD:
+                case functionKeys.SET_SERVO_PERIOD:
                 case functionKeys.SET_ANALOG_PERIOD: {
                     const { pinNumber, value } = payload;
                     const uInt8Value = [];
