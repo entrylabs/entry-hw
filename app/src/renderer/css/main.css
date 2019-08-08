@@ -531,6 +531,7 @@ button {
     background: #f1f1f1;
     padding: 24px 44px 21px;
     overflow: hidden;
+    text-align: center;
 }
 
 #errorAlert img {
@@ -540,6 +541,7 @@ button {
 #errorAlert .alertMsg {
     display: inline-block;
     margin-bottom: 6px;
+    text-align: start;
 }
 
 #errorAlert .alertMsg span {
