@@ -14,7 +14,7 @@
 	},
 	"* Entry Labs is not responsible for the extension program and hardware products on this site.": {
 		"ko": "* 하드웨어 연결 프로그램에 등록된 하드웨어들은 각 업체가 제공하고 개발한 것이며, 엔트리는 본 프로그램 이외에는 책임지지 않습니다.",
-		"jp": "※ハードウェアは各製造元が開発・提供するものであり、Entryのプログラム以外に責任を負いませんので、ご了承ください。"
+		"jp": "※ハードウェアは各製造元が開発・提供するものであり、LINE株式会社はLINE entryのプログラム以外に責任を負いませんので、ご了承ください。"
 	},
 	"Choose a hardware to connect.": {
 		"ko": "연결할 하드웨어를 선택해 주세요.",
@@ -26,15 +26,15 @@
 	},
 	"Install Device Driver": {
 		"ko": "드라이버 설치",
-		"jp": "ドライバのインストール"
+		"jp": "ドライバ・インストール"
 	},
 	"Install Firmware": {
 		"ko": "펌웨어 설치",
-		"jp": "ファームウェアのインストール"
+		"jp": "ファームウェア・インストール"
 	},
 	"Possible Install Firmware": {
 		"ko": "펌웨어 설치 가능",
-		"jp": "ファームウェアのインストール可能"
+		"jp": "ファームウェア・インストール可能"
 	},
 	"Install Firmware(Sensor Board)": {
 		"ko": "센서/확장보드 유선 펌웨어",
@@ -46,7 +46,7 @@
 	},
 	"Install Firmware(Extension Project)": {
 		"ko": "펌웨어 설치(확장프로젝트)",
-		"jp": "ファームウェアのセットアップ（拡張プロジェクト）"
+		"jp": "ファームウェア・インストール（拡張プロジェクト）"
 	},
 	"Hardware Device Is Not Connected": {
 		"ko": "하드웨어 장치가 아직 연결되지 않았습니다.",
@@ -58,11 +58,11 @@
 	},
 	"Show Entry Web Page": {
 		"ko": "엔트리 웹 페이지 보이기",
-		"jp": "EntryのWEBサイトへ"
+		"jp": "LINE entryのWEBサイトへ"
 	},
 	"Reconnect Hardware": {
 		"ko": "하드웨어 다시 연결",
-		"jp": "ハードウェアをもう一度接続する"
+		"jp": "ハードウェアにもう一度接続する"
 	},
 	"Select hardware": {
 		"ko": "하드웨어 선택",
@@ -86,11 +86,11 @@
 	},
 	"hardware > connecting": {
 		"ko": "하드웨어 > 연결 대기",
-		"jp": "ハードウェア > 接続待機"
+		"jp": "ハードウェア > 待機中"
 	},
 	"hardware > connected": {
 		"ko": "하드웨어 > 연결 성공",
-		"jp": "ハードウェア > 接続成功"
+		"jp": "ハードウェア > 接続完了"
 	},
 	"hardware > disconnected": {
 		"ko": "하드웨어 > 연결 끊김",
@@ -98,11 +98,11 @@
 	},
 	"Connecting to hardware device.": {
 		"ko": "하드웨어와 연결을 시도하고 있습니다.",
-		"jp": "ハードウェアとの接続を試みています"
+		"jp": "ハードウェア接続：待機中"
 	},
 	"Connected to hardware device.": {
 		"ko": "하드웨어와 연결되었습니다.",
-		"jp": "ハードウェアと接続されました"
+		"jp": "ハードウェア接続完了"
 	},
 	"Hardware device is disconnected. Please restart this program.": {
 		"ko": "하드웨어 연결이 끊어졌습니다. 연결 프로그램을 다시 시작해 주세요.",

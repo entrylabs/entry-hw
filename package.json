@@ -9,6 +9,7 @@
         "clean": "rimraf dist",
         "start": "set NODE_ENV=development&&electron -d app",
         "debug": "set NODE_ENV=development&&electron -d app --inspect",
+        "update:licence": "lcdoc make -o app/OPENSOURCE.md -d 1",
         "dist:win32": "build --arch ia32",
         "dist:mac": "cross-env CSC_NAME=\"Connect Foundation (DLFUSDA3L5)\"&&build"
     },
@@ -20,6 +21,7 @@
         "eslint": "^4.18.2",
         "eslint-config-prettier": "^4.0.0",
         "eslint-plugin-prettier": "^3.0.1",
+        "lcdoc": "^0.0.2",
         "prettier": "^1.16.4",
         "rimraf": "^2.6.3"
     },
