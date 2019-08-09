@@ -440,6 +440,7 @@ button {
 #opensource_license_viewer {
     background: rgba(0, 0, 0, 0.4);
     display: none;
+    z-index: 1;
     position: fixed;
     top: 0;
     left: 0;
@@ -459,8 +460,8 @@ button {
 }
 
 #opensource_license_viewer .select_port_child .title {
-    border-top-left-radius: 3px;
-    border-top-right-radius: 3px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
     height: 57px;
     padding-left: 20px;
     line-height: 57px;
@@ -468,7 +469,7 @@ button {
     font-weight: bold;
     font-size: 20px;
     width: 100%;
-    background-color: #2a7def;
+    background-color: #00b400;
 }
 
 #opensource_license_viewer .select_port_child .title .cancel_icon {
@@ -485,8 +486,9 @@ button {
 }
 
 #opensource_license_viewer .select_port_child .content {
-    border-bottom-left-radius: 3px;
-    border-bottom-right-radius: 3px;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    padding: 32px;
     background-color: #fff;
     text-align: center;
     flex: 1;
@@ -497,6 +499,7 @@ button {
 #opensource_license_viewer .select_port_child .content textarea {
     width: 100%;
     flex: 1;
+    border: none;
     overflow-x: hidden;
     -webkit-user-select: auto;
     -khtml-user-select: auto;
@@ -508,17 +511,18 @@ button {
 
 #opensource_license_viewer .select_port_child button {
     cursor: pointer;
-    height: 47px;
-    width: 110px;
-    margin: 10px;
+    height: 48px;
+    width: 146px;
+    margin-top: 10px;
 }
 
 #opensource_license_viewer .select_port_child #btn_close {
-    background: #6e5ae6;
-    font-size: 16px;
+    background: #1c8850;
+    font-size: 14px;
+    font-weight: bold;
     color: #fff;
-    border: 0px;
-    border-radius: 3px;
+    border: 0;
+    border-radius: 4px;
 }
 
 .middleDiv {
