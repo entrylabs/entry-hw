@@ -846,12 +846,12 @@ class byrobot_petrone_v2_drive extends BaseModule
             // Start Code
             this.addStartCode(dataArray);
             
-            let target                  = handler.e(this.DataType.TARGET)                    ? handler.read(this.DataType.TARGET)                     : 0xFF;
-            let display_clear_x         = handler.e(this.DataType.DISPLAY_CLEAR_X)           ? handler.read(this.DataType.DISPLAY_CLEAR_X)            : 0;
-            let display_clear_y         = handler.e(this.DataType.DISPLAY_CLEAR_Y)           ? handler.read(this.DataType.DISPLAY_CLEAR_Y)            : 0;
-            let display_clear_width     = handler.e(this.DataType.DISPLAY_CLEAR_WIDTH)       ? handler.read(this.DataType.DISPLAY_CLEAR_WIDTH)        : 0;
-            let display_clear_height    = handler.e(this.DataType.DISPLAY_CLEAR_HEIGHT)      ? handler.read(this.DataType.DISPLAY_CLEAR_HEIGHT)       : 0;
-            let display_clear_pixel     = handler.e(this.DataType.DISPLAY_CLEAR_PIXEL)       ? handler.read(this.DataType.DISPLAY_CLEAR_PIXEL)        : 0;
+            let target                  = handler.e(this.DataType.TARGET)               ? handler.read(this.DataType.TARGET)               : 0xFF;
+            let display_clear_x         = handler.e(this.DataType.DISPLAY_CLEAR_X)      ? handler.read(this.DataType.DISPLAY_CLEAR_X)      : 0;
+            let display_clear_y         = handler.e(this.DataType.DISPLAY_CLEAR_Y)      ? handler.read(this.DataType.DISPLAY_CLEAR_Y)      : 0;
+            let display_clear_width     = handler.e(this.DataType.DISPLAY_CLEAR_WIDTH)  ? handler.read(this.DataType.DISPLAY_CLEAR_WIDTH)  : 0;
+            let display_clear_height    = handler.e(this.DataType.DISPLAY_CLEAR_HEIGHT) ? handler.read(this.DataType.DISPLAY_CLEAR_HEIGHT) : 0;
+            let display_clear_pixel     = handler.e(this.DataType.DISPLAY_CLEAR_PIXEL)  ? handler.read(this.DataType.DISPLAY_CLEAR_PIXEL)  : 0;
 
             let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
             let dataLength = 9;                     // 데이터의 길이
@@ -889,11 +889,11 @@ class byrobot_petrone_v2_drive extends BaseModule
             // Start Code
             this.addStartCode(dataArray);
             
-            let target                  = handler.e(this.DataType.TARGET)                    ? handler.read(this.DataType.TARGET)                     : 0xFF;
-            let display_invert_x        = handler.e(this.DataType.DISPLAY_INVERT_X)          ? handler.read(this.DataType.DISPLAY_INVERT_X)           : 0;
-            let display_invert_y        = handler.e(this.DataType.DISPLAY_INVERT_Y)          ? handler.read(this.DataType.DISPLAY_INVERT_Y)           : 0;
-            let display_invert_width    = handler.e(this.DataType.DISPLAY_INVERT_WIDTH)      ? handler.read(this.DataType.DISPLAY_INVERT_WIDTH)       : 0;
-            let display_invert_height   = handler.e(this.DataType.DISPLAY_INVERT_HEIGHT)     ? handler.read(this.DataType.DISPLAY_INVERT_HEIGHT)      : 0;
+            let target                  = handler.e(this.DataType.TARGET)                   ? handler.read(this.DataType.TARGET)                : 0xFF;
+            let display_invert_x        = handler.e(this.DataType.DISPLAY_INVERT_X)         ? handler.read(this.DataType.DISPLAY_INVERT_X)      : 0;
+            let display_invert_y        = handler.e(this.DataType.DISPLAY_INVERT_Y)         ? handler.read(this.DataType.DISPLAY_INVERT_Y)      : 0;
+            let display_invert_width    = handler.e(this.DataType.DISPLAY_INVERT_WIDTH)     ? handler.read(this.DataType.DISPLAY_INVERT_WIDTH)  : 0;
+            let display_invert_height   = handler.e(this.DataType.DISPLAY_INVERT_HEIGHT)    ? handler.read(this.DataType.DISPLAY_INVERT_HEIGHT) : 0;
 
             let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
             let dataLength = 8;                     // 데이터의 길이
@@ -931,10 +931,10 @@ class byrobot_petrone_v2_drive extends BaseModule
             // Start Code
             this.addStartCode(dataArray);
             
-            let target                      = handler.e(this.DataType.TARGET)                    ? handler.read(this.DataType.TARGET)                     : 0xFF;
-            let display_draw_point_x        = handler.e(this.DataType.DISPLAY_DRAW_POINT_X)      ? handler.read(this.DataType.DISPLAY_DRAW_POINT_X)       : 0;
-            let display_draw_point_y        = handler.e(this.DataType.DISPLAY_DRAW_POINT_Y)      ? handler.read(this.DataType.DISPLAY_DRAW_POINT_Y)       : 0;
-            let display_draw_point_pixel    = handler.e(this.DataType.DISPLAY_DRAW_POINT_PIXEL)  ? handler.read(this.DataType.DISPLAY_DRAW_POINT_PIXEL)   : 0;
+            let target                      = handler.e(this.DataType.TARGET)                   ? handler.read(this.DataType.TARGET)                    : 0xFF;
+            let display_draw_point_x        = handler.e(this.DataType.DISPLAY_DRAW_POINT_X)     ? handler.read(this.DataType.DISPLAY_DRAW_POINT_X)      : 0;
+            let display_draw_point_y        = handler.e(this.DataType.DISPLAY_DRAW_POINT_Y)     ? handler.read(this.DataType.DISPLAY_DRAW_POINT_Y)      : 0;
+            let display_draw_point_pixel    = handler.e(this.DataType.DISPLAY_DRAW_POINT_PIXEL) ? handler.read(this.DataType.DISPLAY_DRAW_POINT_PIXEL)  : 0;
             
             let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
             let dataLength = 5;                     // 데이터의 길이
@@ -1552,7 +1552,7 @@ class byrobot_petrone_v2_drive extends BaseModule
                 }
 
                 state._updated == false;
-                //this.log("tansferForEntry() / state", "");
+                //this.log("transferForEntry() / state", "");
             }
         }
 
@@ -1567,7 +1567,7 @@ class byrobot_petrone_v2_drive extends BaseModule
                 }
 
                 imu._updated == false;
-                //this.log("tansferForEntry() / imu", "");
+                //this.log("transferForEntry() / imu", "");
             }
         }
 
@@ -1582,7 +1582,7 @@ class byrobot_petrone_v2_drive extends BaseModule
                 }
 
                 pressure._updated == false;
-                //this.log("tansferForEntry() / pressure", "");
+                //this.log("transferForEntry() / pressure", "");
             }
         }
 
@@ -1597,7 +1597,7 @@ class byrobot_petrone_v2_drive extends BaseModule
                 }
 
                 imageflow._updated == false;
-                //this.log("tansferForEntry() / imageflow", "");
+                //this.log("transferForEntry() / imageflow", "");
             }
         }
 
@@ -1612,7 +1612,7 @@ class byrobot_petrone_v2_drive extends BaseModule
                 }
 
                 range._updated == false;
-                //this.log("tansferForEntry() / range", "");
+                //this.log("transferForEntry() / range", "");
             }
         }
 
@@ -1627,7 +1627,7 @@ class byrobot_petrone_v2_drive extends BaseModule
                 }
 
                 irmessage._updated == false;
-                //this.log("tansferForEntry() / irmessage", "");
+                //this.log("transferForEntry() / irmessage", "");
             }
         }
 
@@ -1760,7 +1760,9 @@ class byrobot_petrone_v2_drive extends BaseModule
             if( flagComplete == true )
             {
                 if( this.crc16Calculated == this.crc16Received )
+                {
                     this.handlerForDevice();
+                }
 
                 flagContinue = false;
             }
@@ -2037,7 +2039,9 @@ class byrobot_petrone_v2_drive extends BaseModule
     {
         let value = this.extractUInt8(dataArray, startIndex);
         if( (value & 0x80) != 0)
+        {
             value = -(0x100 - value);
+        }
         return value;
     }
 
@@ -2049,14 +2053,18 @@ class byrobot_petrone_v2_drive extends BaseModule
             return value;
         }
         else
+        {
             return 0;
+        }
     }
 
     extractInt16(dataArray, startIndex)
     {
         let value = this.extractUInt16(dataArray, startIndex);
         if( (value & 0x8000) != 0)
+        {
             value = -(0x10000 - value);
+        }
         return value;
     }
 
@@ -2068,14 +2076,18 @@ class byrobot_petrone_v2_drive extends BaseModule
             return value;
         }
         else
+        {
             return 0;
+        }
     }
 
     extractInt32(dataArray, startIndex)
     {
         let value = this.extractUInt32(dataArray, startIndex);
         if( (value & 0x80000000) != 0)
+        {
             value = -(0x100000000 - value);
+        }
         return value;
     }
 
@@ -2087,7 +2099,29 @@ class byrobot_petrone_v2_drive extends BaseModule
             return value;
         }
         else
+        {
             return 0;
+        }
+    }
+
+    extractFloat32(dataArray, startIndex)
+    {
+        if (dataArray.length >= startIndex + 4)
+        {
+            var buffer = new ArrayBuffer(4);
+            var float32View = new Float32Array(buffer, 0, 1);
+            var uint8View = new Uint8Array(buffer, 0, 4)
+            uint8View[0] = dataArray[startIndex];
+            uint8View[1] = dataArray[startIndex + 1];
+            uint8View[2] = dataArray[startIndex + 2];
+            uint8View[3] = dataArray[startIndex + 3];
+    
+            return float32View[0].toFixed(2);
+        }
+        else
+        {
+            return 0;
+        }
     }
 
     // 값 추출
@@ -2192,7 +2226,8 @@ class byrobot_petrone_v2_drive extends BaseModule
             }
             // */
             // 예약된 요청이 없는 경우 데이터 요청 등록(현재는 자세 데이터 요청)
-            switch (this.countReqeustDevice % 3) {
+            switch (this.countReqeustDevice % 3)
+            {
                 case 1:
                     return this.reserveRequest(0x30, 0xD1);     // 페트론V2 드론, 자주 갱신되는 데이터 모음(엔트리)
     

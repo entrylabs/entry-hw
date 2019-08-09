@@ -2039,7 +2039,9 @@ class byrobot_petrone_v2_flight extends BaseModule
     {
         let value = this.extractUInt8(dataArray, startIndex);
         if( (value & 0x80) != 0)
+        {
             value = -(0x100 - value);
+        }
         return value;
     }
 
@@ -2051,14 +2053,18 @@ class byrobot_petrone_v2_flight extends BaseModule
             return value;
         }
         else
+        {
             return 0;
+        }
     }
 
     extractInt16(dataArray, startIndex)
     {
         let value = this.extractUInt16(dataArray, startIndex);
         if( (value & 0x8000) != 0)
+        {
             value = -(0x10000 - value);
+        }
         return value;
     }
 
@@ -2070,14 +2076,18 @@ class byrobot_petrone_v2_flight extends BaseModule
             return value;
         }
         else
+        {
             return 0;
+        }
     }
 
     extractInt32(dataArray, startIndex)
     {
         let value = this.extractUInt32(dataArray, startIndex);
         if( (value & 0x80000000) != 0)
+        {
             value = -(0x100000000 - value);
+        }
         return value;
     }
 
@@ -2089,7 +2099,29 @@ class byrobot_petrone_v2_flight extends BaseModule
             return value;
         }
         else
+        {
             return 0;
+        }
+    }
+
+    extractFloat32(dataArray, startIndex)
+    {
+        if (dataArray.length >= startIndex + 4)
+        {
+            var buffer = new ArrayBuffer(4);
+            var float32View = new Float32Array(buffer, 0, 1);
+            var uint8View = new Uint8Array(buffer, 0, 4)
+            uint8View[0] = dataArray[startIndex];
+            uint8View[1] = dataArray[startIndex + 1];
+            uint8View[2] = dataArray[startIndex + 2];
+            uint8View[3] = dataArray[startIndex + 3];
+    
+            return float32View[0].toFixed(2);
+        }
+        else
+        {
+            return 0;
+        }
     }
 
     // 값 추출
@@ -2194,7 +2226,8 @@ class byrobot_petrone_v2_flight extends BaseModule
             }
             // */
             // 예약된 요청이 없는 경우 데이터 요청 등록(현재는 자세 데이터 요청)
-            switch (this.countReqeustDevice % 3) {
+            switch (this.countReqeustDevice % 3)
+            {
                 case 1:
                     return this.reserveRequest(0x30, 0xD1);     // 페트론V2 드론, 자주 갱신되는 데이터 모음(엔트리)
     
