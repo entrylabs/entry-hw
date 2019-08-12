@@ -152,6 +152,7 @@ class byrobot_petrone_v2_controller extends BaseModule
             IRMESSAGE_IRDATA:           'irmessage_irdata',
         };
 
+
         this.crc16table =
         [
             0x0000, 0x1021, 0x2042, 0x3063, 0x4084, 0x50a5, 0x60c6, 0x70e7,
@@ -223,6 +224,7 @@ class byrobot_petrone_v2_controller extends BaseModule
             button_event: 0
         };
         
+
         // -- Control -----------------------------------------------------------------
         this.controlWheel           = 0;        // 
         this.controlAccel           = 0;        // 
@@ -319,7 +321,7 @@ class byrobot_petrone_v2_controller extends BaseModule
     requestLocalData()
     {
         return this.transferForDevice();
-    };
+    }
 
 
     /*
@@ -328,7 +330,7 @@ class byrobot_petrone_v2_controller extends BaseModule
     handleLocalData(data)
     {
         this.receiverForDevice(data);
-    };
+    }
 
 
     /*
@@ -337,7 +339,7 @@ class byrobot_petrone_v2_controller extends BaseModule
     requestRemoteData(handler)
     {
         this.transferForEntry(handler);
-    };
+    }
 
 
     /*
@@ -346,7 +348,7 @@ class byrobot_petrone_v2_controller extends BaseModule
     handleRemoteData(handler)
     {
         this.handlerForEntry(handler);
-    };
+    }
 
 
     connect() {}
@@ -370,6 +372,7 @@ class byrobot_petrone_v2_controller extends BaseModule
         this.log("reset", "");
         this.resetData();
     }
+
 
 
     /***************************************************************************************
@@ -440,7 +443,7 @@ class byrobot_petrone_v2_controller extends BaseModule
         this.countReqeustDevice             = 0;        // 장치에 데이터를 요청한 횟수 카운트 
     }
 
-    
+
 
     /***************************************************************************************
      *  Communciation - 연결된 장치 확인
@@ -471,6 +474,8 @@ class byrobot_petrone_v2_controller extends BaseModule
 
         return false;
     }
+
+
 
     /***************************************************************************************
      *  Communciation - Entry.JS
@@ -505,7 +510,7 @@ class byrobot_petrone_v2_controller extends BaseModule
             (handler.e(this.DataType.LIGHT_COLOR_G)         == true) &&
             (handler.e(this.DataType.LIGHT_COLOR_B)         == true) )
         {
-            var dataArray = [];
+            let dataArray = [];
     
             // Start Code
             this.addStartCode(dataArray);
@@ -545,7 +550,7 @@ class byrobot_petrone_v2_controller extends BaseModule
         else if((handler.e(this.DataType.LIGHT_MODE_MODE)       == true) &&
                 (handler.e(this.DataType.LIGHT_MODE_INTERVAL)   == true) )
         {
-            var dataArray = [];
+            let dataArray = [];
 
             // Start Code
             this.addStartCode(dataArray);
@@ -583,7 +588,7 @@ class byrobot_petrone_v2_controller extends BaseModule
             (handler.e(this.DataType.LIGHT_COLOR_G)         == true) &&
             (handler.e(this.DataType.LIGHT_COLOR_B)         == true) )
         {
-            var dataArray = [];
+            let dataArray = [];
 
             // Start Code
             this.addStartCode(dataArray);
@@ -624,7 +629,7 @@ class byrobot_petrone_v2_controller extends BaseModule
                 (handler.e(this.DataType.LIGHT_EVENT_INTERVAL)  == true) &&
                 (handler.e(this.DataType.LIGHT_EVENT_REPEAT)    == true) )
         {
-            var dataArray = [];
+            let dataArray = [];
 
             // Start Code
             this.addStartCode(dataArray);
@@ -659,7 +664,7 @@ class byrobot_petrone_v2_controller extends BaseModule
         if( (handler.e(this.DataType.LIGHT_MANUAL_FLAGS)        == true) &&
             (handler.e(this.DataType.LIGHT_MANUAL_BRIGHTNESS)   == true) )
         {
-            var dataArray = [];
+            let dataArray = [];
 
             // Start Code
             this.addStartCode(dataArray);
@@ -690,7 +695,7 @@ class byrobot_petrone_v2_controller extends BaseModule
         // OLED - 화면 전체 지우기
         if( handler.e(this.DataType.DISPLAY_CLEARALL_PIXEL) == true )
         {
-            var dataArray = [];
+            let dataArray = [];
 
             // Start Code
             this.addStartCode(dataArray);
@@ -720,7 +725,7 @@ class byrobot_petrone_v2_controller extends BaseModule
         if( (handler.e(this.DataType.DISPLAY_CLEAR_WIDTH)   == true) ||
             (handler.e(this.DataType.DISPLAY_CLEAR_HEIGHT)  == true) )
         {
-            var dataArray = [];
+            let dataArray = [];
 
             // Start Code
             this.addStartCode(dataArray);
@@ -762,7 +767,7 @@ class byrobot_petrone_v2_controller extends BaseModule
         if( (handler.e(this.DataType.DISPLAY_INVERT_WIDTH)  == true) ||
             (handler.e(this.DataType.DISPLAY_INVERT_HEIGHT) == true) )
         {
-            var dataArray = [];
+            let dataArray = [];
 
             // Start Code
             this.addStartCode(dataArray);
@@ -803,7 +808,7 @@ class byrobot_petrone_v2_controller extends BaseModule
             (handler.e(this.DataType.DISPLAY_DRAW_POINT_Y)      == true) ||
             (handler.e(this.DataType.DISPLAY_DRAW_POINT_PIXEL)  == true) )
         {
-            var dataArray = [];
+            let dataArray = [];
 
             // Start Code
             this.addStartCode(dataArray);
@@ -841,7 +846,7 @@ class byrobot_petrone_v2_controller extends BaseModule
             (handler.e(this.DataType.DISPLAY_DRAW_LINE_X2) == true) ||
             (handler.e(this.DataType.DISPLAY_DRAW_LINE_Y2) == true) )
         {
-            var dataArray = [];
+            let dataArray = [];
 
             // Start Code
             this.addStartCode(dataArray);
@@ -885,7 +890,7 @@ class byrobot_petrone_v2_controller extends BaseModule
         if( (handler.e(this.DataType.DISPLAY_DRAW_RECT_WIDTH)   == true) ||
             (handler.e(this.DataType.DISPLAY_DRAW_RECT_HEIGHT)  == true) )
         {
-            var dataArray = [];
+            let dataArray = [];
 
             // Start Code
             this.addStartCode(dataArray);
@@ -930,7 +935,7 @@ class byrobot_petrone_v2_controller extends BaseModule
         // OLED - 화면에 원 그리기
         if( handler.e(this.DataType.DISPLAY_DRAW_CIRCLE_RADIUS) == true )
         {
-            var dataArray = [];
+            let dataArray = [];
 
             // Start Code
             this.addStartCode(dataArray);
@@ -970,9 +975,9 @@ class byrobot_petrone_v2_controller extends BaseModule
         // OLED - 화면에 문자열 쓰기
         if( handler.e(this.DataType.DISPLAY_DRAW_STRING_STRING) == true )
         {
-            var dataArray = [];
-            var byteArray = [];
-
+            let dataArray = [];
+            let byteArray = [];
+``
             // Start Code
             this.addStartCode(dataArray);
             
@@ -1016,8 +1021,8 @@ class byrobot_petrone_v2_controller extends BaseModule
         // OLED - 화면에 문자열 정렬하여 그리기
         if( handler.e(this.DataType.DISPLAY_DRAW_STRING_ALIGN_STRING) == true )
         {
-            var dataArray = [];
-            var byteArray = [];
+            let dataArray = [];
+            let byteArray = [];
 
             // Start Code
             this.addStartCode(dataArray);
@@ -1067,7 +1072,7 @@ class byrobot_petrone_v2_controller extends BaseModule
         // Command
         if( handler.e(this.DataType.COMMAND_COMMAND) == true )
         {
-            var dataArray = [];
+            let dataArray = [];
 
             // Start Code
             this.addStartCode(dataArray);
@@ -1119,7 +1124,7 @@ class byrobot_petrone_v2_controller extends BaseModule
             (handler.e(this.DataType.CONTROL_YAW)       == true) ||
             (handler.e(this.DataType.CONTROL_THROTTLE)  == true) )
         {
-            var dataArray = [];
+            let dataArray = [];
 
             // Start Code
             this.addStartCode(dataArray);
@@ -1162,7 +1167,7 @@ class byrobot_petrone_v2_controller extends BaseModule
         if( (handler.e(this.DataType.CONTROL_WHEEL) == true) ||
             (handler.e(this.DataType.CONTROL_ACCEL) == true) )
         {
-            var dataArray = [];
+            let dataArray = [];
 
             // Start Code
             this.addStartCode(dataArray);
@@ -1198,7 +1203,7 @@ class byrobot_petrone_v2_controller extends BaseModule
         // MotorSingle
         if( handler.e(this.DataType.MOTORSINGLE_TARGET) == true )
         {
-            var dataArray = [];
+            let dataArray = [];
 
             // Start Code
             this.addStartCode(dataArray);
@@ -1232,7 +1237,7 @@ class byrobot_petrone_v2_controller extends BaseModule
         // Buzzer
         if( handler.e(this.DataType.BUZZER_MODE) == true )
         {
-            var dataArray = [];
+            let dataArray = [];
 
             // Start Code
             this.addStartCode(dataArray);
@@ -1269,7 +1274,7 @@ class byrobot_petrone_v2_controller extends BaseModule
         // Vibrator
         if( handler.e(this.DataType.VIBRATOR_ON) == true )
         {
-            var dataArray = [];
+            let dataArray = [];
 
             // Start Code
             this.addStartCode(dataArray);
@@ -1376,6 +1381,7 @@ class byrobot_petrone_v2_controller extends BaseModule
             handler.write("entryhw_countTransferReserved", this.bufferTransfer.length);
         }
     }
+
 
 
     /***************************************************************************************
@@ -1525,6 +1531,7 @@ class byrobot_petrone_v2_controller extends BaseModule
         }
     }
 
+
     // 장치로부터 받은 데이터 블럭 처리
     handlerForDevice()
     {
@@ -1629,6 +1636,7 @@ class byrobot_petrone_v2_controller extends BaseModule
         }
     }
 
+
     // 자바스크립트에서 바이너리 핸들링
     // http://mohwa.github.io/blog/javascript/2015/08/31/binary-inJS/
     extractInt8(dataArray, startIndex)
@@ -1704,9 +1712,9 @@ class byrobot_petrone_v2_controller extends BaseModule
     {
         if (dataArray.length >= startIndex + 4)
         {
-            var buffer = new ArrayBuffer(4);
-            var float32View = new Float32Array(buffer, 0, 1);
-            var uint8View = new Uint8Array(buffer, 0, 4)
+            let buffer = new ArrayBuffer(4);
+            let float32View = new Float32Array(buffer, 0, 1);
+            let uint8View = new Uint8Array(buffer, 0, 4)
             uint8View[0] = dataArray[startIndex];
             uint8View[1] = dataArray[startIndex + 1];
             uint8View[2] = dataArray[startIndex + 2];
@@ -1742,10 +1750,11 @@ class byrobot_petrone_v2_controller extends BaseModule
         return ((b >> 24) & 0xff);
     };
 
+
     // 장치에 데이터 전송
     transferForDevice()
     {
-        var now = (new Date()).getTime();
+        let now = (new Date()).getTime();
 
         if( now < this.timeTransferNext )
         {
@@ -1834,6 +1843,7 @@ class byrobot_petrone_v2_controller extends BaseModule
         return arrayTransfer;
     }
 
+
     // Ping
     ping(target)
     {
@@ -1869,6 +1879,7 @@ class byrobot_petrone_v2_controller extends BaseModule
         return dataArray;
     }
 
+
     // 데이터 요청
     reserveRequest(target, dataType)
     {
@@ -1897,6 +1908,7 @@ class byrobot_petrone_v2_controller extends BaseModule
         return dataArray;
     }
 
+
     // 입력받은 문자열 처리
     // https://stackoverflow.com/questions/6226189/how-to-convert-a-string-to-bytearray
     stringToAsciiByteArray(str)
@@ -1914,6 +1926,8 @@ class byrobot_petrone_v2_controller extends BaseModule
         }
         return bytes;
     }
+
+
 
     /***************************************************************************************
      *  CRC16
@@ -1984,6 +1998,7 @@ class byrobot_petrone_v2_controller extends BaseModule
         // */
     }
 
+
     // 바이트 배열을 16진수 문자열로 변경 
     convertByteArrayToHexString(data)
     {
@@ -2010,6 +2025,7 @@ class byrobot_petrone_v2_controller extends BaseModule
         return strHexArray;
     }
 }
+
 
 module.exports = new byrobot_petrone_v2_controller();
 

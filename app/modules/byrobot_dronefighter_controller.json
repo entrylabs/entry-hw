@@ -5,7 +5,7 @@
         "ko": "바이로봇 드론파이터 조종기"
     },
     "category": "robot",
-    "platform": ["win32"],
+    "platform": ["win32", "darwin"],
     "icon" : "byrobot_dronefighter_controller.png",
     "module": "byrobot_dronefighter_controller.js",
     "driver": {
