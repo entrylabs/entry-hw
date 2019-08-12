@@ -23,7 +23,9 @@ const functionKeys = {
     GET_TEMPERATURE: 0x36,
     GET_COMPASS_HEADING: 0x37,
     GET_ACCELEROMETER: 0x38,
-
+    GET_PITCH: 0x39,
+    GET_ROLL: 0x40,
+    GET_GESTURE: 0x41,
     PLAY_NOTE: 0x04,
     CHANGE_BPM: 0x05,
     SET_BPM: 0x06,
@@ -224,152 +226,24 @@ class Microbit2 extends BaseModule {
                 case functionKeys.GET_TEMPERATURE:
                 case functionKeys.GET_COMPASS_HEADING:
                 case functionKeys.RESET_SCREEN:
+                case functionKeys.GET_PITCH:
+                case functionKeys.GET_ROLL:
+                case functionKeys.GET_GESTURE:
                     return this.makeBuffer(type);
                 default:
                     return this.makeBuffer(functionKeys.TEST_MESSAGE);
             }
         }
-        // 0xff, 0x01 = startChecksum
-        // ~8 개
-        // switch (str) {
-        //     case 'SET_LED': {
-        //         const { x, y, value } = data;
-        //         let state = 2;
-        //         if (value === 'on') {
-        //             state = 1;
-        //         } else if (value === 'off') {
-        //             state = 0;
-        //         }
-        //
-        //         // returnData.fill(
-        //         //     Buffer([FUNCTION_KEYS.SET_LED, x, y, state]),
-        //         //     0,
-        //         //     4,
-        //         // );
-        //         break;
-        //     }
-        //     case 'GET_LED': {
-        //         const { x, y } = data;
-        //         // returnData.fill(
-        //         //     Buffer([FUNCTION_KEYS.GET_LED, x, y]),
-        //         //     0,
-        //         //     3,
-        //         // );
-        //         break;
-        //     }
-        //     case 'SET_STRING': {
-        //         let { value = '' } = data;
-        //         if (value.length > 20) {
-        //             value = value.substr(0, 20);
-        //         }
-        //         // returnData.fill(
-        //         //     Buffer.concat([Buffer([FUNCTION_KEYS.SET_STRING]), Buffer(value)]),
-        //         //     0,
-        //         //     value.length + 1,
-        //         // );
-        //         // returnData[58] = value.length;
-        //         break;
-        //     }
-        //     case 'SET_IMAGE': {
-        //         const { value } = data;
-        //         // returnData.fill(
-        //         //     Buffer([FUNCTION_KEYS.SET_IMAGE, value]),
-        //         //     0,
-        //         //     2,
-        //         // );
-        //         break;
-        //     }
-        //     case 'GET_ANALOG': {
-        //         const { value } = data;
-        //         // returnData.fill(
-        //         //     Buffer([FUNCTION_KEYS.GET_ANALOG, value]),
-        //         //     0,
-        //         //     2,
-        //         // );
-        //         break;
-        //     }
-        //     case 'GET_DIGITAL': {
-        //         const { value } = data;
-        //         // returnData.fill(
-        //         //     Buffer([FUNCTION_KEYS.GET_DIGITAL, value]),
-        //         //     0,
-        //         //     2,
-        //         // );
-        //         break;
-        //     }
-        //     case 'GET_BUTTON': {
-        //         const { value } = data;
-        //         // returnData.fill(
-        //         //     Buffer([FUNCTION_KEYS.GET_BUTTON, value]),
-        //         //     0,
-        //         //     2,
-        //         // );
-        //         break;
-        //     }
-        //     case 'GET_SENSOR': {
-        //         const { value } = data;
-        //         // let type = '';
-        //         // if (value === 'lightLevel') {
-        //         //     type = FUNCTION_KEYS.GET_LIGHT_LEVEL;
-        //         // } else if (value === 'temperature') {
-        //         //     type = FUNCTION_KEYS.GET_TEMPERATURE;
-        //         // } else {
-        //         //     type = FUNCTION_KEYS.GET_COMPASS_HEADING;
-        //         // }
-        //         // returnData.fill(
-        //         //     Buffer([type]),
-        //         //     0,
-        //         //     1,
-        //         // );
-        //         break;
-        //     }
-        //     case 'GET_ACCELEROMETER': {
-        //         const { value } = data;
-        //         // returnData.fill(
-        //         //     Buffer([FUNCTION_KEYS.GET_ACCELEROMETER, value]),
-        //         //     0,
-        //         //     2,
-        //         // );
-        //         break;
-        //     }
-        //     case 'PLAY_NOTE': {
-        //         const { note, beat } = data;
-        //         // returnData.fill(
-        //         //     Buffer([FUNCTION_KEYS.PLAY_NOTE, 0, 0, beat]),
-        //         //     0,
-        //         //     4,
-        //         // );
-        //         // returnData.writeInt16LE(note, 1);
-        //         break;
-        //     }
-        //     case 'CHANGE_BPM': {
-        //         const { value } = data;
-        //         // returnData.fill(
-        //         //     Buffer([FUNCTION_KEYS.CHANGE_BPM]),
-        //         //     0,
-        //         //     1,
-        //         // );
-        //         // returnData.writeInt16LE(value, 1);
-        //         break;
-        //     }
-        //     case 'SET_BPM': {
-        //         const { value } = data;
-        //         // returnData.fill(
-        //         //     Buffer([FUNCTION_KEYS.SET_BPM]),
-        //         //     0,
-        //         //     1,
-        //         // );
-        //         // returnData.writeInt16LE(value, 1);
-        //         break;
-        //     }
-        //     case 'RST':
-        //         // returnData.fill(Buffer([FUNCTION_KEYS.RESET]), 0, 1);
-        //         break;
-        //     default:
-        //         return this.makeBuffer([FUNCTION_KEYS.TEST_MESSAGE]);
-        // }
     }
 
+    /**
+     *
+     * @param {string|string[]} path
+     * @param value
+     */
+    setStatusMap(path, value) {
+        _.set(this.microbitStatusMap, path, value);
+    }
 
     handleLocalData(data) {
         this.pending = false;
@@ -377,70 +251,76 @@ class Microbit2 extends BaseModule {
         const receivedCommandType = data[0];
         switch (receivedCommandType) {
             case functionKeys.GET_ACCELEROMETER: {
-                const value = Buffer.from([data[1], data[2]]);
-                _.set(this.microbitStatusMap, 'sensorData.accelerometer', value.readInt16LE(0));
+                this.setStatusMap(
+                    ['sensorData', 'accelerometer'],
+                    Buffer.from([data[1], data[2]]).readInt16LE(0),
+                );
                 break;
             }
             case functionKeys.GET_LED: {
-                const x = data[1];
-                const y = data[2];
-                _.set(this.microbitStatusMap, ['sensorData', 'led', x, y], data[3]);
+                // data = [x, y, value]
+                this.setStatusMap(
+                    ['sensorData', 'led', data[1], data[2]],
+                    data[3],
+                );
                 break;
             }
             case functionKeys.GET_ANALOG: {
-                const pinNumber = data[1];
-                const value = Buffer.from([data[2], data[3]]);
-                _.set(
-                    this.microbitStatusMap,
-                    ['sensorData', 'analog', pinNumber],
-                    value.readInt16LE(0),
+                // data = [pinNumber, value{2} ]
+                this.setStatusMap(
+                    ['sensorData', 'analog', data[1]],
+                    Buffer.from([data[2], data[3]]).readInt16LE(0),
                 );
                 break;
             }
             case functionKeys.GET_DIGITAL: {
-                const pinNumber = data[1];
-                const value = data[2];
-                _.set(
-                    this.microbitStatusMap,
-                    ['sensorData', 'digital', pinNumber],
-                    value,
+                // data = [pinNumber, value]
+                this.setStatusMap(
+                    ['sensorData', 'analog', data[1]],
+                    data[2],
                 );
                 break;
             }
             case functionKeys.GET_BUTTON: {
-                const buttonState = data[1];
-                _.set(
-                    this.microbitStatusMap,
-                    ['sensorData', 'button'],
-                    buttonState,
-                );
+                this.setStatusMap(['sensorData', 'button'], data[1]);
                 break;
             }
             case functionKeys.GET_LIGHT_LEVEL: {
-                const lightLevel = Buffer.from([data[1]]).readUInt8(0);
-                _.set(
-                    this.microbitStatusMap,
+                this.setStatusMap(
                     ['sensorData', 'lightLevel'],
-                    lightLevel,
+                    Buffer.from([data[1]]).readUInt8(0),
                 );
                 break;
             }
             case functionKeys.GET_TEMPERATURE: {
-                const temperature = Buffer.from([data[1]]).readInt8(0);
-                _.set(
-                    this.microbitStatusMap,
+                this.setStatusMap(
                     ['sensorData', 'temperature'],
-                    temperature,
+                    Buffer.from([data[1]]).readInt8(0),
                 );
                 break;
             }
             case functionKeys.GET_COMPASS_HEADING: {
-                const compassHeading = Buffer.from([data[1], data[2]]).readUInt16LE(0);
-                _.set(
-                    this.microbitStatusMap,
+                this.setStatusMap(
                     ['sensorData', 'compassHeading'],
-                    compassHeading,
+                    Buffer.from([data[1], data[2]]).readUInt16LE(0),
                 );
+                break;
+            }
+            case functionKeys.GET_PITCH: {
+                this.setStatusMap(
+                    ['sensorData', 'tilt', 'pitch'],
+                    Buffer.from([data[1], data[2]]).readInt16LE(0),
+                );
+                break;
+            }
+            case functionKeys.GET_ROLL: {
+                this.setStatusMap(
+                    ['sensorData', 'tilt', 'roll'],
+                    Buffer.from([data[1], data[2]]).readInt16LE(0),
+                );
+                break;
+            }
+            case functionKeys.GET_GESTURE: {
                 break;
             }
         }
