@@ -247,14 +247,14 @@ class byrobot_petrone_v2_controller extends BaseModule
         this.crc16Received          = 0;        // CRC16 수신 받은 블럭
         this.crc16Transfered        = 0;        // 전송한 데이터의 crc16
         
-        this.maxTransferRepeat      = 2;        // 최대 반복 전송 횟수
+        this.maxTransferRepeat      = 1;        // 최대 반복 전송 횟수
         this.countTransferRepeat    = 0;        // 반복 전송 횟수
         this.dataTypeLastTransfered = 0;        // 마지막으로 전송한 데이터의 타입
 
         this.timeReceive            = 0;        // 데이터를 전송 받은 시각
         this.timeTransfer           = 0;        // 예약 데이터를 전송한 시각
         this.timeTransferNext       = 0;        // 전송 가능한 다음 시간
-        this.timeTransferInterval   = 30;       // 최소 전송 시간 간격
+        this.timeTransferInterval   = 20;       // 최소 전송 시간 간격
 
         this.countReqeustDevice     = 0;        // 장치에 데이터를 요청한 횟수 카운트 
     }
@@ -428,14 +428,14 @@ class byrobot_petrone_v2_controller extends BaseModule
         this.crc16Calculated                = 0;        // CRC16 계산 된 결과
         this.crc16Received                  = 0;        // CRC16 수신 받은 블럭
 
-        this.maxTransferRepeat              = 2;        // 최대 반복 전송 횟수
+        this.maxTransferRepeat              = 1;        // 최대 반복 전송 횟수
         this.countTransferRepeat            = 0;        // 반복 전송 횟수
         this.dataTypeLastTransfered         = 0;        // 마지막으로 전송한 데이터의 타입
 
         this.timeReceive                    = 0;        // 데이터를 전송 받은 시각
         this.timeTransfer                   = 0;        // 예약 데이터를 전송한 시각
         this.timeTransferNext               = 0;        // 전송 가능한 다음 시간
-        this.timeTransferInterval           = 30;       // 최소 전송 시간 간격
+        this.timeTransferInterval           = 20;       // 최소 전송 시간 간격
 
         this.countReqeustDevice             = 0;        // 장치에 데이터를 요청한 횟수 카운트 
     }
@@ -493,7 +493,7 @@ class byrobot_petrone_v2_controller extends BaseModule
         }
 
         // Buffer Clear
-        if( handler.e(DataType.BUFFER_CLEAR) == true )
+        if( handler.e(this.DataType.BUFFER_CLEAR) == true )
         {
             this.bufferTransfer = [];
         }
@@ -1816,8 +1816,14 @@ class byrobot_petrone_v2_controller extends BaseModule
         this.log("Data Transfer - Repeat: " + this.countTransferRepeat, this.bufferTransfer[0]);
             //console.log("Data Transfer - Repeat: " + this.countTransferRepeat, this.bufferTransfer[0]);
 
-        // maxTransferRepeat 이상 전송했음애도 응답이 없는 경우엔 다음으로 넘어감
-        if( this.countTransferRepeat > this.maxTransferRepeat)
+        // 조종기에 데이터를 전송한 경우 바로 다음 데이터로 넘어감
+        if( arrayTransfer[5] == 0x31 )
+        {
+            this.bufferTransfer.shift();
+            this.countTransferRepeat = 0;
+        }
+        // maxTransferRepeat 이상 전송했음에도 응답이 없는 경우엔 다음으로 넘어감
+        else if( this.countTransferRepeat >= this.maxTransferRepeat)
         {
             this.bufferTransfer.shift();
             this.countTransferRepeat = 0;
