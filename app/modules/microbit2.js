@@ -1,6 +1,23 @@
 const _ = require('lodash');
 const BaseModule = require('./baseModule');
 
+/**
+ * NOTE
+ * microbit getGesture 결과 목록표
+ * MICROBIT_ACCELEROMETER_EVT_TILT_UP	1
+ * MICROBIT_ACCELEROMETER_EVT_TILT_DOWN	2
+ * MICROBIT_ACCELEROMETER_EVT_TILT_LEFT	3
+ * MICROBIT_ACCELEROMETER_EVT_TILT_RIGHT	4
+ * MICROBIT_ACCELEROMETER_EVT_FACE_UP	5
+ * MICROBIT_ACCELEROMETER_EVT_FACE_DOWN	6
+ * MICROBIT_ACCELEROMETER_EVT_FREEFALL	7
+ * MICROBIT_ACCELEROMETER_EVT_3G	8
+ * MICROBIT_ACCELEROMETER_EVT_6G	9
+ * MICROBIT_ACCELEROMETER_EVT_8G	10
+ * MICROBIT_ACCELEROMETER_EVT_SHAKE	11
+ *
+ */
+
 const MICROBIT_BUFFER_SIZE = 16;
 const functionKeys = {
     TEST_MESSAGE: 0xfa,
@@ -321,6 +338,10 @@ class Microbit2 extends BaseModule {
                 break;
             }
             case functionKeys.GET_GESTURE: {
+                this.setStatusMap(
+                    ['sensorData', 'gesture'],
+                    data[1],
+                );
                 break;
             }
         }
