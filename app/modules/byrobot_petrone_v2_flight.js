@@ -1877,8 +1877,10 @@ class byrobot_petrone_v2_flight extends BaseModule
                 state.state_coordinate              = this.extractUInt8(this.dataBlock, 5);
                 state.state_battery                 = this.extractUInt8(this.dataBlock, 6);
     
-                if (state.state_modeVehicle != 0x20 && state.state_modeVehicle != 0x21 )
-                    this.reserveModeVehicle(0x20);
+                if( state.state_modeVehicle != 0x10 &&
+                    state.state_modeVehicle != 0x11 &&
+                    state.state_modeVehicle != 0x12 )
+                    this.reserveModeVehicle(0x10);
     
                 //console.log("handlerForDevice - state: " + state.state_modeVehicle);
             }
