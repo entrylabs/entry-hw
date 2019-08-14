@@ -1,5 +1,5 @@
 {
-    "id": "FFFE01",
+    "id": "340101", 
     "name": {
         "en": "Kingcoding",
         "ko": "킹코딩"
@@ -15,7 +15,7 @@
         "win32-x64": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
         "translate": "연결 드라이버"
     },
-    "reconnect" : true,
+    "reconnect" : true, 
     "select_com_port": {
         "win32": false
     },

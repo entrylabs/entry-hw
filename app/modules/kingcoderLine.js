@@ -9,7 +9,7 @@ function Module() {
     this.anal2 = 0;
     this.digi1 = 0;
     this.digi2 = 0;
-
+ 
     this.sensingValueAnal1 = 0;
     this.sensingValueAnal2 = 0;
     this.sensingValueDigi = 0;
@@ -30,7 +30,6 @@ Module.prototype.requestInitialData = function() {
 };
 
 Module.prototype.checkInitialData = function(data, config) {
-     //console.log('king checkInitialData： '+data[0]);
      return true;
 
 };
@@ -66,17 +65,14 @@ Module.prototype.requestLocalData = function() {
     queryString.push(byteToSend);
     byteToSend = 128;
     queryString.push(byteToSend);
-    //console.log('to device, byte 0 :'+ queryString[0] +'byte 1 :'+ queryString[1] +' byte 2 :'+ queryString[2]);
-
+    
     return queryString;
 
 };
 
 Module.prototype.handleLocalData = function(data) { // data: Native Buffer
     // 하드웨어에서 받기 step 1 : 보내준 정보를 가공
-    //console.log('from device, byte length: '+ data.length );
-    //console.log('from device, byte[0]:'+ data[0]+',byte[1]:'+data[1]+',byte[2]:'+data[2]);
-    for(var i = 0; i < data.length ; i++){
+     for(var i = 0; i < data.length ; i++){
         if((data[i] >>> 6) == 0 ) this.sensingValueAnal1  =  data[i];
         else if((data[i] >>> 6) == 1 ) this.sensingValueAnal2  =  data[i];
         else if((data[i] >>> 6) == 2 ) this.sensingValueDigi  =  data[i];
