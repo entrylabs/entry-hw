@@ -208,6 +208,7 @@ class Scanner {
                 if (error) {
                     reject(error);
                 } else {
+                    rendererConsole.info(JSON.stringify(list));
                     resolve(list);
                 }
             });

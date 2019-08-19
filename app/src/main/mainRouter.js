@@ -1,4 +1,4 @@
-const { ipcMain, shell } = require('electron');
+const { app, ipcMain, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const Scanner = require('./scanner');
@@ -28,6 +28,7 @@ class MainRouter {
     }
 
     constructor(mainWindow) {
+        global.$ = require('lodash');
         this.browser = mainWindow;
         rendererConsole.initialize(mainWindow);
         this.scanner = new Scanner(this);
@@ -48,7 +49,11 @@ class MainRouter {
             this.onChangeState(state);
         });
         ipcMain.on('startScan', async (e, config) => {
-            await this.startScan(config);
+            try {
+                await this.startScan(config);
+            } catch (e) {
+                rendererConsole.error(`startScan err : `, e);
+            }
         });
         ipcMain.on('stopScan', () => {
             this.stopScan();
@@ -59,10 +64,14 @@ class MainRouter {
         ipcMain.on('requestFlash', (e, firmwareName) => {
             this.flashFirmware(firmwareName)
                 .then(() => {
-                    e.sender.send('requestFlash');
+                    if (!e.sender.isDestroyed()) {
+                        e.sender.send('requestFlash');
+                    }
                 })
                 .catch((e) => {
-                    e.sender.send('requestFlash', e);
+                    if (!e.sender.isDestroyed()) {
+                        e.sender.send('requestFlash', e);
+                    }
                 });
         });
         ipcMain.on('executeDriver', (e, driverPath) => {
@@ -176,12 +185,16 @@ class MainRouter {
             }
         }
 
-        this.browser.webContents.send('state', resultState, ...args);
+        if (!this.browser.isDestroyed()) {
+            this.browser.webContents.send('state', resultState, ...args);
+        }
     }
 
     notifyServerMode(mode) {
         console.log('notifyServerMode', mode);
-        this.browser.webContents.send('serverMode', mode);
+        if (!this.browser.isDestroyed()) {
+            this.browser.webContents.send('serverMode', mode);
+        }
     }
 
     /**
@@ -357,12 +370,12 @@ class MainRouter {
             return;
         }
 
-        const asarIndex = __dirname.indexOf('app.asar');
+        const asarIndex = app.getAppPath().indexOf(`${path.sep}app.asar`);
         let sourcePath = '';
         if (asarIndex > -1) {
-            const asarPath = __dirname.substr(0, asarIndex);
+            const asarPath = app.getAppPath().substr(0, asarIndex);
             const externalDriverPath = path.join(asarPath, 'drivers');
-            const internalDriverPath = path.resolve(__dirname, '..', '..', 'drivers');
+            const internalDriverPath = path.resolve(app.getAppPath(), __dirname, '..', '..', 'drivers');
             if (!fs.existsSync(externalDriverPath)) {
                 Utils.copyRecursiveSync(internalDriverPath, externalDriverPath);
             }

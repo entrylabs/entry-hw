@@ -39,7 +39,7 @@ body {
     outline: 0;
     font-family: Arial, Dotum;
     font-size: 10pt;
-    overflow: hidden;
+    overflow: hidden !important;
     display: flex;
     flex-direction: column;
     width: 100%;
@@ -385,6 +385,7 @@ button {
     background: rgba(0, 0, 0, 0.4);
     display: none;
     position: fixed;
+    z-index: 1;
     top: 0;
     left: 0;
     width: 100%;

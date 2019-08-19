@@ -11,7 +11,7 @@ SerialPort.Binding = require('@entrylabs/bindings');
  */
 class Connector {
     static get DEFAULT_CONNECT_LOST_MILLS() {
-        return 500;
+        return 1000;
     }
 
     static get DEFAULT_SLAVE_DURATION() {
@@ -123,73 +123,78 @@ class Connector {
                 firmwarecheck,
             } = this.options;
             const hwModule = this.hwModule;
-
-            if (control) {
-                if (firmwarecheck) {
-                    this.flashFirmware = setTimeout(() => {
-                        if (this.serialPort) {
-                            this.serialPort.parser ?
-                                this.serialPort.parser.removeAllListeners('data') :
-                                this.serialPort.removeAllListeners('data');
-                            this.executeFlash = true;
-                        }
-                        resolve();
-                    }, 3000);
-                }
-
-                // TODO 리팩토링 필요
-                if (hwModule.checkInitialData && hwModule.requestInitialData) {
-                    const serialPortReadStream =
+            const serialPortReadStream =
                         this.serialPort.parser ? this.serialPort.parser : this.serialPort;
-                    if (control === 'master') {
-                        serialPortReadStream.on('data', (data) => {
-                            const result = hwModule.checkInitialData(data, this.options);
 
-                            if (result === undefined) {
-                                this.send(hwModule.requestInitialData());
-                            } else {
-                                this.serialPort.removeAllListeners('data');
-                                serialPortReadStream.removeAllListeners('data');
-                                clearTimeout(this.flashFirmware);
-                                if (result === true) {
-                                    if (hwModule.setSerialPort) {
-                                        hwModule.setSerialPort(this.serialPort);
-                                    }
-                                    resolve();
-                                } else {
-                                    reject(new Error('Invalid hardware'));
-                                }
-                            }
-                        });
+            const runAsMaster = () => {
+                serialPortReadStream.on('data', (data) => {
+                    const result = hwModule.checkInitialData(data, this.options);
+
+                    if (result === undefined) {
+                        this.send(hwModule.requestInitialData());
                     } else {
-                        // control type is slave
-                        serialPortReadStream.on('data', (data) => {
-                            const result = hwModule.checkInitialData(data, this.options);
-                            if (result !== undefined) {
-                                this.serialPort.removeAllListeners('data');
-                                serialPortReadStream.removeAllListeners('data');
-                                clearTimeout(this.flashFirmware);
-                                clearTimeout(this.slaveTimer);
-                                if (result === true) {
-                                    if (hwModule.setSerialPort) {
-                                        hwModule.setSerialPort(this.serialPort);
-                                    }
-                                    if (hwModule.resetProperty) {
-                                        this.send(hwModule.resetProperty());
-                                    }
-                                    resolve();
-                                } else {
-                                    reject(new Error('Invalid hardware'));
-                                }
+                        this.serialPort.removeAllListeners('data');
+                        serialPortReadStream.removeAllListeners('data');
+                        clearTimeout(this.flashFirmware);
+                        if (result === true) {
+                            if (hwModule.setSerialPort) {
+                                hwModule.setSerialPort(this.serialPort);
                             }
-                        });
-                        this.slaveTimer = setInterval(() => {
-                            this.send(hwModule.requestInitialData(this.serialPort));
-                        }, duration);
+                            resolve();
+                        } else {
+                            reject(new Error('Invalid hardware'));
+                        }
                     }
-                } else {
+                });
+            };
+
+            const runAsSlave = () => {
+                // control type is slave
+                serialPortReadStream.on('data', (data) => {
+                    const result = hwModule.checkInitialData(data, this.options);
+                    if (result !== undefined) {
+                        this.serialPort.removeAllListeners('data');
+                        serialPortReadStream.removeAllListeners('data');
+                        clearTimeout(this.flashFirmware);
+                        clearTimeout(this.slaveTimer);
+                        if (result === true) {
+                            if (hwModule.setSerialPort) {
+                                hwModule.setSerialPort(this.serialPort);
+                            }
+                            if (hwModule.resetProperty) {
+                                this.send(hwModule.resetProperty());
+                            }
+                            resolve();
+                        } else {
+                            reject(new Error('Invalid hardware'));
+                        }
+                    }
+                });
+                this.slaveTimer = setInterval(() => {
+                    this.send(hwModule.requestInitialData(this.serialPort));
+                }, duration);
+            };
+
+            if (firmwarecheck) {
+                this.flashFirmware = setTimeout(() => {
+                    if (this.serialPort) {
+                        this.serialPort.parser ?
+                            this.serialPort.parser.removeAllListeners('data') :
+                            this.serialPort.removeAllListeners('data');
+                        this.executeFlash = true;
+                    }
                     resolve();
+                }, 3000);
+            }
+
+            if (hwModule.checkInitialData && hwModule.requestInitialData) {
+                if (control === 'master') {
+                    runAsMaster();
+                } else {
+                    runAsSlave();
                 }
+            } else {
+                resolve();
             }
         });
     }
@@ -278,7 +283,7 @@ class Connector {
 
         // 디바이스 연결 잃어버린 상태에 대한 관리를 모듈에 맡기거나, 직접 관리한다.
         if (hwModule.lostController) {
-            hwModule.lostController(this, router.sendState);
+            hwModule.lostController(this, router.sendState.bind(router));
         } else {
             /*
              * this.lostTimer 타임 안에 데이터를 수신해야한다. 그렇지 않으면 연결해제처리한다.

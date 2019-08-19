@@ -106,6 +106,7 @@ class Server extends EventEmitter {
             this.httpServer = httpServer;
 
             this.socketServer = this._createSocketServer(httpServer);
+            this.toggleServerMode(SERVER_MODE_TYPES.single);
         });
 
         httpServer.listen(PORT);
@@ -137,7 +138,9 @@ class Server extends EventEmitter {
             }
         });
 
-        socket.on('message', this.router.handleServerData);
+        socket.on('message', (message) => {
+            this.router.handleServerData(message);
+        });
 
         socket.on('mode', (data) => {
             socket.mode = data;
@@ -167,7 +170,9 @@ class Server extends EventEmitter {
      * @private
      */
     _createSocketServer(httpServer) {
-        const server = require('socket.io')(httpServer);
+        const server = require('socket.io')(httpServer, {
+            pingInterval: 1000,
+        });
         server.set('transports', [
             'websocket',
             'flashsocket',
@@ -241,7 +246,6 @@ class Server extends EventEmitter {
             });
 
             connection.on('message', (message, ack) => {
-                console.log('socketServer receive : ', message);
                 if (
                     message.mode === SERVER_MODE_TYPES.single ||
                     this.masterRoomIds.indexOf(connection.roomId) >= 0

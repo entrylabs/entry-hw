@@ -24,7 +24,7 @@
 		"pnpId" : "PID",
 		"type": "bluetooth",
 		"control": "master",
-		"vendor": ["neobot", "Silicon Laps", "Microsoft"],
+		"vendor": ["neobot", "Silicon Labs", "Microsoft"],
 		"baudRate": 115200
 	}
 }
