@@ -9,7 +9,7 @@
 		"win32",
 		"darwin"
 	],
-	"icon": "AsomeBot.png",
+	"icon": "asomebot.png",
 	"module": "asomebot.js",
 	"driver": {
         "win32-ia32": "CP210x_VCP_Windows/CP210xVCPInstaller_x86.exe",
