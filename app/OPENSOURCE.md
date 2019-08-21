@@ -38652,7 +38652,7 @@ License Url: (none)
 
 -------------------------------------------------------------------------
 
-Package: entry_hw@1.7.6
+Package: entry_hw@1.7.7
 License Source: LICENSE
 Source Text:
 
