@@ -15,6 +15,9 @@ class Mindpiggy extends BaseModule{
             DCMOTOR:4,
             REMOTE:5,
         };
+
+        this.PortTimeList = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0,0,0,0,0];
+        this.recentCheckData = {};
         this.actionTypes={
             SET:0,
             GET:1,
@@ -32,24 +35,21 @@ class Mindpiggy extends BaseModule{
     }
     // 초기 설정- 하드웨어가 엔트리연결됬을때.
     init(handler, config){
-        // console.log("init");
+
     }
     setSerialPort(sp) {
         this.sp = sp;
     }
     // 초기 송신 데이터(필수)
     requestInitialData() {
-    // console.log("requestInitialData");
         return null;
     }
     // 초기 수신 데이터 체크(필수)
     checkInitialData(data,config){
-        // console.log("checkInitialData");
         return true;
     }
     // 하드웨어에서 받은 데이터의 검증이 필요한 경우
     validateLocalData(data){
-        // console.log("validateLocalData");
 
         return true;
     }
@@ -66,9 +66,11 @@ class Mindpiggy extends BaseModule{
             delete this.recentSET;
             if(buffer.length)
                 this.sendBuffers.push(buffer);
+            delete this.isRecentData;
+            this.recentCheckData = {};
         }
 
-        for(var getPort in this.recentGET) {
+        for(var getPort in this.portData) {
             handler.write(getPort, this.portData[getPort]);
         }
         // //요청포트만 전달
@@ -83,7 +85,6 @@ class Mindpiggy extends BaseModule{
 
     // 엔트리에서 전달된 데이터 처리(Entry.hw.sendQueue로 보낸 데이터)
     handleRemoteData(handler){
-        // console.log("handleRemoteData");
 
         var self = this;
         var getDatas = handler.read('GET');
@@ -102,25 +103,50 @@ class Mindpiggy extends BaseModule{
             var getkeys = Object.keys(getDatas);
             getkeys.forEach(function(port){
                 var getValue=getDatas[port];
-                buffer = Buffer.concat([buffer,self.makeInputBuffer(port,getValue.type),]);
+                if(getValue){
+                    if(self.PortTimeList[port] < getValue.time) {
+                        self.PortTimeList[port] = getValue.time;
+                        // buffer = Buffer.concat([buffer,self.makeInputBuffer(port,getValue.type),]);
+                        if(!self.isRecentData(port, getValue.type, -1)) {
+                            self.recentCheckData[port] = {
+                                type: getValue.type,
+                                data: -1,
+                            };
+                            buffer = Buffer.concat([buffer,self.makeInputBuffer(port,getValue.type),]);
+                        }
+                    }
+                }
             });
         }
         if(setDatas){
             var setkeys = Object.keys(setDatas);
             setkeys.forEach(function(port){
                 var setValue=setDatas[port];
-                buffer = Buffer.concat([buffer,self.makeOutputBuffer(port,setValue.type,setValue.data)],);
+                if(setValue){
+                    if(self.PortTimeList[port] < setValue.time) {
+                        self.PortTimeList[port] = setValue.time;
+
+                        if(!self.isRecentData(port, setValue.type, setValue.data)) {
+                            self.recentCheckData[port] = {
+                                type: setValue.type,
+                                data: setValue.data
+                            };
+                            buffer = Buffer.concat([buffer,self.makeOutputBuffer(port,setValue.type,setValue.data)],);
+                        }
+                    }
+                }
             });
         }
 
         if(buffer.length)
             this.sendBuffers.push(buffer);
+
+        // rendererConsole.log(this.sendBuffers);
+
     }
 
     // 하드웨어에 명령을 전송합니다.
     requestLocalData(){
-        // console.log("requestLocalData");
-        // rendererConsole.log(this.sendBuffers);
         var self = this;
         if (!this.isDraing && this.sendBuffers.length > 0) {
             this.isDraing = true;
@@ -142,7 +168,7 @@ class Mindpiggy extends BaseModule{
         var self = this;
         var datas = this.getDataByBuffer(Array.apply([],data));
         datas.forEach(function(data){
-            if(data[0]!=0x02 | data[data.length-1]!=0x03){
+            if(data[0]!=0x02 || data[data.length-1]!=0x03 || data.length<19){
                 return;
             }else{
                 var DDR = [];
@@ -185,7 +211,24 @@ class Mindpiggy extends BaseModule{
                 };
             }
         });
+    }
 
+    isRecentData(port, type, data) {
+        var isRecent = false;
+        var self = this;
+        if(port in this.recentCheckData) {
+            if(self.recentCheckData[port].type === type) {
+                if(Array.isArray(data)){
+                    isRecent = self.recentCheckData[port].data.every(function(recentdata,indx) {
+                        return recentdata == data[indx];
+                    });
+                }else{
+                    isRecent=(self.recentCheckData[port].data == data);
+                }
+
+            }
+        }
+        return isRecent;
     }
     getDataByBuffer(buffer) {
         var datas = [];
