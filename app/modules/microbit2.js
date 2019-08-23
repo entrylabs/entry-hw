@@ -157,7 +157,6 @@ class Microbit2 extends BaseModule {
     }
 
     handleRemoteData(handler) {
-        const id = handler.read('id') || undefined;
         const type = handler.read('type') || undefined;
         const payload = handler.read('payload') || {};
 
@@ -165,7 +164,7 @@ class Microbit2 extends BaseModule {
         // 리퀘스트 목록이 마지막으로 확인한 버전과 다르기 때문에, 업데이트한다.
         // 업데이트는 중복되지 않는 id 의 커맨드만 뒤에 추가한다.
         this.commandQueue.push({
-            id, type, payload,
+            type, payload,
         });
     }
 
@@ -223,10 +222,7 @@ class Microbit2 extends BaseModule {
                         uInt8Value.push(targetValue & 0xFF);
                         targetValue >>= 8;
                     }
-                    return this.makeBuffer(
-                        functionKeys.SET_ANALOG_PERIOD,
-                        [pinNumber, ...uInt8Value],
-                    );
+                    return this.makeBuffer(type,[pinNumber, ...uInt8Value]);
                 }
                 // 필요한 값이 value property 하나인 경우 전부
                 case functionKeys.SET_SERVO:
@@ -235,6 +231,7 @@ class Microbit2 extends BaseModule {
                 case functionKeys.SET_IMAGE:
                 case functionKeys.GET_ACCELEROMETER: {
                     const { value } = payload;
+
                     return this.makeBuffer(type, [value]);
                 }
                 // 그냥 값 없이 바로 커맨드만 보내는 경우
