@@ -24,6 +24,7 @@ function Module() {
 	this.pktCnt = -1;
 	this.pktLength = 6;
 	this.deviceType = 0;
+	this.txCnt = 0;
 }
 
 Module.prototype.init = function(handler, config) {
@@ -188,6 +189,10 @@ Module.prototype.requestLocalData = function() {
 		else{
 				ctlData[14] = opt&0xFF;
 				ctlData[15] = (opt>>8)&0xFF;
+				if(ctlData[18]==0){
+						ctlData[18] = 0x12;
+						ctlData[19] = 0x34;
+				}
 				ctlData.forEach(function (value, idx) {
 						if(idx > 5)
 		        	sum += value;
@@ -196,8 +201,12 @@ Module.prototype.requestLocalData = function() {
 		    
 				if(this.pktLength==6)
 						return this.sensorRqtPkt;
-				else
-						return this.ctlData;
+				else{
+					if((++this.txCnt%5)==0)			
+							return this.ctlData;
+					else
+							return null;
+				}
 		}		
 };
 
