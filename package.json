@@ -1,6 +1,6 @@
 {
     "name": "entry_hw",
-    "version": "1.7.6",
+    "version": "1.7.7",
     "description": "엔트리 하드웨어 연결 프로그램",
     "author": "EntryLabs",
     "main": "app/index.js",
@@ -9,6 +9,7 @@
         "clean": "rimraf dist",
         "start": "set NODE_ENV=development&&electron -d app",
         "debug": "set NODE_ENV=development&&electron -d app --inspect",
+        "rebuild": "electron-rebuild",
         "update:licence": "lcdoc make -o app/OPENSOURCE.md -d 1",
         "dist:win32": "build --arch ia32",
         "dist:mac": "cross-env CSC_NAME=\"Connect Foundation (DLFUSDA3L5)\"&&build"

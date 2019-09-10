@@ -23,7 +23,7 @@ class Flasher {
             }
             return externalFlasherPath;
         } else {
-            return path.resolve('app', 'firmwares');
+            return path.resolve(__dirname, '..', '..', 'firmwares');
         }
     }
 
