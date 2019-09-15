@@ -28,7 +28,7 @@ class AsomeBot extends BaseModule {
     requestInitialData() {
         console.log("requestInitialData");
 
-        var init_str = "import asomebot_align; import asomebot; import hcsr04; asomebot.ready(5, 6, 7,8); hcsr04.open(3, 2)\r";
+        var init_str = "import asomebot; import hcsr04; asomebot.ready(5, 6, 7,8); hcsr04.open(3, 2)\r";
         return Buffer.from(init_str, "ascii");
     }
 
