@@ -14,7 +14,6 @@
     },
     "url": "http://www.hanibot.com",
     "email": "mrtinternational@google.com",
-    "select_com_port": true,
     "reconnect": true,
     "firmware": "blacksmith",
     "entry": {
