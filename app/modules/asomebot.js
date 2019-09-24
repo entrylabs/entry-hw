@@ -28,7 +28,7 @@ class AsomeBot extends BaseModule {
     requestInitialData() {
         console.log("requestInitialData");
 
-        var init_str = "import asomebot_align; import asomebot; import hcsr04; asomebot.ready(5, 6, 7,8); hcsr04.open(3, 2)\r";
+        var init_str = "import asomebot; import hcsr04; asomebot.ready(5, 6, 7,8); hcsr04.open(3, 2)\r";
         return Buffer.from(init_str, "ascii");
     }
 
@@ -112,11 +112,13 @@ class AsomeBot extends BaseModule {
             if (line.indexOf('#DT') >= 0) {
                 var values = line.split(" ");
                 if (values.length > 1) this.sendToEntry.distance = values[1];
-                console.log("distance: ", values);
             }
             if (line.indexOf('#UDP') >= 0) {
-                var values = line.split(" ");
-                if (values.length > 1) this.sendToEntry.udp_msg = values[1];
+                var values = line.split(" "); 
+                if (values.length > 1) {
+                    this.sendToEntry.udp_id = this.msg_id;
+                    this.sendToEntry.udp_msg = values[1];
+                }
             }
             if (line.indexOf('#ID') >= 0) this.sendToEntry.msg_id = line;
 
