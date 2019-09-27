@@ -109,7 +109,7 @@ class Server extends EventEmitter {
             this.toggleServerMode(SERVER_MODE_TYPES.single);
         });
 
-        httpServer.listen(PORT);
+        httpServer.listen(PORT, '127.0.0.1');
     };
 
     /**
