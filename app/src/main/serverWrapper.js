@@ -1,14 +1,24 @@
-const { spawn } = require('child_process');
+const spawn = require('cross-spawn');
+const { app } = require('electron');
 const path = require('path');
 
 class ServerWrapper {
     constructor(router) {
         // this.childProcess = new Server();
-        this.childProcess = spawn(path.resolve(__dirname, 'server'), [], {
+        this.childProcess = spawn(this._getServerFilePath(), [], {
             stdio: ['ignore', 'inherit', 'inherit', 'ipc'],
             detached: true,
         });
         this.router = router;
+    }
+
+    _getServerFilePath() {
+        const asarIndex = app.getAppPath().indexOf(`${path.sep}app.asar`);
+        if (asarIndex > -1) {
+            return path.join(app.getAppPath().substr(0, asarIndex), 'server.exe');
+        } else {
+            return path.resolve(__dirname, 'server.exe');
+        }
     }
 
     open() {
