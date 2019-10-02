@@ -46,7 +46,8 @@ class Scanner {
                         }
                     }
                 })
-                .catch(() => {
+                .catch((e) => {
+                    console.error('error occurred while scan ~ prepareConnector', e);
                     if (this.scanTimer) {
                         setTimeout(() => {
                             intervalScan().then(resolve);
@@ -71,8 +72,7 @@ class Scanner {
             const { hardware, this_com_port: selectedComPortName } = this.config;
             let { select_com_port: needCOMPortSelect } = this.config;
             const {
-                scanType,
-                comName: verificatedComPortNames,
+                comName: verifiedComPortNames,
                 pnpId,
                 type,
             } = hardware;
@@ -95,16 +95,30 @@ class Scanner {
                 serverMode === SERVER_MODE_TYPES.multi;
 
             try {
+                /**
+                 * 1. 포트가 선택되면 로직 전부 무시하고 바로 해당 포트로 연결시도
+                 * 2. 포트가 선택되지 않은 경우
+                 *  . 포트 선택이 필요한 상태인 경우 / 포트목록 노출시도
+                 *  . 필요 없는 경우 / 자동선택이 config 작성되어있는 경우(필요한 경우) 해당 값포트로 연결시도
+                 *   -> 모든 포트에 연결 시도 할 예정
+                 */
                 const comPorts = await this.getComPortList();
-                // COMPort 필요하면서, 선택이 되지 않은 경우는 선택되기 전까지 진행하지 않는다.
-                if (isComPortSelected && !selectedComPortName) {
-                    this.router.sendState('select_port', comPorts);
+                if (isComPortSelected) {
+                    if (selectedComPortName) {
+                        let connector = this.connectors[selectedComPortName];
+                        if (connector === undefined) {
+                            connector = await this.prepareConnector(selectedComPortName);
+                            this.connectors[selectedComPortName] = connector;
+                        }
+                        resolve(connector);
+                    } else {
+                        this.router.sendState('select_port', comPorts);
+                        resolve();
+                    }
                     return;
                 }
 
-                // TODO 스캔타입 삭제했습니다. 무조건 벤더검사 검사합니다. 190322 테스트 후 코멘트삭제요망
-
-                let selectedComName = undefined;
+                let vendorSelectedComPortName = undefined;
                 comPorts.some((port) => {
                     const comName = port.comName || hardware.name;
 
@@ -112,33 +126,27 @@ class Scanner {
                     const isVendor = this._indexOfStringOrArray(vendor, port.manufacturer);
 
                     // config 에 입력한 특정 COMPortName과 겹치는지 여부
-                    const isComName = this._indexOfStringOrArray(verificatedComPortNames, comName);
+                    const isComName = this._indexOfStringOrArray(verifiedComPortNames, comName);
 
                     // config 에 입력한 특정 pnpId와 겹치는지 여부
                     const isPnpId = this._indexOfStringOrArray(pnpId, port.pnpId);
 
-                    /*
-                    연결동작 성사 여부 [아래
-                    - 제조사, 플러그앤플레이, COMPort네임, ComPort 선택해야하고 현재 ComPort가 선택된 경우
-                     */
-                    if (
-                        isVendor || isPnpId || isComName ||
-                        (needCOMPortSelect && comName === selectedComPortName)
-                    ) {
-                        selectedComName = comName;
+                    // 현재 포트가 config 과 일치하는 경우 연결시도할 포트목록에 추가
+                    if (isVendor || isPnpId || isComName) {
+                        vendorSelectedComPortName = comName;
                         return true;
                     }
                 });
 
-                if (!selectedComName) {
-                    resolve();
-                } else {
-                    let connector = this.connectors[selectedComName];
+                if (vendorSelectedComPortName) {
+                    let connector = this.connectors[vendorSelectedComPortName];
                     if (connector === undefined) {
-                        connector = await this.prefareConnector(selectedComName);
-                        this.connectors[selectedComName] = connector;
+                        connector = await this.prepareConnector(vendorSelectedComPortName);
+                        this.connectors[vendorSelectedComPortName] = connector;
                     }
                     resolve(connector);
+                } else {
+                    resolve();
                 }
             } catch (e) {
                 reject(e);
@@ -151,7 +159,7 @@ class Scanner {
      * @param {string} connectedComName 연결을 성사하고자 하는 COMPort
      * @returns {Promise<Connector>}
      */
-    prefareConnector(connectedComName) {
+    prepareConnector(connectedComName) {
         return new Promise(async (resolve, reject) => {
             // 통신개시후 완료확인 받아 낸 후 넘기기
             // 통신개시후 펌웨어 플래싱 필요한 경우 플래그 새기고 넘기기
