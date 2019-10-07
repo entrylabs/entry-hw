@@ -12,6 +12,10 @@ class ServerProcessManager {
         this.router = router;
     }
 
+    setRouter(router) {
+        this.router = router;
+    }
+
     _getServerFilePath() {
         const asarIndex = app.getAppPath().indexOf(`${path.sep}app.asar`);
         if (asarIndex > -1) {

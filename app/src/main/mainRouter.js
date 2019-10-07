@@ -2,7 +2,6 @@ const { app, ipcMain, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const Scanner = require('./scanner');
-const EntryServer = require('./serverWrapper');
 const Flasher = require('./flasher');
 const Utils = require('./utils/fileUtils');
 const rendererConsole = require('./utils/rendererConsole');
@@ -23,12 +22,12 @@ class MainRouter {
         return global.sharedObject.roomIds || [];
     }
 
-    constructor(mainWindow) {
+    constructor(mainWindow, entryServer) {
         global.$ = require('lodash');
         this.browser = mainWindow;
         rendererConsole.initialize(mainWindow);
         this.scanner = new Scanner(this);
-        this.server = new EntryServer(this);
+        this.server = entryServer;
         this.flasher = new Flasher();
         this.hardwareListManager = new HardwareListManager();
 
@@ -39,6 +38,7 @@ class MainRouter {
         /** @type {Object} */
         this.handler = undefined;
 
+        entryServer.setRouter(this);
         this.server.open();
 
         ipcMain.on('state', (e, state) => {

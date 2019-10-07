@@ -2,6 +2,7 @@
 
 const electron = require('electron');
 const MainRouter = require('./src/main/mainRouter');
+const EntryServer = require('./src/main/serverProcessManager');
 const {
     app,
     BrowserWindow,
@@ -241,7 +242,8 @@ if (!app.requestSingleInstanceLock()) {
         });
 
         createAboutWindow(mainWindow);
-        mainRouter = new MainRouter(mainWindow);
+        
+        mainRouter = new MainRouter(mainWindow, new EntryServer());
     });
 
     ipcMain.on('hardwareForceClose', () => {
