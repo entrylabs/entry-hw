@@ -60,10 +60,10 @@ class ServerWrapper {
 
     _receiveFromChildEventRegister() {
         // this.childProcess.on('cloudModeChanged', (mode) => {
-        //     this.router.notifyServerMode(mode);
+        //     this.router.notifyCloudModeChanged(mode);
         // });
         // this.childProcess.on('runningModeChanged', (mode) => {
-        //     this.router.notifyServerMode(mode);
+        //     this.router.notifyServerRunningModeChanged(mode);
         // });
         // this.childProcess.on('message', (message) => {
         //     this.router.handleServerData(message);
@@ -76,11 +76,11 @@ class ServerWrapper {
             const { key, value } = message;
             switch (key) {
                 case 'cloudModeChanged': {
-                    this.router.notifyServerMode(value);
+                    this.router.notifyCloudModeChanged(value);
                     break;
                 }
                 case 'runningModeChanged': {
-                    this.router.notifyServerMode(value);
+                    this.router.notifyServerRunningModeChanged(value);
                     break;
                 }
                 case 'data': {

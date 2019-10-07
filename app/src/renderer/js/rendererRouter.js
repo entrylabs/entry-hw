@@ -1,6 +1,8 @@
 const { ipcRenderer, shell, remote } = require('electron');
 const {
     HARDWARE_STATEMENT: Statement,
+    RUNNING_MODE_TYPES: RunningMode,
+    CLOUD_MODE_TYPES: CloudMode,
 } = require('../../common/constants');
 
 /**
@@ -9,19 +11,19 @@ const {
  *
  */
 class RendererRouter {
-    get serverMode() {
-        return this._serverMode;
-    }
 
     constructor(ui) {
         this.ui = ui;
         this.priorHardwareList = JSON.parse(localStorage.getItem('hardwareList')) || [];
-        this._serverMode = ipcRenderer.sendSync('getCurrentServerModeSync') || 0;
+        this.serverMode = ipcRenderer.sendSync('getCurrentServerModeSync') || RunningMode.server;
+        this.cloudMode = ipcRenderer.sendSync('getCurrentCloudModeSync') || CloudMode.singleServer;
         this.currentState = Statement.disconnected;
         this.hardwareList = [];
 
         this._checkProgramUpdate();
-        this._consoleWriteServerMode();
+        this._consoleWriteServerMode(this.serverMode);
+        this._toggleCloudModeUI(this.cloudMode);
+
         //ipcEvent
         ipcRenderer.on('console', (event, ...args) => {
             console.log(...args);
@@ -30,8 +32,10 @@ class RendererRouter {
         ipcRenderer.on('state', this._setHardwareState.bind(this));
         ipcRenderer.on('hardwareCloseConfirm', this._confirmHardwareClose.bind(this));
         ipcRenderer.on('serverMode', (event, mode) => {
-            this._serverMode = mode;
-            this._consoleWriteServerMode();
+            this._consoleWriteServerMode(mode);
+        });
+        ipcRenderer.on('cloudMode', (event, mode) => {
+            this._toggleCloudModeUI(mode);
         });
     }
 
@@ -155,13 +159,24 @@ class RendererRouter {
         }
     }
 
-    _consoleWriteServerMode() {
-        if (this.serverMode === 1) {
+    _consoleWriteServerMode(mode) {
+        if (this.serverMode === mode) {
+            return;
+        }
+
+        if (this.serverMode === RunningMode.client) {
             console.log('%cI`M CLIENT', 'background:black;color:yellow;font-size: 30px');
-            this.ui.setCloudMode(true);
-        } else {
+
+        } else if (this.serverMode === RunningMode.server) {
             console.log('%cI`M SERVER', 'background:orange; font-size: 30px');
+        }
+    }
+
+    _toggleCloudModeUI(mode) {
+        if (this.cloudMode === CloudMode.singleServer) {
             this.ui.setCloudMode(false);
+        } else if (this.cloudMode === CloudMode.cloud) {
+            this.ui.setCloudMode(true);
         }
     }
 

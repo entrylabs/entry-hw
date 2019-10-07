@@ -74,7 +74,10 @@ class MainRouter {
             this.executeDriver(driverPath);
         });
         ipcMain.on('getCurrentServerModeSync', (e) => {
-            e.returnValue = this.currentServerMode;
+            e.returnValue = this.currentServerRunningMode;
+        });
+        ipcMain.on('getCurrentCloudModeSync', (e) => {
+            e.returnValue = this.currentCloudMode;
         });
         ipcMain.on('requestHardwareListSync', (e) => {
             e.returnValue = this.hardwareListManager.allHardwareList;
@@ -186,11 +189,18 @@ class MainRouter {
         }
     }
 
-    notifyServerMode(mode) {
+    notifyCloudModeChanged(mode) {
+        if (!this.browser.isDestroyed()) {
+            this.browser.webContents.send('cloudMode', mode);
+        }
+        this.currentCloudMode = mode;
+    }
+    
+    notifyServerRunningModeChanged(mode) {
         if (!this.browser.isDestroyed()) {
             this.browser.webContents.send('serverMode', mode);
         }
-        this.currentServerMode = mode;
+        this.currentServerRunningMode = mode;
     }
 
     /**
