@@ -15,14 +15,14 @@ class RendererRouter {
     constructor(ui) {
         this.ui = ui;
         this.priorHardwareList = JSON.parse(localStorage.getItem('hardwareList')) || [];
-        this.serverMode = ipcRenderer.sendSync('getCurrentServerModeSync') || RunningMode.server;
-        this.cloudMode = ipcRenderer.sendSync('getCurrentCloudModeSync') || CloudMode.singleServer;
         this.currentState = Statement.disconnected;
         this.hardwareList = [];
+        const initialServerMode = ipcRenderer.sendSync('getCurrentServerModeSync') || RunningMode.server;
+        const initialCloudMode = ipcRenderer.sendSync('getCurrentCloudModeSync') || CloudMode.singleServer;
 
         this._checkProgramUpdate();
-        this._consoleWriteServerMode(this.serverMode);
-        this._toggleCloudModeUI(this.cloudMode);
+        this._consoleWriteServerMode(initialServerMode);
+        this._toggleCloudModeUI(initialCloudMode);
 
         //ipcEvent
         ipcRenderer.on('console', (event, ...args) => {
@@ -164,20 +164,22 @@ class RendererRouter {
             return;
         }
 
-        if (this.serverMode === RunningMode.client) {
+        if (mode === RunningMode.client) {
             console.log('%cI`M CLIENT', 'background:black;color:yellow;font-size: 30px');
 
-        } else if (this.serverMode === RunningMode.server) {
+        } else if (mode === RunningMode.server) {
             console.log('%cI`M SERVER', 'background:orange; font-size: 30px');
         }
+        this.serverMode = mode;
     }
 
     _toggleCloudModeUI(mode) {
-        if (this.cloudMode === CloudMode.singleServer) {
+        if (mode === CloudMode.singleServer) {
             this.ui.setCloudMode(false);
-        } else if (this.cloudMode === CloudMode.cloud) {
+        } else if (mode === CloudMode.cloud) {
             this.ui.setCloudMode(true);
         }
+        this.cloudMode = mode;
     }
 
     _setHardwareState(event, state, data) {
