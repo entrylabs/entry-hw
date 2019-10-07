@@ -2,7 +2,7 @@ const spawn = require('cross-spawn');
 const { app } = require('electron');
 const path = require('path');
 
-class ServerWrapper {
+class ServerProcessManager {
     constructor(router) {
         // this.childProcess = new Server();
         this.childProcess = spawn(this._getServerFilePath(), [], {
@@ -99,4 +99,4 @@ class ServerWrapper {
     }
 }
 
-module.exports = ServerWrapper;
+module.exports = ServerProcessManager;
