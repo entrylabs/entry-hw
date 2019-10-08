@@ -3,7 +3,7 @@
 const _ = require('lodash');
 const rendererConsole = require('./utils/rendererConsole');
 const Connector = require('./connector');
-const { SERVER_MODE_TYPES } = require('../common/constants');
+const { CLOUD_MODE_TYPES: CloudModeTypes } = require('../common/constants');
 
 /**
  * 전체 포트를 검색한다.
@@ -68,7 +68,7 @@ class Scanner {
 
             //TODO this_com_port 가 config 에서 설정될 수도 있고,
             // renderer 에서 COM 선택한것도 여기로 들어온다.
-            const serverMode = this.router.currentServerMode;
+            const serverMode = this.router.currentServerRunningMode;
             const { hardware, this_com_port: selectedComPortName } = this.config;
             let { select_com_port: needCOMPortSelect } = this.config;
             const {
@@ -92,7 +92,7 @@ class Scanner {
             const isComPortSelected =
                 needCOMPortSelect ||
                 type === 'bluetooth' ||
-                serverMode === SERVER_MODE_TYPES.multi;
+                serverMode === CloudModeTypes.cloud;
 
             try {
                 /**

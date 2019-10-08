@@ -1,9 +1,11 @@
 module.exports = {
-    SERVER_MODE_TYPES: {
-        single: 0,
-        multi: 1,
-        parent: 2,
-        child: 3,
+    RUNNING_MODE_TYPES: {
+        server: 2,
+        client: 3,
+    },
+    CLOUD_MODE_TYPES: {
+        singleServer: 0,
+        cloud: 1,
     },
     HARDWARE_STATEMENT: {
         lost: 'lost',

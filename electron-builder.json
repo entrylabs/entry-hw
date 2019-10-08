@@ -45,7 +45,14 @@
     "files": [
         "app",
         "!app/firmwares/examples",
-        "!app/test.html"
+        "!app/test.html",
+        "!app/src/main/server.exe"
+    ],
+    "extraResources": [
+        {
+            "from": "app/src/main/server.exe",
+            "to": "server.exe"
+        }
     ],
     "asar": true,
     "appId": "org.playentry.entryhw",

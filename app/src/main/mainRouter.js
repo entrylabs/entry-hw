@@ -2,7 +2,6 @@ const { app, ipcMain, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const Scanner = require('./scanner');
-const EntryServer = require('./server');
 const Flasher = require('./flasher');
 const Utils = require('./utils/fileUtils');
 const rendererConsole = require('./utils/rendererConsole');
@@ -23,16 +22,12 @@ class MainRouter {
         return global.sharedObject.roomIds || [];
     }
 
-    get currentServerMode() {
-        return this.server.currentServerMode;
-    }
-
-    constructor(mainWindow) {
+    constructor(mainWindow, entryServer) {
         global.$ = require('lodash');
         this.browser = mainWindow;
         rendererConsole.initialize(mainWindow);
         this.scanner = new Scanner(this);
-        this.server = new EntryServer(this);
+        this.server = entryServer;
         this.flasher = new Flasher();
         this.hardwareListManager = new HardwareListManager();
 
@@ -43,6 +38,7 @@ class MainRouter {
         /** @type {Object} */
         this.handler = undefined;
 
+        entryServer.setRouter(this);
         this.server.open();
 
         ipcMain.on('state', (e, state) => {
@@ -78,7 +74,10 @@ class MainRouter {
             this.executeDriver(driverPath);
         });
         ipcMain.on('getCurrentServerModeSync', (e) => {
-            e.returnValue = this.server.currentServerMode;
+            e.returnValue = this.currentServerRunningMode;
+        });
+        ipcMain.on('getCurrentCloudModeSync', (e) => {
+            e.returnValue = this.currentCloudMode;
         });
         ipcMain.on('requestHardwareListSync', (e) => {
             e.returnValue = this.hardwareListManager.allHardwareList;
@@ -190,11 +189,18 @@ class MainRouter {
         }
     }
 
-    notifyServerMode(mode) {
-        console.log('notifyServerMode', mode);
+    notifyCloudModeChanged(mode) {
+        if (!this.browser.isDestroyed()) {
+            this.browser.webContents.send('cloudMode', mode);
+        }
+        this.currentCloudMode = mode;
+    }
+    
+    notifyServerRunningModeChanged(mode) {
         if (!this.browser.isDestroyed()) {
             this.browser.webContents.send('serverMode', mode);
         }
+        this.currentServerRunningMode = mode;
     }
 
     /**
@@ -202,7 +208,8 @@ class MainRouter {
      * @param state
      */
     onChangeState(state) {
-        this.server.setState(state);
+        console.log('server state', state);
+        // this.server.setState(state);
     }
 
     /**
@@ -279,7 +286,7 @@ class MainRouter {
         const hwModule = this.hwModule;
         const server = this.server;
 
-        server.removeAllListeners();
+        // server.removeAllListeners();
 
         if (hwModule.init) {
             hwModule.init(this.handler, this.config);
@@ -290,18 +297,18 @@ class MainRouter {
         }
 
         // 신규 연결시 해당 메세지 전송
-        server.on('connection', () => {
-            if (hwModule.socketReconnection) {
-                hwModule.socketReconnection();
-            }
-        });
+        // server.on('connection', () => {
+        //     if (hwModule.socketReconnection) {
+        //         hwModule.socketReconnection();
+        //     }
+        // });
 
         // 엔트리 실행이 종료된 경우 reset 명령어 호출
-        server.on('close', () => {
-            if (hwModule.reset) {
-                hwModule.reset();
-            }
-        });
+        // server.on('close', () => {
+        //     if (hwModule.reset) {
+        //         hwModule.reset();
+        //     }
+        // });
     }
 
     // 엔트리 측에서 데이터를 받아온 경우 전달
