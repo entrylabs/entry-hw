@@ -76,7 +76,6 @@ class ServerProcessManager {
 
         // });
         this.childProcess && this.childProcess.on('message', (message) => {
-            console.log('register from ', message);
             const { key, value } = message;
             switch (key) {
                 case 'cloudModeChanged': {
