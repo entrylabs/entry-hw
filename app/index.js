@@ -168,7 +168,7 @@ if (!app.requestSingleInstanceLock()) {
 
     app.commandLine.appendSwitch('enable-web-bluetooth', true);
     app.commandLine.appendSwitch('enable-experimental-web-platform-features', true);
-    app.commandLine.appendSwitch("disable-renderer-backgrounding");
+    app.commandLine.appendSwitch('disable-renderer-backgrounding');
     // app.commandLine.appendSwitch('enable-web-bluetooth');
     app.once('ready', () => {
         const language = app.getLocale();
@@ -197,14 +197,14 @@ if (!app.requestSingleInstanceLock()) {
             (event, deviceList, callback) => {
                 event.preventDefault();
                 const result = deviceList.find(
-                    (device) => device.deviceName === 'LPF2 Smart Hub 2 I/O'
+                    (device) => device.deviceName === 'LPF2 Smart Hub 2 I/O',
                 );
                 if (!result) {
                     callback('A0:E6:F8:1D:FB:E3');
                 } else {
                     callback(result.deviceId);
                 }
-            }
+            },
         );
 
         mainWindow.loadURL(`file:///${path.join(__dirname, 'src', 'renderer', 'views', 'index.html')}`);
@@ -273,7 +273,8 @@ if (!app.requestSingleInstanceLock()) {
                 let data = {};
                 try {
                     data = JSON.parse(body);
-                } catch (e) {}
+                } catch (e) {
+                }
                 e.sender.send('checkUpdateResult', data);
             });
         });
@@ -284,7 +285,7 @@ if (!app.requestSingleInstanceLock()) {
             JSON.stringify({
                 category: 'hardware',
                 version: packageJson.version,
-            })
+            }),
         );
         request.end();
     });
@@ -321,3 +322,17 @@ if (!app.requestSingleInstanceLock()) {
         clearInterval(requestLocalDataInterval);
     });
 }
+
+process.on('uncaughtException', (error) => {
+    const whichButtonClicked = dialog.showMessageBox({
+        type: 'error',
+        title: 'Unexpected Error',
+        message: 'Unexpected Error',
+        detail: error.toString(),
+        buttons: ['ignore', 'exit'],
+    });
+    console.error(error.message, error.stack);
+    if (whichButtonClicked === 1) {
+        process.exit(-1);
+    }
+});
