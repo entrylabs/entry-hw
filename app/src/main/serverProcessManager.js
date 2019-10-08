@@ -1,15 +1,24 @@
 const spawn = require('cross-spawn');
 const { app } = require('electron');
 const path = require('path');
+const fs = require('fs');
 
 class ServerProcessManager {
     constructor(router) {
-        // this.childProcess = new Server();
-        this.childProcess = spawn(this._getServerFilePath(), [], {
-            stdio: ['ignore', 'inherit', 'inherit', 'ipc'],
-            detached: true,
-        });
-        this.router = router;
+        try {
+            // this.childProcess = new Server();
+            const serverBinaryPath = this._getServerFilePath();
+            fs.accessSync(serverBinaryPath);
+            this.childProcess = spawn(this._getServerFilePath(), [], {
+                stdio: ['ignore', 'inherit', 'inherit', 'ipc'],
+                detached: true,
+            });
+            this.router = router;
+        } catch (e) {
+            throw new Error(
+                'Error occurred while spawn Server Process. make sure it exists same dir path',
+            );
+        }
     }
 
     setRouter(router) {
