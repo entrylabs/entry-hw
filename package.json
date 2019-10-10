@@ -1,6 +1,6 @@
 {
     "name": "entry_hw",
-    "version": "1.7.7",
+    "version": "1.7.8",
     "description": "엔트리 하드웨어 연결 프로그램",
     "author": "EntryLabs",
     "main": "app/index.js",
@@ -12,7 +12,8 @@
         "rebuild": "electron-rebuild",
         "update:licence": "lcdoc make -o app/OPENSOURCE.md -d 1",
         "dist:win32": "build --arch ia32",
-        "dist:mac": "cross-env CSC_NAME=\"Connect Foundation (DLFUSDA3L5)\"&&build"
+        "dist:mac": "cross-env CSC_NAME=\"Connect Foundation (DLFUSDA3L5)\"&&build",
+        "postinstall": "electron-rebuild"
     },
     "devDependencies": {
         "cross-env": "^5.1.3",
