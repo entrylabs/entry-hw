@@ -17,16 +17,8 @@ class Abilix_Krypton0 extends BaseModule {
 		
         this.sp = null;
         this.sensors = [];
-//        this.CHECK_PORT_MAP = {};
-//        this.SENSOR_COUNTER_LIST = {};
-//        this.returnDataToEntry = {};
 		this.previous_wheel_status = null;
 		
-//        this.motorMovementTypes = {
-//            Direction: 0,     /* 0 - Forward, 1 - Reverse */
-//            Power: 24		  /* 0 ~ 50 : 0 - Fast, 24 - normal, 49 - Slow */
-//        };
-
 		// For log level.
 		this.loglevelType = {
 			INFO:			0x00,
@@ -42,11 +34,9 @@ class Abilix_Krypton0 extends BaseModule {
 			BUTTON:			0x02,
 			GRAY_INFRARED1:	0x03,
 			GRAY_INFRARED2:	0x04,
-			ULTRASONIC:		0x05,
-			COLOR:			0x06,
 			LIGHT:			0x07,
 			MICROPHONE:		0x08,
-			LANTERN:		0x09,
+			LED:			0x09,
 			LMOTOR:			0x0A,
 			RMOTOR:			0x0B,
 
@@ -64,84 +54,34 @@ class Abilix_Krypton0 extends BaseModule {
 			BUTTON:			-1,
 			GRAY_INFRARED1:	-1,
 			GRAY_INFRARED2:	-1,
-			ULTRASONIC:		-1,
-			COLOR:			-1,
 			LIGHT:			-1,
 			MICROPHONE:		-1,
-			LANTERN:		-1,
+			LED:			-1,
 		};
 		
 		this.audiofile = {
 		    audiodata: 'hello',
             APPLIED: true,
         };
-/*	
-		this.PORT_MAP = {
-            A: {
-                type: this.motorMovementTypes.Power,
-                power: 24,
-            },
-            B: {
-                type: this.motorMovementTypes.Power,
-                power: 24,
-            }
-        };
 		
-		this.SENSOR_MAP = {
-            '1': {
-                type: this.deviceTypes.NONE,
-                values: 0,
-            },
-            '2': {
-                type: this.deviceTypes.NONE,
-                values: 0,
-            },
-            '3': {
-                type: this.deviceTypes.NONE,
-                values: 0,
-            },
-            '4': {
-                type: this.deviceTypes.NONE,
-                values: 0,
-            }
-        };
-*/		
-		this.STATUS_COLOR_MAP = {
-            RED: {
-                key: 0,
-            },
-            YELLOW: {
-                key: 1,
-            },
-            GREEN: {
-                key: 2,
-            },
-            BLUE: {
-                key: 3,
-            },
-            WHITE: {
-                key: 4,
-            }
-        };
-/*		
-		this.BUTTON_MAP = {
-            RELEASED: {
-                key: 0,
-            },
-            PRESSED: {
-                key: 1,
-            }
-        };
-*/		
-        this.CURRENT_STATUS_COLOR = {
-            COLOR: this.STATUS_COLOR_MAP.RED,
-            APPLIED: false,
-        };
+		this.led = {
+			port: 0,
+			value: 0,
+			APPLIED: true,
+		};
 		
 		this.LAST_PORT_STATUS = null;
 	}
 	
-	getLogLevel(level) {
+	/*************************************************************************
+	 * Name: checkLogLevel
+	 *
+	 * Description: Check Log Level
+	 *
+	 * Returned Value :
+	 *************************************************************************/
+	checkLogLevel(level) {
+/*
 		var showlog = false;
 		
 		switch (level) {
@@ -152,18 +92,21 @@ class Abilix_Krypton0 extends BaseModule {
 				if ( this.loglevel > this.loglevelType.DEBUG)
 					showlog = true;
 				break;
+			case 'debug' :
+				if ( this.loglevel > this.loglevelType.INFO)
+					showlog = true;
+				break;
 			case 'info' :
 				if ( this.loglevel == this.loglevelType.INFO)
 					showlog = true;
 				break;
-			case 'debug' :
-				if ( this.loglevel > this.loglevelType.INFO)
-					showlog = true;
 			default :
 				break;
 		}
 		
 		return showlog;
+*/
+		return false;
 	}
 	
 	/*************************************************************************
@@ -177,7 +120,7 @@ class Abilix_Krypton0 extends BaseModule {
 	 * Returned Value :
 	 *************************************************************************/
 	writeDebug(level='info', message) {
-		if (this.getLogLevel(level)) {
+		if (this.checkLogLevel(level) == true) {
 			console.log('[', level, '] : ', message);
 		}
 	}
@@ -190,7 +133,7 @@ class Abilix_Krypton0 extends BaseModule {
 	 * Returned Value :
 	 *************************************************************************/
 	writeArrayData(level='info', buffer) {
-		if (this.getLogLevel(level)) {
+		if (this.checkLogLevel(level) == true) {
 			var messages = Array.from(buffer, function (byte) {
 									return ('0' + (byte & 0xff).toString(16)).slice(-2);
 								}).join(' ');
@@ -215,9 +158,6 @@ class Abilix_Krypton0 extends BaseModule {
 	 * Name: makeCmdHeaderBuffer
 	 *
 	 * Description: Make Abilix Command Header
-	 *              Frame Header (2bytes) : 0xAA 0x55
-	 *              Length (2bytes)       : 0xFF 0xFF - will be changed.
-	 *              Device type (1 byte)  : 0x72 - Krypto 0 for School
 	 *
 	 * cmdword - Command word
 	 *
@@ -226,13 +166,19 @@ class Abilix_Krypton0 extends BaseModule {
     makeCmdHeaderBuffer(cmdword1, cmdword2) {
 		const frameHeader = new Buffer([0xAA, 0x55, 0xFF, 0xFF, 0x72]);
         const cmdword = new Buffer([cmdword1, cmdword2, 0x00, 0x00, 0x00, 0x00]);
-		const cmdindex = new Buffer([0x00, 0x00, 0x00, 0x00]);
-		cmdindex[0] = this.cmdcount >> 24;
-		cmdindex[1] = this.cmdcount >> 16;
-		cmdindex[2] = this.cmdcount >> 8;
-		cmdindex[3] = this.cmdcount++;
+		
+		if (cmdword1 == 0x0C) {
+			const cmdindex = new Buffer([0x00, 0x00, 0x00, 0x00]);
+			cmdindex[0] = this.cmdcount >> 24;
+			cmdindex[1] = this.cmdcount >> 16;
+			cmdindex[2] = this.cmdcount >> 8;
+			cmdindex[3] = this.cmdcount++;
 
-        return Buffer.concat([frameHeader, cmdword, cmdindex]);
+			return Buffer.concat([frameHeader, cmdword, cmdindex]);
+		}
+		else {
+			return Buffer.concat([frameHeader, cmdword]);
+		}
 	}
 	
 	/*************************************************************************
@@ -274,7 +220,7 @@ class Abilix_Krypton0 extends BaseModule {
 		var data = Buffer.concat([buffer, crcValue]);
 		this.updatePacketSize(data);
 		
-		this.writeArrayData('makeCRCdata', data);
+		this.writeArrayData('debug1', data);
 		return data;
 	}
 	
@@ -291,7 +237,7 @@ class Abilix_Krypton0 extends BaseModule {
             this.sensing = setInterval(() => {
                 this.sendCheckSensorcmd();
                 this.isSensing = false;
-            }, 200);
+            }, 100);
         }
     }
 	
@@ -416,6 +362,25 @@ class Abilix_Krypton0 extends BaseModule {
 	}
 	
 	/*************************************************************************
+	 * Name: makePortonoffcmd
+	 *
+	 * Description: Make command to change LED value
+	 *
+	 * Returned Value :
+	 *************************************************************************/
+	makePortonoffcmd(port, onoff) {
+		this.writeDebug('info', 'makePortonoffcmd : port = ' + port + ' onoff Value = ' + onoff.toString(10));
+		var cmdheader = this.makeCmdHeaderBuffer([0xA4], [0x17]);
+		var param1 = new Buffer([0x00, 0x00]);
+		
+		param1[0] = port;
+		param1[1] = onoff;
+		var portonoffcmd = Buffer.concat([cmdheader, param1]);
+		
+		return this.makeCRCdata(portonoffcmd);
+	}
+	
+	/*************************************************************************
 	 * Name: makeDetectGrayvaluecmd
 	 *
 	 * Description: Make command to detect gray values
@@ -436,44 +401,6 @@ class Abilix_Krypton0 extends BaseModule {
 	 * Description: Make command to control motor
 	 *
 	 * Returned Value :
-	 *
-	 *	The first parameter: (order: from high to low)
-	 * 		The first byte:
-	 *		    - Set port A or not (0-not set, 1-set, 1 bit)
-	 *			- Motor type of port A(0-closed loop, 1-open loop, 1 bit)
-	 *			- value type(0-speed,1-angle,2-cycle,3-time,4 bits)
-	 *			- Whether value A refers to a variable(1 bit)
-	 *			- Whether speed A refers to a variable(1 bit)  
-	 *		The second byte:
-	 *			- Set port B or not (0-not set, 1-set, 1 bit)
-	 *			- Motor type of port B(0-closed loop, 1-open loop, 1 bit)
-	 *			- value type(0-speed,1-angle,2-cycle,3-time,4 bits)
-	 *			- Whether value B refers to a variable(1 bit)
-	 *			- Whether speed B refers to a variable(1 bit)  
-	 *		The third byte:
-	 *			- Set port C or not (0-not set, 1-set, 1 bit)
-	 *			- Motor type of port C(0-closed loop, 1-open loop, 1 bit)
-	 *			- value type(0-speed,1-angle,2-cycle,3-time,4 bits)
-	 *			- Whether value C refers to a variable(1 bit)
-	 *			- Whether speed C refers to a variable(1 bit)  
-	 *		The fouth byte:
-	 *			- Set port D or not (0-not set, 1-set, 1 bit)
-	 *			- Motor type of port D(0-closed loop, 1-open loop, 1 bit)
-	 *			- value type(0-speed,1-angle,2-cycle,3-time,4 bits)
-	 *			- Whether value D refers to a variable(1 bit)
-	 *			- Whether speed D refers to a variable(1 bit)  
-	 *	The second parameter:
-	 *		The 1st - 2nd byte: value data of port A is from high to low
-	 *		The 3rd - 4th byte: value data of port B is from high to low
-	 *	The third parameter: 
-	 *		The 1st - 2nd byte: value data of port C is from high to low
-	 *		The 3rd - 4th byte: value data of port D is from high to low
-	 *	The fouth parameter: 
-	 *		The 1st byte: speed of port A
-	 *		The 2nd byte: speed of port B
-	 *		The 3rd byte: speed of port C
-	 *		The 4th byte: speed of port D
-	 * 
 	 *************************************************************************/
 	makeSmallmotorControlcmd(ports, port_type, value_type, values1, values2, values3, values4) {
 		this.writeDebug('info', 'makeSmallmotorControlcmd : ports = 0x' + ports.toString(16) + '    values = ' + values1);
@@ -587,11 +514,9 @@ class Abilix_Krypton0 extends BaseModule {
 			case 0 : return this.deviceTypes.NONE;
 			case 1 : return this.deviceTypes.BUTTON;
 			case 2 : return this.deviceTypes.GRAY_INFRARED;
-			case 3 : return this.deviceTypes.UNTRASONIC;
-			case 4 : return this.deviceTypes.COLOR;
 			case 5 : return this.deviceTypes.LIGHT;
 			case 6 : return this.deviceTypes.MICROPHONE;
-			case 7 : return this.deviceTypes.LANTERN;
+			case 7 : return this.deviceTypes.LED;
 			case 8 : return this.deviceTypes.LMOTOR;
 			case 9 : return this.deviceTypes.RMOTOR;
 			default : 
@@ -627,12 +552,6 @@ class Abilix_Krypton0 extends BaseModule {
 							this.SENSOR.GRAY_INFRARED2 = values;
 						}
 						break;
-					case 3 : 
-						this.SENSOR.UNTRASONIC = values;
-						break;
-					case 4 : 
-						this.SENSOR.COLOR = values;
-						break;
 					case 5 : 
 						this.SENSOR.LIGHT = values;
 						break;
@@ -640,7 +559,8 @@ class Abilix_Krypton0 extends BaseModule {
 						this.SENSOR.MICROPHONE = values;
 						break;
 					case 7 : 
-						this.SENSOR.LANTERN = values;
+						this.led.port = index + 1;
+						this.SENSOR.LED = values;
 						break;
 					case 0 :
 					default :
@@ -753,19 +673,16 @@ class Abilix_Krypton0 extends BaseModule {
 	 * Returned Value :
 	 *************************************************************************/	
     requestLocalData() {
-        // 하드웨어로 보낼 데이터 로직
 		this.writeDebug('info', 'requestLocalData');
 		
 		var skipPortOutput = false;
 
-		//이전 포트결과에서 변한부분이 있는지 확인
         if (this.previous_wheel_status) {
             if ((this.previous_wheel_status.LMOTOR == this.motoring.LMOTOR) &&
 			    (this.previous_wheel_status.RMOTOR == this.motoring.RMOTOR))
 				skipPortOutput = true;
         }
 
-        //변한부분이 있다면 포트에 보낼 데이터를 생성
         if (!skipPortOutput) {
             this.previous_wheel_status = _.cloneDeep(this.motoring);
 			this.writeDebug('debug', 'requestLocalData : LMOTOR = ' +  this.motoring.LMOTOR);
@@ -782,9 +699,10 @@ class Abilix_Krypton0 extends BaseModule {
 			return sndcmd;
 		}
 
-		if (this.SENSOR.COLOR != -1 && this.CURRENT_STATUS_COLOR.APPLIED == false) {
-			this.CURRENT_STATUS_COLOR.APPLIED = true;
-			return this.makeColorvaluecmd(0, this.CURRENT_STATUS_COLOR.Color);
+		if (this.led.APPLIED == false && this.led.port != 0) {
+			var ledcmd = this.makePortonoffcmd(this.led.port, this.led.value);
+			this.led.APPLIED = true;
+			return this.makePortonoffcmd(this.led.port, this.led.value);
 		}
 		
 		return null;
@@ -801,7 +719,6 @@ class Abilix_Krypton0 extends BaseModule {
 		this.writeDebug('info', 'handleLocalData');
 		var received_data = data.slice();
 		
-        // data: Native Buffer
         if (received_data[0] == 0xAA && received_data[1] == 0x55) {
             const length = received_data.readInt16LE(2);
 			const type = received_data[4];
@@ -824,7 +741,7 @@ class Abilix_Krypton0 extends BaseModule {
 					received_data = received_data.slice(11); 
 					const canConnection = received_data[0];
 					const fw_version = received_data.readInt32LE(1);
-					t//his.writeDebug('debug', 'can connection : ' + canConnection.toString(16) + '   F/W version : 0x' + fw_version.toString(16));
+					//this.writeDebug('debug', 'can connection : ' + canConnection.toString(16) + '   F/W version : 0x' + fw_version.toString(16));
 				}
 				else if (cmdwd1 == 0xF1) {
 					received_data = received_data.slice(11); 
@@ -838,7 +755,7 @@ class Abilix_Krypton0 extends BaseModule {
 		else 
 		{
 			this.writeDebug('error', 'unknown data from H/W');
-			//this.writeArrayData('debug', received_data);
+			this.writeArrayData('debug', received_data);
 		}
     }
 	
@@ -892,16 +809,13 @@ class Abilix_Krypton0 extends BaseModule {
 			};
 		}
 
-		// Read Color values
-		temp = handler.read('COLOR');
-		if (temp != undefined && this.SENSOR.COLOR != -1) {
-			if (this.CURRENT_STATUS_COLOR.COLOR != temp)
-			{
-				this.CURRENT_STATUS_COLOR = {
-					COLOR: temp,
-					APPLIED: false,
-				};
-			}
+		// Read LED Status
+		temp = handler.read('LED');
+		if (temp != undefined && this.led.value != temp) {
+			this.led = {
+				value : temp,
+				APPLIED : false,
+			};
 		}
     }
 	        
@@ -915,7 +829,7 @@ class Abilix_Krypton0 extends BaseModule {
 	connect() {
 		//this.writeDebug('info', 'connect');
 		this.isConnect = true;
-		
+
 		if (this.isSendStartSnd == false) {
 			var snd_type = new Buffer('hello');
 			const sndbuf = this.sendSound(snd_type);
