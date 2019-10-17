@@ -20,7 +20,13 @@
                     ]
                 }
             ]
-        }
+        },
+        "extraResources": [
+            {
+                "from": "app/server/mac/server.exe",
+                "to": "server.exe"
+            }
+        ]
     },
     "dmg": {
         "icon": "build/icon.icns",
@@ -40,19 +46,19 @@
         ]
     },
     "win": {
-        "target": "dir"
+        "target": "dir",
+        "extraResources": [
+            {
+                "from": "app/server/win/server.exe",
+                "to": "server.exe"
+            }
+        ]
     },
     "files": [
         "app",
         "!app/firmwares/examples",
-        "!app/test.html",
-        "!app/src/main/server.exe"
-    ],
-    "extraResources": [
-        {
-            "from": "app/src/main/server.exe",
-            "to": "server.exe"
-        }
+        "!app/server",
+        "!app/test.html"
     ],
     "asar": true,
     "appId": "org.playentry.entryhw",

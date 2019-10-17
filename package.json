@@ -11,14 +11,14 @@
         "debug": "set NODE_ENV=development&&electron -d app --inspect",
         "rebuild": "electron-rebuild",
         "update:licence": "lcdoc make -o app/OPENSOURCE.md -d 1",
-        "dist:win32": "build --arch ia32",
-        "dist:mac": "cross-env CSC_NAME=\"Connect Foundation (DLFUSDA3L5)\"&&build",
+        "dist:win32": "electron-builder --arch ia32",
+        "dist:mac": "cross-env CSC_NAME=\"Connect Foundation (DLFUSDA3L5)\"&&electron-builder",
         "postinstall": "electron-rebuild"
     },
     "devDependencies": {
         "cross-env": "^5.1.3",
-        "electron": "4.0.0",
-        "electron-builder": "^20.38.5",
+        "electron": "4.0.4",
+        "electron-builder": "^21.2.0",
         "electron-rebuild": "^1.8.4",
         "eslint": "^4.18.2",
         "eslint-config-prettier": "^4.0.0",

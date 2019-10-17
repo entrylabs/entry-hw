@@ -2,6 +2,7 @@ const spawn = require('cross-spawn');
 const { app } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const os = require('os');
 
 class ServerProcessManager {
     constructor(router) {
@@ -9,7 +10,7 @@ class ServerProcessManager {
             // this.childProcess = new Server();
             const serverBinaryPath = this._getServerFilePath();
             fs.accessSync(serverBinaryPath);
-            this.childProcess = spawn(this._getServerFilePath(), [], {
+            this.childProcess = spawn(serverBinaryPath, [], {
                 stdio: ['ignore', 'inherit', 'inherit', 'ipc'],
                 detached: true,
             });
@@ -30,7 +31,12 @@ class ServerProcessManager {
         if (asarIndex > -1) {
             return path.join(app.getAppPath().substr(0, asarIndex), 'server.exe');
         } else {
-            return path.resolve(__dirname, 'server.exe');
+            const serverDirPath = [__dirname, '..', '..', 'server'];
+            if (os.type().includes('Darwin')) {
+                return path.resolve(...serverDirPath, 'mac', 'server.exe');
+            } else {
+                return path.resolve(...serverDirPath, 'win', 'server.exe');
+            }
         }
     }
 
