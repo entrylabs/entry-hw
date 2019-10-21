@@ -208,7 +208,7 @@ if (!app.requestSingleInstanceLock()) {
             },
         );
 
-        mainWindow.loadURL(`file:///${path.join(__dirname, 'src', 'renderer', 'views', 'index.html')}`);
+        mainWindow.loadURL(`file:///${path.join(__dirname, 'src', 'renderer', 'react', 'index.html')}`);
 
         if (option.debug) {
             mainWindow.webContents.openDevTools();
