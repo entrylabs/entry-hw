@@ -24,12 +24,12 @@ class MainRouter {
 
     constructor(mainWindow, entryServer) {
         global.$ = require('lodash');
-        this.browser = mainWindow;
         rendererConsole.initialize(mainWindow);
+        this.browser = mainWindow;
         this.scanner = new Scanner(this);
         this.server = entryServer;
         this.flasher = new Flasher();
-        this.hardwareListManager = new HardwareListManager();
+        this.hardwareListManager = new HardwareListManager(this);
 
         this.config = undefined;
         /** @type {Connector} */

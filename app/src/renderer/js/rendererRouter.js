@@ -28,7 +28,7 @@ class RendererRouter {
         ipcRenderer.on('console', (event, ...args) => {
             console.log(...args);
         });
-        ipcRenderer.on('onlineHardwareUpdated', this.refreshHardwareModules.bind(this));
+        ipcRenderer.on('hardwareListChanged', this.refreshHardwareModules.bind(this));
         ipcRenderer.on('state', this._setHardwareState.bind(this));
         ipcRenderer.on('hardwareCloseConfirm', this._confirmHardwareClose.bind(this));
         ipcRenderer.on('serverMode', (event, mode) => {
@@ -99,6 +99,7 @@ class RendererRouter {
     }
 
     refreshHardwareModules() {
+        console.log('hardware list refreshed');
         // configuration
         const routerHardwareList = this.getHardwareListSync();
         this.priorHardwareList.reverse().forEach((target, index) => {
