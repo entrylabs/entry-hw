@@ -13,6 +13,7 @@
     "rules": {
         "prefer-const": "warn",
         "no-var": "warn",
+        "quotes": ["warn", "single"],
         "eqeqeq": 0,
         "no-const-assign": "error",
         "no-new-object": "warn",

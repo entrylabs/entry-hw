@@ -68,16 +68,6 @@ button {
     flex-grow: 1;
 }
 
-#footer {
-    flex: none;
-    width: 100%;
-    height: 60px;
-    background-position: 30px 15px;
-    background-repeat: no-repeat;
-    background-image: url('../images/logo.png');
-    background-color: white;
-}
-
 #reference {
     margin-bottom: 25px;
     text-align: right;
@@ -450,24 +440,6 @@ button {
     50% {
         opacity: 0.2;
     }
-}
-
-#opensource_label {
-    text-align: right;
-    margin: 20px 10px 20px 20px;
-    color: #595757;
-    cursor: pointer;
-    font-weight: bold;
-    float: right;
-}
-
-.version_label {
-    text-align: right;
-    margin: 20px 20px 20px 10px;
-    color: #595757;
-    cursor: pointer;
-    font-weight: bold;
-    float: right;
 }
 
 a#submit { z-index: 1; }
