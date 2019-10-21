@@ -184,23 +184,23 @@ class MainRouter {
             }
         }
 
-        if (!this.browser.isDestroyed()) {
-            this.browser.webContents.send('state', resultState, ...args);
-        }
+        this.sendEventToMainWindow('state', resultState, ...args);
     }
 
     notifyCloudModeChanged(mode) {
-        if (!this.browser.isDestroyed()) {
-            this.browser.webContents.send('cloudMode', mode);
-        }
+        this.sendEventToMainWindow('cloudMode', mode);
         this.currentCloudMode = mode;
     }
     
     notifyServerRunningModeChanged(mode) {
-        if (!this.browser.isDestroyed()) {
-            this.browser.webContents.send('serverMode', mode);
-        }
+        this.sendEventToMainWindow('serverMode', mode);
         this.currentServerRunningMode = mode;
+    }
+
+    sendEventToMainWindow(eventName, ...args) {
+        if (!this.browser.isDestroyed()) {
+            this.browser.webContents.send(eventName, args);
+        }
     }
 
     /**
