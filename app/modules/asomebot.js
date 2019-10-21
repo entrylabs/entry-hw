@@ -74,7 +74,11 @@ class AsomeBot extends BaseModule {
 
             this.msg_id = handlerData.msg_id;
             this.sendBuffer.push(Buffer.from(handlerData.msg + "\r", 'ascii'));
-            this.sendBuffer.push(Buffer.from("'#ID " + handlerData.msg_id + "'\r", 'ascii'));
+            this.sendBuffer.push(Buffer.from("'#I'" + "'D " + handlerData.msg_id + "'\r", 'ascii'));
+
+            // 초음파 센서를 이동 블록등과 함께 사용할 때 신호가 처리 안되는 경우가 있다.
+            // 반복 실행해도 상관없는 코드이기 때문에 모든 명령 수행시에 추가로 실행하여 최신 측정값을 갱신해 둔다.
+            this.sendBuffer.push(Buffer.from("print('#D' + 'T ' + str(hcsr04.get_distance()) + '  ###')\r"));
         }
     }
 
