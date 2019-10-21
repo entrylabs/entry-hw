@@ -3,8 +3,8 @@ import Styled from 'styled-components';
 
 const DropdownContainer = Styled.ul`
     float: right;
-    margin-right: 17px;
-    margin-top: -5px;
+    margin-right: 20px;
+    margin-top: -15px;
     padding: 0;
     border: 1px #4c94f8 solid;
 `;

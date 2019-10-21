@@ -3,6 +3,7 @@ import Styled from 'styled-components';
 import Navigator from './Navigator';
 import HardwareTypeDropdown from './HardwareTypeDropdown';
 import CloudIcon from './CloudIcon';
+import SearchArea from './SearchArea';
 
 const HeaderContainer = Styled.div`
     flex: none;
@@ -25,15 +26,7 @@ export default () => {
         <HeaderContainer>
             <Navigator/>
             <Title id="title">하드웨어 선택</Title>
-            <div id="search_area">
-                <input id="search_bar"/>
-                <button id="search_button">
-                    <img src="../images/search_icon.png" alt="검색"/>
-                </button>
-                <button id="search_close_button">
-                    <img src="../images/search_close.png" alt="검색 닫기"/>
-                </button>
-            </div>
+            <SearchArea/>
             <CloudIcon />
             <HardwareTypeDropdown />
         </HeaderContainer>
