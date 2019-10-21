@@ -1,6 +1,7 @@
 import React from 'react';
 import Styled from 'styled-components';
 import Navigator from './Navigator';
+import HardwareTypeDropdown from './HardwareTypeDropdown';
 
 const HeaderContainer = Styled.div`
     flex: none;
@@ -29,24 +30,7 @@ export default () => {
                 <span className="cloud_icon"/>
                 <span className="cloud_text">Cloud Mode</span>
             </div>
-            <ul id="filter_category" className="dropdown" style={{ marginTop: -5 }}>
-                <li data-value="all" className="init">
-                    <span className="content">하드웨어 유형</span>
-                    <div className="arrow"/>
-                </li>
-                <li data-value="all">
-                    <span className="content">전체</span>
-                </li>
-                <li data-value="robot">
-                    <span className="content">로봇형</span>
-                </li>
-                <li data-value="module">
-                    <span className="content">모듈형</span>
-                </li>
-                <li data-value="board">
-                    <span className="content">보드형</span>
-                </li>
-            </ul>
+            <HardwareTypeDropdown />
         </HeaderContainer>
     );
 }
