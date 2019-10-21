@@ -137,7 +137,7 @@ const ui = new class {
         $('#hwPanel').css('display', 'none');
         ui.showIeGuide();
         this.hideAlert();
-        $('#back.navigate_button').removeClass('active');
+        $('#back').removeClass('active');
     }
 
     showConnecting() {
@@ -146,7 +146,7 @@ const ui = new class {
         $('#hwList').hide();
         $('#search_area').hide();
         $('#hwPanel').css('display', 'flex');
-        $('#back.navigate_button').addClass('active');
+        $('#back').addClass('active');
         ui.hideIeGuide();
         this.showAlert(
             translator.translate('Connecting to hardware device.'),
@@ -159,7 +159,7 @@ const ui = new class {
         $('#hwList').hide();
         $('#search_area').hide();
         $('#hwPanel').css('display', 'flex');
-        $('#back.navigate_button').addClass('active');
+        $('#back').addClass('active');
         ui.hideIeGuide();
         this.showAlert(
             translator.translate('Connected to hardware device.'),
@@ -567,11 +567,11 @@ function filterHardware(type) {
 const $body = $('body');
 $body.on('keyup', (e) => {
     if (e.keyCode === 8) {
-        $('#back.navigate_button.active').trigger('click');
+        $('#back.active').trigger('click');
     }
 });
 
-$body.on('click', '#back.navigate_button.active', (e) => {
+$body.on('click', '#back.active', (e) => {
     isSelectPort = true;
     window.currentConfig && delete window.currentConfig.this_com_port;
     ui.showRobotList();
