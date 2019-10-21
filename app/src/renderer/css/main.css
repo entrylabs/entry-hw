@@ -2,19 +2,6 @@
     width: 100%;
 }
 
-#hwList {
-    padding: 40px;
-    overflow-y: auto;
-    height: 100%;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
-}
-
-#hwPanel {
-    display: none;
-    flex-grow: 1;
-}
-
 #reference {
     margin-bottom: 25px;
     text-align: right;
@@ -125,7 +112,7 @@
     font-size: 10pt;
     position: relative;
     text-align: center;
-    height: 0px;
+    height: 0;
     line-height: 35px;
 }
 

@@ -1,11 +1,28 @@
 import React from 'react';
+import Styled from 'styled-components';
+
+const HardwareListContainer = Styled.div`
+    padding: 40px;
+    overflow-y: auto;
+    height: 100%;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    width: 100%;
+`;
+
+const HardwarePanel = Styled.div`
+    display: none;
+    flex-grow: 1;
+    width: 100%;
+`;
+
 
 export default () => {
     return (
         <>
             <div id="alert"/>
-            <div id="hwList" className="content"/>
-            <div id="hwPanel" className="content">
+            <HardwareListContainer id="hwList"/>
+            <HardwarePanel id="hwPanel">
                 <div className="middleDiv">
                     <div id="reference">
                         <div id="emailArea">
@@ -50,7 +67,7 @@ export default () => {
                         </div>
                     </div>
                 </div>
-            </div>
+            </HardwarePanel>
 
             <div id="select_port_box">
                 <div className="select_port_child">
