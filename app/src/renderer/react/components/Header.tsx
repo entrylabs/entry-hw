@@ -2,6 +2,7 @@ import React from 'react';
 import Styled from 'styled-components';
 import Navigator from './Navigator';
 import HardwareTypeDropdown from './HardwareTypeDropdown';
+import CloudIcon from './CloudIcon';
 
 const HeaderContainer = Styled.div`
     flex: none;
@@ -26,10 +27,7 @@ export default () => {
                     <img src="../images/search_close.png" alt="검색 닫기"/>
                 </button>
             </div>
-            <div id="cloud_icon">
-                <span className="cloud_icon"/>
-                <span className="cloud_text">Cloud Mode</span>
-            </div>
+            <CloudIcon />
             <HardwareTypeDropdown />
         </HeaderContainer>
     );
