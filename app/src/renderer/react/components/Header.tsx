@@ -13,11 +13,18 @@ const HeaderContainer = Styled.div`
     padding-left: 20px;
 `;
 
+const Title = Styled.h1`
+    width: 200px;
+    color: #fff;
+    font-size: 15px;
+    margin-top: 8px;
+`;
+
 export default () => {
     return (
         <HeaderContainer>
             <Navigator/>
-            <h1 id="title">하드웨어 선택</h1>
+            <Title id="title">하드웨어 선택</Title>
             <div id="search_area">
                 <input id="search_bar"/>
                 <button id="search_button">

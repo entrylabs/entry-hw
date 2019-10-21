@@ -51,14 +51,6 @@ button {
     cursor: pointer;
 }
 
-#title {
-    margin: 0;
-    width: 200px;
-    color: #fff;
-    font-size: 15px;
-    margin-top: 8px;
-}
-
 .content {
     width: 100%;
 }
