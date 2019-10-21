@@ -1,8 +1,18 @@
 import React from 'react';
+import Styled from 'styled-components';
+
+const HeaderContainer = Styled.div`
+    flex: none;
+    width: 100%;
+    height: 100px;
+    z-index: 1;
+    background-color: #5096f5;
+    padding-left: 20px;
+`;
 
 export default () => {
     return (
-        <div id="header">
+        <HeaderContainer>
             <div id="navigator">
                 <button className="navigate_button" id="back"/>
                 <button className="navigate_button" id="refresh"/>
@@ -39,6 +49,6 @@ export default () => {
                     <span className="content">보드형</span>
                 </li>
             </ul>
-        </div>
+        </HeaderContainer>
     );
 }

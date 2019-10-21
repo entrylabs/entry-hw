@@ -51,15 +51,6 @@ button {
     cursor: pointer;
 }
 
-#header {
-    flex: none;
-    width: 100%;
-    height: 100px;
-    z-index: 1;
-    background-color: #5096f5;
-    padding-left: 20px;
-}
-
 #navigator {
     padding-top: 15px;
     width: 100px;
