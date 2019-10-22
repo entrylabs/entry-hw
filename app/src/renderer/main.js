@@ -54,20 +54,6 @@ categoryDropdown.on('click', 'li:not(.init)', function() {
 
 // dropdown setting end
 
-$('.alertMsg .alertMsg1').text(
-    translator.translate('If unexpected problem occurs while operating,'),
-);
-$('.alertMsg .alertMsg2').text(
-    translator.translate(
-        'contact the hardware company to resolve the problem.',
-    ),
-);
-$('#errorAlert .comment').text(
-    translator.translate(
-        '* Entry Labs is not responsible for the extension program and hardware products on this site.',
-    ),
-);
-
 $('#select_port_box .title span').text(translator.translate('Select'));
 $('#select_port_box .description').text(
     translator.translate('Select the COM PORT to connect'),
