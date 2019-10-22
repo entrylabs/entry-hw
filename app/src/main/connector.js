@@ -85,7 +85,7 @@ class Connector {
             const serialPort = new SerialPort(port, this._makeSerialPortOptions(hardwareOptions));
             this.serialPort = serialPort;
 
-            const { delimiter, byteDelimiter } = hardwareOptions;
+            const { delimiter, byteDelimiter = [13, 10] } = hardwareOptions;
             if (delimiter) {
                 serialPort.parser = serialPort.pipe(new Readline({ delimiter }));
             } else if (byteDelimiter) {
