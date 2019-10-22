@@ -199,7 +199,7 @@ class MainRouter {
 
     sendEventToMainWindow(eventName, ...args) {
         if (!this.browser.isDestroyed()) {
-            this.browser.webContents.send(eventName, args);
+            this.browser.webContents.send(eventName, ...args);
         }
     }
 
