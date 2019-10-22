@@ -1,5 +1,6 @@
 import React from 'react';
 import Styled from 'styled-components';
+import HardwareConnectionContainer from './HardwareConnectionContainer';
 
 const HardwareListContainer = Styled.div`
     padding: 40px;
@@ -10,33 +11,7 @@ const HardwareListContainer = Styled.div`
     width: 100%;
 `;
 
-const HardwarePanel = Styled.div`
-    display: none;
-    flex-grow: 1;
-    width: 100%;
-`;
 
-const ReferenceDiv = Styled.div`
-    margin-bottom: 25px;
-    text-align: right;
-    font-weight: bold;
-    line-height: 25px;
-    font-size: 14px;
-    color: #595757;
-`;
-
-const ReferenceMidDiv = Styled.div`
-    margin: auto;
-    height: 100%;
-`;
-
-const ReferenceContentSpan = Styled.span`
-    width: 100%;
-    height: 100%;
-    text-align: left;
-    cursor: pointer;
-    text-decoration: underline;
-`;
 
 
 export default () => {
@@ -44,52 +19,7 @@ export default () => {
         <>
             <div id="alert"/>
             <HardwareListContainer id="hwList"/>
-            <HardwarePanel id="hwPanel">
-                <ReferenceMidDiv>
-                    <ReferenceDiv id="reference">
-                        <div id="emailArea">
-                            <span id="emailTitle"/>
-                            <ReferenceContentSpan id="email"/>
-                        </div>
-                        <div id="urlArea">
-                            <span id="urlTitle"/>
-                            <ReferenceContentSpan id="url"/>
-                        </div>
-                        <div id="videoArea">
-                            <span id="videoTitle"/>
-                            <ReferenceContentSpan id="video"/>
-                        </div>
-                    </ReferenceDiv>
-                    <div id="client" className="hwPanelElement">
-                        <img src="../images/computer.png" alt={''}/>
-                        <div id="driverButtonSet">
-                            {/*// <!--<button id="driver" class="hwPanelBtn"></button>-->*/}
-                        </div>
-                    </div>
-                    <div id="progress" className="hwPanelElement">
-                        <div className="progressDot"/>
-                        <div className="progressDot"/>
-                        <div className="progressDot"/>
-                        <div className="progressDot"/>
-                        <div className="progressDot"/>
-                        <div className="progressDot"/>
-                        <div className="progressDot"/>
-                        <div className="progressDot"/>
-                        <div className="progressDot"/>
-                        <div className="progressDot"/>
-                        <div className="progressDot"/>
-                        <div className="progressDot"/>
-                        <div className="progressDot"/>
-                        <div className="progressDot"/>
-                    </div>
-                    <div id="hardware" className="hwPanelElement">
-                        <img id="selectedHWThumb" alt={''}/>
-                        <div id="firmwareButtonSet">
-                            <button name="firmware" className="hwPanelBtn"/>
-                        </div>
-                    </div>
-                </ReferenceMidDiv>
-            </HardwarePanel>
+            <HardwareConnectionContainer />
 
             <div id="select_port_box">
                 <div className="select_port_child">

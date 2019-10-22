@@ -22,42 +22,6 @@
     cursor: pointer;
 }
 
-.hwPanelElement {
-    display: inline-block;
-    height: 100%;
-    text-align: center;
-    vertical-align: top;
-}
-
-#client {
-    width: 210px;
-}
-
-#progress {
-    width: 137px;
-    margin-right: -7px;
-    padding-top: 22px;
-}
-
-.progressDot {
-    width: 10px;
-    height: 10px;
-    border-radius: 5px;
-    display: inline-block;
-    background-color: #ccc;
-    margin-right: 6px;
-    margin-bottom: 34px;
-}
-
-#hardware {
-    width: 210px;
-}
-
-#selectedHWThumb {
-    width: 135px;
-    height: 135px;
-}
-
 .hwPanelBtn {
     border: none;
     margin: 0;
