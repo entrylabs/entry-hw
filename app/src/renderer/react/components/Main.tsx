@@ -16,6 +16,28 @@ const HardwarePanel = Styled.div`
     width: 100%;
 `;
 
+const ReferenceDiv = Styled.div`
+    margin-bottom: 25px;
+    text-align: right;
+    font-weight: bold;
+    line-height: 25px;
+    font-size: 14px;
+    color: #595757;
+`;
+
+const ReferenceMidDiv = Styled.div`
+    margin: auto;
+    height: 100%;
+`;
+
+const ReferenceContentSpan = Styled.span`
+    width: 100%;
+    height: 100%;
+    text-align: left;
+    cursor: pointer;
+    text-decoration: underline;
+`;
+
 
 export default () => {
     return (
@@ -23,21 +45,21 @@ export default () => {
             <div id="alert"/>
             <HardwareListContainer id="hwList"/>
             <HardwarePanel id="hwPanel">
-                <div className="middleDiv">
-                    <div id="reference">
+                <ReferenceMidDiv>
+                    <ReferenceDiv id="reference">
                         <div id="emailArea">
-                            <span className="emailTitle"/>
-                            <span id="email"/>
+                            <span id="emailTitle"/>
+                            <ReferenceContentSpan id="email"/>
                         </div>
                         <div id="urlArea">
-                            <span className="urlTitle"/>
-                            <span id="url"/>
+                            <span id="urlTitle"/>
+                            <ReferenceContentSpan id="url"/>
                         </div>
                         <div id="videoArea">
-                            <span className="videoTitle"/>
-                            <span id="video"/>
+                            <span id="videoTitle"/>
+                            <ReferenceContentSpan id="video"/>
                         </div>
-                    </div>
+                    </ReferenceDiv>
                     <div id="client" className="hwPanelElement">
                         <img src="../images/computer.png" alt={''}/>
                         <div id="driverButtonSet">
@@ -66,7 +88,7 @@ export default () => {
                             <button name="firmware" className="hwPanelBtn"/>
                         </div>
                     </div>
-                </div>
+                </ReferenceMidDiv>
             </HardwarePanel>
 
             <div id="select_port_box">

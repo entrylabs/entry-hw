@@ -79,9 +79,9 @@ $('#select_port_box #btn_select_port').text(
     translator.translate('Connect'),
 );
 
-$('#reference .emailTitle').text(translator.translate('E-Mail : '));
-$('#reference .urlTitle').text(translator.translate('WebSite : '));
-$('#reference .videoTitle').text(translator.translate('Video : '));
+$('#reference #emailTitle').text(translator.translate('E-Mail : '));
+$('#reference #urlTitle').text(translator.translate('WebSite : '));
+$('#reference #videoTitle').text(translator.translate('Video : '));
 
 const $openSourceLabel = $('#opensource_label');
 $openSourceLabel.text(translator.translate('Opensource lincense'));

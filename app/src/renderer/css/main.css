@@ -2,39 +2,6 @@
     width: 100%;
 }
 
-#reference {
-    margin-bottom: 25px;
-    text-align: right;
-    font-weight: bold;
-    line-height: 25px;
-    font-size: 14px;
-    color: #595757;
-}
-
-#url {
-    width: 100%;
-    height: 100%;
-    text-align: left;
-    cursor: pointer;
-    text-decoration: underline;
-}
-
-#email {
-    width: 100%;
-    height: 100%;
-    text-align: left;
-    cursor: pointer;
-    text-decoration: underline;
-}
-
-#video {
-    width: 100%;
-    height: 100%;
-    text-align: left;
-    cursor: pointer;
-    text-decoration: underline;
-}
-
 .hardwareType {
     width: 170px;
     height: 170px;
@@ -331,11 +298,6 @@
     color: #fff;
     border: 0px;
     border-radius: 3px;
-}
-
-.middleDiv {
-    margin: auto;
-    height: 100%;
 }
 
 #errorAlert {
