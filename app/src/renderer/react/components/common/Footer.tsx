@@ -29,15 +29,18 @@ const OpenSourceLabel = Styled.div`
     float: right;
 `;
 
-export default () => {
+const Footer: React.FC<Preload> = (props) => {
+    const { translator } = props;
     return (
         <FooterContainer>
             <VersionLabel id="version_label">
-                버전 정보
+                {translator.translate('Version Info')}
             </VersionLabel>
             <OpenSourceLabel id="opensource_label">
-                오픈소스 라이선스
+                {translator.translate('Opensource lincense')}
             </OpenSourceLabel>
         </FooterContainer>
     );
 }
+
+export default Footer;

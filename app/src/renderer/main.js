@@ -70,7 +70,6 @@ $('#reference #urlTitle').text(translator.translate('WebSite : '));
 $('#reference #videoTitle').text(translator.translate('Video : '));
 
 const $openSourceLabel = $('#opensource_label');
-$openSourceLabel.text(translator.translate('Opensource lincense'));
 $openSourceLabel.on('click', () => {
     $('#opensource_license_viewer').css('display', 'flex');
 });
@@ -82,7 +81,6 @@ $('#opensource_license_viewer #btn_close').text(
 );
 
 const $versionLabel = $('#version_label');
-$versionLabel.text(translator.translate('Version Info'));
 $versionLabel.on('click', () => {
     router.requestOpenAboutWindow();
 });
