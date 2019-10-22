@@ -1,9 +1,9 @@
 import React from 'react';
 import Styled from 'styled-components';
-import Navigator from './Navigator';
-import HardwareTypeDropdown from './HardwareTypeDropdown';
-import CloudIcon from './CloudIcon';
-import SearchArea from './SearchArea';
+import Navigator from '../hardwareList/Navigator';
+import HardwareTypeDropdown from '../hardwareList/HardwareTypeDropdown';
+import CloudIcon from '../hardwareList/CloudIcon';
+import SearchArea from '../hardwareList/SearchArea';
 
 const HeaderContainer = Styled.div`
     flex: none;

@@ -18,8 +18,8 @@ const ProgressDot = Styled.div`
     border-radius: 5px;
     display: inline-block;
     background-color: #ccc;
-    margin-right: 9px;
-    margin-bottom: 35px;
+    margin-right: 7px;
+    margin-bottom: 33px;
 `;
 
 export default () => {

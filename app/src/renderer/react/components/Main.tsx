@@ -1,6 +1,6 @@
 import React from 'react';
 import Styled from 'styled-components';
-import HardwareConnectionContainer from './HardwareConnectionContainer';
+import HardwareConnectionContainer from './hardwareConnection/HardwareConnectionContainer';
 
 const HardwareListContainer = Styled.div`
     padding: 40px;
