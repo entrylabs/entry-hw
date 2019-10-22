@@ -65,10 +65,6 @@ $('#select_port_box #btn_select_port').text(
     translator.translate('Connect'),
 );
 
-$('#reference #emailTitle').text(translator.translate('E-Mail : '));
-$('#reference #urlTitle').text(translator.translate('WebSite : '));
-$('#reference #videoTitle').text(translator.translate('Video : '));
-
 const $openSourceLabel = $('#opensource_label');
 $openSourceLabel.on('click', () => {
     $('#opensource_license_viewer').css('display', 'flex');

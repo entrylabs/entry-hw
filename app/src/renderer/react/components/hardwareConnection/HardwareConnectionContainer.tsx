@@ -1,6 +1,7 @@
 import React from 'react';
 import Styled from 'styled-components';
 import ProgressDot from './ProgressDot';
+import withPreload from '../../hoc/withPreload';
 
 const HardwarePanel = Styled.div`
     display: none;
@@ -50,29 +51,30 @@ const SelectedHardwareThumb = Styled.img`
     height: 135px;
 `;
 
-export default () => {
+const HardwareConnectionContainer: React.FC<Preload> = (props) => {
+    const { translator } = props;
     return (
         <HardwarePanel id="hwPanel">
             <ReferenceMidDiv>
                 <ReferenceDiv id="reference">
                     <div id="emailArea">
-                        <span id="emailTitle"/>
+                        <span>{translator.translate('E-Mail : ')}</span>
                         <ReferenceContentSpan id="email"/>
                     </div>
                     <div id="urlArea">
-                        <span id="urlTitle"/>
+                        <span>{translator.translate('WebSite : ')}</span>
                         <ReferenceContentSpan id="url"/>
                     </div>
                     <div id="videoArea">
-                        <span id="videoTitle"/>
+                        <span>{translator.translate('Video : ')}</span>
                         <ReferenceContentSpan id="video"/>
                     </div>
                 </ReferenceDiv>
                 <ClientElement>
                     <img src="../images/computer.png" alt={''}/>
-                    <div id="driverButtonSet" />
+                    <div id="driverButtonSet"/>
                 </ClientElement>
-                <ProgressDot />
+                <ProgressDot/>
                 <HardwareElement>
                     <SelectedHardwareThumb id="selectedHWThumb" alt={''}/>
                     <div id="firmwareButtonSet">
@@ -82,4 +84,6 @@ export default () => {
             </ReferenceMidDiv>
         </HardwarePanel>
     );
-}
+};
+
+export default withPreload(HardwareConnectionContainer);

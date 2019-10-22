@@ -1,5 +1,6 @@
 import React from 'react';
 import Styled from 'styled-components';
+import withPreload from '../../hoc/withPreload';
 
 const FooterContainer = Styled.div`
     flex: none;
@@ -41,6 +42,6 @@ const Footer: React.FC<Preload> = (props) => {
             </OpenSourceLabel>
         </FooterContainer>
     );
-}
+};
 
-export default Footer;
+export default withPreload(Footer);
