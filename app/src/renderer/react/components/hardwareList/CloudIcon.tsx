@@ -4,8 +4,6 @@ import Styled from 'styled-components';
 const CloudIconContainer = Styled.div`
     display: none;
     float: left;
-    margin-top: 10px;
-    margin-right: 20px;
     .cloud_icon {
         display: inline-block;
         background-size: contain;
