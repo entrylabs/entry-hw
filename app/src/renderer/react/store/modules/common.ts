@@ -16,8 +16,14 @@ export const LICENSE_VIEW_TOGGLE = 'common/LICENSE_VIEW_TOGGLE';
 export const CURRENT_STATE_CHANGED = 'common/CURRENT_STATE_CHANGED';
 
 // actions
-export const toggleLicenseView = (dispatch: any) => (isShow: boolean) => dispatch({ type: LICENSE_VIEW_TOGGLE, payload: isShow });
-export const changeCurrentState = (dispatch: any) => (isShow: boolean) => ({ type: CURRENT_STATE_CHANGED, payload: isShow });
+export const toggleLicenseView = (dispatch: any) => (isShow: boolean) => dispatch({
+    type: LICENSE_VIEW_TOGGLE,
+    payload: isShow,
+});
+export const changeCurrentState = (dispatch: any) => (state: string) => ({
+    type: CURRENT_STATE_CHANGED,
+    payload: state,
+});
 // export const selectPost = (pageId: string) => ({ type: SELECT_POST_START, payload: pageId });
 
 // reducer
@@ -31,11 +37,16 @@ const initialState: ICommonState = {
 
 export default (state = initialState, { type, payload }: AnyAction) => {
     switch (type) {
-        case LICENSE_VIEW_TOGGLE: 
+        case LICENSE_VIEW_TOGGLE:
             return produce(state, (nextState) => {
                 nextState.isLicenseShow = payload;
             });
+        case CURRENT_STATE_CHANGED:
+            return produce(state, (nextState) => {
+                nextState.currentState = payload;
+            });
         default:
-            return produce(state, () => {});
+            return produce(state, () => {
+            });
     }
 }
