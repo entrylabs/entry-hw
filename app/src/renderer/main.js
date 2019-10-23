@@ -69,12 +69,6 @@ const $openSourceLabel = $('#opensource_label');
 $openSourceLabel.on('click', () => {
     $('#opensource_license_viewer').css('display', 'flex');
 });
-$('#opensource_license_viewer .title span').text(
-    translator.translate('Opensource lincense'),
-);
-$('#opensource_license_viewer #btn_close').text(
-    translator.translate('Close'),
-);
 
 const $versionLabel = $('#version_label');
 $versionLabel.on('click', () => {

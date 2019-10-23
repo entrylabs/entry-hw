@@ -1,12 +1,13 @@
 import React from 'react';
+import withPreload from '../../hoc/withPreload';
 
-const LicenseViewerContainer = () => {
+const LicenseViewerContainer = (props: Readonly<Preload>) => {
     return (
         <div id="opensource_license_viewer">
             <div className="select_port_child">
                 <div className="title">
                 <span className="opensource_label">
-                    오픈소스 라이선스
+                    {props.translator.translate('Opensource lincense')}
                 </span>
                     <div className="cancel_icon close_event">
                     </div>
@@ -15,7 +16,9 @@ const LicenseViewerContainer = () => {
                 <textarea id="opensource_content" readOnly>
                 </textarea>
                     <div>
-                        <button id="btn_close" className="close_event">닫기</button>
+                        <button id="btn_close" className="close_event">
+                            {props.translator.translate('Close')}
+                        </button>
                     </div>
                 </div>
             </div>
@@ -23,4 +26,4 @@ const LicenseViewerContainer = () => {
     );
 };
 
-export default LicenseViewerContainer;
+export default withPreload(LicenseViewerContainer);
