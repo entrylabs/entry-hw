@@ -1,5 +1,8 @@
 import React from 'react';
 import Styled from 'styled-components';
+import { IMapDispatchToProps } from '../../store';
+import { changeHardwareCategory } from '../../store/modules/hardware';
+import { connect } from 'react-redux';
 
 const DropdownContainer = Styled.ul`
     float: right;
@@ -50,26 +53,37 @@ const DropdownContent = Styled.li`
     }
 `;
 
+const HardwareCategoryEntries: {[key: string]: {keyword: string, value: string}} = {
+    all: {keyword: 'all', value: '전체'},
+    robot: {keyword: 'robot', value: '로봇형'},
+    module: {keyword: 'module', value: '모듈형'},
+    board: {keyword: 'board', value: '보드형'},
+};
 
-export default () => {
+const HardwareTypeDropdown: React.FC<IDispatchProps> = (props) => {
     return (
         <DropdownContainer id="filter_category" className="dropdown">
             <DropdownContent data-value="all" className="init">
                 <span className="content">하드웨어 유형</span>
                 <div className="arrow"/>
             </DropdownContent>
-            <DropdownContent data-value="all">
-                <span className="content">전체</span>
-            </DropdownContent>
-            <DropdownContent data-value="robot">
-                <span className="content">로봇형</span>
-            </DropdownContent>
-            <DropdownContent data-value="module">
-                <span className="content">모듈형</span>
-            </DropdownContent>
-            <DropdownContent data-value="board">
-                <span className="content">보드형</span>
-            </DropdownContent>
+            {Object.values(HardwareCategoryEntries).map(({keyword, value}) => {
+                return (
+                    <DropdownContent key={keyword} data-value={keyword}>
+                        <span className="content">{value}</span>
+                    </DropdownContent>
+                )
+            })}
         </DropdownContainer>
-    )
+    );
+};
+
+interface IDispatchProps {
+    changeCategory: (category: string) => void;
 }
+
+const mapDispatchToProps: IMapDispatchToProps<IDispatchProps> = (dispatch) => ({
+    changeCategory: changeHardwareCategory(dispatch),
+});
+
+export default connect(undefined, mapDispatchToProps)(HardwareTypeDropdown);
