@@ -4,8 +4,10 @@ interface ITranslator {
 
 declare interface Preload {
     translator: ITranslator;
-    rendererRouter: any;
+    rendererRouter: any; //instance
+    Modal: any;
 }
 
 declare interface Window extends Preload {
+    RendererRouter: any; //class
 }

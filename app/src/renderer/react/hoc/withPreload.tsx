@@ -1,6 +1,9 @@
 import React, { ComponentType } from 'react';
 
-const { translator } = window;
+const { translator, RendererRouter, Modal } = window;
+const router = new RendererRouter();
+//@ts-ignore
+window.fooRouter = router;
 
 type IPreloadProps = Preload;
 
@@ -9,7 +12,8 @@ function withPreload<P extends IPreloadProps>(
 ) {
     const injectProps: IPreloadProps = {
         translator,
-        rendererRouter: new RendererRouter(), //TODO
+        rendererRouter: router, //TODO
+        Modal,
     };
 
     const WrappingComponentFC: React.FC<P> = (props: Readonly<P>) => (

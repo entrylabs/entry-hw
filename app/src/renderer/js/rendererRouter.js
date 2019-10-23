@@ -11,9 +11,7 @@ const {
  *
  */
 class RendererRouter {
-
-    constructor(ui) {
-        this.ui = ui;
+    constructor() {
         this.priorHardwareList = JSON.parse(localStorage.getItem('hardwareList')) || [];
         this.currentState = Statement.disconnected;
         this.hardwareList = [];
@@ -114,8 +112,8 @@ class RendererRouter {
             }
         });
         this.hardwareList = routerHardwareList;
-        this.ui.clearRobot();
-        this.hardwareList.forEach(this.ui.addRobot.bind(this.ui));
+        window.ui.clearRobot();
+        this.hardwareList.forEach(window.ui.addRobot.bind(window.ui));
     }
 
     _checkProgramUpdate() {
@@ -176,9 +174,9 @@ class RendererRouter {
 
     _toggleCloudModeUI(mode) {
         if (mode === CloudMode.singleServer) {
-            this.ui.setCloudMode(false);
+            window.ui.setCloudMode(false);
         } else if (mode === CloudMode.cloud) {
-            this.ui.setCloudMode(true);
+            window.ui.setCloudMode(true);
         }
         this.cloudMode = mode;
     }
@@ -203,7 +201,7 @@ class RendererRouter {
         }
         switch (state) {
             case showRobot: {
-                this.ui.showRobot(data);
+                ui.showRobot(data);
                 break;
             }
             case selectPort: {
@@ -216,7 +214,6 @@ class RendererRouter {
                 break;
             }
             case beforeConnect: {
-                console.log(ui);
                 ui.showAlert(`${
                     translate('Connecting to hardware device.')
                     } ${

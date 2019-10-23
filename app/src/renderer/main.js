@@ -435,8 +435,7 @@ const ui = new class {
         window.currentConfig = hardware;
     }
 }();
-const router = new RendererRouter(ui);
-window.router = router;
+const router = window.fooRouter;
 window.ui = ui;
 
 $('#search_bar').on('keydown', function(e) {
