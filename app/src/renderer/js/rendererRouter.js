@@ -185,7 +185,7 @@ class RendererRouter {
 
     _setHardwareState(event, state, data) {
         const { translate } = window;
-        const ui = this.ui;
+        const ui = window.ui;
         const {
             showRobot,
             lost,
@@ -208,7 +208,7 @@ class RendererRouter {
             }
             case selectPort: {
                 this.close();
-                this.ui.showPortSelectView(data);
+                ui.showPortSelectView(data);
                 return; // ui 변경 이루어지지 않음.
             }
             case flash: {
@@ -216,6 +216,7 @@ class RendererRouter {
                 break;
             }
             case beforeConnect: {
+                console.log(ui);
                 ui.showAlert(`${
                     translate('Connecting to hardware device.')
                     } ${

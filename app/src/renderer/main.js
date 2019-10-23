@@ -54,17 +54,6 @@ categoryDropdown.on('click', 'li:not(.init)', function() {
 
 // dropdown setting end
 
-$('#select_port_box .title span').text(translator.translate('Select'));
-$('#select_port_box .description').text(
-    translator.translate('Select the COM PORT to connect'),
-);
-$('#select_port_box #btn_select_port_cancel').text(
-    translator.translate('Cancel'),
-);
-$('#select_port_box #btn_select_port').text(
-    translator.translate('Connect'),
-);
-
 const $versionLabel = $('#version_label');
 $versionLabel.on('click', () => {
     router.requestOpenAboutWindow();
@@ -453,6 +442,7 @@ const ui = new class {
 }();
 const router = new RendererRouter(ui);
 window.router = router;
+window.ui = ui;
 
 $('#search_bar').on('keydown', function(e) {
     if (e.which === 27) {
