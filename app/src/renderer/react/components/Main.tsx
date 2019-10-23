@@ -19,9 +19,9 @@ const Main: React.FC = () => {
         <>
             <div id="alert"/>
             <HardwareListContainer id="hwList"/>
+            <ErrorAlert />
             <HardwareConnectionContainer />
             <SelectPortContainer />
-            <ErrorAlert />
             <LicenseViewerContainer />
         </>
     );

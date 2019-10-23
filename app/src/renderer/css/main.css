@@ -179,34 +179,6 @@
     margin-right: 11px;
 }
 
-#errorAlert {
-    min-height: 118px;
-    background: #f1f1f1;
-    padding: 24px 44px 21px;
-    overflow: hidden;
-}
-
-#errorAlert img {
-    margin-right: 15px;
-}
-
-#errorAlert .alertMsg {
-    display: inline-block;
-    margin-bottom: 6px;
-}
-
-#errorAlert .alertMsg span {
-    display: block;
-    font-size: 17px;
-    font-weight: bold;
-    color: #fa5536;
-    margin-bottom: 6px;
-}
-
-#errorAlert .comment {
-    font-size: 11px;
-}
-
 @keyframes blink_image {
     0%,
     100% {
