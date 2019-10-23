@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import withPreload from '../../hoc/withPreload';
 import { connect } from 'react-redux';
 import { IMapDispatchToProps, IMapStateToProps } from '../../store';
-import { LICENSE_VIEW_TOGGLE } from '../../store/modules/common';
+import { toggleLicenseView } from '../../store/modules/common';
 import Styled from 'styled-components';
 
 const ViewerContainer = Styled.div`
@@ -145,7 +145,7 @@ interface IDispatchProps {
 }
 
 const mapDispatchToProps: IMapDispatchToProps<IDispatchProps> = (dispatch) => ({
-    hideLicenseView: () => dispatch({ type: LICENSE_VIEW_TOGGLE, payload: false }),
+    hideLicenseView: () => toggleLicenseView(dispatch)(false),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(withPreload(LicenseViewerContainer));

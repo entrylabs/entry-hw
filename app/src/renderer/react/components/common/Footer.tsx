@@ -2,7 +2,7 @@ import React from 'react';
 import Styled from 'styled-components';
 import withPreload from '../../hoc/withPreload';
 import { IMapDispatchToProps } from '../../store';
-import { LICENSE_VIEW_TOGGLE } from '../../store/modules/common';
+import { toggleLicenseView } from '../../store/modules/common';
 import { connect } from 'react-redux';
 
 const FooterContainer = Styled.div`
@@ -34,7 +34,7 @@ const OpenSourceLabel = Styled.div`
 `;
 
 const Footer: React.FC<Preload & IDispatchProps> = (props) => {
-    const { translator, showLicenseView } = props;
+    const { translator } = props;
     return (
         <FooterContainer>
             <VersionLabel
@@ -48,7 +48,7 @@ const Footer: React.FC<Preload & IDispatchProps> = (props) => {
             <OpenSourceLabel
                 id="opensource_label"
                 onClick={() => {
-                    showLicenseView();
+                    props.showLicenseView();
                 }}
             >
                 {translator.translate('Opensource lincense')}
@@ -63,7 +63,7 @@ interface IDispatchProps {
 }
 
 const mapDispatchToProps: IMapDispatchToProps<IDispatchProps> = (dispatch) => ({
-    showLicenseView: () => dispatch({ type: LICENSE_VIEW_TOGGLE, payload: true }),
+    showLicenseView: () => toggleLicenseView(dispatch)(true),
 });
 
 export default connect(undefined, mapDispatchToProps)(withPreload(Footer));

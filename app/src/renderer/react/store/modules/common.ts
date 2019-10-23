@@ -13,9 +13,11 @@ export interface ICommonState {
 
 // types
 export const LICENSE_VIEW_TOGGLE = 'common/LICENSE_VIEW_TOGGLE';
+export const CURRENT_STATE_CHANGED = 'common/CURRENT_STATE_CHANGED';
 
 // actions
-export const toggleLicenseView = (isShow: boolean) => ({ type: LICENSE_VIEW_TOGGLE, payload: isShow });
+export const toggleLicenseView = (dispatch: any) => (isShow: boolean) => dispatch({ type: LICENSE_VIEW_TOGGLE, payload: isShow });
+export const changeCurrentState = (dispatch: any) => (isShow: boolean) => ({ type: CURRENT_STATE_CHANGED, payload: isShow });
 // export const selectPost = (pageId: string) => ({ type: SELECT_POST_START, payload: pageId });
 
 // reducer
