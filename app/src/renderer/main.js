@@ -54,11 +54,6 @@ categoryDropdown.on('click', 'li:not(.init)', function() {
 
 // dropdown setting end
 
-const $versionLabel = $('#version_label');
-$versionLabel.on('click', () => {
-    router.requestOpenAboutWindow();
-});
-
 $('#firmware').text(translator.translate('Install Firmware'));
 $('#other-robot .text').text(
     translator.translate('Connect Other Hardware'),

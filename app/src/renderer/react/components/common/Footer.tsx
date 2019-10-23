@@ -37,7 +37,12 @@ const Footer: React.FC<Preload & IDispatchProps> = (props) => {
     const { translator, showLicenseView } = props;
     return (
         <FooterContainer>
-            <VersionLabel id="version_label">
+            <VersionLabel
+                id="version_label"
+                onClick={() => {
+                    props.rendererRouter.requestOpenAboutWindow();
+                }}
+            >
                 {translator.translate('Version Info')}
             </VersionLabel>
             <OpenSourceLabel
