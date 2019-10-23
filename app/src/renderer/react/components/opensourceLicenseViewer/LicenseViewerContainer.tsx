@@ -3,12 +3,96 @@ import withPreload from '../../hoc/withPreload';
 import { connect } from 'react-redux';
 import { IMapDispatchToProps, IMapStateToProps } from '../../store';
 import { LICENSE_VIEW_TOGGLE } from '../../store/modules/common';
+import Styled from 'styled-components';
+
+const ViewerContainer = Styled.div`
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+`;
+
+const ViewerBody = Styled.div`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 80%;
+    height: 70%;
+    flex-direction: column;
+`;
+
+const ViewerTitle = Styled.div`
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    height: 57px;
+    padding-left: 20px;
+    line-height: 57px;
+    color: #fff;
+    font-weight: bold;
+    font-size: 20px;
+    width: 100%;
+    background-color: #2a7def;
+`;
+
+const CancelIcon = Styled.div`
+    cursor: pointer;
+    float: right;
+    content: " ";
+    width: 22px;
+    height: 57px;
+    margin-right: 20px;
+    display: inline-block;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-image: url(../images/btn_close.png);
+`;
+
+const ViewerContent = Styled.div`
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
+    background-color: #fff;
+    text-align: center;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+`;
+
+const LicenseTextArea = Styled.textarea`
+    width: 100%;
+    flex: 1;
+    overflow-x: hidden;
+    -webkit-user-select: auto;
+    -khtml-user-select: auto;
+    -moz-user-select: auto;
+    -ms-user-select: auto;
+    user-select: auto;
+    resize: none;
+`;
+
+const CloseButton = Styled.button`
+    cursor: pointer;
+    height: 47px;
+    width: 110px;
+    margin: 10px;
+    background: #6e5ae6;
+    font-size: 16px;
+    color: #fff;
+    border: 0;
+    border-radius: 3px;
+`;
+
 
 type IProps = Preload & IDispatchProps & IStateProps;
 const LicenseViewerContainer: React.FC<IProps> = (props) => {
     const [content, setContent] = useState<string>('Loading...');
     useEffect(() => {
-        console.log('called UseEffect');
         props.rendererRouter.getOpensourceContents()
             .then((contents: string) => {
                 setContent(contents);
@@ -20,35 +104,31 @@ const LicenseViewerContainer: React.FC<IProps> = (props) => {
 
     if (props.isLicenseShow) {
         return (
-            <div id="opensource_license_viewer" style={{ display: 'flex' }}>
-                <div className="select_port_child">
-                    <div className="title">
-                <span className="opensource_label">
-                    {props.translator.translate('Opensource lincense')}
-                </span>
-                        <div className="cancel_icon close_event">
-                        </div>
-                    </div>
-                    <div className="content">
-                <textarea id="opensource_content" readOnly value={content}>
-                </textarea>
+            <ViewerContainer>
+                <ViewerBody>
+                    <ViewerTitle>
+                            {props.translator.translate('Opensource lincense')}
+                        <CancelIcon onClick={() => {
+                            props.hideLicenseView();
+                        }}/>
+                    </ViewerTitle>
+                    <ViewerContent>
+                        <LicenseTextArea readOnly value={content}/>
                         <div>
-                            <button
-                                id="btn_close"
-                                className="close_event"
+                            <CloseButton
                                 onClick={() => {
                                     props.hideLicenseView();
                                 }}
                             >
                                 {props.translator.translate('Close')}
-                            </button>
+                            </CloseButton>
                         </div>
-                    </div>
-                </div>
-            </div>
+                    </ViewerContent>
+                </ViewerBody>
+            </ViewerContainer>
         );
     } else {
-        return <div/>
+        return <div/>;
     }
 };
 
