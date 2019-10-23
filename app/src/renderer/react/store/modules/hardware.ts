@@ -27,7 +27,7 @@ export const changeHardwareCategory = (dispatch: any) => (category: string) => d
 // reducer
 const initialState: IHardwareState = {
     hardwareFilterKeyword: '',
-    hardwareFilterCategory: '',
+    hardwareFilterCategory: 'all',
     hardwareList: [],
 };
 

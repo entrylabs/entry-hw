@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Styled from 'styled-components';
-import { IMapDispatchToProps } from '../../store';
+import { IMapDispatchToProps, IMapStateToProps } from '../../store';
 import { changeHardwareCategory } from '../../store/modules/hardware';
 import { connect } from 'react-redux';
 
@@ -45,7 +45,6 @@ const DropdownContent = Styled.li`
         }
     }
     :not(.init) {
-        display: none;
         &:hover,
         &.selected {
             background: white;        
@@ -53,30 +52,58 @@ const DropdownContent = Styled.li`
     }
 `;
 
-const HardwareCategoryEntries: {[key: string]: {keyword: string, value: string}} = {
-    all: {keyword: 'all', value: '전체'},
-    robot: {keyword: 'robot', value: '로봇형'},
-    module: {keyword: 'module', value: '모듈형'},
-    board: {keyword: 'board', value: '보드형'},
+const HardwareCategoryEntries: { [key: string]: string } = {
+    all: '전체',
+    robot: '로봇형',
+    module: '모듈형',
+    board: '보드형',
 };
 
-const HardwareTypeDropdown: React.FC<IDispatchProps> = (props) => {
+const HardwareTypeDropdown: React.FC<IStateProps & IDispatchProps> = (props) => {
+    const [isShowList, setShowState] = useState(false);
+    const [currentKey, currentValue] = Object
+        .entries(HardwareCategoryEntries)
+        .find(([keyword]) => props.hardwareFilterCategory === keyword)
+    || ['all', HardwareCategoryEntries.all];
+
     return (
         <DropdownContainer id="filter_category" className="dropdown">
-            <DropdownContent data-value="all" className="init">
-                <span className="content">하드웨어 유형</span>
+            <DropdownContent
+                data-value={currentKey}
+                className="init"
+                onClick={() => {
+                    console.log('isShowList', isShowList);
+                    setShowState(!isShowList);
+                }}
+            >
+                <span className="content">{currentValue}</span>
                 <div className="arrow"/>
             </DropdownContent>
-            {Object.values(HardwareCategoryEntries).map(({keyword, value}) => {
+            {isShowList && Object.entries(HardwareCategoryEntries).map(([keyword, value]) => {
                 return (
-                    <DropdownContent key={keyword} data-value={keyword}>
+                    <DropdownContent
+                        key={keyword}
+                        data-value={keyword}
+                        onClick={() => {
+                            props.changeCategory(keyword);
+                            setShowState(!isShowList)
+                        }}
+                    >
                         <span className="content">{value}</span>
                     </DropdownContent>
-                )
+                );
             })}
         </DropdownContainer>
     );
 };
+
+interface IStateProps {
+    hardwareFilterCategory: string;
+}
+
+const mapStateToProps: IMapStateToProps<IStateProps> = (state) => ({
+    hardwareFilterCategory: state.hardware.hardwareFilterCategory,
+});
 
 interface IDispatchProps {
     changeCategory: (category: string) => void;
@@ -86,4 +113,4 @@ const mapDispatchToProps: IMapDispatchToProps<IDispatchProps> = (dispatch) => ({
     changeCategory: changeHardwareCategory(dispatch),
 });
 
-export default connect(undefined, mapDispatchToProps)(HardwareTypeDropdown);
+export default connect(mapStateToProps, mapDispatchToProps)(HardwareTypeDropdown);

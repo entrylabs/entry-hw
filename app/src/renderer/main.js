@@ -16,41 +16,41 @@ $('html').addClass(platform);
 
 // ui & control
 // dropdown setting start
-const categoryDropdown = $('#filter_category');
-const categoryDropdownOptions = categoryDropdown.children('li:not(.init)');
-const categoryDropdownCurrentSelected = categoryDropdown.children('.init');
-
-const hideCategory = () => {
-    categoryDropdown.hide();
-    categoryDropdownOptions.hide();
-};
-
-categoryDropdown.on('click', '.init', () => {
-    categoryDropdownCurrentSelected.toggleClass('open');
-    categoryDropdownOptions.toggle();
-});
-
-categoryDropdown.on('click', 'li:not(.init)', function() {
-    categoryDropdownOptions.removeClass('selected');
-
-    const selected = $(this);
-    const selectedCategory = selected.data('value');
-    selected.addClass('selected');
-    categoryDropdownCurrentSelected.html(selected.html());
-
-    categoryDropdownCurrentSelected.append(
-        $('<div></div>')
-            .addClass('arrow'),
-    );
-
-    // 카테고리 닫기
-    categoryDropdownCurrentSelected.toggleClass('open');
-    categoryDropdownOptions.toggle();
-
-    // 카테고리 목록, 선택 카테고리 데이터 변경
-    categoryDropdownCurrentSelected.data('value', selectedCategory);
-    filterHardware(selectedCategory);
-});
+// const categoryDropdown = $('#filter_category');
+// const categoryDropdownOptions = categoryDropdown.children('li:not(.init)');
+// const categoryDropdownCurrentSelected = categoryDropdown.children('.init');
+//
+// const hideCategory = () => {
+//     categoryDropdown.hide();
+//     categoryDropdownOptions.hide();
+// };
+//
+// categoryDropdown.on('click', '.init', () => {
+//     categoryDropdownCurrentSelected.toggleClass('open');
+//     categoryDropdownOptions.toggle();
+// });
+//
+// categoryDropdown.on('click', 'li:not(.init)', function() {
+//     categoryDropdownOptions.removeClass('selected');
+//
+//     const selected = $(this);
+//     const selectedCategory = selected.data('value');
+//     selected.addClass('selected');
+//     categoryDropdownCurrentSelected.html(selected.html());
+//
+//     categoryDropdownCurrentSelected.append(
+//         $('<div></div>')
+//             .addClass('arrow'),
+//     );
+//
+//     // 카테고리 닫기
+//     categoryDropdownCurrentSelected.toggleClass('open');
+//     categoryDropdownOptions.toggle();
+//
+//     // 카테고리 목록, 선택 카테고리 데이터 변경
+//     categoryDropdownCurrentSelected.data('value', selectedCategory);
+//     filterHardware(selectedCategory);
+// });
 
 // dropdown setting end
 
@@ -84,7 +84,7 @@ const ui = new class {
         router.stopScan();
         delete window.currentConfig;
         $('#title').text(translator.translate('Select hardware'));
-        categoryDropdown.show();
+        // categoryDropdown.show();
         $('#hwList').show();
         $('#search_area').show();
         $('#hwPanel').css('display', 'none');
@@ -95,7 +95,7 @@ const ui = new class {
 
     showConnecting() {
         $('#title').text(translator.translate('hardware > connecting'));
-        hideCategory();
+        // hideCategory();
         $('#hwList').hide();
         $('#search_area').hide();
         $('#hwPanel').css('display', 'flex');
@@ -108,7 +108,7 @@ const ui = new class {
 
     showConnected() {
         $('#title').text(translator.translate('hardware > connected'));
-        hideCategory();
+        // hideCategory();
         $('#hwList').hide();
         $('#search_area').hide();
         $('#hwPanel').css('display', 'flex');
@@ -122,7 +122,7 @@ const ui = new class {
 
     showDisconnected() {
         $('#title').text(translator.translate('hardware > disconnected'));
-        hideCategory();
+        // hideCategory();
         $('#hwList').hide();
         $('#search_area').hide();
         $('#hwPanel').css('display', 'flex');
@@ -460,7 +460,7 @@ $('#search_button').on('click', () => {
 $('#search_close_button').on('click', function() {
     $('#search_bar').val('');
     $(this).hide();
-    filterHardware(categoryDropdownCurrentSelected.data('value'));
+    // filterHardware(categoryDropdownCurrentSelected.data('value'));
 });
 
 function searchHardware(searchText) {
