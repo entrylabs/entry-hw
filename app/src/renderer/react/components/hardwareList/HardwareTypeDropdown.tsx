@@ -70,11 +70,8 @@ const HardwareTypeDropdown: React.FC<IStateProps & IDispatchProps> = (props) => 
         <DropdownContainer id="filter_category" className="dropdown">
             <DropdownContent
                 data-value={currentKey}
-                className="init"
-                onClick={() => {
-                    console.log('isShowList', isShowList);
-                    setShowState(!isShowList);
-                }}
+                className={`init ${isShowList && 'open'}`}
+                onClick={() => setShowState(!isShowList)}
             >
                 <span className="content">{currentValue}</span>
                 <div className="arrow"/>
