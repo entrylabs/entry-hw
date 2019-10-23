@@ -14,7 +14,7 @@ const HardwareListContainer = Styled.div`
     width: 100%;
 `;
 
-export default () => {
+const Main: React.FC = () => {
     return (
         <>
             <div id="alert"/>
@@ -26,3 +26,5 @@ export default () => {
         </>
     );
 };
+
+export default Main;

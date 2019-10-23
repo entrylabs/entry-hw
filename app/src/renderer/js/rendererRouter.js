@@ -20,9 +20,9 @@ class RendererRouter {
         const initialServerMode = ipcRenderer.sendSync('getCurrentServerModeSync') || RunningMode.server;
         const initialCloudMode = ipcRenderer.sendSync('getCurrentCloudModeSync') || CloudMode.singleServer;
 
-        this._checkProgramUpdate();
-        this._consoleWriteServerMode(initialServerMode);
-        this._toggleCloudModeUI(initialCloudMode);
+        // this._checkProgramUpdate();
+        // this._consoleWriteServerMode(initialServerMode);
+        // this._toggleCloudModeUI(initialCloudMode);
 
         //ipcEvent
         ipcRenderer.on('console', (event, ...args) => {

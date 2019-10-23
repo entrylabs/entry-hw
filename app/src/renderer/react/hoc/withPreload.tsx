@@ -9,6 +9,7 @@ function withPreload<P extends IPreloadProps>(
 ) {
     const injectProps: IPreloadProps = {
         translator,
+        rendererRouter: new RendererRouter(), //TODO
     };
 
     const WrappingComponentFC: React.FC<P> = (props: Readonly<P>) => (

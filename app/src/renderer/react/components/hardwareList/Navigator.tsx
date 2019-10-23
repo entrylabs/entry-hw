@@ -1,12 +1,13 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import Styled from 'styled-components';
+import withPreload from '../../hoc/withPreload';
 
 const NavigatorContainer = Styled.div`
     padding-top: 15px;
     width: 100px;
     margin: 0;
 `;
-const NavigatorButton = Styled.button<{dimImage: string, enabledImage: string, disabledImage: string}>`
+const NavigatorButton = Styled.button<{ dimImage: string, enabledImage: string, disabledImage: string }>`
     margin-right: 1px;
     vertical-align: top;
     border: none;
@@ -22,19 +23,26 @@ const NavigatorButton = Styled.button<{dimImage: string, enabledImage: string, d
     }
 `;
 
-export default () => (
-    <NavigatorContainer id="navigator">
-        <NavigatorButton
-            id="back"
-            dimImage={'../images/btn_back_dim.png'}
-            enabledImage={'../images/btn_back_on.png'}
-            disabledImage={'../images/btn_back_off.png'}
-        />
-        <NavigatorButton
-            id="refresh"
-            dimImage={'../images/btn_refresh_off.png'}
-            enabledImage={'../images/btn_refresh_on.png'}
-            disabledImage={'../images/btn_refresh_on.png'}
-        />
-    </NavigatorContainer>
-)
+const Navigator = (props: Readonly<Preload>) => {
+    const onRefreshClicked = useCallback(() => {
+    }, []);
+
+    return (
+        <NavigatorContainer id="navigator">
+            <NavigatorButton
+                id="back"
+                dimImage={'../images/btn_back_dim.png'}
+                enabledImage={'../images/btn_back_on.png'}
+                disabledImage={'../images/btn_back_off.png'}
+            />
+            <NavigatorButton
+                id="refresh"
+                dimImage={'../images/btn_refresh_off.png'}
+                enabledImage={'../images/btn_refresh_on.png'}
+                disabledImage={'../images/btn_refresh_on.png'}
+            />
+        </NavigatorContainer>
+    );
+};
+
+export default withPreload(Navigator);

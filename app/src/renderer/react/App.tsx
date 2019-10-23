@@ -4,6 +4,8 @@ import Main from './components/main';
 import Footer from './components/common/Footer';
 import Header from './components/common/Header';
 import { createGlobalStyle } from 'styled-components';
+import { Provider } from 'react-redux';
+import store from './store';
 
 const GlobalStyle = createGlobalStyle`
     @font-face {
@@ -62,10 +64,12 @@ const GlobalStyle = createGlobalStyle`
 
 ReactDOM.render(
     <>
-        <Header/>
-        <Main/>
-        <Footer/>
-        <GlobalStyle />
+        <Provider store={store}>
+            <Header/>
+            <Main/>
+            <Footer/>
+            <GlobalStyle/>
+        </Provider>
     </>,
     document.getElementById('__main'),
 );

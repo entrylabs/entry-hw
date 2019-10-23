@@ -65,11 +65,6 @@ $('#select_port_box #btn_select_port').text(
     translator.translate('Connect'),
 );
 
-const $openSourceLabel = $('#opensource_label');
-$openSourceLabel.on('click', () => {
-    $('#opensource_license_viewer').css('display', 'flex');
-});
-
 const $versionLabel = $('#version_label');
 $versionLabel.on('click', () => {
     router.requestOpenAboutWindow();
@@ -587,15 +582,6 @@ function clearSelectPort() {
     isSelectPort = false;
     $('#select_port_box').css('display', 'none');
 }
-
-$('#opensource_license_viewer .close_event').on('click', () => {
-    $('#opensource_license_viewer').css('display', 'none');
-});
-
-
-router.getOpensourceContents().then((text) => {
-    $('#opensource_content').val(text);
-});
 
 let isSelectPort = true;
 let selectPortConnectionTimeout;
