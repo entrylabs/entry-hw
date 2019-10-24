@@ -4,6 +4,9 @@ import Navigator from '../hardwareList/Navigator';
 import HardwareTypeDropdown from '../hardwareList/HardwareTypeDropdown';
 import CloudIcon from '../hardwareList/CloudIcon';
 import SearchArea from '../hardwareList/SearchArea';
+import { IMapStateToProps } from '../../store';
+import { connect } from 'react-redux';
+import { HardwarePageStateEnum } from '../../constants/constants';
 
 const HeaderContainer = Styled.div`
     flex: none;
@@ -21,14 +24,28 @@ const Title = Styled.h1`
     margin-top: 8px;
 `;
 
-export default () => {
+const Header: React.FC<IStateProps> = (props) => {
     return (
         <HeaderContainer>
             <Navigator/>
             <Title id="title">하드웨어 선택</Title>
-            <SearchArea/>
-            <CloudIcon />
-            <HardwareTypeDropdown />
+            <CloudIcon/>
+            {props.currentState === HardwarePageStateEnum.list && (
+                <>
+                    <SearchArea/>
+                    <HardwareTypeDropdown/>
+                </>
+            )}
         </HeaderContainer>
     );
+};
+
+interface IStateProps {
+    currentState: HardwarePageStateEnum;
 }
+
+const mapStateToProps: IMapStateToProps<IStateProps> = (state) => ({
+    currentState: state.common.currentState,
+});
+
+export default connect(mapStateToProps)(Header);

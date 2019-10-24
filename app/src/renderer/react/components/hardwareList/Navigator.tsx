@@ -1,6 +1,10 @@
 import React, { useCallback } from 'react';
 import Styled from 'styled-components';
 import withPreload from '../../hoc/withPreload';
+import { connect } from 'react-redux';
+import { IMapDispatchToProps, IMapStateToProps } from '../../store';
+import { HardwarePageStateEnum } from '../../constants/constants';
+import { changeCurrentState } from '../../store/modules/common';
 
 const NavigatorContainer = Styled.div`
     padding-top: 15px;
@@ -23,7 +27,7 @@ const NavigatorButton = Styled.button<{ dimImage: string, enabledImage: string, 
     }
 `;
 
-const Navigator = (props: Readonly<Preload>) => {
+const Navigator: React.FC<IStateProps & IDispatchProps & Preload> = (props) => {
     const onRefreshClicked = useCallback(() => {
         const { translator, rendererRouter } = props;
         if (
@@ -31,6 +35,9 @@ const Navigator = (props: Readonly<Preload>) => {
         ) {
             rendererRouter.reloadApplication();
         }
+    }, []);
+    const onBackClicked = useCallback(() => {
+        props.changeCurrentState(HardwarePageStateEnum.list);
     }, []);
 
     return (
@@ -40,6 +47,8 @@ const Navigator = (props: Readonly<Preload>) => {
                 dimImage={'../images/btn_back_dim.png'}
                 enabledImage={'../images/btn_back_on.png'}
                 disabledImage={'../images/btn_back_off.png'}
+                onClick={onBackClicked}
+                className={props.currentState !== HardwarePageStateEnum.list ? 'active' : ''}
             />
             <NavigatorButton
                 dimImage={'../images/btn_refresh_off.png'}
@@ -51,4 +60,20 @@ const Navigator = (props: Readonly<Preload>) => {
     );
 };
 
-export default withPreload(Navigator);
+interface IStateProps {
+    currentState: HardwarePageStateEnum;
+}
+
+const mapStateToProps: IMapStateToProps<IStateProps> = (state) => ({
+    currentState: state.common.currentState,
+});
+
+interface IDispatchProps {
+    changeCurrentState: (category: HardwarePageStateEnum) => void;
+}
+
+const mapDispatchToProps: IMapDispatchToProps<IDispatchProps> = (dispatch) => ({
+    changeCurrentState: changeCurrentState(dispatch),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(withPreload(Navigator));
