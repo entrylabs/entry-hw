@@ -2,11 +2,7 @@
 const {
     clipboard, rendererRouter, constants, translator, os,
 } = window;
-const langType = translator.currentLanguage;
 
-const {
-    AVAILABLE_TYPE: AvaliableType,
-} = constants;
 let priorHardwareList = JSON.parse(localStorage.getItem('hardwareList')) || [];
 
 let viewMode = 'main';
@@ -31,33 +27,9 @@ const ui = new class {
         this.cachedPortList = [];
     }
 
-    showRobotList() {
-        viewMode = 'main';
-        $('#alert')
-            .stop()
-            .clearQueue();
-        router.currentState = 'disconnected';
-        router.close();
-        router.stopScan();
-        delete window.currentConfig;
-        $('#title').text(translator.translate('Select hardware'));
-        // categoryDropdown.show();
-        $('#hwList').show();
-        $('#search_area').show();
-        $('#hwPanel').css('display', 'none');
-        ui.showIeGuide();
-        this.hideAlert();
-        $('#back').removeClass('active');
-    }
-
     showConnecting() {
         $('#title').text(translator.translate('hardware > connecting'));
         // hideCategory();
-        $('#hwList').hide();
-        $('#search_area').hide();
-        $('#hwPanel').css('display', 'flex');
-        $('#back').addClass('active');
-        ui.hideIeGuide();
         this.showAlert(
             translator.translate('Connecting to hardware device.'),
         );
@@ -65,12 +37,6 @@ const ui = new class {
 
     showConnected() {
         $('#title').text(translator.translate('hardware > connected'));
-        // hideCategory();
-        $('#hwList').hide();
-        $('#search_area').hide();
-        $('#hwPanel').css('display', 'flex');
-        $('#back').addClass('active');
-        ui.hideIeGuide();
         this.showAlert(
             translator.translate('Connected to hardware device.'),
             2000,
@@ -79,11 +45,6 @@ const ui = new class {
 
     showDisconnected() {
         $('#title').text(translator.translate('hardware > disconnected'));
-        // hideCategory();
-        $('#hwList').hide();
-        $('#search_area').hide();
-        $('#hwPanel').css('display', 'flex');
-        ui.hideIeGuide();
         this.showAlert(
             translator.translate(
                 'Hardware device is disconnected. Please restart this program.',
@@ -105,10 +66,6 @@ const ui = new class {
         }
     }
 
-    hideAlert() {
-        $('#alert').stop(true, true).animate({ height: '0px' });
-    }
-
     showRobot(hardware) {
         if (hardware && hardware.id) {
             $(`#${hardware.id}`).show();
@@ -117,65 +74,63 @@ const ui = new class {
         }
     }
 
-    addRobot(config) {
-        ui.showRobotList();
-
-        switch (config.availableType) {
-            case AvaliableType.needDownload: {
-                $('#hwList').append(`
-                <div class="hardwareType"
-                id="${config.id}"
-                style="filter: grayscale(100%); opacity: 0.5">
-                    <img class="hwThumb" src="${config.image}" alt="">
-                    <h2 class="hwTitle">
-                        ${config.name && config.name[langType] || config.name.en || config.name}
-                    </h2>
-                </div>
-            `);
-                $(`#${config.id}`)
-                    .off('click')
-                    .on('click', () => {
-                        router.requestDownloadModule(config);
-                    });
-                break;
-            }
-            case AvaliableType.needUpdate: {
-                $('#hwList').append(`
-                <div class="hardwareType" id="${config.id}">
-                    <img class="hwThumb" src="../../../modules/${config.icon}" alt="">
-                    <h2 class="hwTitle">
-                        [업]${config.name && config.name[langType] || config.name.en}
-                    </h2>
-                </div>
-            `);
-
-                $(`#${config.id}`)
-                    .off('click')
-                    .on('click', () => {
-                        router.requestDownloadModule(config);
-                    });
-                break;
-            }
-            case AvaliableType.available:
-            default: {
-                $('#hwList').append(`
-                <div class="hardwareType" id="${config.id}">
-                    <img class="hwThumb" src="../../../modules/${config.icon}" alt="">
-                    <h2 class="hwTitle">
-                        ${config.name && config.name[langType] || config.name.en}
-                    </h2>
-                </div>
-            `);
-
-                $(`#${config.id}`)
-                    .off('click')
-                    .on('click', () => {
-                        router.startScan(config);
-                    });
-                break;
-            }
-        }
-    }
+    // addRobot(config) {
+    //     switch (config.availableType) {
+    //         case AvaliableType.needDownload: {
+    //             $('#hwList').append(`
+    //             <div class="hardwareType"
+    //             id="${config.id}"
+    //             style="filter: grayscale(100%); opacity: 0.5">
+    //                 <img class="hwThumb" src="${config.image}" alt="">
+    //                 <h2 class="hwTitle">
+    //                     ${config.name && config.name[langType] || config.name.en || config.name}
+    //                 </h2>
+    //             </div>
+    //         `);
+    //             $(`#${config.id}`)
+    //                 .off('click')
+    //                 .on('click', () => {
+    //                     router.requestDownloadModule(config);
+    //                 });
+    //             break;
+    //         }
+    //         case AvaliableType.needUpdate: {
+    //             $('#hwList').append(`
+    //             <div class="hardwareType" id="${config.id}">
+    //                 <img class="hwThumb" src="../../../modules/${config.icon}" alt="">
+    //                 <h2 class="hwTitle">
+    //                     [업]${config.name && config.name[langType] || config.name.en}
+    //                 </h2>
+    //             </div>
+    //         `);
+    //
+    //             $(`#${config.id}`)
+    //                 .off('click')
+    //                 .on('click', () => {
+    //                     router.requestDownloadModule(config);
+    //                 });
+    //             break;
+    //         }
+    //         case AvaliableType.available:
+    //         default: {
+    //             $('#hwList').append(`
+    //             <div class="hardwareType" id="${config.id}">
+    //                 <img class="hwThumb" src="../../../modules/${config.icon}" alt="">
+    //                 <h2 class="hwTitle">
+    //                     ${config.name && config.name[langType] || config.name.en}
+    //                 </h2>
+    //             </div>
+    //         `);
+    //
+    //             $(`#${config.id}`)
+    //                 .off('click')
+    //                 .on('click', () => {
+    //                     router.startScan(config);
+    //                 });
+    //             break;
+    //         }
+    //     }
+    // }
 
     flashFirmware(firmwareName) {
         if (router.currentState !== 'before_connect' && router.currentState !== 'connected') {
@@ -234,18 +189,6 @@ const ui = new class {
         }
         $('#select_port_box').css('display', 'flex');
     }
-
-    quit() {
-    }
-
-    showIeGuide() {
-        $('#errorAlert').show();
-    }
-
-    hideIeGuide() {
-        $('#errorAlert').hide();
-    }
-
 
     setCloudMode(isCloudMode) {
         const $cloudIcon = $('#cloud_icon');
@@ -396,7 +339,6 @@ $body.on('keyup', (e) => {
 $body.on('click', '#back.active', (e) => {
     isSelectPort = true;
     window.currentConfig && delete window.currentConfig.this_com_port;
-    ui.showRobotList();
 });
 
 $('#select_port').dblclick(() => {
