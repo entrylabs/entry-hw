@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import Styled from 'styled-components';
 import { IMapDispatchToProps, IMapStateToProps } from '../../store';
 import { connect } from 'react-redux';

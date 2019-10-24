@@ -101,7 +101,6 @@ class RendererRouter {
     }
 
     refreshHardwareModules() {
-        console.log('hardware list refreshed');
         // configuration
         const routerHardwareList = this.getHardwareListSync();
         this.priorHardwareList.reverse().forEach((target, index) => {
@@ -116,8 +115,6 @@ class RendererRouter {
             }
         });
         this._hardwareList = routerHardwareList;
-        window.ui.clearRobot();
-        this._hardwareList.forEach(window.ui.addRobot.bind(window.ui));
     }
 
     _checkProgramUpdate() {

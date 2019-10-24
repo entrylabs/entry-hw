@@ -11,48 +11,7 @@ let priorHardwareList = JSON.parse(localStorage.getItem('hardwareList')) || [];
 
 let viewMode = 'main';
 
-
 $('html').addClass(platform);
-
-// ui & control
-// dropdown setting start
-// const categoryDropdown = $('#filter_category');
-// const categoryDropdownOptions = categoryDropdown.children('li:not(.init)');
-// const categoryDropdownCurrentSelected = categoryDropdown.children('.init');
-//
-// const hideCategory = () => {
-//     categoryDropdown.hide();
-//     categoryDropdownOptions.hide();
-// };
-//
-// categoryDropdown.on('click', '.init', () => {
-//     categoryDropdownCurrentSelected.toggleClass('open');
-//     categoryDropdownOptions.toggle();
-// });
-//
-// categoryDropdown.on('click', 'li:not(.init)', function() {
-//     categoryDropdownOptions.removeClass('selected');
-//
-//     const selected = $(this);
-//     const selectedCategory = selected.data('value');
-//     selected.addClass('selected');
-//     categoryDropdownCurrentSelected.html(selected.html());
-//
-//     categoryDropdownCurrentSelected.append(
-//         $('<div></div>')
-//             .addClass('arrow'),
-//     );
-//
-//     // 카테고리 닫기
-//     categoryDropdownCurrentSelected.toggleClass('open');
-//     categoryDropdownOptions.toggle();
-//
-//     // 카테고리 목록, 선택 카테고리 데이터 변경
-//     categoryDropdownCurrentSelected.data('value', selectedCategory);
-//     filterHardware(selectedCategory);
-// });
-
-// dropdown setting end
 
 $('#firmware').text(translator.translate('Install Firmware'));
 $('#other-robot .text').text(
@@ -438,85 +397,6 @@ const ui = new class {
 const router = rendererRouter;
 window.ui = ui;
 
-$('#search_bar').on('keydown', function(e) {
-    if (e.which === 27) {
-        this.value = '';
-        searchHardware('');
-    } else if (e.which === 13) {
-        searchHardware(this.value);
-    }
-
-    if (this.value) {
-        $('#search_close_button').show();
-    } else {
-        $('#search_close_button').hide();
-    }
-});
-
-$('#search_button').on('click', () => {
-    searchHardware($('#search_bar').val());
-});
-
-$('#search_close_button').on('click', function() {
-    $('#search_bar').val('');
-    $(this).hide();
-    // filterHardware(categoryDropdownCurrentSelected.data('value'));
-});
-
-function searchHardware(searchText) {
-    // var searchText = $('#search_bar').val();
-    const currentCategory = $('#filter_category').children('.init').data('value');
-    let isNotFound = true;
-    if (searchText) {
-        const hideList = router.hardwareList.filter((hardware) => {
-            const en = hardware.name.en.toLowerCase();
-            const ko = hardware.name.ko.toLowerCase();
-            const text = searchText.toLowerCase();
-            if (
-                (ko.indexOf(text) > -1 || en.indexOf(text) > -1) && // 검색결과가 있는지
-                (hardware.platform.indexOf(platform) > -1) && // 현재 플랫폼과 동일한지
-                (currentCategory === 'all' || hardware.category === currentCategory) // 현재 카테고리에 포함되었는지
-            ) {
-                ui.showRobot(hardware);
-                isNotFound = false;
-            } else {
-                return true;
-            }
-        });
-
-        if (isNotFound) {
-            alert(translator.translate('No results found'));
-        } else {
-            hideList.forEach((hardware) => {
-                ui.hideRobot(hardware.id);
-            });
-        }
-    } else {
-        ui.showRobot();
-    }
-}
-
-/**
- * 카테고리 별로 데이터를 표시한다.
- * 카테고리 변경시 검색결과는 삭제된다.
- * @param type{string} all|robot|module|board
- */
-function filterHardware(type) {
-    $('#search_bar').val('');
-    $('#search_close_button').hide();
-    if (!type || type === 'all') {
-        ui.showRobot();
-    } else {
-        router.hardwareList.forEach((hardware) => {
-            if (hardware.category === type) {
-                ui.showRobot(hardware);
-            } else {
-                ui.hideRobot(hardware.id);
-            }
-        });
-    }
-}
-
 const $body = $('body');
 $body.on('keyup', (e) => {
     if (e.keyCode === 8) {
@@ -569,6 +449,3 @@ function clearSelectPort() {
 
 let isSelectPort = true;
 let selectPortConnectionTimeout;
-
-// configuration
-router.refreshHardwareModules();
