@@ -1,6 +1,6 @@
 'use strict';
 const {
-    clipboard, RendererRouter, constants, translator, platform, os,
+    clipboard, rendererRouter, constants, translator, platform, os,
 } = window;
 const langType = translator.currentLanguage;
 
@@ -435,7 +435,7 @@ const ui = new class {
         window.currentConfig = hardware;
     }
 }();
-const router = window.fooRouter;
+const router = rendererRouter;
 window.ui = ui;
 
 $('#search_bar').on('keydown', function(e) {

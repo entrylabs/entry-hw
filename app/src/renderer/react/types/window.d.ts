@@ -9,5 +9,5 @@ declare interface Preload {
 }
 
 declare interface Window extends Preload {
-    RendererRouter: any; //class
+
 }

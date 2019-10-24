@@ -8,7 +8,7 @@ function getInitializeList() {
     preload.ipcRenderer = ipcRenderer;
     preload.clipboard = clipboard;
     preload.remote = remote;
-    preload.RendererRouter = RendererRouter;
+    preload.rendererRouter = new RendererRouter();
     preload.constants = constants;
 
     const translator = new Translator();

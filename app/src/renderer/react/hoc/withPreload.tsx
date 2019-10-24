@@ -1,9 +1,7 @@
 import React, { ComponentType } from 'react';
 
-const { translator, RendererRouter, Modal } = window;
-const router = new RendererRouter();
+const { translator, rendererRouter, Modal } = window;
 //@ts-ignore
-window.fooRouter = router;
 
 type IPreloadProps = Preload;
 
@@ -12,7 +10,7 @@ function withPreload<P extends IPreloadProps>(
 ) {
     const injectProps: IPreloadProps = {
         translator,
-        rendererRouter: router, //TODO
+        rendererRouter, //TODO
         Modal,
     };
 
