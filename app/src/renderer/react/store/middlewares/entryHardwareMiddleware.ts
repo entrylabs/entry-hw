@@ -1,7 +1,7 @@
 import { Middleware, AnyAction } from 'redux';
 import { Dispatch } from 'react';
 import { IStoreState } from '../index';
-import { CATEGORY_CHANGED, changeHardwareList, HARDWARE_SEARCH } from '../modules/hardware';
+import { CATEGORY_CHANGED, changeHardwareList, HARDWARE_LIST_RESET, HARDWARE_SEARCH } from '../modules/hardware';
 import filterHardwareList from '../../functions/filterHardware';
 
 const { rendererRouter } = window;
@@ -14,6 +14,10 @@ const entryHardwareMiddleware: Middleware = ({ getState }: { getState: () => ISt
         const { hardwareFilterKeyword, hardwareFilterCategory } = hardware;
         const hardwareList = filterHardwareList(hardwareFilterKeyword, hardwareFilterCategory, rendererRouter.hardwareList);
         changeHardwareList(next)(hardwareList);
+    }
+
+    if (type === HARDWARE_LIST_RESET) {
+        changeHardwareList(next)(rendererRouter.hardwareList);
     }
 };
 

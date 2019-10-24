@@ -11,10 +11,14 @@ const {
  *
  */
 class RendererRouter {
+    get hardwareList() {
+        this.refreshHardwareModules();
+        return this._hardwareList;
+    }
     constructor() {
         this.priorHardwareList = JSON.parse(localStorage.getItem('hardwareList')) || [];
         this.currentState = Statement.disconnected;
-        this.hardwareList = [];
+        this._hardwareList = [];
         const initialServerMode = ipcRenderer.sendSync('getCurrentServerModeSync') || RunningMode.server;
         const initialCloudMode = ipcRenderer.sendSync('getCurrentCloudModeSync') || CloudMode.singleServer;
 
@@ -111,9 +115,9 @@ class RendererRouter {
                 routerHardwareList[index] = temp;
             }
         });
-        this.hardwareList = routerHardwareList;
+        this._hardwareList = routerHardwareList;
         window.ui.clearRobot();
-        this.hardwareList.forEach(window.ui.addRobot.bind(window.ui));
+        this._hardwareList.forEach(window.ui.addRobot.bind(window.ui));
     }
 
     _checkProgramUpdate() {
