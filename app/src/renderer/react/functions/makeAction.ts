@@ -1,9 +1,12 @@
 import { Dispatch } from 'react';
-import { AnyAction } from 'redux';
+import { Action } from 'redux';
 
-export default <P>(type: string) => {
-    return (dispatch: Dispatch<AnyAction>) => (payload: P) => dispatch({
-        type,
-        payload,
+type PayloadAction<P> = { payload: P } & Action;
+export const makePayloadAction = <P>(type: string) =>
+    (dispatch: Dispatch<PayloadAction<P>>) => (payload: P) => dispatch({
+        type, payload,
     });
-}
+;
+
+export const makeAction = (type: string) =>
+    (dispatch: Dispatch<Action>) => () => dispatch({ type });

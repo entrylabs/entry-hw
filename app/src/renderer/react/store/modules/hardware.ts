@@ -1,6 +1,6 @@
 import { AnyAction } from 'redux';
 import produce from 'immer';
-import makeAction from '../../functions/makeAction';
+import { makePayloadAction, makeAction } from '../../functions/makeAction';
 
 type IHardware = any;
 
@@ -18,10 +18,10 @@ export const HARDWARE_LIST_CHANGED = 'hardware/HARDWARE_LIST_CHANGED';
 export const HARDWARE_LIST_RESET = 'hardware/HARDWARE_LIST_RESET';
 
 // actions
-export const searchHardware = makeAction<string>(HARDWARE_SEARCH);
-export const changeHardwareCategory = makeAction<string>(CATEGORY_CHANGED);
-export const changeHardwareList = makeAction<IHardware[]>(HARDWARE_LIST_CHANGED);
-export const resetHardwareList = makeAction<void>(HARDWARE_LIST_RESET);
+export const searchHardware = makePayloadAction<string>(HARDWARE_SEARCH);
+export const changeHardwareCategory = makePayloadAction<string>(CATEGORY_CHANGED);
+export const changeHardwareList = makePayloadAction<IHardware[]>(HARDWARE_LIST_CHANGED);
+export const resetHardwareList = makeAction(HARDWARE_LIST_RESET);
 
 // reducer
 const initialState: IHardwareState = {

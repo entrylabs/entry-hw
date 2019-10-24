@@ -18,7 +18,7 @@ function withPreload<P extends IPreloadProps>(
         <WrappedComponent {...props} {...injectProps} />
     );
 
-    type ExposedProps = Omit<P, keyof IPreloadProps> & Partial<IPreloadProps>
+    type ExposedProps = Omit<P, keyof IPreloadProps>
     return (WrappingComponentFC as any) as ComponentType<ExposedProps>;
 }
 
