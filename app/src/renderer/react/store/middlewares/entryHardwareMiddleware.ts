@@ -2,7 +2,7 @@ import { Middleware, AnyAction } from 'redux';
 import { Dispatch } from 'react';
 import { IStoreState } from '../index';
 import { CATEGORY_CHANGED, changeHardwareList, HARDWARE_SEARCH } from '../modules/hardware';
-import filterHardwareList from '../functions/filterHardware';
+import filterHardwareList from '../../functions/filterHardware';
 
 const { rendererRouter } = window;
 
