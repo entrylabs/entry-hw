@@ -1,9 +1,14 @@
-export enum HardwareStateEnum {
+export enum HardwarePageStateEnum {
+    list = 'list',
+    connection= 'connection',
+}
+
+/*
     lost = 'lost',
-    disconnected = 'disconnected',
+    list = 'list',
     selectPort = 'select_port',
     flash = 'flash',
     beforeConnect = 'before_connect',
     connected = 'connected',
     showRobot = 'show_robot',
-}
+ */

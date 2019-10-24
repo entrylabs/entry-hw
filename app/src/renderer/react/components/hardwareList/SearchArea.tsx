@@ -47,6 +47,13 @@ const SearchCloseButton = Styled.button`
 const SearchArea: React.FC<IStateProps & IDispatchProps> = (props) => {
     const [isShowCloseButton, setShowCloseButton] = useState(false);
     const searchBarRef = useRef<HTMLInputElement>(null);
+    const searchBarOnChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+        if (event.target.value === '') {
+            setShowCloseButton(false);
+        } else {
+            setShowCloseButton(true);
+        }
+    }, []);
     const searchBarOnKeyDown = useCallback((event: React.KeyboardEvent<HTMLInputElement>) => {
         if (!searchBarRef || !searchBarRef.current) {
             return;
@@ -57,12 +64,6 @@ const SearchArea: React.FC<IStateProps & IDispatchProps> = (props) => {
             props.changeHardwareSearchKeyword(searchBar.value);
         } else if (event.which === 13) {
             props.changeHardwareSearchKeyword(searchBar.value);
-        }
-
-        if (!searchBar.value) {
-            setShowCloseButton(false);
-        } else if (!isShowCloseButton) {
-            setShowCloseButton(true);
         }
     }, []);
 
@@ -85,14 +86,17 @@ const SearchArea: React.FC<IStateProps & IDispatchProps> = (props) => {
 
     useEffect(() => {
         searchBarRef && searchBarRef.current && (searchBarRef.current.value = '');
+        setShowCloseButton(false);
     }, [props.hardwareFilterCategory]);
 
+    console.log('render')
     return (
         <SearchContainer id="search_area">
             <SearchBar
                 id="search_bar"
                 ref={searchBarRef}
                 onKeyDown={searchBarOnKeyDown}
+                onChange={searchBarOnChange}
             />
             <SearchButton id="search_button" onClick={searchButtonOnClick}>
                 <img src="../images/search_icon.png" alt="검색"/>

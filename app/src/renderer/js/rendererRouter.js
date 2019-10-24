@@ -15,6 +15,7 @@ class RendererRouter {
         this.refreshHardwareModules();
         return this._hardwareList;
     }
+
     constructor() {
         this.priorHardwareList = JSON.parse(localStorage.getItem('hardwareList')) || [];
         this.currentState = Statement.disconnected;
@@ -23,7 +24,7 @@ class RendererRouter {
         const initialCloudMode = ipcRenderer.sendSync('getCurrentCloudModeSync') || CloudMode.singleServer;
 
         // this._checkProgramUpdate();
-        // this._consoleWriteServerMode(initialServerMode);
+        this._consoleWriteServerMode(initialServerMode);
         // this._toggleCloudModeUI(initialCloudMode);
 
         //ipcEvent
@@ -42,6 +43,7 @@ class RendererRouter {
     }
 
     startScan(config) {
+        window.ui._showHardwareConnectingPage(config);
         ipcRenderer.send('startScan', config);
     };
 
@@ -217,9 +219,9 @@ class RendererRouter {
             case beforeConnect: {
                 ui.showAlert(`${
                     translate('Connecting to hardware device.')
-                    } ${
+                } ${
                     translate('Please select the firmware.')
-                    }`);
+                }`);
                 break;
             }
             case lost:

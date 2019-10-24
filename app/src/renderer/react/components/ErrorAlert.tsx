@@ -32,7 +32,7 @@ const CommentMessage = Styled.div`
 
 const ErrorAlert = (props: Preload) => {
     return (
-        <ErrorAlertContainer id="errorAlert">
+        <ErrorAlertContainer id="pyapyaerrorAlert">
             <div>
                 <ErrorImage src="../images/alert.png"/>
                 <ErrorMessageSpanContainer>

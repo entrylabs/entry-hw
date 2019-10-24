@@ -1,5 +1,6 @@
 interface ITranslator {
     translate: (str: string) => string;
+    currentLanguage: string;
 }
 
 declare interface Preload {

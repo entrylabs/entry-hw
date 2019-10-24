@@ -4,7 +4,7 @@ import ProgressDot from './ProgressDot';
 import withPreload from '../../hoc/withPreload';
 
 const HardwarePanel = Styled.div`
-    display: none;
+    display: flex;
     flex-grow: 1;
     width: 100%;
 `;

@@ -42,7 +42,6 @@ const Navigator = (props: Readonly<Preload>) => {
                 disabledImage={'../images/btn_back_off.png'}
             />
             <NavigatorButton
-                id="refresh"
                 dimImage={'../images/btn_refresh_off.png'}
                 enabledImage={'../images/btn_refresh_on.png'}
                 disabledImage={'../images/btn_refresh_on.png'}

@@ -109,14 +109,6 @@ const ui = new class {
         $('#alert').stop(true, true).animate({ height: '0px' });
     }
 
-    hideRobot(id) {
-        $(`#${id}`).hide();
-    }
-
-    clearRobot() {
-        $('#hwList').empty();
-    }
-
     showRobot(hardware) {
         if (hardware && hardware.id) {
             $(`#${hardware.id}`).show();
@@ -178,7 +170,6 @@ const ui = new class {
                 $(`#${config.id}`)
                     .off('click')
                     .on('click', () => {
-                        this._showHardwareConnectingPage(config);
                         router.startScan(config);
                     });
                 break;
@@ -219,11 +210,11 @@ const ui = new class {
 
     showPortSelectView(portList) {
         if (isSelectPort) {
-            selectPortConnectionTimeout = setTimeout(() => {
-                if (viewMode !== 'main') {
-                    router.startScan(window.currentConfig);
-                }
-            }, 1000);
+            // selectPortConnectionTimeout = setTimeout(() => {
+            //     if (viewMode !== 'main') {
+            //         router.startScan(window.currentConfig);
+            //     }
+            // }, 1000);
         } else {
             isSelectPort = true;
         }
@@ -388,7 +379,7 @@ const ui = new class {
         ui.hardware = hardware.id.substring(0, 4);
         ui.numLevel = 1;
         ui.showConnecting();
-        hardware.serverMode = router.serverMode;
+        // hardware.serverMode = router.serverMode;
         window.currentConfig = hardware;
     }
 }();
