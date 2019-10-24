@@ -1,6 +1,6 @@
 'use strict';
 const {
-    clipboard, rendererRouter, constants, translator, platform, os,
+    clipboard, rendererRouter, constants, translator, os,
 } = window;
 const langType = translator.currentLanguage;
 
@@ -10,8 +10,6 @@ const {
 let priorHardwareList = JSON.parse(localStorage.getItem('hardwareList')) || [];
 
 let viewMode = 'main';
-
-$('html').addClass(platform);
 
 $('#firmware').text(translator.translate('Install Firmware'));
 $('#other-robot .text').text(

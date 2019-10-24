@@ -16,13 +16,6 @@ function getInitializeList() {
     preload.Lang = require(`./lang/${lang}.js`).Lang;
     preload.translator = translator;
 
-
-    preload.platform = process.platform;
-    preload.os = `${process.platform}-${(() => (
-        process.arch === 'x64' ||
-        process.env.hasOwnProperty('PROCESSOR_ARCHITEW6432')
-    ))() ? 'x64' : process.arch}`;
-
     return preload;
 }
 
