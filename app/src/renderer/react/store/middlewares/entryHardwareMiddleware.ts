@@ -32,6 +32,8 @@ const entryHardwareMiddleware: Middleware = ({ getState }: { getState: () => ISt
 
     if (type === HARDWARE_LIST_RESET) {
         changeHardwareList(next)(rendererRouter.hardwareList);
+    } else {
+        next(action);
     }
 };
 
