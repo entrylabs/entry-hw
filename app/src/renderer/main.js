@@ -410,18 +410,6 @@ $body.on('click', '#back.active', (e) => {
     ui.showRobotList();
 });
 
-$body.on('click', '#refresh', (e) => {
-    if (
-        confirm(translator.translate('Do you want to restart the program?'))
-    ) {
-        router.reloadApplication();
-    }
-});
-
-$('.chromeButton').on('click', (e) => {
-    router.openExternalUrl('https://www.google.com/chrome/browser/desktop/index.html');
-});
-
 $('#select_port').dblclick(() => {
     $('#btn_select_port').trigger('click');
 });

@@ -25,6 +25,12 @@ const NavigatorButton = Styled.button<{ dimImage: string, enabledImage: string, 
 
 const Navigator = (props: Readonly<Preload>) => {
     const onRefreshClicked = useCallback(() => {
+        const { translator, rendererRouter } = props;
+        if (
+            confirm(translator.translate('Do you want to restart the program?'))
+        ) {
+            rendererRouter.reloadApplication();
+        }
     }, []);
 
     return (
@@ -40,6 +46,7 @@ const Navigator = (props: Readonly<Preload>) => {
                 dimImage={'../images/btn_refresh_off.png'}
                 enabledImage={'../images/btn_refresh_on.png'}
                 disabledImage={'../images/btn_refresh_on.png'}
+                onClick={onRefreshClicked}
             />
         </NavigatorContainer>
     );

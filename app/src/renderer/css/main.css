@@ -66,23 +66,6 @@
     display: block;
 }
 
-.chromeButton {
-    margin-top: 14px;
-    width: 397px;
-    background-color: #96bdfa;
-    color: #0e68e3;
-    border: none;
-    height: 34px;
-    border-radius: 3px;
-    cursor: pointer;
-    text-align: left;
-    padding-left: 110px;
-    background-image: url('../images/chrome_arrow.png');
-    background-repeat: no-repeat;
-    background-size: 10px 15px;
-    background-position: 270px 10px;
-}
-
 @keyframes blink_image {
     0%,
     100% {
