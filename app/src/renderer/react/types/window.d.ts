@@ -10,8 +10,8 @@ declare interface Preload {
     }
     rendererRouter: any; //instance
     Modal: any;
+    os: string;
 }
 
 declare interface Window extends Preload {
-    os: string;
 }

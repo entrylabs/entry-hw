@@ -16,6 +16,13 @@ function getInitializeList() {
     preload.Lang = require(`./lang/${lang}.js`).Lang;
     preload.translator = translator;
 
+    const isOSWin64 = () => (
+        process.arch === 'x64' ||
+        // eslint-disable-next-line no-prototype-builtins
+        process.env.hasOwnProperty('PROCESSOR_ARCHITEW6432')
+    );
+    preload.os = `${process.platform}-${isOSWin64() ? 'x64' : process.arch}`;
+
     return preload;
 }
 

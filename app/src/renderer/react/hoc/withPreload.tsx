@@ -1,6 +1,6 @@
 import React, { ComponentType } from 'react';
 
-const { translator, rendererRouter, Modal, clipboard } = window;
+const { translator, rendererRouter, Modal, clipboard, os } = window;
 
 type IPreloadProps = Preload;
 
@@ -12,6 +12,7 @@ function withPreload<P extends IPreloadProps>(
         rendererRouter, //TODO
         Modal,
         clipboard,
+        os,
     };
 
     const WrappingComponentFC: React.FC<P> = (props: Readonly<P>) => (
