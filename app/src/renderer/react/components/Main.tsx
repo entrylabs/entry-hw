@@ -13,7 +13,6 @@ const Main: React.FC<IStateProps> = (props) => {
     const { currentState } = props;
     return (
         <>
-            <AlertTab message={''} />
             {currentState === HardwarePageStateEnum.list && (
                 <>
                     <HardwareListContainer/>
@@ -23,6 +22,7 @@ const Main: React.FC<IStateProps> = (props) => {
             )}
             {currentState === HardwarePageStateEnum.connection && (
                 <>
+                    <AlertTab message={''} />
                     <HardwareConnectionContainer/>
                     <SelectPortContainer/>
                 </>
