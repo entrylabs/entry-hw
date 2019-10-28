@@ -89,7 +89,6 @@ const SearchArea: React.FC<IStateProps & IDispatchProps> = (props) => {
         setShowCloseButton(false);
     }, [props.hardwareFilterCategory]);
 
-    console.log('render')
     return (
         <SearchContainer id="search_area">
             <SearchBar

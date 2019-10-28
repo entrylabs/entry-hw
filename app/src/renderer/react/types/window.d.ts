@@ -13,5 +13,5 @@ declare interface Preload {
 }
 
 declare interface Window extends Preload {
-
+    os: string;
 }

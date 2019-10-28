@@ -10,7 +10,6 @@ import { IMapStateToProps } from '../store';
 
 const Main: React.FC<IStateProps> = (props) => {
     const { currentState } = props;
-    console.log(currentState);
     return (
         <>
             <div id="alert"/>

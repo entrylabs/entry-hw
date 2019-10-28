@@ -217,60 +217,6 @@ const ui = new class {
         );
         priorHardwareList = newSelectList;
 
-        const icon = `../../../modules/${hardware.icon}`;
-        $('#selectedHWThumb').attr('src', icon);
-
-        if (hardware.url) {
-            const $url = $('#url');
-            $url.text(hardware.url);
-            $('#urlArea').show();
-            $url.off('click');
-            $url.on('click', () => {
-                router.openExternalUrl(hardware.url);
-            });
-        } else {
-            $('#urlArea').hide();
-        }
-
-        if (hardware.video) {
-            let video = hardware.video;
-            const $video = $('#video');
-
-            if (typeof video === 'string') {
-                video = [video];
-            }
-
-            $video.empty();
-            video.forEach((link) => {
-                $video.append(`<span>${link}</span><br/>`);
-                $('#videoArea').show();
-            });
-            $video.off('click');
-            $video.on('click', 'span', (e) => {
-                const index = $('#video span').index(e.target);
-                console.log(video, index, video[index]);
-                router.openExternalUrl(video[index]);
-            });
-        } else {
-            $('#videoArea').hide();
-        }
-
-        if (hardware.email) {
-            const $email = $('#email');
-            $email.text(hardware.email);
-            $('#emailArea').show();
-            $email
-                .off('click')
-                .on('click', () => {
-                    clipboard.writeText(hardware.email);
-                    alert(
-                        translator.translate('Copied to clipboard'),
-                    );
-                });
-        } else {
-            $('#emailArea').hide();
-        }
-
         $('#driverButtonSet button').remove();
         $('#firmwareButtonSet button').remove();
 

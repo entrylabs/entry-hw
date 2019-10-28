@@ -4,6 +4,8 @@ import ProgressDot from './ProgressDot';
 import withPreload from '../../hoc/withPreload';
 import { connect } from 'react-redux';
 import { IMapStateToProps } from '../../store';
+import DriverButtonSetElement from './DriverButtonSetElement';
+import FirmwareButtonSetElement from './FirmwareButtonSetElement';
 
 const HardwarePanel = Styled.div`
     display: flex;
@@ -64,7 +66,8 @@ const HardwareConnectionContainer: React.FC<IStateProps & Preload> = (props) => 
         return <HardwarePanel/>;
     }
 
-    const { email, url, video, icon } = selectedHardware;
+    const { email, url, video, icon, driver, firmware } = selectedHardware;
+    const videoList = typeof video === 'string' ? [video] : video;
 
     return (
         <HardwarePanel id="hwPanel">
@@ -87,27 +90,41 @@ const HardwareConnectionContainer: React.FC<IStateProps & Preload> = (props) => 
                         </div>
                     }
                     {
-                        video &&
-                        <div id="videoArea" onClick={() => rendererRouter.openExternalUrl(video)}>
+                        videoList &&
+                        <div id="videoArea">
                             <span>{translator.translate('Video : ')}</span>
-                            <ReferenceContentSpan id="video">{video}</ReferenceContentSpan>
+                            {
+                                videoList.map((video) => (
+                                    <ReferenceContentSpan
+                                        id="video"
+                                        onClick={() => rendererRouter.openExternalUrl(video)}
+                                    >{video}</ReferenceContentSpan>
+                                ))
+                            }
                         </div>
                     }
                 </ReferenceDiv>
                 <ClientElement>
                     <img src="../images/computer.png" alt={''}/>
-                    <div id="driverButtonSet"/>
+                    {
+                        driver &&
+                        <div id="driverButtonSet">
+                            <DriverButtonSetElement buttonSet={driver} />
+                        </div>
+                    }
                 </ClientElement>
                 <ProgressDot/>
                 <HardwareElement>
                     <SelectedHardwareThumb
-                        id="selectedHWThumb"
                         alt={''}
                         src={`../../../modules/${icon}`}
                     />
-                    <div id="firmwareButtonSet">
-                        <button name="firmware" className="hwPanelBtn"/>
-                    </div>
+                    {
+                        firmware &&
+                        <div id="firmwareButtonSet">
+                            <FirmwareButtonSetElement buttonSet={firmware} />
+                        </div>
+                    }
                 </HardwareElement>
             </ReferenceMidDiv>
         </HardwarePanel>
