@@ -1,5 +1,3 @@
-type IHardware = any;
-
 const filterHardwareList = (keyword: string, category: string, hardwareList: IHardware[]) => {
     return hardwareList.filter((hardware) => {
         return (

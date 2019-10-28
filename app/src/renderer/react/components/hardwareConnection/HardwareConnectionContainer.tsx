@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import Styled from 'styled-components';
 import ProgressDot from './ProgressDot';
 import withPreload from '../../hoc/withPreload';
+import { connect } from 'react-redux';
+import { IMapStateToProps } from '../../store';
 
 const HardwarePanel = Styled.div`
     display: flex;
@@ -51,24 +53,46 @@ const SelectedHardwareThumb = Styled.img`
     height: 135px;
 `;
 
-const HardwareConnectionContainer: React.FC<Preload> = (props) => {
-    const { translator } = props;
+const HardwareConnectionContainer: React.FC<IStateProps & Preload> = (props) => {
+    const { translator, clipboard, selectedHardware, rendererRouter } = props;
+    const copyString = useCallback((str: string) => {
+        clipboard.writeText(str);
+        alert(translator.translate('Copied to clipboard'));
+    }, []);
+
+    if (!selectedHardware) {
+        return <HardwarePanel/>;
+    }
+
+    const { email, url, video, icon } = selectedHardware;
+
     return (
         <HardwarePanel id="hwPanel">
             <ReferenceMidDiv>
                 <ReferenceDiv id="reference">
-                    <div id="emailArea">
-                        <span>{translator.translate('E-Mail : ')}</span>
-                        <ReferenceContentSpan id="email"/>
-                    </div>
-                    <div id="urlArea">
-                        <span>{translator.translate('WebSite : ')}</span>
-                        <ReferenceContentSpan id="url"/>
-                    </div>
-                    <div id="videoArea">
-                        <span>{translator.translate('Video : ')}</span>
-                        <ReferenceContentSpan id="video"/>
-                    </div>
+                    {
+                        email &&
+                        <div id="emailArea" onClick={() => {
+                            copyString(email);
+                        }}>
+                            <span>{translator.translate('E-Mail : ')}</span>
+                            <ReferenceContentSpan id="email">{email}</ReferenceContentSpan>
+                        </div>
+                    }
+                    {
+                        url &&
+                        <div id="urlArea" onClick={() => rendererRouter.openExternalUrl(url)}>
+                            <span>{translator.translate('WebSite : ')}</span>
+                            <ReferenceContentSpan id="url">{url}</ReferenceContentSpan>
+                        </div>
+                    }
+                    {
+                        video &&
+                        <div id="videoArea" onClick={() => rendererRouter.openExternalUrl(video)}>
+                            <span>{translator.translate('Video : ')}</span>
+                            <ReferenceContentSpan id="video">{video}</ReferenceContentSpan>
+                        </div>
+                    }
                 </ReferenceDiv>
                 <ClientElement>
                     <img src="../images/computer.png" alt={''}/>
@@ -76,7 +100,11 @@ const HardwareConnectionContainer: React.FC<Preload> = (props) => {
                 </ClientElement>
                 <ProgressDot/>
                 <HardwareElement>
-                    <SelectedHardwareThumb id="selectedHWThumb" alt={''}/>
+                    <SelectedHardwareThumb
+                        id="selectedHWThumb"
+                        alt={''}
+                        src={`../../../modules/${icon}`}
+                    />
                     <div id="firmwareButtonSet">
                         <button name="firmware" className="hwPanelBtn"/>
                     </div>
@@ -86,4 +114,13 @@ const HardwareConnectionContainer: React.FC<Preload> = (props) => {
     );
 };
 
-export default withPreload(HardwareConnectionContainer);
+interface IStateProps {
+    selectedHardware?: IHardware;
+}
+
+const mapStateToProps: IMapStateToProps<IStateProps> = (state) => ({
+    selectedHardware: state.hardware.selectedHardware,
+});
+
+
+export default connect(mapStateToProps)(withPreload(HardwareConnectionContainer));

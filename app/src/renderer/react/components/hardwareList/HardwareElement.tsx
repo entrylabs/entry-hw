@@ -2,7 +2,7 @@ import React, { useCallback, useMemo } from 'react';
 import withPreload from '../../hoc/withPreload';
 import { connect } from 'react-redux';
 import { IMapDispatchToProps } from '../../store';
-import { changeHardwareCategory } from '../../store/modules/hardware';
+import { changeHardwareCategory, selectHardware } from '../../store/modules/hardware';
 import { changeCurrentState } from '../../store/modules/common';
 import { HardwarePageStateEnum } from '../../constants/constants';
 
@@ -10,6 +10,7 @@ const HardwareElement: React.FC<Preload & IDispatchProps & { hardware: any }> = 
     const { hardware, translator, rendererRouter } = props;
     const langType = useMemo(() => translator.currentLanguage, [translator]);
     const onElementClick = useCallback(() => {
+        props.selectHardware(hardware);
         props.changeCurrentState(HardwarePageStateEnum.connection);
         // rendererRouter.startScan(hardware);
     }, [hardware]);
@@ -25,10 +26,12 @@ const HardwareElement: React.FC<Preload & IDispatchProps & { hardware: any }> = 
 };
 
 interface IDispatchProps {
+    selectHardware: (hardware: IHardware) => void;
     changeCurrentState: (category: HardwarePageStateEnum) => void;
 }
 
 const mapDispatchToProps: IMapDispatchToProps<IDispatchProps> = (dispatch) => ({
+    selectHardware: selectHardware(dispatch),
     changeCurrentState: changeCurrentState(dispatch),
 });
 
