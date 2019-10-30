@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import HardwareConnectionContainer from './hardwareConnection/HardwareConnectionContainer';
 import LicenseViewerContainer from './opensourceLicenseViewer/licenseViewerContainer';
 import ErrorAlert from './ErrorAlert';
@@ -22,7 +22,7 @@ const Main: React.FC<IStateProps> = (props) => {
             )}
             {currentState === HardwarePageStateEnum.connection && (
                 <>
-                    <AlertTab message={''} />
+                    <AlertTab/>
                     <HardwareConnectionContainer/>
                     <SelectPortContainer/>
                 </>

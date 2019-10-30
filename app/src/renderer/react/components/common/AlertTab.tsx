@@ -1,21 +1,23 @@
 import React, { useEffect, useState } from 'react';
-import Styled, { css, keyframes } from 'styled-components';
+import Styled, { css, Keyframes, keyframes } from 'styled-components';
 
-const ActiveSnackBarKeyFrames = keyframes`
+type ScrollType = 'scroll' | 'reverse' | undefined
+
+const ScrollDownKeyFrames = keyframes`
   from {height: 0;}
   to {height: 35px;}
 `;
 
-const InActiveSnackBarKeyFrames = keyframes`
+const ScrollUpKeyFrames = keyframes`
   from {height: 35px;} 
   to {height: 0;}
 `;
 
-const animation = css`
-  animation: ${ActiveSnackBarKeyFrames} 1s forwards;
+const animation = (keyFrame: Keyframes) => css`
+  animation: ${keyFrame} 1s forwards;
 `;
 
-const AlertTabContainer = Styled.div<{ active: boolean }>`
+const AlertTabContainer = Styled.div<{ scroll: ScrollType }>`
     overflow: hidden;
     width: 100%;
     background-color: #ffc800;
@@ -25,31 +27,48 @@ const AlertTabContainer = Styled.div<{ active: boolean }>`
     text-align: center;
     height: 0;
     line-height: 35px;
-    ${(props) => props.active && css`${animation}`}
+    ${(props) => {
+        const { scroll } = props;
+        console.log('a' , scroll);
+        switch(scroll) {
+            case 'scroll':
+                return animation(ScrollDownKeyFrames);
+            case 'reverse':
+                return animation(ScrollUpKeyFrames);
+            default:
+                return 'height: 0';
+        }
+    }}
 `;
 
 interface IProps {
-    message: string;
+    message?: string;
     duration?: number;
 }
 
+let isFirstRun = true;
 const AlertTab: React.FC<IProps> = (props) => {
-    const [show, setShowState] = useState(false);
+    const [scrollType, changeScrollType] = useState<ScrollType>(undefined);
 
     useEffect(() => {
-        if (props.duration) {
-            setTimeout(() => {
-                setShowState(false);
-            }, props.duration);
+        if (!isFirstRun) {
+            changeScrollType('scroll');
         }
-    }, [props.duration]);
-
-    useEffect(() => {
-        setShowState(true);
+        isFirstRun = false;
     }, [props.message]);
 
+    useEffect(() => {
+        if (!isFirstRun && props.duration) {
+        console.log('duration');
+            setTimeout(() => {
+                changeScrollType('reverse');
+            }, props.duration);
+        }
+        isFirstRun = false;
+    }, [props.duration]);
+
     return (
-        <AlertTabContainer active={show}>{props.message}</AlertTabContainer>
+        <AlertTabContainer scroll={scrollType}>{props.message}</AlertTabContainer>
     );
 };
 
