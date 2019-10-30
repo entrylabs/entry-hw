@@ -9,6 +9,8 @@ import {
     HARDWARE_SELECTED,
 } from '../modules/hardware';
 import filterHardwareList from '../../functions/filterHardware';
+import { CURRENT_STATE_CHANGED } from '../modules/common';
+import { HardwarePageStateEnum } from '../../constants/constants';
 
 const { translator, rendererRouter } = window;
 
@@ -18,38 +20,51 @@ const { translator, rendererRouter } = window;
  */
 const entryHardwareMiddleware: Middleware = ({ getState }: { getState: () => IStoreState }) => (next: Dispatch<AnyAction>) => (action: AnyAction) => {
     const { type } = action; // currentAction
-    if (type === CATEGORY_CHANGED) {
-        next(action);
-        const { hardware } = getState();
-        const { hardwareFilterKeyword, hardwareFilterCategory } = hardware;
-        const hardwareList = filterHardwareList(hardwareFilterKeyword, hardwareFilterCategory, rendererRouter.hardwareList);
-        changeHardwareList(next)(hardwareList);
-    }
 
-    if (type === HARDWARE_SEARCH_KEYWORD_CHANGED) {
-        const { hardware } = getState();
-        const { hardwareFilterCategory } = hardware;
-        const { payload: keyword } = action;
-        const hardwareList = filterHardwareList(keyword, hardwareFilterCategory, rendererRouter.hardwareList);
-
-        if (!hardwareList || hardwareList.length === 0) {
-            alert(translator.translate('No results found'));
-        } else {
-            changeHardwareList(next)(hardwareList);
+    switch (type) {
+        case CATEGORY_CHANGED: {
             next(action);
+            const { hardware } = getState();
+            const { hardwareFilterKeyword, hardwareFilterCategory } = hardware;
+            const hardwareList = filterHardwareList(hardwareFilterKeyword, hardwareFilterCategory, rendererRouter.hardwareList);
+            changeHardwareList(next)(hardwareList);
+            break;
         }
-    }
+        case HARDWARE_SEARCH_KEYWORD_CHANGED: {
+            const { hardware } = getState();
+            const { hardwareFilterCategory } = hardware;
+            const { payload: keyword } = action;
+            const hardwareList = filterHardwareList(keyword, hardwareFilterCategory, rendererRouter.hardwareList);
 
-    if (type === HARDWARE_SELECTED) {
-        const { payload: hardware } = action;
-        // noinspection JSIgnoredPromiseFromCall
-        rendererRouter.startScan(hardware);
-    }
-
-    if (type === HARDWARE_LIST_RESET) {
-        changeHardwareList(next)(rendererRouter.hardwareList);
-    } else {
-        next(action);
+            if (!hardwareList || hardwareList.length === 0) {
+                alert(translator.translate('No results found'));
+            } else {
+                changeHardwareList(next)(hardwareList);
+                next(action);
+            }
+            break;
+        }
+        case CURRENT_STATE_CHANGED: {
+            const { payload: nextState } = action;
+            if (nextState === HardwarePageStateEnum.list) {
+                rendererRouter.stopScan();
+            }
+            next(action);
+            break;
+        }
+        case HARDWARE_SELECTED: {
+            const { payload: hardware } = action;
+            // noinspection JSIgnoredPromiseFromCall
+            rendererRouter.startScan(hardware);
+            next(action);
+            break;
+        }
+        case HARDWARE_LIST_RESET: {
+            changeHardwareList(next)(rendererRouter.hardwareList);
+            break;
+        }
+        default:
+            next(action);
     }
 };
 
