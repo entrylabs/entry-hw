@@ -42,9 +42,8 @@ class RendererRouter {
         });
     }
 
-    startScan(config) {
-        window.ui._showHardwareConnectingPage(config);
-        ipcRenderer.send('startScan', config);
+    startScan(hardware) {
+        ipcRenderer.send('startScan', hardware);
     };
 
     stopScan() {

@@ -217,54 +217,6 @@ const ui = new class {
         );
         priorHardwareList = newSelectList;
 
-        $('#driverButtonSet button').remove();
-        $('#firmwareButtonSet button').remove();
-
-        if (hardware.driver) {
-            if (
-                $.isPlainObject(hardware.driver) &&
-                hardware.driver[os]
-            ) {
-                const $dom = $('<button class="hwPanelBtn">');
-                $dom.text(
-                    translator.translate('Install Device Driver'),
-                );
-                $dom.prop('driverPath', hardware.driver[os]);
-                $('#driverButtonSet').append($dom);
-            } else if (Array.isArray(hardware.driver)) {
-                hardware.driver.forEach((driver) => {
-                    if (driver[os]) {
-                        const $dom = $('<button class="hwPanelBtn">');
-                        $dom.text(
-                            translator.translate(driver.translate),
-                        );
-                        $dom.prop('driverPath', driver[os]);
-                        $('#driverButtonSet').append($dom);
-                    }
-                });
-            }
-        }
-        if (hardware.firmware) {
-            $('#firmware').show();
-            if (Array.isArray(hardware.firmware)) {
-                hardware.firmware.forEach((firmware) => {
-                    const $dom = $('<button class="hwPanelBtn">');
-                    $dom.text(
-                        translator.translate(firmware.translate),
-                    );
-                    $dom.prop('firmware', firmware.name);
-                    $dom.prop('config', hardware);
-                    $('#firmwareButtonSet').append($dom);
-                });
-            } else {
-                const $dom = $('<button class="hwPanelBtn">');
-                $dom.text(translator.translate('Install Firmware'));
-                $dom.prop('firmware', hardware.firmware);
-                $dom.prop('config', hardware);
-                $('#firmwareButtonSet').append($dom);
-            }
-        }
-
         ui.hardware = hardware.id.substring(0, 4);
         ui.numLevel = 1;
         ui.showConnecting();
