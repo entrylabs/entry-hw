@@ -365,6 +365,7 @@ class MainRouter {
         if (this.handler) {
             this.handler = undefined;
         }
+        this.sendState('disconnected');
     };
 
     /**

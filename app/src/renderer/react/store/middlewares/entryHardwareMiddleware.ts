@@ -49,6 +49,7 @@ const entryHardwareMiddleware: Middleware = ({ getState }: { getState: () => ISt
             const { payload: nextState } = action;
             if (nextState === HardwarePageStateEnum.list) {
                 rendererRouter.stopScan();
+                rendererRouter.close();
             }
             next(action);
             break;
