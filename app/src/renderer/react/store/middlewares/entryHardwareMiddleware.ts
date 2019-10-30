@@ -11,6 +11,7 @@ import {
 import filterHardwareList from '../../functions/filterHardware';
 import { CURRENT_STATE_CHANGED } from '../modules/common';
 import { HardwarePageStateEnum } from '../../constants/constants';
+import refreshPriorHardwareList from '../../functions/refreshPriorHardwareList';
 
 const { translator, rendererRouter } = window;
 
@@ -55,6 +56,10 @@ const entryHardwareMiddleware: Middleware = ({ getState }: { getState: () => ISt
         case HARDWARE_SELECTED: {
             const { payload: hardware } = action;
             // noinspection JSIgnoredPromiseFromCall
+            if (hardware.name && hardware.name.ko) {
+                refreshPriorHardwareList(hardware.name.ko);
+            }
+
             rendererRouter.startScan(hardware);
             next(action);
             break;

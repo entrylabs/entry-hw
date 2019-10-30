@@ -3,8 +3,6 @@ const {
     clipboard, rendererRouter, constants, translator, os,
 } = window;
 
-let priorHardwareList = JSON.parse(localStorage.getItem('hardwareList')) || [];
-
 let viewMode = 'main';
 
 $('#firmware').text(translator.translate('Install Firmware'));
@@ -206,16 +204,6 @@ const ui = new class {
             hardware.hardware.type === 'bluetooth' ||
             router.serverMode === 1 ||
             false;
-
-        const newSelectList = priorHardwareList
-            .filter((item) => item !== hardware.name.ko);
-
-        newSelectList.push(hardware.name.ko);
-        localStorage.setItem(
-            'hardwareList',
-            JSON.stringify(newSelectList),
-        );
-        priorHardwareList = newSelectList;
 
         ui.hardware = hardware.id.substring(0, 4);
         ui.numLevel = 1;
