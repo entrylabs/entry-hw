@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import HardwareConnectionContainer from './hardwareConnection/HardwareConnectionContainer';
 import LicenseViewerContainer from './opensourceLicenseViewer/licenseViewerContainer';
 import ErrorAlert from './ErrorAlert';

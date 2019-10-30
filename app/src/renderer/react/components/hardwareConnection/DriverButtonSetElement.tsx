@@ -14,6 +14,7 @@ const DriverButtonSetElement: React.FC<{ buttonSet: IDriverButtonSet } & Preload
             {
                 buttonSet.filter((button) => button[os]).map((button) => {
                     return <button
+                        key={button[os]}
                         className="hwPanelBtn"
                         onClick={() => {onButtonClicked(button[os])}}
                     >{translator.translate(button.translate)}</button>;

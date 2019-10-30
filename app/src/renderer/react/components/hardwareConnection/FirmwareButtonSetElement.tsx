@@ -12,6 +12,7 @@ const FirmwareButtonSetElement: React.FC<{ buttonSet: IFirmwareButtonSet } & Pre
             {
                 buttonSet.map((firmware) => {
                     return <button
+                        key={firmware.name}
                         className="hwPanelBtn"
                         onClick={() => {onButtonClicked(firmware.name)}}
                     >{translator.translate(firmware.translate)}</button>;
