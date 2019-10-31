@@ -7,6 +7,8 @@ import { createGlobalStyle } from 'styled-components';
 import { Provider } from 'react-redux';
 import store from './store';
 
+const { rendererRouter } = window;
+
 const GlobalStyle = createGlobalStyle`
     @font-face {
         font-family: NanumGothic;
@@ -73,3 +75,6 @@ ReactDOM.render(
     </>,
     document.getElementById('__main'),
 );
+
+// 첫 렌더가 완료된 후 프로그램을 업데이트한다.
+rendererRouter.checkProgramUpdate();
