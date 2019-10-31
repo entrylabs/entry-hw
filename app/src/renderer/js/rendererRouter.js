@@ -23,7 +23,6 @@ class RendererRouter {
         const initialServerMode = ipcRenderer.sendSync('getCurrentServerModeSync') || RunningMode.server;
         const initialCloudMode = ipcRenderer.sendSync('getCurrentCloudModeSync') || CloudMode.singleServer;
 
-        // this._checkProgramUpdate();
         this._consoleWriteServerMode(initialServerMode);
         // this._toggleCloudModeUI(initialCloudMode);
 
@@ -85,7 +84,7 @@ class RendererRouter {
         });
     }
 
-    getHardwareListSync() {
+    _getHardwareListSync() {
         return ipcRenderer.sendSync('requestHardwareListSync');
     }
 
@@ -103,7 +102,7 @@ class RendererRouter {
 
     refreshHardwareModules() {
         // configuration
-        const routerHardwareList = this.getHardwareListSync();
+        const routerHardwareList = this._getHardwareListSync();
         this.priorHardwareList.reverse().forEach((target, index) => {
             const currentIndex = routerHardwareList.findIndex((item) => {
                 const itemName = item.name && item.name.ko ? item.name.ko : item.name;
@@ -118,9 +117,10 @@ class RendererRouter {
         this._hardwareList = routerHardwareList;
     }
 
-    _checkProgramUpdate() {
+    checkProgramUpdate() {
         const { appName } = remote.getGlobal('sharedObject');
-        const { translate, Modal } = window;
+        const { translator, Modal } = window;
+        const translate = (str) => translator.translate(str);
         const modal = new Modal.default();
 
         if (appName === 'hardware' && navigator.onLine) {
@@ -135,7 +135,6 @@ class RendererRouter {
                                 .replace(/%1/gi, latestVersion),
                             translate('Alert'),
                             {
-                                theme: 'LINE',
                                 positiveButtonText: translate('Download'),
                                 positiveButtonStyle: {
                                     marginTop: '16px',
@@ -184,7 +183,8 @@ class RendererRouter {
     }
 
     _setHardwareState(event, state, data) {
-        const { translate } = window;
+        const { translator } = window;
+        const translate = (str) => translator.translate(str);
         const ui = window.ui;
         const {
             showRobot,
@@ -236,7 +236,8 @@ class RendererRouter {
     }
 
     _confirmHardwareClose() {
-        const { translate } = window;
+        const { translator } = window;
+        const translate = (str) => translator.translate(str);
         let isQuit = true;
         if (this.currentState === 'connected') {
             isQuit = confirm(
