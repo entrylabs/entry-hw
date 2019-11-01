@@ -162,45 +162,22 @@ const ui = new class {
     }
 
     showPortSelectView(portList) {
-        if (isSelectPort) {
-            // selectPortConnectionTimeout = setTimeout(() => {
-            //     if (viewMode !== 'main') {
-            //         router.startScan(window.currentConfig);
-            //     }
-            // }, 1000);
-        } else {
-            isSelectPort = true;
-        }
-        if (
-            JSON.stringify(portList) !== this.cachedPortList &&
-            isSelectPort &&
-            viewMode !== 'main'
-        ) {
-            let portHtml = '';
-            portList.forEach((port) => {
-                portHtml +=
-                    `<option title="${port.comName}">${port.comName}</option>`;
-            });
 
-            $('#select_port_box select').html(portHtml);
-            this.cachedPortList = JSON.stringify(portList);
-        }
-        $('#select_port_box').css('display', 'flex');
     }
 
     _showHardwareConnectingPage(hardware) {
-        viewMode = hardware.id;
-
-        isSelectPort = hardware.select_com_port ||
-            hardware.hardware.type === 'bluetooth' ||
-            router.serverMode === 1 ||
-            false;
-
-        ui.hardware = hardware.id.substring(0, 4);
-        ui.numLevel = 1;
-        ui.showConnecting();
-        // hardware.serverMode = router.serverMode;
-        window.currentConfig = hardware;
+        // viewMode = hardware.id;
+        //
+        // isSelectPort = hardware.select_com_port ||
+        //     hardware.hardware.type === 'bluetooth' ||
+        //     router.serverMode === 1 ||
+        //     false;
+        //
+        // ui.hardware = hardware.id.substring(0, 4);
+        // ui.numLevel = 1;
+        // ui.showConnecting();
+        // // hardware.serverMode = router.serverMode;
+        // window.currentConfig = hardware;
     }
 }();
 const router = rendererRouter;

@@ -1,11 +1,12 @@
 import { AnyAction } from 'redux';
 import produce from 'immer';
 import { makePayloadAction, makeAction } from '../../functions/makeAction';
+import { CategoryTypeEnum } from '../../constants/constants';
 
 // interface
 export interface IHardwareState {
     hardwareFilterKeyword: string;
-    hardwareFilterCategory: string;
+    hardwareFilterCategory: CategoryTypeEnum;
     hardwareList: IHardware[];
 }
 
@@ -17,14 +18,14 @@ export const HARDWARE_LIST_RESET = 'hardware/HARDWARE_LIST_RESET';
 
 // actions
 export const changeHardwareSearchKeyword = makePayloadAction<string>(HARDWARE_SEARCH_KEYWORD_CHANGED);
-export const changeHardwareCategory = makePayloadAction<string>(CATEGORY_CHANGED);
+export const changeHardwareCategory = makePayloadAction<CategoryTypeEnum>(CATEGORY_CHANGED);
 export const changeHardwareList = makePayloadAction<IHardware[]>(HARDWARE_LIST_CHANGED);
 export const resetHardwareList = makeAction(HARDWARE_LIST_RESET);
 
 // reducer
 const initialState: IHardwareState = {
     hardwareFilterKeyword: '',
-    hardwareFilterCategory: 'all',
+    hardwareFilterCategory: CategoryTypeEnum.all,
     hardwareList: [],
 };
 

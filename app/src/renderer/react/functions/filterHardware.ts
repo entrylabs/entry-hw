@@ -1,3 +1,5 @@
+import { CategoryTypeEnum } from '../constants/constants';
+
 const filterHardwareList = (keyword: string, category: string, hardwareList: IHardware[]) => {
     return hardwareList.filter((hardware) => {
         return (
@@ -8,7 +10,7 @@ const filterHardwareList = (keyword: string, category: string, hardwareList: IHa
 };
 
 const categoryFilterHardware = (hardwareItem: IHardware, category: string) => {
-    return category === 'all' || hardwareItem.category === category;
+    return category === CategoryTypeEnum.all || hardwareItem.category === category;
 };
 
 const nameFilterHardware = (hardwareItem: IHardware, keyword: string) => {

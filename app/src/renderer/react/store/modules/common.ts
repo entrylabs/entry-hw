@@ -1,6 +1,6 @@
 import { AnyAction } from 'redux';
 import produce from 'immer';
-import { CloudModeTypesEnum, HardwarePageStateEnum } from '../../constants/constants';
+import { CategoryTypeEnum, CloudModeTypesEnum, HardwarePageStateEnum } from '../../constants/constants';
 import { makePayloadAction } from '../../functions/makeAction';
 
 const { ipcRenderer } = window;
@@ -8,7 +8,7 @@ const { ipcRenderer } = window;
 // interface
 export interface ICommonState {
     currentPageState: HardwarePageStateEnum;
-    categoryState: string;
+    categoryState: CategoryTypeEnum;
     isLicenseShow: boolean;
     isCloudMode: CloudModeTypesEnum;
 }
@@ -27,7 +27,7 @@ export const changeCloudMode = makePayloadAction<CloudModeTypesEnum>(CLOUD_MODE_
 // reducer
 const initialState: ICommonState = {
     currentPageState: HardwarePageStateEnum.list,
-    categoryState: 'all',
+    categoryState: CategoryTypeEnum.all,
     isLicenseShow: false,
     isCloudMode: ipcRenderer.sendSync('getCurrentCloudModeSync'),
 };

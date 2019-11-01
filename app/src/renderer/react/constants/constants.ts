@@ -3,6 +3,13 @@ export enum HardwarePageStateEnum {
     connection = 'connection',
 }
 
+export enum CategoryTypeEnum {
+    all = 'all',
+    robot = 'robot',
+    module = 'module',
+    board = 'board',
+}
+
 export enum HardwareModuleStateEnum {
     lost = 'lost',
     disconnected = 'disconnected',

@@ -3,6 +3,7 @@ import Styled from 'styled-components';
 import { IMapDispatchToProps, IMapStateToProps } from '../../store';
 import { changeHardwareCategory } from '../../store/modules/hardware';
 import { connect } from 'react-redux';
+import { CategoryTypeEnum } from '../../constants/constants';
 
 const DropdownContainer = Styled.ul`
     float: right;
@@ -52,11 +53,11 @@ const DropdownContent = Styled.li`
     }
 `;
 
-const HardwareCategoryEntries: { [key: string]: string } = {
-    all: '전체',
-    robot: '로봇형',
-    module: '모듈형',
-    board: '보드형',
+const HardwareCategoryEntries: { [key in keyof typeof CategoryTypeEnum]: string } = {
+    [CategoryTypeEnum.all]: '전체',
+    [CategoryTypeEnum.robot]: '로봇형',
+    [CategoryTypeEnum.module]: '모듈형',
+    [CategoryTypeEnum.board]: '보드형',
 };
 
 const HardwareTypeDropdown: React.FC<IStateProps & IDispatchProps> = (props) => {
@@ -64,7 +65,7 @@ const HardwareTypeDropdown: React.FC<IStateProps & IDispatchProps> = (props) => 
     const [currentKey, currentValue] = Object
         .entries(HardwareCategoryEntries)
         .find(([keyword]) => props.hardwareFilterCategory === keyword)
-    || ['all', HardwareCategoryEntries.all];
+    || [CategoryTypeEnum.all, HardwareCategoryEntries[CategoryTypeEnum.all]];
 
     return (
         <DropdownContainer id="filter_category" className="dropdown">
@@ -80,9 +81,8 @@ const HardwareTypeDropdown: React.FC<IStateProps & IDispatchProps> = (props) => 
                 return (
                     <DropdownContent
                         key={keyword}
-                        data-value={keyword}
                         onClick={() => {
-                            props.changeCategory(keyword);
+                            props.changeCategory(keyword as CategoryTypeEnum);
                             setShowState(!isShowList)
                         }}
                     >
@@ -103,7 +103,7 @@ const mapStateToProps: IMapStateToProps<IStateProps> = (state) => ({
 });
 
 interface IDispatchProps {
-    changeCategory: (category: string) => void;
+    changeCategory: (category: CategoryTypeEnum) => void;
 }
 
 const mapDispatchToProps: IMapDispatchToProps<IDispatchProps> = (dispatch) => ({
