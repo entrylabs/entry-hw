@@ -66,10 +66,9 @@ class Scanner {
                 return;
             }
 
-            //TODO this_com_port 가 config 에서 설정될 수도 있고,
-            // renderer 에서 COM 선택한것도 여기로 들어온다.
             const serverMode = this.router.currentServerRunningMode;
-            const { hardware, this_com_port: selectedComPortName } = this.config;
+            const selectedComPortName = this.router.selectedPort;
+            const { hardware } = this.config;
             let { select_com_port: needCOMPortSelect } = this.config;
             const {
                 comName: verifiedComPortNames,

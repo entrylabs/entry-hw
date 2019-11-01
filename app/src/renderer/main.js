@@ -48,72 +48,6 @@ const ui = new class {
         }
     }
 
-    showRobot(hardware) {
-        if (hardware && hardware.id) {
-            $(`#${hardware.id}`).show();
-        } else {
-            $('.hardwareType').show();
-        }
-    }
-
-    // addRobot(config) {
-    //     switch (config.availableType) {
-    //         case AvaliableType.needDownload: {
-    //             $('#hwList').append(`
-    //             <div class="hardwareType"
-    //             id="${config.id}"
-    //             style="filter: grayscale(100%); opacity: 0.5">
-    //                 <img class="hwThumb" src="${config.image}" alt="">
-    //                 <h2 class="hwTitle">
-    //                     ${config.name && config.name[langType] || config.name.en || config.name}
-    //                 </h2>
-    //             </div>
-    //         `);
-    //             $(`#${config.id}`)
-    //                 .off('click')
-    //                 .on('click', () => {
-    //                     router.requestDownloadModule(config);
-    //                 });
-    //             break;
-    //         }
-    //         case AvaliableType.needUpdate: {
-    //             $('#hwList').append(`
-    //             <div class="hardwareType" id="${config.id}">
-    //                 <img class="hwThumb" src="../../../modules/${config.icon}" alt="">
-    //                 <h2 class="hwTitle">
-    //                     [업]${config.name && config.name[langType] || config.name.en}
-    //                 </h2>
-    //             </div>
-    //         `);
-    //
-    //             $(`#${config.id}`)
-    //                 .off('click')
-    //                 .on('click', () => {
-    //                     router.requestDownloadModule(config);
-    //                 });
-    //             break;
-    //         }
-    //         case AvaliableType.available:
-    //         default: {
-    //             $('#hwList').append(`
-    //             <div class="hardwareType" id="${config.id}">
-    //                 <img class="hwThumb" src="../../../modules/${config.icon}" alt="">
-    //                 <h2 class="hwTitle">
-    //                     ${config.name && config.name[langType] || config.name.en}
-    //                 </h2>
-    //             </div>
-    //         `);
-    //
-    //             $(`#${config.id}`)
-    //                 .off('click')
-    //                 .on('click', () => {
-    //                     router.startScan(config);
-    //                 });
-    //             break;
-    //         }
-    //     }
-    // }
-
     flashFirmware(firmwareName) {
         if (router.currentState !== 'before_connect' && router.currentState !== 'connected') {
             alert(
@@ -144,25 +78,6 @@ const ui = new class {
                 $('#firmwareButtonSet').show();
             });
     }
-
-    showPortSelectView(portList) {
-
-    }
-
-    _showHardwareConnectingPage(hardware) {
-        // viewMode = hardware.id;
-        //
-        // isSelectPort = hardware.select_com_port ||
-        //     hardware.hardware.type === 'bluetooth' ||
-        //     router.serverMode === 1 ||
-        //     false;
-        //
-        // ui.hardware = hardware.id.substring(0, 4);
-        // ui.numLevel = 1;
-        // ui.showConnecting();
-        // // hardware.serverMode = router.serverMode;
-        // window.currentConfig = hardware;
-    }
 }();
 const router = rendererRouter;
 window.ui = ui;
@@ -173,36 +88,3 @@ $body.on('keyup', (e) => {
         $('#back.active').trigger('click');
     }
 });
-
-$body.on('click', '#back.active', (e) => {
-    isSelectPort = true;
-    window.currentConfig && delete window.currentConfig.this_com_port;
-});
-
-$('#select_port').dblclick(() => {
-    $('#btn_select_port').trigger('click');
-});
-
-$('#btn_select_port').click((e) => {
-    const comPort = $('#select_port').val();
-    if (!comPort) {
-        alert(translator.translate('Select the COM PORT to connect'));
-    } else {
-        window.currentConfig.this_com_port = comPort[0];
-        clearSelectPort();
-    }
-});
-
-$('#select_port_box .cancel_event').click((e) => {
-    clearSelectPort();
-    ui.cachedPortList = '';
-    clearTimeout(selectPortConnectionTimeout);
-});
-
-function clearSelectPort() {
-    isSelectPort = false;
-    $('#select_port_box').css('display', 'none');
-}
-
-let isSelectPort = true;
-let selectPortConnectionTimeout;

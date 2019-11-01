@@ -12,9 +12,6 @@ ipcRenderer.on('console', (event: string, ...args: any[]) => {
 });
 
 const ipcRendererWatchMiddleware: Middleware = ({ getState }: { getState: () => IStoreState }) => (next: Dispatch<AnyAction>) => (action: AnyAction) => {
-    ipcRenderer.on('hardwareListChanged', () => {
-        rendererRouter.refreshHardwareModules.bind(rendererRouter);
-    });
     ipcRenderer.on('state', (event: Electron.Event, state: HardwareModuleStateEnum, data ?: any) => {
         const applyTitle = (title: string) => {
             changeStateTitle(next)(translator.translate(title));
@@ -40,10 +37,6 @@ const ipcRendererWatchMiddleware: Middleware = ({ getState }: { getState: () => 
     });
     ipcRenderer.on('portListScanned', (event: Electron.Event, data: ISerialPortScanData[]) => {
         changePortList(next)(data);
-    });
-    ipcRenderer.on('hardwareCloseConfirm', rendererRouter._confirmHardwareClose.bind(rendererRouter));
-    ipcRenderer.on('serverMode', (event: Electron.Event, mode: string) => {
-        rendererRouter._consoleWriteServerMode(mode);
     });
     ipcRenderer.on('cloudMode', (event: Electron.Event, mode: CloudModeTypesEnum) => {
         changeCloudMode(next)(mode);

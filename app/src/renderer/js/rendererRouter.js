@@ -23,6 +23,12 @@ class RendererRouter {
             ipcRenderer.sendSync('getCurrentServerModeSync') || RunningMode.server;
 
         this._consoleWriteServerMode(initialServerMode);
+
+        ipcRenderer.on('hardwareListChanged', this.refreshHardwareModules.bind(this));
+        ipcRenderer.on('hardwareCloseConfirm', this._confirmHardwareClose.bind(this));
+        ipcRenderer.on('serverMode', (event, mode) => {
+            this._consoleWriteServerMode(mode);
+        });
     }
 
     startScan(hardware) {
@@ -36,6 +42,10 @@ class RendererRouter {
     close() {
         ipcRenderer.send('close');
     };
+
+    sendSelectedPort(portName) {
+        ipcRenderer.send('selectPort', portName);
+    }
 
     requestOpenAboutWindow() {
         ipcRenderer.send('openAboutWindow');

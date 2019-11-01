@@ -1,11 +1,11 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import Styled from 'styled-components';
 import withPreload from '../hoc/withPreload';
 import { HardwarePageStateEnum } from '../constants/constants';
 import { IMapDispatchToProps, IMapStateToProps } from '../store';
 import { connect } from 'react-redux';
 import { changeCurrentPageState } from '../store/modules/common';
-import { changePortList } from '../store/modules/connection';
+import { changePortList, selectPort } from '../store/modules/connection';
 
 const PortBoxContainer = Styled.div`
     background: rgba(0, 0, 0, 0.4);
@@ -105,10 +105,15 @@ const CancelButton = Styled.button`
 type IProps = IDispatchProps & IStateProps & Preload;
 const SelectPortContainer: React.FC<IProps> = (props) => {
     const { translator, portList } = props;
+    const [selectedPort, changeSelected] = useState<string>('');
 
     const onCancelClicked = useCallback(() => {
         props.changeCurrentPageState(HardwarePageStateEnum.list);
         props.clearPortList();
+    }, []);
+
+    const onPortSelected = useCallback((porName: string) => {
+        props.selectPort(porName);
     }, []);
 
     return (
@@ -118,15 +123,19 @@ const SelectPortContainer: React.FC<IProps> = (props) => {
                     <span>
                         {translator.translate('Select')}
                     </span>
-                    <PortBoxCancelIcon className="cancel_icon cancel_event"/>
+                    <PortBoxCancelIcon className="cancel_icon cancel_event" onClick={onCancelClicked}/>
                 </PortBoxTitle>
                 <PortBoxContent>
                     <PortBoxDescription>
                         {translator.translate('Select the COM PORT to connect')}
                     </PortBoxDescription>
-                    <PortBoxSelectElement size={10} id="select_port">
+                    <PortBoxSelectElement size={10} id="select_port" onChange={(e) => {
+                        changeSelected(e.target.value);
+                    }}>
                         {portList.map((port) => (
-                            <option title={port.comName} key={port.comName}>
+                            <option title={port.comName} value={port.comName} key={port.comName} onDoubleClick={() => {
+                                onPortSelected(port.comName);
+                            }}>
                                 {port.comName}
                             </option>
                         ))}
@@ -139,7 +148,13 @@ const SelectPortContainer: React.FC<IProps> = (props) => {
                         >
                             {translator.translate('Cancel')}
                         </CancelButton>
-                        <SelectButton id="btn_select_port">
+                        <SelectButton id="btn_select_port" onClick={() => {
+                            if (!selectedPort) {
+                                alert(translator.translate('Select the COM PORT to connect'));
+                            } else {
+                                onPortSelected(selectedPort);
+                            }
+                        }}>
                             {translator.translate('Connect')}
                         </SelectButton>
                     </div>
@@ -160,11 +175,13 @@ const mapStateToProps: IMapStateToProps<IStateProps> = (state) => ({
 interface IDispatchProps {
     changeCurrentPageState: (page: HardwarePageStateEnum) => void;
     clearPortList: () => void;
+    selectPort: (portName: string) => void;
 }
 
 const mapDispatchToProps: IMapDispatchToProps<IDispatchProps> = (dispatch) => ({
     changeCurrentPageState: changeCurrentPageState(dispatch),
     clearPortList: () => changePortList(dispatch)([]),
+    selectPort: selectPort(dispatch),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(withPreload(SelectPortContainer));

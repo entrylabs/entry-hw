@@ -31,6 +31,7 @@ class MainRouter {
         this.flasher = new Flasher();
         this.hardwareListManager = new HardwareListManager(this);
 
+        this.selectedPort = undefined;
         this.config = undefined;
         /** @type {Connector} */
         this.connector = undefined;
@@ -50,6 +51,9 @@ class MainRouter {
             } catch (e) {
                 rendererConsole.error(`startScan err : `, e);
             }
+        });
+        ipcMain.on('selectPort', (e, portName) => {
+            this.selectedPort = portName;
         });
         ipcMain.on('stopScan', () => {
             this.stopScan();
@@ -365,6 +369,7 @@ class MainRouter {
         if (this.handler) {
             this.handler = undefined;
         }
+        this.selectedPort = undefined;
         this.sendState('disconnected');
     };
 
