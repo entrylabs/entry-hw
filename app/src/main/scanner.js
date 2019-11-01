@@ -112,7 +112,8 @@ class Scanner {
                         }
                         resolve(connector);
                     } else {
-                        this.router.sendState('select_port', comPorts);
+                        // this.router.sendState('select_port', comPorts);
+                        this.router.sendEventToMainWindow('portListScanned', comPorts);
                         resolve();
                     }
                     return;

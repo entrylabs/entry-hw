@@ -1,10 +1,14 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import Styled from 'styled-components';
 import withPreload from '../hoc/withPreload';
+import { HardwarePageStateEnum } from '../constants/constants';
+import { IMapDispatchToProps, IMapStateToProps } from '../store';
+import { connect } from 'react-redux';
+import { changeCurrentPageState } from '../store/modules/common';
 
 const PortBoxContainer = Styled.div`
     background: rgba(0, 0, 0, 0.4);
-    display: none;
+    display: flex;
     position: fixed;
     top: 0;
     left: 0;
@@ -52,7 +56,7 @@ const PortBoxCancelIcon = Styled.div`
     background-repeat: no-repeat;
     background-position: center;
     background-image: url(../images/btn_close.png);
-`
+`;
 
 const PortBoxContent = Styled.div`
     border-bottom-left-radius: 3px;
@@ -95,10 +99,15 @@ const CancelButton = Styled.button`
     border: 0;
     border-radius: 3px;
     margin-right: 11px;
-`
+`;
 
-const SelectPortContainer: React.FC<Preload> = (props) => {
-    const {translator} = props;
+type IProps = IDispatchProps & IStateProps & Preload;
+const SelectPortContainer: React.FC<IProps> = (props) => {
+    const { translator, portList } = props;
+
+    const onCancelClicked = useCallback(() => {
+        props.changeCurrentPageState(HardwarePageStateEnum.list);
+    }, []);
 
     return (
         <PortBoxContainer id="select_port_box">
@@ -113,9 +122,19 @@ const SelectPortContainer: React.FC<Preload> = (props) => {
                     <PortBoxDescription>
                         {translator.translate('Select the COM PORT to connect')}
                     </PortBoxDescription>
-                    <PortBoxSelectElement multiple size={10} id="select_port"/>
+                    <PortBoxSelectElement size={10} id="select_port">
+                        {portList.map((port) => (
+                            <option title={port.comName} key={port.comName}>
+                                {port.comName}
+                            </option>
+                        ))}
+                    </PortBoxSelectElement>
                     <div>
-                        <CancelButton id="btn_select_port_cancel" className="cancel_event">
+                        <CancelButton
+                            id="btn_select_port_cancel"
+                            className="cancel_event"
+                            onClick={onCancelClicked}
+                        >
                             {translator.translate('Cancel')}
                         </CancelButton>
                         <SelectButton id="btn_select_port">
@@ -125,7 +144,23 @@ const SelectPortContainer: React.FC<Preload> = (props) => {
                 </PortBoxContent>
             </PortBoxBody>
         </PortBoxContainer>
-    )
+    );
 };
 
-export default withPreload(SelectPortContainer);
+interface IStateProps {
+    portList: ISerialPortScanData[];
+}
+
+const mapStateToProps: IMapStateToProps<IStateProps> = (state) => ({
+    portList: state.connection.portList,
+});
+
+interface IDispatchProps {
+    changeCurrentPageState: (page: HardwarePageStateEnum) => void;
+}
+
+const mapDispatchToProps: IMapDispatchToProps<IDispatchProps> = (dispatch) => ({
+    changeCurrentPageState: changeCurrentPageState(dispatch)
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(withPreload(SelectPortContainer));

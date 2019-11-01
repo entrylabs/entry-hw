@@ -10,7 +10,7 @@ import { IMapStateToProps } from '../store';
 import AlertTab from './common/AlertTab';
 
 const Main: React.FC<IStateProps> = (props) => {
-    const { currentState } = props;
+    const { currentState, isNeedPortSelect } = props;
     return (
         <>
             {currentState === HardwarePageStateEnum.list && (
@@ -24,7 +24,7 @@ const Main: React.FC<IStateProps> = (props) => {
                 <>
                     <AlertTab/>
                     <HardwareConnectionContainer/>
-                    <SelectPortContainer/>
+                    {isNeedPortSelect && <SelectPortContainer/>}
                 </>
             )}
         </>
@@ -33,10 +33,12 @@ const Main: React.FC<IStateProps> = (props) => {
 
 interface IStateProps {
     currentState: HardwarePageStateEnum;
+    isNeedPortSelect: boolean;
 }
 
 const mapStateToProps: IMapStateToProps<IStateProps> = (state) => ({
-    currentState: state.common.currentState,
+    currentState: state.common.currentPageState,
+    isNeedPortSelect: state.connection.isNeedPortSelect,
 });
 
 export default connect(mapStateToProps)(Main);

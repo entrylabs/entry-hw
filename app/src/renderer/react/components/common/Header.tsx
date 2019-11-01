@@ -45,7 +45,7 @@ interface IStateProps {
 }
 
 const mapStateToProps: IMapStateToProps<IStateProps> = (state) => ({
-    currentState: state.common.currentState,
+    currentState: state.common.currentPageState,
 });
 
 export default connect(mapStateToProps)(Header);

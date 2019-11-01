@@ -136,7 +136,7 @@ interface IStateProps {
 }
 
 const mapStateToProps: IMapStateToProps<IStateProps> = (state) => ({
-    selectedHardware: state.hardware.selectedHardware,
+    selectedHardware: state.connection.selectedHardware,
 });
 
 

@@ -4,7 +4,7 @@ import withPreload from '../../hoc/withPreload';
 import { connect } from 'react-redux';
 import { IMapDispatchToProps, IMapStateToProps } from '../../store';
 import { HardwarePageStateEnum } from '../../constants/constants';
-import { changeCurrentState } from '../../store/modules/common';
+import { changeCurrentPageState } from '../../store/modules/common';
 
 const NavigatorContainer = Styled.div`
     padding-top: 15px;
@@ -65,7 +65,7 @@ interface IStateProps {
 }
 
 const mapStateToProps: IMapStateToProps<IStateProps> = (state) => ({
-    currentState: state.common.currentState,
+    currentState: state.common.currentPageState,
 });
 
 interface IDispatchProps {
@@ -73,7 +73,7 @@ interface IDispatchProps {
 }
 
 const mapDispatchToProps: IMapDispatchToProps<IDispatchProps> = (dispatch) => ({
-    changeCurrentState: changeCurrentState(dispatch),
+    changeCurrentState: changeCurrentPageState(dispatch),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(withPreload(Navigator));

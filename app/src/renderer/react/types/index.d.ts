@@ -21,3 +21,12 @@ declare interface IHardware {
     select_com_port?: boolean;
     tryFlasherNumber?: number;
 }
+
+declare interface ISerialPortScanData {
+    comName: string;
+    manufacturer?: string;
+    serialNumber?: string;
+    locationId?: string;
+    vendorId?: string;
+    productId?: string;
+}

@@ -2,7 +2,6 @@ const { ipcRenderer, shell, remote } = require('electron');
 const {
     HARDWARE_STATEMENT: Statement,
     RUNNING_MODE_TYPES: RunningMode,
-    CLOUD_MODE_TYPES: CloudMode,
 } = require('../../common/constants');
 
 /**
@@ -178,12 +177,12 @@ class RendererRouter {
         }
         switch (state) {
             case showRobot: {
-                ui.showRobot(data);
+                // ui.showRobot(data);
                 break;
             }
             case selectPort: {
-                this.close();
-                ui.showPortSelectView(data);
+                // this.close();
+                // ui.showPortSelectView(data);
                 return; // ui 변경 이루어지지 않음.
             }
             case flash: {

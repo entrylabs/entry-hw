@@ -1,6 +1,6 @@
 import React, { ComponentType } from 'react';
 
-const { translator, rendererRouter, Modal, clipboard, os } = window;
+const { ipcRenderer, translator, rendererRouter, Modal, clipboard, os } = window;
 
 type IPreloadProps = Preload;
 
@@ -8,6 +8,7 @@ function withPreload<P extends IPreloadProps>(
     WrappedComponent: React.ComponentType<P>,
 ) {
     const injectProps: IPreloadProps = {
+        ipcRenderer,
         translator,
         rendererRouter, //TODO
         Modal,

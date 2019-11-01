@@ -2,17 +2,16 @@ import React, { useCallback, useMemo } from 'react';
 import withPreload from '../../hoc/withPreload';
 import { connect } from 'react-redux';
 import { IMapDispatchToProps } from '../../store';
-import { changeHardwareCategory, selectHardware } from '../../store/modules/hardware';
-import { changeCurrentState } from '../../store/modules/common';
+import { changeCurrentPageState } from '../../store/modules/common';
 import { HardwarePageStateEnum } from '../../constants/constants';
+import { selectHardware } from '../../store/modules/connection';
 
 const HardwareElement: React.FC<Preload & IDispatchProps & { hardware: any }> = (props) => {
-    const { hardware, translator, rendererRouter } = props;
+    const { hardware, translator } = props;
     const langType = useMemo(() => translator.currentLanguage, [translator]);
     const onElementClick = useCallback(() => {
         props.selectHardware(hardware);
         props.changeCurrentState(HardwarePageStateEnum.connection);
-        // rendererRouter.startScan(hardware);
     }, [hardware]);
 
     return (
@@ -32,7 +31,7 @@ interface IDispatchProps {
 
 const mapDispatchToProps: IMapDispatchToProps<IDispatchProps> = (dispatch) => ({
     selectHardware: selectHardware(dispatch),
-    changeCurrentState: changeCurrentState(dispatch),
+    changeCurrentState: changeCurrentPageState(dispatch),
 });
 
 export default connect(undefined, mapDispatchToProps)(withPreload(HardwareElement));

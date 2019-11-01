@@ -6,12 +6,12 @@ import {
     changeHardwareList,
     HARDWARE_LIST_RESET,
     HARDWARE_SEARCH_KEYWORD_CHANGED,
-    HARDWARE_SELECTED,
 } from '../modules/hardware';
 import filterHardwareList from '../../functions/filterHardware';
-import { CURRENT_STATE_CHANGED } from '../modules/common';
+import { CURRENT_PAGE_STATE_CHANGED } from '../modules/common';
 import { HardwarePageStateEnum } from '../../constants/constants';
 import refreshPriorHardwareList from '../../functions/refreshPriorHardwareList';
+import { HARDWARE_SELECTED } from '../modules/connection';
 
 const { translator, rendererRouter } = window;
 
@@ -45,7 +45,7 @@ const entryHardwareMiddleware: Middleware = ({ getState }: { getState: () => ISt
             }
             break;
         }
-        case CURRENT_STATE_CHANGED: {
+        case CURRENT_PAGE_STATE_CHANGED: {
             const { payload: nextState } = action;
             if (nextState === HardwarePageStateEnum.list) {
                 rendererRouter.stopScan();
