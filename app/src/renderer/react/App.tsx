@@ -6,12 +6,14 @@ import Header from './components/common/Header';
 import { Provider } from 'react-redux';
 import store from './store';
 import GlobalStyle from './GlobalStyle';
+import IpcRendererWatchComponent from './components/IpcRendererWatchComponent';
 
 const { rendererRouter } = window;
 
 ReactDOM.render(
     <>
         <Provider store={store}>
+            <IpcRendererWatchComponent />
             <Header/>
             <Main/>
             <Footer/>

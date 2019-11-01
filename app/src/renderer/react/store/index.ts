@@ -3,7 +3,6 @@ import common, { ICommonState } from './modules/common';
 import hardware, { IHardwareState } from './modules/hardware';
 import entryHardwareMiddleware from './middlewares/entryHardwareMiddleware';
 import { Dispatch } from 'react';
-import ipcRendererWatchMiddleware from './middlewares/ipcRendererWatchMiddleware';
 import connection, { IConnectionState } from './modules/connection';
 
 // interfaces
@@ -24,8 +23,5 @@ const reducers = combineReducers<IStoreState>({
 
 export default createStore(
     reducers,
-    applyMiddleware(
-        ipcRendererWatchMiddleware,
-        entryHardwareMiddleware,
-    ),
+    applyMiddleware(entryHardwareMiddleware),
 );

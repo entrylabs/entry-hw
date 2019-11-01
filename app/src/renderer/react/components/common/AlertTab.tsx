@@ -29,7 +29,6 @@ const AlertTabContainer = Styled.div<{ scroll: ScrollType }>`
     line-height: 35px;
     ${(props) => {
         const { scroll } = props;
-        console.log('a' , scroll);
         switch(scroll) {
             case 'scroll':
                 return animation(ScrollDownKeyFrames);
