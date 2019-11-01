@@ -1,8 +1,8 @@
 import React from 'react';
 import HardwareConnectionContainer from './hardwareConnection/HardwareConnectionContainer';
-import LicenseViewerContainer from './opensourceLicenseViewer/licenseViewerContainer';
-import ErrorAlert from './ErrorAlert';
-import SelectPortContainer from './SelectPortContainer';
+import LicenseViewerContainer from './hardwareList/opensourceLicenseViewer/licenseViewerContainer';
+import ErrorAlert from './hardwareList/ErrorAlert';
+import SelectPortContainer from './hardwareConnection/SelectPortContainer';
 import HardwareListContainer from './hardwareList/HardwareListContainer';
 import { connect } from 'react-redux';
 import { HardwarePageStateEnum } from '../constants/constants';

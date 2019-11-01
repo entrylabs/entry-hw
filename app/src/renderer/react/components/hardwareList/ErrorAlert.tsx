@@ -1,5 +1,5 @@
 import React from 'react';
-import withPreload from '../hoc/withPreload';
+import withPreload from '../../hoc/withPreload';
 import Styled from 'styled-components';
 
 const ErrorAlertContainer = Styled.div`

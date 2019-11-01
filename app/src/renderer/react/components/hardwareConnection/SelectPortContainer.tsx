@@ -1,11 +1,11 @@
 import React, { useCallback, useState } from 'react';
 import Styled from 'styled-components';
-import withPreload from '../hoc/withPreload';
-import { HardwarePageStateEnum } from '../constants/constants';
-import { IMapDispatchToProps, IMapStateToProps } from '../store';
+import withPreload from '../../hoc/withPreload';
+import { HardwarePageStateEnum } from '../../constants/constants';
+import { IMapDispatchToProps, IMapStateToProps } from '../../store';
 import { connect } from 'react-redux';
-import { changeCurrentPageState } from '../store/modules/common';
-import { changePortList, selectPort } from '../store/modules/connection';
+import { changeCurrentPageState } from '../../store/modules/common';
+import { changePortList, selectPort } from '../../store/modules/connection';
 
 const PortBoxContainer = Styled.div`
     background: rgba(0, 0, 0, 0.4);

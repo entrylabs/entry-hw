@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import withPreload from '../../hoc/withPreload';
+import withPreload from '../../../hoc/withPreload';
 import { connect } from 'react-redux';
-import { IMapDispatchToProps, IMapStateToProps } from '../../store';
-import { toggleLicenseView } from '../../store/modules/common';
+import { IMapDispatchToProps, IMapStateToProps } from '../../../store';
+import { toggleLicenseView } from '../../../store/modules/common';
 import Styled from 'styled-components';
 
 const ViewerContainer = Styled.div`
