@@ -2,7 +2,7 @@ import React from 'react';
 import Styled from 'styled-components';
 import Navigator from '../hardwareList/Navigator';
 import HardwareTypeDropdown from '../hardwareList/HardwareTypeDropdown';
-import CloudIcon from '../hardwareList/CloudIcon';
+import CloudIcon from './CloudIcon';
 import SearchArea from '../hardwareList/SearchArea';
 import { IMapStateToProps } from '../../store';
 import { connect } from 'react-redux';

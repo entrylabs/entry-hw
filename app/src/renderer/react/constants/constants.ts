@@ -3,6 +3,11 @@ export enum HardwarePageStateEnum {
     connection= 'connection',
 }
 
+export enum CloudModeTypesEnum {
+    singleServer,
+    cloud,
+}
+
 /*
     lost = 'lost',
     list = 'list',

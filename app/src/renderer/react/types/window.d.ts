@@ -4,6 +4,7 @@ interface ITranslator {
 }
 
 declare interface Preload {
+    ipcRenderer: Electron.IpcRenderer;
     translator: ITranslator;
     clipboard: {
         writeText(str: string): void;

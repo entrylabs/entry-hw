@@ -1,8 +1,9 @@
 import { combineReducers, createStore, applyMiddleware, AnyAction } from 'redux';
-import common, {ICommonState}  from './modules/common';
-import hardware, {IHardwareState} from './modules/hardware';
+import common, { ICommonState } from './modules/common';
+import hardware, { IHardwareState } from './modules/hardware';
 import entryHardwareMiddleware from './middlewares/entryHardwareMiddleware';
 import { Dispatch } from 'react';
+import ipcRendererWatchMiddleware from './middlewares/ipcRendererWatchMiddleware';
 
 // interfaces
 export type IMapStateToProps<T> = (store: IStoreState) => T;
@@ -18,4 +19,10 @@ const reducers = combineReducers<IStoreState>({
     hardware,
 });
 
-export default createStore(reducers, applyMiddleware(entryHardwareMiddleware));
+export default createStore(
+    reducers,
+    applyMiddleware(
+        ipcRendererWatchMiddleware,
+        entryHardwareMiddleware,
+    ),
+);

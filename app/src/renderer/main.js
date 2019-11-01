@@ -188,15 +188,6 @@ const ui = new class {
         $('#select_port_box').css('display', 'flex');
     }
 
-    setCloudMode(isCloudMode) {
-        const $cloudIcon = $('#cloud_icon');
-        if (isCloudMode) {
-            $cloudIcon.show();
-        } else {
-            $cloudIcon.hide();
-        }
-    }
-
     _showHardwareConnectingPage(hardware) {
         viewMode = hardware.id;
 

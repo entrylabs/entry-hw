@@ -20,25 +20,10 @@ class RendererRouter {
         this.priorHardwareList = JSON.parse(localStorage.getItem('hardwareList')) || [];
         this.currentState = Statement.disconnected;
         this._hardwareList = [];
-        const initialServerMode = ipcRenderer.sendSync('getCurrentServerModeSync') || RunningMode.server;
-        const initialCloudMode = ipcRenderer.sendSync('getCurrentCloudModeSync') || CloudMode.singleServer;
+        const initialServerMode =
+            ipcRenderer.sendSync('getCurrentServerModeSync') || RunningMode.server;
 
         this._consoleWriteServerMode(initialServerMode);
-        // this._toggleCloudModeUI(initialCloudMode);
-
-        //ipcEvent
-        ipcRenderer.on('console', (event, ...args) => {
-            console.log(...args);
-        });
-        ipcRenderer.on('hardwareListChanged', this.refreshHardwareModules.bind(this));
-        ipcRenderer.on('state', this._setHardwareState.bind(this));
-        ipcRenderer.on('hardwareCloseConfirm', this._confirmHardwareClose.bind(this));
-        ipcRenderer.on('serverMode', (event, mode) => {
-            this._consoleWriteServerMode(mode);
-        });
-        ipcRenderer.on('cloudMode', (event, mode) => {
-            this._toggleCloudModeUI(mode);
-        });
     }
 
     startScan(hardware) {
@@ -166,20 +151,10 @@ class RendererRouter {
 
         if (mode === RunningMode.client) {
             console.log('%cI`M CLIENT', 'background:black;color:yellow;font-size: 30px');
-
         } else if (mode === RunningMode.server) {
             console.log('%cI`M SERVER', 'background:orange; font-size: 30px');
         }
         this.serverMode = mode;
-    }
-
-    _toggleCloudModeUI(mode) {
-        if (mode === CloudMode.singleServer) {
-            window.ui.setCloudMode(false);
-        } else if (mode === CloudMode.cloud) {
-            window.ui.setCloudMode(true);
-        }
-        this.cloudMode = mode;
     }
 
     _setHardwareState(event, state, data) {
