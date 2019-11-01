@@ -28,10 +28,7 @@ export default (state = initialState, { type, payload }: AnyAction) => {
             });
         case PORTLIST_CHANGED:
             return produce(state, (nextState) => {
-                // if ((payload as ISerialPortScanData[]).length === 0) {
-                //     nextState.isNeedPortSelect = false;
-                // }
-                nextState.isNeedPortSelect = true;
+                nextState.isNeedPortSelect = (payload as ISerialPortScanData[]).length !== 0;
                 nextState.portList = payload;
             });
         default:

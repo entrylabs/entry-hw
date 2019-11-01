@@ -28,7 +28,7 @@ const Header: React.FC<IStateProps> = (props) => {
     return (
         <HeaderContainer>
             <Navigator/>
-            <Title id="title">하드웨어 선택</Title>
+            <Title>{props.title}</Title>
             <CloudIcon/>
             {props.currentState === HardwarePageStateEnum.list && (
                 <>
@@ -42,10 +42,12 @@ const Header: React.FC<IStateProps> = (props) => {
 
 interface IStateProps {
     currentState: HardwarePageStateEnum;
+    title: string;
 }
 
 const mapStateToProps: IMapStateToProps<IStateProps> = (state) => ({
     currentState: state.common.currentPageState,
+    title: state.common.stateTitle,
 });
 
 export default connect(mapStateToProps)(Header);

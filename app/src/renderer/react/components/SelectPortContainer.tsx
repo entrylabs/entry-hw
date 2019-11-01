@@ -5,6 +5,7 @@ import { HardwarePageStateEnum } from '../constants/constants';
 import { IMapDispatchToProps, IMapStateToProps } from '../store';
 import { connect } from 'react-redux';
 import { changeCurrentPageState } from '../store/modules/common';
+import { changePortList } from '../store/modules/connection';
 
 const PortBoxContainer = Styled.div`
     background: rgba(0, 0, 0, 0.4);
@@ -107,6 +108,7 @@ const SelectPortContainer: React.FC<IProps> = (props) => {
 
     const onCancelClicked = useCallback(() => {
         props.changeCurrentPageState(HardwarePageStateEnum.list);
+        props.clearPortList();
     }, []);
 
     return (
@@ -157,10 +159,12 @@ const mapStateToProps: IMapStateToProps<IStateProps> = (state) => ({
 
 interface IDispatchProps {
     changeCurrentPageState: (page: HardwarePageStateEnum) => void;
+    clearPortList: () => void;
 }
 
 const mapDispatchToProps: IMapDispatchToProps<IDispatchProps> = (dispatch) => ({
-    changeCurrentPageState: changeCurrentPageState(dispatch)
+    changeCurrentPageState: changeCurrentPageState(dispatch),
+    clearPortList: () => changePortList(dispatch)([]),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(withPreload(SelectPortContainer));

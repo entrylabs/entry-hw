@@ -3,14 +3,6 @@ const {
     clipboard, rendererRouter, constants, translator, os,
 } = window;
 
-let viewMode = 'main';
-
-$('#firmware').text(translator.translate('Install Firmware'));
-$('#other-robot .text').text(
-    translator.translate('Connect Other Hardware'),
-);
-$('#entry .text').text(translator.translate('Show Entry Web Page'));
-
 $('#driverButtonSet').on('click', 'button', function() {
     router.executeDriverFile(this.driverPath);
 });
@@ -21,20 +13,13 @@ $('#firmwareButtonSet').on('click', 'button', function() {
 });
 
 const ui = new class {
-    constructor() {
-        this.cachedPortList = [];
-    }
-
     showConnecting() {
-        $('#title').text(translator.translate('hardware > connecting'));
-        // hideCategory();
         this.showAlert(
             translator.translate('Connecting to hardware device.'),
         );
     }
 
     showConnected() {
-        $('#title').text(translator.translate('hardware > connected'));
         this.showAlert(
             translator.translate('Connected to hardware device.'),
             2000,
@@ -42,7 +27,6 @@ const ui = new class {
     }
 
     showDisconnected() {
-        $('#title').text(translator.translate('hardware > disconnected'));
         this.showAlert(
             translator.translate(
                 'Hardware device is disconnected. Please restart this program.',
