@@ -37,7 +37,7 @@ const Navigator: React.FC<IStateProps & IDispatchProps & Preload> = (props) => {
         }
     }, []);
     const onBackClicked = useCallback(() => {
-        props.changeCurrentState(HardwarePageStateEnum.list);
+        props.changeCurrentPageState(HardwarePageStateEnum.list);
     }, []);
 
     return (
@@ -69,11 +69,11 @@ const mapStateToProps: IMapStateToProps<IStateProps> = (state) => ({
 });
 
 interface IDispatchProps {
-    changeCurrentState: (category: HardwarePageStateEnum) => void;
+    changeCurrentPageState: (category: HardwarePageStateEnum) => void;
 }
 
 const mapDispatchToProps: IMapDispatchToProps<IDispatchProps> = (dispatch) => ({
-    changeCurrentState: changeCurrentPageState(dispatch),
+    changeCurrentPageState: changeCurrentPageState(dispatch),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(withPreload(Navigator));

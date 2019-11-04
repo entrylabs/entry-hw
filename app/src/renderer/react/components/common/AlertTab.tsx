@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Styled, { css, Keyframes, keyframes } from 'styled-components';
+import { IAlertMessage } from '../../store/modules/common';
 
 type ScrollType = 'scroll' | 'reverse' | undefined
 
@@ -28,46 +29,39 @@ const AlertTabContainer = Styled.div<{ scroll: ScrollType }>`
     height: 0;
     line-height: 35px;
     ${(props) => {
-        const { scroll } = props;
-        switch(scroll) {
-            case 'scroll':
-                return animation(ScrollDownKeyFrames);
-            case 'reverse':
-                return animation(ScrollUpKeyFrames);
-            default:
-                return 'height: 0';
-        }
-    }}
+    const { scroll } = props;
+    switch (scroll) {
+        case 'scroll':
+            return animation(ScrollDownKeyFrames);
+        case 'reverse':
+            return animation(ScrollUpKeyFrames);
+        default:
+            return 'height: 0';
+    }
+}}
 `;
 
-interface IProps {
-    message?: string;
-    duration?: number;
+interface IProps extends IAlertMessage {
 }
 
-let isFirstRun = true;
 const AlertTab: React.FC<IProps> = (props) => {
     const [scrollType, changeScrollType] = useState<ScrollType>(undefined);
+    const { message, duration } = props;
 
     useEffect(() => {
-        if (!isFirstRun) {
             changeScrollType('scroll');
-        }
-        isFirstRun = false;
-    }, [props.message]);
+    }, [message]);
 
     useEffect(() => {
-        if (!isFirstRun && props.duration) {
-        console.log('duration');
+        if (duration) {
             setTimeout(() => {
                 changeScrollType('reverse');
-            }, props.duration);
+            }, duration);
         }
-        isFirstRun = false;
-    }, [props.duration]);
+    }, [duration]);
 
     return (
-        <AlertTabContainer scroll={scrollType}>{props.message}</AlertTabContainer>
+        <AlertTabContainer scroll={scrollType}>{message}</AlertTabContainer>
     );
 };
 

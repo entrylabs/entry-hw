@@ -10,24 +10,24 @@ $('#firmwareButtonSet').on('click', 'button', function() {
 
 const ui = new class {
     showConnecting() {
-        this.showAlert(
-            translator.translate('Connecting to hardware device.'),
-        );
+        // this.showAlert(
+        //     translator.translate('Connecting to hardware device.'),
+        // );
     }
 
     showConnected() {
-        this.showAlert(
-            translator.translate('Connected to hardware device.'),
-            2000,
-        );
+        // this.showAlert(
+        //     translator.translate('Connected to hardware device.'),
+        //     2000,
+        // );
     }
 
     showDisconnected() {
-        this.showAlert(
-            translator.translate(
-                'Hardware device is disconnected. Please restart this program.',
-            ),
-        );
+        // this.showAlert(
+        //     translator.translate(
+        //         'Hardware device is disconnected. Please restart this program.',
+        //     ),
+        // );
     }
 
     showAlert(message, duration) {

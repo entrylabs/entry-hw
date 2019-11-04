@@ -1,6 +1,11 @@
 import React from 'react';
 import { CloudModeTypesEnum, HardwareModuleStateEnum, HardwarePageStateEnum } from '../constants/constants';
-import { changeCloudMode, changeStateTitle } from '../store/modules/common';
+import {
+    changeAlertMessage,
+    changeCloudMode,
+    changeStateTitle,
+    IAlertMessage,
+} from '../store/modules/common';
 import { changePortList } from '../store/modules/connection';
 import { connect } from 'react-redux';
 import { IMapDispatchToProps, IMapStateToProps } from '../store';
@@ -17,7 +22,7 @@ class IpcRendererWatchComponent extends React.PureComponent<IProps> {
             console.log(...args);
         });
 
-        ipcRenderer.on('state', (event: Electron.Event, state: HardwareModuleStateEnum, data ?: any) => {
+        ipcRenderer.on('state', (event: Electron.Event, state: HardwareModuleStateEnum) => {
             const applyTitle = (title: string) => {
                 props.changeStateTitle(translator.translate(title));
             };
@@ -27,15 +32,27 @@ class IpcRendererWatchComponent extends React.PureComponent<IProps> {
                         applyTitle('Select hardware');
                     } else {
                         applyTitle('hardware > disconnected');
+                        props.changeAlertMessage({
+                            message: translator.translate(
+                                'Hardware device is disconnected. Please restart this program.'
+                            ),
+                        })
                     }
                     break;
                 }
                 case HardwareModuleStateEnum.connected: {
                     applyTitle('hardware > connected');
+                    props.changeAlertMessage({
+                        message: translator.translate('Connected to hardware device.'),
+                        duration: 2000,
+                    });
                     break;
                 }
                 case HardwareModuleStateEnum.lost: {
                     applyTitle('hardware > connecting');
+                    props.changeAlertMessage({
+                        message: translator.translate('Connecting to hardware device.'),
+                    });
                     break;
                 }
             }
@@ -65,12 +82,14 @@ interface IDispatchProps {
     changeStateTitle: (title: string) => void;
     changeCloudMode: (mode: CloudModeTypesEnum) => void;
     changePortList: (portList: ISerialPortScanData[]) => void;
+    changeAlertMessage: (alertMessage: IAlertMessage) => void;
 }
 
 const mapDispatchToProps: IMapDispatchToProps<IDispatchProps> = (dispatch) => ({
     changeStateTitle: changeStateTitle(dispatch),
     changeCloudMode: changeCloudMode(dispatch),
     changePortList: changePortList(dispatch),
+    changeAlertMessage: changeAlertMessage(dispatch),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(IpcRendererWatchComponent);
