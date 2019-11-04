@@ -87,7 +87,6 @@ class Scanner {
                         }
                         resolve(connector);
                     } else {
-                        console.log('1111');
                         this.router.sendState('select_port', comPorts);
                         resolve();
                     }
