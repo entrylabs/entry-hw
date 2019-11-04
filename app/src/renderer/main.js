@@ -360,7 +360,7 @@ const ui = new class {
 
         isSelectPort = hardware.select_com_port ||
             hardware.hardware.type === 'bluetooth' ||
-            router.serverMode === 1 ||
+            router.cloudMode === 1 ||
             false;
 
         const newSelectList = priorHardwareList

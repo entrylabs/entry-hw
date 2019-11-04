@@ -17,6 +17,7 @@ class RendererRouter {
         this.priorHardwareList = JSON.parse(localStorage.getItem('hardwareList')) || [];
         this.currentState = Statement.disconnected;
         this.hardwareList = [];
+        this.cloudMode = CloudMode.singleServer;
         const initialServerMode = ipcRenderer.sendSync('getCurrentServerModeSync') || RunningMode.server;
         const initialCloudMode = ipcRenderer.sendSync('getCurrentCloudModeSync') || CloudMode.singleServer;
 
@@ -206,8 +207,12 @@ class RendererRouter {
                 break;
             }
             case selectPort: {
-                this.close();
-                this.ui.showPortSelectView(data);
+                console.log('aa', window.currentConfig.this_com_port);
+                if (!window.currentConfig.this_com_port) {
+                    this.ui.showPortSelectView(data);
+                } else {
+                    this.close();
+                }
                 return; // ui 변경 이루어지지 않음.
             }
             case flash: {

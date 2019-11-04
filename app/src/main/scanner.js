@@ -32,43 +32,18 @@ class Scanner {
         this.connectors = {};
         this.scanCount = 0;
 
-        const intervalScan = () => new Promise((resolve) => {
-            rendererConsole.log('scanning...');
-            this.scan()
-                .then((connector) => {
-                    if (connector) {
-                        resolve(connector);
-                    } else {
-                        if (this.scanTimer) {
-                            setTimeout(() => {
-                                intervalScan().then(resolve);
-                            }, Scanner.SCAN_INTERVAL_MILLS);
-                        }
-                    }
-                })
-                .catch((e) => {
-                    console.error('error occurred while scan ~ prepareConnector', e);
-                    if (this.scanTimer) {
-                        setTimeout(() => {
-                            intervalScan().then(resolve);
-                        }, Scanner.SCAN_INTERVAL_MILLS);
-                    }
-                });
-        });
-
-        this.scanTimer = true;
-        return await intervalScan();
+        return await this.scan();
     };
 
     scan() {
         return new Promise(async (resolve, reject) => {
-            if (!this.config || !this.scanTimer) {
+            if (!this.config) {
                 return;
             }
 
             //TODO this_com_port 가 config 에서 설정될 수도 있고,
             // renderer 에서 COM 선택한것도 여기로 들어온다.
-            const serverMode = this.router.currentServerRunningMode;
+            const serverMode = this.router.currentCloudMode;
             const { hardware, this_com_port: selectedComPortName } = this.config;
             let { select_com_port: needCOMPortSelect } = this.config;
             const {
@@ -112,12 +87,15 @@ class Scanner {
                         }
                         resolve(connector);
                     } else {
+                        console.log('1111');
                         this.router.sendState('select_port', comPorts);
                         resolve();
                     }
                     return;
                 }
 
+                console.log(serverMode, CloudModeTypes.cloud);
+                console.log('ajsidofjaiosdf');
                 let vendorSelectedComPortName = undefined;
                 comPorts.some((port) => {
                     const comName = port.comName || hardware.name;
