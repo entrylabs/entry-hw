@@ -1,6 +1,11 @@
 import { AnyAction } from 'redux';
 import produce from 'immer';
-import { CategoryTypeEnum, CloudModeTypesEnum, HardwarePageStateEnum } from '../../constants/constants';
+import {
+    CategoryTypeEnum,
+    CloudModeTypesEnum,
+    HardwareModuleStateEnum,
+    HardwarePageStateEnum,
+} from '../../constants/constants';
 import { makePayloadAction } from '../../functions/makeAction';
 
 const { translator, ipcRenderer } = window;
@@ -11,6 +16,7 @@ export interface ICommonState {
     alertMessage?: IAlertMessage
     currentPageState: HardwarePageStateEnum;
     categoryState: CategoryTypeEnum;
+    moduleState: HardwareModuleStateEnum;
     isLicenseShow: boolean;
     isCloudMode: CloudModeTypesEnum;
 }
@@ -26,6 +32,7 @@ export const STATE_TITLE_CHANGED = 'common/STATE_TITLE_CHANGED';
 export const CURRENT_PAGE_STATE_CHANGED = 'common/CURRENT_PAGE_STATE_CHANGED';
 export const CLOUD_MODE_CHANGED = 'common/CLOUD_MODE_CHANGED';
 export const ALERT_MESSAGE_CHANGED = 'common/ALERT_MESSAGE_CHANGED';
+export const MODULE_STATE_CHANGED = 'common/MODULE_STATE_CHANGED';
 
 // actions
 export const toggleLicenseView = makePayloadAction<boolean>(LICENSE_VIEW_TOGGLE);
@@ -33,12 +40,14 @@ export const changeCurrentPageState = makePayloadAction<HardwarePageStateEnum>(C
 export const changeCloudMode = makePayloadAction<CloudModeTypesEnum>(CLOUD_MODE_CHANGED);
 export const changeStateTitle = makePayloadAction<string>(STATE_TITLE_CHANGED);
 export const changeAlertMessage = makePayloadAction<IAlertMessage>(ALERT_MESSAGE_CHANGED);
+export const changeHardwareModuleState = makePayloadAction<HardwareModuleStateEnum>(MODULE_STATE_CHANGED);
 
 // reducer
 const initialState: ICommonState = {
     stateTitle: translator.translate('Select hardware'),
     currentPageState: HardwarePageStateEnum.list,
     categoryState: CategoryTypeEnum.all,
+    moduleState: HardwareModuleStateEnum.disconnected,
     isLicenseShow: false,
     isCloudMode: ipcRenderer.sendSync('getCurrentCloudModeSync'),
 };
@@ -67,6 +76,10 @@ export default (state = initialState, { type, payload }: AnyAction) => {
         case ALERT_MESSAGE_CHANGED:
             return produce(state, (nextState) => {
                 nextState.alertMessage = payload;
+            });
+        case MODULE_STATE_CHANGED:
+            return produce(state, (nextState) => {
+                nextState.moduleState = payload;
             });
         default:
             return produce(state, () => {

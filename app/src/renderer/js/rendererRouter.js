@@ -69,17 +69,13 @@ class RendererRouter {
         shell.openExternal(url);
     }
 
-    getOpensourceContents() {
+    getOpenSourceContents() {
         return new Promise((resolve) => {
             ipcRenderer.send('getOpensourceText');
             ipcRenderer.once('getOpensourceText', (e, text) => {
                 resolve(text);
             });
         });
-    }
-
-    _getHardwareListSync() {
-        return ipcRenderer.sendSync('requestHardwareListSync');
     }
 
     executeDriverFile(driverPath) {
@@ -123,7 +119,10 @@ class RendererRouter {
                 'checkUpdateResult',
                 (e, { hasNewVersion, version: latestVersion } = {}) => {
                     const lastDontCheckedVersion = localStorage.getItem('lastDontCheckedVersion');
-                    if (hasNewVersion && (!lastDontCheckedVersion || lastDontCheckedVersion < latestVersion)) {
+                    if (
+                        hasNewVersion &&
+                        (!lastDontCheckedVersion || lastDontCheckedVersion < latestVersion)
+                    ) {
                         modal.alert(
                             translate('You can use the latest Entry Hardware version(%1).')
                                 .replace(/%1/gi, latestVersion),
@@ -153,6 +152,10 @@ class RendererRouter {
         }
     }
 
+    _getHardwareListSync() {
+        return ipcRenderer.sendSync('requestHardwareListSync');
+    }
+
     _consoleWriteServerMode(mode) {
         if (this.serverMode === mode) {
             return;
@@ -164,59 +167,6 @@ class RendererRouter {
             console.log('%cI`M SERVER', 'background:orange; font-size: 30px');
         }
         this.serverMode = mode;
-    }
-
-    _setHardwareState(event, state, data) {
-        const { translator } = window;
-        const translate = (str) => translator.translate(str);
-        const ui = window.ui;
-        const {
-            showRobot,
-            lost,
-            disconnected,
-            selectPort,
-            flash,
-            beforeConnect,
-            connected,
-        } = Statement;
-
-        console.log(state);
-        // select_port 는 기록해두어도 쓸모가 없으므로 표기하지 않는다
-        if (state !== selectPort) {
-            this.currentState = state;
-        }
-        switch (state) {
-            case showRobot: {
-                // ui.showRobot(data);
-                break;
-            }
-            case selectPort: {
-                // this.close();
-                // ui.showPortSelectView(data);
-                return; // ui 변경 이루어지지 않음.
-            }
-            case flash: {
-                ui.flashFirmware();
-                break;
-            }
-            case beforeConnect: {
-                ui.showAlert(`${
-                    translate('Connecting to hardware device.')
-                } ${
-                    translate('Please select the firmware.')
-                }`);
-                break;
-            }
-            case lost:
-                ui.showConnecting();
-                break;
-            case disconnected:
-                ui.showDisconnected();
-                break;
-            case connected:
-                ui.showConnected();
-                break;
-        }
     }
 
     _confirmHardwareClose() {

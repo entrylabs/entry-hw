@@ -93,7 +93,7 @@ type IProps = Preload & IDispatchProps & IStateProps;
 const LicenseViewerContainer: React.FC<IProps> = (props) => {
     const [content, setContent] = useState<string>('Loading...');
     useEffect(() => {
-        props.rendererRouter.getOpensourceContents()
+        props.rendererRouter.getOpenSourceContents()
             .then((contents: string) => {
                 setContent(contents);
             })

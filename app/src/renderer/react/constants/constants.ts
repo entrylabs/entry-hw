@@ -17,7 +17,7 @@ export enum HardwareModuleStateEnum {
     flash = 'flash',
     beforeConnect = 'before_connect',
     connected = 'connected',
-    showRobot = 'show_robot',
+    scan = 'scan',
 }
 
 export enum CloudModeTypesEnum {
