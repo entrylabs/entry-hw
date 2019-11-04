@@ -3,10 +3,6 @@ const {
     clipboard, rendererRouter, constants, translator, os,
 } = window;
 
-$('#driverButtonSet').on('click', 'button', function() {
-    router.executeDriverFile(this.driverPath);
-});
-
 $('#firmwareButtonSet').on('click', 'button', function() {
     // 여기서의 this 는 $dom 의 props 이다. arrow function 금지
     ui.flashFirmware(this.firmware);

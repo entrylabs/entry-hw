@@ -21,11 +21,13 @@ const DriverButtonSetElement: React.FC<{ buttonSet: IDriverButtonSet } & Preload
                 })
             }
         </>;
-    } else {
+    } else if (buttonSet[os]){
         return <button
             className="hwPanelBtn"
             onClick={() => {onButtonClicked(buttonSet[os])}}
         >{translator.translate('Install Device Driver')}</button>;
+    } else {
+        return <></>
     }
 };
 
