@@ -6,7 +6,7 @@
 	},
 	"category": "robot",
 	"platform": ["win32", "darwin"],
-	"icon" : "abilix_krypton0.png",
+	"icon" : "abilix_Krypton0.png",
 	"module": "abilix_Krypton0.js",
 	"url": "http://abilix.co.kr",
 	"email": "info@abilix.co.kr",
