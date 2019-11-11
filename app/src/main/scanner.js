@@ -95,8 +95,6 @@ class Scanner {
                     return;
                 }
 
-                console.log(serverMode, CloudModeTypes.cloud);
-                console.log('ajsidofjaiosdf');
                 let vendorSelectedComPortName = undefined;
                 comPorts.some((port) => {
                     const comName = port.path || hardware.name;
