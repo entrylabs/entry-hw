@@ -6,6 +6,11 @@ exports.default = async function notarizing(context) {
         return;
     }
 
+    if (!process.env.NOTARIZE) {
+        console.log('  • NOTARIZE flag is false. will be skipped this process');
+        return;
+    }
+
     const appName = context.packager.appInfo.productFilename;
 
     return await notarize({

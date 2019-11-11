@@ -12,7 +12,8 @@
         "rebuild": "electron-rebuild",
         "update:licence": "lcdoc make -o app/OPENSOURCE.md -d 1",
         "dist:win32": "electron-builder --win --ia32",
-        "dist:mac": "cross-env CSC_NAME=\"Connect Foundation (DLFUSDA3L5)\"&&electron-builder",
+        "dist:mac": "cross-env NOTARIZE=true  CSC_NAME=\"Connect Foundation (DLFUSDA3L5)\"&&electron-builder",
+        "dist:mac-test": "cross-env NOTARIZE=false CSC_NAME=\"Connect Foundation (DLFUSDA3L5)\"&&electron-builder",
         "postinstall": "electron-rebuild"
     },
     "devDependencies": {
