@@ -25,6 +25,7 @@ class pingpong_g1 extends BaseModule {
 			TILT_Z: 0,
 			BUTTON: 0,
 			PROXIMITY: 0,
+			AIN: 0,
 		};
 
 		this._buttons = {
@@ -230,6 +231,7 @@ class pingpong_g1 extends BaseModule {
 				sensor.BUTTON = data[11];
 
 				sensor.PROXIMITY = data.readUInt8(18);
+				sensor.AIN = data.readUInt8(19);
 
 				//XXX: sensor data 묶어서 보낼 경우 사용
 				//this.readValue.SENSOR = sensor;
