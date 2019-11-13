@@ -233,8 +233,6 @@ class MainRouter {
                 this.connector = connector;
                 connector.setRouter(this);
                 this._connect(connector);
-            } else {
-                console.log('connector not found! [debug]');
             }
         }
     }

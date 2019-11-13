@@ -2,7 +2,7 @@
 const Readline = require('@serialport/parser-readline'); // modify
 const Delimiter = require('@serialport/parser-delimiter');
 const SerialPort = require('@serialport/stream');
-SerialPort.Binding = require('@entrylabs/bindings');
+SerialPort.Binding = require('@serialport/bindings');
 
 /**
  * 스캔이 끝난 후, 선택된 포트로 시리얼포트를 오픈하는 클래스

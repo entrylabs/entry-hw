@@ -133,10 +133,10 @@ const SelectPortContainer: React.FC<IProps> = (props) => {
                         changeSelected(e.target.value);
                     }}>
                         {portList.map((port) => (
-                            <option title={port.comName} value={port.comName} key={port.comName} onDoubleClick={() => {
-                                onPortSelected(port.comName);
+                            <option title={port.path} value={port.path} key={port.path} onDoubleClick={() => {
+                                onPortSelected(port.path);
                             }}>
-                                {port.comName}
+                                {port.path}
                             </option>
                         ))}
                     </PortBoxSelectElement>

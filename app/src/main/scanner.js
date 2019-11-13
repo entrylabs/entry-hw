@@ -2,6 +2,8 @@
 
 const _ = require('lodash');
 const rendererConsole = require('./utils/rendererConsole');
+const SerialPort = require('@serialport/stream');
+const Binding = require('@serialport/bindings');
 const Connector = require('./connector');
 const { CLOUD_MODE_TYPES: CloudModeTypes } = require('../common/constants');
 
@@ -19,8 +21,8 @@ class Scanner {
 
     constructor(router) {
         this.router = router;
-        this.serialport = require('@serialport/stream');
-        this.serialport.Binding = require('@entrylabs/bindings');
+        this.serialport = SerialPort;
+        this.serialport.Binding = Binding;
     }
 
     async startScan(hwModule, config) {
@@ -32,41 +34,18 @@ class Scanner {
         this.connectors = {};
         this.scanCount = 0;
 
-        const intervalScan = () => new Promise((resolve) => {
-            rendererConsole.log('scanning...');
-            this.scan()
-                .then((connector) => {
-                    if (connector) {
-                        resolve(connector);
-                    } else {
-                        if (this.scanTimer) {
-                            setTimeout(() => {
-                                intervalScan().then(resolve);
-                            }, Scanner.SCAN_INTERVAL_MILLS);
-                        }
-                    }
-                })
-                .catch((e) => {
-                    console.error('error occurred while scan ~ prepareConnector', e);
-                    if (this.scanTimer) {
-                        setTimeout(() => {
-                            intervalScan().then(resolve);
-                        }, Scanner.SCAN_INTERVAL_MILLS);
-                    }
-                });
-        });
-
-        this.scanTimer = true;
-        return await intervalScan();
+        return await this.scan();
     };
 
     scan() {
         return new Promise(async (resolve, reject) => {
-            if (!this.config || !this.scanTimer) {
+            if (!this.config) {
                 return;
             }
 
-            const serverMode = this.router.currentServerRunningMode;
+            //TODO this_com_port 가 config 에서 설정될 수도 있고,
+            // renderer 에서 COM 선택한것도 여기로 들어온다.
+            const serverMode = this.router.currentCloudMode;
             const selectedComPortName = this.router.selectedPort;
             const { hardware } = this.config;
             let { select_com_port: needCOMPortSelect } = this.config;
@@ -101,7 +80,7 @@ class Scanner {
                  *  . 필요 없는 경우 / 자동선택이 config 작성되어있는 경우(필요한 경우) 해당 값포트로 연결시도
                  *   -> 모든 포트에 연결 시도 할 예정
                  */
-                const comPorts = await this.getComPortList();
+                const comPorts = await SerialPort.list();
                 if (isComPortSelected) {
                     if (selectedComPortName) {
                         let connector = this.connectors[selectedComPortName];
@@ -120,7 +99,7 @@ class Scanner {
 
                 let vendorSelectedComPortName = undefined;
                 comPorts.some((port) => {
-                    const comName = port.comName || hardware.name;
+                    const comName = port.path || hardware.name;
 
                     // config 에 입력한 특정 벤더와 겹치는지 여부
                     const isVendor = this._indexOfStringOrArray(vendor, port.manufacturer);

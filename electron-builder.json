@@ -3,6 +3,10 @@
         "target": "dmg",
         "category": "public.app-category.education",
         "identity": "Connect Foundation (DLFUSDA3L5)",
+        "hardenedRuntime": true,
+        "gatekeeperAssess": false,
+        "entitlements": "build/entitlements.mac.plist",
+        "entitlementsInherit": "build/entitlements.mac.plist",
         "extendInfo": {
             "URL Types": [
                 {
@@ -31,6 +35,7 @@
     "dmg": {
         "icon": "build/icon.icns",
         "iconSize": 80,
+        "sign": false,
         "background": "build/background.png",
         "contents": [
             {
@@ -62,5 +67,6 @@
     ],
     "asar": true,
     "appId": "org.playentry.entryhw",
-    "productName": "Entry_HW"
+    "productName": "Entry_HW",
+    "afterSign": "scripts/notarize.js"
 }
