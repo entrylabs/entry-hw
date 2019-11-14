@@ -227,6 +227,7 @@ class MainRouter {
         if (this.scanner) {
             this.hwModule = require(`../../modules/${config.module}`);
             this.sendState('scan');
+            this.scanner.stopScan();
             const connector = await this.scanner.startScan(this.hwModule, this.config);
             if (connector) {
                 this.sendState('connected');

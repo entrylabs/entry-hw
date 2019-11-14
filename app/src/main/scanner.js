@@ -15,10 +15,6 @@ const { CLOUD_MODE_TYPES: CloudModeTypes } = require('../common/constants');
  * 결과의 송수신은 router 에 만들어진 함수로 보낸다.
  */
 class Scanner {
-    static get SCAN_INTERVAL_MILLS() {
-        return 1500;
-    }
-
     constructor(router) {
         this.router = router;
         this.serialport = SerialPort;
@@ -26,15 +22,27 @@ class Scanner {
     }
 
     async startScan(hwModule, config) {
-        this.stopScan();
-
         this.config = config;
         this.hwModule = hwModule;
         this.slaveTimers = {};
         this.connectors = {};
-        this.scanCount = 0;
 
-        return await this.scan();
+        this.isScanning = true;
+        while (this.isScanning) {
+            try {
+                const result = await this.scan();
+                if (result) {
+                    this.isScanning = false;
+                    return result;
+                }
+                await new Promise(((resolve) => {
+                    setTimeout(resolve, 1500);
+                }));
+            } catch (e) {
+                console.error(e);
+            }
+        }
+        // 스캔중 종료된 경우, 이쪽으로 온다
     };
 
     scan() {
@@ -204,6 +212,7 @@ class Scanner {
 
     stopScan() {
         this.config = undefined;
+        this.isScanning = false;
         this.clearTimers();
         this.closeConnectors();
     };
