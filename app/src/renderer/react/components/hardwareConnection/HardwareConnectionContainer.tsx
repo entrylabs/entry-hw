@@ -24,7 +24,6 @@ const ReferenceDiv = Styled.div`
 
 const ReferenceMidDiv = Styled.div`
     margin: auto;
-    height: 100%;
 `;
 
 const ReferenceContentSpan = Styled.span`
