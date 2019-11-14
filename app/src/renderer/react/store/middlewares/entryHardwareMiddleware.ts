@@ -11,7 +11,7 @@ import filterHardwareList from '../../functions/filterHardware';
 import { CURRENT_PAGE_STATE_CHANGED } from '../modules/common';
 import { HardwarePageStateEnum } from '../../constants/constants';
 import refreshPriorHardwareList from '../../functions/refreshPriorHardwareList';
-import { HARDWARE_SELECTED, PORT_SELECTED } from '../modules/connection';
+import { FIRMWARE_INSTALL_REQUESTED, HARDWARE_SELECTED, PORT_SELECTED } from '../modules/connection';
 
 const { translator, rendererRouter } = window;
 
@@ -72,6 +72,11 @@ const entryHardwareMiddleware: Middleware = ({ getState }: { getState: () => ISt
         }
         case PORT_SELECTED: {
             rendererRouter.sendSelectedPort(action.payload);
+            next(action);
+            break;
+        }
+        case FIRMWARE_INSTALL_REQUESTED: {
+            rendererRouter.requestFlash(action.payload);
             next(action);
             break;
         }

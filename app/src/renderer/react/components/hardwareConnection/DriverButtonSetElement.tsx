@@ -3,7 +3,7 @@ import withPreload from '../../hoc/withPreload';
 
 const { os } = window;
 
-const DriverButtonSetElement: React.FC<{ buttonSet: IDriverButtonSet } & Preload> = (props) => {
+const DriverButtonSetElement: React.FC<{ buttonSet: IDriverInfo } & Preload> = (props) => {
     const { buttonSet, translator, rendererRouter } = props;
     const onButtonClicked = useCallback((path) => {
         rendererRouter.executeDriverFile(path);

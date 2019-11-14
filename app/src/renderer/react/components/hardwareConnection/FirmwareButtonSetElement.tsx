@@ -1,10 +1,15 @@
 import React, { useCallback } from 'react';
 import withPreload from '../../hoc/withPreload';
+import { connect } from 'react-redux';
+import { IMapDispatchToProps } from '../../store';
+import { requestFirmwareInstall } from '../../store/modules/connection';
 
-const FirmwareButtonSetElement: React.FC<{ buttonSet: IFirmwareButtonSet } & Preload> = (props) => {
-    const { buttonSet, translator, rendererRouter } = props;
-    const onButtonClicked = useCallback((path) => {
-        console.log(path);
+type IProps = { buttonSet: IFirmwareInfo } & Preload & IDispatchProps
+const FirmwareButtonSetElement: React.FC<IProps> = (props) => {
+    const { buttonSet, translator } = props;
+    const onButtonClicked = useCallback((firmware: IFirmwareInfo) => {
+        console.log(firmware);
+        props.requestFirmwareInstall(firmware);
     }, []);
 
     if (buttonSet instanceof Array) {
@@ -27,4 +32,12 @@ const FirmwareButtonSetElement: React.FC<{ buttonSet: IFirmwareButtonSet } & Pre
     }
 };
 
-export default withPreload(FirmwareButtonSetElement);
+interface IDispatchProps {
+    requestFirmwareInstall: (firmware: IFirmwareInfo) => void;
+}
+
+const mapDispatchToProps: IMapDispatchToProps<IDispatchProps> = (dispatch) => ({
+    requestFirmwareInstall: requestFirmwareInstall(dispatch),
+});
+
+export default connect(undefined, mapDispatchToProps)(withPreload(FirmwareButtonSetElement));

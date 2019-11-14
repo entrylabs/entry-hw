@@ -1,13 +1,16 @@
 declare type ObjectLike = { [key: string]: string };
 
-declare type IDriverButtonSet = ObjectLike | [{ translate: string } & ObjectLike]
-declare type IFirmwareButtonSet = string | [{name: string; translate: string}]
+declare type IDriverInfo = ObjectLike | [{ translate: string } & ObjectLike]
+declare type IFirmwareInfo =
+    string
+    | [{ name: string; translate: string }]
+    | { afterDelay: number, name: string; type: string }
 
 declare interface IHardware {
     category: 'board' | 'robot' | 'module';
     entry: { protocol: 'json' };
-    driver?: IDriverButtonSet;
-    firmware?: IFirmwareButtonSet;
+    driver?: IDriverInfo;
+    firmware?: IFirmwareInfo;
     hardware: any;
     icon: string;
     id: string;

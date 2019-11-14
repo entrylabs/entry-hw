@@ -100,7 +100,7 @@ class MainRouter {
         if (this.connector && this.connector.serialPort && this.config) {
             let firmware = firmwareName;
             const {
-                configfirmware,
+                firmware: firmwareInConfig,
                 firmwareBaudRate: baudRate,
                 firmwareMCUType: MCUType,
                 tryFlasherNumber: maxFlashTryCount = 10,
@@ -109,7 +109,9 @@ class MainRouter {
             this.firmwareTryCount = 0;
 
             if (firmwareName === undefined || firmwareName === '') {
-                firmware = configfirmware;
+                console.warn('firmware requested without firmware info!');
+                console.warn('try to default firmware info in config file');
+                firmware = firmwareInConfig;
             }
 
             this.close(); // 서버 통신 중지, 시리얼포트 연결 해제

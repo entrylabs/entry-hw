@@ -11,10 +11,12 @@ export interface IConnectionState {
 export const HARDWARE_SELECTED = 'connection/HARDWARE_SELECTED';
 export const PORTLIST_CHANGED = 'connection/PORTLIST_CHANGED';
 export const PORT_SELECTED = 'connection/PORT_SELECTED';
+export const FIRMWARE_INSTALL_REQUESTED = 'connection/FIRMWARE_INSTALL_REQUESTED';
 
 export const selectHardware = makePayloadAction<IHardware>(HARDWARE_SELECTED);
 export const changePortList = makePayloadAction<ISerialPortScanData[]>(PORTLIST_CHANGED);
 export const selectPort = makePayloadAction<string>(PORT_SELECTED);
+export const requestFirmwareInstall = makePayloadAction<IFirmwareInfo>(FIRMWARE_INSTALL_REQUESTED);
 
 const initialState: IConnectionState = {
     selectedHardware: undefined,
