@@ -23,7 +23,7 @@ declare interface IHardware {
 }
 
 declare interface ISerialPortScanData {
-    comName: string;
+    path: string;
     manufacturer?: string;
     serialNumber?: string;
     locationId?: string;
