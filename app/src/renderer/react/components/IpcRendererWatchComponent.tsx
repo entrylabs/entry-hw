@@ -19,7 +19,7 @@ class IpcRendererWatchComponent extends React.PureComponent<IProps> {
     constructor(props: Readonly<IProps>) {
         super(props);
 
-        ipcRenderer.on('console', (event: string, ...args: any[]) => {
+        ipcRenderer.on('console', (event: Electron.Event, ...args: any[]) => {
             console.log(...args);
         });
 
