@@ -47,7 +47,9 @@ const Navigator: React.FC<IStateProps & IDispatchProps & Preload> = (props) => {
                 dimImage={'../images/btn_back_dim.png'}
                 enabledImage={'../images/btn_back_on.png'}
                 disabledImage={'../images/btn_back_off.png'}
-                onClick={onBackClicked}
+                onClick={() => {
+                    props.currentState !== HardwarePageStateEnum.list && onBackClicked();
+                }}
                 className={props.currentState !== HardwarePageStateEnum.list ? 'active' : ''}
             />
             <NavigatorButton

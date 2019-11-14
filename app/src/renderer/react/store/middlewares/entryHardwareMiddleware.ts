@@ -5,7 +5,7 @@ import {
     CATEGORY_CHANGED,
     changeHardwareList,
     HARDWARE_LIST_RESET,
-    HARDWARE_SEARCH_KEYWORD_CHANGED,
+    HARDWARE_SEARCH_KEYWORD_CHANGED, resetHardwareList,
 } from '../modules/hardware';
 import filterHardwareList from '../../functions/filterHardware';
 import { CURRENT_PAGE_STATE_CHANGED } from '../modules/common';
@@ -50,6 +50,7 @@ const entryHardwareMiddleware: Middleware = ({ getState }: { getState: () => ISt
             if (nextState === HardwarePageStateEnum.list) {
                 rendererRouter.stopScan();
                 rendererRouter.close();
+                resetHardwareList(next)();
             }
             next(action);
             break;
