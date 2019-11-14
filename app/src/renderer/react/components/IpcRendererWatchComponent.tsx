@@ -28,6 +28,7 @@ class IpcRendererWatchComponent extends React.PureComponent<IProps> {
                 props.changeStateTitle(translator.translate(title));
             };
             props.changeHardwareModuleState(state);
+            console.log('state changed: ', state);
 
             switch (state) {
                 case HardwareModuleStateEnum.disconnected: {

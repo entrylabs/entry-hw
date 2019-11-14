@@ -89,6 +89,7 @@ class Scanner {
                  *   -> 모든 포트에 연결 시도 할 예정
                  */
                 const comPorts = await SerialPort.list();
+                rendererConsole.info(JSON.stringify(comPorts));
                 if (isComPortSelected) {
                     if (selectedComPortName) {
                         let connector = this.connectors[selectedComPortName];
@@ -98,7 +99,7 @@ class Scanner {
                         }
                         resolve(connector);
                     } else {
-                        // this.router.sendState('select_port', comPorts);
+                        rendererConsole.info(JSON.stringify(comPorts));
                         this.router.sendEventToMainWindow('portListScanned', comPorts);
                         resolve();
                     }
@@ -194,20 +195,6 @@ class Scanner {
             // noinspection JSValidateTypes
             return target.indexOf(arrayOrString) >= 0;
         }
-    }
-
-    getComPortList() {
-        return new Promise((resolve, reject) => {
-            // noinspection JSIgnoredPromiseFromCall
-            this.serialport.list((error, list) => {
-                if (error) {
-                    reject(error);
-                } else {
-                    rendererConsole.info(JSON.stringify(list));
-                    resolve(list);
-                }
-            });
-        });
     }
 
     stopScan() {
