@@ -341,8 +341,10 @@ class pingpong_g1 extends BaseModule {
             //this.sp.write( Buffer.from('ffffffff00c8b8000b0001', 'hex') );
 
             this.sp.write(this.makePackets('disconnect'), (err) => {
-                console.log('Disconnect');
-                connect.close();
+                if (this.sp.isOpen) {
+                    console.log('Disconnect');
+                    connect.close();
+                }
                 this.sp = null;
             });
         } else {
