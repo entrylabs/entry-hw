@@ -340,11 +340,14 @@ class pingpong_g1 extends BaseModule {
             // getSensor disable
             //this.sp.write( Buffer.from('ffffffff00c8b8000b0001', 'hex') );
 
-            this.sp.write(this.makePackets('disconnect'));
-
-            this.sp = null;
+            this.sp.write(this.makePackets('disconnect'), (err) => {
+                console.log('Disconnect');
+                connect.close();
+                this.sp = null;
+            });
+        } else {
+            connect.close();
         }
-        connect.close();
     }
 
     // 엔트리와의 연결 종료 후 처리 코드입니다.
