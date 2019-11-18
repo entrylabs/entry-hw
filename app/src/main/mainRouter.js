@@ -348,9 +348,6 @@ class MainRouter {
         if (this.server) {
             this.server.disconnectHardware();
         }
-        if (this.scanner) {
-            this.scanner.stopScan();
-        }
         if (this.connector) {
             rendererConsole.log('disconnect');
             if (this.hwModule.disconnect) {
@@ -359,6 +356,9 @@ class MainRouter {
                 this.connector.close();
             }
             this.connector = undefined;
+        }
+        if (this.scanner) {
+            this.scanner.stopScan();
         }
         if (this.handler) {
             this.handler = undefined;
