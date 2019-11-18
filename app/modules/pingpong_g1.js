@@ -273,7 +273,13 @@ class pingpong_g1 extends BaseModule {
                 sensor.BUTTON = data[11];
 
                 sensor.PROXIMITY = data.readUInt8(18);
-                sensor.AIN = data.readUInt8(19);
+
+                // 기존 FW 70 버전 = data length 19 bytes (ANALOG IN 미지원)
+                if (packet_size > 19) {
+                    sensor.AIN = data.readUInt8(19);
+                } else {
+                    sensor.AIN = 0;
+                }
 
                 //XXX: sensor data 묶어서 보낼 경우 사용
                 //this.readValue.SENSOR = sensor;
@@ -334,15 +340,11 @@ class pingpong_g1 extends BaseModule {
             // getSensor disable
             //this.sp.write( Buffer.from('ffffffff00c8b8000b0001', 'hex') );
 
-            this.sp.write(this.makePackets('disconnect'), (err) => {
-                this.sp = null;
-                console.log('Disconnect');
+            this.sp.write(this.makePackets('disconnect'));
 
-                connect.close();
-            });
-        } else {
-            connect.close();
+            this.sp = null;
         }
+        connect.close();
     }
 
     // 엔트리와의 연결 종료 후 처리 코드입니다.
