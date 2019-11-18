@@ -2,6 +2,8 @@
 
 const _ = require('lodash');
 const rendererConsole = require('./utils/rendererConsole');
+const SerialPort = require('@serialport/stream');
+const Binding = require('@serialport/bindings');
 const Connector = require('./connector');
 const { CLOUD_MODE_TYPES: CloudModeTypes } = require('../common/constants');
 
@@ -19,8 +21,8 @@ class Scanner {
 
     constructor(router) {
         this.router = router;
-        this.serialport = require('@serialport/stream');
-        this.serialport.Binding = require('@entrylabs/bindings');
+        this.serialport = SerialPort;
+        this.serialport.Binding = Binding;
     }
 
     async startScan(hwModule, config) {
@@ -77,7 +79,7 @@ class Scanner {
                  *  . 필요 없는 경우 / 자동선택이 config 작성되어있는 경우(필요한 경우) 해당 값포트로 연결시도
                  *   -> 모든 포트에 연결 시도 할 예정
                  */
-                const comPorts = await this.getComPortList();
+                const comPorts = await SerialPort.list();
                 if (isComPortSelected) {
                     if (selectedComPortName) {
                         let connector = this.connectors[selectedComPortName];
@@ -93,11 +95,9 @@ class Scanner {
                     return;
                 }
 
-                console.log(serverMode, CloudModeTypes.cloud);
-                console.log('ajsidofjaiosdf');
                 let vendorSelectedComPortName = undefined;
                 comPorts.some((port) => {
-                    const comName = port.comName || hardware.name;
+                    const comName = port.path || hardware.name;
 
                     // config 에 입력한 특정 벤더와 겹치는지 여부
                     const isVendor = this._indexOfStringOrArray(vendor, port.manufacturer);
