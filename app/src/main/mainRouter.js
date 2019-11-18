@@ -64,9 +64,9 @@ class MainRouter {
                         e.sender.send('requestFlash');
                     }
                 })
-                .catch((e) => {
+                .catch((err) => {
                     if (!e.sender.isDestroyed()) {
-                        e.sender.send('requestFlash', e);
+                        e.sender.send('requestFlash', err);
                     }
                 });
         });
