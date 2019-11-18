@@ -1,4 +1,4 @@
-const { dialog } = require('electron');
+const { app, dialog } = require('electron');
 const exec = require('child_process').exec;
 const path = require('path');
 const fs = require('fs');
@@ -13,17 +13,17 @@ const platform = process.platform;
  */
 class Flasher {
     static get firmwareDirectoryPath() {
-        const asarIndex = __dirname.indexOf('app.asar');
+        const asarIndex = app.getAppPath().indexOf(`${path.sep}app.asar`);
         if (asarIndex > -1) {
-            const asarPath = __dirname.substr(0, asarIndex);
-            const externalFlahserPath = path.join(asarPath, 'firmwares');
-            const flasherPath = path.resolve(__dirname, '..', '..', 'firmwares');
-            if (!fs.existsSync(externalFlahserPath)) {
-                Utils.copyRecursiveSync(flasherPath, externalFlahserPath);
+            const asarPath = app.getAppPath().substr(0, asarIndex);
+            const externalFlasherPath = path.join(asarPath, 'firmwares');
+            const flasherPath = path.resolve(app.getAppPath(), __dirname, '..', '..', 'firmwares');
+            if (!fs.existsSync(externalFlasherPath)) {
+                Utils.copyRecursiveSync(flasherPath, externalFlasherPath);
             }
-            return externalFlahserPath;
+            return externalFlasherPath;
         } else {
-            return path.resolve('app', 'firmwares');
+            return path.resolve(__dirname, '..', '..', 'firmwares');
         }
     }
 
@@ -80,7 +80,7 @@ class Flasher {
     _flashCopy(firmware, port, options) {
         return new Promise((resolve, reject) => {
             const firmwareDirectory = Flasher.firmwareDirectoryPath;
-            const destPath = dialog.showOpenDialog({
+            const destPath = dialog.showOpenDialogSync({
                 properties: ['openDirectory'],
             });
             if (!destPath) {

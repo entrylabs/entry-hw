@@ -23,7 +23,7 @@ function Module()
         ack_systemTime: 0,      // u32
         ack_dataType: 0,        // u8
         ack_crc16: 0            // u16
-    }
+    };
 
     // Joystick
     this.joystick = 
@@ -39,7 +39,7 @@ function Module()
         joystick_right_direction: 0,
         joystick_right_event: 0,
         joystick_right_command: 0
-    }
+    };
 
     // Button
     this.button = 
@@ -47,7 +47,7 @@ function Module()
         _updated: 1,
         button_button: 0,
         button_event: 0
-    }
+    };
 
     // State
     this.state = 
@@ -60,7 +60,7 @@ function Module()
         state_sensorOrientation: 0,
         state_coordinate: 0,
         state_battery: 0,
-    }
+    };
 
     // Attitude
     this.attitude =
@@ -69,14 +69,14 @@ function Module()
         attitude_roll: 0,
         attitude_pitch : 0,
         attitude_yaw: 0
-    }
+    };
 
     // IR Message
     this.irmeessage = 
     {
         _updated: 1,
         irmessage_irdata: 0
-    }
+    };
 
     // -- Control -----------------------------------------------------------------
     this.controlWheel           = 0;        // 
@@ -112,7 +112,8 @@ function Module()
     this.timeTransferInterval   = 40;       // 최소 전송 시간 간격
 
     this.countReqeustDevice     = 0;        // 장치에 데이터를 요청한 횟수 카운트 
-}
+};
+
 
 // 초기설정
 Module.prototype.init = function(handler, config)
@@ -120,11 +121,13 @@ Module.prototype.init = function(handler, config)
     //this.resetData();
 };
 
+
 // 초기 송신데이터(필수)
 Module.prototype.requestInitialData = function()
 {
     return this.ping(0x11);
 };
+
 
 // 초기 수신데이터 체크(필수)
 Module.prototype.checkInitialData = function(data, config)
@@ -132,11 +135,13 @@ Module.prototype.checkInitialData = function(data, config)
     return this.checkAck(data, config); 
 };
 
+
 // Web Socket(엔트리)에 전달할 데이터
 Module.prototype.requestRemoteData = function(handler)
 {
     this.tansferForEntry(handler);
 };
+
 
 // Web Socket(엔트리)에서 받은 데이터 처리
 Module.prototype.handleRemoteData = function(handler)
@@ -144,11 +149,13 @@ Module.prototype.handleRemoteData = function(handler)
     this.handlerForEntry(handler);
 };
 
+
 // 하드웨어에 전달할 데이터
 Module.prototype.requestLocalData = function()
 {
     return this.transferForDevice();
 };
+
 
 // 하드웨어 데이터 처리
 Module.prototype.handleLocalData = function(data)
@@ -156,12 +163,13 @@ Module.prototype.handleLocalData = function(data)
     this.receiverForDevice(data);
 };
 
+
 // Web Socket 종료후 처리
 Module.prototype.reset = function()
 {
     this.log("Module.prototype.reset", "");
     this.resetData();
-}
+};
 
 
 module.exports = new Module();
@@ -259,7 +267,9 @@ Module.prototype.resetData = function()
     this.timeTransferInterval           = 24;       // 최소 전송 시간 간격
 
     this.countReqeustDevice             = 0;        // 장치에 데이터를 요청한 횟수 카운트 
-}
+};
+
+
 
 /***************************************************************************************
  *  드론파이터 / 컨트롤러에 전달하는 명령
@@ -316,7 +326,9 @@ var DataType =
 
     // IrMessage
     IRMESSAGE_DATA:             'irmessage_data',
-}
+};
+
+
 
 /***************************************************************************************
  *  Communciation - 연결된 장치 확인
@@ -346,7 +358,9 @@ Module.prototype.checkAck = function(data, config)
     }
 
     return false;
-}
+};
+
+
 
 /***************************************************************************************
  *  Communciation - Entry.JS
@@ -369,7 +383,7 @@ Module.prototype.handlerForEntry = function(handler)
     // Light Mode
     if( handler.e(DataType.LIGHT_MODE_MODE) == true )
     {
-        var dataArray = [];
+        let dataArray = [];
 
         // Start Code
         this.addStartCode(dataArray);
@@ -400,7 +414,7 @@ Module.prototype.handlerForEntry = function(handler)
     // Light Event
     if( handler.e(DataType.LIGHT_EVENT_EVENT) == true )
     {
-        var dataArray = [];
+        let dataArray = [];
 
         // Start Code
         this.addStartCode(dataArray);
@@ -433,7 +447,7 @@ Module.prototype.handlerForEntry = function(handler)
     // Light Manaul
     if( handler.e(DataType.LIGHT_MANUAL_FLAGS) == true )
     {
-        var dataArray = [];
+        let dataArray = [];
 
         // Start Code
         this.addStartCode(dataArray);
@@ -464,7 +478,7 @@ Module.prototype.handlerForEntry = function(handler)
     // Command
     if( handler.e(DataType.COMMAND_COMMAND) == true )
     {
-        var dataArray = [];
+        let dataArray = [];
 
         // Start Code
         this.addStartCode(dataArray);
@@ -513,7 +527,7 @@ Module.prototype.handlerForEntry = function(handler)
     // Control
     if( (handler.e(DataType.CONTROL_ROLL) == true) || (handler.e(DataType.CONTROL_PITCH) == true) || (handler.e(DataType.CONTROL_YAW) == true) || (handler.e(DataType.CONTROL_THROTTLE) == true) )
     {
-        var dataArray = [];
+        let dataArray = [];
 
         // Start Code
         this.addStartCode(dataArray);
@@ -555,7 +569,7 @@ Module.prototype.handlerForEntry = function(handler)
     // Control Wheel, Accel
     if( (handler.e(DataType.CONTROL_WHEEL) == true) || (handler.e(DataType.CONTROL_ACCEL) == true) )
     {
-        var dataArray = [];
+        let dataArray = [];
 
         // Start Code
         this.addStartCode(dataArray);
@@ -591,7 +605,7 @@ Module.prototype.handlerForEntry = function(handler)
     // MotorSingle
     if( handler.e(DataType.MOTORSINGLE_TARGET) == true )
     {
-        var dataArray = [];
+        let dataArray = [];
 
         // Start Code
         this.addStartCode(dataArray);
@@ -625,7 +639,7 @@ Module.prototype.handlerForEntry = function(handler)
     // Buzzer
     if( handler.e(DataType.BUZZER_MODE) == true )
     {
-        var dataArray = [];
+        let dataArray = [];
 
         // Start Code
         this.addStartCode(dataArray);
@@ -662,7 +676,7 @@ Module.prototype.handlerForEntry = function(handler)
     // Vibrator
     if( handler.e(DataType.VIBRATOR_ON) == true )
     {
-        var dataArray = [];
+        let dataArray = [];
 
         // Start Code
         this.addStartCode(dataArray);
@@ -701,7 +715,7 @@ Module.prototype.handlerForEntry = function(handler)
     // IrMessage
     if( handler.e(DataType.IRMESSAGE_DATA) == true )
     {
-        var dataArray = [];
+        let dataArray = [];
 
         // Start Code
         this.addStartCode(dataArray);
@@ -734,7 +748,8 @@ Module.prototype.handlerForEntry = function(handler)
 
     
     //this.log("Module.prototype.handlerForEntry()", dataArray);
-}
+};
+
 
 // 시작 코드 추가
 Module.prototype.addStartCode = function(dataArray)
@@ -745,7 +760,8 @@ Module.prototype.addStartCode = function(dataArray)
     // Start Code
     dataArray.push(0x0A);
     dataArray.push(0x55);
-}
+};
+
 
 // CRC16을 계산해서 추가
 Module.prototype.addCRC16 = function(dataArray, indexStart, dataLength)
@@ -762,7 +778,8 @@ Module.prototype.addCRC16 = function(dataArray, indexStart, dataLength)
     }
     dataArray.push((crc16 & 0xff));
     dataArray.push(((crc16 >> 8) & 0xff));
-}
+};
+
 
 // Entry에 데이터 전송
 Module.prototype.tansferForEntry = function(handler)
@@ -849,7 +866,8 @@ Module.prototype.tansferForEntry = function(handler)
 
         handler.write("entryhw_countTransferReserved", this.bufferTransfer.length);
     }
-}
+};
+
 
 
 /***************************************************************************************
@@ -993,7 +1011,8 @@ Module.prototype.receiverForDevice = function(data)
             this.indexReceiver      = 0;        // 수신 받는 데이터의 세션 내 위치
         }
     }
-}
+};
+
 
 // 장치로부터 받은 데이터 블럭 처리
 Module.prototype.handlerForDevice = function()
@@ -1145,7 +1164,8 @@ Module.prototype.handlerForDevice = function()
     default:
         break;
     }
-}
+};
+
 
 // 자바스크립트에서 바이너리 핸들링
 // http://mohwa.github.io/blog/javascript/2015/08/31/binary-inJS/
@@ -1155,7 +1175,8 @@ Module.prototype.extractInt8 = function(dataArray, startIndex)
     if( (value & 0x80) != 0)
         value = -(0x100 - value);
     return value;
-}
+};
+
 
 Module.prototype.extractUInt8 = function(dataArray, startIndex)
 {
@@ -1166,7 +1187,8 @@ Module.prototype.extractUInt8 = function(dataArray, startIndex)
     }
     else
         return 0;
-}
+};
+
 
 Module.prototype.extractInt16 = function(dataArray, startIndex)
 {
@@ -1174,7 +1196,8 @@ Module.prototype.extractInt16 = function(dataArray, startIndex)
     if( (value & 0x8000) != 0)
         value = -(0x10000 - value);
     return value;
-}
+};
+
 
 Module.prototype.extractUInt16 = function(dataArray, startIndex)
 {
@@ -1185,7 +1208,8 @@ Module.prototype.extractUInt16 = function(dataArray, startIndex)
     }
     else
         return 0;
-}
+};
+
 
 Module.prototype.extractInt32 = function(dataArray, startIndex)
 {
@@ -1193,7 +1217,8 @@ Module.prototype.extractInt32 = function(dataArray, startIndex)
     if( (value & 0x80000000) != 0)
         value = -(0x100000000 - value);
     return value;
-}
+};
+
 
 Module.prototype.extractUInt32 = function(dataArray, startIndex)
 {
@@ -1204,7 +1229,9 @@ Module.prototype.extractUInt32 = function(dataArray, startIndex)
     }
     else
         return 0;
-}
+};
+
+
 
 // 값 추출
 Module.prototype.getByte0 = function(b)
@@ -1212,20 +1239,24 @@ Module.prototype.getByte0 = function(b)
     return (b & 0xff);
 };
 
+
 Module.prototype.getByte1 = function(b)
 {
     return ((b >> 8) & 0xff);
 };
+
 
 Module.prototype.getByte2 = function(b)
 {
     return ((b >> 16) & 0xff);
 };
 
+
 Module.prototype.getByte3 = function(b)
 {
     return ((b >> 24) & 0xff);
 };
+
 
 // 장치에 데이터 전송
 Module.prototype.transferForDevice = function()
@@ -1306,7 +1337,8 @@ Module.prototype.transferForDevice = function()
     //this.log("Module.prototype.transferForDevice()", arrayTransfer);
 
     return arrayTransfer;
-}
+};
+
 
 // Ping
 Module.prototype.ping = function(target)
@@ -1337,7 +1369,8 @@ Module.prototype.ping = function(target)
     //this.log("Module.prototype.ping()", dataArray);
     
     return dataArray;
-}
+};
+
 
 // 데이터 요청
 Module.prototype.reserveRequest = function(target, dataType)
@@ -1365,7 +1398,8 @@ Module.prototype.reserveRequest = function(target, dataType)
     //this.log("Module.prototype.reserveRequest()", dataArray);
     
     return dataArray;
-}
+};
+
 
 // 모드 변경 요청
 Module.prototype.reserveModeVehicle = function(modeVehicle)
@@ -1392,7 +1426,9 @@ Module.prototype.reserveModeVehicle = function(modeVehicle)
     this.addCRC16(dataArray, indexStart, dataLength);
     
     this.bufferTransfer.push(dataArray);
-}
+};
+
+
 
 /***************************************************************************************
  *  CRC16
@@ -1460,6 +1496,7 @@ var crc16table =
     0x6e17, 0x7e36, 0x4e55, 0x5e74, 0x2e93, 0x3eb2, 0x0ed1, 0x1ef0
 ];
 
+
 Module.prototype.calcCRC16 = function(data, crc)
 {
     if( data > 255 )
@@ -1472,6 +1509,7 @@ Module.prototype.calcCRC16 = function(data, crc)
 
     return crcNext;
 };
+
 
 
 /***************************************************************************************
@@ -1497,7 +1535,8 @@ Module.prototype.log = function(location, data)
 
     console.log(location + " / " + (typeof data) + strInfo);
     // */
-}
+};
+
 
 // 바이트 배열을 16진수 문자열로 변경 
 Module.prototype.convertByteArrayToHexString = function(data)
@@ -1523,5 +1562,5 @@ Module.prototype.convertByteArrayToHexString = function(data)
     }
     
     return strHexArray;
-}
+};
 

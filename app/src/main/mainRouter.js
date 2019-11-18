@@ -1,8 +1,7 @@
-const { ipcMain, shell } = require('electron');
+const { app, ipcMain, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const Scanner = require('./scanner');
-const EntryServer = require('./server');
 const Flasher = require('./flasher');
 const Utils = require('./utils/fileUtils');
 const rendererConsole = require('./utils/rendererConsole');
@@ -23,16 +22,12 @@ class MainRouter {
         return global.sharedObject.roomIds || [];
     }
 
-    get currentServerMode() {
-        return this.server.currentServerMode;
-    }
-
-    constructor(mainWindow) {
+    constructor(mainWindow, entryServer) {
         global.$ = require('lodash');
         this.browser = mainWindow;
         rendererConsole.initialize(mainWindow);
         this.scanner = new Scanner(this);
-        this.server = new EntryServer(this);
+        this.server = entryServer;
         this.flasher = new Flasher();
         this.hardwareListManager = new HardwareListManager();
 
@@ -43,13 +38,18 @@ class MainRouter {
         /** @type {Object} */
         this.handler = undefined;
 
+        entryServer.setRouter(this);
         this.server.open();
 
         ipcMain.on('state', (e, state) => {
             this.onChangeState(state);
         });
         ipcMain.on('startScan', async (e, config) => {
-            await this.startScan(config);
+            try {
+                await this.startScan(config);
+            } catch (e) {
+                rendererConsole.error(`startScan err : `, e);
+            }
         });
         ipcMain.on('stopScan', () => {
             this.stopScan();
@@ -64,9 +64,9 @@ class MainRouter {
                         e.sender.send('requestFlash');
                     }
                 })
-                .catch((e) => {
+                .catch((err) => {
                     if (!e.sender.isDestroyed()) {
-                        e.sender.send('requestFlash', e);
+                        e.sender.send('requestFlash', err);
                     }
                 });
         });
@@ -74,7 +74,10 @@ class MainRouter {
             this.executeDriver(driverPath);
         });
         ipcMain.on('getCurrentServerModeSync', (e) => {
-            e.returnValue = this.server.currentServerMode;
+            e.returnValue = this.currentServerRunningMode;
+        });
+        ipcMain.on('getCurrentCloudModeSync', (e) => {
+            e.returnValue = this.currentCloudMode;
         });
         ipcMain.on('requestHardwareListSync', (e) => {
             e.returnValue = this.hardwareListManager.allHardwareList;
@@ -186,11 +189,18 @@ class MainRouter {
         }
     }
 
-    notifyServerMode(mode) {
-        console.log('notifyServerMode', mode);
+    notifyCloudModeChanged(mode) {
+        if (!this.browser.isDestroyed()) {
+            this.browser.webContents.send('cloudMode', mode);
+        }
+        this.currentCloudMode = mode;
+    }
+    
+    notifyServerRunningModeChanged(mode) {
         if (!this.browser.isDestroyed()) {
             this.browser.webContents.send('serverMode', mode);
         }
+        this.currentServerRunningMode = mode;
     }
 
     /**
@@ -198,7 +208,8 @@ class MainRouter {
      * @param state
      */
     onChangeState(state) {
-        this.server.setState(state);
+        console.log('server state', state);
+        // this.server.setState(state);
     }
 
     /**
@@ -216,8 +227,6 @@ class MainRouter {
                 this.connector = connector;
                 connector.setRouter(this);
                 this._connect(connector);
-            } else {
-                console.log('connector not found! [debug]');
             }
         }
     }
@@ -274,7 +283,7 @@ class MainRouter {
         const hwModule = this.hwModule;
         const server = this.server;
 
-        server.removeAllListeners();
+        // server.removeAllListeners();
 
         if (hwModule.init) {
             hwModule.init(this.handler, this.config);
@@ -285,18 +294,18 @@ class MainRouter {
         }
 
         // 신규 연결시 해당 메세지 전송
-        server.on('connection', () => {
-            if (hwModule.socketReconnection) {
-                hwModule.socketReconnection();
-            }
-        });
+        // server.on('connection', () => {
+        //     if (hwModule.socketReconnection) {
+        //         hwModule.socketReconnection();
+        //     }
+        // });
 
         // 엔트리 실행이 종료된 경우 reset 명령어 호출
-        server.on('close', () => {
-            if (hwModule.reset) {
-                hwModule.reset();
-            }
-        });
+        // server.on('close', () => {
+        //     if (hwModule.reset) {
+        //         hwModule.reset();
+        //     }
+        // });
     }
 
     // 엔트리 측에서 데이터를 받아온 경우 전달
@@ -340,9 +349,6 @@ class MainRouter {
         if (this.server) {
             this.server.disconnectHardware();
         }
-        if (this.scanner) {
-            this.scanner.stopScan();
-        }
         if (this.connector) {
             rendererConsole.log('disconnect');
             if (this.hwModule.disconnect) {
@@ -351,6 +357,9 @@ class MainRouter {
                 this.connector.close();
             }
             this.connector = undefined;
+        }
+        if (this.scanner) {
+            this.scanner.stopScan();
         }
         if (this.handler) {
             this.handler = undefined;
@@ -367,12 +376,12 @@ class MainRouter {
             return;
         }
 
-        const asarIndex = __dirname.indexOf('app.asar');
+        const asarIndex = app.getAppPath().indexOf(`${path.sep}app.asar`);
         let sourcePath = '';
         if (asarIndex > -1) {
-            const asarPath = __dirname.substr(0, asarIndex);
+            const asarPath = app.getAppPath().substr(0, asarIndex);
             const externalDriverPath = path.join(asarPath, 'drivers');
-            const internalDriverPath = path.resolve(__dirname, '..', '..', 'drivers');
+            const internalDriverPath = path.resolve(app.getAppPath(), __dirname, '..', '..', 'drivers');
             if (!fs.existsSync(externalDriverPath)) {
                 Utils.copyRecursiveSync(internalDriverPath, externalDriverPath);
             }

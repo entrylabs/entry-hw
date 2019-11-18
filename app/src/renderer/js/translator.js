@@ -1,5 +1,5 @@
 module.exports = class {
-    get currentLangauge() {
+    get currentLanguage() {
         return this.lang;
     }
 

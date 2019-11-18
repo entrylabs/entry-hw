@@ -1,10 +1,8 @@
 'use strict';
 const {
     clipboard, RendererRouter, constants, translator, platform, os,
-} = window.preload;
-const langType = translator.currentLangauge;
-const Modal = window.Modal.default;
-const modal = new Modal();
+} = window;
+const langType = translator.currentLanguage;
 
 const {
     AVAILABLE_TYPE: AvaliableType,
@@ -122,10 +120,6 @@ const ui = new class {
     constructor() {
         this.cachedPortList = [];
     }
-
-    showModal(message, title = '', styleOptions = {}, onclickCallback) {
-        modal.alert(message, title, styleOptions).one('click', onclickCallback);
-    };
 
     showRobotList() {
         viewMode = 'main';
@@ -331,7 +325,7 @@ const ui = new class {
             let portHtml = '';
             portList.forEach((port) => {
                 portHtml +=
-                    `<option title="${port.comName}">${port.comName}</option>`;
+                    `<option title="${port.path}">${port.path}</option>`;
             });
 
             $('#select_port_box select').html(portHtml);
@@ -366,7 +360,7 @@ const ui = new class {
 
         isSelectPort = hardware.select_com_port ||
             hardware.hardware.type === 'bluetooth' ||
-            router.serverMode === 1 ||
+            router.cloudMode === 1 ||
             false;
 
         const newSelectList = priorHardwareList

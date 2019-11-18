@@ -25,6 +25,7 @@
         "vendor": ["Arduino", "wch.cn", "FTDI"],
         "baudRate": 57600,
         "lostTimer": 1000,
+        "byteDelimiter": [13, 10],
         "firmwarecheck": false
     }
 }

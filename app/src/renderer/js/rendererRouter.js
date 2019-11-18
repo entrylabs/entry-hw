@@ -1,6 +1,8 @@
 const { ipcRenderer, shell, remote } = require('electron');
 const {
     HARDWARE_STATEMENT: Statement,
+    RUNNING_MODE_TYPES: RunningMode,
+    CLOUD_MODE_TYPES: CloudMode,
 } = require('../../common/constants');
 
 /**
@@ -9,19 +11,20 @@ const {
  *
  */
 class RendererRouter {
-    get serverMode() {
-        return this._serverMode;
-    }
 
     constructor(ui) {
         this.ui = ui;
         this.priorHardwareList = JSON.parse(localStorage.getItem('hardwareList')) || [];
-        this._serverMode = ipcRenderer.sendSync('getCurrentServerModeSync') || 0;
         this.currentState = Statement.disconnected;
         this.hardwareList = [];
+        this.cloudMode = CloudMode.singleServer;
+        const initialServerMode = ipcRenderer.sendSync('getCurrentServerModeSync') || RunningMode.server;
+        const initialCloudMode = ipcRenderer.sendSync('getCurrentCloudModeSync') || CloudMode.singleServer;
 
         this._checkProgramUpdate();
-        this._consoleWriteServerMode();
+        this._consoleWriteServerMode(initialServerMode);
+        this._toggleCloudModeUI(initialCloudMode);
+
         //ipcEvent
         ipcRenderer.on('console', (event, ...args) => {
             console.log(...args);
@@ -30,8 +33,10 @@ class RendererRouter {
         ipcRenderer.on('state', this._setHardwareState.bind(this));
         ipcRenderer.on('hardwareCloseConfirm', this._confirmHardwareClose.bind(this));
         ipcRenderer.on('serverMode', (event, mode) => {
-            this._serverMode = mode;
-            this._consoleWriteServerMode();
+            this._consoleWriteServerMode(mode);
+        });
+        ipcRenderer.on('cloudMode', (event, mode) => {
+            this._toggleCloudModeUI(mode);
         });
     }
 
@@ -114,54 +119,68 @@ class RendererRouter {
     }
 
     _checkProgramUpdate() {
-        const lastCheckVersion = localStorage.getItem('lastCheckVersion');
-        const hasNewVersion = localStorage.getItem('hasNewVersion');
         const { appName } = remote.getGlobal('sharedObject');
-        const { getLang } = window;
+        const { translate, Modal } = window;
+        const modal = new Modal.default();
 
         if (appName === 'hardware' && navigator.onLine) {
-            if (hasNewVersion) {
-                localStorage.removeItem('hasNewVersion');
-                this.ui.showModal(
-                    getLang('Msgs.version_update_msg2').replace(/%1/gi, lastCheckVersion),
-                    getLang('General.update_title'),
-                    {
-                        positiveButtonText: getLang('General.recent_download'),
-                        positiveButtonStyle: {
-                            width: '180px',
-                        },
-                    },
-                    (event) => {
-                        if (event === 'ok') {
-                            shell.openExternal(
-                                'https://playentry.org/#!/offlineEditor',
-                            );
-                        }
-                    },
-                );
-            } else {
-                ipcRenderer.on(
-                    'checkUpdateResult',
-                    (e, { hasNewVersion, version } = {}) => {
-                        if (hasNewVersion && version !== lastCheckVersion) {
-                            localStorage.setItem('hasNewVersion', hasNewVersion);
-                            localStorage.setItem('lastCheckVersion', version);
-                        }
-                    },
-                );
-                ipcRenderer.send('checkUpdate');
-            }
+            ipcRenderer.send('checkUpdate');
+            ipcRenderer.on(
+                'checkUpdateResult',
+                (e, { hasNewVersion, version: latestVersion } = {}) => {
+                    const lastDontCheckedVersion = localStorage.getItem('lastDontCheckedVersion');
+                    if (hasNewVersion && (!lastDontCheckedVersion || lastDontCheckedVersion < latestVersion)) {
+                        modal.alert(
+                            translate('You can use the latest Entry Hardware version(%1).')
+                                .replace(/%1/gi, latestVersion),
+                            translate('Alert'),
+                            {
+                                theme: 'LINE',
+                                positiveButtonText: translate('Download'),
+                                positiveButtonStyle: {
+                                    marginTop: '16px',
+                                    marginBottom: '16px',
+                                    width: '180px',
+                                },
+                                parentClassName: 'versionAlert',
+                                withDontShowAgain: true,
+                            }).one('click', (event, { dontShowChecked }) => {
+                            if (event === 'ok') {
+                                shell.openExternal(
+                                    'https://playentry.org/#!/offlineEditor',
+                                );
+                            }
+                            if (dontShowChecked) {
+                                localStorage.setItem('lastDontCheckedVersion', latestVersion);
+                            }
+                        });
+                    }
+                },
+            );
         }
     }
 
-    _consoleWriteServerMode() {
-        if (this.serverMode === 1) {
-            console.log('%cI`M CLIENT', 'background:black;color:yellow;font-size: 30px');
-            this.ui.setCloudMode(true);
-        } else {
-            console.log('%cI`M SERVER', 'background:orange; font-size: 30px');
-            this.ui.setCloudMode(false);
+    _consoleWriteServerMode(mode) {
+        if (this.serverMode === mode) {
+            return;
         }
+
+        if (mode === RunningMode.client) {
+            console.log('%cI`M CLIENT', 'background:black;color:yellow;font-size: 30px');
+
+        } else if (mode === RunningMode.server) {
+            console.log('%cI`M SERVER', 'background:orange; font-size: 30px');
+        }
+        this.serverMode = mode;
+    }
+
+    _toggleCloudModeUI(mode) {
+        if (mode === CloudMode.singleServer) {
+            this.ui.setCloudMode(false);
+        } else if (mode === CloudMode.cloud) {
+            this.ui.setCloudMode(true);
+        }
+        this.cloudMode = mode;
     }
 
     _setHardwareState(event, state, data) {
@@ -188,8 +207,12 @@ class RendererRouter {
                 break;
             }
             case selectPort: {
-                this.close();
-                this.ui.showPortSelectView(data);
+                console.log('aa', window.currentConfig.this_com_port);
+                if (!window.currentConfig.this_com_port) {
+                    this.ui.showPortSelectView(data);
+                } else {
+                    this.close();
+                }
                 return; // ui 변경 이루어지지 않음.
             }
             case flash: {

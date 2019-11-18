@@ -1,0 +1,32 @@
+{
+    "id": "020E01",
+    "name": {
+        "en": "HamsterS",
+        "ko": "햄스터S"
+    },
+    "category": "robot",
+    "platform": ["win32", "darwin"],
+    "icon" : "hamster_s.png",
+    "module": "hamster_s.js",
+    "url": "http://hamster.school",
+    "email": "robomation@hanmail.net",
+    "driver": {
+        "win32-ia32": "CP210x_VCP_Windows/CP210xVCPInstaller_x86.exe",
+        "win32-x64": "CP210x_VCP_Windows/CP210xVCPInstaller_x64.exe",
+        "darwin-x64": "Mac_OSX_VCP_Driver/SiLabsUSBDriverDisk.dmg"
+    },
+    "reconnect" : true,
+    "entry": {
+        "protocol": "json"
+    },
+    "hardware": {
+        "type": "serial",
+        "control": "master",
+        "scanType": "data",
+        "vendor": ["Silicon Lab", "IntegriSys S.A."],
+        "baudRate": 115200,
+        "flowControl": "hardware",
+        "delimiter": "\r",
+        "stream": "string"
+    }
+}
