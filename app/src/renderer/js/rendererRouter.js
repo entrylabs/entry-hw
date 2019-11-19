@@ -207,7 +207,6 @@ class RendererRouter {
                 break;
             }
             case selectPort: {
-                console.log('aa', window.currentConfig.this_com_port);
                 if (!window.currentConfig.this_com_port) {
                     this.ui.showPortSelectView(data);
                 } else {
