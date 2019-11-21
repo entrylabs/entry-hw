@@ -19,6 +19,7 @@ const packageJson = require('../package.json');
 let mainWindow = null;
 let aboutWindow = null;
 let mainRouter = null;
+let entryServer = null;
 
 const roomIds = [];
 
@@ -163,6 +164,7 @@ if (!app.requestSingleInstanceLock()) {
     });
 
     ipcMain.on('reload', (event, arg) => {
+        entryServer.close();
         app.relaunch({ args: process.argv.slice(1).concat(['--relaunch']) });
         app.exit(0);
     });
@@ -242,8 +244,9 @@ if (!app.requestSingleInstanceLock()) {
         });
 
         createAboutWindow(mainWindow);
-        
-        mainRouter = new MainRouter(mainWindow, new EntryServer());
+
+        entryServer = new EntryServer();
+        mainRouter = new MainRouter(mainWindow, entryServer);
     });
 
     ipcMain.on('hardwareForceClose', () => {
