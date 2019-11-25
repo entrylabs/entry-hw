@@ -1,6 +1,5 @@
 'use strict';
 
-const electron = require('electron');
 const MainRouter = require('./src/main/mainRouter');
 const EntryServer = require('./src/main/serverProcessManager');
 const {
@@ -11,7 +10,8 @@ const {
     webContents,
     dialog,
     net,
-} = electron;
+    Menu,
+} = require('electron');
 const path = require('path');
 const fs = require('fs');
 const packageJson = require('../package.json');
@@ -175,6 +175,7 @@ if (!app.requestSingleInstanceLock()) {
     // app.commandLine.appendSwitch('enable-web-bluetooth');
     app.once('ready', () => {
         const language = app.getLocale();
+        Menu.setApplicationMenu(null);
 
         let title;
 
@@ -194,6 +195,8 @@ if (!app.requestSingleInstanceLock()) {
                 preload: path.resolve(__dirname, 'src', 'renderer', 'preload.js'),
             },
         });
+
+        mainWindow.setMenu(null);
 
         mainWindow.webContents.on(
             'select-bluetooth-device',
@@ -216,7 +219,7 @@ if (!app.requestSingleInstanceLock()) {
             mainWindow.webContents.openDevTools();
         }
 
-        mainWindow.setMenu(null);
+
 
         mainWindow.on('close', (e) => {
             if (!isForceClose) {
