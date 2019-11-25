@@ -226,7 +226,6 @@ class Scanner {
         this.config = undefined;
         this.isScanning = false;
         this.clearTimers();
-        this.closeConnectors();
     };
 
 
@@ -253,20 +252,6 @@ class Scanner {
             this.connectors[comName] = undefined;
         }
         this.stopScan();
-    };
-
-    closeConnectors() {
-        const connectors = this.connectors;
-        if (connectors) {
-            let connector;
-            for (const key in connectors) {
-                connector = connectors[key];
-                if (connector) {
-                    connector.close();
-                }
-            }
-        }
-        this.connectors = {};
     };
 }
 

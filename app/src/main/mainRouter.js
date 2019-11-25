@@ -359,7 +359,7 @@ class MainRouter {
             } else {
                 this.connector.close();
             }
-            this.connector = undefined;
+            // this.connector = undefined;
         }
         if (this.scanner) {
             this.scanner.stopScan();
