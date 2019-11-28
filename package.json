@@ -9,12 +9,12 @@
         "clean": "rimraf dist",
         "start": "set NODE_ENV=development&&electron -d app",
         "debug": "set NODE_ENV=development&&electron -d app --inspect",
-        "rebuild": "electron-rebuild",
+        "rebuild": "electron-rebuild -f -w serialport",
         "update:licence": "lcdoc make -o app/OPENSOURCE.md -d 1",
         "dist:win32": "electron-builder --win --ia32",
         "dist:mac:notarize": "cross-env NOTARIZE=true CSC_NAME=\"Connect Foundation (DLFUSDA3L5)\" electron-builder",
         "dist:mac": "cross-env NOTARIZE=false CSC_NAME=\"Connect Foundation (DLFUSDA3L5)\" electron-builder",
-        "postinstall": "electron-rebuild"
+        "postinstall": "electron-rebuild -f -w serialport"
     },
     "devDependencies": {
         "cross-env": "^5.1.3",

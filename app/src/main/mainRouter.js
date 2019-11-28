@@ -52,7 +52,7 @@ class MainRouter {
             }
         });
         ipcMain.on('stopScan', () => {
-            this.stopScan();
+            this.close();
         });
         ipcMain.on('close', () => {
             this.close();
@@ -255,6 +255,9 @@ class MainRouter {
         if (this.scanner) {
             this.scanner.stopScan();
         }
+        if (this.connector) {
+            this.connector.close();
+        }
     }
 
     /**
@@ -300,18 +303,22 @@ class MainRouter {
         if (hwModule.setSocket) {
             hwModule.setSocket(server);
         }
+
+        this.handleServerSocketConnected();
     }
 
     handleServerSocketConnected() {
         const hwModule = this.hwModule || {};
-        if (hwModule.socketReconnection) {
+        const moduleConnected = this.connector && this.connector.serialPort;
+        if (moduleConnected && hwModule.socketReconnection) {
             hwModule.socketReconnection();
         }
     }
 
     handleServerSocketClosed() {
         const hwModule = this.hwModule || {};
-        if (hwModule.reset) {
+        const moduleConnected = this.connector && this.connector.serialPort;
+        if (moduleConnected && hwModule.reset) {
             hwModule.reset();
         }
     }
@@ -337,7 +344,7 @@ class MainRouter {
      */
     sendEncodedDataToServer() {
         const data = this.handler.encode();
-        if (data) {
+        if (this.server && data) {
             this.server.send(data);
         }
     }
@@ -362,7 +369,6 @@ class MainRouter {
             } else {
                 this.connector.close();
             }
-            // this.connector = undefined;
         }
         if (this.scanner) {
             this.scanner.stopScan();
