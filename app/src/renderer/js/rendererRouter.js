@@ -207,9 +207,7 @@ class RendererRouter {
                 break;
             }
             case selectPort: {
-                if (!window.currentConfig.this_com_port) {
-                    this.ui.showPortSelectView(data);
-                }
+                this.ui.showPortSelectView(data);
                 return; // ui 변경 이루어지지 않음.
             }
             case flash: {

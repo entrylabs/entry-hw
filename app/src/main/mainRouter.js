@@ -195,7 +195,7 @@ class MainRouter {
         }
         this.currentCloudMode = mode;
     }
-    
+
     notifyServerRunningModeChanged(mode) {
         if (!this.browser.isDestroyed()) {
             this.browser.webContents.send('serverMode', mode);
@@ -226,12 +226,17 @@ class MainRouter {
                 this.scanner.config = config;
                 return;
             }
-            const connector = await this.scanner.startScan(this.hwModule, this.config);
-            if (connector) {
-                this.sendState('connected');
-                this.connector = connector;
-                connector.setRouter(this);
-                this._connect(connector);
+            
+            if (this.scanner.isScanning) {
+                this.scanner.setConfig(config);
+            } else {
+                const connector = await this.scanner.startScan(this.hwModule, this.config);
+                if (connector) {
+                    this.sendState('connected');
+                    this.connector = connector;
+                    connector.setRouter(this);
+                    this._connect(connector);
+                }
             }
         }
     }
@@ -287,8 +292,6 @@ class MainRouter {
     _connectToServer() {
         const hwModule = this.hwModule;
         const server = this.server;
-
-        // server.removeAllListeners();
 
         if (hwModule.init) {
             hwModule.init(this.handler, this.config);

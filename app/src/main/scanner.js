@@ -29,13 +29,17 @@ class Scanner {
     async startScan(hwModule, config) {
         this.stopScan();
 
-        this.config = config;
+        this.setConfig(config);
         this.hwModule = hwModule;
         this.slaveTimers = {};
         this.connectors = {};
 
         return await this.intervalScan();
     };
+
+    setConfig(config) {
+        this.config = config;
+    }
 
     async intervalScan() {
         this.isScanning = true;
