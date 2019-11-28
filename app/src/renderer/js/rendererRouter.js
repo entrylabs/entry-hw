@@ -5,6 +5,8 @@ const {
     CLOUD_MODE_TYPES: CloudMode,
 } = require('../../common/constants');
 
+let selectPortConnectionTimeout;
+
 /**
  * 렌더러 비즈니스로직을 담은 클래스.
  * 해당 클래스는 preload 페이즈에서 선언되므로 nodejs, electron 관련 import가 가능
@@ -207,12 +209,14 @@ class RendererRouter {
                 break;
             }
             case selectPort: {
-                console.log('aa', window.currentConfig.this_com_port);
                 if (!window.currentConfig.this_com_port) {
                     this.ui.showPortSelectView(data);
                 } else {
-                    this.close();
+                    selectPortConnectionTimeout = setTimeout(() => {
+                        this.startScan(window.currentConfig);
+                    }, 1000);
                 }
+
                 return; // ui 변경 이루어지지 않음.
             }
             case flash: {

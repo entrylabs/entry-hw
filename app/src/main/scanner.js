@@ -23,19 +23,36 @@ class Scanner {
         this.router = router;
         this.serialport = SerialPort;
         this.serialport.Binding = Binding;
+        this.isScanning = false;
     }
 
     async startScan(hwModule, config) {
         this.stopScan();
 
-        this.config = config;
+        this.setConfig(config);
         this.hwModule = hwModule;
         this.slaveTimers = {};
         this.connectors = {};
-        this.scanCount = 0;
 
-        return await this.scan();
+        return await this.intervalScan();
     };
+
+    setConfig(config) {
+        this.config = config;
+    }
+
+    async intervalScan() {
+        this.isScanning = true;
+        let scanResult = undefined;
+        while (this.isScanning) {
+            scanResult = await this.scan();
+            if (scanResult) {
+                this.isScanning = false;
+            }
+            await new Promise((resolve) => setTimeout(resolve, 1500));
+        }
+        return scanResult;
+    }
 
     scan() {
         return new Promise(async (resolve, reject) => {
@@ -80,8 +97,17 @@ class Scanner {
                  *   -> 모든 포트에 연결 시도 할 예정
                  */
                 const comPorts = await SerialPort.list();
+                rendererConsole.log(JSON.stringify(comPorts));
                 if (isComPortSelected) {
                     if (selectedComPortName) {
+                        // lost 후 reconnect 임시 대응
+                        if (comPorts
+                            .map((portData) => portData.path)
+                            .findIndex((path) => path === selectedComPortName) === -1) {
+                            resolve();
+                            return;
+                        }
+
                         let connector = this.connectors[selectedComPortName];
                         if (connector === undefined) {
                             connector = await this.prepareConnector(selectedComPortName);
@@ -202,8 +228,8 @@ class Scanner {
 
     stopScan() {
         this.config = undefined;
+        this.isScanning = false;
         this.clearTimers();
-        this.closeConnectors();
     };
 
 
@@ -230,20 +256,6 @@ class Scanner {
             this.connectors[comName] = undefined;
         }
         this.stopScan();
-    };
-
-    closeConnectors() {
-        const connectors = this.connectors;
-        if (connectors) {
-            let connector;
-            for (const key in connectors) {
-                connector = connectors[key];
-                if (connector) {
-                    connector.close();
-                }
-            }
-        }
-        this.connectors = {};
     };
 }
 

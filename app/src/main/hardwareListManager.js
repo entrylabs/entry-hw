@@ -34,7 +34,7 @@ module.exports = class {
                         return 0;
                     }
                 })
-                .forEach((config) => this.allHardwareList.push(config));
+                .forEach((config) => config && this.allHardwareList.push(config));
         } catch (e) {
             console.error('error occurred while reading module json files');
         }

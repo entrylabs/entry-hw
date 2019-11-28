@@ -140,6 +140,7 @@ class Connector {
                             if (hwModule.setSerialPort) {
                                 hwModule.setSerialPort(this.serialPort);
                             }
+                            this.connected = true;
                             resolve();
                         } else {
                             reject(new Error('Invalid hardware'));
@@ -164,6 +165,7 @@ class Connector {
                             if (hwModule.resetProperty) {
                                 this.send(hwModule.resetProperty());
                             }
+                            this.connected = true;
                             resolve();
                         } else {
                             reject(new Error('Invalid hardware'));
@@ -391,6 +393,7 @@ class Connector {
             this.serialPort.write(data, () => {
                 if (this.serialPort) {
                     this.serialPort.drain(() => {
+                        this.connected = true;
                         this.isSending = false;
                         callback && callback();
                     });
