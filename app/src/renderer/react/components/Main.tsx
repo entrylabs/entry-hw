@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import HardwareConnectionContainer from './hardwareConnection/HardwareConnectionContainer';
 import LicenseViewerContainer from './hardwareList/opensourceLicenseViewer/licenseViewerContainer';
 import ErrorAlert from './hardwareList/ErrorAlert';
@@ -12,6 +12,14 @@ import { IAlertMessage } from '../store/modules/common';
 
 const Main: React.FC<IStateProps> = (props) => {
     const { currentState, isNeedPortSelect, alertMessage } = props;
+    const [selectPortCanceled, changePortSelectCanceled] = useState(false);
+
+    useEffect(() => {
+        if (currentState === HardwarePageStateEnum.list) {
+            changePortSelectCanceled(false);
+        }
+    }, [currentState]);
+
     return (
         <>
             {currentState === HardwarePageStateEnum.list && (
@@ -25,7 +33,11 @@ const Main: React.FC<IStateProps> = (props) => {
                 <>
                     {alertMessage && <AlertTab {...alertMessage} />}
                     <HardwareConnectionContainer/>
-                    {isNeedPortSelect && <SelectPortContainer/>}
+                    {isNeedPortSelect && !selectPortCanceled && <SelectPortContainer
+                        handleCancelClicked={() => {
+                            changePortSelectCanceled(true);
+                        }}
+                    />}
                 </>
             )}
         </>

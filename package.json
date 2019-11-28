@@ -11,6 +11,7 @@
         "debug": "set NODE_ENV=development&&electron -d app --inspect",
         "rebuild": "electron-rebuild -f -w serialport",
         "update:licence": "lcdoc make -o app/OPENSOURCE.md -d 1",
+        "webpack:dev": "webpack -w",
         "dist:win32": "electron-builder --win --ia32",
         "dist:mac:notarize": "cross-env NOTARIZE=true CSC_NAME=\"Connect Foundation (DLFUSDA3L5)\" electron-builder",
         "dist:mac": "cross-env NOTARIZE=false CSC_NAME=\"Connect Foundation (DLFUSDA3L5)\" electron-builder",

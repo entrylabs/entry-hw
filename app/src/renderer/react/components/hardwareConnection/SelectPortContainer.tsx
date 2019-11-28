@@ -102,13 +102,15 @@ const CancelButton = Styled.button`
     margin-right: 11px;
 `;
 
-type IProps = IDispatchProps & IStateProps & Preload;
+type IProps = IDispatchProps & IStateProps & Preload & {
+    handleCancelClicked: () => void;
+};
 const SelectPortContainer: React.FC<IProps> = (props) => {
     const { translator, portList } = props;
     const [selectedPort, changeSelected] = useState<string>('');
 
     const onCancelClicked = useCallback(() => {
-        props.changeCurrentPageState(HardwarePageStateEnum.list);
+        props.handleCancelClicked();
         props.clearPortList();
     }, []);
 
