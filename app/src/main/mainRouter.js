@@ -300,20 +300,20 @@ class MainRouter {
         if (hwModule.setSocket) {
             hwModule.setSocket(server);
         }
+    }
 
-        // 신규 연결시 해당 메세지 전송
-        // server.on('connection', () => {
-        //     if (hwModule.socketReconnection) {
-        //         hwModule.socketReconnection();
-        //     }
-        // });
+    handleServerSocketConnected() {
+        const hwModule = this.hwModule || {};
+        if (hwModule.socketReconnection) {
+            hwModule.socketReconnection();
+        }
+    }
 
-        // 엔트리 실행이 종료된 경우 reset 명령어 호출
-        // server.on('close', () => {
-        //     if (hwModule.reset) {
-        //         hwModule.reset();
-        //     }
-        // });
+    handleServerSocketClosed() {
+        const hwModule = this.hwModule || {};
+        if (hwModule.reset) {
+            hwModule.reset();
+        }
     }
 
     // 엔트리 측에서 데이터를 받아온 경우 전달
