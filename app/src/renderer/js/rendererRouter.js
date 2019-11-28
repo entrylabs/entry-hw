@@ -4,6 +4,8 @@ const {
     RUNNING_MODE_TYPES: RunningMode,
 } = require('../../common/constants');
 
+let selectPortConnectionTimeout;
+
 /**
  * 렌더러 비즈니스로직을 담은 클래스.
  * 해당 클래스는 preload 페이즈에서 선언되므로 nodejs, electron 관련 import가 가능
@@ -168,6 +170,75 @@ class RendererRouter {
         }
         this.serverMode = mode;
     }
+
+    /*
+    _toggleCloudModeUI(mode) {
+        if (mode === CloudMode.singleServer) {
+            this.ui.setCloudMode(false);
+        } else if (mode === CloudMode.cloud) {
+            this.ui.setCloudMode(true);
+        }
+        this.cloudMode = mode;
+    }
+
+    _setHardwareState(event, state, data) {
+        const { translate } = window;
+        const ui = this.ui;
+        const {
+            showRobot,
+            lost,
+            disconnected,
+            selectPort,
+            flash,
+            beforeConnect,
+            connected,
+        } = Statement;
+
+        console.log(state);
+        // select_port 는 기록해두어도 쓸모가 없으므로 표기하지 않는다
+        if (state !== selectPort) {
+            this.currentState = state;
+        }
+        switch (state) {
+            case showRobot: {
+                this.ui.showRobot(data);
+                break;
+            }
+            case selectPort: {
+                if (!window.currentConfig.this_com_port) {
+                    this.ui.showPortSelectView(data);
+                } else {
+                    selectPortConnectionTimeout = setTimeout(() => {
+                        this.startScan(window.currentConfig);
+                    }, 1000);
+                }
+
+                return; // ui 변경 이루어지지 않음.
+            }
+            case flash: {
+                ui.flashFirmware();
+                break;
+            }
+            case beforeConnect: {
+                ui.showAlert(`${
+                    translate('Connecting to hardware device.')
+                    } ${
+                    translate('Please select the firmware.')
+                    }`);
+                break;
+            }
+            case lost:
+                ui.showConnecting();
+                break;
+            case disconnected:
+                ui.showDisconnected();
+                break;
+            case connected:
+                ui.showConnected();
+                break;
+        }
+    }
+     */
 
     _confirmHardwareClose() {
         const { translator } = window;

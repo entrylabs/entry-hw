@@ -4,7 +4,7 @@
 		"en": "AsomeBot",
 		"ko": "AsomeBot"
 	},
-	"category": "board",
+	"category": "robot",
 	"platform": [
 		"win32",
 		"darwin"

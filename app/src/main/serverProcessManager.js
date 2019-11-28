@@ -105,8 +105,12 @@ class ServerProcessManager {
                     this.router.handleServerData(value);
                     break;
                 }
+                case 'connection': {
+                    this.router.handleServerSocketConnected();
+                    break;
+                }
                 case 'close': {
-                    //TODO 서버가 닫혔다는 신호가 필요하면 이곳에서 처리
+                    this.router.handleServerSocketClosed();
                     break;
                 }
                 default: {

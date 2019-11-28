@@ -56,7 +56,7 @@ class MainRouter {
             this.selectedPort = portName;
         });
         ipcMain.on('stopScan', () => {
-            this.stopScan();
+            this.close();
         });
         ipcMain.on('close', () => {
             this.close();
@@ -68,9 +68,9 @@ class MainRouter {
                         e.sender.send('requestFlash');
                     }
                 })
-                .catch((e) => {
+                .catch((err) => {
                     if (!e.sender.isDestroyed()) {
-                        e.sender.send('requestFlash', e);
+                        e.sender.send('requestFlash', err);
                     }
                 });
         });
@@ -197,7 +197,7 @@ class MainRouter {
         this.sendEventToMainWindow('cloudMode', mode);
         this.currentCloudMode = mode;
     }
-    
+
     notifyServerRunningModeChanged(mode) {
         this.sendEventToMainWindow('serverMode', mode);
         this.currentServerRunningMode = mode;
@@ -236,6 +236,21 @@ class MainRouter {
                 this.connector = connector;
                 connector.setRouter(this);
                 this._connect(connector);
+            /*if (this.scanner.isScanning) {
+                this.scanner.config = config;
+                return;
+            }
+            
+            if (this.scanner.isScanning) {
+                this.scanner.setConfig(config);
+            } else {
+                const connector = await this.scanner.startScan(this.hwModule, this.config);
+                if (connector) {
+                    this.sendState('connected');
+                    this.connector = connector;
+                    connector.setRouter(this);
+                    this._connect(connector);
+                }*/
             }
         }
     }
@@ -253,6 +268,9 @@ class MainRouter {
     stopScan() {
         if (this.scanner) {
             this.scanner.stopScan();
+        }
+        if (this.connector) {
+            this.connector.close();
         }
     }
 
@@ -292,8 +310,6 @@ class MainRouter {
         const hwModule = this.hwModule;
         const server = this.server;
 
-        // server.removeAllListeners();
-
         if (hwModule.init) {
             hwModule.init(this.handler, this.config);
         }
@@ -302,19 +318,23 @@ class MainRouter {
             hwModule.setSocket(server);
         }
 
-        // 신규 연결시 해당 메세지 전송
-        // server.on('connection', () => {
-        //     if (hwModule.socketReconnection) {
-        //         hwModule.socketReconnection();
-        //     }
-        // });
+        this.handleServerSocketConnected();
+    }
 
-        // 엔트리 실행이 종료된 경우 reset 명령어 호출
-        // server.on('close', () => {
-        //     if (hwModule.reset) {
-        //         hwModule.reset();
-        //     }
-        // });
+    handleServerSocketConnected() {
+        const hwModule = this.hwModule || {};
+        const moduleConnected = this.connector && this.connector.serialPort;
+        if (moduleConnected && hwModule.socketReconnection) {
+            hwModule.socketReconnection();
+        }
+    }
+
+    handleServerSocketClosed() {
+        const hwModule = this.hwModule || {};
+        const moduleConnected = this.connector && this.connector.serialPort;
+        if (moduleConnected && hwModule.reset) {
+            hwModule.reset();
+        }
     }
 
     // 엔트리 측에서 데이터를 받아온 경우 전달
@@ -338,7 +358,7 @@ class MainRouter {
      */
     sendEncodedDataToServer() {
         const data = this.handler.encode();
-        if (data) {
+        if (this.server && data) {
             this.server.send(data);
         }
     }
@@ -356,9 +376,6 @@ class MainRouter {
         if (this.server) {
             this.server.disconnectHardware();
         }
-        if (this.scanner) {
-            this.scanner.stopScan();
-        }
         if (this.connector) {
             rendererConsole.log('disconnect');
             if (this.hwModule.disconnect) {
@@ -366,7 +383,9 @@ class MainRouter {
             } else {
                 this.connector.close();
             }
-            this.connector = undefined;
+        }
+        if (this.scanner) {
+            this.scanner.stopScan();
         }
         if (this.handler) {
             this.handler = undefined;
