@@ -114,7 +114,7 @@ class MainRouter {
                 firmware = firmwareInConfig;
             }
 
-            this.close(); // 서버 통신 중지, 시리얼포트 연결 해제
+            this.close({ saveSelectedPort: true }); // 서버 통신 중지, 시리얼포트 연결 해제
 
             const flashFunction = () => new Promise((resolve, reject) => {
                 setTimeout(() => {
@@ -236,21 +236,21 @@ class MainRouter {
                 this.connector = connector;
                 connector.setRouter(this);
                 this._connect(connector);
-            /*if (this.scanner.isScanning) {
-                this.scanner.config = config;
-                return;
-            }
-            
-            if (this.scanner.isScanning) {
-                this.scanner.setConfig(config);
-            } else {
-                const connector = await this.scanner.startScan(this.hwModule, this.config);
-                if (connector) {
-                    this.sendState('connected');
-                    this.connector = connector;
-                    connector.setRouter(this);
-                    this._connect(connector);
-                }*/
+                /*if (this.scanner.isScanning) {
+                    this.scanner.config = config;
+                    return;
+                }
+                
+                if (this.scanner.isScanning) {
+                    this.scanner.setConfig(config);
+                } else {
+                    const connector = await this.scanner.startScan(this.hwModule, this.config);
+                    if (connector) {
+                        this.sendState('connected');
+                        this.connector = connector;
+                        connector.setRouter(this);
+                        this._connect(connector);
+                    }*/
             }
         }
     }
@@ -372,7 +372,13 @@ class MainRouter {
         }
     }
 
-    close() {
+    /**
+     *
+     * @param option {Object=} true 인 경우, 포트선택했던 내역을 지우지 않는다.
+     */
+    close(option) {
+        const { saveSelectedPort = false } = option || {};
+
         if (this.server) {
             this.server.disconnectHardware();
         }
@@ -390,7 +396,11 @@ class MainRouter {
         if (this.handler) {
             this.handler = undefined;
         }
-        this.selectedPort = undefined;
+
+        if (!saveSelectedPort) {
+            this.selectedPort = undefined;
+        }
+
         this.sendState('disconnected');
     };
 
