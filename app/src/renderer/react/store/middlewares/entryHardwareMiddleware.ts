@@ -76,8 +76,13 @@ const entryHardwareMiddleware: Middleware = ({ getState }: { getState: () => ISt
         }
         case FIRMWARE_INSTALL_REQUESTED: {
             changeAlertMessage(next)({message: translator.translate('Firmware Uploading...')});
-            rendererRouter.requestFlash(action.payload);
-            next(action);
+            rendererRouter.requestFlash(action.payload)
+                .then(() => {
+                    changeAlertMessage(next)({message: translator.translate('Firmware Uploaded!')});
+                })
+                .catch(() => {
+                    changeAlertMessage(next)({message: translator.translate('Failed Firmware Upload')});
+                });
             break;
         }
         default:

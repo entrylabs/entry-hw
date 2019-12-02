@@ -49,7 +49,7 @@ class MainRouter {
             try {
                 await this.startScan(config);
             } catch (e) {
-                rendererConsole.error(`startScan err : `, e);
+                rendererConsole.error('startScan err : ', e);
             }
         });
         ipcMain.on('selectPort', (e, portName) => {
@@ -63,15 +63,23 @@ class MainRouter {
         });
         ipcMain.on('requestFlash', (e, firmwareName) => {
             this.flashFirmware(firmwareName)
-                .then(() => {
+                .then((firmware) => {
                     if (!e.sender.isDestroyed()) {
                         e.sender.send('requestFlash');
                     }
+                    return firmware;
                 })
                 .catch((err) => {
                     if (!e.sender.isDestroyed()) {
                         e.sender.send('requestFlash', err);
                     }
+                })
+                .then(async (firmware) => {
+                    this.flasher.kill();
+                    if (firmware && firmware.afterDelay) {
+                        await new Promise((resolve) => setTimeout(resolve, firmware.afterDelay));
+                    }
+                    await this.startScan(this.config);
                 });
         });
         ipcMain.on('executeDriver', (e, driverPath) => {
@@ -134,7 +142,7 @@ class MainRouter {
                                     reject(new Error('Failed Firmware Upload'));
                                 }
                             } else {
-                                resolve();
+                                resolve(firmware);
                             }
                         })
                         .catch(reject);
@@ -142,22 +150,7 @@ class MainRouter {
             });
 
             // 에러가 발생하거나, 정상종료가 되어도 일단 startScan 을 재시작한다.
-            return flashFunction()
-                .then(() => {
-                    console.log('flash successed');
-                })
-                .catch((e) => {
-                    rendererConsole.error('flash failed', e);
-                    console.log('flash failed');
-                    throw e;
-                })
-                .finally(async () => {
-                    this.flasher.kill();
-                    if (firmware.afterDelay) {
-                        await new Promise((resolve) => setTimeout(resolve, firmware.afterDelay));
-                    }
-                    await this.startScan(this.config);
-                });
+            return flashFunction();
         } else {
             return Promise.reject(new Error('Hardware Device Is Not Connected'));
         }
