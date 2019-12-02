@@ -9,7 +9,7 @@ import {
 } from '../modules/hardware';
 import filterHardwareList from '../../functions/filterHardware';
 import { changeAlertMessage, CURRENT_PAGE_STATE_CHANGED } from '../modules/common';
-import { HardwarePageStateEnum } from '../../constants/constants';
+import { HardwareModuleStateEnum, HardwarePageStateEnum } from '../../constants/constants';
 import refreshPriorHardwareList from '../../functions/refreshPriorHardwareList';
 import { FIRMWARE_INSTALL_REQUESTED, HARDWARE_SELECTED, PORT_SELECTED } from '../modules/connection';
 
@@ -75,14 +75,23 @@ const entryHardwareMiddleware: Middleware = ({ getState }: { getState: () => ISt
             break;
         }
         case FIRMWARE_INSTALL_REQUESTED: {
-            changeAlertMessage(next)({message: translator.translate('Firmware Uploading...')});
-            rendererRouter.requestFlash(action.payload)
-                .then(() => {
-                    changeAlertMessage(next)({message: translator.translate('Firmware Uploaded!')});
-                })
-                .catch(() => {
-                    changeAlertMessage(next)({message: translator.translate('Failed Firmware Upload')});
-                });
+            const { common } = getState();
+            const { moduleState } = common;
+
+            if (
+                moduleState !== HardwareModuleStateEnum.beforeConnect &&
+                moduleState !== HardwareModuleStateEnum.connected
+            ) {
+                alert(translator.translate('Hardware Device Is Not Connected'))
+            } else {
+                rendererRouter.requestFlash(action.payload)
+                    .then(() => {
+                        changeAlertMessage(next)({ message: translator.translate('Firmware Uploaded!'), duration: 1000 });
+                    })
+                    .catch(() => {
+                        changeAlertMessage(next)({ message: translator.translate('Failed Firmware Upload') });
+                    });
+            }
             break;
         }
         default:

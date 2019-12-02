@@ -72,6 +72,11 @@ class IpcRendererWatchComponent extends React.PureComponent<IProps> {
                     });
                     break;
                 }
+                case HardwareModuleStateEnum.flash: {
+                    props.changeAlertMessage({
+                        message: translator.translate('Firmware Uploading...')
+                    })
+                }
             }
         });
         ipcRenderer.on('portListScanned', (event: Electron.Event, data: ISerialPortScanData[]) => {

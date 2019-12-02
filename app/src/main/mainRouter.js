@@ -106,6 +106,7 @@ class MainRouter {
      */
     flashFirmware(firmwareName) {
         if (this.connector && this.connector.serialPort && this.config) {
+            this.sendState('flash');
             let firmware = firmwareName;
             const {
                 firmware: firmwareInConfig,
