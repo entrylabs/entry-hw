@@ -94,7 +94,7 @@ class Scanner {
                  *   -> 모든 포트에 연결 시도 할 예정
                  */
                 const comPorts = await SerialPort.list();
-                rendererConsole.info(JSON.stringify(comPorts));
+                rendererConsole.log(comPorts);
                 if (isComPortSelected) {
                     if (selectedComPortName) {
                         // lost 후 reconnect 임시 대응
