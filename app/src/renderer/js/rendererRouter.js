@@ -17,8 +17,11 @@ class RendererRouter {
         return this._hardwareList;
     }
 
+    get priorHardwareList() {
+        return JSON.parse(localStorage.getItem('hardwareList')).reverse() || [];
+    }
+
     constructor() {
-        this.priorHardwareList = JSON.parse(localStorage.getItem('hardwareList')) || [];
         this.currentState = Statement.disconnected;
         this._hardwareList = [];
         const initialServerMode =
@@ -95,7 +98,7 @@ class RendererRouter {
     refreshHardwareModules() {
         // configuration
         const routerHardwareList = this._getHardwareListSync();
-        this.priorHardwareList.reverse().forEach((target, index) => {
+        this.priorHardwareList.forEach((target, index) => {
             const currentIndex = routerHardwareList.findIndex((item) => {
                 const itemName = item.name && item.name.ko ? item.name.ko : item.name;
                 return itemName === target;

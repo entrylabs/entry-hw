@@ -5,7 +5,7 @@ import {
     CATEGORY_CHANGED,
     changeHardwareList,
     HARDWARE_LIST_RESET,
-    HARDWARE_SEARCH_KEYWORD_CHANGED, resetHardwareList,
+    HARDWARE_SEARCH_KEYWORD_CHANGED,
 } from '../modules/hardware';
 import filterHardwareList from '../../functions/filterHardware';
 import { changeAlertMessage, CURRENT_PAGE_STATE_CHANGED } from '../modules/common';
@@ -49,7 +49,8 @@ const entryHardwareMiddleware: Middleware = ({ getState }: { getState: () => ISt
             const { payload: nextState } = action;
             if (nextState === HardwarePageStateEnum.list) {
                 rendererRouter.close();
-                resetHardwareList(next)();
+                //NOTE resetHardwareList 를 쓰고자 했는데 안먹힌다. 왤까?
+                changeHardwareList(next)(rendererRouter.hardwareList);
             }
             next(action);
             break;
