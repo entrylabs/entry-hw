@@ -350,7 +350,6 @@ class Connector {
 
     close() {
         this.clear();
-        this.router.sendState('disconnected');
         if (this.serialPort && this.serialPort.isOpen) {
             this.serialPort.close((e) => {
                 this.serialPort = undefined;

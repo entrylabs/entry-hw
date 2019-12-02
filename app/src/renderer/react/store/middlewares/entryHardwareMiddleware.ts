@@ -8,7 +8,7 @@ import {
     HARDWARE_SEARCH_KEYWORD_CHANGED, resetHardwareList,
 } from '../modules/hardware';
 import filterHardwareList from '../../functions/filterHardware';
-import { CURRENT_PAGE_STATE_CHANGED } from '../modules/common';
+import { changeAlertMessage, CURRENT_PAGE_STATE_CHANGED } from '../modules/common';
 import { HardwarePageStateEnum } from '../../constants/constants';
 import refreshPriorHardwareList from '../../functions/refreshPriorHardwareList';
 import { FIRMWARE_INSTALL_REQUESTED, HARDWARE_SELECTED, PORT_SELECTED } from '../modules/connection';
@@ -75,6 +75,7 @@ const entryHardwareMiddleware: Middleware = ({ getState }: { getState: () => ISt
             break;
         }
         case FIRMWARE_INSTALL_REQUESTED: {
+            changeAlertMessage(next)({message: translator.translate('Firmware Uploading...')});
             rendererRouter.requestFlash(action.payload);
             next(action);
             break;

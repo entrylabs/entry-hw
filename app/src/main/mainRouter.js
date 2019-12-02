@@ -388,6 +388,7 @@ class MainRouter {
             } else {
                 this.connector.close();
             }
+            this.sendState('disconnected');
         }
         if (this.scanner) {
             this.scanner.stopScan();
