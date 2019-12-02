@@ -383,7 +383,6 @@ class MainRouter {
             this.server.disconnectHardware();
         }
         if (this.connector) {
-            rendererConsole.log('disconnect');
             if (this.hwModule.disconnect) {
                 this.hwModule.disconnect(this.connector);
             } else {
@@ -400,8 +399,6 @@ class MainRouter {
         if (!saveSelectedPort) {
             this.selectedPort = undefined;
         }
-
-        this.sendState('disconnected');
     };
 
     /**
