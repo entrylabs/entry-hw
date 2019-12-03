@@ -44,6 +44,7 @@ class Scanner {
             scanResult = await this.scan();
             if (scanResult) {
                 this.isScanning = false;
+                break;
             }
             await new Promise((resolve) => setTimeout(resolve, 1500));
         }
