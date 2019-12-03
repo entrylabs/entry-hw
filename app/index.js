@@ -69,6 +69,9 @@ function createAboutWindow(mainWindow) {
         frame: false,
         modal: true,
         show: false,
+        webPreferences: {
+            nodeIntegration: true,
+        },
     });
 
     aboutWindow.loadURL(`file:///${
