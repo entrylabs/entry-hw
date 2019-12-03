@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import { IMapDispatchToProps, IMapStateToProps } from '../../store';
 import { requestFirmwareInstall } from '../../store/modules/connection';
 import { HardwareModuleStateEnum } from '../../constants/constants';
+import HardwarePanelButton from '../common/HardwarePanelButton';
 
 interface IProps extends Preload, IDispatchProps, IStateProps {
     buttonSet: IFirmwareInfo;
@@ -37,19 +38,17 @@ const FirmwareButtonSetElement: React.FC<IProps> = (props) => {
         return <>
             {
                 buttonSet.map((firmware) => {
-                    return <button
+                    return <HardwarePanelButton
                         key={firmware.name}
-                        className="hwPanelBtn"
                         onClick={() => {onButtonClicked(firmware.name)}}
-                    >{translator.translate(firmware.translate)}</button>;
+                    >{translator.translate(firmware.translate)}</HardwarePanelButton>;
                 })
             }
         </>;
     } else {
-        return <button
-            className="hwPanelBtn"
+        return <HardwarePanelButton
             onClick={() => {onButtonClicked(buttonSet)}}
-        >{translator.translate('Install Firmware')}</button>;
+        >{translator.translate('Install Firmware')}</HardwarePanelButton>;
     }
 };
 

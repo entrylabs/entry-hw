@@ -19,7 +19,7 @@ const GlobalStyle = createGlobalStyle`
     }
     
     * {
-        font-family: NanumGothic !important;
+        font-family: NanumGothic, sans-serif !important;
         box-sizing: border-box;
         -moz-box-sizing: border-box;
         -webkit-box-sizing: border-box;
@@ -29,7 +29,7 @@ const GlobalStyle = createGlobalStyle`
         -moz-user-select: none;
         -ms-user-select: none;
         user-select: none;
-        font-family: NanumGothic;
+        cursor: default;
         outline: none;
         -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
     }
@@ -41,7 +41,7 @@ const GlobalStyle = createGlobalStyle`
         padding: 0;
         border: 0;
         outline: 0;
-        font-family: Arial, Dotum;
+        font-family: NanumGothic, sans-serif;
         font-size: 10pt;
         overflow: hidden !important;
         display: flex;

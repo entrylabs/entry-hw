@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react';
 import withPreload from '../../hoc/withPreload';
+import HardwarePanelButton from '../common/HardwarePanelButton';
 
 const { os } = window;
 
@@ -13,19 +14,17 @@ const DriverButtonSetElement: React.FC<{ buttonSet: IDriverInfo } & Preload> = (
         return <>
             {
                 buttonSet.filter((button) => button[os]).map((button) => {
-                    return <button
+                    return <HardwarePanelButton
                         key={button[os]}
-                        className="hwPanelBtn"
                         onClick={() => {onButtonClicked(button[os])}}
-                    >{translator.translate(button.translate)}</button>;
+                    >{translator.translate(button.translate)}</HardwarePanelButton>;
                 })
             }
         </>;
     } else if (buttonSet[os]){
-        return <button
-            className="hwPanelBtn"
+        return <HardwarePanelButton
             onClick={() => {onButtonClicked(buttonSet[os])}}
-        >{translator.translate('Install Device Driver')}</button>;
+        >{translator.translate('Install Device Driver')}</HardwarePanelButton>;
     } else {
         return <></>
     }

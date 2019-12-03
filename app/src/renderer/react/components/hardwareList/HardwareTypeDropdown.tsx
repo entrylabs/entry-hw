@@ -20,12 +20,6 @@ const DropdownContent = Styled.li`
     cursor: pointer;
     background-color: white;
     padding-left: 12px;
-    .content {
-        font-size: 14px;
-        font-weight: bold;
-        color: #4c94f8;
-        line-height: 28px;
-    }
     
     &.init {
         border-bottom: 1px #4c94f8 solid;
@@ -53,6 +47,14 @@ const DropdownContent = Styled.li`
     }
 `;
 
+const ContentSpan = Styled.span`
+    width: 100%;
+    font-size: 14px;
+    font-weight: bold;
+    color: #4c94f8;
+    line-height: 28px;
+`;
+
 const HardwareCategoryEntries: { [key in keyof typeof CategoryTypeEnum]: string } = {
     [CategoryTypeEnum.all]: '전체',
     [CategoryTypeEnum.robot]: '로봇형',
@@ -74,7 +76,7 @@ const HardwareTypeDropdown: React.FC<IStateProps & IDispatchProps> = (props) => 
                 className={`init ${isShowList && 'open'}`}
                 onClick={() => setShowState(!isShowList)}
             >
-                <span className="content">{currentValue}</span>
+                <ContentSpan>{currentValue}</ContentSpan>
                 <div className="arrow"/>
             </DropdownContent>
             {isShowList && Object.entries(HardwareCategoryEntries).map(([keyword, value]) => {
@@ -86,7 +88,7 @@ const HardwareTypeDropdown: React.FC<IStateProps & IDispatchProps> = (props) => 
                             setShowState(!isShowList)
                         }}
                     >
-                        <span className="content">{value}</span>
+                        <ContentSpan>{value}</ContentSpan>
                     </DropdownContent>
                 );
             })}
