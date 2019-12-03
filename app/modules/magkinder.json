@@ -2,7 +2,7 @@
     "id": "370101",
     "name": {
         "ko": "맥코딩몬스터",
-        "en": "Mgcoding Monster"
+        "en": "Magcoding Monster"
     },
     "category": "robot",
     "platform": ["win32", "darwin"],
