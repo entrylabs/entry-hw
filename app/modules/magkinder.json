@@ -1,0 +1,24 @@
+{
+    "id": "370101",
+    "name": {
+        "ko": "맥코딩몬스터",
+        "en": "Magcoding Monster"
+    },
+    "category": "robot",
+    "platform": ["win32", "darwin"],
+    "icon": "magkinder.png",
+    "module": "magkinder.js",
+    "url": "http://magcoding.co.kr/magcoding-monster/",
+    "email": "blockmaster@magkinder.com",
+    "reconnect": true,
+    "select_com_port": true,
+    "entry": {
+        "protocol": "json"
+    },
+    "hardware": {
+        "type": "serial",
+        "control": "slave",
+        "duration": 20,
+        "baudRate": 115200
+    }
+}
