@@ -168,7 +168,7 @@ if (!app.requestSingleInstanceLock()) {
 
     ipcMain.on('reload', () => {
         entryServer.close();
-        app.relaunch({ execPath: app.getPath('exe') });
+        app.relaunch();
         app.exit(0);
     });
 
