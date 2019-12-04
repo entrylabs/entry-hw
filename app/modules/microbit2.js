@@ -46,6 +46,8 @@ const functionKeys = {
     PLAY_NOTE: 0x04,
     CHANGE_BPM: 0x05,
     SET_BPM: 0x06,
+    ACC_REGULAR: 0xaa,
+    SENSOR_REGULAR: 0xab,
 };
 
 class Microbit2 extends BaseModule {
@@ -74,6 +76,7 @@ class Microbit2 extends BaseModule {
                 accelerometer: {
                     x: 0,
                     y: 0,
+                    z: 0,
                     strength: 0,
                 },
             },
@@ -87,15 +90,15 @@ class Microbit2 extends BaseModule {
      * @returns {Buffer}
      */
     makeBuffer(key, payload) {
-        const payloadLength = MICROBIT_BUFFER_SIZE
-            - this.startChecksum.length
-            - this.endChecksum.length
-            - 1; // key length
+        const payloadLength =
+            MICROBIT_BUFFER_SIZE -
+            this.startChecksum.length -
+            this.endChecksum.length -
+            1; // key length
 
         // payload 는 최대 payloadLength 까지. 이보다 적은 경우 0 으로 fill.
         // payload 가 없는 경우는 빈 배열로 대체한다.
-        const slicedPayload = _
-            .chain(_.fill(Array(payloadLength), 0))
+        const slicedPayload = _.chain(_.fill(Array(payloadLength), 0))
             .zipWith(payload || [], (original, input) => input || 0)
             .slice(0, payloadLength)
             .value();
@@ -104,7 +107,7 @@ class Microbit2 extends BaseModule {
             this.startChecksum
                 .concat([key])
                 .concat(...slicedPayload)
-                .concat(this.endChecksum),
+                .concat(this.endChecksum)
         );
     }
 
@@ -160,11 +163,11 @@ class Microbit2 extends BaseModule {
         const type = handler.read('type') || undefined;
         const payload = handler.read('payload') || {};
 
-
         // 리퀘스트 목록이 마지막으로 확인한 버전과 다르기 때문에, 업데이트한다.
         // 업데이트는 중복되지 않는 id 의 커맨드만 뒤에 추가한다.
         this.commandQueue.push({
-            type, payload,
+            type,
+            payload,
         });
     }
 
@@ -173,6 +176,7 @@ class Microbit2 extends BaseModule {
             this.pending = true;
             const { type, payload } = this.commandQueue.shift();
             console.log(`type : ${type} payload : ${payload}`);
+            console.log(type, JSON.stringify(payload));
             switch (type) {
                 case functionKeys.SET_LED: {
                     const { x, y, value } = payload;
@@ -185,15 +189,27 @@ class Microbit2 extends BaseModule {
                     // 실제 값은 getLED 시 다시 업데이트 된다.
                     let dummyCacheLedValue = 0;
                     if (value === 'toggle') {
-                        dummyCacheLedValue = _.get(
-                            this.microbitStatusMap,
-                            ['sensorData', 'led', x, y],
-                            0) === 0 ? 1 : 0;
+                        dummyCacheLedValue =
+                            _.get(
+                                this.microbitStatusMap,
+                                ['sensorData', 'led', x, y],
+                                0
+                            ) === 0
+                                ? 1
+                                : 0;
                     } else {
                         dummyCacheLedValue = valueType[value];
                     }
-                    _.set(this.microbitStatusMap, ['sensorData', 'led', x, y], dummyCacheLedValue);
-                    return this.makeBuffer(functionKeys.SET_LED, [x, y, valueType[value]]);
+                    _.set(
+                        this.microbitStatusMap,
+                        ['sensorData', 'led', x, y],
+                        dummyCacheLedValue
+                    );
+                    return this.makeBuffer(functionKeys.SET_LED, [
+                        x,
+                        y,
+                        valueType[value],
+                    ]);
                 }
                 case functionKeys.GET_LED: {
                     const { x, y } = payload;
@@ -205,11 +221,14 @@ class Microbit2 extends BaseModule {
                 case functionKeys.SET_STRING:
                     return this.makeBuffer(
                         functionKeys.SET_STRING,
-                        Buffer.from(payload).toJSON().data,
+                        Buffer.from(payload).toJSON().data
                     );
                 case functionKeys.SET_DIGITAL: {
                     const { pinNumber, value } = payload;
-                    return this.makeBuffer(functionKeys.SET_DIGITAL, [pinNumber, value]);
+                    return this.makeBuffer(functionKeys.SET_DIGITAL, [
+                        pinNumber,
+                        value,
+                    ]);
                 }
                 // 전달값이 uint8_t 이상인 경우
                 case functionKeys.SET_ANALOG:
@@ -219,30 +238,28 @@ class Microbit2 extends BaseModule {
                     const uInt8Value = [];
                     let targetValue = value;
                     while (targetValue) {
-                        uInt8Value.push(targetValue & 0xFF);
+                        uInt8Value.push(targetValue & 0xff);
                         targetValue >>= 8;
                     }
-                    return this.makeBuffer(type,[pinNumber, ...uInt8Value]);
+                    return this.makeBuffer(type, [pinNumber, ...uInt8Value]);
                 }
                 // 필요한 값이 value property 하나인 경우 전부
                 case functionKeys.SET_SERVO:
                 case functionKeys.GET_ANALOG:
                 case functionKeys.GET_DIGITAL:
                 case functionKeys.SET_IMAGE:
-                case functionKeys.GET_ACCELEROMETER: {
-                    const { value } = payload;
 
-                    return this.makeBuffer(type, [value]);
-                }
                 // 그냥 값 없이 바로 커맨드만 보내는 경우
                 case functionKeys.GET_BUTTON:
-                case functionKeys.GET_LIGHT_LEVEL:
                 case functionKeys.GET_TEMPERATURE:
-                case functionKeys.GET_COMPASS_HEADING:
-                case functionKeys.RESET_SCREEN:
                 case functionKeys.GET_PITCH:
                 case functionKeys.GET_ROLL:
+                case functionKeys.GET_ACCELEROMETER:
+                case functionKeys.GET_LIGHT_LEVEL:
+                case functionKeys.GET_COMPASS_HEADING:
                 case functionKeys.GET_GESTURE:
+                    return null;
+                case functionKeys.RESET_SCREEN:
                     return this.makeBuffer(type);
                 default:
                     return this.makeBuffer(functionKeys.TEST_MESSAGE);
@@ -264,18 +281,11 @@ class Microbit2 extends BaseModule {
         console.log('received from microbit : ', data);
         const receivedCommandType = data[0];
         switch (receivedCommandType) {
-            case functionKeys.GET_ACCELEROMETER: {
-                this.setStatusMap(
-                    ['sensorData', 'accelerometer'],
-                    Buffer.from([data[1], data[2]]).readInt16LE(0),
-                );
-                break;
-            }
             case functionKeys.GET_LED: {
                 // data = [x, y, value]
                 this.setStatusMap(
                     ['sensorData', 'led', data[1], data[2]],
-                    data[3],
+                    data[3]
                 );
                 break;
             }
@@ -283,16 +293,13 @@ class Microbit2 extends BaseModule {
                 // data = [pinNumber, value{2} ]
                 this.setStatusMap(
                     ['sensorData', 'analog', data[1]],
-                    Buffer.from([data[2], data[3]]).readInt16LE(0),
+                    Buffer.from([data[2], data[3]]).readInt16LE(0)
                 );
                 break;
             }
             case functionKeys.GET_DIGITAL: {
                 // data = [pinNumber, value]
-                this.setStatusMap(
-                    ['sensorData', 'analog', data[1]],
-                    data[2],
-                );
+                this.setStatusMap(['sensorData', 'analog', data[1]], data[2]);
                 break;
             }
             case functionKeys.GET_BUTTON: {
@@ -302,42 +309,93 @@ class Microbit2 extends BaseModule {
             case functionKeys.GET_LIGHT_LEVEL: {
                 this.setStatusMap(
                     ['sensorData', 'lightLevel'],
-                    Buffer.from([data[1]]).readUInt8(0),
+                    Buffer.from([data[1]]).readUInt8(0)
                 );
                 break;
             }
             case functionKeys.GET_TEMPERATURE: {
                 this.setStatusMap(
                     ['sensorData', 'temperature'],
-                    Buffer.from([data[1]]).readInt8(0),
+                    Buffer.from([data[1]]).readInt8(0)
                 );
                 break;
             }
-            case functionKeys.GET_COMPASS_HEADING: {
-                this.setStatusMap(
-                    ['sensorData', 'compassHeading'],
-                    Buffer.from([data[1], data[2]]).readUInt16LE(0),
-                );
-                break;
-            }
+            // case functionKeys.GET_COMPASS_HEADING: {
+            //     this.setStatusMap(
+            //         ['sensorData', 'compassHeading'],
+            //         Buffer.from([data[1], data[2]]).readUInt16LE(0)
+            //     );
+            //     break;
+            // }
             case functionKeys.GET_PITCH: {
                 this.setStatusMap(
                     ['sensorData', 'tilt', 'pitch'],
-                    Buffer.from([data[1], data[2]]).readInt16LE(0),
+                    Buffer.from([data[1], data[2]]).readInt16LE(0)
                 );
                 break;
             }
             case functionKeys.GET_ROLL: {
                 this.setStatusMap(
                     ['sensorData', 'tilt', 'roll'],
-                    Buffer.from([data[1], data[2]]).readInt16LE(0),
+                    Buffer.from([data[1], data[2]]).readInt16LE(0)
                 );
                 break;
             }
-            case functionKeys.GET_GESTURE: {
+            // case functionKeys.GET_GESTURE: {
+            //     this.setStatusMap(['sensorData', 'gesture'], data[1]);
+            //     break;
+            // }
+
+            case functionKeys.ACC_REGULAR: {
+                // console.log('ACC_REGULAR RECEIVED');
+                const x = Number(
+                    Buffer.from([data[1], data[2]]).readInt16LE(0)
+                );
+                const y = Number(
+                    Buffer.from([data[3], data[4]]).readInt16LE(0)
+                );
+                const z = Number(
+                    Buffer.from([data[5], data[6]]).readInt16LE(0)
+                );
+                const strength = Math.sqrt(x * x + y * y + z * z);
+                const pitch = Number(
+                    Buffer.from([data[7], data[8]]).readInt16LE(0)
+                );
+                const roll = Number(
+                    Buffer.from([data[9], data[10]]).readInt16LE(0)
+                );
+                const light = Number(Buffer.from([data[11]]).readUInt8(0));
+                const temperature = Number(
+                    Buffer.from([data[12]]).readUInt8(0)
+                );
+                const button = Number(Buffer.from([data[13]]).readUInt8(0));
+                // console.log(x, y, z, 'ACC', pitch, roll);
+                // console.log(light, temperature, button);
+
+                this.setStatusMap(['sensorData', 'accelerometer', 'x'], x);
+                this.setStatusMap(['sensorData', 'accelerometer', 'y'], y);
+                this.setStatusMap(['sensorData', 'accelerometer', 'z'], z);
+
+                this.setStatusMap(
+                    ['sensorData', 'accelerometer', 'strength'],
+                    strength
+                );
+                this.setStatusMap(['sensorData', 'tilt', 'pitch']);
+                this.setStatusMap(['sensorData', 'tilt', 'roll'], roll);
+                this.setStatusMap(['sensorData', 'lightLevel'], light);
+                this.setStatusMap(['sensorData', 'temperature'], temperature);
+                this.setStatusMap(['sensorData', 'button'], button);
+                break;
+            }
+            case functionKeys.SENSOR_REGULAR: {
+                // console.log('SENSOR_REGULAR RECEIVED');
+                this.setStatusMap(
+                    ['sensorData', 'compassHeading'],
+                    Buffer.from([data[1], data[2]]).readUInt16LE(0)
+                );
                 this.setStatusMap(
                     ['sensorData', 'gesture'],
-                    data[1],
+                    Buffer.from([data[3]]).readUInt8(0)
                 );
                 break;
             }
