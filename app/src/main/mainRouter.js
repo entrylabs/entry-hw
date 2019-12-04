@@ -48,6 +48,7 @@ class MainRouter {
             try {
                 await this.startScan(config);
             } catch (e) {
+                console.error(e);
                 rendererConsole.error(`startScan err : `, e);
             }
         });
