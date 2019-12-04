@@ -1,8 +1,8 @@
 const { app, ipcMain, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
-const Scanner = require('./scanner');
-const Flasher = require('./flasher');
+const Scanner = require('./serial/scanner');
+const Flasher = require('./serial/flasher');
 const Utils = require('./utils/fileUtils');
 const rendererConsole = require('./utils/rendererConsole');
 const HardwareListManager = require('./hardwareListManager');
@@ -234,7 +234,7 @@ class MainRouter {
                     this.scanner.config = config;
                     return;
                 }
-                
+
                 if (this.scanner.isScanning) {
                     this.scanner.setConfig(config);
                 } else {

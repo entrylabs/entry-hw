@@ -69,6 +69,9 @@ function createAboutWindow(mainWindow) {
         frame: false,
         modal: true,
         show: false,
+        webPreferences: {
+            nodeIntegration: true,
+        },
     });
 
     aboutWindow.loadURL(`file:///${
@@ -163,9 +166,9 @@ if (!app.requestSingleInstanceLock()) {
         }
     });
 
-    ipcMain.on('reload', (event, arg) => {
+    ipcMain.on('reload', () => {
         entryServer.close();
-        app.relaunch({ args: process.argv.slice(1).concat(['--relaunch']) });
+        app.relaunch();
         app.exit(0);
     });
 
@@ -173,6 +176,7 @@ if (!app.requestSingleInstanceLock()) {
     app.commandLine.appendSwitch('enable-experimental-web-platform-features', true);
     app.commandLine.appendSwitch('disable-renderer-backgrounding');
     // app.commandLine.appendSwitch('enable-web-bluetooth');
+    app.setAsDefaultProtocolClient('entryhw');
     app.once('ready', () => {
         const language = app.getLocale();
         Menu.setApplicationMenu(null);

@@ -75,7 +75,6 @@ class Connector {
      * 시리얼포트를 오픈한다.
      * @param {string} port COMPortName
      * @returns {Promise<SerialPort>}
-     * // TODO 외부에 오픈하는 시리얼포트 로직을 전부 커넥터로 이동
      */
     open(port) {
         return new Promise((resolve, reject) => {
@@ -150,6 +149,12 @@ class Connector {
             };
 
             const runAsSlave = () => {
+                // 최소 한번은 requestInitialData 전송을 강제
+                this.send(hwModule.requestInitialData(this.serialPort));
+                this.slaveTimer = setInterval(() => {
+                    this.send(hwModule.requestInitialData(this.serialPort));
+                }, duration);
+
                 // control type is slave
                 serialPortReadStream.on('data', (data) => {
                     const result = hwModule.checkInitialData(data, this.options);
@@ -172,9 +177,6 @@ class Connector {
                         }
                     }
                 });
-                this.slaveTimer = setInterval(() => {
-                    this.send(hwModule.requestInitialData(this.serialPort));
-                }, duration);
             };
 
             if (firmwarecheck) {
@@ -369,7 +371,6 @@ class Connector {
             if (this.options.stream === 'string') {
                 data = Buffer.from(data, 'utf8');
             }
-
             this.serialPort.write(data, () => {
                 if (this.serialPort) {
                     this.serialPort.drain(() => {
