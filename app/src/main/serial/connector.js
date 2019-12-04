@@ -75,7 +75,6 @@ class Connector {
      * 시리얼포트를 오픈한다.
      * @param {string} port COMPortName
      * @returns {Promise<SerialPort>}
-     * // TODO 외부에 오픈하는 시리얼포트 로직을 전부 커넥터로 이동
      */
     open(port) {
         return new Promise((resolve, reject) => {

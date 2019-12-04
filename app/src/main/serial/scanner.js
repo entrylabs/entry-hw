@@ -1,11 +1,11 @@
 'use strict';
 
 const _ = require('lodash');
-const rendererConsole = require('./utils/rendererConsole');
+const rendererConsole = require('../utils/rendererConsole');
 const SerialPort = require('@serialport/stream');
 const Binding = require('@serialport/bindings');
 const Connector = require('./connector');
-const { CLOUD_MODE_TYPES: CloudModeTypes } = require('../common/constants');
+const { CLOUD_MODE_TYPES: CloudModeTypes } = require('../../common/constants');
 
 /**
  * 전체 포트를 검색한다.
