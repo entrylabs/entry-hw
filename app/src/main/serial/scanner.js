@@ -3,8 +3,6 @@
 const _ = require('lodash');
 const rendererConsole = require('../utils/rendererConsole');
 const SerialPort = require('@serialport/stream');
-const Binding = require('@serialport/bindings');
-const Connector = require('./connector');
 const electPort = require('./electPortFunction');
 const { CLOUD_MODE_TYPES: CloudModeTypes } = require('../../common/constants');
 
@@ -22,19 +20,13 @@ class Scanner {
 
     constructor(router) {
         this.router = router;
-        this.serialport = SerialPort;
-        this.serialport.Binding = Binding;
         this.isScanning = false;
     }
 
     async startScan(hwModule, config) {
         this.stopScan();
-
         this.setConfig(config);
         this.hwModule = hwModule;
-        this.slaveTimers = {};
-        this.connectors = {};
-
         return await this.intervalScan();
     };
 
@@ -176,26 +168,6 @@ class Scanner {
     stopScan() {
         this.config = undefined;
         this.isScanning = false;
-        this.clearTimers();
-    };
-
-
-    clearTimers() {
-        if (this.scanTimer) {
-            this.scanTimer = undefined;
-        }
-
-        const slaveTimers = this.slaveTimers;
-        if (slaveTimers) {
-            let slaveTimer;
-            for (const key in slaveTimers) {
-                slaveTimer = slaveTimers[key];
-                if (slaveTimer) {
-                    clearInterval(slaveTimer);
-                }
-            }
-        }
-        this.slaveTimers = {};
     };
 }
 
