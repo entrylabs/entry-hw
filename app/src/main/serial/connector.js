@@ -372,7 +372,6 @@ class Connector {
             if (this.options.stream === 'string') {
                 data = Buffer.from(data, 'utf8');
             }
-            console.log(data);
             this.serialPort.write(data, () => {
                 if (this.serialPort) {
                     this.serialPort.drain(() => {
