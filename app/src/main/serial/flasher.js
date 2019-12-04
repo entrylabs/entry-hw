@@ -17,13 +17,13 @@ class Flasher {
         if (asarIndex > -1) {
             const asarPath = app.getAppPath().substr(0, asarIndex);
             const externalFlasherPath = path.join(asarPath, 'firmwares');
-            const flasherPath = path.resolve(app.getAppPath(), __dirname, '..', '..', 'firmwares');
+            const flasherPath = path.resolve(app.getAppPath(), __dirname, '..', '..', '..', 'firmwares');
             if (!fs.existsSync(externalFlasherPath)) {
                 Utils.copyRecursiveSync(flasherPath, externalFlasherPath);
             }
             return externalFlasherPath;
         } else {
-            return path.resolve(__dirname, '..', '..', 'firmwares');
+            return path.resolve(__dirname, '..', '..', '..', 'firmwares');
         }
     }
 
