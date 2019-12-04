@@ -15,6 +15,10 @@ const electPort = async (ports, hwConfig, hwModule, beforeConnectCallback) => {
         return;
     }
 
+    // TODO
+    //  현재는 여러포트가 걸리면 위에 있는 친구를 펌웨어 업로드용 포트로 잡는다.
+    //  이는 프로세스 자체의 변경이 필요하므로 기획팀 논의를 거쳐서
+    //  '펌웨어 클릭 > 포트가 여러개인경우 목록노출 > 선택적 플래시' 프로세스로 추후개발필요
     if (beforeConnectCallback) {
         beforeConnectCallback(connectors[0]);
     }
@@ -54,7 +58,7 @@ const _initialize = async (ports, hwConfig, hwModule) => {
     return compact(portList);
 };
 
-const _finalize = async (connectors) => {
+const _finalize = (connectors) => {
     connectors.forEach(({ connector }) => {
         connector.close();
     });
