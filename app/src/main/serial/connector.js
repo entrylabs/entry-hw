@@ -149,6 +149,12 @@ class Connector {
             };
 
             const runAsSlave = () => {
+                // 최소 한번은 requestInitialData 전송을 강제
+                this.send(hwModule.requestInitialData(this.serialPort));
+                this.slaveTimer = setInterval(() => {
+                    this.send(hwModule.requestInitialData(this.serialPort));
+                }, duration);
+
                 // control type is slave
                 serialPortReadStream.on('data', (data) => {
                     const result = hwModule.checkInitialData(data, this.options);
@@ -171,9 +177,6 @@ class Connector {
                         }
                     }
                 });
-                this.slaveTimer = setInterval(() => {
-                    this.send(hwModule.requestInitialData(this.serialPort));
-                }, duration);
             };
 
             if (firmwarecheck) {
@@ -369,7 +372,7 @@ class Connector {
             if (this.options.stream === 'string') {
                 data = Buffer.from(data, 'utf8');
             }
-
+            console.log(data);
             this.serialPort.write(data, () => {
                 if (this.serialPort) {
                     this.serialPort.drain(() => {
