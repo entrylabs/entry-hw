@@ -46,23 +46,23 @@ interface IProps extends IAlertMessage {
 }
 
 const AlertTab: React.FC<IProps> = (props) => {
-    const [animate, setAnimate] = useState<number | undefined>(Math.random());
+    const [animate, setAnimate] = useState<boolean>(true);
     const { message, duration } = props;
 
     useEffect(() => {
-        setAnimate(Math.random());
+        setAnimate(true);
     }, [message]);
 
     useEffect(() => {
         if (duration) {
             setTimeout(() => {
-                setAnimate(undefined);
+                setAnimate(false);
             }, 3000);
         }
     }, [duration]);
 
     return (
-        <Transition in={!!animate} timeout={500} unmountOnExit key={message}>
+        <Transition in={animate} timeout={500} unmountOnExit key={message}>
             {(state) => (
                 <AlertTabContainer state={state}>{message}</AlertTabContainer>
             )}
