@@ -267,6 +267,7 @@ Module.prototype.handleRemoteData = function(handler) {
     var newValue;
 
     if (handler.e(ALTINO.RIGHT_WHEEL)) {
+        
         newValue = handler.read(ALTINO.RIGHT_WHEEL);
         if (newValue < -1000) newValue = -1000;
         else if (newValue > 1000) newValue = 1000;
@@ -278,9 +279,12 @@ Module.prototype.handleRemoteData = function(handler) {
         if (motordata.rightmotor != newValue) {
             motordata.rightmotor = newValue;
         }
+        
+
     }
 
     if (handler.e(ALTINO.LEFT_WHEEL)) {
+        
         newValue = handler.read(ALTINO.LEFT_WHEEL);
         if (newValue < -1000) newValue = -1000;
         else if (newValue > 1000) newValue = 1000;
@@ -291,6 +295,7 @@ Module.prototype.handleRemoteData = function(handler) {
         if (motordata.leftmotor != newValue) {
             motordata.leftmotor = newValue;
         }
+        
     }
 
     if (handler.e(ALTINO.STEERING)) {
@@ -396,11 +401,11 @@ Module.prototype.requestLocalData = function() {
     tx_d[4] = 10;
     tx_d[5] = motordata.steering;
     tx_d[6] = motordata.rightmode;
-    tx_d[7] = motordata.rightmotor / 256;
-    tx_d[8] = motordata.rightmotor % 256;
+    tx_d[7] = (motordata.rightmotor & 0xFF00) >> 8;
+    tx_d[8] = motordata.rightmotor & 0xFF;
     tx_d[9] = motordata.leftmode;
-    tx_d[10] = motordata.leftmotor / 256;
-    tx_d[11] = motordata.leftmotor % 256;
+    tx_d[10] = (motordata.leftmotor & 0xFF00) >> 8;
+    tx_d[11] = motordata.leftmotor & 0xFF;
     tx_d[12] = motordata.ascii;
     tx_d[13] = motordata.dot1;
     tx_d[14] = motordata.dot2;

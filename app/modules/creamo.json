@@ -4,6 +4,7 @@
         "en": "Creamo",
         "ko": "크리모인터코디"
     },
+    "category": "module",
     "platform": ["win32", "darwin"],
     "icon": "creamo.png",
     "module": "creamo.js",

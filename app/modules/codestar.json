@@ -5,6 +5,7 @@
 		"en": "Codestar",
 		"ko": "코드스타"
 	},
+	"category": "robot",
 	"platform": ["win32"],
 	"icon" : "codestar.png",
 	"module": "codestar.js",

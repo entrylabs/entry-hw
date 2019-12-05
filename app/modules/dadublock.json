@@ -4,6 +4,7 @@
         "en": "dadublock",
         "ko": "다두블럭"
     },
+    "category": "module",
     "platform": ["win32", "darwin"],
     "icon" : "dadublock.png",
     "module": "dadublock.js",

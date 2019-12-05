@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<title>엔트리</title>
+</head>
+
+<body>
+	<div class="container">
+		<div class="container_inner">
+			<div class="logo_wrapper">
+				<img src="../images/about/logo.png" class="logo" />
+			</div>
+			<div>
+				<div class="txtVersion">
+					Version
+					<span id="version"></span>
+					<br/>
+					<a href="#" id="playEntryBtn">
+						https://playentry.org
+					</a>
+				</div>
+				<div>
+					<div class="btnVersionUpdate">
+					</div>
+					<div class="txtAlreadyVersion">
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<link rel='stylesheet' href='../css/about.css' />
+	<script>
+		window.$ = window.jQuery = require('../js/jquery-1.11.3.min.js');
+		const { shell, remote, ipcRenderer } = require('electron');
+		const aboutWindow = remote.getCurrentWindow();
+		const hardwareVersion = remote.getGlobal('sharedObject').hardwareVersion || '0.0.0';
+		const Translator = require('../../renderer/js/translator');
+		const translator = new Translator();
+
+		$(function () {
+			$('body').on('click', function () {
+				aboutWindow.hide();
+			});
+
+			$('#playEntryBtn').on('click', function (e) {
+				e.preventDefault();
+				shell.openExternal('https://playentry.org');
+			});
+
+			$('.btnVersionUpdate').on('click', () => {
+				shell.openExternal('https://playentry.org/#!/offlineEditor');
+			});
+
+			$("#version").text(hardwareVersion);
+
+			aboutWindow.on('show', () => {
+				$(".btnVersionUpdate").text(translator.translate('Download the latest version'));
+				$(".txtAlreadyVersion").text(translator.translate('You are running the latest version.'));
+
+				ipcRenderer.once('checkVersionResult', (e, hasNewVersion) => {
+					if (hasNewVersion) {
+						$('.txtAlreadyVersion').hide();
+						$('.btnVersionUpdate').show();
+					} else {
+						$('.btnVersionUpdate').hide();
+						$('.txtAlreadyVersion').show();
+					}
+				});
+
+				const lastCheckVersion =
+					localStorage.getItem('lastCheckVersion') || '0.0.0';
+				ipcRenderer.send('checkVersion', lastCheckVersion);
+			});
+		});
+	</script>
+</body>
+
+</html>

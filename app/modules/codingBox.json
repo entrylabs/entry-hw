@@ -4,6 +4,7 @@
         "en": "Coding Box",
         "ko": "코딩박스(CodingBox)"
     },
+    "category": "board",
     "platform": ["win32", "darwin"],
     "icon": "codingBox.png",
     "module": "codingBox.js",

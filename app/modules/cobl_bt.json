@@ -4,6 +4,7 @@
 		"en": "Cobl BT",
 		"ko": "코블 블루투스"
 	},
+	"category": "module",
 	"platform": ["win32"],
 	"icon" : "cobl_bt.png",
 	"module": "cobl.js",

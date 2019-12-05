@@ -4,6 +4,7 @@
         "en": "Turtle",
         "ko": "거북이"
     },
+    "category": "robot",
     "platform": ["win32", "darwin"],
     "icon" : "turtle.png",
     "module": "turtle.js",
@@ -25,6 +26,7 @@
         "vendor": ["Silicon Lab", "IntegriSys S.A."],
         "baudRate": 115200,
         "flowControl": "hardware",
-        "delimiter": "\r"
+        "delimiter": "\r",
+        "stream": "string"
     }
 }

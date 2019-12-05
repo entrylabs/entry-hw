@@ -4,6 +4,7 @@
 		"en": "Sciencebox Codingboard(Bluetooth)",
 		"ko": "과학상자 코딩보드(무선)"
 	},
+	"category": "board",
 	"platform": ["win32"],
 	"icon" : "smartboardbt.png",
 	"module": "smartboardbt.js",

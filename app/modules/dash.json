@@ -4,6 +4,7 @@
         "en": "Dash",
         "ko": "대시"
     },
+    "category": "robot",
     "platform": "win32",
     "icon": "dash.png",
     "module": "dash.js",

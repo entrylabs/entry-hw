@@ -4,6 +4,7 @@
         "en": "playcode",
         "ko": "플레이코드"
     },
+    "category": "module",
     "platform": ["win32", "darwin"],
     "icon": "playcode.png",
     "module": "playcode.js",

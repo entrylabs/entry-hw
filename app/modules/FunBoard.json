@@ -4,6 +4,7 @@
         "en": "funboard",
         "ko": "펀보드"
     },
+    "category": "board",
     "platform": ["win32", "darwin"],
     "icon": "FunBoard.png",
     "module": "FunBoard.js",
@@ -16,7 +17,13 @@
     },
     "select_com_port": true,
     "reconnect": true,
-    "firmware": "funboard",
+    "firmware": [{
+        "name": "funboard",
+        "translate": "펌웨어"
+    },  {
+        "name": "funboard2",
+        "translate": "확장케이블용 펌웨어"
+    }],
     "entry": {
         "protocol": "json"
     },
@@ -25,6 +32,7 @@
         "control": "slave",
         "duration": 32,
         "vendor": "",
-        "baudRate": 115200
+        "baudRate": 115200,
+        "byteDelimiter": [13, 10]
     }
 }

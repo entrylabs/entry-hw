@@ -4,6 +4,7 @@
 		"en": "NEOBOT",
 		"ko": "네오봇"
 	},
+	"category": "module",
 	"platform": ["win32", "darwin"],
 	"icon" : "neobot.png",
 	"module": "neobot.js",
@@ -23,7 +24,7 @@
 		"pnpId" : "PID",
 		"type": "bluetooth",
 		"control": "master",
-		"vendor": ["neobot", "Silicon Laps", "Microsoft"],
+		"vendor": ["neobot", "Silicon Labs", "Microsoft"],
 		"baudRate": 115200
 	}
 }

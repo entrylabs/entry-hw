@@ -4,6 +4,7 @@
     "en": "EduMaker Board",
     "ko": "에듀메이커 보드"
   },
+  "category": "board",
   "platform": ["win32", "darwin"],
   "icon": "edumaker.png",
   "module": "edumaker.js",

@@ -4,6 +4,7 @@
 		"en": "Hummingbird Duo",
 		"ko": "허밍버드 듀오"
 	},
+	"category": "board",
 	"platform": ["win32"],
 	"icon" : "hummingbirdduo.png",
 	"module": "hummingbirdduo.js",

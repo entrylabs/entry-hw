@@ -1,18 +1,19 @@
 {
     "id": "0F0501",
-    "platform": ["win32", "darwin"],
     "name": {
-        "en": "BYROBOT PetroneV2 drive",
-        "ko": "바이로봇 페트론V2 자동차"
+        "en": "BYROBOT PETRONE V2 Drive",
+        "ko": "바이로봇 페트론 V2 자동차"
     },
+    "category": "robot",
+    "platform": ["win32", "darwin"],
     "icon" : "byrobot_petrone_v2_drive.png",
     "module": "byrobot_petrone_v2_drive.js",
-    "url": "http://www.byrobot.co.kr",
-    "email": "help@byrobot.co.kr",
     "driver": {
         "win32-ia32": "BYROBOT/petrone_v2_usb_driver_32.exe",
         "win32-x64": "BYROBOT/petrone_v2_usb_driver_64.exe"
     },
+    "url": "http://www.byrobot.co.kr",
+    "email": "help@byrobot.co.kr",
     "reconnect" : true,
     "entry": {
         "protocol": "json"
@@ -21,8 +22,8 @@
         "type": "serial",
         "control": "slave",
         "scanType": "data",
-        "duration": 32,
-        "vendor": ["By Robot Co., Ltd."],
+        "duration": 20,
+        "vendor": ["Microsoft", "STMicroelectronics."],
         "baudRate": 115200,
         "flowControl": "none"
     }

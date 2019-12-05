@@ -1,9 +1,10 @@
 {
-	"id": "060201", 
+	"id": "060201",
 	"name": {
 		"en": "memaker",
 		"ko": "미메이커"
 	},
+	"category": "board",
 	"platform": ["win32"],
 	"icon" : "memaker.png",
 	"module": "memaker.js",
@@ -23,6 +24,7 @@
 		"control": "slave",
 		"duration": 32,
 		"vendor": ["Silicon Lab", "IntegriSys S.A."],
-		"baudRate": 115200
+		"baudRate": 115200,
+		"byteDelimiter": [13, 10]
 	}
 }

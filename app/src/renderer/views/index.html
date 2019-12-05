@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link href="../css/main.css" rel="stylesheet" type="text/css" />
+    <link href="../modal/app.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+    <div id="header">
+        <div id="navigator">
+            <button class="navigate_button" id="back"></button>
+            <!-- <button class="navigate_button" id="forward"></button> -->
+            <button class="navigate_button" id="refresh"></button>
+        </div>
+        <h1 id="title">하드웨어 선택</h1>
+        <div id="search_area">
+            <input id="search_bar" />
+            <button id="search_button">
+                <img src="../images/search_icon.png" alt="검색" />
+            </button>
+            <button id="search_close_button">
+                <img src="../images/search_close.png" alt="검색 닫기" />
+            </button>
+        </div>
+        <div id="cloud_icon">
+            <span class="cloud_icon"></span>
+            <span class="cloud_text">Cloud Mode</span>
+        </div>
+        <ul id="filter_category" class="dropdown" style="margin-top: -5px">
+            <li data-value="all" class="init">
+                <span class="content">하드웨어 유형</span>
+                <div class="arrow"></div>
+            </li>
+            <li data-value="all">
+                <span class="content">전체</span>
+            </li>
+            <li data-value="robot">
+                <span class="content">로봇형</span>
+            </li>
+            <li data-value="module">
+                <span class="content">모듈형</span>
+            </li>
+            <li data-value="board">
+                <span class="content">보드형</span>
+            </li>
+        </ul>
+    </div>
+
+    <!--
+    <div id="ieGuide">
+        <span class='ieTitle'>Internet Explorer에서는 하드웨어 연결이 되지 않습니다.</span>
+        <button class='chromeButton'>chrome 다운로드 바로가기</button>
+    </div>
+    -->
+    <div id="alert"></div>
+
+    <div id="hwList" class="content"></div>
+
+    <div id="hwPanel" class="content">
+        <div class="middleDiv">
+            <div id="reference">
+                <div id="emailArea">
+                    <span class="emailTitle"></span>
+                    <span id="email"></span>
+                </div>
+                <div id="urlArea">
+                    <span class="urlTitle"></span>
+                    <span id="url"></span>
+                </div>
+                <div id="videoArea">
+                    <span class="videoTitle"></span>
+                    <span id="video"></span>
+                </div>
+            </div>
+            <div id="client" class="hwPanelElement">
+                <img src="../images/computer.png" />
+                <div id="driverButtonSet">
+                    <!--<button id="driver" class="hwPanelBtn"></button>-->
+                </div>
+            </div>
+            <div id="progress" class="hwPanelElement">
+                <div class="progressDot"></div>
+                <div class="progressDot"></div>
+                <div class="progressDot"></div>
+                <div class="progressDot"></div>
+                <div class="progressDot"></div>
+                <div class="progressDot"></div>
+                <div class="progressDot"></div>
+                <div class="progressDot"></div>
+                <div class="progressDot"></div>
+                <div class="progressDot"></div>
+                <div class="progressDot"></div>
+                <div class="progressDot"></div>
+                <div class="progressDot"></div>
+                <div class="progressDot"></div>
+            </div>
+            <div id="hardware" class="hwPanelElement">
+                <img id="selectedHWThumb" />
+                <div id="firmwareButtonSet">
+                    <button name="firmware" class="hwPanelBtn"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="select_port_box">
+        <div class="select_port_child">
+            <div class="title">
+                <span>
+                    선택하세요.
+                </span>
+                <div class="cancel_icon cancel_event">
+                </div>
+            </div>
+            <div class="content">
+                <div class="description">
+                    연결할 COM PORT를 선택하세요.
+                </div>
+                <select multiple size="10" id="select_port">
+                </select>
+                <div>
+                    <button id="btn_select_port_cancel" class="cancel_event">취소</button>
+                    <button id="btn_select_port">선택</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="errorAlert">
+        <div>
+            <img src="../images/alert.png" />
+            <span class="alertMsg">
+                <span class="alertMsg1">하드웨어 연결과 작동 시 예기치 못한 문제가 발생할 수 있습니다.</span>
+                <span class="alertMsg2">문제 발생 시 해당 하드웨어 업체에 문의해주세요.</span>
+            </span>
+        </div>
+        <div class="comment">
+            * 하드웨어 연결 프로그램에 등록된 하드웨어들은 각 업체가 제공하고 개발한 것이며, 엔트리교육연구소는 본 프로그램 이외에는 책임지지 않습니다.
+        </div>
+    </div>
+    <div id="opensource_license_viewer">
+        <div class="select_port_child">
+            <div class="title">
+                <span class="opensource_label">
+                    오픈소스 라이선스
+                </span>
+                <div class="cancel_icon close_event">
+                </div>
+            </div>
+            <div class="content">
+                <textarea id="opensource_content" readonly>
+                </textarea>
+                <div>
+                    <button id="btn_close" class="close_event">닫기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="footer">
+        <div id="version_label" class="version_label">
+            버전 정보
+        </div>
+        <div id="opensource_label" class="opensource_label">
+            오픈소스 라이선스
+        </div>
+    </div>
+    <script src="../js/jquery-1.11.3.min.js"></script>
+    <script src="../modal/app.js"></script>
+    <script src="../main.js" type="text/javascript"></script>
+</body>
+
+</html>
