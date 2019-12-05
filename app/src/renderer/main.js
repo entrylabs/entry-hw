@@ -604,12 +604,12 @@ $('#btn_select_port').click((e) => {
 
 $('#select_port_box .cancel_event').click((e) => {
     clearSelectPort();
-    ui.cachedPortList = '';
     clearTimeout(selectPortConnectionTimeout);
 });
 
 function clearSelectPort() {
     isSelectPort = false;
+    ui.cachedPortList = '';
     $('#select_port_box').css('display', 'none');
 }
 
