@@ -1,7 +1,7 @@
 const { app, ipcMain, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
-const Scanner = require('./scanner');
+const ScannerManager = require('./ScannerManager');
 const Flasher = require('./flasher');
 const Utils = require('./utils/fileUtils');
 const rendererConsole = require('./utils/rendererConsole');
@@ -26,13 +26,14 @@ class MainRouter {
         global.$ = require('lodash');
         this.browser = mainWindow;
         rendererConsole.initialize(mainWindow);
-        this.scanner = new Scanner(this);
+        this.scannerManager = new ScannerManager(this);
         this.server = entryServer;
         this.flasher = new Flasher();
         this.hardwareListManager = new HardwareListManager();
 
         this.config = undefined;
         /** @type {Connector} */
+        this.scanner = undefined;
         this.connector = undefined;
         this.hwModule = undefined;
         /** @type {Object} */
@@ -46,6 +47,8 @@ class MainRouter {
         });
         ipcMain.on('startScan', async (e, config) => {
             try {
+                const { hardware: { type = '' } = {} } = config || {};
+                this.scanner = this.scannerManager.getScanner(type);
                 await this.startScan(config);
             } catch (e) {
                 rendererConsole.error(`startScan err : `, e);
@@ -110,30 +113,44 @@ class MainRouter {
 
             this.close(); // 서버 통신 중지, 시리얼포트 연결 해제
 
-            const flashFunction = () => new Promise((resolve, reject) => {
-                setTimeout(() => {
-                    //연결 해제 완료시간까지 잠시 대기 후 로직 수행한다.
-                    this.flasher.flash(firmware, lastSerialPortCOMPort, { baudRate, MCUType })
-                        .then(([error, ...args]) => {
-                            if (error) {
-                                rendererConsole.error('flashError', error, ...args);
-                                if (error === 'exit') {
-                                    // 에러 메세지 없이 프로세스 종료
-                                    reject(new Error());
-                                } else if (++this.firmwareTryCount <= maxFlashTryCount) {
-                                    setTimeout(() => {
-                                        flashFunction().then(resolve);
-                                    }, 100);
+            const flashFunction = () =>
+                new Promise((resolve, reject) => {
+                    setTimeout(() => {
+                        //연결 해제 완료시간까지 잠시 대기 후 로직 수행한다.
+                        this.flasher
+                            .flash(firmware, lastSerialPortCOMPort, {
+                                baudRate,
+                                MCUType,
+                            })
+                            .then(([error, ...args]) => {
+                                if (error) {
+                                    rendererConsole.error(
+                                        'flashError',
+                                        error,
+                                        ...args
+                                    );
+                                    if (error === 'exit') {
+                                        // 에러 메세지 없이 프로세스 종료
+                                        reject(new Error());
+                                    } else if (
+                                        ++this.firmwareTryCount <=
+                                        maxFlashTryCount
+                                    ) {
+                                        setTimeout(() => {
+                                            flashFunction().then(resolve);
+                                        }, 100);
+                                    } else {
+                                        reject(
+                                            new Error('Failed Firmware Upload')
+                                        );
+                                    }
                                 } else {
-                                    reject(new Error('Failed Firmware Upload'));
+                                    resolve();
                                 }
-                            } else {
-                                resolve();
-                            }
-                        })
-                        .catch(reject);
-                }, 500);
-            });
+                            })
+                            .catch(reject);
+                    }, 500);
+                });
 
             // 에러가 발생하거나, 정상종료가 되어도 일단 startScan 을 재시작한다.
             return flashFunction()
@@ -148,12 +165,16 @@ class MainRouter {
                 .finally(async () => {
                     this.flasher.kill();
                     if (firmware.afterDelay) {
-                        await new Promise((resolve) => setTimeout(resolve, firmware.afterDelay));
+                        await new Promise((resolve) =>
+                            setTimeout(resolve, firmware.afterDelay)
+                        );
                     }
                     await this.startScan(this.config);
                 });
         } else {
-            return Promise.reject(new Error('Hardware Device Is Not Connected'));
+            return Promise.reject(
+                new Error('Hardware Device Is Not Connected')
+            );
         }
     }
 
@@ -221,16 +242,14 @@ class MainRouter {
     async startScan(config) {
         this.config = config;
         if (this.scanner) {
-            this.hwModule = require(`../../modules/${config.module}`);
-            if (this.scanner.isScanning) {
-                this.scanner.config = config;
-                return;
-            }
-            
             if (this.scanner.isScanning) {
                 this.scanner.setConfig(config);
             } else {
-                const connector = await this.scanner.startScan(this.hwModule, this.config);
+                this.hwModule = require(`../../modules/${config.module}`);
+                const connector = await this.scanner.startScan(
+                    this.hwModule,
+                    this.config
+                );
                 if (connector) {
                     this.sendState('connected');
                     this.connector = connector;
@@ -327,25 +346,40 @@ class MainRouter {
     handleServerData({ data, type }) {
         const hwModule = this.hwModule;
         const handler = this.handler;
+        const { direct } = this.config;
 
         if (!hwModule || !handler) {
             return;
         }
 
-        handler.decode(data, type);
-
-        if (hwModule.handleRemoteData) {
-            hwModule.handleRemoteData(handler);
+        if (direct && this.connector) {
+            let result = data;
+            if (hwModule.handleRemoteData) {
+                result = hwModule.handleRemoteData(result);
+            }
+            if (hwModule.requestLocalData) {
+                result = hwModule.requestLocalData(result);
+            }
+            this.connector.send(result);
+        } else {
+            handler.decode(data, type);
+            if (hwModule.handleRemoteData) {
+                hwModule.handleRemoteData(handler);
+            }
         }
     }
 
     /**
      * 서버로 인코딩된 데이터를 보낸다.
      */
-    sendEncodedDataToServer() {
-        const data = this.handler.encode();
-        if (this.server && data) {
+    sendEncodedDataToServer(data) {
+        if (data) {
             this.server.send(data);
+        } else {
+            const data = this.handler.encode();
+            if (this.server && data) {
+                this.server.send(data);
+            }
         }
     }
 
@@ -356,6 +390,10 @@ class MainRouter {
         if (this.hwModule.requestRemoteData) {
             this.hwModule.requestRemoteData(this.handler);
         }
+    }
+
+    setConnector(connector) {
+        this.connector = connector;
     }
 
     close() {
@@ -376,7 +414,7 @@ class MainRouter {
         if (this.handler) {
             this.handler = undefined;
         }
-    };
+    }
 
     /**
      * 드라이버를 실행한다. 최초 실행시 app.asar 에 파일이 들어가있는 경우,
@@ -393,7 +431,13 @@ class MainRouter {
         if (asarIndex > -1) {
             const asarPath = app.getAppPath().substr(0, asarIndex);
             const externalDriverPath = path.join(asarPath, 'drivers');
-            const internalDriverPath = path.resolve(app.getAppPath(), __dirname, '..', '..', 'drivers');
+            const internalDriverPath = path.resolve(
+                app.getAppPath(),
+                __dirname,
+                '..',
+                '..',
+                'drivers'
+            );
             if (!fs.existsSync(externalDriverPath)) {
                 Utils.copyRecursiveSync(internalDriverPath, externalDriverPath);
             }

@@ -1,11 +1,11 @@
 'use strict';
 
 const _ = require('lodash');
-const rendererConsole = require('./utils/rendererConsole');
+const rendererConsole = require('../utils/rendererConsole');
 const SerialPort = require('@serialport/stream');
 const Binding = require('@serialport/bindings');
-const Connector = require('./connector');
-const { CLOUD_MODE_TYPES: CloudModeTypes } = require('../common/constants');
+const Connector = require('./Connector');
+const { CLOUD_MODE_TYPES: CloudModeTypes } = require('../../common/constants');
 
 /**
  * 전체 포트를 검색한다.
@@ -35,7 +35,7 @@ class Scanner {
         this.connectors = {};
 
         return await this.intervalScan();
-    };
+    }
 
     setConfig(config) {
         this.config = config;
@@ -63,13 +63,12 @@ class Scanner {
             //TODO this_com_port 가 config 에서 설정될 수도 있고,
             // renderer 에서 COM 선택한것도 여기로 들어온다.
             const serverMode = this.router.currentCloudMode;
-            const { hardware, this_com_port: selectedComPortName } = this.config;
-            let { select_com_port: needCOMPortSelect } = this.config;
             const {
-                comName: verifiedComPortNames,
-                pnpId,
-                type,
-            } = hardware;
+                hardware,
+                this_com_port: selectedComPortName,
+            } = this.config;
+            let { select_com_port: needCOMPortSelect } = this.config;
+            const { comName: verifiedComPortNames, pnpId, type } = hardware;
             let { vendor } = hardware;
 
             // win, mac 플랫폼에 맞는 벤더명 설정
@@ -101,21 +100,33 @@ class Scanner {
                 if (isComPortSelected) {
                     if (selectedComPortName) {
                         // lost 후 reconnect 임시 대응
-                        if (comPorts
-                            .map((portData) => portData.path)
-                            .findIndex((path) => path === selectedComPortName) === -1) {
+                        if (
+                            comPorts
+                                .map((portData) => portData.path)
+                                .findIndex(
+                                    (path) => path === selectedComPortName
+                                ) === -1
+                        ) {
                             resolve();
                             return;
                         }
 
                         let connector = this.connectors[selectedComPortName];
                         if (connector === undefined) {
-                            connector = await this.prepareConnector(selectedComPortName);
+                            connector = await this.prepareConnector(
+                                selectedComPortName
+                            );
                             this.connectors[selectedComPortName] = connector;
                         }
                         resolve(connector);
                     } else {
-                        this.router.sendState('select_port', comPorts);
+                        this.router.sendState(
+                            'select_port',
+                            comPorts.map(({ path }) => ({
+                                value: path,
+                                text: path,
+                            }))
+                        );
                         resolve();
                     }
                     return;
@@ -126,13 +137,22 @@ class Scanner {
                     const comName = port.path || hardware.name;
 
                     // config 에 입력한 특정 벤더와 겹치는지 여부
-                    const isVendor = this._indexOfStringOrArray(vendor, port.manufacturer);
+                    const isVendor = this._indexOfStringOrArray(
+                        vendor,
+                        port.manufacturer
+                    );
 
                     // config 에 입력한 특정 COMPortName과 겹치는지 여부
-                    const isComName = this._indexOfStringOrArray(verifiedComPortNames, comName);
+                    const isComName = this._indexOfStringOrArray(
+                        verifiedComPortNames,
+                        comName
+                    );
 
                     // config 에 입력한 특정 pnpId와 겹치는지 여부
-                    const isPnpId = this._indexOfStringOrArray(pnpId, port.pnpId);
+                    const isPnpId = this._indexOfStringOrArray(
+                        pnpId,
+                        port.pnpId
+                    );
 
                     // 현재 포트가 config 과 일치하는 경우 연결시도할 포트목록에 추가
                     if (isVendor || isPnpId || isComName) {
@@ -144,7 +164,9 @@ class Scanner {
                 if (vendorSelectedComPortName) {
                     let connector = this.connectors[vendorSelectedComPortName];
                     if (connector === undefined) {
-                        connector = await this.prepareConnector(vendorSelectedComPortName);
+                        connector = await this.prepareConnector(
+                            vendorSelectedComPortName
+                        );
                         this.connectors[vendorSelectedComPortName] = connector;
                     }
                     resolve(connector);
@@ -155,7 +177,7 @@ class Scanner {
                 reject(e);
             }
         });
-    };
+    }
 
     /**
      *
@@ -226,13 +248,6 @@ class Scanner {
         });
     }
 
-    stopScan() {
-        this.config = undefined;
-        this.isScanning = false;
-        this.clearTimers();
-    };
-
-
     clearTimers() {
         if (this.scanTimer) {
             this.scanTimer = undefined;
@@ -249,14 +264,14 @@ class Scanner {
             }
         }
         this.slaveTimers = {};
-    };
+    }
 
     finalizeScan(comName) {
         if (this.connectors && comName) {
             this.connectors[comName] = undefined;
         }
         this.stopScan();
-    };
+    }
 }
 
 module.exports = Scanner;

@@ -80,19 +80,28 @@ class Connector {
     open(port) {
         return new Promise((resolve, reject) => {
             const hardwareOptions = this.options;
-            this.lostTimer = hardwareOptions.lostTimer || Connector.DEFAULT_CONNECT_LOST_MILLS;
+            this.lostTimer =
+                hardwareOptions.lostTimer ||
+                Connector.DEFAULT_CONNECT_LOST_MILLS;
 
-            const serialPort = new SerialPort(port, this._makeSerialPortOptions(hardwareOptions));
+            const serialPort = new SerialPort(
+                port,
+                this._makeSerialPortOptions(hardwareOptions)
+            );
             this.serialPort = serialPort;
 
             const { delimiter, byteDelimiter } = hardwareOptions;
             if (delimiter) {
-                serialPort.parser = serialPort.pipe(new Readline({ delimiter }));
+                serialPort.parser = serialPort.pipe(
+                    new Readline({ delimiter })
+                );
             } else if (byteDelimiter) {
-                serialPort.parser = serialPort.pipe(new Delimiter({
-                    delimiter: byteDelimiter,
-                    includeDelimiter: true,
-                }));
+                serialPort.parser = serialPort.pipe(
+                    new Delimiter({
+                        delimiter: byteDelimiter,
+                        includeDelimiter: true,
+                    })
+                );
             }
 
             serialPort.on('error', reject);
@@ -105,7 +114,7 @@ class Connector {
                 }
             });
         });
-    };
+    }
 
     /**
      * checkInitialData, requestInitialData 가 둘다 존재하는 경우 handShake 를 진행한다.
@@ -123,12 +132,16 @@ class Connector {
                 firmwarecheck,
             } = this.options;
             const hwModule = this.hwModule;
-            const serialPortReadStream =
-                        this.serialPort.parser ? this.serialPort.parser : this.serialPort;
+            const serialPortReadStream = this.serialPort.parser
+                ? this.serialPort.parser
+                : this.serialPort;
 
             const runAsMaster = () => {
                 serialPortReadStream.on('data', (data) => {
-                    const result = hwModule.checkInitialData(data, this.options);
+                    const result = hwModule.checkInitialData(
+                        data,
+                        this.options
+                    );
 
                     if (result === undefined) {
                         this.send(hwModule.requestInitialData());
@@ -152,7 +165,10 @@ class Connector {
             const runAsSlave = () => {
                 // control type is slave
                 serialPortReadStream.on('data', (data) => {
-                    const result = hwModule.checkInitialData(data, this.options);
+                    const result = hwModule.checkInitialData(
+                        data,
+                        this.options
+                    );
                     if (result !== undefined) {
                         this.serialPort.removeAllListeners('data');
                         serialPortReadStream.removeAllListeners('data');
@@ -180,9 +196,9 @@ class Connector {
             if (firmwarecheck) {
                 this.flashFirmware = setTimeout(() => {
                     if (this.serialPort) {
-                        this.serialPort.parser ?
-                            this.serialPort.parser.removeAllListeners('data') :
-                            this.serialPort.removeAllListeners('data');
+                        this.serialPort.parser
+                            ? this.serialPort.parser.removeAllListeners('data')
+                            : this.serialPort.removeAllListeners('data');
                         this.executeFlash = true;
                     }
                     resolve();
@@ -242,7 +258,7 @@ class Connector {
             serialPort.set({ dtr: false });
             setTimeout(() => {
                 serialPort.set({ dtr: true });
-            },1000);
+            }, 1000);
         }
 
         if (hwModule.afterConnect) {
@@ -251,11 +267,15 @@ class Connector {
             });
         }
 
-        const serialPortReadStream =
-            serialPort.parser ? serialPort.pipe(serialPort.parser) : serialPort;
+        const serialPortReadStream = serialPort.parser
+            ? serialPort.pipe(serialPort.parser)
+            : serialPort;
 
         serialPortReadStream.on('data', (data) => {
-            if (!hwModule.validateLocalData || hwModule.validateLocalData(data)) {
+            if (
+                !hwModule.validateLocalData ||
+                hwModule.validateLocalData(data)
+            ) {
                 if (!this.connected) {
                     this.connected = true;
                     this._sendState('connected');
@@ -347,7 +367,7 @@ class Connector {
             clearTimeout(this.flashFirmware);
             this.flashFirmware = undefined;
         }
-    };
+    }
 
     close() {
         this.clear();
@@ -356,7 +376,7 @@ class Connector {
                 this.serialPort = undefined;
             }, null);
         }
-    };
+    }
 
     /**
      * 시리얼포트로 연결된 디바이스에 데이터를 보낸다.
@@ -364,7 +384,12 @@ class Connector {
      * @param callback
      */
     send(data, callback) {
-        if (this.serialPort && this.serialPort.isOpen && data && !this.isSending) {
+        if (
+            this.serialPort &&
+            this.serialPort.isOpen &&
+            data &&
+            !this.isSending
+        ) {
             this.isSending = true;
 
             if (this.options.stream === 'string') {
@@ -381,7 +406,7 @@ class Connector {
                 }
             });
         }
-    };
+    }
 }
 
 module.exports = Connector;
