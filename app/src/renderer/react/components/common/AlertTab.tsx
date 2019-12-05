@@ -28,7 +28,6 @@ const AlertTabContainer = Styled.div<{ state: TransitionStatus }>`
     height: 0;
     line-height: 35px;
     ${({state}) => {
-    console.log(state);
     switch (state) {
         case ENTERING:
         case ENTERED:
