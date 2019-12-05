@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Styled, { css, Keyframes, keyframes } from 'styled-components';
 import { IAlertMessage } from '../../store/modules/common';
-
-type ScrollType = 'scroll' | 'reverse' | undefined
+import Transition, { ENTERED, ENTERING, EXITED, EXITING, TransitionStatus } from 'react-transition-group/Transition';
 
 const ScrollDownKeyFrames = keyframes`
   from {height: 0;}
@@ -18,7 +17,7 @@ const animation = (keyFrame: Keyframes) => css`
   animation: ${keyFrame} 1s forwards;
 `;
 
-const AlertTabContainer = Styled.div<{ scroll: ScrollType }>`
+const AlertTabContainer = Styled.div<{ state: TransitionStatus }>`
     overflow: hidden;
     width: 100%;
     background-color: #ffc800;
@@ -28,12 +27,14 @@ const AlertTabContainer = Styled.div<{ scroll: ScrollType }>`
     text-align: center;
     height: 0;
     line-height: 35px;
-    ${(props) => {
-    const { scroll } = props;
-    switch (scroll) {
-        case 'scroll':
+    ${({state}) => {
+    console.log(state);
+    switch (state) {
+        case ENTERING:
+        case ENTERED:
             return animation(ScrollDownKeyFrames);
-        case 'reverse':
+        case EXITING:
+        case EXITED:
             return animation(ScrollUpKeyFrames);
         default:
             return 'height: 0';
@@ -45,23 +46,27 @@ interface IProps extends IAlertMessage {
 }
 
 const AlertTab: React.FC<IProps> = (props) => {
-    const [scrollType, changeScrollType] = useState<ScrollType>(undefined);
+    const [animate, setAnimate] = useState<number | undefined>(Math.random());
     const { message, duration } = props;
 
     useEffect(() => {
-            changeScrollType('scroll');
+        setAnimate(Math.random());
     }, [message]);
 
     useEffect(() => {
         if (duration) {
             setTimeout(() => {
-                changeScrollType('reverse');
-            }, duration);
+                setAnimate(undefined);
+            }, 3000);
         }
     }, [duration]);
 
     return (
-        <AlertTabContainer scroll={scrollType}>{message}</AlertTabContainer>
+        <Transition in={!!animate} timeout={500} unmountOnExit key={message}>
+            {(state) => (
+                <AlertTabContainer state={state}>{message}</AlertTabContainer>
+            )}
+        </Transition>
     );
 };
 

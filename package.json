@@ -11,17 +11,18 @@
         "debug": "set NODE_ENV=development&&electron -d app --inspect",
         "rebuild": "electron-rebuild -f -w serialport",
         "update:licence": "lcdoc make -o app/OPENSOURCE.md -d 1",
-        "webpack:dev": "webpack -w",
+        "webpack:watch": "webpack -w",
         "dist:win32": "electron-builder --win --ia32",
         "dist:mac:notarize": "cross-env NOTARIZE=true CSC_NAME=\"Connect Foundation (DLFUSDA3L5)\" electron-builder",
         "dist:mac": "cross-env NOTARIZE=false CSC_NAME=\"Connect Foundation (DLFUSDA3L5)\" electron-builder",
-        "postinstall": "electron-rebuild -f -w serialport"
+        "postinstall": "electron-rebuild -f -w serialport && webpack"
     },
     "devDependencies": {
         "@types/lodash": "^4.14.144",
         "@types/react": "^16.9.9",
         "@types/react-dom": "^16.9.2",
         "@types/react-redux": "^7.1.5",
+        "@types/react-transition-group": "^4.2.3",
         "@types/redux": "^3.6.0",
         "@types/styled-components": "^4.1.19",
         "babel-plugin-styled-components": "^1.10.6",
@@ -51,8 +52,9 @@
         "cross-spawn": "^7.0.0",
         "lodash": "^4.17.13",
         "object.assign": "^4.0.4",
-        "serialport": "^8.0.5",
         "react-redux": "^7.1.1",
+        "react-transition-group": "^4.3.0",
+        "serialport": "^8.0.5",
         "socket.io": "^2.2.0",
         "socket.io-client": "^2.2.0"
     }
