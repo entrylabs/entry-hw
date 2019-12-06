@@ -207,11 +207,11 @@ class Microbit2 extends BaseModule {
                     } else {
                         dummyCacheLedValue = valueType[value];
                     }
-                    _.set(
-                        this.microbitStatusMap,
-                        ['sensorData', 'led', x, y],
-                        dummyCacheLedValue
-                    );
+                    // _.set(
+                    //     this.microbitStatusMap,
+                    //     ['sensorData', 'led', x, y],
+                    //     dummyCacheLedValue
+                    // );
                     return this.makeBuffer(functionKeys.SET_LED, [
                         x,
                         y,
