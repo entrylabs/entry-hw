@@ -39,11 +39,15 @@ class Connector extends BaseConnector {
 
     send(data, type = 'output') {
         if (this.connected) {
-            const writer =
-                type === 'feature'
-                    ? this.device.sendFeatureReport
-                    : this.device.write;
-            return this.device.sendFeatureReport(data);
+            try {
+                const writer =
+                    type === 'feature'
+                        ? this.device.sendFeatureReport
+                        : this.device.write;
+                return this.device.write(data);
+            } catch (e) {
+                console.error(e);
+            }
         }
     }
 
@@ -87,14 +91,15 @@ class Connector extends BaseConnector {
             }
         });
 
-        this.device.on('error', () => {
-            console.log('ERROR');
+        this.device.on('error', (e) => {
+            console.log('ERROR', e);
             this.close();
             this._sendState('disconnected');
         });
 
+        this.send(hwModule.requestInitialData());
         setInterval(() => {
-            this.send([0x00, 0x01, 0x01, 0x05, 0xff, 0xff]);
+            this.send(hwModule.sensorCheck());
         }, 3000);
     }
 

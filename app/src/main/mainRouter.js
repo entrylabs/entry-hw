@@ -240,23 +240,27 @@ class MainRouter {
      * @param config
      */
     async startScan(config) {
-        this.config = config;
-        if (this.scanner) {
-            if (this.scanner.isScanning) {
-                this.scanner.setConfig(config);
-            } else {
-                this.hwModule = require(`../../modules/${config.module}`);
-                const connector = await this.scanner.startScan(
-                    this.hwModule,
-                    this.config
-                );
-                if (connector) {
-                    this.sendState('connected');
-                    this.connector = connector;
-                    connector.setRouter(this);
-                    this._connect(connector);
+        try {
+            this.config = config;
+            if (this.scanner) {
+                if (this.scanner.isScanning) {
+                    this.scanner.setConfig(config);
+                } else {
+                    this.hwModule = require(`../../modules/${config.module}`);
+                    const connector = await this.scanner.startScan(
+                        this.hwModule,
+                        this.config
+                    );
+                    if (connector) {
+                        this.sendState('connected');
+                        this.connector = connector;
+                        connector.setRouter(this);
+                        this._connect(connector);
+                    }
                 }
             }
+        } catch (e) {
+            console.error(e);
         }
     }
 
