@@ -256,6 +256,7 @@ class Microbit2 extends BaseModule {
                 case functionKeys.GET_DIGITAL:
                 case functionKeys.SET_IMAGE:
                 case functionKeys.RESET_SCREEN:
+                case functionKeys.GET_LIGHT_LEVEL:
                     return this.makeBuffer(type);
 
                 // 그냥 값 없이 바로 커맨드만 보내는 경우
@@ -264,7 +265,6 @@ class Microbit2 extends BaseModule {
                 case functionKeys.GET_PITCH:
                 case functionKeys.GET_ROLL:
                 case functionKeys.GET_ACCELEROMETER:
-                case functionKeys.GET_LIGHT_LEVEL:
                 case functionKeys.GET_COMPASS_HEADING:
                 case functionKeys.GET_GESTURE:
                 case functionKeys.GET_LED:
@@ -294,6 +294,13 @@ class Microbit2 extends BaseModule {
                     ['sensorData', 'analog', data[1]],
                     Buffer.from([data[2], data[3]]).readInt16LE(0)
                 );
+                break;
+            }
+            case functionKeys.GET_LIGHT_LEVEL: {
+                // data = [pinNumber, value]
+                const light = Number(Buffer.from([data[1]]).readUInt8(0));
+                console.log(light);
+                this.setStatusMap(['sensorData', 'lightLevel'], light);
                 break;
             }
             case functionKeys.GET_DIGITAL: {
