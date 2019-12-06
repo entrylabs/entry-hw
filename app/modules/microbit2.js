@@ -48,6 +48,8 @@ const functionKeys = {
     SET_BPM: 0x06,
     ACC_REGULAR: 0xaa,
     SENSOR_REGULAR: 0xab,
+    LED_1: 0xca,
+    LED_2: 0xcb,
 };
 
 class Microbit2 extends BaseModule {
@@ -68,7 +70,13 @@ class Microbit2 extends BaseModule {
             sensorData: {
                 digital: {},
                 analog: {},
-                led: {},
+                led: {
+                    0: [0, 0, 0, 0, 0],
+                    1: [0, 0, 0, 0, 0],
+                    2: [0, 0, 0, 0, 0],
+                    3: [0, 0, 0, 0, 0],
+                    4: [0, 0, 0, 0, 0],
+                },
                 button: false,
                 lightLevel: 0,
                 temperature: 0,
@@ -175,8 +183,7 @@ class Microbit2 extends BaseModule {
         if (this.commandQueue.length !== 0 && !this.pending) {
             this.pending = true;
             const { type, payload } = this.commandQueue.shift();
-            console.log(`type : ${type} payload : ${payload}`);
-            console.log(type, JSON.stringify(payload));
+            // console.log(`type : ${type} payload : ${payload}`);
             switch (type) {
                 case functionKeys.SET_LED: {
                     const { x, y, value } = payload;
@@ -211,10 +218,10 @@ class Microbit2 extends BaseModule {
                         valueType[value],
                     ]);
                 }
-                case functionKeys.GET_LED: {
-                    const { x, y } = payload;
-                    return this.makeBuffer(functionKeys.GET_LED, [x, y]);
-                }
+                // case functionKeys.GET_LED: {
+                //     const { x, y } = payload;
+                //     return this.makeBuffer(functionKeys.GET_LED, [x, y]);
+                // }
                 case functionKeys.RESET:
                     this.resetMicrobitStatusMap();
                     return this.makeBuffer(functionKeys.RESET);
@@ -248,6 +255,8 @@ class Microbit2 extends BaseModule {
                 case functionKeys.GET_ANALOG:
                 case functionKeys.GET_DIGITAL:
                 case functionKeys.SET_IMAGE:
+                case functionKeys.RESET_SCREEN:
+                    return this.makeBuffer(type);
 
                 // 그냥 값 없이 바로 커맨드만 보내는 경우
                 case functionKeys.GET_BUTTON:
@@ -258,11 +267,9 @@ class Microbit2 extends BaseModule {
                 case functionKeys.GET_LIGHT_LEVEL:
                 case functionKeys.GET_COMPASS_HEADING:
                 case functionKeys.GET_GESTURE:
-                    return null;
-                case functionKeys.RESET_SCREEN:
-                    return this.makeBuffer(type);
+                case functionKeys.GET_LED:
                 default:
-                    return this.makeBuffer(functionKeys.TEST_MESSAGE);
+                    return null;
             }
         }
     }
@@ -281,14 +288,6 @@ class Microbit2 extends BaseModule {
         console.log('received from microbit : ', data);
         const receivedCommandType = data[0];
         switch (receivedCommandType) {
-            case functionKeys.GET_LED: {
-                // data = [x, y, value]
-                this.setStatusMap(
-                    ['sensorData', 'led', data[1], data[2]],
-                    data[3]
-                );
-                break;
-            }
             case functionKeys.GET_ANALOG: {
                 // data = [pinNumber, value{2} ]
                 this.setStatusMap(
@@ -302,49 +301,6 @@ class Microbit2 extends BaseModule {
                 this.setStatusMap(['sensorData', 'analog', data[1]], data[2]);
                 break;
             }
-            case functionKeys.GET_BUTTON: {
-                this.setStatusMap(['sensorData', 'button'], data[1]);
-                break;
-            }
-            case functionKeys.GET_LIGHT_LEVEL: {
-                this.setStatusMap(
-                    ['sensorData', 'lightLevel'],
-                    Buffer.from([data[1]]).readUInt8(0)
-                );
-                break;
-            }
-            case functionKeys.GET_TEMPERATURE: {
-                this.setStatusMap(
-                    ['sensorData', 'temperature'],
-                    Buffer.from([data[1]]).readInt8(0)
-                );
-                break;
-            }
-            // case functionKeys.GET_COMPASS_HEADING: {
-            //     this.setStatusMap(
-            //         ['sensorData', 'compassHeading'],
-            //         Buffer.from([data[1], data[2]]).readUInt16LE(0)
-            //     );
-            //     break;
-            // }
-            case functionKeys.GET_PITCH: {
-                this.setStatusMap(
-                    ['sensorData', 'tilt', 'pitch'],
-                    Buffer.from([data[1], data[2]]).readInt16LE(0)
-                );
-                break;
-            }
-            case functionKeys.GET_ROLL: {
-                this.setStatusMap(
-                    ['sensorData', 'tilt', 'roll'],
-                    Buffer.from([data[1], data[2]]).readInt16LE(0)
-                );
-                break;
-            }
-            // case functionKeys.GET_GESTURE: {
-            //     this.setStatusMap(['sensorData', 'gesture'], data[1]);
-            //     break;
-            // }
 
             case functionKeys.ACC_REGULAR: {
                 // console.log('ACC_REGULAR RECEIVED');
@@ -399,6 +355,23 @@ class Microbit2 extends BaseModule {
                 );
                 break;
             }
+            case functionKeys.LED_1: {
+                for (let i = 0; i < 13; i++) {
+                    let x = i % 5;
+                    let y = i / 5;
+                    let value = Buffer.from([data[i + 1]]).readUInt8(0);
+                }
+            }
+            case functionKeys.LED_2: {
+                for (let i = 0; i < 12; i++) {
+                    let offset = 13;
+                    let x = (i + offset) % 5;
+                    let y = (i + offset) / 5;
+                    let value = Buffer.from([data[i + 1]]).readUInt8(0);
+                }
+            }
+            // LED_1: 0xca,
+            // LED_2: 0xcb,
         }
         // this.socket.send('abcde');
         // const count = data[data.length - 3];
