@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Styled from 'styled-components';
+
+const { translator, rendererRouter, ipcRenderer } = window;
 
 const MainContainer = Styled.div`
     height: 100%;
@@ -37,7 +39,6 @@ const VersionNotifyContainer = Styled.div`
 `;
 
 const VersionUpdateButton = Styled.button`
-    display: none;
     cursor: pointer;
     padding-left: 14px;
     padding-right: 14px;
@@ -49,7 +50,6 @@ const VersionUpdateButton = Styled.button`
 `;
 
 const LatestVersionNotifyText = Styled.div`
-    display: none;
     height: 42px;
     line-height: 42px;
     font-weight: bold;
@@ -62,7 +62,29 @@ const HomepageLinkAnchor = Styled.a`
     cursor: pointer !important;
 `;
 
+const hideWindow = () => {
+    rendererRouter.currentWindow.hide();
+};
+
 const Main: React.FC = () => {
+    const [hasNewVersion, toggleNewVersion] = useState(false);
+    const [currentVersion, setCurrentVersion] = useState('0.0.0');
+    useEffect(() => {
+        ipcRenderer
+            .invoke('checkUpdate')
+            .then((result) => {
+                setCurrentVersion(result.currentVersion || '0.0.0');
+                toggleNewVersion(result.hasNewVersion || false);
+            });
+    }, []);
+
+    useEffect(() => {
+        document.body.addEventListener('click', hideWindow);
+        return () => {
+            document.body.removeEventListener('click', hideWindow);
+        };
+    }, []);
+
     return (
         <MainContainer>
             <InnerContainer>
@@ -70,17 +92,31 @@ const Main: React.FC = () => {
                     <LogoImage src="../images/about/logo.png" className={'logo'} alt="logo"/>
                 </LogoWrapper>
                 <div>
-                    <VersionNotifyContainer className={'txtVersion'}>
-                        Version
-                        <span id="version"/>
+                    <VersionNotifyContainer>
+                        {/* TODO 만약 오프라인에서도 하드웨어의 버전을 알아야 한다면 이부분은 다른 로직이 되어야한다. */}
+                        {`Version ${currentVersion}`}
                         <br/>
-                        <HomepageLinkAnchor href="#" id="playEntryBtn">
+                        <HomepageLinkAnchor href="#" onClick={(e) => {
+                            e.preventDefault();
+                            rendererRouter.openExternalUrl('https://playentry.org');
+                        }}>
                             https://playentry.org
                         </HomepageLinkAnchor>
                     </VersionNotifyContainer>
                     <div>
-                        <VersionUpdateButton className="btnVersionUpdate"/>
-                        <LatestVersionNotifyText className="txtAlreadyVersion"/>
+                        {
+                            hasNewVersion
+                                ? <VersionUpdateButton
+                                    onClick={() => {
+                                        rendererRouter.openExternalUrl('https://playentry.org/#!/offlineEditor');
+                                    }}
+                                >
+                                    {translator.translate('Download the latest version')}
+                                </VersionUpdateButton>
+                                : <LatestVersionNotifyText>
+                                    {translator.translate('You are running the latest version.')}
+                                </LatestVersionNotifyText>
+                        }
                     </div>
                 </div>
             </InnerContainer>

@@ -4,12 +4,9 @@ const {
     RUNNING_MODE_TYPES: RunningMode,
 } = require('../../common/constants');
 
-let selectPortConnectionTimeout;
-
 /**
  * 렌더러 비즈니스로직을 담은 클래스.
  * 해당 클래스는 preload 페이즈에서 선언되므로 nodejs, electron 관련 import가 가능
- *
  */
 class RendererRouter {
     get hardwareList() {
@@ -18,7 +15,15 @@ class RendererRouter {
     }
 
     get priorHardwareList() {
-        return JSON.parse(localStorage.getItem('hardwareList')).reverse() || [];
+        return (JSON.parse(localStorage.getItem('hardwareList')) || []).reverse();
+    }
+
+    get sharedObject() {
+        return remote.getGlobal('sharedObject');
+    }
+
+    get currentWindow() {
+        return remote.getCurrentWindow();
     }
 
     constructor() {
@@ -113,7 +118,7 @@ class RendererRouter {
     }
 
     checkProgramUpdate() {
-        const { appName } = remote.getGlobal('sharedObject');
+        const { appName } = this.sharedObject;
         const { translator, Modal } = window;
         const translate = (str) => translator.translate(str);
         const modal = new Modal.default();
