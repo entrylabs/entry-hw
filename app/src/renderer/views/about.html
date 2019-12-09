@@ -8,30 +8,9 @@
 </head>
 
 <body>
-	<div class="container">
-		<div class="container_inner">
-			<div class="logo_wrapper">
-				<img src="../images/about/logo.png" class="logo" />
-			</div>
-			<div>
-				<div class="txtVersion">
-					Version
-					<span id="version"></span>
-					<br/>
-					<a href="#" id="playEntryBtn">
-						https://playentry.org
-					</a>
-				</div>
-				<div>
-					<div class="btnVersionUpdate">
-					</div>
-					<div class="txtAlreadyVersion">
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+	<div id="__main"></div>
 	<link rel='stylesheet' href='../css/about.css' />
+	<script src="../react/dist/about.build.js"></script>
 	<script>
 		window.$ = window.jQuery = require('../js/jquery-1.11.3.min.js');
 		const { shell, remote, ipcRenderer } = require('electron');
