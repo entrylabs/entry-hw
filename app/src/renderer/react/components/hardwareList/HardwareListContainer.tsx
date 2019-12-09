@@ -12,6 +12,21 @@ const HardwareListContainerRoot = Styled.div`
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
     width: 100%;
+    
+    &::-webkit-scrollbar {
+        -webkit-appearance: none;
+    }
+    &::-webkit-scrollbar:vertical {
+        width: 11px;
+    }
+    &::-webkit-scrollbar:horizontal {
+        height: 11px;
+    }
+    &::-webkit-scrollbar-thumb {
+        border-radius: 8px;
+        border: 2px solid white; /* should match background, can't be transparent */
+        background-color: rgba(0, 0, 0, .5);
+    }
 `;
 
 const HardwareListContainer: React.FC<IStateProps & IDispatchProps> = (props) => {
