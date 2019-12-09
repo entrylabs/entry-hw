@@ -1,33 +1,12 @@
 import ReactDOM from 'react-dom';
 import React from 'react';
 import GlobalStyle from './GlobalStyle';
+import Main from './components/Main';
 
 ReactDOM.render(
     <>
-        <div className="container">
-            <div className="container_inner">
-                <div className="logo_wrapper">
-                    <img src="../images/about/logo.png" className="logo" alt="logo"/>
-                </div>
-                <div>
-                    <div className="txtVersion">
-                        Version
-                        <span id="version"/>
-                        <br/>
-                        <a href="#" id="playEntryBtn">
-                            https://playentry.org
-                        </a>
-                    </div>
-                    <div>
-                        <div className="btnVersionUpdate">
-                        </div>
-                        <div className="txtAlreadyVersion">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <GlobalStyle />
+        <Main/>
+        <GlobalStyle/>
     </>,
     document.getElementById('__main'),
 );

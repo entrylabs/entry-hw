@@ -71,6 +71,7 @@ function createAboutWindow(mainWindow) {
         show: false,
         webPreferences: {
             nodeIntegration: true,
+            preload: path.resolve(__dirname, 'src', 'renderer', 'preload.js'),
         },
     });
 

@@ -5,11 +5,11 @@ const mainPagePath = path.join(reactDirPath, 'main');
 const aboutPagePath = path.join(reactDirPath, 'about');
 
 module.exports = {
-    target: 'web',
+    target: 'electron-renderer',
     mode: 'development',
     entry: {
-        main: path.resolve(mainPagePath, 'App.tsx'),
-        about: path.resolve(aboutPagePath, 'App.tsx'),
+        main: path.join(mainPagePath, 'App.tsx'),
+        about: path.join(aboutPagePath, 'App.tsx'),
     },
     output: {
         path: path.resolve(reactDirPath, 'dist'),

@@ -14,7 +14,7 @@
 		const { shell, remote, ipcRenderer } = require('electron');
 		const aboutWindow = remote.getCurrentWindow();
 		const hardwareVersion = remote.getGlobal('sharedObject').hardwareVersion || '0.0.0';
-		const Translator = require('../../renderer/js/translator');
+		const Translator = require('../js/translator');
 		const translator = new Translator();
 
 		$(function () {
