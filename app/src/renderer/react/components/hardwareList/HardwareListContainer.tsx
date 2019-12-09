@@ -23,7 +23,7 @@ const HardwareListContainer: React.FC<IStateProps & IDispatchProps> = (props) =>
     }, []);
 
     return (
-        <HardwareListContainerRoot id="pyapyahwList">
+        <HardwareListContainerRoot>
             {
                 hardwareList.map((hardware) => (
                     <HardwareElement key={hardware.id} hardware={hardware}/>
