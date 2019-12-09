@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import HardwareConnectionContainer from './hardwareConnection/HardwareConnectionContainer';
-import LicenseViewerContainer from './hardwareList/opensourceLicenseViewer/licenseViewerContainer';
+import LicenseViewerContainer from './hardwareList/opensourceLicenseViewer/LicenseViewerContainer';
 import ErrorAlert from './hardwareList/ErrorAlert';
 import SelectPortContainer from './hardwareConnection/SelectPortContainer';
 import HardwareListContainer from './hardwareList/HardwareListContainer';

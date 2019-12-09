@@ -1,13 +1,14 @@
 const path = require('path');
 
-const defaultPath = path.resolve(__dirname, 'app', 'src', 'renderer', 'react');
+const reactDirPath = path.resolve(__dirname, 'app', 'src', 'renderer', 'react');
+const mainPagePath = path.join(reactDirPath, 'main');
 
 module.exports = {
     target: 'web',
     mode: 'development',
-    entry: path.resolve(defaultPath, 'App.tsx'),
+    entry: path.resolve(mainPagePath, 'App.tsx'),
     output: {
-        path: path.resolve(defaultPath, 'dist'),
+        path: path.resolve(reactDirPath, 'dist'),
         filename: 'main.build.js',
     },
     resolve: {

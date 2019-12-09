@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Main from './components/main';
+import Main from './components/Main';
 import Footer from './components/common/Footer';
 import Header from './components/common/Header';
 import { Provider } from 'react-redux';
