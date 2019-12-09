@@ -66,7 +66,6 @@ const HardwareConnectionContainer: React.FC<IStateProps & Preload> = (props) => 
     }
 
     const { email, url, video, icon, driver, firmware } = selectedHardware;
-    const videoList = typeof video === 'string' ? [video] : video;
 
     return (
         <HardwarePanel id="hwPanel">
@@ -89,16 +88,24 @@ const HardwareConnectionContainer: React.FC<IStateProps & Preload> = (props) => 
                         </div>
                     }
                     {
-                        videoList &&
+                        video &&
                         <div id="videoArea">
                             <span>{translator.translate('Video : ')}</span>
                             {
-                                videoList.map((video) => (
-                                    <ReferenceContentSpan
+                                video instanceof Array
+                                    ? video.map((videoElement) => (
+                                        <React.Fragment key={videoElement}>
+                                            <ReferenceContentSpan
+                                                id="video"
+                                                onClick={() => rendererRouter.openExternalUrl(videoElement)}
+                                            >{videoElement}</ReferenceContentSpan>
+                                            <br/>
+                                        </React.Fragment>
+                                    ))
+                                    : <ReferenceContentSpan
                                         id="video"
                                         onClick={() => rendererRouter.openExternalUrl(video)}
                                     >{video}</ReferenceContentSpan>
-                                ))
                             }
                         </div>
                     }
@@ -108,7 +115,7 @@ const HardwareConnectionContainer: React.FC<IStateProps & Preload> = (props) => 
                     {
                         driver &&
                         <div id="driverButtonSet">
-                            <DriverButtonSetElement buttonSet={driver} />
+                            <DriverButtonSetElement buttonSet={driver}/>
                         </div>
                     }
                 </ClientElement>
@@ -121,7 +128,7 @@ const HardwareConnectionContainer: React.FC<IStateProps & Preload> = (props) => 
                     {
                         firmware &&
                         <div id="firmwareButtonSet">
-                            <FirmwareButtonSetElement buttonSet={firmware} />
+                            <FirmwareButtonSetElement buttonSet={firmware}/>
                         </div>
                     }
                 </HardwareElement>

@@ -1,3 +1,4 @@
+/// <reference types="Electron" />
 interface ITranslator {
     translate: (str: string) => string;
     currentLanguage: string;
