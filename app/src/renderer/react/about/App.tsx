@@ -1,17 +1,18 @@
 import ReactDOM from 'react-dom';
 import React from 'react';
+import GlobalStyle from './GlobalStyle';
 
 ReactDOM.render(
     <>
         <div className="container">
             <div className="container_inner">
                 <div className="logo_wrapper">
-                    <img src="../images/about/logo.png" className="logo"/>
+                    <img src="../images/about/logo.png" className="logo" alt="logo"/>
                 </div>
                 <div>
                     <div className="txtVersion">
                         Version
-                        <span id="version"></span>
+                        <span id="version"/>
                         <br/>
                         <a href="#" id="playEntryBtn">
                             https://playentry.org
@@ -26,6 +27,7 @@ ReactDOM.render(
                 </div>
             </div>
         </div>
+        <GlobalStyle />
     </>,
     document.getElementById('__main'),
 );
