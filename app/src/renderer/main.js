@@ -1,16 +1,18 @@
 'use strict';
 const {
-    clipboard, RendererRouter, constants, translator, platform, os,
+    clipboard,
+    RendererRouter,
+    constants,
+    translator,
+    platform,
+    os,
 } = window;
 const langType = translator.currentLanguage;
 
-const {
-    AVAILABLE_TYPE: AvaliableType,
-} = constants;
+const { AVAILABLE_TYPE: AvaliableType } = constants;
 let priorHardwareList = JSON.parse(localStorage.getItem('hardwareList')) || [];
 
 let viewMode = 'main';
-
 
 $('html').addClass(platform);
 
@@ -38,10 +40,7 @@ categoryDropdown.on('click', 'li:not(.init)', function() {
     selected.addClass('selected');
     categoryDropdownCurrentSelected.html(selected.html());
 
-    categoryDropdownCurrentSelected.append(
-        $('<div></div>')
-            .addClass('arrow'),
-    );
+    categoryDropdownCurrentSelected.append($('<div></div>').addClass('arrow'));
 
     // 카테고리 닫기
     categoryDropdownCurrentSelected.toggleClass('open');
@@ -55,29 +54,25 @@ categoryDropdown.on('click', 'li:not(.init)', function() {
 // dropdown setting end
 
 $('.alertMsg .alertMsg1').text(
-    translator.translate('If unexpected problem occurs while operating,'),
+    translator.translate('If unexpected problem occurs while operating,')
 );
 $('.alertMsg .alertMsg2').text(
-    translator.translate(
-        'contact the hardware company to resolve the problem.',
-    ),
+    translator.translate('contact the hardware company to resolve the problem.')
 );
 $('#errorAlert .comment').text(
     translator.translate(
-        '* Entry Labs is not responsible for the extension program and hardware products on this site.',
-    ),
+        '* Entry Labs is not responsible for the extension program and hardware products on this site.'
+    )
 );
 
 $('#select_port_box .title span').text(translator.translate('Select'));
 $('#select_port_box .description').text(
-    translator.translate('Select the COM PORT to connect'),
+    translator.translate('Select the COM PORT to connect')
 );
 $('#select_port_box #btn_select_port_cancel').text(
-    translator.translate('Cancel'),
+    translator.translate('Cancel')
 );
-$('#select_port_box #btn_select_port').text(
-    translator.translate('Connect'),
-);
+$('#select_port_box #btn_select_port').text(translator.translate('Connect'));
 
 $('#reference .emailTitle').text(translator.translate('E-Mail : '));
 $('#reference .urlTitle').text(translator.translate('WebSite : '));
@@ -89,11 +84,9 @@ $openSourceLabel.on('click', () => {
     $('#opensource_license_viewer').css('display', 'flex');
 });
 $('#opensource_license_viewer .title span').text(
-    translator.translate('Opensource lincense'),
+    translator.translate('Opensource lincense')
 );
-$('#opensource_license_viewer #btn_close').text(
-    translator.translate('Close'),
-);
+$('#opensource_license_viewer #btn_close').text(translator.translate('Close'));
 
 const $versionLabel = $('#version_label');
 $versionLabel.text(translator.translate('Version Info'));
@@ -102,9 +95,7 @@ $versionLabel.on('click', () => {
 });
 
 $('#firmware').text(translator.translate('Install Firmware'));
-$('#other-robot .text').text(
-    translator.translate('Connect Other Hardware'),
-);
+$('#other-robot .text').text(translator.translate('Connect Other Hardware'));
 $('#entry .text').text(translator.translate('Show Entry Web Page'));
 
 $('#driverButtonSet').on('click', 'button', function() {
@@ -116,7 +107,7 @@ $('#firmwareButtonSet').on('click', 'button', function() {
     ui.flashFirmware(this.firmware);
 });
 
-const ui = new class {
+const ui = new (class {
     constructor() {
         this.cachedPortList = [];
     }
@@ -148,9 +139,7 @@ const ui = new class {
         $('#hwPanel').css('display', 'flex');
         $('#back.navigate_button').addClass('active');
         ui.hideIeGuide();
-        this.showAlert(
-            translator.translate('Connecting to hardware device.'),
-        );
+        this.showAlert(translator.translate('Connecting to hardware device.'));
     }
 
     showConnected() {
@@ -163,7 +152,7 @@ const ui = new class {
         ui.hideIeGuide();
         this.showAlert(
             translator.translate('Connected to hardware device.'),
-            2000,
+            2000
         );
     }
 
@@ -176,8 +165,8 @@ const ui = new class {
         ui.hideIeGuide();
         this.showAlert(
             translator.translate(
-                'Hardware device is disconnected. Please restart this program.',
-            ),
+                'Hardware device is disconnected. Please restart this program.'
+            )
         );
     }
 
@@ -196,7 +185,9 @@ const ui = new class {
     }
 
     hideAlert() {
-        $('#alert').stop(true, true).animate({ height: '0px' });
+        $('#alert')
+            .stop(true, true)
+            .animate({ height: '0px' });
     }
 
     hideRobot(id) {
@@ -226,7 +217,9 @@ const ui = new class {
                 style="filter: grayscale(100%); opacity: 0.5">
                     <img class="hwThumb" src="${config.image}" alt="">
                     <h2 class="hwTitle">
-                        ${config.name && config.name[langType] || config.name.en || config.name}
+                        ${(config.name && config.name[langType]) ||
+                            config.name.en ||
+                            config.name}
                     </h2>
                 </div>
             `);
@@ -240,9 +233,12 @@ const ui = new class {
             case AvaliableType.needUpdate: {
                 $('#hwList').append(`
                 <div class="hardwareType" id="${config.id}">
-                    <img class="hwThumb" src="../../../modules/${config.icon}" alt="">
+                    <img class="hwThumb" src="../../../modules/${
+                        config.icon
+                    }" alt="">
                     <h2 class="hwTitle">
-                        [업]${config.name && config.name[langType] || config.name.en}
+                        [업]${(config.name && config.name[langType]) ||
+                            config.name.en}
                     </h2>
                 </div>
             `);
@@ -258,9 +254,12 @@ const ui = new class {
             default: {
                 $('#hwList').append(`
                 <div class="hardwareType" id="${config.id}">
-                    <img class="hwThumb" src="../../../modules/${config.icon}" alt="">
+                    <img class="hwThumb" src="../../../modules/${
+                        config.icon
+                    }" alt="">
                     <h2 class="hwTitle">
-                        ${config.name && config.name[langType] || config.name.en}
+                        ${(config.name && config.name[langType]) ||
+                            config.name.en}
                     </h2>
                 </div>
             `);
@@ -277,10 +276,11 @@ const ui = new class {
     }
 
     flashFirmware(firmwareName) {
-        if (router.currentState !== 'before_connect' && router.currentState !== 'connected') {
-            alert(
-                translator.translate('Hardware Device Is Not Connected'),
-            );
+        if (
+            router.currentState !== 'before_connect' &&
+            router.currentState !== 'connected'
+        ) {
+            alert(translator.translate('Hardware Device Is Not Connected'));
             ui.showConnecting();
             $('#firmwareButtonSet').show();
             return;
@@ -288,19 +288,14 @@ const ui = new class {
 
         $('#firmwareButtonSet').hide();
         ui.showAlert(translator.translate('Firmware Uploading...'));
-        router.requestFlash(firmwareName)
+        router
+            .requestFlash(firmwareName)
             .then(() => {
-                ui.showAlert(
-                    translator.translate('Firmware Uploaded!'),
-                );
+                ui.showAlert(translator.translate('Firmware Uploaded!'));
             })
             .catch((e) => {
                 console.error(e);
-                ui.showAlert(
-                    translator.translate(
-                        'Failed Firmware Upload',
-                    ),
-                );
+                ui.showAlert(translator.translate('Failed Firmware Upload'));
             })
             .finally(() => {
                 $('#firmwareButtonSet').show();
@@ -323,8 +318,7 @@ const ui = new class {
         ) {
             let portHtml = '';
             portList.forEach((port) => {
-                portHtml +=
-                    `<option title="${port.path}">${port.path}</option>`;
+                portHtml += `<option title="${port.text}" value="${port.value}">${port.text}</option>`;
             });
 
             $('#select_port_box select').html(portHtml);
@@ -333,8 +327,7 @@ const ui = new class {
         }
     }
 
-    quit() {
-    }
+    quit() {}
 
     showIeGuide() {
         $('#errorAlert').show();
@@ -343,7 +336,6 @@ const ui = new class {
     hideIeGuide() {
         $('#errorAlert').hide();
     }
-
 
     setCloudMode(isCloudMode) {
         const $cloudIcon = $('#cloud_icon');
@@ -357,19 +349,18 @@ const ui = new class {
     _showHardwareConnectingPage(hardware) {
         viewMode = hardware.id;
 
-        isSelectPort = hardware.select_com_port ||
+        isSelectPort =
+            hardware.select_com_port ||
             hardware.hardware.type === 'bluetooth' ||
             router.cloudMode === 1 ||
             false;
 
-        const newSelectList = priorHardwareList
-            .filter((item) => item !== hardware.name.ko);
+        const newSelectList = priorHardwareList.filter(
+            (item) => item !== hardware.name.ko
+        );
 
         newSelectList.push(hardware.name.ko);
-        localStorage.setItem(
-            'hardwareList',
-            JSON.stringify(newSelectList),
-        );
+        localStorage.setItem('hardwareList', JSON.stringify(newSelectList));
         priorHardwareList = newSelectList;
 
         const icon = `../../../modules/${hardware.icon}`;
@@ -414,14 +405,10 @@ const ui = new class {
             const $email = $('#email');
             $email.text(hardware.email);
             $('#emailArea').show();
-            $email
-                .off('click')
-                .on('click', () => {
-                    clipboard.writeText(hardware.email);
-                    alert(
-                        translator.translate('Copied to clipboard'),
-                    );
-                });
+            $email.off('click').on('click', () => {
+                clipboard.writeText(hardware.email);
+                alert(translator.translate('Copied to clipboard'));
+            });
         } else {
             $('#emailArea').hide();
         }
@@ -430,23 +417,16 @@ const ui = new class {
         $('#firmwareButtonSet button').remove();
 
         if (hardware.driver) {
-            if (
-                $.isPlainObject(hardware.driver) &&
-                hardware.driver[os]
-            ) {
+            if ($.isPlainObject(hardware.driver) && hardware.driver[os]) {
                 const $dom = $('<button class="hwPanelBtn">');
-                $dom.text(
-                    translator.translate('Install Device Driver'),
-                );
+                $dom.text(translator.translate('Install Device Driver'));
                 $dom.prop('driverPath', hardware.driver[os]);
                 $('#driverButtonSet').append($dom);
             } else if (Array.isArray(hardware.driver)) {
                 hardware.driver.forEach((driver) => {
                     if (driver[os]) {
                         const $dom = $('<button class="hwPanelBtn">');
-                        $dom.text(
-                            translator.translate(driver.translate),
-                        );
+                        $dom.text(translator.translate(driver.translate));
                         $dom.prop('driverPath', driver[os]);
                         $('#driverButtonSet').append($dom);
                     }
@@ -458,9 +438,7 @@ const ui = new class {
             if (Array.isArray(hardware.firmware)) {
                 hardware.firmware.forEach((firmware) => {
                     const $dom = $('<button class="hwPanelBtn">');
-                    $dom.text(
-                        translator.translate(firmware.translate),
-                    );
+                    $dom.text(translator.translate(firmware.translate));
                     $dom.prop('firmware', firmware.name);
                     $dom.prop('config', hardware);
                     $('#firmwareButtonSet').append($dom);
@@ -480,7 +458,7 @@ const ui = new class {
         hardware.serverMode = router.serverMode;
         window.currentConfig = hardware;
     }
-}();
+})();
 const router = new RendererRouter(ui);
 window.router = router;
 
@@ -511,7 +489,9 @@ $('#search_close_button').on('click', function() {
 
 function searchHardware(searchText) {
     // var searchText = $('#search_bar').val();
-    const currentCategory = $('#filter_category').children('.init').data('value');
+    const currentCategory = $('#filter_category')
+        .children('.init')
+        .data('value');
     let isNotFound = true;
     if (searchText) {
         const hideList = router.hardwareList.filter((hardware) => {
@@ -520,8 +500,9 @@ function searchHardware(searchText) {
             const text = searchText.toLowerCase();
             if (
                 (ko.indexOf(text) > -1 || en.indexOf(text) > -1) && // 검색결과가 있는지
-                (hardware.platform.indexOf(platform) > -1) && // 현재 플랫폼과 동일한지
-                (currentCategory === 'all' || hardware.category === currentCategory) // 현재 카테고리에 포함되었는지
+                hardware.platform.indexOf(platform) > -1 && // 현재 플랫폼과 동일한지
+                (currentCategory === 'all' ||
+                    hardware.category === currentCategory) // 현재 카테고리에 포함되었는지
             ) {
                 ui.showRobot(hardware);
                 isNotFound = false;
@@ -577,15 +558,15 @@ $body.on('click', '#back.navigate_button.active', (e) => {
 });
 
 $body.on('click', '#refresh', (e) => {
-    if (
-        confirm(translator.translate('Do you want to restart the program?'))
-    ) {
+    if (confirm(translator.translate('Do you want to restart the program?'))) {
         router.reloadApplication();
     }
 });
 
 $('.chromeButton').on('click', (e) => {
-    router.openExternalUrl('https://www.google.com/chrome/browser/desktop/index.html');
+    router.openExternalUrl(
+        'https://www.google.com/chrome/browser/desktop/index.html'
+    );
 });
 
 $('#select_port').dblclick(() => {
@@ -605,6 +586,7 @@ $('#btn_select_port').click((e) => {
 $('#select_port_box .cancel_event').click((e) => {
     clearSelectPort();
     clearTimeout(selectPortConnectionTimeout);
+    router.stopScan();
 });
 
 function clearSelectPort() {
@@ -616,7 +598,6 @@ function clearSelectPort() {
 $('#opensource_license_viewer .close_event').on('click', () => {
     $('#opensource_license_viewer').css('display', 'none');
 });
-
 
 router.getOpensourceContents().then((text) => {
     $('#opensource_content').val(text);

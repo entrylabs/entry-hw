@@ -1,0 +1,21 @@
+{
+	"id": "999998",
+	"name": {
+		"en": "Atest",
+		"ko": "A테스트"
+	},
+	"category": "robot",
+	"platform": [
+		"win32",
+		"darwin"
+	],
+	"icon": "test.png",
+	"module": "test.js",
+	"reconnect": true,
+	"entry": {
+		"protocol": "json"
+	},
+	"hardware": {
+		"type": "hid"
+	}
+}

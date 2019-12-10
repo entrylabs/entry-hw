@@ -1,7 +1,7 @@
 const { app, ipcMain, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
-const Scanner = require('./serial/scanner');
+const ScannerManager = require('./ScannerManager');
 const Flasher = require('./serial/flasher');
 const Utils = require('./utils/fileUtils');
 const rendererConsole = require('./utils/rendererConsole');
@@ -26,13 +26,14 @@ class MainRouter {
         global.$ = require('lodash');
         this.browser = mainWindow;
         rendererConsole.initialize(mainWindow);
-        this.scanner = new Scanner(this);
+        this.scannerManager = new ScannerManager(this);
         this.server = entryServer;
         this.flasher = new Flasher();
         this.hardwareListManager = new HardwareListManager();
 
         this.config = undefined;
         /** @type {Connector} */
+        this.scanner = undefined;
         this.connector = undefined;
         this.hwModule = undefined;
         /** @type {Object} */
@@ -46,6 +47,8 @@ class MainRouter {
         });
         ipcMain.on('startScan', async (e, config) => {
             try {
+                const { hardware: { type = '' } = {} } = config || {};
+                this.scanner = this.scannerManager.getScanner(type);
                 await this.startScan(config);
             } catch (e) {
                 console.error(e);
@@ -220,25 +223,27 @@ class MainRouter {
      * @param config
      */
     async startScan(config) {
-        this.config = config;
-        if (this.scanner) {
-            this.hwModule = require(`../../modules/${config.module}`);
-            if (this.scanner.isScanning) {
-                this.scanner.config = config;
-                return;
-            }
-            
-            if (this.scanner.isScanning) {
-                this.scanner.setConfig(config);
-            } else {
-                const connector = await this.scanner.startScan(this.hwModule, this.config);
-                if (connector) {
-                    this.sendState('connected');
-                    this.connector = connector;
-                    connector.setRouter(this);
-                    this._connect(connector);
+        try {
+            this.config = config;
+            if (this.scanner) {
+                if (this.scanner.isScanning) {
+                    this.scanner.setConfig(config);
+                } else {
+                    this.hwModule = require(`../../modules/${config.module}`);
+                    const connector = await this.scanner.startScan(
+                        this.hwModule,
+                        this.config
+                    );
+                    if (connector) {
+                        this.sendState('connected');
+                        this.connector = connector;
+                        connector.setRouter(this);
+                        this._connect(connector);
+                    }
                 }
             }
+        } catch (e) {
+            console.error(e);
         }
     }
 
@@ -328,25 +333,40 @@ class MainRouter {
     handleServerData({ data, type }) {
         const hwModule = this.hwModule;
         const handler = this.handler;
+        const { direct } = this.config;
 
         if (!hwModule || !handler) {
             return;
         }
 
-        handler.decode(data, type);
-
-        if (hwModule.handleRemoteData) {
-            hwModule.handleRemoteData(handler);
+        if (direct && this.connector) {
+            let result = data;
+            if (hwModule.handleRemoteData) {
+                result = hwModule.handleRemoteData(result);
+            }
+            if (hwModule.requestLocalData) {
+                result = hwModule.requestLocalData(result);
+            }
+            this.connector.send(result);
+        } else {
+            handler.decode(data, type);
+            if (hwModule.handleRemoteData) {
+                hwModule.handleRemoteData(handler);
+            }
         }
     }
 
     /**
      * 서버로 인코딩된 데이터를 보낸다.
      */
-    sendEncodedDataToServer() {
-        const data = this.handler.encode();
-        if (this.server && data) {
+    sendEncodedDataToServer(data) {
+        if (data) {
             this.server.send(data);
+        } else {
+            const data = this.handler.encode();
+            if (this.server && data) {
+                this.server.send(data);
+            }
         }
     }
 
@@ -357,6 +377,10 @@ class MainRouter {
         if (this.hwModule.requestRemoteData) {
             this.hwModule.requestRemoteData(this.handler);
         }
+    }
+
+    setConnector(connector) {
+        this.connector = connector;
     }
 
     close() {
@@ -377,7 +401,7 @@ class MainRouter {
         if (this.handler) {
             this.handler = undefined;
         }
-    };
+    }
 
     /**
      * 드라이버를 실행한다. 최초 실행시 app.asar 에 파일이 들어가있는 경우,
