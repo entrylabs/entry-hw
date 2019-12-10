@@ -174,7 +174,7 @@ class Test extends BaseModule {
 
     sensorCheck() {
         if (!this.isSensing) {
-            this.isSensing = true;
+            // this.isSensing = true;
             const initBuf = this.makeInitBuffer(
                 [0],
                 [this.wholeResponseSize, 0]

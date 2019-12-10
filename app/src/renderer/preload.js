@@ -1,6 +1,7 @@
 const { ipcRenderer, clipboard, remote } = require('electron');
 const Translator = require('./js/translator');
 const RendererRouter = require('./js/rendererRouter');
+const BleRouter = require('./js/BleRouter');
 const constants = require('../common/constants');
 
 function getInitializeList() {
@@ -9,6 +10,7 @@ function getInitializeList() {
     preload.clipboard = clipboard;
     preload.remote = remote;
     preload.RendererRouter = RendererRouter;
+    preload.BleRouter = new BleRouter();
     preload.constants = constants;
 
     const translator = new Translator();
@@ -16,12 +18,14 @@ function getInitializeList() {
     preload.Lang = require(`./lang/${lang}.js`).Lang;
     preload.translator = translator;
 
-
     preload.platform = process.platform;
-    preload.os = `${process.platform}-${(() => (
-        process.arch === 'x64' ||
-        process.env.hasOwnProperty('PROCESSOR_ARCHITEW6432')
-    ))() ? 'x64' : process.arch}`;
+    preload.os = `${process.platform}-${
+        (() =>
+            process.arch === 'x64' ||
+            process.env.hasOwnProperty('PROCESSOR_ARCHITEW6432'))()
+            ? 'x64'
+            : process.arch
+    }`;
 
     return preload;
 }

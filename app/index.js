@@ -41,7 +41,7 @@ function lpad(str, len) {
         }
     }
     return String(str);
-};
+}
 
 function getPaddedVersion(version) {
     if (!version) {
@@ -71,9 +71,15 @@ function createAboutWindow(mainWindow) {
         show: false,
     });
 
-    aboutWindow.loadURL(`file:///${
-        path.resolve(__dirname, 'src', 'renderer', 'views', 'about.html')
-    }`);
+    aboutWindow.loadURL(
+        `file:///${path.resolve(
+            __dirname,
+            'src',
+            'renderer',
+            'views',
+            'about.html'
+        )}`
+    );
 
     aboutWindow.on('closed', () => {
         aboutWindow = null;
@@ -170,9 +176,12 @@ if (!app.requestSingleInstanceLock()) {
     });
 
     app.commandLine.appendSwitch('enable-web-bluetooth', true);
-    app.commandLine.appendSwitch('enable-experimental-web-platform-features', true);
+    app.commandLine.appendSwitch(
+        'enable-experimental-web-platform-features',
+        true
+    );
     app.commandLine.appendSwitch('disable-renderer-backgrounding');
-    // app.commandLine.appendSwitch('enable-web-bluetooth');
+    app.commandLine.appendSwitch('enable-web-bluetooth');
     app.once('ready', () => {
         const language = app.getLocale();
         Menu.setApplicationMenu(null);
@@ -192,34 +201,30 @@ if (!app.requestSingleInstanceLock()) {
             webPreferences: {
                 backgroundThrottling: false,
                 nodeIntegration: false,
-                preload: path.resolve(__dirname, 'src', 'renderer', 'preload.js'),
+                preload: path.resolve(
+                    __dirname,
+                    'src',
+                    'renderer',
+                    'preload.js'
+                ),
             },
         });
 
         mainWindow.setMenu(null);
 
-        mainWindow.webContents.on(
-            'select-bluetooth-device',
-            (event, deviceList, callback) => {
-                event.preventDefault();
-                const result = deviceList.find(
-                    (device) => device.deviceName === 'LPF2 Smart Hub 2 I/O',
-                );
-                if (!result) {
-                    callback('A0:E6:F8:1D:FB:E3');
-                } else {
-                    callback(result.deviceId);
-                }
-            },
+        mainWindow.loadURL(
+            `file:///${path.join(
+                __dirname,
+                'src',
+                'renderer',
+                'views',
+                'index.html'
+            )}`
         );
 
-        mainWindow.loadURL(`file:///${path.join(__dirname, 'src', 'renderer', 'views', 'index.html')}`);
-
         if (option.debug) {
-            mainWindow.webContents.openDevTools();
         }
-
-
+        mainWindow.webContents.openDevTools();
 
         mainWindow.on('close', (e) => {
             if (!isForceClose) {
@@ -281,19 +286,17 @@ if (!app.requestSingleInstanceLock()) {
                 let data = {};
                 try {
                     data = JSON.parse(body);
-                } catch (e) {
-                }
+                } catch (e) {}
                 e.sender.send('checkUpdateResult', data);
             });
         });
-        request.on('error', (err) => {
-        });
+        request.on('error', (err) => {});
         request.setHeader('content-type', 'application/json; charset=utf-8');
         request.write(
             JSON.stringify({
                 category: 'hardware',
                 version: packageJson.version,
-            }),
+            })
         );
         request.end();
     });

@@ -13,15 +13,19 @@ let selectPortConnectionTimeout;
  *
  */
 class RendererRouter {
-
     constructor(ui) {
         this.ui = ui;
-        this.priorHardwareList = JSON.parse(localStorage.getItem('hardwareList')) || [];
+        this.priorHardwareList =
+            JSON.parse(localStorage.getItem('hardwareList')) || [];
         this.currentState = Statement.disconnected;
         this.hardwareList = [];
         this.cloudMode = CloudMode.singleServer;
-        const initialServerMode = ipcRenderer.sendSync('getCurrentServerModeSync') || RunningMode.server;
-        const initialCloudMode = ipcRenderer.sendSync('getCurrentCloudModeSync') || CloudMode.singleServer;
+        const initialServerMode =
+            ipcRenderer.sendSync('getCurrentServerModeSync') ||
+            RunningMode.server;
+        const initialCloudMode =
+            ipcRenderer.sendSync('getCurrentCloudModeSync') ||
+            CloudMode.singleServer;
 
         this._checkProgramUpdate();
         this._consoleWriteServerMode(initialServerMode);
@@ -31,9 +35,15 @@ class RendererRouter {
         ipcRenderer.on('console', (event, ...args) => {
             console.log(...args);
         });
-        ipcRenderer.on('onlineHardwareUpdated', this.refreshHardwareModules.bind(this));
+        ipcRenderer.on(
+            'onlineHardwareUpdated',
+            this.refreshHardwareModules.bind(this)
+        );
         ipcRenderer.on('state', this._setHardwareState.bind(this));
-        ipcRenderer.on('hardwareCloseConfirm', this._confirmHardwareClose.bind(this));
+        ipcRenderer.on(
+            'hardwareCloseConfirm',
+            this._confirmHardwareClose.bind(this)
+        );
         ipcRenderer.on('serverMode', (event, mode) => {
             this._consoleWriteServerMode(mode);
         });
@@ -44,15 +54,19 @@ class RendererRouter {
 
     startScan(config) {
         ipcRenderer.send('startScan', config);
-    };
+    }
+
+    updateConfig(config) {
+        ipcRenderer.invoke('updateConfig', config);
+    }
 
     stopScan() {
         ipcRenderer.send('stopScan');
-    };
+    }
 
     close() {
         ipcRenderer.send('close');
-    };
+    }
 
     requestOpenAboutWindow() {
         ipcRenderer.send('openAboutWindow');
@@ -106,7 +120,8 @@ class RendererRouter {
         const routerHardwareList = this.getHardwareListSync();
         this.priorHardwareList.reverse().forEach((target, index) => {
             const currentIndex = routerHardwareList.findIndex((item) => {
-                const itemName = item.name && item.name.ko ? item.name.ko : item.name;
+                const itemName =
+                    item.name && item.name.ko ? item.name.ko : item.name;
                 return itemName === target;
             });
             if (currentIndex > -1) {
@@ -130,34 +145,47 @@ class RendererRouter {
             ipcRenderer.on(
                 'checkUpdateResult',
                 (e, { hasNewVersion, version: latestVersion } = {}) => {
-                    const lastDontCheckedVersion = localStorage.getItem('lastDontCheckedVersion');
-                    if (hasNewVersion && (!lastDontCheckedVersion || lastDontCheckedVersion < latestVersion)) {
-                        modal.alert(
-                            translate('You can use the latest Entry Hardware version(%1).')
-                                .replace(/%1/gi, latestVersion),
-                            translate('Alert'),
-                            {
-                                theme: 'LINE',
-                                positiveButtonText: translate('Download'),
-                                positiveButtonStyle: {
-                                    marginTop: '16px',
-                                    marginBottom: '16px',
-                                    width: '180px',
-                                },
-                                parentClassName: 'versionAlert',
-                                withDontShowAgain: true,
-                            }).one('click', (event, { dontShowChecked }) => {
-                            if (event === 'ok') {
-                                shell.openExternal(
-                                    'https://playentry.org/#!/offlineEditor',
-                                );
-                            }
-                            if (dontShowChecked) {
-                                localStorage.setItem('lastDontCheckedVersion', latestVersion);
-                            }
-                        });
+                    const lastDontCheckedVersion = localStorage.getItem(
+                        'lastDontCheckedVersion'
+                    );
+                    if (
+                        hasNewVersion &&
+                        (!lastDontCheckedVersion ||
+                            lastDontCheckedVersion < latestVersion)
+                    ) {
+                        modal
+                            .alert(
+                                translate(
+                                    'You can use the latest Entry Hardware version(%1).'
+                                ).replace(/%1/gi, latestVersion),
+                                translate('Alert'),
+                                {
+                                    theme: 'LINE',
+                                    positiveButtonText: translate('Download'),
+                                    positiveButtonStyle: {
+                                        marginTop: '16px',
+                                        marginBottom: '16px',
+                                        width: '180px',
+                                    },
+                                    parentClassName: 'versionAlert',
+                                    withDontShowAgain: true,
+                                }
+                            )
+                            .one('click', (event, { dontShowChecked }) => {
+                                if (event === 'ok') {
+                                    shell.openExternal(
+                                        'https://playentry.org/#!/offlineEditor'
+                                    );
+                                }
+                                if (dontShowChecked) {
+                                    localStorage.setItem(
+                                        'lastDontCheckedVersion',
+                                        latestVersion
+                                    );
+                                }
+                            });
                     }
-                },
+                }
             );
         }
     }
@@ -168,8 +196,10 @@ class RendererRouter {
         }
 
         if (mode === RunningMode.client) {
-            console.log('%cI`M CLIENT', 'background:black;color:yellow;font-size: 30px');
-
+            console.log(
+                '%cI`M CLIENT',
+                'background:black;color:yellow;font-size: 30px'
+            );
         } else if (mode === RunningMode.server) {
             console.log('%cI`M SERVER', 'background:orange; font-size: 30px');
         }
@@ -209,6 +239,7 @@ class RendererRouter {
                 break;
             }
             case selectPort: {
+                console.log(window.currentConfig.this_com_port);
                 if (!window.currentConfig.this_com_port) {
                     this.ui.showPortSelectView(data);
                 } else {
@@ -224,11 +255,11 @@ class RendererRouter {
                 break;
             }
             case beforeConnect: {
-                ui.showAlert(`${
-                    translate('Connecting to hardware device.')
-                    } ${
-                    translate('Please select the firmware.')
-                    }`);
+                ui.showAlert(
+                    `${translate('Connecting to hardware device.')} ${translate(
+                        'Please select the firmware.'
+                    )}`
+                );
                 break;
             }
             case lost:
@@ -249,8 +280,8 @@ class RendererRouter {
         if (this.currentState === 'connected') {
             isQuit = confirm(
                 translate(
-                    'Connection to the hardware will terminate once program is closed.',
-                ),
+                    'Connection to the hardware will terminate once program is closed.'
+                )
             );
         }
 

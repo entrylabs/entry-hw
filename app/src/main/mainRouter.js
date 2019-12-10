@@ -5,6 +5,7 @@ const ScannerManager = require('./ScannerManager');
 const Flasher = require('./flasher');
 const Utils = require('./utils/fileUtils');
 const rendererConsole = require('./utils/rendererConsole');
+const IpcManager = require('./utils/IpcManager');
 const HardwareListManager = require('./hardwareListManager');
 const HandlerCreator = require('./datahandler/handler');
 
@@ -26,6 +27,7 @@ class MainRouter {
         global.$ = require('lodash');
         this.browser = mainWindow;
         rendererConsole.initialize(mainWindow);
+        this.ipcManager = new IpcManager(mainWindow);
         this.scannerManager = new ScannerManager(this);
         this.server = entryServer;
         this.flasher = new Flasher();
@@ -41,6 +43,10 @@ class MainRouter {
 
         entryServer.setRouter(this);
         this.server.open();
+
+        ipcMain.handle('updateConfig', (e, config) => {
+            this.updateConfig(config);
+        });
 
         ipcMain.on('state', (e, state) => {
             this.onChangeState(state);
@@ -261,6 +267,12 @@ class MainRouter {
             }
         } catch (e) {
             console.error(e);
+        }
+    }
+
+    updateConfig(config) {
+        if (this.scanner && this.scanner.updateConfig) {
+            this.scanner.updateConfig(config);
         }
     }
 

@@ -580,6 +580,7 @@ $('#btn_select_port').click((e) => {
         alert(translator.translate('Select the COM PORT to connect'));
     } else {
         window.currentConfig.this_com_port = comPort[0];
+        router.updateConfig(window.currentConfig);
         clearSelectPort();
     }
 });

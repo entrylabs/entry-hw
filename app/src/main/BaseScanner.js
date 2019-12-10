@@ -29,7 +29,7 @@ class Scanner {
                 break;
             }
             await new Promise((resolve) =>
-                setTimeout(resolve, this.SCAN_INTERVAL_MILLS)
+                setTimeout(resolve, Scanner.SCAN_INTERVAL_MILLS)
             );
         }
         return scanResult;

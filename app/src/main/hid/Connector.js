@@ -73,6 +73,7 @@ class Connector extends BaseConnector {
         }
 
         this.device.on('data', (data) => {
+            console.log('data', new Buffer(data).toString());
             if (
                 !hwModule.validateLocalData ||
                 hwModule.validateLocalData(data)
@@ -97,9 +98,11 @@ class Connector extends BaseConnector {
             this._sendState('disconnected');
         });
 
-        this.send(hwModule.requestInitialData());
+        // this.send(hwModule.requestInitialData());
         setInterval(() => {
-            this.send(hwModule.sensorCheck());
+            // const a = hwModule.sensorCheck();
+            console.log(Buffer.from('hi$'));
+            this.send(Buffer.from('hi$', 'utf-8').toJSON().data);
         }, 3000);
     }
 

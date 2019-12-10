@@ -46,11 +46,17 @@ class Scanner extends BaseScanner {
         if (!this.config) {
             return;
         }
-        const { hardware, this_com_port: selectedPath } = this.config;
+        const { hardware, this_com_port: selected } = this.config;
+        const selectedPath = decodeURI(selected || '');
         const devices = HID.devices();
         rendererConsole.log(JSON.stringify(devices));
         if (selectedPath) {
-            if (!_.some(devices, ['path', selectedPath])) {
+            if (
+                !_.some(
+                    devices,
+                    (device) => device.path.indexOf(selectedPath) > -1
+                )
+            ) {
                 return;
             }
             if (!this.connectors[selectedPath]) {
@@ -77,7 +83,7 @@ class Scanner extends BaseScanner {
                         }
                     })
                     .map(({ path, product }) => ({
-                        value: path,
+                        value: encodeURI(path),
                         text: product,
                     }))
             );
