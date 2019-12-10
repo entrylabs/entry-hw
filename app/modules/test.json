@@ -12,6 +12,7 @@
 	"icon": "test.png",
 	"module": "test.js",
 	"reconnect": true,
+	"select_com_port" : true,
 	"entry": {
 		"protocol": "json"
 	},

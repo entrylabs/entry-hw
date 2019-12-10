@@ -1,5 +1,3 @@
-'use strict';
-
 const _ = require('lodash');
 const rendererConsole = require('../utils/rendererConsole');
 const SerialPort = require('@serialport/stream');

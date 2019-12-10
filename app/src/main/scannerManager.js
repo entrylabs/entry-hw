@@ -1,5 +1,5 @@
-const serialScanner = require('./serial/Scanner');
-const hidScanner = require('./hid/Scanner');
+const serialScanner = require('./serial/scanner');
+const hidScanner = require('./hid/scanner');
 
 class ScannerManager {
     #scanners = {};

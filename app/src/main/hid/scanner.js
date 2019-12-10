@@ -44,6 +44,7 @@ class Scanner extends BaseScanner {
 
     async scan() {
         if (!this.config) {
+            console.warn('config is not present');
             return;
         }
         const { hardware, this_com_port: selectedPath } = this.config;
@@ -53,11 +54,7 @@ class Scanner extends BaseScanner {
             if (!_.some(devices, ['path', selectedPath])) {
                 return;
             }
-            if (!this.connectors[selectedPath]) {
-                const connector = await this.prepareConnector(selectedPath);
-                this.connectors[selectedPath] = connector;
-            }
-            return this.connectors[selectedPath];
+            return await this.prepareConnector(selectedPath);
         } else {
             this.router.sendState(
                 'select_port',
@@ -95,16 +92,12 @@ class Scanner extends BaseScanner {
             this.finalizeScan(path);
             return connector;
         } catch (e) {
-            delete this.connectors[path];
             throw e;
         }
         // const device = new HID.HID(path);
     }
 
     finalizeScan(path) {
-        if (this.connectors) {
-            this.connectors = {};
-        }
         this.stopScan();
     }
 }
