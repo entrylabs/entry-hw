@@ -1,9 +1,10 @@
 const HID = require('node-hid');
 const BaseConnector = require('../BaseConnector');
 
-class Connector extends BaseConnector {
+class HidConnector extends BaseConnector {
     open(path) {
         this.connected = false;
+        this.sensorCheckSendInterval = undefined;
         this.device = new HID.HID(path);
         return this.device;
     }
@@ -66,7 +67,7 @@ class Connector extends BaseConnector {
         if (hwModule.connect) {
             hwModule.connect();
         }
-        this._sendState('connect');
+        this.sendState('connect');
 
         if (hwModule.afterConnect) {
             hwModule.afterConnect(this);
@@ -79,7 +80,7 @@ class Connector extends BaseConnector {
             ) {
                 if (!this.connected) {
                     this.connected = true;
-                    this._sendState('connected');
+                    this.sendState('connected');
                 }
 
                 this.received = true;
@@ -94,26 +95,23 @@ class Connector extends BaseConnector {
         this.device.on('error', (e) => {
             console.log('ERROR', e);
             this.close();
-            this._sendState('disconnected');
+            this.sendState('disconnected');
         });
 
         this.send(hwModule.requestInitialData());
-        setInterval(() => {
+        this.sensorCheckSendInterval = setInterval(() => {
             this.send(hwModule.sensorCheck());
         }, 3000);
     }
 
-    clear() {
-        this.connected = false;
-        this.device.removeAllListeners();
-    }
-
     close() {
-        this.clear();
+        this.connected = false;
+        this.sensorCheckSendInterval && clearInterval(this.sensorCheckSendInterval);
+        this.device.removeAllListeners();
         if (this.device) {
             this.device.close();
         }
     }
 }
 
-module.exports = Connector;
+module.exports = HidConnector;
