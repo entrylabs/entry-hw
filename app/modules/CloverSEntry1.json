@@ -1,0 +1,35 @@
+{
+    "id": "380101",
+    "name": {
+        "en": "Edurabbit_Clover",
+        "ko": "¿¡µà·¡ºø_Å¬·Î¹ö"
+    },
+    "category": "board",
+    "platform": ["win32", "darwin"],
+    "icon": "CloverSEntry1.png",
+    "module": "CloverSEntry1.js",
+	"url": "http://edu-rabbit.com",
+	"email": "support@edu-rabbit.com",
+	"video": ["https://goo.gl/EgA2ft", "https://goo.gl/enkVdK"],
+    "driver": {
+		"win32-ia32": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
+		"win32-x64": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
+		"darwin-x64": "CH34x_Install_MAC_10_9_AND_ABOVE/CH34x_Install_V1.3.pkg"
+    },
+    "reconnect": true,
+    "firmware": "CloverSEntry1",
+	"firmwareBaudRate": 57600,
+    "entry": {
+        "protocol": "json"
+    },
+	"select_com_port" : false,
+    "hardware": {
+        "type": "serial",
+		"control": "slave",
+		"duration": 32,
+		"vendor": "wch.cn",
+        "baudRate": 57600,
+		"lostTimer": 1000,
+        "firmwarecheck": false
+    }
+}
