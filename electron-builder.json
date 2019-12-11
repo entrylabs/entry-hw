@@ -61,11 +61,9 @@
     },
     "files": [
         "app",
-        "!app/src/renderer/react/**",
         "!app/firmwares/examples",
         "!app/server",
-        "!app/test.html",
-        "app/src/renderer/react/dist"
+        "!app/test.html"
     ],
     "asar": true,
     "appId": "org.playentry.entryhw",

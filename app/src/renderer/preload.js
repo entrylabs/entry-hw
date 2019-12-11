@@ -8,7 +8,7 @@ function getInitializeList() {
     preload.ipcRenderer = ipcRenderer;
     preload.clipboard = clipboard;
     preload.remote = remote;
-    preload.rendererRouter = new RendererRouter();
+    preload.RendererRouter = RendererRouter;
     preload.constants = constants;
 
     const translator = new Translator();
@@ -16,12 +16,12 @@ function getInitializeList() {
     preload.Lang = require(`./lang/${lang}.js`).Lang;
     preload.translator = translator;
 
-    const isOSWin64 = () => (
+
+    preload.platform = process.platform;
+    preload.os = `${process.platform}-${(() => (
         process.arch === 'x64' ||
-        // eslint-disable-next-line no-prototype-builtins
         process.env.hasOwnProperty('PROCESSOR_ARCHITEW6432')
-    );
-    preload.os = `${process.platform}-${isOSWin64() ? 'x64' : process.arch}`;
+    ))() ? 'x64' : process.arch}`;
 
     return preload;
 }
@@ -29,4 +29,5 @@ function getInitializeList() {
 // TODO Lang 에 있는 하드웨어 관련 템플릿 전부 translator 로 처리
 (function() {
     Object.assign(window, getInitializeList());
+    window.translate = (template) => window.translator.translate(template);
 })();
