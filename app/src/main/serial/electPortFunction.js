@@ -6,6 +6,7 @@ const { compact } = require('lodash');
  * @param hwConfig {Object}
  * @param hwModule {Object}
  * @param beforeConnectCallback {Function=}
+ * @return Promise <{port: string, connector: Connector} | void>
  */
 const electPort = async (ports, hwConfig, hwModule, beforeConnectCallback) => {
     // 선출 후보 포트 모두 오픈
