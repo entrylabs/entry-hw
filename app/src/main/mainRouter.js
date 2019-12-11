@@ -42,9 +42,6 @@ class MainRouter {
         entryServer.setRouter(this);
         this.server.open();
 
-        ipcMain.on('state', (e, state) => {
-            this.onChangeState(state);
-        });
         ipcMain.on('startScan', async (e, config) => {
             try {
                 const { hardware: { type = '' } = {} } = config || {};
@@ -205,15 +202,6 @@ class MainRouter {
             this.browser.webContents.send('serverMode', mode);
         }
         this.currentServerRunningMode = mode;
-    }
-
-    /**
-     * ipcMain.on('state', ...) 처리함수
-     * @param state
-     */
-    onChangeState(state) {
-        console.log('server state', state);
-        // this.server.setState(state);
     }
 
     /**
