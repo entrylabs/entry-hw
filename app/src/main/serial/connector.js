@@ -282,7 +282,6 @@ class Connector {
 
         serialPort.on('disconnect', () => {
             this.close();
-            this._sendState('disconnected');
         });
 
         // 디바이스 연결 잃어버린 상태에 대한 관리를 모듈에 맡기거나, 직접 관리한다.
