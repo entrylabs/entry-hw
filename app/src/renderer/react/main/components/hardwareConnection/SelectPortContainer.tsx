@@ -125,7 +125,10 @@ const SelectPortContainer: React.FC<IProps> = (props) => {
                     <span>
                         {translator.translate('Select')}
                     </span>
-                    <PortBoxCancelIcon className="cancel_icon cancel_event" onClick={onCancelClicked}/>
+                    <PortBoxCancelIcon
+                        className="cancel_icon cancel_event"
+                        onClick={onCancelClicked}
+                    />
                 </PortBoxTitle>
                 <PortBoxContent>
                     <PortBoxDescription>
@@ -134,10 +137,13 @@ const SelectPortContainer: React.FC<IProps> = (props) => {
                     <PortBoxSelectElement size={10} id="select_port" onChange={(e) => {
                         changeSelected(e.target.value);
                     }}>
-                        {portList.map((port) => (
-                            <option title={port.path} value={port.path} key={port.path} onDoubleClick={() => {
-                                onPortSelected(port.path);
-                            }}>
+                        {portList.map((port, index) => (
+                            <option
+                                title={port.path} value={port.path} key={`${port.path}-${index}`}
+                                onDoubleClick={() => {
+                                    onPortSelected(port.path);
+                                }}
+                            >
                                 {port.path}
                             </option>
                         ))}

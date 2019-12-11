@@ -204,15 +204,6 @@ class MainRouter {
     }
 
     /**
-     * ipcMain.on('state', ...) 처리함수
-     * @param state
-     */
-    onChangeState(state) {
-        console.log('server state', state);
-        // this.server.setState(state);
-    }
-
-    /**
      * 현재 컴퓨터에 연결된 포트들을 검색한다.
      * 특정 시간(Scanner.SCAN_INTERVAL_MILLS) 마다 체크한다.
      * 연결성공시 'state' 이벤트가 발생된다.

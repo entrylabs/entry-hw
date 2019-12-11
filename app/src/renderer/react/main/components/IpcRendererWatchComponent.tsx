@@ -74,12 +74,13 @@ class IpcRendererWatchComponent extends React.PureComponent<IProps> {
                 }
                 case HardwareModuleStateEnum.flash: {
                     props.changeAlertMessage({
-                        message: translator.translate('Firmware Uploading...')
-                    })
+                        message: translator.translate('Firmware Uploading...'),
+                    });
                 }
             }
         });
         ipcRenderer.on('portListScanned', (event: Electron.Event, data: ISerialPortScanData[]) => {
+            console.log(data);
             props.changePortList(data);
         });
         ipcRenderer.on('cloudMode', (event: Electron.Event, mode: CloudModeTypesEnum) => {

@@ -4,7 +4,7 @@ const rendererConsole = require('../utils/rendererConsole');
 const BaseScanner = require('../BaseScanner');
 const Connector = require('./Connector');
 
-class Scanner extends BaseScanner {
+class HidScanner extends BaseScanner {
     constructor(router) {
         super(router);
         this.router = router;
@@ -36,7 +36,7 @@ class Scanner extends BaseScanner {
                 break;
             }
             await new Promise((resolve) =>
-                setTimeout(resolve, Scanner.SCAN_INTERVAL_MILLS)
+                setTimeout(resolve, HidScanner.SCAN_INTERVAL_MILLS),
             );
         }
         return scanResult;
@@ -47,7 +47,8 @@ class Scanner extends BaseScanner {
             console.warn('config is not present');
             return;
         }
-        const { hardware, this_com_port: selectedPath } = this.config;
+        const { hardware } = this.config;
+        const selectedPath = this.router.selectedPort;
         const devices = HID.devices();
         rendererConsole.log(JSON.stringify(devices));
         if (selectedPath) {
@@ -56,28 +57,27 @@ class Scanner extends BaseScanner {
             }
             return await this.prepareConnector(selectedPath);
         } else {
-            this.router.sendState(
-                'select_port',
-                _.filter(devices, (device) => {
-                    for (const key in device) {
-                        if (hardware[key] && hardware[key] !== device[key]) {
-                            return false;
-                        }
+            const pathList = _.filter(devices, (device) => {
+                for (const key in device) {
+                    if (hardware[key] && hardware[key] !== device[key]) {
+                        return false;
                     }
-                    return true;
+                }
+                return true;
+            })
+                .sort((left, right) => {
+                    if (left.product > right.product) {
+                        return 1;
+                    } else {
+                        return -1;
+                    }
                 })
-                    .sort((left, right) => {
-                        if (left.product > right.product) {
-                            return 1;
-                        } else {
-                            return -1;
-                        }
-                    })
-                    .map(({ path, product }) => ({
-                        value: path,
-                        text: product,
-                    }))
-            );
+                .map((element) => ({
+                    ...element,
+                    path: element.product,
+                }));
+
+            this.router.sendEventToMainWindow('portListScanned', pathList);
         }
     }
 
@@ -102,4 +102,4 @@ class Scanner extends BaseScanner {
     }
 }
 
-module.exports = Scanner;
+module.exports = HidScanner;

@@ -11,7 +11,7 @@ const { CLOUD_MODE_TYPES: CloudModeTypes } = require('../../common/constants');
  *
  * 결과의 송수신은 router 에 만들어진 함수로 보낸다.
  */
-class Scanner {
+class SerialScanner {
     static get SCAN_INTERVAL_MILLS() {
         return 1500;
     }
@@ -41,7 +41,7 @@ class Scanner {
                 this.isScanning = false;
                 break;
             }
-            await new Promise((resolve) => setTimeout(resolve, Scanner.SCAN_INTERVAL_MILLS));
+            await new Promise((resolve) => setTimeout(resolve, SerialScanner.SCAN_INTERVAL_MILLS));
         }
         return scanResult;
     }
@@ -169,4 +169,4 @@ class Scanner {
     };
 }
 
-module.exports = Scanner;
+module.exports = SerialScanner;
