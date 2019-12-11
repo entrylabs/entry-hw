@@ -32,6 +32,7 @@ const functionKeys = {
     SET_ANALOG_PERIOD: 0x10,
     SET_SERVO: 0x11,
     SET_SERVO_PERIOD: 0x12,
+    SET_TONE: 0x13,
     GET_LED: 0x31,
     GET_ANALOG: 0x32,
     GET_DIGITAL: 0x33,
@@ -49,7 +50,41 @@ const functionKeys = {
     ACC_REGULAR: 0xaa,
     SENSOR_REGULAR: 0xab,
     LED_1: 0xca,
-    LED_2: 0xcb,
+};
+const noteKeys = {
+    LOW_C: 1,
+    LOW_C_SHARP: 2,
+    LOW_D: 3,
+    LOW_D_SHARP: 4,
+    LOW_E: 5,
+    LOW_F: 6,
+    LOW_F_SHARP: 7,
+    LOW_G: 8,
+    LOW_G_SHARP: 9,
+    LOW_A_SHARP: 10,
+    LOW_B: 11,
+    C: 21,
+    C_SHARP: 22,
+    D: 23,
+    D_SHARP: 24,
+    E: 25,
+    F: 26,
+    F_SHARP: 27,
+    G: 28,
+    G_SHARP: 29,
+    A_SHARP: 30,
+    B: 31,
+    HIGH_C: 41,
+    HIGH_C_SHARP: 42,
+    HIGH_D: 43,
+    HIGH_D_SHARP: 44,
+    HIGH_E: 45,
+    HIGH_F: 46,
+    HIGH_F_SHARP: 47,
+    HIGH_G: 48,
+    HIGH_G_SHARP: 49,
+    HIGH_A_SHARP: 50,
+    HIGH_B: 51,
 };
 
 class Microbit2 extends BaseModule {
@@ -90,7 +125,9 @@ class Microbit2 extends BaseModule {
             },
         };
     }
-
+    getStatusMapCodes() {
+        return [170, 171, 172];
+    }
     /**
      * payload 에 앞, 뒤 고정 버퍼를 추가한다.
      * @param {number} key
@@ -183,7 +220,6 @@ class Microbit2 extends BaseModule {
         if (this.commandQueue.length !== 0 && !this.pending) {
             this.pending = true;
             const { type, payload } = this.commandQueue.shift();
-            // console.log(`type : ${type} payload : ${payload}`);
             switch (type) {
                 case functionKeys.SET_LED: {
                     const { x, y, value } = payload;
@@ -197,31 +233,33 @@ class Microbit2 extends BaseModule {
                     let dummyCacheLedValue = 0;
                     if (value === 'toggle') {
                         dummyCacheLedValue =
-                            _.get(
-                                this.microbitStatusMap,
-                                ['sensorData', 'led', x, y],
-                                0
-                            ) === 0
+                            _.get(this.microbitStatusMap, [
+                                'sensorData',
+                                'led',
+                                x,
+                                y,
+                            ]) === 0
                                 ? 1
                                 : 0;
+                        console.log('tobe ', dummyCacheLedValue);
                     } else {
                         dummyCacheLedValue = valueType[value];
                     }
-                    // _.set(
-                    //     this.microbitStatusMap,
-                    //     ['sensorData', 'led', x, y],
-                    //     dummyCacheLedValue
-                    // );
+                    _.set(
+                        this.microbitStatusMap,
+                        ['sensorData', 'led', x, y],
+                        dummyCacheLedValue
+                    );
                     return this.makeBuffer(functionKeys.SET_LED, [
                         x,
                         y,
                         valueType[value],
                     ]);
                 }
-                // case functionKeys.GET_LED: {
-                //     const { x, y } = payload;
-                //     return this.makeBuffer(functionKeys.GET_LED, [x, y]);
-                // }
+                case functionKeys.GET_LED: {
+                    const { x, y } = payload;
+                    return this.makeBuffer(functionKeys.GET_LED, [x, y]);
+                }
                 case functionKeys.RESET:
                     this.resetMicrobitStatusMap();
                     return this.makeBuffer(functionKeys.RESET);
@@ -250,24 +288,51 @@ class Microbit2 extends BaseModule {
                     }
                     return this.makeBuffer(type, [pinNumber, ...uInt8Value]);
                 }
+                case functionKeys.SET_TONE: {
+                    // const { noteValue, beatValue } = payload;
+                    const noteValue = payload.noteValue;
+                    const beatValue = payload.beatValue.params[0];
+                    const noteValue1 = noteValue / 256;
+                    const noteValue2 = noteValue % 256;
+                    const beatValue1 = beatValue / (256 * 256 * 256);
+                    const beatValue2 = beatValue / (256 * 256);
+                    const beatValue3 = beatValue / 256;
+                    const beatValue4 = beatValue % 256;
+
+                    return this.makeBuffer(type, [
+                        noteValue1,
+                        noteValue2,
+                        beatValue1,
+                        beatValue2,
+                        beatValue3,
+                        beatValue4,
+                    ]);
+                }
                 // 필요한 값이 value property 하나인 경우 전부
                 case functionKeys.SET_SERVO:
+                case functionKeys.SET_IMAGE: {
+                    const { value } = payload;
+                    return this.makeBuffer(type, [value]);
+                }
                 case functionKeys.GET_ANALOG:
-                case functionKeys.GET_DIGITAL:
-                case functionKeys.SET_IMAGE:
-                case functionKeys.RESET_SCREEN:
-                case functionKeys.GET_LIGHT_LEVEL:
-                    return this.makeBuffer(type);
+                case functionKeys.GET_DIGITAL: {
+                    const value = payload[0];
+                    return this.makeBuffer(type, [value]);
+                }
 
+                case functionKeys.GET_LIGHT_LEVEL:
+                // return this.makeBuffer(type);
                 // 그냥 값 없이 바로 커맨드만 보내는 경우
+                case functionKeys.GET_ACCELEROMETER:
                 case functionKeys.GET_BUTTON:
                 case functionKeys.GET_TEMPERATURE:
+                case functionKeys.GET_COMPASS_HEADING:
+                case functionKeys.RESET_SCREEN:
                 case functionKeys.GET_PITCH:
                 case functionKeys.GET_ROLL:
-                case functionKeys.GET_ACCELEROMETER:
-                case functionKeys.GET_COMPASS_HEADING:
                 case functionKeys.GET_GESTURE:
-                case functionKeys.GET_LED:
+                    // return this.makeBuffer(type);
+                    return null;
                 default:
                     return null;
             }
@@ -288,6 +353,35 @@ class Microbit2 extends BaseModule {
         console.log('received from microbit : ', data);
         const receivedCommandType = data[0];
         switch (receivedCommandType) {
+            case functionKeys.RST:
+            case functionKeys.SET_BPM:
+            case functionKeys.PLAY_NOTE:
+            case functionKeys.GET_ACCELEROMETER:
+            case functionKeys.GET_SENSOR:
+            case functionKeys.GET_BUTTON:
+            case functionKeys.SET_LED:
+            case functionKeys.SET_STRING:
+            case functionKeys.SET_IMAGE: {
+                break;
+            }
+            case functionKeys.GET_LED: {
+                this.setStatusMap(
+                    ['sensorData', 'led', data[1], data[2]],
+                    data[3]
+                );
+                console.log(
+                    this.microbitStatusMap.sensorData.led[data[1] + ''][
+                        data[2] + ''
+                    ]
+                );
+                break;
+            }
+            // case functionKeys.GET_LIGHT_LEVEL: {
+            //     // data = [pinNumber, value]
+            //     const light = Number(Buffer.from([data[1]]).readUInt8(0));
+            //     this.setStatusMap(['sensorData', 'lightLevel'], light);
+            //     break;
+            // }
             case functionKeys.GET_ANALOG: {
                 // data = [pinNumber, value{2} ]
                 this.setStatusMap(
@@ -296,16 +390,10 @@ class Microbit2 extends BaseModule {
                 );
                 break;
             }
-            case functionKeys.GET_LIGHT_LEVEL: {
-                // data = [pinNumber, value]
-                const light = Number(Buffer.from([data[1]]).readUInt8(0));
-                console.log(light);
-                this.setStatusMap(['sensorData', 'lightLevel'], light);
-                break;
-            }
+
             case functionKeys.GET_DIGITAL: {
                 // data = [pinNumber, value]
-                this.setStatusMap(['sensorData', 'analog', data[1]], data[2]);
+                this.setStatusMap(['sensorData', 'digital', data[1]], data[2]);
                 break;
             }
 
@@ -362,23 +450,6 @@ class Microbit2 extends BaseModule {
                 );
                 break;
             }
-            case functionKeys.LED_1: {
-                for (let i = 0; i < 13; i++) {
-                    let x = i % 5;
-                    let y = i / 5;
-                    let value = Buffer.from([data[i + 1]]).readUInt8(0);
-                }
-            }
-            case functionKeys.LED_2: {
-                for (let i = 0; i < 12; i++) {
-                    let offset = 13;
-                    let x = (i + offset) % 5;
-                    let y = (i + offset) / 5;
-                    let value = Buffer.from([data[i + 1]]).readUInt8(0);
-                }
-            }
-            // LED_1: 0xca,
-            // LED_2: 0xcb,
         }
         // this.socket.send('abcde');
         // const count = data[data.length - 3];

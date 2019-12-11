@@ -297,9 +297,14 @@ class Connector {
                     hwModule.handleLocalData(data);
                 }
 
-                // 서버로 데이터를 요청한다.
-                router.setHandlerData();
-                router.sendEncodedDataToServer();
+                if (
+                    !hwModule.getStatusMapCodes ||
+                    hwModule.getStatusMapCodes().indexOf(data[0]) == -1
+                ) {
+                    // 서버로 데이터를 요청한다.
+                    router.setHandlerData();
+                    router.sendEncodedDataToServer();
+                }
 
                 // 마스터모드인 경우, 데이터를 받자마자 디바이스로 데이터를 보낸다.
                 if (control === 'master' && hwModule.requestLocalData) {
@@ -410,6 +415,7 @@ class Connector {
             !this.isSending
         ) {
             this.isSending = true;
+
             if (this.options.stream === 'string') {
                 data = Buffer.from(data, 'utf8');
             }
