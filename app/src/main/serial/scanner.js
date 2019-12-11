@@ -55,8 +55,7 @@ class Scanner {
         }
 
         const serverMode = this.router.currentCloudMode;
-        const selectedComPortName = this.router.selectedPort;
-        const { hardware } = this.config;
+        const { hardware, this_com_port: selectedComPortName } = this.config;
         let { select_com_port: needCOMPortSelect } = this.config;
         const {
             comName: verifiedComPortNames,
@@ -83,6 +82,8 @@ class Scanner {
 
         // 전체 포트 가져오기
         const comPorts = await SerialPort.list();
+        rendererConsole.log(JSON.stringify(comPorts));
+
         const selectedPorts = [];
 
         // 포트 선택을 유저에게서 직접 받아야 하는가?
@@ -97,8 +98,7 @@ class Scanner {
                 }
                 selectedPorts.push(selectedComPortName);
             } else {
-                rendererConsole.log(comPorts);
-                this.router.sendEventToMainWindow('portListScanned', comPorts);
+                this.router.sendState('select_port', comPorts);
                 return;
             }
         } else {
