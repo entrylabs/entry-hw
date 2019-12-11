@@ -71,6 +71,7 @@ function createAboutWindow(mainWindow) {
         show: false,
         webPreferences: {
             nodeIntegration: true,
+            preload: path.resolve(__dirname, 'src', 'renderer', 'preload.js'),
         },
     });
 
@@ -192,6 +193,7 @@ if (!app.requestSingleInstanceLock()) {
         mainWindow = new BrowserWindow({
             width: 800,
             height: 670,
+            minWidth: 420,
             title: title + packageJson.version,
             webPreferences: {
                 backgroundThrottling: false,
@@ -269,6 +271,47 @@ if (!app.requestSingleInstanceLock()) {
         });
     });
 
+    ipcMain.handle('checkUpdate', () => new Promise((resolve, reject) => {
+            const request = net.request({
+                method: 'POST',
+                host: hostURI,
+                protocol: hostProtocol,
+                path: '/api/checkVersion',
+            });
+            let body = '';
+            request.on('response', (res) => {
+                res.on('data', (chunk) => {
+                    body += chunk.toString();
+                });
+                res.on('end', () => {
+                    let data = {};
+                    try {
+                        data = JSON.parse(body);
+                    } catch (e) {
+                    }
+
+                    /**
+                     * _id: string;
+                     * version: string (semver)
+                     * padded_version: 4 digit padded string
+                     * hasNewVersion: boolean
+                     * currentVersion: string
+                     */
+                    data.currentVersion = packageJson.version;
+                    resolve(data);
+                });
+            });
+            request.on('error', reject);
+            request.setHeader('content-type', 'application/json; charset=utf-8');
+            request.write(
+                JSON.stringify({
+                    category: 'hardware',
+                    version: packageJson.version,
+                }),
+            );
+            request.end();
+        }));
+
     ipcMain.on('checkUpdate', (e, msg) => {
         const request = net.request({
             method: 'POST',
@@ -307,6 +350,13 @@ if (!app.requestSingleInstanceLock()) {
         fs.readFile(opensourceFile, 'utf8', (err, text) => {
             e.sender.send('getOpensourceText', text);
         });
+    });
+
+    ipcMain.handle('checkVersion', (e, lastCheckVersion) => {
+        const version = getPaddedVersion(packageJson.version);
+        const lastVersion = getPaddedVersion(lastCheckVersion);
+
+        return lastVersion > version;
     });
 
     ipcMain.on('checkVersion', (e, lastCheckVersion) => {

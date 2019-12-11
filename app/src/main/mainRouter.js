@@ -24,16 +24,17 @@ class MainRouter {
 
     constructor(mainWindow, entryServer) {
         global.$ = require('lodash');
-        this.browser = mainWindow;
         rendererConsole.initialize(mainWindow);
+        this.browser = mainWindow;
         this.scannerManager = new ScannerManager(this);
         this.server = entryServer;
         this.flasher = new Flasher();
-        this.hardwareListManager = new HardwareListManager();
+        this.hardwareListManager = new HardwareListManager(this);
 
+        this.selectedPort = undefined;
         this.config = undefined;
-        /** @type {Connector} */
         this.scanner = undefined;
+        /** @type {Connector} */
         this.connector = undefined;
         this.hwModule = undefined;
         /** @type {Object} */
@@ -48,9 +49,11 @@ class MainRouter {
                 this.scanner = this.scannerManager.getScanner(type);
                 await this.startScan(config);
             } catch (e) {
-                console.error(e);
-                rendererConsole.error(`startScan err : `, e);
+                rendererConsole.error('startScan err : ', e);
             }
+        });
+        ipcMain.on('selectPort', (e, portName) => {
+            this.selectedPort = portName;
         });
         ipcMain.on('stopScan', () => {
             this.close();
@@ -60,15 +63,23 @@ class MainRouter {
         });
         ipcMain.on('requestFlash', (e, firmwareName) => {
             this.flashFirmware(firmwareName)
-                .then(() => {
+                .then((firmware) => {
                     if (!e.sender.isDestroyed()) {
                         e.sender.send('requestFlash');
                     }
+                    return firmware;
                 })
                 .catch((err) => {
                     if (!e.sender.isDestroyed()) {
                         e.sender.send('requestFlash', err);
                     }
+                })
+                .then(async (firmware) => {
+                    this.flasher.kill();
+                    if (firmware && firmware.afterDelay) {
+                        await new Promise((resolve) => setTimeout(resolve, firmware.afterDelay));
+                    }
+                    await this.startScan(this.config);
                 });
         });
         ipcMain.on('executeDriver', (e, driverPath) => {
@@ -95,9 +106,10 @@ class MainRouter {
      */
     flashFirmware(firmwareName) {
         if (this.connector && this.connector.serialPort && this.config) {
+            this.sendState('flash');
             let firmware = firmwareName;
             const {
-                configfirmware,
+                firmware: firmwareInConfig,
                 firmwareBaudRate: baudRate,
                 firmwareMCUType: MCUType,
                 tryFlasherNumber: maxFlashTryCount = 10,
@@ -106,10 +118,12 @@ class MainRouter {
             this.firmwareTryCount = 0;
 
             if (firmwareName === undefined || firmwareName === '') {
-                firmware = configfirmware;
+                console.warn('firmware requested without firmware info!');
+                console.warn('try to default firmware info in config file');
+                firmware = firmwareInConfig;
             }
 
-            this.close(); // 서버 통신 중지, 시리얼포트 연결 해제
+            this.close({ saveSelectedPort: true }); // 서버 통신 중지, 시리얼포트 연결 해제
 
             const flashFunction = () => new Promise((resolve, reject) => {
                 setTimeout(() => {
@@ -129,7 +143,7 @@ class MainRouter {
                                     reject(new Error('Failed Firmware Upload'));
                                 }
                             } else {
-                                resolve();
+                                resolve(firmware);
                             }
                         })
                         .catch(reject);
@@ -137,22 +151,7 @@ class MainRouter {
             });
 
             // 에러가 발생하거나, 정상종료가 되어도 일단 startScan 을 재시작한다.
-            return flashFunction()
-                .then(() => {
-                    console.log('flash successed');
-                })
-                .catch((e) => {
-                    rendererConsole.error('flash failed', e);
-                    console.log('flash failed');
-                    throw e;
-                })
-                .finally(async () => {
-                    this.flasher.kill();
-                    if (firmware.afterDelay) {
-                        await new Promise((resolve) => setTimeout(resolve, firmware.afterDelay));
-                    }
-                    await this.startScan(this.config);
-                });
+            return flashFunction();
         } else {
             return Promise.reject(new Error('Hardware Device Is Not Connected'));
         }
@@ -185,23 +184,32 @@ class MainRouter {
             }
         }
 
-        if (!this.browser.isDestroyed()) {
-            this.browser.webContents.send('state', resultState, ...args);
-        }
+        this.sendEventToMainWindow('state', resultState, ...args);
     }
 
     notifyCloudModeChanged(mode) {
-        if (!this.browser.isDestroyed()) {
-            this.browser.webContents.send('cloudMode', mode);
-        }
+        this.sendEventToMainWindow('cloudMode', mode);
         this.currentCloudMode = mode;
     }
 
     notifyServerRunningModeChanged(mode) {
-        if (!this.browser.isDestroyed()) {
-            this.browser.webContents.send('serverMode', mode);
-        }
+        this.sendEventToMainWindow('serverMode', mode);
         this.currentServerRunningMode = mode;
+    }
+
+    sendEventToMainWindow(eventName, ...args) {
+        if (!this.browser.isDestroyed()) {
+            this.browser.webContents.send(eventName, ...args);
+        }
+    }
+
+    /**
+     * ipcMain.on('state', ...) 처리함수
+     * @param state
+     */
+    onChangeState(state) {
+        console.log('server state', state);
+        // this.server.setState(state);
     }
 
     /**
@@ -214,20 +222,30 @@ class MainRouter {
         try {
             this.config = config;
             if (this.scanner) {
-                if (this.scanner.isScanning) {
-                    this.scanner.setConfig(config);
-                } else {
-                    this.hwModule = require(`../../modules/${config.module}`);
-                    const connector = await this.scanner.startScan(
-                        this.hwModule,
-                        this.config
-                    );
-                    if (connector) {
-                        this.sendState('connected');
-                        this.connector = connector;
-                        connector.setRouter(this);
-                        this._connect(connector);
+                this.hwModule = require(`../../modules/${config.module}`);
+                this.sendState('scan');
+                this.scanner.stopScan();
+                const connector = await this.scanner.startScan(this.hwModule, this.config);
+                if (connector) {
+                    this.sendState('connected');
+                    this.connector = connector;
+                    connector.setRouter(this);
+                    this._connect(connector);
+                    /*if (this.scanner.isScanning) {
+                        this.scanner.config = config;
+                        return;
                     }
+
+                    if (this.scanner.isScanning) {
+                        this.scanner.setConfig(config);
+                    } else {
+                        const connector = await this.scanner.startScan(this.hwModule, this.config);
+                        if (connector) {
+                            this.sendState('connected');
+                            this.connector = connector;
+                            connector.setRouter(this);
+                            this._connect(connector);
+                        }*/
                 }
             }
         } catch (e) {
@@ -371,17 +389,23 @@ class MainRouter {
         this.connector = connector;
     }
 
-    close() {
+    /**
+     *
+     * @param option {Object=} true 인 경우, 포트선택했던 내역을 지우지 않는다.
+     */
+    close(option) {
+        const { saveSelectedPort = false } = option || {};
+
         if (this.server) {
             this.server.disconnectHardware();
         }
         if (this.connector) {
-            rendererConsole.log('disconnect');
             if (this.hwModule.disconnect) {
                 this.hwModule.disconnect(this.connector);
             } else {
                 this.connector.close();
             }
+            this.sendState('disconnected');
         }
         if (this.scanner) {
             this.scanner.stopScan();
@@ -389,7 +413,11 @@ class MainRouter {
         if (this.handler) {
             this.handler = undefined;
         }
-    }
+
+        if (!saveSelectedPort) {
+            this.selectedPort = undefined;
+        }
+    };
 
     /**
      * 드라이버를 실행한다. 최초 실행시 app.asar 에 파일이 들어가있는 경우,

@@ -3,21 +3,16 @@ const { app } = require('electron');
 const path = require('path');
 
 module.exports = class {
-    constructor() {
-        this.moduleBasePath = path.resolve(
-            app.getAppPath(),
-            __dirname,
-            '..',
-            '..',
-            'modules'
-        );
+    constructor(router) {
+        this.moduleBasePath = path.resolve(app.getAppPath(), __dirname, '..', '..', 'modules');
         this.allHardwareList = [];
+        this.router = router;
         this.initialize();
+        this.notifyHardwareListChanged();
     }
 
     /**
      * 파일을 읽어와 리스트에 작성한다.
-     *
      */
     initialize() {
         // noinspection JSCheckFunctionSignatures
@@ -51,5 +46,10 @@ module.exports = class {
         } catch (e) {
             console.error('error occurred while reading module json files', e);
         }
+    }
+
+    notifyHardwareListChanged() {
+        this.router &&
+        this.router.sendEventToMainWindow('hardwareListChanged');
     }
 };
