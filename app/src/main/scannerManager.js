@@ -1,11 +1,11 @@
-const serialScanner = require('./serial/scanner');
-const hidScanner = require('./hid/scanner');
+const SerialScanner = require('./serial/scanner');
+const HidScanner = require('./hid/scanner');
 
 class ScannerManager {
     #scanners = {};
     constructor(router) {
-        this.#scanners.serial = new serialScanner(router);
-        this.#scanners.hid = new hidScanner(router);
+        this.#scanners.serial = new SerialScanner(router);
+        this.#scanners.hid = new HidScanner(router);
     }
 
     getScanner(type) {
