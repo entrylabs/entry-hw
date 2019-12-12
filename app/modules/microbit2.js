@@ -33,6 +33,7 @@ const functionKeys = {
     SET_SERVO: 0x11,
     SET_SERVO_PERIOD: 0x12,
     SET_TONE: 0x13,
+    SET_TEMPO: 0x14,
     GET_LED: 0x31,
     GET_ANALOG: 0x32,
     GET_DIGITAL: 0x33,
@@ -50,41 +51,6 @@ const functionKeys = {
     ACC_REGULAR: 0xaa,
     SENSOR_REGULAR: 0xab,
     LED_1: 0xca,
-};
-const noteKeys = {
-    LOW_C: 1,
-    LOW_C_SHARP: 2,
-    LOW_D: 3,
-    LOW_D_SHARP: 4,
-    LOW_E: 5,
-    LOW_F: 6,
-    LOW_F_SHARP: 7,
-    LOW_G: 8,
-    LOW_G_SHARP: 9,
-    LOW_A_SHARP: 10,
-    LOW_B: 11,
-    C: 21,
-    C_SHARP: 22,
-    D: 23,
-    D_SHARP: 24,
-    E: 25,
-    F: 26,
-    F_SHARP: 27,
-    G: 28,
-    G_SHARP: 29,
-    A_SHARP: 30,
-    B: 31,
-    HIGH_C: 41,
-    HIGH_C_SHARP: 42,
-    HIGH_D: 43,
-    HIGH_D_SHARP: 44,
-    HIGH_E: 45,
-    HIGH_F: 46,
-    HIGH_F_SHARP: 47,
-    HIGH_G: 48,
-    HIGH_G_SHARP: 49,
-    HIGH_A_SHARP: 50,
-    HIGH_B: 51,
 };
 
 class Microbit2 extends BaseModule {
@@ -289,9 +255,9 @@ class Microbit2 extends BaseModule {
                     return this.makeBuffer(type, [pinNumber, ...uInt8Value]);
                 }
                 case functionKeys.SET_TONE: {
-                    // const { noteValue, beatValue } = payload;
+                    // const { noteValue, beatValue } = payload; console.
                     const noteValue = payload.noteValue;
-                    const beatValue = payload.beatValue.params[0];
+                    const beatValue = payload.beatValue;
                     const noteValue1 = noteValue / 256;
                     const noteValue2 = noteValue % 256;
                     const beatValue1 = beatValue / (256 * 256 * 256);
@@ -307,6 +273,10 @@ class Microbit2 extends BaseModule {
                         beatValue3,
                         beatValue4,
                     ]);
+                }
+                case functionKeys.SET_TEMPO: {
+                    const { value } = payload;
+                    return this.makeBuffer(type, [value]);
                 }
                 // 필요한 값이 value property 하나인 경우 전부
                 case functionKeys.SET_SERVO:
