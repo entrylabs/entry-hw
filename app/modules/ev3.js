@@ -1,6 +1,11 @@
 const _ = require('lodash');
 const BaseModule = require('./baseModule');
 
+/**
+ * ev3 의 명령 바이트 체계(ex. 버튼 LED 변경하기)
+ * 명령어 바이트수(2), 카운터(2), 응답필요여부(00=필요,80=필요없음), 헤더(00, 00), 명령어(n)...
+ * 0x | 08 00 | 02 04 | 80 | 00 00 | 82 1b 00
+ */
 class ev3 extends BaseModule {
     constructor() {
         super();

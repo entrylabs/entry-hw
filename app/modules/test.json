@@ -17,6 +17,7 @@
 		"protocol": "json"
 	},
 	"hardware": {
-		"type": "hid"
+		"type": "hid",
+		"duration": 64
 	}
 }
