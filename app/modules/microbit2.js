@@ -34,6 +34,8 @@ const functionKeys = {
     SET_SERVO_PERIOD: 0x12,
     SET_TONE: 0x13,
     SET_TEMPO: 0x14,
+    SET_CUSTOM_IMAGE: 0x15,
+
     GET_LED: 0x31,
     GET_ANALOG: 0x32,
     GET_DIGITAL: 0x33,
@@ -50,7 +52,6 @@ const functionKeys = {
     SET_BPM: 0x06,
     ACC_REGULAR: 0xaa,
     SENSOR_REGULAR: 0xab,
-    LED_1: 0xca,
 };
 
 class Microbit2 extends BaseModule {
@@ -207,7 +208,6 @@ class Microbit2 extends BaseModule {
                             ]) === 0
                                 ? 1
                                 : 0;
-                        console.log('tobe ', dummyCacheLedValue);
                     } else {
                         dummyCacheLedValue = valueType[value];
                     }
@@ -222,6 +222,29 @@ class Microbit2 extends BaseModule {
                         valueType[value],
                     ]);
                 }
+
+                case functionKeys.SET_CUSTOM_IMAGE: {
+                    const { value } = payload;
+                    let dataToSend = [];
+                    let temp = 0;
+                    for (let i = 0; i < 25; i++) {
+                        let x = parseInt(i / 5);
+                        let y = i % 5;
+                        if (value[x][y] == 1) {
+                            temp += value[x][y] * Math.pow(2, 24 - i);
+                        }
+                    }
+                    while (temp > 0) {
+                        let remainder = temp % 256;
+                        temp = parseInt(temp / 256);
+                        dataToSend.unshift(remainder);
+                    }
+                    return this.makeBuffer(
+                        functionKeys.SET_CUSTOM_IMAGE,
+                        dataToSend
+                    );
+                }
+
                 case functionKeys.GET_LED: {
                     const { x, y } = payload;
                     return this.makeBuffer(functionKeys.GET_LED, [x, y]);
@@ -284,6 +307,7 @@ class Microbit2 extends BaseModule {
                     const { value } = payload;
                     return this.makeBuffer(type, [value]);
                 }
+
                 case functionKeys.GET_ANALOG:
                 case functionKeys.GET_DIGITAL: {
                     const value = payload[0];
@@ -338,11 +362,6 @@ class Microbit2 extends BaseModule {
                 this.setStatusMap(
                     ['sensorData', 'led', data[1], data[2]],
                     data[3]
-                );
-                console.log(
-                    this.microbitStatusMap.sensorData.led[data[1] + ''][
-                        data[2] + ''
-                    ]
                 );
                 break;
             }
