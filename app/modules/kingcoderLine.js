@@ -10,7 +10,10 @@ function Module() {
     this.anal2 = 0;
     this.digi1 = 0;
     this.digi2 = 0;
- 
+    this.setDigi1 = 0;
+    this.setDigi2 = 0;
+    this.isUseSetDigital = 0;
+    
     this.sensingValueAnal1 = 0;
     this.sensingValueAnal2 = 0;
     this.sensingValueDigi = 0;
@@ -50,20 +53,29 @@ Module.prototype.handleRemoteData = function(handler) {
     this.anal2 = handler.read(8);
     this.digi1 = handler.read(9);
     this.digi2 = handler.read(10);
-
+    this.setDigi1 = handler.read(11);
+    this.setDigi2 = handler.read(12);
+    this.isUseSetDigital = handler.read(13); //flag to check digital output
 };
 
 Module.prototype.requestLocalData = function() {
     //하드웨어로 보내기 step 2:하드웨어에 명령을 전송
     var queryString = [];
 
-    var byteToSend = 0; //00으로 시작
+    var byteToSend = 0; //00000000
     var temp = this.motor2;
-    byteToSend = byteToSend | (this.motor2 << 2) | this.motor1;
+    byteToSend = byteToSend | (this.setDigi1 <<5) | (this.setDigi2 <<4) |
+                    (this.motor2 << 2) | this.motor1;
     queryString.push(byteToSend);
-    byteToSend = 64;  //01로 시작
-    byteToSend = byteToSend | (this.buzzer << 3) | this.led;
+    if(this.isUseSetDigital == 1){
+        byteToSend = 96;  //011로 시작
+    }
+    else{
+        byteToSend = 64;  //010로 시작
+    }
+    byteToSend = byteToSend |  (this.buzzer << 3) | this.led;
     queryString.push(byteToSend);
+   
     byteToSend = 128;
     queryString.push(byteToSend);
     
