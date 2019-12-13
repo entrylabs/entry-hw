@@ -62,7 +62,6 @@ class HidConnector extends BaseConnector {
      */
     send(data, type = 'output') {
         if (this.device) {
-            console.log('send', data);
             try {
                 const writer =
                     type === 'feature'
@@ -112,7 +111,10 @@ class HidConnector extends BaseConnector {
                 if (hwModule.handleLocalData) {
                     result = hwModule.handleLocalData(result);
                 }
-                router.sendEncodedDataToServer(result);
+
+                // 서버로 데이터를 요청한다.
+                router.setHandlerData();
+                router.sendEncodedDataToServer(/*result*/);
             }
         });
 
@@ -129,9 +131,10 @@ class HidConnector extends BaseConnector {
         }
     }
 
-    _registerIntervalSend(sendData, interval) {
+    _registerIntervalSend(sendDataFunction, interval) {
         this.registeredIntervals.push(setInterval(() => {
-            this.send(sendData);
+            const data = sendDataFunction();
+            data && this.send(data);
         }, interval));
     }
 

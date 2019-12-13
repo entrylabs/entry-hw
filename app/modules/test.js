@@ -12,7 +12,6 @@ class Test extends BaseModule {
         this.CHECK_PORT_MAP = {};
         this.SENSOR_COUNTER_LIST = {};
         this.returnData = {};
-        this.isSensing = false;
         this.LAST_PORT_MAP = null;
 
         this.deviceTypes = {
@@ -152,7 +151,7 @@ class Test extends BaseModule {
     }
 
     registerIntervalSend(register) {
-        register(this._sensorCheck(), 3000);
+        register(() => this._sensorCheck(), 500);
     }
 
     requestInitialData(sp) {
@@ -161,7 +160,6 @@ class Test extends BaseModule {
         const initMotor = Buffer.concat([initBuf, motorStop]);
 
         this._injectByteSize(initMotor);
-        console.log(initMotor);
         return initMotor.toJSON().data;
     }
 
@@ -243,78 +241,108 @@ class Test extends BaseModule {
     }
 
     _sensorCheck() {
-        if (!this.isSensing) {
-            this.isSensing = true;
-            const initBuf = this._makeInitBuffer(
-                [0],
-                [this.wholeResponseSize, 0],
-            );
-            const counter = initBuf.readInt16LE(2); // initBuf의 index(2) 부터 2byte 는 counter 에 해당
-            this.SENSOR_COUNTER_LIST[counter] = true;
-            let sensorBody = [];
-            let index = 0;
-            Object.keys(this.SENSOR_MAP).forEach((p) => {
-                let mode = 0;
-                if (this.returnData[p] && this.returnData[p].type) {
-                    mode = this.SENSOR_MAP[p].mode || 0;
-                }
-                const port = Number(p) - 1;
-                index = port * this.commandResponseSize;
-                const modeSet = Buffer.from([
-                    0x99,
-                    0x05,
-                    0,
-                    port,
-                    0xe1,
-                    index,
-                    0xe1,
-                    index + 1,
-                ]);
-                const readySi = Buffer.from([
-                    0x99,
-                    0x1d,
-                    0,
-                    port,
-                    0,
-                    mode,
-                    1,
-                    0xe1,
-                    index + 2,
-                ]);
+        const initBuf = this._makeInitBuffer(
+            [0],
+            [this.wholeResponseSize, 0],
+        );
+        const counter = initBuf.readInt16LE(2); // initBuf의 index(2) 부터 2byte 는 counter 에 해당
+        this.SENSOR_COUNTER_LIST[counter] = true;
+        let sensorBody = [];
+        let index = 0;
+        Object.keys(this.SENSOR_MAP).forEach((p) => {
+            let mode = 0;
+            if (this.returnData[p] && this.returnData[p].type) {
+                mode = this.SENSOR_MAP[p].mode || 0;
+            }
+            const port = Number(p) - 1;
+            index = port * this.commandResponseSize;
+            const modeSet = Buffer.from([
+                0x99,
+                0x05,
+                0,
+                port,
+                0xe1,
+                index,
+                0xe1,
+                index + 1,
+            ]);
+            const readySi = Buffer.from([
+                0x99,
+                0x1d,
+                0,
+                port,
+                0,
+                mode,
+                1,
+                0xe1,
+                index + 2,
+            ]);
 
-                if (!sensorBody.length) {
-                    sensorBody = Buffer.concat([modeSet, readySi]);
-                } else {
-                    sensorBody = Buffer.concat([sensorBody, modeSet, readySi]);
-                }
-            });
-            /*
-			리팩토링 없는 isButtonPressed 시작
-			sensorBody
-			* */
-            let offsetAfterPortResponse = 4 * this.commandResponseSize; // 포트는 [0~3] 까지다.
-            Object.keys(this.BUTTON_MAP).forEach((button) => {
-                const buttonPressedCommand = Buffer.from([
-                    0x83, // opUI_BUTTON
-                    0x09, // pressed
-                    this.BUTTON_MAP[button].key,
-                    0xe1,
-                    offsetAfterPortResponse++,
-                ]);
+            if (!sensorBody.length) {
+                sensorBody = Buffer.concat([modeSet, readySi]);
+            } else {
+                sensorBody = Buffer.concat([sensorBody, modeSet, readySi]);
+            }
+        });
 
-                sensorBody = Buffer.concat([sensorBody, buttonPressedCommand]);
-            });
+        let offsetAfterPortResponse = 4 * this.commandResponseSize; // 포트는 [0~3] 까지다.
+        Object.keys(this.BUTTON_MAP).forEach((button) => {
+            const buttonPressedCommand = Buffer.from([
+                0x83, // opUI_BUTTON
+                0x09, // pressed
+                this.BUTTON_MAP[button].key,
+                0xe1,
+                offsetAfterPortResponse++,
+            ]);
 
-            /*
-            리팩토링 없는 isButtonPressed 종료
-             */
-            const totalLength = initBuf.length + sensorBody.length;
-            const sendBuffer = Buffer.concat(
-                [initBuf, sensorBody],
-                totalLength,
-            );
-            this._injectByteSize(sendBuffer);
-            return sendBuffer.toJSON().data;
+            sensorBody = Buffer.concat([sensorBody, buttonPressedCommand]);
+        });
+
+        const totalLength = initBuf.length + sensorBody.length;
+        const sendBuffer = Buffer.concat(
+            [initBuf, sensorBody],
+            totalLength,
+        );
+        this._injectByteSize(sendBuffer);
+        return sendBuffer.toJSON().data;
+    }
+
+    handleLocalData(data) {
+        // data: Native Buffer
+        if (data[0] === this.wholeResponseSize + 3 && data[1] === 0) {
+            const countKey = data.readInt16LE(2);
+            if (countKey in this.SENSOR_COUNTER_LIST) {
+                delete this.SENSOR_COUNTER_LIST[countKey];
+                data = data.slice(5); // 앞의 4 byte 는 size, counter 에 해당한다. 이 값은 할당 후 삭제한다.
+                let index = 0;
+
+                Object.keys(this.SENSOR_MAP).forEach((p) => {
+                    const port = Number(p) - 1;
+                    index = port * this.commandResponseSize;
+
+                    const type = data[index];
+                    const mode = data[index + 1];
+                    let siValue = Number(
+                        (data.readFloatLE(index + 2) || 0).toFixed(1),
+                    );
+                    this.returnData[p] = {
+                        type: type,
+                        mode: mode,
+                        siValue: siValue,
+                    };
+                });
+
+                index = 4 * this.commandResponseSize;
+                Object.keys(this.BUTTON_MAP).forEach((button) => {
+                    if (data[index] === 1) {
+                        console.log(button + ' button is pressed');
+                    }
+
+                    this.returnData[button] = {
+                        pressed: data[index++] === 1,
+                    };
+                });
+            }
         }
     }
 
@@ -447,7 +475,7 @@ class Test extends BaseModule {
             this.CURRENT_STATUS_COLOR.COLOR.key,
         ]);
     }
-    
+
     /**
      * 카운터를 가져온다. 카운터 값은 request & response 가 동일하여, 정상값 체크를 위해 사용된다.
      * 이 값은 2^15 이상인 경우 0으로 초기화한다.
