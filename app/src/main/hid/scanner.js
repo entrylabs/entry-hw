@@ -52,10 +52,11 @@ class HidScanner extends BaseScanner {
         const devices = HID.devices();
         rendererConsole.log(JSON.stringify(devices));
         if (selectedPath) {
-            if (!_.some(devices, ['path', selectedPath])) {
+            const selectedDevice = _.find(devices, ['product', selectedPath]);
+            if (!selectedDevice) {
                 return;
             }
-            return await this.prepareConnector(selectedPath);
+            return await this.prepareConnector(selectedDevice.path);
         } else {
             const pathList = _.filter(devices, (device) => {
                 for (const key in device) {

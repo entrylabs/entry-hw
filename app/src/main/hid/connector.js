@@ -14,20 +14,23 @@ class HidConnector extends BaseConnector {
 
     initialize() {
         return new Promise((resolve, reject) => {
-            const { isInitialCheck } = this.options;
-            const { registerIntervalSend, setSerialPort, requestInitialData, checkInitialData } = this.hwModule;
-            if (isInitialCheck && requestInitialData && checkInitialData) {
+            const { isInitialCheck = true } = this.options;
+            const hwModule = this.hwModule;
+            if (isInitialCheck &&
+                hwModule.requestInitialData &&
+                hwModule.checkInitialData
+            ) {
                 this.device.on('data', (data) => {
-                    const result = checkInitialData(data, this.options);
+                    const result = hwModule.checkInitialData(data, this.options);
                     if (result === undefined) {
-                        this.send(requestInitialData());
+                        this.send(hwModule.requestInitialData());
                     } else {
                         this.device.removeAllListeners('data');
                         if (result === true) {
-                            if (setSerialPort) {
+                            if (hwModule.setSerialPort) {
                                 this.hwModule.setSerialPort(this.device);
                             }
-                            if (registerIntervalSend) {
+                            if (hwModule.registerIntervalSend) {
                                 this.hwModule.registerIntervalSend(
                                     this._registerIntervalSend.bind(this),
                                 );
@@ -41,7 +44,7 @@ class HidConnector extends BaseConnector {
                     console.log(result, data);
                 });
                 this.device.on('error', reject);
-                this.send(requestInitialData());
+                this.send(hwModule.requestInitialData());
             } else {
                 this.connected = true;
                 resolve();
@@ -58,7 +61,7 @@ class HidConnector extends BaseConnector {
      * @returns {number} 사실 딱히 쓸모는 없다.
      */
     send(data, type = 'output') {
-        if (this.connected) {
+        if (this.device) {
             console.log('send', data);
             try {
                 const writer =
@@ -106,7 +109,6 @@ class HidConnector extends BaseConnector {
 
                 this.received = true;
                 let result = data;
-                console.log('receive', result);
                 if (hwModule.handleLocalData) {
                     result = hwModule.handleLocalData(result);
                 }

@@ -1,4 +1,5 @@
 const BaseModule = require('./baseModule');
+const _ = require('lodash');
 
 class Test extends BaseModule {
     constructor() {
@@ -6,61 +7,13 @@ class Test extends BaseModule {
         this.counter = 0;
         this.commandResponseSize = 8;
         this.wholeResponseSize = 0x32;
-        this.isSendInitData = false;
-        this.isSensorCheck = false;
-        this.isConnect = false;
         this.sp = null;
         this.sensors = [];
         this.CHECK_PORT_MAP = {};
         this.SENSOR_COUNTER_LIST = {};
         this.returnData = {};
-        this.PORT_MAP = {
-            A: {
-                type: this.motorMovementTypes.Power,
-                power: 0,
-            },
-            B: {
-                type: this.motorMovementTypes.Power,
-                power: 0,
-            },
-            C: {
-                type: this.motorMovementTypes.Power,
-                power: 0,
-            },
-            D: {
-                type: this.motorMovementTypes.Power,
-                power: 0,
-            },
-        };
-        this.SENSOR_MAP = {
-            '1': {
-                type: this.deviceTypes.Touch,
-                mode: 0,
-            },
-            '2': {
-                type: this.deviceTypes.Touch,
-                mode: 0,
-            },
-            '3': {
-                type: this.deviceTypes.Touch,
-                mode: 0,
-            },
-            '4': {
-                type: this.deviceTypes.Touch,
-                mode: 0,
-            },
-        };
         this.isSensing = false;
         this.LAST_PORT_MAP = null;
-        this.CURRENT_STATUS_COLOR = {
-            COLOR: this.STATUS_COLOR_MAP.GREEN,
-            APPLIED: true,
-        };
-
-        this.motorMovementTypes = {
-            Degrees: 0,
-            Power: 1,
-        };
 
         this.deviceTypes = {
             NxtTouch: 1,
@@ -114,35 +67,82 @@ class Test extends BaseModule {
         this.STATUS_COLOR_MAP = {
             OFF: {
                 key: 0,
-            },            
+            },
             GREEN: {
                 key: 1,
-            },            
+            },
             RED: {
                 key: 2,
-            },            
+            },
             ORANGE: {
                 key: 3,
-            },            
+            },
             GREEN_FLASH: {
                 key: 4,
-            },            
+            },
             RED_FLASH: {
                 key: 5,
-            },            
+            },
             ORANGE_FLASH: {
                 key: 6,
-            },            
+            },
             GREEN_PULSE: {
                 key: 7,
-            },            
+            },
             RED_PULSE: {
                 key: 8,
-            },            
+            },
             ORANGE_PULSE: {
                 key: 9,
             }
             ,
+        };
+
+        this.motorMovementTypes = {
+            Degrees: 0,
+            Power: 1,
+        };
+
+        this.CURRENT_STATUS_COLOR = {
+            COLOR: this.STATUS_COLOR_MAP.GREEN,
+            APPLIED: true,
+        };
+
+        this.PORT_MAP = {
+            A: {
+                type: this.motorMovementTypes.Power,
+                power: 0,
+            },
+            B: {
+                type: this.motorMovementTypes.Power,
+                power: 0,
+            },
+            C: {
+                type: this.motorMovementTypes.Power,
+                power: 0,
+            },
+            D: {
+                type: this.motorMovementTypes.Power,
+                power: 0,
+            },
+        };
+        this.SENSOR_MAP = {
+            '1': {
+                type: this.deviceTypes.Touch,
+                mode: 0,
+            },
+            '2': {
+                type: this.deviceTypes.Touch,
+                mode: 0,
+            },
+            '3': {
+                type: this.deviceTypes.Touch,
+                mode: 0,
+            },
+            '4': {
+                type: this.deviceTypes.Touch,
+                mode: 0,
+            },
         };
     }
 
@@ -152,7 +152,7 @@ class Test extends BaseModule {
     }
 
     registerIntervalSend(register) {
-        register.push(this._sensorCheck(), 3000);
+        register(this._sensorCheck(), 3000);
     }
 
     requestInitialData(sp) {
@@ -161,6 +161,7 @@ class Test extends BaseModule {
         const initMotor = Buffer.concat([initBuf, motorStop]);
 
         this._injectByteSize(initMotor);
+        console.log(initMotor);
         return initMotor.toJSON().data;
     }
 
@@ -183,13 +184,13 @@ class Test extends BaseModule {
         if (!skipPortOutput) {
             isSendData = true;
             this.LAST_PORT_MAP = _.cloneDeep(this.PORT_MAP);
-            sendBody = this.makePortCommandBuffer(isSendData);
+            sendBody = this._makePortCommandBuffer(isSendData);
         }
 
         //상판 LED 컬러 변경 요청이 있는 경우 변경 커맨드를 페이로드에 추가
         if (this.CURRENT_STATUS_COLOR.APPLIED === false) {
             isSendData = true;
-            const statusLedCommand = this.makeStatusColorCommandBuffer(
+            const statusLedCommand = this._makeStatusColorCommandBuffer(
                 sendBody,
             );
 
@@ -201,11 +202,11 @@ class Test extends BaseModule {
         }
 
         if (isSendData && sendBody) {
-            const initBuf = this.makeInitBuffer([0x80], [0, 0]);
+            const initBuf = this._makeInitBuffer([0x80], [0, 0]);
             const totalLength = initBuf.length + sendBody.length;
             const sendBuffer = Buffer.concat([initBuf, sendBody], totalLength);
-            this.checkByteSize(sendBuffer);
-            return sendBuffer;
+            this._injectByteSize(sendBuffer);
+            return sendBuffer.toJSON().data;
         }
 
         return undefined;
@@ -323,6 +324,143 @@ class Test extends BaseModule {
         const reply = Buffer.from(replyModeByte);
         const header = Buffer.from(allocHeaderByte);
         return Buffer.concat([size, counter, reply, header]);
+    }
+
+    _makePortCommandBuffer() {
+        let sendBody = null;
+        Object.keys(this.PORT_MAP).forEach((port) => {
+            let backBuffer;
+            let frontBuffer;
+            const portMap = this.PORT_MAP[port];
+            let brake = 0;
+            const checkPortMap = this.CHECK_PORT_MAP[port];
+            if (!checkPortMap || portMap.id !== checkPortMap.id) {
+                let portOut;
+                let power = Number(portMap.power);
+                if (portMap.type === this.motorMovementTypes.Power) {
+                    const time = Number(portMap.time) || 0;
+                    brake = 0;
+                    if (power > 100) {
+                        power = 100;
+                    } else if (power < -100) {
+                        power = -100;
+                    } else if (power === 0) {
+                        brake = 1;
+                    }
+
+                    if (time <= 0) {
+                        // infinity output port mode
+                        portOut = Buffer.from([
+                            0xa4,
+                            0x81,
+                            0,
+                            0x81,
+                            this.outputPort[port],
+                            0x81,
+                            power,
+                            0xa6,
+                            0x81,
+                            0,
+                            0x81,
+                            this.outputPort[port],
+                        ]);
+                    } else {
+                        // time set mode 232, 3 === 1000ms
+                        frontBuffer = Buffer.from([
+                            0xad,
+                            0x81,
+                            0,
+                            0x81,
+                            this.outputPort[port],
+                            0x81,
+                            power,
+                            0x83,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0x83,
+                        ]);
+                        backBuffer = Buffer.from([
+                            0x83,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0x81,
+                            brake,
+                        ]);
+                        const timeBuffer = new Buffer(4);
+                        timeBuffer.writeInt32LE(time);
+                        portOut = Buffer.concat([
+                            frontBuffer,
+                            timeBuffer,
+                            backBuffer,
+                        ]);
+                    }
+                } else {
+                    const degree = Number(portMap.degree) || 0;
+                    frontBuffer = Buffer.from([
+                        0xac,
+                        0x81,
+                        0,
+                        0x81,
+                        this.outputPort[port],
+                        0x81,
+                        power,
+                        0x83,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0x83,
+                    ]);
+                    backBuffer = Buffer.from([0x83, 0, 0, 0, 0, 0x81, brake]);
+                    const degreeBuffer = new Buffer(4);
+                    degreeBuffer.writeInt32LE(degree);
+                    portOut = Buffer.concat([
+                        frontBuffer,
+                        degreeBuffer,
+                        backBuffer,
+                    ]);
+                }
+
+                if (portOut) {
+                    if (!sendBody) {
+                        sendBody = Buffer.from(portOut);
+                    } else {
+                        sendBody = Buffer.concat([sendBody, portOut]);
+                    }
+                }
+
+                this.CHECK_PORT_MAP[port] = this.PORT_MAP[port];
+            }
+        });
+        return sendBody;
+    }
+
+    _makeStatusColorCommandBuffer() {
+        this.CURRENT_STATUS_COLOR.APPLIED = true;
+        return Buffer.from([
+            0x82,
+            0x1b,
+            this.CURRENT_STATUS_COLOR.COLOR.key,
+        ]);
+    }
+    
+    /**
+     * 카운터를 가져온다. 카운터 값은 request & response 가 동일하여, 정상값 체크를 위해 사용된다.
+     * 이 값은 2^15 이상인 경우 0으로 초기화한다.
+     * @returns {Buffer} little endian 2byte
+     */
+    _getCounter() {
+        const counterBuf = new Buffer(2);
+        counterBuf.writeInt16LE(this.counter, 0);
+        if (this.counter >= 32767) {
+            this.counter = 0;
+        }
+        this.counter++;
+        return counterBuf;
     }
 
     _injectByteSize(buffer) {
