@@ -240,6 +240,45 @@ class EV3HID extends BaseModule {
         }
     }
 
+    handleLocalData(data) {
+        // data: Native Buffer
+        if (data[0] === this.wholeResponseSize + 3 && data[1] === 0) {
+            const countKey = data.readInt16LE(2);
+            if (countKey in this.SENSOR_COUNTER_LIST) {
+                delete this.SENSOR_COUNTER_LIST[countKey];
+                data = data.slice(5); // 앞의 4 byte 는 size, counter 에 해당한다. 이 값은 할당 후 삭제한다.
+                let index = 0;
+
+                Object.keys(this.SENSOR_MAP).forEach((p) => {
+                    const port = Number(p) - 1;
+                    index = port * this.commandResponseSize;
+
+                    const type = data[index];
+                    const mode = data[index + 1];
+                    const siValue = Number(
+                        (data.readFloatLE(index + 2) || 0).toFixed(1),
+                    );
+                    this.returnData[p] = {
+                        type,
+                        mode,
+                        siValue,
+                    };
+                });
+
+                index = 4 * this.commandResponseSize;
+                Object.keys(this.BUTTON_MAP).forEach((button) => {
+                    if (data[index] === 1) {
+                        console.log(`${button} button is pressed`);
+                    }
+
+                    this.returnData[button] = {
+                        pressed: data[index++] === 1,
+                    };
+                });
+            }
+        }
+    }
+
     _sensorCheck() {
         const initBuf = this._makeInitBuffer(
             [0],
@@ -305,45 +344,6 @@ class EV3HID extends BaseModule {
         );
         this._injectByteSize(sendBuffer);
         return sendBuffer.toJSON().data;
-    }
-
-    handleLocalData(data) {
-        // data: Native Buffer
-        if (data[0] === this.wholeResponseSize + 3 && data[1] === 0) {
-            const countKey = data.readInt16LE(2);
-            if (countKey in this.SENSOR_COUNTER_LIST) {
-                delete this.SENSOR_COUNTER_LIST[countKey];
-                data = data.slice(5); // 앞의 4 byte 는 size, counter 에 해당한다. 이 값은 할당 후 삭제한다.
-                let index = 0;
-
-                Object.keys(this.SENSOR_MAP).forEach((p) => {
-                    const port = Number(p) - 1;
-                    index = port * this.commandResponseSize;
-
-                    const type = data[index];
-                    const mode = data[index + 1];
-                    let siValue = Number(
-                        (data.readFloatLE(index + 2) || 0).toFixed(1),
-                    );
-                    this.returnData[p] = {
-                        type: type,
-                        mode: mode,
-                        siValue: siValue,
-                    };
-                });
-
-                index = 4 * this.commandResponseSize;
-                Object.keys(this.BUTTON_MAP).forEach((button) => {
-                    if (data[index] === 1) {
-                        console.log(button + ' button is pressed');
-                    }
-
-                    this.returnData[button] = {
-                        pressed: data[index++] === 1,
-                    };
-                });
-            }
-        }
     }
 
     _makeInitBuffer(replyModeByte, allocHeaderByte) {
