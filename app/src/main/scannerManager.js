@@ -1,6 +1,6 @@
 const SerialScanner = require('./serial/scanner');
 const HidScanner = require('./hid/scanner');
-const BleScanner = require('./ble/Scanner');
+const BleScanner = require('./ble/scanner');
 
 class ScannerManager {
     #scanners = {};

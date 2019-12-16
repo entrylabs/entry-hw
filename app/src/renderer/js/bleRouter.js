@@ -1,11 +1,10 @@
-const { ipcRenderer, shell, remote } = require('electron');
-const IpcManager = require('./IpcManager');
+const IpcManager = require('./ipcManager');
 
 class BleRouter {
     constructor() {
         this.ipcManager = new IpcManager();
-        this.device;
-        this.module;
+        this.device = undefined;
+        this.module = undefined;
         this.setHandler();
     }
 
@@ -48,6 +47,8 @@ class BleRouter {
                 if (this.module.connect) {
                     await this.module.disconnect();
                 }
+                this.device = undefined;
+                this.module = undefined;
                 return true;
             } catch (e) {
                 console.error(e);
