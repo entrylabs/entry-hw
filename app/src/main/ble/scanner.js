@@ -32,36 +32,36 @@ class BleScanner extends BaseScanner {
         const result = deviceList.find(
             (device) => selectedId && device.deviceName === selectedId,
         );
-        rendererConsole.log(JSON.stringify(deviceList));
-        if (!_.isEqual(deviceList, this.devices)) {
-            this.router.sendEventToMainWindow('portListScanned',
-                _.filter(deviceList, (device) => {
-                    for (const key in device) {
-                        if (
-                            hardware[key] &&
-                            device[key].indexOf(hardware[key]) === -1
-                        ) {
-                            return false;
-                        }
-                    }
-                    return true;
-                })
-                    .sort((left, right) => {
-                        if (left.deviceName > right.deviceName) {
-                            return 1;
-                        } else {
-                            return -1;
-                        }
-                    })
-                    .map(({ deviceName, deviceId }) => ({
-                        value: deviceId,
-                        path: deviceName,
-                    })),
-            );
-        }
-        this.devices = deviceList;
+
         if (result) {
             callback(result.deviceId);
+        } else {
+            const scannedDevices = _.filter(deviceList, (device) => {
+                for (const key in device) {
+                    if (
+                        hardware[key] &&
+                        device[key].indexOf(hardware[key]) === -1
+                    ) {
+                        return false;
+                    }
+                }
+                return true;
+            })
+                .sort((left, right) => {
+                    if (left.deviceName > right.deviceName) {
+                        return 1;
+                    } else {
+                        return -1;
+                    }
+                })
+                .map((device) => ({
+                    ...device,
+                    path: device.deviceName,
+                }));
+
+            _.mergeWith(this.devices, scannedDevices, _.get('deviceId'));
+            this.router.sendEventToMainWindow('portListScanned', this.devices);
+            rendererConsole.log(this.devices);
         }
     }
 
@@ -118,8 +118,8 @@ class BleScanner extends BaseScanner {
             this.selectBluetoothDevice,
         );
         this.config = undefined;
-        this.isScanning = false;
         this.devices = undefined;
+        this.isScanning = false;
         this.clearTimers();
     }
 }
