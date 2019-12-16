@@ -10,7 +10,6 @@
     "module": "CloverSEntry1.js",
 	"url": "http://edu-rabbit.com",
 	"email": "support@edu-rabbit.com",
-	"video": ["https://goo.gl/EgA2ft", "https://goo.gl/enkVdK"],
     "driver": {
 		"win32-ia32": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
 		"win32-x64": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",

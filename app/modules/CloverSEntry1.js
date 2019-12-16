@@ -1,72 +1,70 @@
-//---[ 모듈에서 사용할 필드 선언]-----------------------------------------------
+﻿
 function Module() 
 {
     this.sp = null;
     this.sensorTypes = {
-		 ALIVE :          0,               // 사용안함
-         DIGITAL :        1,               // 디지털 포트 제어용
-         ANALOG :         2,               // 아나로그 포트 입력용
-         PWM :            3,               // 디지털 포트 PWM 출력용
-         SERVO :          4,               // 서보모터 제어용
-         TONE :           5,               // 부저 소리 출력용
-         PULSEIN :        6,               // 사용안함
-         ULTRASONIC :     7,               // 초음파센서 거리측적용
-         TIMER :          8,               // 사용안함
-         MOTOR_L :        9,               // 왼쪽 DC모터
-         MOTOR_R :        10,              // 오른쪽 DC모터
-         CLOVER_FND :     11,              // 클로버 FND 모듈
-         CLOVER_SW :      12,              // 클로버 SW모듈
-         CLOVER_LED :     13,              // 클로버 LED모듈
-         CLOVER_RGB :     14,              // 클로버 RGB모듈
-    },
+		 ALIVE :          0,               
+         DIGITAL :        1,               
+         ANALOG :         2,               
+         PWM :            3,               
+         SERVO :          4,               
+         TONE :           5,               
+         PULSEIN :        6,               
+         ULTRASONIC :     7,               
+         TIMER :          8,               
+         MOTOR_L :        9,               
+         MOTOR_R :        10,              
+         CLOVER_FND :     11,              
+         CLOVER_SW :      12,              
+         CLOVER_LED :     13,              
+         CLOVER_RGB :     14,              
+    };
     
-    // 입출력 포트 설정 - I/O Mapping
     
-    this.pinMaps = 
-    {
-        SW1 :            2,               // Switch1
-        SW2 :            7,               // Switch2
-        LED_G :          17,              // Green LED
-        LED_B :          16,              // Blue LED
-        BUZZ :           4,               // Buzzer
-        CDS :            7,               // CDS 센서
-        
-        Digital_Port0 :  17,              // 0번, Green LED
-        Digital_Port1 :  16,              // 1번, Blue LED
-        Digital_Port2 :  3,               // 2번, Servo Motor1
-        Digital_Port3 :  5,               // 3번, Servo Motor2
-        Digital_Port4 :  6,               // 4번, Servo Motor3
-        Digital_Port5 :  9,               // 5번, Servo Motor4
-        Digital_Port6 :  10,              // 6번, Servo Motor5
-        Digital_Port7 :  11,              // 7번, MOSI
-        Digital_Port8 :  12,              // 8번, MISO
-        Digital_Port9 :  13,              // 9번, SCK
-        
-        Analog_Port0 :   14,              // 0번, AD0
-        Analog_Port1 :   15,              // 1번, AD1
-        
-        DIR_L :           5,              // 왼쪽 모터의 방향 
-        EN_L :            6,              // 왼쪽 모터의 구동 (1:off)
-        DIR_R :           9,              // 오른쪽 모터의 방향
-        EN_R :            10,             // 오른쪽 모터의 구동 (1:off)
-        
-        Ultrasonic_TRIG : 13,             // 초음파 센서
-        Ultrasonic_ECHO : 12,             // 초음파 센서
-    },
     
-    this.CloverMaps =
-    {
-        FND :             0,              // FND
-        MODULE0 :         39,             // 클로버 모듈 0번 (0x27)
-        MODULE1 :         38,             // 클로버 모듈 2번 (0x26)
-        MODULE2 :         37,             // 클로버 모듈 3번 (0x25)
-        MODULE3 :         36,             // 클로버 모듈 4번 (0x24)
-        MODULE4 :         35,             // 클로버 모듈 5번 (0x23)
-        MODULE5 :         34,             // 클로버 모듈 6번 (0x22)
-        MODULE6 :         33,             // 클로버 모듈 7번 (0x21)
-        MODULE7 :         32,             // 클로버 모듈 8번 (0x20)
-        RGB_LED :         0,              // 클로버에서는 밝기 값 사용할 예정
-    },
+    this.pinMaps = {
+        SW1 :            2,               
+        SW2 :            7,               
+        LED_G :          17,              
+        LED_B :          16,              
+        BUZZ :           4,               
+        CDS :            7,               
+        
+        Digital_Port0 :  17,              
+        Digital_Port1 :  16,              
+        Digital_Port2 :  3,               
+        Digital_Port3 :  5,               
+        Digital_Port4 :  6,               
+        Digital_Port5 :  9,               
+        Digital_Port6 :  10,              
+        Digital_Port7 :  11,              
+        Digital_Port8 :  12,              
+        Digital_Port9 :  13,              
+        
+        Analog_Port0 :   14,              
+        Analog_Port1 :   15,              
+        
+        DIR_L :           5,              
+        EN_L :            6,              
+        DIR_R :           9,              
+        EN_R :            10,             
+        
+        Ultrasonic_TRIG : 13,             
+        Ultrasonic_ECHO : 12,             
+    };
+    
+    this.CloverMaps = {
+        FND :             0,              
+        MODULE0 :         39,             
+        MODULE1 :         38,             
+        MODULE2 :         37,             
+        MODULE3 :         36,             
+        MODULE4 :         35,             
+        MODULE5 :         34,             
+        MODULE6 :         33,             
+        MODULE7 :         32,             
+        RGB_LED :         0,              
+    };
 
     this.actionTypes = {
         GET: 1,
@@ -78,23 +76,23 @@ function Module()
         FLOAT: 2,
         SHORT: 3,
         BIT: 4,
-    }
+    };
 
-    this.digitalPortTimeList = new Buffer(18);  // pin번호 + 1
-    this.digitalPortList =  new Buffer(18) ;    // pin번호 + 1
+    this.digitalPortTimeList = new Buffer(18);  
+    this.digitalPortList =  new Buffer(18);     
     
 
-    // port list (클로버 module 고유 핀 번호)
-    // 0 : fnd
-    // 1 ~ 10 : module0
-    // 11 ~ 20 : module1
-    // 21 ~ 30 : module2
-    // 31 ~ 40 : module3
-    // 41 ~ 50 : module4
-    // 51 ~ 60 : module5
-    // 61 ~ 70 : module6
-    // 71 ~ 80 : module7
-    // 101 : rgb led
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     this.cloverPortTimeList = new Buffer(102);
     this.cloverPortList = new Buffer(102);
 
@@ -119,7 +117,7 @@ function Module()
             '14': 0,
             '15': 0,
             '16': 0,
-            '17': 0
+            '17': 0,
         },
         ANALOG: {
             '0': 0,
@@ -135,11 +133,11 @@ function Module()
             '5': 0,
             '6': 0,
             '7': 0,
-            '8': 0
+            '8': 0,
         },
         PULSEIN: { },
         TIMER: 0,
-    }
+    };
 
     this.defaultOutput = { };
     this.recentCheckData = { };
@@ -151,41 +149,61 @@ function Module()
     this.lastSendTime = 0;
     this.isDraing = false;
     
-    // SW값 경우 개별제어가 아니므로 기존값을 갖고 있어되며,
-    // 모듈 위치가 바뀌기 때문에 Data를 저장할 모듈별 각 변수가 필요.
-    this.cloverModuleData = new Buffer(8);  // Clover Module Data 0 번
+    
+    
+    this.cloverModuleData = new Buffer(8);  
+    this.cloverModuleMode = new Buffer(8);  
+    
+    this.tx_buffer = new Buffer([]);
+    this.tx_time = 0;
+    
+    this.check_getDatas_old = 0;
+    this.check_getDatas = 0;
+    this.check_getClover_old = 0;
+    this.check_getClover = 0;
 }
 
 var sensorIdx = 0;
 
-//---[ 최초 커넥션이 된 후 초기 설정 ]----------------------------------------------------------------------------------
+
 Module.prototype.init = function(handler, config) {};
 
 
 
-//---[ 연결 후 초기에 송신할 데이터가 필요한 경우 사용 ]----------------------------------------------------------------
+
 Module.prototype.requestInitialData = function() 
 {
-    for(var i=0; i<this.cloverModuleData.length; i++) { this.cloverModuleData[i] = 0xFF; }
+    var self = this;
+  
+    tx_buffer = self.makeOutputBuffer(this.sensorTypes.CLOVER_FND, 0, 0);  
+    
+    
+    if(tx_buffer.length) { this.sendBuffers.push(tx_buffer); }
+    for(var i=0; i<this.cloverModuleData.length; i++) { this.cloverModuleData[i] = 0xFF; }  
+    
+    
+    self.check_getDatas = new Date().getTime();
+    self.check_getClover = new Date().getTime();
+    
     return this.makeSensorReadBuffer(this.sensorTypes.ANALOG, 0);
 };
 
 
 
-//---[ 연결 후 초기에 수신받아서 정상연결인지 확인해야 하는 경우 사용 ]-------------------------------------------------
+
 Module.prototype.checkInitialData = function(data, config) {
     return true;
-    // 이후에 체크 로직 개선되면 처리
-    // var datas = this.getDataByBuffer(data);
-    // var isValidData = datas.some(function (data) {
-    //     return (data.length > 4 && data[0] === 255 && data[1] === 85);
-    // });
-    // return isValidData;
+    
+    
+    
+    
+    
+    
 };
 
 
 
-//---[ 하드웨어로 보낼 데이터 ]-----------------------------------------------------------------------------------------
+
 Module.prototype.requestLocalData = function() 
 {
     var self = this;
@@ -200,22 +218,26 @@ Module.prototype.requestLocalData = function()
                 self.sp.drain(function(){self.isDraing = false;});
             }
         });
+            
     }
+    
 
     return null;
 };
 
 
 
-//---[ 하드웨어로부터 온 데이터 ]---------------------------------------------------------------------------------------
+
 /*  ff 55 idx size data a  */
 Module.prototype.handleLocalData = function(data) 
 {
+    this.handleRemoteData(null);
+    
     var self = this;
-    var stx_ok;  // stx 검출용 boolean
-    var data;  // data 임시보관용
+    var stx_ok;  
+    var data;  
    
-    // buffer에 저장.    
+    
     if(this.receiveBuffer.length == 0)
     {
         this.receiveBuffer = data;
@@ -225,14 +247,14 @@ Module.prototype.handleLocalData = function(data)
         this.receiveBuffer = Buffer.concat([this.receiveBuffer, data]);
     }
   
-    // 데이터 검출 시작.
+    
     while(true)
     {
-        // var init
+        
         stx_ok = false;
         data_ok = false;
         
-        if(this.receiveBuffer.length >= 2 )  // stx 검출
+        if(this.receiveBuffer.length >= 2 )  
         {
             if(this.receiveBuffer[0] == 0xFF && this.receiveBuffer[1] == 0x55)
             {
@@ -240,48 +262,47 @@ Module.prototype.handleLocalData = function(data)
             }
             else
             {
-                // 앞의 1byte삭제 후 다시 stx검출
+                
                 this.receiveBuffer = this.receiveBuffer.subarray(1, this.receiveBuffer.length);
-                //console.log('stx error');
             }
         }
         else
         {
-            // 2byte 미만이면 break;
+            
             break;
         }
         
         if(stx_ok == true)
         {
-            // 4byte Data
+            
             if(this.receiveBuffer.length >= 4 && this.receiveBuffer[2] == 0x0D && this.receiveBuffer[3] == 0x0A)
             {
-                // Call ok
+                
                 data_ok = true;
-                this.receiveBuffer = this.receiveBuffer.subarray(4, this.receiveBuffer.length);  // 4byte buffer delete
+                this.receiveBuffer = this.receiveBuffer.subarray(4, this.receiveBuffer.length);  
             }
             
-            // 11byte Data
+            
             if(data_ok == false && this.receiveBuffer.length >= 11 && this.receiveBuffer[9] == 0x0D && this.receiveBuffer[10] == 0x0A)
             {
-                // 11byte data
+                
                 data_ok = true;
-                data = this.receiveBuffer.subarray(0, 11);  // Data 추출
-                this.handleLocalDataProcess(data);  // Data 처리.
-                this.receiveBuffer = this.receiveBuffer.subarray(11, this.receiveBuffer.length);  // 11byte buffer delete
+                data = this.receiveBuffer.subarray(0, 11);  
+                this.handleLocalDataProcess(data);  
+                this.receiveBuffer = this.receiveBuffer.subarray(11, this.receiveBuffer.length);  
             }
             
-            // 12byte Data(max)
+            
             if(data_ok == false && this.receiveBuffer.length >= 12 && this.receiveBuffer[10] == 0x0D && this.receiveBuffer[11] == 0x0A)
             {
-                // 12byte data
+                
                 data_ok = true;
-                data = this.receiveBuffer.subarray(0, 12);  // Data 추출
-                this.handleLocalDataProcess(data);  // Data 처리.
-                this.receiveBuffer = this.receiveBuffer.subarray(12, this.receiveBuffer.length);  // 12byte buffer delete
+                data = this.receiveBuffer.subarray(0, 12);  
+                this.handleLocalDataProcess(data);  
+                this.receiveBuffer = this.receiveBuffer.subarray(12, this.receiveBuffer.length);  
             }
             
-            // 데이터 최대 길이만큼 데이터 format 일치 하지 않으면, 해당구간 삭제
+            
             if(data_ok == false)
             {
                 if(this.receiveBuffer >= 12) 
@@ -295,11 +316,11 @@ Module.prototype.handleLocalData = function(data)
             }
         }
                 
-        // buffer가 많으면 초기화.
+        
         if(this.receiveBuffer.length > 0xFF)
         {
-            // 테스트 결과, 10ms 이하 속도로 수신받아도 데이터 전부 즉시처리되어,
-            // buffer clear event 발생되지 않으나, 노이즈 예방차원에서 에러처리 함.
+            
+            
             this.receiveBuffer = [];
             break;
         }
@@ -308,7 +329,7 @@ Module.prototype.handleLocalData = function(data)
 
 
 
-// handleLocalData 함수( 하드웨어에서 받은 데이터) 에서 추출된 데이터 처리
+
 Module.prototype.handleLocalDataProcess = function(data) 
 {
     var self = this;
@@ -317,7 +338,7 @@ Module.prototype.handleLocalDataProcess = function(data)
     var port;
     var device;
 
-    // 데이터 길이에 따른 Device ID 값위치 조정.
+    
     switch(data.length)
     {
         case 11:
@@ -332,10 +353,10 @@ Module.prototype.handleLocalDataProcess = function(data)
                 device = 0;
     }
     
-    dataType = data[2];  // DataType
-    port = data[7];  // Port
+    dataType = data[2];  
+    port = data[7];  
     
-    // float 데이터 처리
+    
     switch(dataType)
     {
         case self.sensorValueSize.FLOAT :
@@ -356,7 +377,7 @@ Module.prototype.handleLocalDataProcess = function(data)
                 break;
     }
     
-    // 각 pin에 데이터 업데이트
+    
     switch(device)
     {
         case self.sensorTypes.DIGITAL :
@@ -378,7 +399,7 @@ Module.prototype.handleLocalDataProcess = function(data)
         case self.sensorTypes.CLOVER_SW :
         case self.sensorTypes.CLOVER_LED :
         {           
-                port = self.CloverMaps.MODULE0 - port + 1;  // 0부터 시작이아니라 1번부터시작
+                port = self.CloverMaps.MODULE0 - port + 1;  
                 self.sensorData.CLOVER[port] = value;
                 break;
         }
@@ -386,19 +407,12 @@ Module.prototype.handleLocalDataProcess = function(data)
            self.sensorData.TIMER[port] = value;
            break;
 
-        // SOUND_IN 관련 변수 없어서 일단 주석처리. (? 에러 발생하지 않음...?)
-        // case self.sensorTypes.SOUND_IN: {
-            // self.sensorData.ANALOG[port] = value;
-            // break;
-        // }
     }
-        
-    //console.log(self.sensorData.ULTRASONIC);
 };
 
 
 
-//---[ 하드웨어로부터 온 데이터의 검증]---------------------------------------------------------------------------------
+
 Module.prototype.validateLocalData = function(data) 
 {
     return true;
@@ -406,7 +420,7 @@ Module.prototype.validateLocalData = function(data)
 
 
 
-//---[ 소프트웨어로 전달할 데이터 ]-------------------------------------------------------------------------------------
+
 Module.prototype.requestRemoteData = function(handler) 
 {
     var self = this;
@@ -422,26 +436,43 @@ Module.prototype.requestRemoteData = function(handler)
 
 
 
-//---[ 소프트웨어로부터 온 데이터 ]-------------------------------------------------------------------------------------
+
 Module.prototype.handleRemoteData = function(handler) 
 {
     var self = this;
-    var getDatas = handler.read('GET');
-    var setDatas = handler.read('SET') || this.defaultOutput;
-    var time;  //  = handler.read('TIME');  변수로만 사용함.
-    var getClover = handler.read('GET_CLOVER');
-    var setClover = handler.read('SET_CLOVER');
+    var getDatas;
+    var setDatas;
+    var time;  
+    var getClover;
+    var setClover;
     var buffer = new Buffer([]);
+    
+    
+    
+    if(handler != null)
+    {
+        getDatas = handler.read('GET');
+        setDatas = handler.read('SET');
+        getClover = handler.read('GET_CLOVER');
+        setClover = handler.read('SET_CLOVER');
+    }
+    else
+    {
+        getDatas = false;
+        setDatas = false;
+        getClover = false;
+        setClover = false;
+    }
     
     if(getDatas) 
     {
         var keys = Object.keys(getDatas);
         
+        
         keys.forEach(function(key) {
             var isSend = false;
             var dataObj = getDatas[key];
-            if(typeof dataObj.port === 'string' || typeof dataObj.port === 'number') 
-            {
+            if(typeof dataObj.port === 'string' || typeof dataObj.port === 'number') {
                 var time = self.digitalPortTimeList[dataObj.port];
                 if(dataObj.time > time) 
                 {
@@ -449,8 +480,7 @@ Module.prototype.handleRemoteData = function(handler)
                     self.digitalPortTimeList[dataObj.port] = dataObj.time;
                 }
             }
-            else if(Array.isArray(dataObj.port))
-            {
+            else if(Array.isArray(dataObj.port)) {
                 isSend = dataObj.port.every(function(port) {
                     var time = self.digitalPortTimeList[port];
                     return dataObj.time > time;
@@ -466,13 +496,29 @@ Module.prototype.handleRemoteData = function(handler)
 
             if(isSend) 
             {
-                if(!self.isRecentData(dataObj.port, key, dataObj.data)) 
-                {
+                if(!self.isRecentData(dataObj.port, key, dataObj.data)) {
                     self.recentCheckData[dataObj.port] = {
                         type: key,
                         data: dataObj.data
-                    }
+                    };
                     buffer = Buffer.concat([buffer, self.makeSensorReadBuffer(key, dataObj.port, dataObj.data)]);
+                }
+            }
+            
+            
+            if(self.check_getDatas_old != self.check_getDatas)  
+            {
+                var keyInt = parseInt(key);
+    
+                self.check_getDatas_old = self.check_getDatas;
+                switch(keyInt)
+                {
+                    case self.sensorTypes.ULTRASONIC :
+                        dataObj.port = new Buffer(2);
+                        dataObj.port[0] = 13; dataObj.port[1] = 12;
+                        buffer = Buffer.concat([buffer, self.makeSensorReadBuffer(key, dataObj.port, dataObj.data)]);
+                        break;
+                        
                 }
             }
         });        
@@ -493,16 +539,15 @@ Module.prototype.handleRemoteData = function(handler)
                         {
                             type: data.type,
                             data: data.data
-                        }
-                        buffer = Buffer.concat([buffer, self.makeOutputBuffer(data.type, port, data.data)]);  // 원본
+                        };
+                        buffer = Buffer.concat([buffer, self.makeOutputBuffer(data.type, port, data.data)]);  
                     }
                 }
             }
         });
     }
     
-    if(getClover) 
-    {
+    if(getClover) {
         var keys = Object.keys(getClover);
         keys.forEach(function(key) {
             var isSend = false;
@@ -514,25 +559,43 @@ Module.prototype.handleRemoteData = function(handler)
             {
                 indexClover = self.CloverMaps.MODULE0 - dataObj.port;
                 portClover = 1 + (indexClover * 10);
-                //console.log('indexClover : ' + indexClover + ' / '+'portClover : ' + portClover);
                 
                 var time = self.cloverPortTimeList[portClover];
                 if(dataObj.time > time) 
                 {
                     isSend = true;
                     self.cloverPortTimeList[portClover] = dataObj.time;
-                }
+                };
             }
             
             if(isSend) 
             {
                 if(!self.isRecentDataClover(portClover, key, dataObj.data)) 
                 {
+                    self.cloverModuleMode[indexClover] = 1;  
                     self.recentCheckDataClover[portClover] = {
                         type: key,
                         data: dataObj.data
-                    }
+                    };
                     buffer = Buffer.concat([buffer, self.makeSensorReadBuffer(key, dataObj.port, dataObj.data)]);
+                };
+            }
+            
+            if(self.check_getClover_old != self.check_getClover)  
+            {
+                var keyInt = parseInt(key);
+    
+                self.check_getClover_old = self.check_getClover;
+                if(self.sensorTypes.CLOVER_SW == keyInt)
+                {
+                    for(var z=0; z<self.cloverModuleMode.length; z++)
+                    {
+                        if(self.cloverModuleMode[z] == 1)  
+                        {
+                            dataObj.port = self.CloverMaps.MODULE0 - z;
+                            buffer = Buffer.concat([buffer, self.makeSensorReadBuffer(key, dataObj.port, dataObj.data)]);
+                        }
+                    }
                 }
             }
         });        
@@ -551,11 +614,11 @@ Module.prototype.handleRemoteData = function(handler)
                 {
                     port = parseInt(port);
                     
-                    // self.makeOutputBuffer() 에서 case 구분 인자값은 data.type (sensorTypes)으로
-                    // 구분해서 데이터를 처리함.
-                    // ※ port 번호는 self.makeOutputBuffer()에 영향을 주지 않음.
                     
-                    if(port == 0)  // FND
+                    
+                    
+                    
+                    if(port == 0)  
                     {
                         if(!self.isRecentDataClover(port, data.type, data.data))
                         { 
@@ -563,13 +626,13 @@ Module.prototype.handleRemoteData = function(handler)
                            {
                                type: data.type,
                                data: data.data
-                           }
-                           port = self.CloverMaps.FND;  // port값으로 사용하지 않으며, CloverID로 값 전송
+                           };
+                           port = self.CloverMaps.FND;  
                            
                            buffer = Buffer.concat([buffer, self.makeOutputBuffer(data.type, port, data.data)]);
                         }
                     }
-                    else if(port <= 80)  // MODULE 0 ~ 7번
+                    else if(port <= 80)  
                     {
                         if(!self.isRecentDataClover(port, data.type, data.data))
                         {
@@ -577,7 +640,7 @@ Module.prototype.handleRemoteData = function(handler)
                             {
                                 type: data.type,
                                 data: data.data
-                            }
+                            };
                             
                             port = parseInt(port);
                             
@@ -597,11 +660,11 @@ Module.prototype.handleRemoteData = function(handler)
                             buffer = Buffer.concat([buffer, self.makeOutputBuffer(data.type, port, datas)]);
                         }
                     }
-                    else if(port <= 100)  //
+                    else if(port <= 100)  
                     {
-                        // 예비 (아무짓도 안함)
+                        
                     }
-                    else if(port == 101)  // LED RGB
+                    else if(port == 101)  
                     {
                         if(!self.isRecentDataClover(port, data.type, data.data))
                         { 
@@ -609,8 +672,8 @@ Module.prototype.handleRemoteData = function(handler)
                            {
                                type: data.type,
                                data: data.data
-                           }
-                           port = self.CloverMaps.RGB_LED;  // led 밝기 조절로 사용할 예정임.
+                           };
+                           port = self.CloverMaps.RGB_LED;  
                            
                            buffer = Buffer.concat([buffer, self.makeOutputBuffer(data.type, port, data.data)]);
                         }
@@ -622,19 +685,52 @@ Module.prototype.handleRemoteData = function(handler)
         });
     }
     
+    if(typeof tx_buffer == 'undefined') { tx_buffer = new Buffer([]); }
+    if(typeof tx_time == 'undefined') { tx_time = 0; }
+    
+    if(buffer.length)
+    {
+        
+        
+        tx_buffer = Buffer.concat([tx_buffer, buffer]);
+    }
+
+    var now_time = new Date().getTime();
+    var time_different = 0;
+    
+    time_different = now_time - tx_time;
+    if(time_different > 10 )  
+    {
+        tx_time = now_time; 
+        
+        if(tx_buffer.length == 0)
+        {
+            buffer = new Buffer([]);
+        }
+        else if(tx_buffer.length <= 20)
+        {
+            buffer = tx_buffer.subarray(0, tx_buffer.length);
+            tx_buffer = new Buffer([]);
+        }
+        else
+        {
+            buffer = tx_buffer.subarray(0, 20);
+            tx_buffer = tx_buffer.subarray(20, tx_buffer.length);
+        }
+    }
+    else 
+    {
+        buffer = new Buffer([]);
+    }
+    
     if(buffer.length) 
     {
         this.sendBuffers.push(buffer);
-        this.Console_Tx_Data(buffer);
+        
     }
 };
 
 
-
-
-
-
-//---[ 추가적인 함수 들.. ]---------------------------------------------------------------------------------------------
 
 Module.prototype.setSerialPort = function (sp) 
 {
@@ -655,30 +751,61 @@ Module.prototype.afterConnect = function(that, cb)
 
 
 
-Module.prototype.isRecentData = function(port, type, data) {
-    var isRecent = false;
-
-    if(port in this.recentCheckData) {
-        if(type != this.sensorTypes.TONE && this.recentCheckData[port].type === type && this.recentCheckData[port].data === data) {
-            isRecent = true;
+Module.prototype.isRecentData = function(port, type, data)
+{
+    
+    var self = this;
+    var value;
+    if(self.recentCheckData[port] == null)
+    {
+        self.recentCheckData[port] =
+        {
+            type : 0,
+            data : 0,
+            time : 0,
+        };
+        return false;
+    }
+    
+    if((self.sensorTypes.TONE == type) && (typeof data != 'number'))
+    {
+        if(self.recentCheckData[port].data.value == data.value)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
         }
     }
-
-    return isRecent;
+    else if(self.recentCheckData[port].type == type && self.recentCheckData[port].data == data)
+    {
+        return true;
+    }
+    return false;
 }
 
-Module.prototype.isRecentDataClover = function(port, type, data) {
-    var isRecent = false;
 
-    if(port in this.recentCheckDataClover) 
+
+Module.prototype.isRecentDataClover = function(port, type, data)
+{
+    var self = this;
+    if(self.recentCheckData[port] == null)
     {
-        if(this.recentCheckDataClover[port].type === type && this.recentCheckDataClover[port].data === data)
+        self.recentCheckData[port] =
         {
-            isRecent = true;
-        }
+            type : 0,
+            data : 0,
+            time : 0,
+        };
+        return false;
     }
-
-    return isRecent;
+    
+    if(self.recentCheckDataClover[port].type == type && self.recentCheckDataClover[port].data == data)
+    {
+        return true;
+    }
+    return false;
 }
 
 
@@ -688,15 +815,14 @@ Module.prototype.isRecentDataClover = function(port, type, data) {
 
 Module.prototype.makeSensorReadBuffer = function(device, port, data) {
     var buffer;
+    
     var dummy = new Buffer([10]);
     if(device == this.sensorTypes.ULTRASONIC) 
     {
-        console.log('ULTRASONIC');
         buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port[0], port[1], 10]);
     }
     else if (device == this.sensorTypes.CLOVER_SW)
     {
-        console.log('CLOVER_SW ' + this.sensorTypes.CLOVER_SW);
         buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port, 0, 10]);
     }
     else if(device == this.sensorTypes.MOTOR_L || device == this.sensorTypes.MOTOR_R) 
@@ -724,7 +850,7 @@ Module.prototype.makeSensorReadBuffer = function(device, port, data) {
 
 
 
-//0xff 0x55 0x6 0x0 0x1 0xa 0x9 0x0 0x0 0xa
+
 Module.prototype.makeOutputBuffer = function(device, port, data) {
     var buffer;
     var value = new Buffer(2);
@@ -741,13 +867,17 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
         }
         case this.sensorTypes.TONE: {
             var time = new Buffer(2);
-            if($.isPlainObject(data)) {
+            if($.isPlainObject(data)) 
+            {
                 value.writeInt16LE(data.value);
                 time.writeInt16LE(data.duration);
-            } else {
+            }
+            else
+            {
                 value.writeInt16LE(0);
                 time.writeInt16LE(0);
             }
+            
             buffer = new Buffer([255, 85, 8, sensorIdx, this.actionTypes.SET, device, port]);
             buffer = Buffer.concat([buffer, value, time, dummy]);
             break;
@@ -777,7 +907,7 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
         {
             data = parseInt(data);
     
-            // 예외처리 범위값 처리
+            
             if(data < 0 ) { data = 0; }
             else if(data > 9999) { data = 9999; }
             
@@ -790,7 +920,7 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
         }
         case this.sensorTypes.CLOVER_LED :
         {
-            var module_id = this.CloverMaps.MODULE0 - port;  // 0번부터 시작
+            var module_id = this.CloverMaps.MODULE0 - port;  
             var led_num = data[0];
             var led_status = data[1];
             
@@ -806,7 +936,6 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
         }
         case this.sensorTypes.CLOVER_RGB :
         {
-            console.log('data : ' + data);
             value = new Buffer(4);
             value[0] = (data & 0xFF000000) >> 24;
             value[1] = (data & 0x00FF0000) >> 16;
@@ -844,8 +973,8 @@ Module.prototype.getDataByBuffer = function(buffer)
 
 
 
-//---[ Clover 추가함수 ] -----------------------------------------------------------------------------------------------
-Module.prototype.Console_Rx_Data = function(buffer)  // Debug용
+
+Module.prototype.Console_Rx_Data = function(buffer)  
 {
         console.log('buffer length : ' + buffer.length);
         var hexString = '';
@@ -862,7 +991,7 @@ Module.prototype.Console_Rx_Data = function(buffer)  // Debug용
 
 
 
-Module.prototype.Console_Tx_Data = function(buffer)  // Debug용
+Module.prototype.Console_Tx_Data = function(buffer)  
 {
     var hexString = '';
     for(var i=0; i<buffer.length; i++)
@@ -878,22 +1007,22 @@ Module.prototype.Console_Tx_Data = function(buffer)  // Debug용
 
 Module.prototype.FloatToByte = function(float_value)
 {
-    // 에러처리 : number 아니면 리턴 (float도 8byte number로 취급)
+    
     if(typeof float_value != 'number') { return null; }
     
-    // 변수 선언
-    var f32;  // float
-    var f32_byte;  // byte
+    
+    var f32;  
+    var f32_byte;  
     var f32_byte_reversal;
     
-    // 변수 초기화 및 값 대입
+    
     f32 = new Float32Array(1);
     f32[0] = float_value;
     
-    // float -> byte 변환
+    
     f32_byte = new Uint8Array(f32.buffer);
     
-    // 값 buffer로 변경
+    
     f32_byte_reversal = new Buffer(4);
     f32_byte_reversal[0] = f32_byte[0];
     f32_byte_reversal[1] = f32_byte[1];
@@ -907,18 +1036,18 @@ Module.prototype.FloatToByte = function(float_value)
 
 Module.prototype.ByteToFloat = function(arr_value)
 {
-    // 에러처리 : 배열이 4개가 아니면 return, 정수가 아니면 return
+    
     if(arr_value.length != 4) { return null; }
     if(typeof arr_value[0] != 'number') { return null; }
     if(typeof arr_value[1] != 'number') { return null; }
     if(typeof arr_value[2] != 'number') { return null; }
     if(typeof arr_value[3] != 'number') { return null; }
     
-    // 변수 선언
-    var f32;  // float
-    var f32_byte;  // byte
     
-    // 변수 초기화 및 값 대입
+    var f32;  
+    var f32_byte;  
+    
+    
     f32_byte = new Uint8Array(4);
     f32_byte[0] = arr_value[3];
     f32_byte[1] = arr_value[2];
@@ -934,7 +1063,7 @@ Module.prototype.ByteToFloat = function(arr_value)
 
 
 
-//---[ 그외.. ]---------------------------------------------------------------------------------------------------------
+
 Module.prototype.disconnect = function(connect) {
     var self = this;
     connect.close();
@@ -947,6 +1076,7 @@ Module.prototype.disconnect = function(connect) {
 
 Module.prototype.reset = function() 
 {
+    consloe.log('reset');
     this.lastTime = 0;
     this.lastSendTime = 0;
 
@@ -957,3 +1087,5 @@ Module.prototype.reset = function()
 
 
 module.exports = new Module();
+
+
