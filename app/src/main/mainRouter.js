@@ -224,21 +224,6 @@ class MainRouter {
                     this.connector = connector;
                     connector.setRouter(this);
                     this._connect(connector);
-                    /*if (this.scanner.isScanning) {
-                        this.scanner.config = config;
-                        return;
-                    }
-
-                    if (this.scanner.isScanning) {
-                        this.scanner.setConfig(config);
-                    } else {
-                        const connector = await this.scanner.startScan(this.hwModule, this.config);
-                        if (connector) {
-                            this.sendState('connected');
-                            this.connector = connector;
-                            connector.setRouter(this);
-                            this._connect(connector);
-                        }*/
                 }
             }
         } catch (e) {

@@ -23,11 +23,8 @@ class BleRouter {
                             acceptAllDevices: true,
                         };
                     }
-                    if (true) {
-                        options = options;
-                    }
                     const device = await navigator.bluetooth.requestDevice(
-                        options
+                        options,
                     );
                     this.device = device;
                     this.module.device = device;
@@ -36,7 +33,7 @@ class BleRouter {
                     console.error(e);
                     return false;
                 }
-            }
+            },
         );
 
         this.ipcManager.handle('connectBleDevice', async () => {

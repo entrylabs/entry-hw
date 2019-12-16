@@ -2,6 +2,7 @@ class ButtonService {
     static get uuid() {
         return 'e95d9882-251d-470a-a062-fa1922dfa9a8';
     }
+
     static get characteristics() {
         return {
             buttonAState: 'e95dda90-251d-470a-a062-fa1922dfa9a8',
@@ -11,21 +12,21 @@ class ButtonService {
 
     async init(services) {
         const service = services.find(
-            (service) => service.uuid === ButtonService.uuid
+            (service) => service.uuid === ButtonService.uuid,
         );
 
         for (const key in ButtonService.characteristics) {
             ButtonService.characteristics[key];
             console.log(key, ButtonService.characteristics[key]);
             const characteristic = await service.getCharacteristic(
-                ButtonService.characteristics[key]
+                ButtonService.characteristics[key],
             );
             await characteristic.startNotifications();
             characteristic.addEventListener(
                 'characteristicvaluechanged',
                 ({ target }) => {
                     console.log(target.value.getInt8(0));
-                }
+                },
             );
         }
         console.log('init', service);

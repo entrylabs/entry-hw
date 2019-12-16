@@ -2,6 +2,7 @@ class LedService {
     static get uuid() {
         return 'e95dd91d-251d-470a-a062-fa1922dfa9a8';
     }
+
     static get characteristics() {
         return {
             ledMatrixState: 'e95d7b77-251d-470a-a062-fa1922dfa9a8',
@@ -14,13 +15,13 @@ class LedService {
 
     async init(services) {
         const service = services.find(
-            (service) => service.uuid === LedService.uuid
+            (service) => service.uuid === LedService.uuid,
         );
 
         for (const key in LedService.characteristics) {
             LedService.characteristics[key];
             const characteristic = await service.getCharacteristic(
-                LedService.characteristics[key]
+                LedService.characteristics[key],
             );
             // await characteristic.startNotifications();
             this.characteristics[key] = characteristic;

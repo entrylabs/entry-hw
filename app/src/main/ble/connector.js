@@ -1,6 +1,6 @@
 const BaseConnector = require('../BaseConnector');
 
-class Connector extends BaseConnector {
+class BleConnector extends BaseConnector {
     constructor(hwModule, hardware, ipcManager) {
         super(hwModule, hardware);
         this.ipcManager = ipcManager;
@@ -8,13 +8,9 @@ class Connector extends BaseConnector {
 
     async initialize() {}
 
-    send(data, type = 'output') {
+    send(data) {
         if (this.connected) {
             try {
-                const writer =
-                    type === 'feature'
-                        ? this.device.sendFeatureReport
-                        : this.device.write;
                 return this.device.write(data);
             } catch (e) {
                 console.error(e);
@@ -32,7 +28,6 @@ class Connector extends BaseConnector {
 
     clear() {
         this.connected = false;
-        // this.device.removeAllListeners();
     }
 
     async close() {
@@ -41,4 +36,4 @@ class Connector extends BaseConnector {
     }
 }
 
-module.exports = Connector;
+module.exports = BleConnector;

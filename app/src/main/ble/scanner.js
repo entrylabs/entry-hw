@@ -1,4 +1,3 @@
-const { app, ipcMain, shell } = require('electron');
 const _ = require('lodash');
 const rendererConsole = require('../utils/rendererConsole');
 const BaseScanner = require('../BaseScanner');
@@ -11,7 +10,7 @@ class Scanner extends BaseScanner {
         this.browser = router.browser;
         this.ipcManager = router.ipcManager;
         this.isScanning = false;
-        this.devices;
+        this.devices = [];
         this.selectBluetoothDevice = this.selectBluetoothDevice.bind(this);
     }
 
@@ -22,10 +21,6 @@ class Scanner extends BaseScanner {
         this.hwModule = hwModule;
         this.connectors = {};
         return await this.scan();
-    }
-
-    updateConfig(config) {
-        this.setConfig(config);
     }
 
     async selectBluetoothDevice(event, deviceList, callback) {
@@ -61,17 +56,12 @@ class Scanner extends BaseScanner {
                     })
                     .map(({ deviceName, deviceId }) => ({
                         value: deviceId,
-                        text: deviceName,
                         path: deviceName,
-                    }))
+                    })),
             );
         }
         this.devices = deviceList;
-        if (!this.selectFunction) {
-            this.selectFunction = callback;
-        }
         if (result) {
-            this.selectFunction = undefined;
             callback(result.deviceId);
         }
     }
@@ -83,7 +73,7 @@ class Scanner extends BaseScanner {
         this.isScanning = true;
         this.browser.webContents.on(
             'select-bluetooth-device',
-            this.selectBluetoothDevice
+            this.selectBluetoothDevice,
         );
     }
 
@@ -92,48 +82,41 @@ class Scanner extends BaseScanner {
             return;
         }
         const { hardware, rendererModule } = this.config;
+        // scan 이 한번 실행되면 await navigator.bluetooth.requestDevice 가 계속 이벤트를 발생시킴
         const device = await this.ipcManager.invoke(
             'scanBleDevice',
             hardware,
-            rendererModule
+            rendererModule,
         );
         this.connector = await this.prepareConnector(device);
         return this.connector;
     }
 
-    async prepareConnector(id) {
+    async prepareConnector() {
         try {
             if (!this.config) {
                 return;
             }
             const { hardware } = this.config;
-            const connector = new Connector(
-                this.hwModule,
-                hardware,
-                this.ipcManager
-            );
+            const connector = new Connector(this.hwModule, hardware, this.ipcManager);
             this.router.setConnector(connector);
             this.router.sendState('before_connect');
             await connector.initialize();
-            this.finalizeScan(id);
+            this.finalizeScan();
             return connector;
         } catch (e) {
             console.error(e);
         }
     }
 
-    finalizeScan(id) {
+    finalizeScan() {
         this.stopScan();
     }
 
     stopScan() {
-        if (this.selectFunction) {
-            this.selectFunction('');
-            this.selectFunction = undefined;
-        }
         this.browser.webContents.removeListener(
             'select-bluetooth-device',
-            this.selectBluetoothDevice
+            this.selectBluetoothDevice,
         );
         this.config = undefined;
         this.isScanning = false;
