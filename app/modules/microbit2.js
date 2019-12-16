@@ -302,7 +302,10 @@ class Microbit2 extends BaseModule {
                     return this.makeBuffer(type, [value]);
                 }
                 // 필요한 값이 value property 하나인 경우 전부
-                case functionKeys.SET_SERVO:
+                case functionKeys.SET_SERVO: {
+                    const { pinNumber, value } = payload;
+                    return this.makeBuffer(type, [pinNumber, value]);
+                }
                 case functionKeys.SET_IMAGE: {
                     const { value } = payload;
                     return this.makeBuffer(type, [value]);
