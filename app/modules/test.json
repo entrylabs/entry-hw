@@ -1,8 +1,8 @@
 {
 	"id": "120102",
 	"name": {
-		"en": "Atest",
-		"ko": "A테스트"
+		"en": "EV3 (유선)",
+		"ko": "EV3 (유선)"
 	},
 	"category": "robot",
 	"platform": [
@@ -11,6 +11,7 @@
 	],
 	"icon": "test.png",
 	"module": "test.js",
+	"url": "http://www.lego.com/ko-kr/mindstorms/about-ev3",
 	"reconnect": true,
 	"select_com_port" : true,
 	"entry": {
