@@ -27,9 +27,6 @@ class HidConnector extends BaseConnector {
                     } else {
                         this.device.removeAllListeners('data');
                         if (result === true) {
-                            if (hwModule.setSerialPort) {
-                                this.hwModule.setSerialPort(this.device);
-                            }
                             if (hwModule.registerIntervalSend) {
                                 this.hwModule.registerIntervalSend(
                                     this._registerIntervalSend.bind(this),
@@ -90,7 +87,7 @@ class HidConnector extends BaseConnector {
         if (hwModule.connect) {
             hwModule.connect();
         }
-        this.sendState('connect');
+        this._sendState('connect');
 
         if (hwModule.afterConnect) {
             hwModule.afterConnect(this);
@@ -103,13 +100,12 @@ class HidConnector extends BaseConnector {
             ) {
                 if (!this.connected) {
                     this.connected = true;
-                    this.sendState('connected');
+                    this._sendState('connected');
                 }
 
                 this.received = true;
-                let result = data;
                 if (hwModule.handleLocalData) {
-                    result = hwModule.handleLocalData(result);
+                    hwModule.handleLocalData(data);
                 }
 
                 // 서버로 데이터를 요청한다.
@@ -121,7 +117,7 @@ class HidConnector extends BaseConnector {
         this.device.on('error', (e) => {
             console.log('ERROR', e);
             this.close();
-            this.sendState('disconnected');
+            this._sendState('disconnected');
         });
 
         if (hwModule.requestLocalData) {

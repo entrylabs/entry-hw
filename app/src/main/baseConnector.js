@@ -55,8 +55,9 @@ class BaseConnector {
     /**
      * router 와 hwModule 양쪽에 state 변경점을 보낸다.
      * @param {string} state
+     * @protected
      */
-    sendState(state) {
+    _sendState(state) {
         this.hwModule.eventController && this.hwModule.eventController(state);
         this.router.sendState(state);
     }

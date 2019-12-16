@@ -204,7 +204,7 @@ class SerialConnector extends BaseConnector {
         if (hwModule.connect) {
             hwModule.connect();
         }
-        this.sendState('connect');
+        this._sendState('connect');
 
         if (softwareReset) {
             serialPort.set({ dtr: false });
@@ -226,7 +226,7 @@ class SerialConnector extends BaseConnector {
             if (!hwModule.validateLocalData || hwModule.validateLocalData(data)) {
                 if (!this.connected) {
                     this.connected = true;
-                    this.sendState('connected');
+                    this._sendState('connected');
                 }
 
                 this.received = true;
@@ -248,7 +248,7 @@ class SerialConnector extends BaseConnector {
 
         serialPort.on('disconnect', () => {
             this.close();
-            this.sendState('disconnected');
+            this._sendState('disconnected');
         });
 
         // 디바이스 연결 잃어버린 상태에 대한 관리를 모듈에 맡기거나, 직접 관리한다.
@@ -262,7 +262,7 @@ class SerialConnector extends BaseConnector {
                 if (this.connected) {
                     if (this.received === false) {
                         this.connected = false;
-                        this.sendState('lost');
+                        this._sendState('lost');
                     }
                     this.received = false;
                 }
