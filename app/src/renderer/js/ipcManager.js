@@ -1,5 +1,4 @@
 const { ipcRenderer } = require('electron');
-const cuid = require('cuid');
 
 class IpcManager {
     constructor() {
