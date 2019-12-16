@@ -35,6 +35,7 @@ const functionKeys = {
     SET_TONE: 0x13,
     SET_TEMPO: 0x14,
     SET_CUSTOM_IMAGE: 0x15,
+    SET_RELATIVE_TEMPO: 0x16,
 
     GET_LED: 0x31,
     GET_ANALOG: 0x32,
@@ -302,10 +303,12 @@ class Microbit2 extends BaseModule {
                         beatValue4,
                     ]);
                 }
+                case functionKeys.SET_RELATIVE_TEMPO:
                 case functionKeys.SET_TEMPO: {
                     const { value } = payload;
                     return this.makeBuffer(type, [value]);
                 }
+
                 // 필요한 값이 value property 하나인 경우 전부
                 case functionKeys.SET_SERVO: {
                     const { pinNumber, value } = payload;
