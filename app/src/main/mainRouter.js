@@ -5,6 +5,7 @@ const ScannerManager = require('./ScannerManager');
 const Flasher = require('./serial/flasher');
 const Utils = require('./utils/fileUtils');
 const rendererConsole = require('./utils/rendererConsole');
+const IpcManager = require('./utils/IpcManager');
 const HardwareListManager = require('./hardwareListManager');
 const HandlerCreator = require('./datahandler/handler');
 
@@ -25,6 +26,7 @@ class MainRouter {
     constructor(mainWindow, entryServer) {
         global.$ = require('lodash');
         rendererConsole.initialize(mainWindow);
+        this.ipcManager = new IpcManager(mainWindow);
         this.browser = mainWindow;
         this.scannerManager = new ScannerManager(this);
         this.server = entryServer;

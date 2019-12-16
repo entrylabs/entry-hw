@@ -54,6 +54,7 @@
     },
     "dependencies": {
         "cross-spawn": "^7.0.0",
+        "cuid": "^2.1.6",
         "lodash": "^4.17.13",
         "node-hid": "^1.0.0",
         "object.assign": "^4.0.4",

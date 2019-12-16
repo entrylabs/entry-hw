@@ -47,11 +47,11 @@ class RendererRouter {
 
     stopScan() {
         ipcRenderer.send('stopScan');
-    };
+    }
 
     close() {
         ipcRenderer.send('close');
-    };
+    }
 
     sendSelectedPort(portName) {
         ipcRenderer.send('selectPort', portName);
@@ -105,7 +105,8 @@ class RendererRouter {
         const routerHardwareList = this._getHardwareListSync();
         this.priorHardwareList.forEach((target, index) => {
             const currentIndex = routerHardwareList.findIndex((item) => {
-                const itemName = item.name && item.name.ko ? item.name.ko : item.name;
+                const itemName =
+                    item.name && item.name.ko ? item.name.ko : item.name;
                 return itemName === target;
             });
             if (currentIndex > -1) {
@@ -157,7 +158,7 @@ class RendererRouter {
                             }
                         });
                     }
-                },
+                }
             );
         }
     }
@@ -172,7 +173,10 @@ class RendererRouter {
         }
 
         if (mode === RunningMode.client) {
-            console.log('%cI`M CLIENT', 'background:black;color:yellow;font-size: 30px');
+            console.log(
+                '%cI`M CLIENT',
+                'background:black;color:yellow;font-size: 30px'
+            );
         } else if (mode === RunningMode.server) {
             console.log('%cI`M SERVER', 'background:orange; font-size: 30px');
         }
@@ -186,8 +190,8 @@ class RendererRouter {
         if (this.currentState === 'connected') {
             isQuit = confirm(
                 translate(
-                    'Connection to the hardware will terminate once program is closed.',
-                ),
+                    'Connection to the hardware will terminate once program is closed.'
+                )
             );
         }
 
