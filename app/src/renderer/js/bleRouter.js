@@ -39,7 +39,6 @@ class BleRouter {
             if (this.module.connect) {
                 await this.module.connect();
             }
-            return true;
         });
 
         this.ipcManager.handle('disconnectBleDevice', async () => {

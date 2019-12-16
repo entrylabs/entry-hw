@@ -23,7 +23,7 @@ class BleConnector extends BaseConnector {
             throw new Error('router must be set');
         }
         this.device = await this.ipcManager.invoke('connectBleDevice');
-        this._sendState('connect');
+        this._sendState('connected');
     }
 
     clear() {

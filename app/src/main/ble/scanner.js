@@ -3,7 +3,7 @@ const rendererConsole = require('../utils/rendererConsole');
 const BaseScanner = require('../BaseScanner');
 const Connector = require('./Connector');
 
-class Scanner extends BaseScanner {
+class BleScanner extends BaseScanner {
     constructor(router) {
         super(router);
         this.router = router;
@@ -19,7 +19,6 @@ class Scanner extends BaseScanner {
         this.setConfig(config);
         this.initScan();
         this.hwModule = hwModule;
-        this.connectors = {};
         return await this.scan();
     }
 
@@ -125,4 +124,4 @@ class Scanner extends BaseScanner {
     }
 }
 
-module.exports = Scanner;
+module.exports = BleScanner;
