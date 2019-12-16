@@ -234,11 +234,16 @@ class Microbit2 extends BaseModule {
                             temp += value[x][y] * Math.pow(2, 24 - i);
                         }
                     }
-                    while (temp > 0) {
-                        let remainder = temp % 256;
-                        temp = parseInt(temp / 256);
-                        dataToSend.unshift(remainder);
+                    for (let i = 0; i < 4; i++) {
+                        if (temp < 1) {
+                            dataToSend.unshift(0);
+                        } else {
+                            let remainder = temp % 256;
+                            temp = parseInt(temp / 256);
+                            dataToSend.unshift(remainder);
+                        }
                     }
+
                     return this.makeBuffer(
                         functionKeys.SET_CUSTOM_IMAGE,
                         dataToSend
