@@ -1,4 +1,4 @@
-import { Middleware, AnyAction } from 'redux';
+import { AnyAction, Middleware } from 'redux';
 import { Dispatch } from 'react';
 import { IStoreState } from '../index';
 import {
@@ -11,7 +11,7 @@ import filterHardwareList from '../../functions/filterHardware';
 import { changeAlertMessage, CURRENT_PAGE_STATE_CHANGED } from '../modules/common';
 import { HardwareModuleStateEnum, HardwarePageStateEnum } from '../../constants/constants';
 import refreshPriorHardwareList from '../../functions/refreshPriorHardwareList';
-import { FIRMWARE_INSTALL_REQUESTED, HARDWARE_SELECTED, PORT_SELECTED } from '../modules/connection';
+import { changePortList, FIRMWARE_INSTALL_REQUESTED, HARDWARE_SELECTED, PORT_SELECTED } from '../modules/connection';
 
 const { translator, rendererRouter } = window;
 
@@ -51,6 +51,7 @@ const entryHardwareMiddleware: Middleware = ({ getState }: { getState: () => ISt
                 rendererRouter.close();
                 //NOTE resetHardwareList 를 쓰고자 했는데 안먹힌다. 왤까?
                 changeHardwareList(next)(rendererRouter.hardwareList);
+                changePortList(next)([]);
             }
             next(action);
             break;
@@ -83,11 +84,14 @@ const entryHardwareMiddleware: Middleware = ({ getState }: { getState: () => ISt
                 moduleState !== HardwareModuleStateEnum.beforeConnect &&
                 moduleState !== HardwareModuleStateEnum.connected
             ) {
-                alert(translator.translate('Hardware Device Is Not Connected'))
+                alert(translator.translate('Hardware Device Is Not Connected'));
             } else {
                 rendererRouter.requestFlash(action.payload)
                     .then(() => {
-                        changeAlertMessage(next)({ message: translator.translate('Firmware Uploaded!'), duration: 1000 });
+                        changeAlertMessage(next)({
+                            message: translator.translate('Firmware Uploaded!'),
+                            duration: 1000,
+                        });
                     })
                     .catch(() => {
                         changeAlertMessage(next)({ message: translator.translate('Failed Firmware Upload') });
