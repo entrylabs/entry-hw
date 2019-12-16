@@ -1,7 +1,7 @@
 const BaseModule = require('./baseModule');
 const _ = require('lodash');
 
-class Test extends BaseModule {
+class EV3HID extends BaseModule {
     constructor() {
         super();
         this.counter = 0;
@@ -151,7 +151,7 @@ class Test extends BaseModule {
     }
 
     registerIntervalSend(register) {
-        register(() => this._sensorCheck(), 500);
+        register(() => this._sensorCheck(), 200);
     }
 
     requestInitialData(sp) {
@@ -498,4 +498,4 @@ class Test extends BaseModule {
     }
 }
 
-module.exports = new Test();
+module.exports = new EV3HID();

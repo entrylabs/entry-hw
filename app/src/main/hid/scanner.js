@@ -50,7 +50,7 @@ class HidScanner extends BaseScanner {
         const { hardware } = this.config;
         const selectedPath = this.router.selectedPort;
         const devices = HID.devices();
-        rendererConsole.log(JSON.stringify(devices));
+        rendererConsole.log(devices);
         if (selectedPath) {
             const selectedDevice = _.find(devices, ['product', selectedPath]);
             if (!selectedDevice) {
