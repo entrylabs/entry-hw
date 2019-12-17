@@ -40,8 +40,7 @@ class BleConnector extends BaseConnector {
 
         this._ipcManager.handle('readBleDevice', (e, key, value) => {
             if (!this.connected) {
-                this.connected = true;
-                this._sendState('connected');
+                return;
             }
 
             if (this.hwModule.handleLocalData) {
@@ -51,6 +50,7 @@ class BleConnector extends BaseConnector {
             router.setHandlerData();
             router.sendEncodedDataToServer();
         });
+        this._ipcManager.invoke('startBleDevice');
 
         this._requestLocalDataInterval = setInterval(() => {
             if (this.hwModule.requestLocalData) {
@@ -82,6 +82,7 @@ class BleConnector extends BaseConnector {
         if (this.hwModule.disconnect) {
             this.hwModule.disconnect();
         }
+        this._ipcManager.removeHandler('readBleDevice');
         await this._ipcManager.invoke('disconnectBleDevice');
     }
 

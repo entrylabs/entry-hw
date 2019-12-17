@@ -15,7 +15,7 @@ class BleProcessManager {
         this.bleServices = undefined;
 
         /**
-         * @type {{key: string, value: BluetoothRemoteGATTCharacteristic}[]}
+         * @type {{ key: string, value: BluetoothRemoteGATTCharacteristic}[]}
          */
         this._readEvents = [];
 
@@ -23,7 +23,7 @@ class BleProcessManager {
          * @type {{key: string, value: BluetoothRemoteGATTCharacteristic}[]}
          */
         this._writeEvents = [];
-
+        this.connected = false; // HW 모듈과 커뮤니케이션 준비가 되었는지 여부
         this._initialize();
     }
 
@@ -112,12 +112,15 @@ class BleProcessManager {
         });
 
         this.ipcManager.handle('disconnectBleDevice', async (e) => {
+            this._writeEvents = [];
+            this.connectedDevice.gatt.disconnect();
             this.connectedDevice = undefined;
             this.bleServices = undefined;
-            this._writeEvents = [];
-            this._readEvents.forEach(({ value }) => {
-                value.removeEventListener('characteristicvaluechanged');
-            });
+            this.connected = false;
+        });
+
+        this.ipcManager.handle('startBleDevice', (e) => {
+            this.connected = true;
         });
     }
 
@@ -130,12 +133,11 @@ class BleProcessManager {
     async _registerReadCharacteristic(key, characteristic) {
         await characteristic.startNotifications();
         characteristic.addEventListener('characteristicvaluechanged', ({ target }) => {
-            this.ipcManager.invoke('readBleDevice', key, target.value);
+            this.connected && this.ipcManager.invoke('readBleDevice', key, target.value);
         });
 
-        this._readEvents.push({
-            key, value: characteristic,
-        });
+        // noinspection JSCheckFunctionSignatures
+        this._readEvents.push({ key, value: characteristic });
     }
 
     /**

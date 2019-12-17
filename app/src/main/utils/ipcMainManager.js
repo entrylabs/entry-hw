@@ -22,6 +22,7 @@ class IpcMainManager {
     }
 
     handle = ipcMain.handle.bind(ipcMain);
+    removeHandler = ipcMain.removeHandler.bind(ipcMain);
 }
 
 module.exports = IpcMainManager;
