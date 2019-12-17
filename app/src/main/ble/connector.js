@@ -64,10 +64,10 @@ class BleConnector extends BaseConnector {
     }
 
 
-    send(data) {
+    async send(data) {
         if (this.connected) {
             try {
-                return this.device.write(data);
+                await this._ipcManager.invoke('writeBleDevice', data);
             } catch (e) {
                 console.error(e);
             }
@@ -79,6 +79,9 @@ class BleConnector extends BaseConnector {
         this._commandQueue = [];
         this._requestLocalDataInterval && clearInterval(this._requestLocalDataInterval);
 
+        if (this.hwModule.disconnect) {
+            this.hwModule.disconnect();
+        }
         await this._ipcManager.invoke('disconnectBleDevice');
     }
 
@@ -96,7 +99,7 @@ class BleConnector extends BaseConnector {
         if (command) {
             const { key, value, callback } = command;
 
-            await this._ipcManager.invoke('writeBleDevice', { key, value });
+            await this.send({ key, value });
             if (callback && typeof callback === 'function') {
                 const result = callback.bind(this.hwModule)();
                 if (result instanceof Promise) {

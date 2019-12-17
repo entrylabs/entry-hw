@@ -110,6 +110,15 @@ class BleProcessManager {
                 console.log(`characteristic not found. target: ${key}, value: ${value}`);
             }
         });
+
+        this.ipcManager.handle('disconnectBleDevice', async (e) => {
+            this.connectedDevice = undefined;
+            this.bleServices = undefined;
+            this._writeEvents = [];
+            this._readEvents.forEach(({ value }) => {
+                value.removeEventListener('characteristicvaluechanged');
+            });
+        });
     }
 
     /**

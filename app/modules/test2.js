@@ -3,6 +3,7 @@ const BaseModule = require('./baseModule');
 class Test2 extends BaseModule {
     constructor() {
         super();
+        this.sensorStateMap = {};
         this.buttonService = {
             service: 'e95d9882-251d-470a-a062-fa1922dfa9a8',
             characteristics: [
@@ -61,11 +62,11 @@ class Test2 extends BaseModule {
      * @param value {*}
      */
     handleLocalData(key, value) {
-        console.log(key, value);
+        this.sensorStateMap[key] = value;
     }
 
     requestRemoteData(handler) {
-        handler.write('hello', 'world');
+        handler.write('data', this.sensorStateMap);
     }
 
     /**
