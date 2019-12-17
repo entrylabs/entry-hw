@@ -1,6 +1,6 @@
 const { ipcRenderer } = require('electron');
 
-class IpcManager {
+class IpcRendererManager {
     constructor() {
         if (this.instance) {
             return this.instance;
@@ -11,9 +11,13 @@ class IpcManager {
     handle(channel, callback) {
         ipcRenderer.on(channel, async (event, key, ...args) => {
             const result = await callback(event, ...args);
+
+            // noinspection ES6MissingAwait
             ipcRenderer.invoke(key, result);
         });
     }
+
+    invoke = ipcRenderer.invoke.bind(ipcRenderer);
 }
 
-module.exports = IpcManager;
+module.exports = IpcRendererManager;
