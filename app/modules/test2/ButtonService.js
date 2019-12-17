@@ -16,8 +16,6 @@ class ButtonService {
         );
 
         for (const key in ButtonService.characteristics) {
-            ButtonService.characteristics[key];
-            console.log(key, ButtonService.characteristics[key]);
             const characteristic = await service.getCharacteristic(
                 ButtonService.characteristics[key],
             );

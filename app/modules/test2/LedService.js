@@ -19,7 +19,6 @@ class LedService {
         );
 
         for (const key in LedService.characteristics) {
-            LedService.characteristics[key];
             const characteristic = await service.getCharacteristic(
                 LedService.characteristics[key],
             );
