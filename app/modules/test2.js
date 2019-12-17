@@ -11,7 +11,6 @@ class Test2 extends BaseModule {
                 { key: 'buttonBState', uuid: 'e95dda91-251d-470a-a062-fa1922dfa9a8', type: 'read' },
             ],
         };
-
         this.ledService = {
             service: 'e95dd91d-251d-470a-a062-fa1922dfa9a8',
             characteristics: [
@@ -28,6 +27,64 @@ class Test2 extends BaseModule {
                 },
             ],
         };
+        this.accelerometerService = {
+            service: 'e95d0753-251d-470a-a062-fa1922dfa9a8',
+            characteristics: [
+                {
+                    key: 'accelerometerPeriod',
+                    uuid: 'e95dfb24-251d-470a-a062-fa1922dfa9a8',
+                    type: 'write',
+                },
+                {
+                    key: 'accelerometerData',
+                    uuid: 'e95dca4b-251d-470a-a062-fa1922dfa9a8',
+                    type: 'read',
+                },
+            ],
+        };
+        this.magnetometerService = {
+            service: 'e95df2d8-251d-470a-a062-fa1922dfa9a8',
+            characteristics: [
+                {
+                    key: 'magnetometerPeriod',
+                    uuid: 'e95d386c-251d-470a-a062-fa1922dfa9a8',
+                    type: 'write',
+                },
+                {
+                    key: 'magnetometerData',
+                    uuid: 'e95dfb11-251d-470a-a062-fa1922dfa9a8',
+                    type: 'read',
+                },
+                {
+                    key: 'magnetometerBearing',
+                    uuid: 'e95d9715-251d-470a-a062-fa1922dfa9a8',
+                    type: 'read',
+                },
+            ],
+        };
+        this.temperatureService = {
+            service: 'e95d6100-251d-470a-a062-fa1922dfa9a8',
+            characteristics: [
+                {
+                    key: 'temperaturePeriod',
+                    uuid: 'e95d1b25-251d-470a-a062-fa1922dfa9a8',
+                    type: 'write',
+                },
+                {
+                    key: 'temperatureData',
+                    uuid: 'e95d9250-251d-470a-a062-fa1922dfa9a8',
+                    type: 'read',
+                },
+            ],
+        };
+
+        this.wholeServices = [
+            this.buttonService,
+            this.ledService,
+            this.accelerometerService,
+            this.magnetometerService,
+            this.temperatureService,
+        ];
     }
 
     /**
@@ -42,7 +99,7 @@ class Test2 extends BaseModule {
                     namePrefix: 'BBC micro:bit',
                 },
             ],
-            optionalServices: [this.buttonService.service, this.ledService.service],
+            optionalServices: this.wholeServices.map((serviceObject) => serviceObject.service),
         };
     }
 
@@ -53,7 +110,7 @@ class Test2 extends BaseModule {
      * @returns Profile[]
      */
     getProfiles() {
-        return [this.buttonService, this.ledService];
+        return this.wholeServices;
     }
 
     /**
