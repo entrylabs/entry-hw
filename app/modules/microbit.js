@@ -1,13 +1,42 @@
 const _ = require('lodash');
 const BaseModule = require('./baseModule');
 
-const FUNCTION_KEYS = {
+/**
+ * NOTE
+ * microbit getGesture 결과 목록표
+ * MICROBIT_ACCELEROMETER_EVT_TILT_UP	1
+ * MICROBIT_ACCELEROMETER_EVT_TILT_DOWN	2
+ * MICROBIT_ACCELEROMETER_EVT_TILT_LEFT	3
+ * MICROBIT_ACCELEROMETER_EVT_TILT_RIGHT	4
+ * MICROBIT_ACCELEROMETER_EVT_FACE_UP	5
+ * MICROBIT_ACCELEROMETER_EVT_FACE_DOWN	6
+ * MICROBIT_ACCELEROMETER_EVT_FREEFALL	7
+ * MICROBIT_ACCELEROMETER_EVT_3G	8
+ * MICROBIT_ACCELEROMETER_EVT_6G	9
+ * MICROBIT_ACCELEROMETER_EVT_8G	10
+ * MICROBIT_ACCELEROMETER_EVT_SHAKE	11
+ *
+ */
+
+const MICROBIT_BUFFER_SIZE = 16;
+const functionKeys = {
+    TEST_MESSAGE: 0xfa,
+    RESET: 0xfe,
+    CHECK_READY: 0xff,
     SET_LED: 0x01,
     SET_STRING: 0x02,
     SET_IMAGE: 0x03,
-    PLAY_NOTE: 0x04,
-    CHANGE_BPM: 0x05,
-    SET_BPM: 0x06,
+    SET_TONE: 0x04,
+    SET_TEMPO: 0x05,
+    SET_RELATIVE_TEMPO: 0x06,
+    SET_DIGITAL: 0x07,
+    SET_ANALOG: 0x08,
+    RESET_SCREEN: 0x09,
+    SET_ANALOG_PERIOD: 0x10,
+    SET_SERVO: 0x11,
+    SET_SERVO_PERIOD: 0x12,
+    SET_CUSTOM_IMAGE: 0x13,
+
     GET_LED: 0x31,
     GET_ANALOG: 0x32,
     GET_DIGITAL: 0x33,
@@ -16,37 +45,98 @@ const FUNCTION_KEYS = {
     GET_TEMPERATURE: 0x36,
     GET_COMPASS_HEADING: 0x37,
     GET_ACCELEROMETER: 0x38,
-    RESET: 0xfe,
+    GET_PITCH: 0x39,
+    GET_ROLL: 0x40,
+    GET_GESTURE: 0x41,
+    PLAY_NOTE: 0x04,
+    CHANGE_BPM: 0x05,
+    SET_BPM: 0x06,
+    ACC_REGULAR: 0xaa,
+    SENSOR_REGULAR: 0xab,
 };
 
 class Microbit extends BaseModule {
     constructor() {
         super();
-        this.sendIndex = 0;
         this.sendBuffers = [];
-        this.completeIds = [];
-        this.executeCount = 0;
-        this.drainTime = 0;
         this.recentCheckData = [];
-        this.executeCheckList = [];
-        this.frontBuffer = new Buffer([0xff, 0x01]);
-        this.backBuffer = new Buffer([0x0d, 0x0a]);
+        this.startChecksum = [0xff, 0x01];
+        this.endChecksum = [0x0d, 0x0a];
+
+        this.resetMicrobitStatusMap();
+        this.commandQueue = [];
     }
 
-    connect() {
-        setTimeout(() => {
-            this.sp.write(this.makeData('RST'));
-        }, 500);
-        // this.sp.write(this.makeData('RST'));
+    resetMicrobitStatusMap() {
+        this.microbitStatusMap = {
+            payload: undefined,
+            sensorData: {
+                digital: {},
+                analog: {},
+                led: {
+                    0: [0, 0, 0, 0, 0],
+                    1: [0, 0, 0, 0, 0],
+                    2: [0, 0, 0, 0, 0],
+                    3: [0, 0, 0, 0, 0],
+                    4: [0, 0, 0, 0, 0],
+                },
+                button: false,
+                lightLevel: 0,
+                temperature: 0,
+                compassHeading: 0,
+                accelerometer: {
+                    x: 0,
+                    y: 0,
+                    z: 0,
+                    strength: 0,
+                },
+            },
+        };
+    }
+    getStatusMapCodes() {
+        return [170, 171, 172];
+    }
+    /**
+     * payload 에 앞, 뒤 고정 버퍼를 추가한다.
+     * @param {number} key
+     * @param {number[]?} payload
+     * @returns {Buffer}
+     */
+    makeBuffer(key, payload) {
+        const payloadLength =
+            MICROBIT_BUFFER_SIZE -
+            this.startChecksum.length -
+            this.endChecksum.length -
+            1; // key length
+
+        // payload 는 최대 payloadLength 까지. 이보다 적은 경우 0 으로 fill.
+        // payload 가 없는 경우는 빈 배열로 대체한다.
+        const slicedPayload = _.chain(_.fill(Array(payloadLength), 0))
+            .zipWith(payload || [], (original, input) => input || 0)
+            .slice(0, payloadLength)
+            .value();
+
+        return Buffer.from(
+            this.startChecksum
+                .concat([key])
+                .concat(...slicedPayload)
+                .concat(this.endChecksum)
+        );
     }
 
-    socketReconnection() {
-        this.socket.send(this.handler.encode());
-    }
+    // socketReconnection() {
+    //     this.socket.send(this.handler.encode());
+    // }
 
     requestInitialData() {
-        return this.makeData('RST');
+        const aa = this.makeBuffer(functionKeys.CHECK_READY);
+        console.log('send to : ', aa);
+        return aa;
     }
+
+    // validateLocalData(data) {
+    //     return data[0] === this.BUFFER_END_ACK_FLAG;
+    // }
 
     setSerialPort(sp) {
         this.sp = sp;
@@ -56,277 +146,328 @@ class Microbit extends BaseModule {
         this.socket = socket;
     }
 
+    /**
+     * 정상 handshake response 는 [ff 11 22 33 ~ 0d 0a] 이다.
+     * @param {Buffer} data
+     * @param config
+     * @returns {boolean}
+     */
     checkInitialData(data, config) {
-        return true;
-    }
-
-    validateLocalData(data) {
-        return true;
+        // data[1~4] 는 commandId 로, 체크하지 않는다.
+        console.log('checkInitialData : ', data);
+        // return true;
+        return (
+            data[0] === functionKeys.CHECK_READY &&
+            data[1] === 0x11 &&
+            data[2] === 0x22 &&
+            data[3] === 0x33
+        );
     }
 
     requestRemoteData(handler) {
+        handler.write('payload', this.microbitStatusMap);
     }
 
-    handleRemoteData({ receiveHandler = {} }) {
-        const { data: handlerData } = receiveHandler;
-        if (_.isEmpty(handlerData)) {
-            return;
-        }
+    lostController(connector, stateCallback) {
+        // 아무일도 안하지만, 해당 함수가 선언되면 lostTimer 가 선언되지 않음.
+    }
 
-        Object.keys(handlerData).forEach((id) => {
-            const { type, data } = handlerData[id] || {};
-            if (
-                _.findIndex(this.sendBuffers, { id }) === -1 &&
-                this.executeCheckList.indexOf(id) === -1
-            ) {
-                const sendData = this.makeData(type, data);
-                this.sendBuffers.push({
-                    id,
-                    data: sendData,
-                    index: this.executeCount,
-                });
-            }
+    handleRemoteData(handler) {
+        const type = handler.read('type') || undefined;
+        const payload = handler.read('payload') || {};
+
+        // 리퀘스트 목록이 마지막으로 확인한 버전과 다르기 때문에, 업데이트한다.
+        // 업데이트는 중복되지 않는 id 의 커맨드만 뒤에 추가한다.
+        this.commandQueue.push({
+            type,
+            payload,
         });
     }
 
     requestLocalData() {
-        if (!this.isDraing && this.sendBuffers.length > 0) {
-            const sendData = this.sendBuffers.shift();
-            this.isDraing = true;
-            this.sp.write(sendData.data, () => {
-                if (this.sp) {
-                    this.sp.drain(() => {
-                        this.executeCheckList[sendData.index] = sendData.id;
-                    });
+        if (this.commandQueue.length !== 0 && !this.pending) {
+            this.pending = true;
+            const { type, payload } = this.commandQueue.shift();
+            switch (type) {
+                case functionKeys.SET_LED: {
+                    const { x, y, value } = payload;
+                    const valueType = {
+                        on: 1,
+                        off: 0,
+                        toggle: 2,
+                    };
+                    // 임시로 statusMap 을 업데이트 한다.
+                    // 실제 값은 getLED 시 다시 업데이트 된다.
+                    let dummyCacheLedValue = 0;
+                    if (value === 'toggle') {
+                        dummyCacheLedValue =
+                            _.get(this.microbitStatusMap, [
+                                'sensorData',
+                                'led',
+                                x,
+                                y,
+                            ]) === 0
+                                ? 1
+                                : 0;
+                    } else {
+                        dummyCacheLedValue = valueType[value];
+                    }
+                    _.set(
+                        this.microbitStatusMap,
+                        ['sensorData', 'led', x, y],
+                        dummyCacheLedValue
+                    );
+                    return this.makeBuffer(functionKeys.SET_LED, [
+                        x,
+                        y,
+                        valueType[value],
+                    ]);
                 }
-            });
+
+                case functionKeys.SET_CUSTOM_IMAGE: {
+                    const { value } = payload;
+                    let dataToSend = [];
+                    let temp = 0;
+                    for (let i = 0; i < 25; i++) {
+                        let x = parseInt(i / 5);
+                        let y = i % 5;
+                        if (value[x][y] == 1) {
+                            temp += value[x][y] * Math.pow(2, 24 - i);
+                        }
+                    }
+                    for (let i = 0; i < 4; i++) {
+                        if (temp < 1) {
+                            dataToSend.unshift(0);
+                        } else {
+                            let remainder = temp % 256;
+                            temp = parseInt(temp / 256);
+                            dataToSend.unshift(remainder);
+                        }
+                    }
+
+                    return this.makeBuffer(
+                        functionKeys.SET_CUSTOM_IMAGE,
+                        dataToSend
+                    );
+                }
+
+                case functionKeys.GET_LED: {
+                    const { x, y } = payload;
+                    return this.makeBuffer(functionKeys.GET_LED, [x, y]);
+                }
+                case functionKeys.RESET:
+                    this.resetMicrobitStatusMap();
+                    return this.makeBuffer(functionKeys.RESET);
+                case functionKeys.SET_STRING:
+                    return this.makeBuffer(
+                        functionKeys.SET_STRING,
+                        Buffer.from(payload).toJSON().data
+                    );
+                case functionKeys.SET_DIGITAL: {
+                    const { pinNumber, value } = payload;
+                    return this.makeBuffer(functionKeys.SET_DIGITAL, [
+                        pinNumber,
+                        value,
+                    ]);
+                }
+                // 전달값이 uint8_t 이상인 경우
+                case functionKeys.SET_ANALOG:
+                case functionKeys.SET_SERVO_PERIOD:
+                case functionKeys.SET_ANALOG_PERIOD: {
+                    const { pinNumber, value } = payload;
+                    const uInt8Value = [];
+                    let targetValue = value;
+                    while (targetValue) {
+                        uInt8Value.push(targetValue & 0xff);
+                        targetValue >>= 8;
+                    }
+                    return this.makeBuffer(type, [pinNumber, ...uInt8Value]);
+                }
+                case functionKeys.SET_TONE: {
+                    // const { noteValue, beatValue } = payload; console.
+                    const noteValue = payload.noteValue;
+                    const beatValue = payload.beatValue;
+                    const noteValue1 = noteValue / 256;
+                    const noteValue2 = noteValue % 256;
+                    const beatValue1 = beatValue / (256 * 256 * 256);
+                    const beatValue2 = beatValue / (256 * 256);
+                    const beatValue3 = beatValue / 256;
+                    const beatValue4 = beatValue % 256;
+
+                    return this.makeBuffer(type, [
+                        noteValue1,
+                        noteValue2,
+                        beatValue1,
+                        beatValue2,
+                        beatValue3,
+                        beatValue4,
+                    ]);
+                }
+                case functionKeys.SET_RELATIVE_TEMPO:
+                case functionKeys.SET_TEMPO: {
+                    const { value } = payload;
+                    return this.makeBuffer(type, [value]);
+                }
+
+                // 필요한 값이 value property 하나인 경우 전부
+                case functionKeys.SET_SERVO: {
+                    const { pinNumber, value } = payload;
+                    return this.makeBuffer(type, [pinNumber, value]);
+                }
+                case functionKeys.SET_IMAGE: {
+                    const { value } = payload;
+                    return this.makeBuffer(type, [value]);
+                }
+
+                case functionKeys.GET_ANALOG:
+                case functionKeys.GET_DIGITAL: {
+                    const value = payload[0];
+                    return this.makeBuffer(type, [value]);
+                }
+
+                case functionKeys.GET_LIGHT_LEVEL:
+                // return this.makeBuffer(type);
+                // 그냥 값 없이 바로 커맨드만 보내는 경우
+                case functionKeys.GET_ACCELEROMETER:
+                case functionKeys.GET_BUTTON:
+                case functionKeys.GET_TEMPERATURE:
+                case functionKeys.GET_COMPASS_HEADING:
+                case functionKeys.RESET_SCREEN:
+                case functionKeys.GET_PITCH:
+                case functionKeys.GET_ROLL:
+                case functionKeys.GET_GESTURE:
+                    // return this.makeBuffer(type);
+                    return null;
+                default:
+                    return null;
+            }
         }
-        return;
+    }
+
+    /**
+     *
+     * @param {string|string[]} path
+     * @param value
+     */
+    setStatusMap(path, value) {
+        _.set(this.microbitStatusMap, path, value);
     }
 
     handleLocalData(data) {
-        const count = data[data.length - 3];
-        const blockId = this.executeCheckList[count];
-        if (blockId) {
-            const socketData = this.handler.encode();
-            socketData.blockId = blockId;
-            this.setSocketData({
-                data,
-                socketData,
-            });
-            this.socket.send(socketData);
+        this.pending = false;
+        console.log('received from microbit : ', data);
+        const receivedCommandType = data[0];
+        switch (receivedCommandType) {
+            case functionKeys.RST:
+            case functionKeys.SET_BPM:
+            case functionKeys.PLAY_NOTE:
+            case functionKeys.GET_ACCELEROMETER:
+            case functionKeys.GET_SENSOR:
+            case functionKeys.GET_BUTTON:
+            case functionKeys.SET_LED:
+            case functionKeys.SET_STRING:
+            case functionKeys.SET_IMAGE: {
+                break;
+            }
+            case functionKeys.GET_LED: {
+                this.setStatusMap(
+                    ['sensorData', 'led', data[1], data[2]],
+                    data[3]
+                );
+                break;
+            }
+            // case functionKeys.GET_LIGHT_LEVEL: {
+            //     // data = [pinNumber, value]
+            //     const light = Number(Buffer.from([data[1]]).readUInt8(0));
+            //     this.setStatusMap(['sensorData', 'lightLevel'], light);
+            //     break;
+            // }
+            case functionKeys.GET_ANALOG: {
+                // data = [pinNumber, value{2} ]
+                this.setStatusMap(
+                    ['sensorData', 'analog', data[1]],
+                    Buffer.from([data[2], data[3]]).readInt16LE(0)
+                );
+                break;
+            }
+
+            case functionKeys.GET_DIGITAL: {
+                // data = [pinNumber, value]
+                this.setStatusMap(['sensorData', 'digital', data[1]], data[2]);
+                break;
+            }
+
+            case functionKeys.ACC_REGULAR: {
+                // console.log('ACC_REGULAR RECEIVED');
+                const x = Number(
+                    Buffer.from([data[1], data[2]]).readInt16LE(0)
+                );
+                const y = Number(
+                    Buffer.from([data[3], data[4]]).readInt16LE(0)
+                );
+                const z = Number(
+                    Buffer.from([data[5], data[6]]).readInt16LE(0)
+                );
+                const strength = Math.sqrt(x * x + y * y + z * z);
+                const pitch = Number(
+                    Buffer.from([data[7], data[8]]).readInt16LE(0)
+                );
+                const roll = Number(
+                    Buffer.from([data[9], data[10]]).readInt16LE(0)
+                );
+                const light = Number(Buffer.from([data[11]]).readUInt8(0));
+                const temperature = Number(
+                    Buffer.from([data[12]]).readUInt8(0)
+                );
+                const button = Number(Buffer.from([data[13]]).readUInt8(0));
+                // console.log(x, y, z, 'ACC', pitch, roll);
+                // console.log(light, temperature, button);
+
+                this.setStatusMap(['sensorData', 'accelerometer', 'x'], x);
+                this.setStatusMap(['sensorData', 'accelerometer', 'y'], y);
+                this.setStatusMap(['sensorData', 'accelerometer', 'z'], z);
+
+                this.setStatusMap(
+                    ['sensorData', 'accelerometer', 'strength'],
+                    strength
+                );
+                this.setStatusMap(['sensorData', 'tilt', 'pitch']);
+                this.setStatusMap(['sensorData', 'tilt', 'roll'], roll);
+                this.setStatusMap(['sensorData', 'lightLevel'], light);
+                this.setStatusMap(['sensorData', 'temperature'], temperature);
+                this.setStatusMap(['sensorData', 'button'], button);
+                break;
+            }
+            case functionKeys.SENSOR_REGULAR: {
+                // console.log('SENSOR_REGULAR RECEIVED');
+                this.setStatusMap(
+                    ['sensorData', 'compassHeading'],
+                    Buffer.from([data[1], data[2]]).readUInt16LE(0)
+                );
+                this.setStatusMap(
+                    ['sensorData', 'gesture'],
+                    Buffer.from([data[3]]).readUInt8(0)
+                );
+                break;
+            }
         }
+        // this.socket.send('abcde');
+        // const count = data[data.length - 3];
+        // const blockId = this.executeCheckList[count];
+        // if (blockId) {
+        //     const socketData = this.handler.encode();
+        //     socketData.blockId = blockId;
+        //     this.setSocketData({
+        //         data,
+        //         socketData,
+        //     });
+        //     this.socket.send(socketData);
+        // }
     }
-
-    setSocketData({ socketData, data }) {
-        const key = data[2];
-        let drainTime = 0;
-        switch (key) {
-            case FUNCTION_KEYS.SET_IMAGE: {
-                drainTime = 25;
-                break;
-            }
-            case FUNCTION_KEYS.GET_LED: {
-                const value = data[5];
-                socketData.LED = value;
-                break;
-            }
-            case FUNCTION_KEYS.GET_ANALOG: {
-                const value = Buffer([data[3], data[4]]);
-                socketData.GET_ANALOG = value.readInt16LE();
-                break;
-            }
-            case FUNCTION_KEYS.GET_DIGITAL: {
-                socketData.GET_DIGITAL = data[3];
-                break;
-            }
-            case FUNCTION_KEYS.GET_BUTTON: {
-                socketData.GET_BUTTON = data[3];
-                break;
-            }
-            case FUNCTION_KEYS.GET_LIGHT_LEVEL:
-            case FUNCTION_KEYS.GET_TEMPERATURE:
-            case FUNCTION_KEYS.GET_COMPASS_HEADING: {
-                socketData.GET_SENSOR = data[3];
-                break;
-            }
-            case FUNCTION_KEYS.GET_ACCELEROMETER: {
-                const value = Buffer([data[3], data[4]]);
-                socketData.GET_ACCELEROMETER = value.readInt16LE();
-                break;
-            }
-            default:
-                break;
-        }
-
-        setTimeout(() => {
-            this.isDraing = false;
-        }, drainTime);
-    }
-
-    makeData(key, data) {
-        let returnData = new Buffer(59);
-        switch (key) {
-            case 'SET_LED': {
-                const { x, y, value } = data;
-                let state = 2;
-                if (value === 'on') {
-                    state = 1;
-                } else if (value === 'off') {
-                    state = 0;
-                }
-
-                returnData.fill(
-                    Buffer([FUNCTION_KEYS.SET_LED, x, y, state]),
-                    0,
-                    4
-                );
-                break;
-            }
-            case 'GET_LED': {
-                const { x, y } = data;
-                returnData.fill(
-                    Buffer([FUNCTION_KEYS.GET_LED, x, y]),
-                    0,
-                    3
-                );
-                break;
-            }
-            case 'SET_STRING': {
-                let { value = '' } = data;
-                if(value.length > 20) {
-                    value = value.substr(0, 20)
-                }
-                returnData.fill(
-                    Buffer.concat([Buffer([FUNCTION_KEYS.SET_STRING]), Buffer(value)]),
-                    0,
-                    value.length + 1
-                );
-                returnData[58] = value.length;
-                break;
-            }
-            case 'SET_IMAGE': {
-                const { value } = data;
-                returnData.fill(
-                    Buffer([FUNCTION_KEYS.SET_IMAGE, value]),
-                    0,
-                    2
-                );
-                break;
-            }
-            case 'GET_ANALOG': {
-                const { value } = data;
-                returnData.fill(
-                    Buffer([FUNCTION_KEYS.GET_ANALOG, value]),
-                    0,
-                    2
-                );
-                break;
-            }
-            case 'GET_DIGITAL': {
-                const { value } = data;
-                returnData.fill(
-                    Buffer([FUNCTION_KEYS.GET_DIGITAL, value]),
-                    0,
-                    2
-                );
-                break;
-            }
-            case 'GET_BUTTON': {
-                const { value } = data;
-                returnData.fill(
-                    Buffer([FUNCTION_KEYS.GET_BUTTON, value]),
-                    0,
-                    2
-                );
-                break;
-            }
-            case 'GET_SENSOR': {
-                const { value } = data;
-                let type = '';
-                if (value === 'lightLevel') {
-                    type = FUNCTION_KEYS.GET_LIGHT_LEVEL;
-                } else if (value === 'temperature') {
-                    type = FUNCTION_KEYS.GET_TEMPERATURE;
-                } else {
-                    type = FUNCTION_KEYS.GET_COMPASS_HEADING;
-                }
-                returnData.fill(
-                    Buffer([type]),
-                    0,
-                    1
-                );
-                break;
-            }
-            case 'GET_ACCELEROMETER': {
-                const { value } = data;
-                returnData.fill(
-                    Buffer([FUNCTION_KEYS.GET_ACCELEROMETER, value]),
-                    0,
-                    2
-                );
-                break;
-            }
-            case 'PLAY_NOTE': {
-                const { note, beat } = data;
-                returnData.fill(
-                    Buffer([FUNCTION_KEYS.PLAY_NOTE, 0, 0, beat]),
-                    0,
-                    4
-                );
-                returnData.writeInt16LE(note, 1);
-                break;
-            }
-            case 'CHANGE_BPM': {
-                const { value } = data;
-                returnData.fill(
-                    Buffer([FUNCTION_KEYS.CHANGE_BPM]),
-                    0,
-                    1
-                );
-                returnData.writeInt16LE(value, 1);
-                break;
-            }
-            case 'SET_BPM': {
-                const { value } = data;
-                returnData.fill(
-                    Buffer([FUNCTION_KEYS.SET_BPM]),
-                    0,
-                    1
-                );
-                returnData.writeInt16LE(value, 1);
-                break;
-            }
-            case 'RST':
-                returnData.fill(Buffer([FUNCTION_KEYS.RESET]), 0, 1);
-                break;
-            default:
-                break;
-        }
-        const command = Buffer.concat([
-            this.frontBuffer,
-            returnData,
-            this.getExecuteCount(),
-            this.backBuffer,
-        ]);
-        return command;
-    }
-
-    getExecuteCount() {
-        if (this.executeCount < 255) {
-            this.executeCount++;
-        } else {
-            this.executeCount = 0;
-        }
-        return Buffer([this.executeCount]);
-    }
-
-    lostController() {}
 
     disconnect(connect) {
         connect.close();
         this.sendBuffers = [];
-        this.completeIds = [];
         this.recentCheckData = [];
         this.isDraing = false;
         this.sp = null;
