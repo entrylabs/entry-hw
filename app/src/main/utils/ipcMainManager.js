@@ -1,18 +1,18 @@
 const { ipcMain } = require('electron');
-const cuid = require('cuid');
 
-class IpcManager {
+class IpcMainManager {
+    static instance = undefined;
     constructor(mainWindow) {
-        if (this.instance) {
-            return this.instance;
+        if (IpcMainManager.instance) {
+            return IpcMainManager.instance;
         } else if (mainWindow) {
             this.mainWindow = mainWindow;
         }
-        this.instance = this;
+        IpcMainManager.instance = this;
     }
 
     invoke(channel, ...args) {
-        const key = `${channel}_${cuid()}`;
+        const key = `${channel}_${Date.now()}`;
         this.mainWindow.send(channel, key, ...args);
         return new Promise((resolve) => {
             ipcMain.handleOnce(key, (event, device) => {
@@ -20,6 +20,8 @@ class IpcManager {
             });
         });
     }
+
+    handle = ipcMain.handle.bind(ipcMain);
 }
 
-module.exports = IpcManager;
+module.exports = IpcMainManager;

@@ -30,11 +30,12 @@ class BleProcessManager {
     _initialize() {
         this.ipcManager.handle('scanBleDevice', async (event, options) => {
             try {
-                const bluetoothOptions = options | { acceptAllDevices: true };
-                this.connectedDevice = await navigator.bluetooth.requestDevice(bluetoothOptions);
+                this.connectedDevice = await navigator.bluetooth.requestDevice(options);
 
                 const device = this.connectedDevice;
                 !device.gatt.connected && await device.gatt.connect();
+
+                console.log(this.connectedDevice);
 
                 return this.connectedDevice.id;
             } catch (e) {
@@ -53,7 +54,7 @@ class BleProcessManager {
          *     }
          * }[]
          */
-        this.ipcManager.handle('connectBleDevice', async (profiles) => {
+        this.ipcManager.handle('connectBleDevice', async (e, profiles) => {
             if (this.connectedDevice) {
                 this.bleServices = await this.connectedDevice.gatt.getPrimaryServices();
 
@@ -78,7 +79,7 @@ class BleProcessManager {
                                 } else if (type === 'write') {
                                     this._registerWriteCharacteristic(key, characteristic);
                                 }
-                                this.summary[type].push(key);
+                                summary[type].push(key);
                             }),
                         );
                     }
@@ -96,11 +97,18 @@ class BleProcessManager {
          *     value: any;
          * }
          */
-        this.ipcManager.handle('writeBleDevice', async ({ key, value }) => {
+        this.ipcManager.handle('writeBleDevice', async (e, { key, value }) => {
+            if (!key) {
+                return;
+            }
+
             const characteristic = this._writeEvents.find((listener) => listener.key === key);
 
             if (characteristic) {
-                await characteristic.value.writeValue(value);
+                console.log('key, value', key, value, this._encodeString(value));
+                await characteristic.value.writeValue(this._encodeString(value));
+                await new Promise((resolve) => setTimeout(resolve, 500));
+                console.log('write complete');
             } else {
                 console.log(`characteristic not found. target: ${key}, value: ${value}`);
             }
@@ -117,7 +125,7 @@ class BleProcessManager {
         await characteristic.startNotifications();
         characteristic.addEventListener('characteristicvaluechanged', ({ target }) => {
             console.log(target && target.value.getInt8(0));
-            this.ipcManager.invoke('readBleDevice', target.value);
+            this.ipcManager.invoke('readBleDevice', key, target.value);
         });
 
         this._readEvents.push({
@@ -134,4 +142,16 @@ class BleProcessManager {
     _registerWriteCharacteristic(key, characteristic) {
         this._writeEvents.push({ key, value: characteristic });
     }
+
+    _encodeString(text) {
+        const buffer = new ArrayBuffer(text.length);
+        const view = new Uint8Array(buffer);
+        for (let i = 0; i < text.length; i++) {
+            view[i] = text.charCodeAt(i);
+        }
+        return buffer;
+    }
 }
+
+module.exports = BleProcessManager;
+

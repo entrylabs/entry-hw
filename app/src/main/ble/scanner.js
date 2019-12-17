@@ -1,5 +1,6 @@
 const _ = require('lodash');
 const rendererConsole = require('../utils/rendererConsole');
+const IpcManager = require('../utils/ipcMainManager');
 const BaseScanner = require('../BaseScanner');
 const Connector = require('./Connector');
 
@@ -8,7 +9,7 @@ class BleScanner extends BaseScanner {
         super(router);
         this.router = router;
         this.browser = router.browser;
-        this.ipcManager = router.ipcManager;
+        this.ipcManager = new IpcManager();
         this.isScanning = false;
         this.devices = [];
         this.selectBluetoothDevice = this.selectBluetoothDevice.bind(this);
@@ -59,6 +60,9 @@ class BleScanner extends BaseScanner {
                     path: device.deviceName,
                 }));
 
+            if (this.devices) {
+                this.devices = [];
+            }
             _.mergeWith(this.devices, scannedDevices, _.get('deviceId'));
             this.router.sendEventToMainWindow('portListScanned', this.devices);
             rendererConsole.log(this.devices);
@@ -80,24 +84,23 @@ class BleScanner extends BaseScanner {
         if (!this.config) {
             return;
         }
-        const { hardware, rendererModule } = this.config;
+
+        let scanOption = { acceptAllDevices: true };
+        if (this.hwModule.getScanOptions) {
+            scanOption = this.hwModule.getScanOptions() || scanOption;
+        }
+
         // scan 이 한번 실행되면 await navigator.bluetooth.requestDevice 가 계속 이벤트를 발생시킴
-        const device = await this.ipcManager.invoke(
-            'scanBleDevice',
-            hardware,
-            rendererModule,
-        );
-        this.connector = await this.prepareConnector(device);
+        // 디바이스 객체는 렌더러에서 다루며, 직접 메인으로 가져와서 다루지 않는다.
+        await this.ipcManager.invoke('scanBleDevice', scanOption);
+        this.connector = await this.prepareConnector();
         return this.connector;
     }
 
     async prepareConnector() {
         try {
-            if (!this.config) {
-                return;
-            }
             const { hardware } = this.config;
-            const connector = new Connector(this.hwModule, hardware, this.ipcManager);
+            const connector = new Connector(this.hwModule, hardware);
             this.router.setConnector(connector);
             this.router.sendState('before_connect');
             await connector.initialize();
@@ -118,7 +121,7 @@ class BleScanner extends BaseScanner {
             this.selectBluetoothDevice,
         );
         this.config = undefined;
-        this.devices = undefined;
+        this.devices = [];
         this.isScanning = false;
         this.clearTimers();
     }

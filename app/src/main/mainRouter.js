@@ -5,7 +5,7 @@ const ScannerManager = require('./ScannerManager');
 const Flasher = require('./serial/flasher');
 const Utils = require('./utils/fileUtils');
 const rendererConsole = require('./utils/rendererConsole');
-const IpcManager = require('./utils/IpcManager');
+const IpcManager = require('./utils/ipcMainManager');
 const HardwareListManager = require('./hardwareListManager');
 const HandlerCreator = require('./datahandler/handler');
 
@@ -407,7 +407,7 @@ class MainRouter {
         }
 
         const asarIndex = app.getAppPath().indexOf(`${path.sep}app.asar`);
-        let sourcePath = '';
+        let sourcePath;
         if (asarIndex > -1) {
             const asarPath = app.getAppPath().substr(0, asarIndex);
             const externalDriverPath = path.join(asarPath, 'drivers');
