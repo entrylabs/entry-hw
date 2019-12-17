@@ -51,27 +51,40 @@ class BleProcessManager {
          *         uuid: string;
          *         type: 'read' | 'write' = 'read'
          *     }
-         * }
+         * }[]
          */
-        this.ipcManager.handle('connectBleDevice', async ({ service, characteristics }) => {
+        this.ipcManager.handle('connectBleDevice', async (profiles) => {
             if (this.connectedDevice) {
                 this.bleServices = await this.connectedDevice.gatt.getPrimaryServices();
 
-                const targetService = this.bleServices
-                    .find((bleService) => bleService.uuid === service);
+                /**
+                 * 등록된 key 목록 요약본. 결과로 제출된다.
+                 * @type {{read: string[], write: string[]}}
+                 */
+                const summary = { write: [], read: [] };
 
-                if (targetService) {
-                    await Promise.all(
-                        characteristics.map(async ({ key, uuid, type = 'read' }) => {
-                            const characteristic = await targetService.getCharacteristic(uuid);
-                            if (type === 'read') {
-                                await this._registerReadCharacteristic(key, characteristic);
-                            } else if (type === 'write') {
-                                this._registerWriteCharacteristic(key, characteristic);
-                            }
-                        }),
-                    );
-                }
+                // 모든 서비스 등록
+                await Promise.all(profiles.map(async ({ service, characteristics }) => {
+                    const targetService = this.bleServices
+                        .find((bleService) => bleService.uuid === service);
+
+                    if (targetService) {
+                        // 모든 특성 등록
+                        await Promise.all(
+                            characteristics.map(async ({ key, uuid, type = 'read' }) => {
+                                const characteristic = await targetService.getCharacteristic(uuid);
+                                if (type === 'read') {
+                                    await this._registerReadCharacteristic(key, characteristic);
+                                } else if (type === 'write') {
+                                    this._registerWriteCharacteristic(key, characteristic);
+                                }
+                                this.summary[type].push(key);
+                            }),
+                        );
+                    }
+                }));
+
+                return summary;
             } else {
                 // TODO throw error
             }
