@@ -2,12 +2,15 @@ const BaseConnector = require('../BaseConnector');
 const _ipcManager = require('../utils/ipcMainManager');
 
 class BleConnector extends BaseConnector {
+    get commandQueueCheckDuration() {
+        return 100;
+    }
+
     constructor(hwModule, hardware) {
         super(hwModule, hardware);
         this._ipcManager = new _ipcManager();
 
         this._requestLocalDataInterval = undefined;
-        this._checkCommandQueueInterval = undefined;
         this._commandQueue = [];
     }
 
@@ -31,6 +34,7 @@ class BleConnector extends BaseConnector {
         }
 
         const router = this.router;
+        const { duration = BaseConnector.DEFAULT_SLAVE_DURATION } = this.hwModule;
 
         //TODO 통신 수립 이후 지속적인 통신 및 이벤트리스닝 은 이쪽
 
@@ -52,7 +56,7 @@ class BleConnector extends BaseConnector {
             if (this.hwModule.requestLocalData) {
                 this.hwModule.requestLocalData(this._commandQueue);
             }
-        }, 100);
+        }, duration);
 
         // noinspection JSIgnoredPromiseFromCall
         this._checkCommandQueue();
@@ -72,8 +76,8 @@ class BleConnector extends BaseConnector {
 
     async close() {
         this.connected = false;
+        this._commandQueue = [];
         this._requestLocalDataInterval && clearInterval(this._requestLocalDataInterval);
-        this._checkCommandQueueInterval && clearInterval(this._checkCommandQueueInterval);
 
         await this._ipcManager.invoke('disconnectBleDevice');
     }
@@ -93,11 +97,14 @@ class BleConnector extends BaseConnector {
             const { key, value, callback } = command;
 
             await this._ipcManager.invoke('writeBleDevice', { key, value });
-            if (callback) {
-
+            if (callback && typeof callback === 'function') {
+                const result = callback.bind(this.hwModule)();
+                if (result instanceof Promise) {
+                    await result;
+                }
             }
         }
-        await new Promise((resolve) => setTimeout(resolve, 100));
+        await new Promise((resolve) => setTimeout(resolve, this.commandQueueCheckDuration));
         await this._checkCommandQueue();
     }
 }

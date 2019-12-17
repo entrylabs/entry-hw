@@ -105,10 +105,7 @@ class BleProcessManager {
             const characteristic = this._writeEvents.find((listener) => listener.key === key);
 
             if (characteristic) {
-                console.log('key, value', key, value, this._encodeString(value));
                 await characteristic.value.writeValue(this._encodeString(value));
-                await new Promise((resolve) => setTimeout(resolve, 500));
-                console.log('write complete');
             } else {
                 console.log(`characteristic not found. target: ${key}, value: ${value}`);
             }
@@ -124,7 +121,6 @@ class BleProcessManager {
     async _registerReadCharacteristic(key, characteristic) {
         await characteristic.startNotifications();
         characteristic.addEventListener('characteristicvaluechanged', ({ target }) => {
-            console.log(target && target.value.getInt8(0));
             this.ipcManager.invoke('readBleDevice', key, target.value);
         });
 

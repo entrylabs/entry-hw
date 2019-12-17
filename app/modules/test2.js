@@ -69,16 +69,20 @@ class Test2 extends BaseModule {
     }
 
     /**
-     * BLE 특정 특성에 데이터를 전송한다. 반환값 구조가 맞지않으면 데이터를 보내지 않으므로
-     * 이를 가지고 전송로직을 컨트롤 할 수 있다.
+     * BLE 특정 특성에 데이터를 전송한다.
+     * 반환값 구조에 key 가 없으면 전송해도 쓸모가 없다.
+     * 만약 callback 이 선언되어있으면, 해당 커맨드가 실행되고 callback 을 실행한다.
+     * callback 이 Promise 형태인 경우는 완료를 기다린다.
+     * 이 딜레이는 다음 커맨드를 송신하는데 영향을 준다.
      * @param {[]} commandQueue
-     * @return {{key: string, value: string}} - 이 형태가 지켜지지 않으면 전송하지 않는다.
+     * @return {{key: string, value: string, callback: function=}}
      */
     requestLocalData(commandQueue) {
         if (commandQueue.length < 1) {
             commandQueue.push({
                 key: 'ledText',
                 value: 'hi',
+                callback: () => new Promise((resolve) => setTimeout(resolve, 1500)),
             });
         }
     }

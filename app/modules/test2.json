@@ -16,6 +16,7 @@
         "protocol": "json"
     },
     "hardware": {
-        "type": "ble"
+        "type": "ble",
+        "duration": 100
     }
 }
