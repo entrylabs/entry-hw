@@ -431,7 +431,7 @@ class Microbit extends BaseModule {
                     ['sensorData', 'accelerometer', 'strength'],
                     strength
                 );
-                this.setStatusMap(['sensorData', 'tilt', 'pitch']);
+                this.setStatusMap(['sensorData', 'tilt', 'pitch'], pitch);
                 this.setStatusMap(['sensorData', 'tilt', 'roll'], roll);
                 this.setStatusMap(['sensorData', 'lightLevel'], light);
                 this.setStatusMap(['sensorData', 'temperature'], temperature);
