@@ -28,7 +28,7 @@
 		"duration": 32,
 		"vendor": "wch.cn",
         "baudRate": 57600,
-		"lostTimer": 1000,
+		"lostTimer": 1100,
         "firmwarecheck": false
     }
 }
