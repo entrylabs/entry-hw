@@ -161,14 +161,14 @@ Module.prototype.handleRemoteData = function(handler) {
             }
 
             if(isSend) {
-                buffer = Buffer.concat([buffer, self.makeSensorReadBuffer(key, dataObj.port, dataObj.data)]);
-                // if(!self.isRecentData(dataObj.port, key, dataObj.data)) {
-                //     self.recentCheckData[dataObj.port] = {
-                //         type: key,
-                //         data: dataObj.data
-                //     }
-                //     buffer = Buffer.concat([buffer, self.makeSensorReadBuffer(key, dataObj.port, dataObj.data)]);
-                // }
+                // buffer = Buffer.concat([buffer, self.makeSensorReadBuffer(key, dataObj.port, dataObj.data)]);
+                if(!self.isRecentData(dataObj.port, key, dataObj.data)) {
+                    self.recentCheckData[dataObj.port] = {
+                        type: key,
+                        data: dataObj.data
+                    }
+                    buffer = Buffer.concat([buffer, self.makeSensorReadBuffer(key, dataObj.port, dataObj.data)]);
+                }
             }
         });
     }
