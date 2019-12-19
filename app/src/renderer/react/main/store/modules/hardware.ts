@@ -1,6 +1,6 @@
 import { AnyAction } from 'redux';
 import produce from 'immer';
-import { makePayloadAction, makeAction } from '../../functions/makeAction';
+import { makeAction, makePayloadAction } from '../../functions/makeAction';
 import { CategoryTypeEnum } from '../../constants/constants';
 
 // interface
@@ -50,4 +50,4 @@ export default (state = initialState, { type, payload }: AnyAction) => {
             return produce(state, () => {
             });
     }
-}
+};

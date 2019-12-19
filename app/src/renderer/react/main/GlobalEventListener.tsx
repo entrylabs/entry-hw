@@ -20,7 +20,7 @@ const GlobalEventListener: React.FC<IProps> = (props) => {
 
         return () => {
             window.removeEventListener('keydown', KeyUpHandler);
-        }
+        };
     }, [props.currentState]);
 
     return <></>;

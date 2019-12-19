@@ -158,7 +158,7 @@ class RendererRouter {
                             }
                         });
                     }
-                }
+                },
             );
         }
     }
@@ -175,7 +175,7 @@ class RendererRouter {
         if (mode === RunningMode.client) {
             console.log(
                 '%cI`M CLIENT',
-                'background:black;color:yellow;font-size: 30px'
+                'background:black;color:yellow;font-size: 30px',
             );
         } else if (mode === RunningMode.server) {
             console.log('%cI`M SERVER', 'background:orange; font-size: 30px');
@@ -190,8 +190,8 @@ class RendererRouter {
         if (this.currentState === 'connected') {
             isQuit = confirm(
                 translate(
-                    'Connection to the hardware will terminate once program is closed.'
-                )
+                    'Connection to the hardware will terminate once program is closed.',
+                ),
             );
         }
 

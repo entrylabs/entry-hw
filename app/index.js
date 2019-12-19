@@ -176,7 +176,7 @@ if (!app.requestSingleInstanceLock()) {
     app.commandLine.appendSwitch('enable-web-bluetooth', true);
     app.commandLine.appendSwitch(
         'enable-experimental-web-platform-features',
-        true
+        true,
     );
     app.commandLine.appendSwitch('disable-renderer-backgrounding');
     app.commandLine.appendSwitch('enable-web-bluetooth');
@@ -213,8 +213,8 @@ if (!app.requestSingleInstanceLock()) {
                 'src',
                 'renderer',
                 'views',
-                'index.html'
-            )}`
+                'index.html',
+            )}`,
         );
 
         if (option.debug) {
@@ -332,7 +332,7 @@ if (!app.requestSingleInstanceLock()) {
             JSON.stringify({
                 category: 'hardware',
                 version: packageJson.version,
-            })
+            }),
         );
         request.end();
     });

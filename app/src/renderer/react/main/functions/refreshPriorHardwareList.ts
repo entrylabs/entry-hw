@@ -6,4 +6,4 @@ export default (newHardwareName: string) => {
     }
     prevHardwareList.push(newHardwareName);
     localStorage.setItem('hardwareList', JSON.stringify(prevHardwareList));
-}
+};

@@ -104,7 +104,7 @@ const SearchArea: React.FC<IStateProps & IDispatchProps> = (props) => {
             <SearchCloseButton
                 id="search_close_button"
                 onClick={closeButtonOnClick}
-                style={isShowCloseButton ? {} : {display: 'none'}}
+                style={isShowCloseButton ? {} : { display: 'none' }}
             >
                 <img src="../images/search_close.png" alt="검색 닫기"/>
             </SearchCloseButton>

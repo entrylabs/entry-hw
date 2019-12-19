@@ -5,7 +5,7 @@ import { IMapDispatchToProps } from '../../store';
 import { changeCurrentPageState } from '../../store/modules/common';
 import { HardwarePageStateEnum } from '../../constants/constants';
 import { selectHardware } from '../../store/modules/connection';
-import styled from 'styled-components'
+import styled from 'styled-components';
 
 const HardwareTypeDiv = styled.div`
     width: 170px;

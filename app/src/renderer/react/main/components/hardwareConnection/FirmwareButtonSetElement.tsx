@@ -37,17 +37,19 @@ const FirmwareButtonSetElement: React.FC<IProps> = (props) => {
     if (buttonSet instanceof Array) {
         return <>
             {
-                buttonSet.map((firmware) => {
-                    return <HardwarePanelButton
+                buttonSet.map((firmware) => <HardwarePanelButton
                         key={firmware.name}
-                        onClick={() => {onButtonClicked(firmware.name)}}
-                    >{translator.translate(firmware.translate)}</HardwarePanelButton>;
-                })
+                        onClick={() => {
+onButtonClicked(firmware.name);
+}}
+                    >{translator.translate(firmware.translate)}</HardwarePanelButton>)
             }
         </>;
     } else {
         return <HardwarePanelButton
-            onClick={() => {onButtonClicked(buttonSet)}}
+            onClick={() => {
+onButtonClicked(buttonSet);
+}}
         >{translator.translate('Install Firmware')}</HardwarePanelButton>;
     }
 };

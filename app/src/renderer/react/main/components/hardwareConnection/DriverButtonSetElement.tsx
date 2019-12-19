@@ -13,20 +13,22 @@ const DriverButtonSetElement: React.FC<{ buttonSet: IDriverInfo } & Preload> = (
     if (buttonSet instanceof Array) {
         return <>
             {
-                buttonSet.filter((button) => button[os]).map((button) => {
-                    return <HardwarePanelButton
+                buttonSet.filter((button) => button[os]).map((button) => <HardwarePanelButton
                         key={button[os]}
-                        onClick={() => {onButtonClicked(button[os])}}
-                    >{translator.translate(button.translate)}</HardwarePanelButton>;
-                })
+                        onClick={() => {
+onButtonClicked(button[os]);
+}}
+                    >{translator.translate(button.translate)}</HardwarePanelButton>)
             }
         </>;
-    } else if (buttonSet[os]){
+    } else if (buttonSet[os]) {
         return <HardwarePanelButton
-            onClick={() => {onButtonClicked(buttonSet[os])}}
+            onClick={() => {
+onButtonClicked(buttonSet[os]);
+}}
         >{translator.translate('Install Device Driver')}</HardwarePanelButton>;
     } else {
-        return <></>
+        return <></>;
     }
 };
 

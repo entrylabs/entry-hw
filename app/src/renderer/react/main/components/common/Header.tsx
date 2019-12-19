@@ -24,8 +24,7 @@ const Title = Styled.h1`
     margin-top: 8px;
 `;
 
-const Header: React.FC<IStateProps> = (props) => {
-    return (
+const Header: React.FC<IStateProps> = (props) => (
         <HeaderContainer>
             <Navigator/>
             <Title>{props.title}</Title>
@@ -38,7 +37,6 @@ const Header: React.FC<IStateProps> = (props) => {
             )}
         </HeaderContainer>
     );
-};
 
 interface IStateProps {
     currentState: HardwarePageStateEnum;

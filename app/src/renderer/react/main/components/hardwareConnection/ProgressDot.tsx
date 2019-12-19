@@ -22,8 +22,7 @@ const ProgressDot = Styled.div`
     margin-bottom: 33px;
 `;
 
-export default () => {
-    return (
+export default () => (
         <ProgressContainer>
             {
                 range(16)
@@ -33,4 +32,3 @@ export default () => {
             }
         </ProgressContainer>
     );
-}

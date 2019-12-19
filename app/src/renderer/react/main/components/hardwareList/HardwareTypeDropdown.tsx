@@ -79,19 +79,17 @@ const HardwareTypeDropdown: React.FC<IStateProps & IDispatchProps> = (props) => 
                 <ContentSpan>{currentValue}</ContentSpan>
                 <div className="arrow"/>
             </DropdownContent>
-            {isShowList && Object.entries(HardwareCategoryEntries).map(([keyword, value]) => {
-                return (
+            {isShowList && Object.entries(HardwareCategoryEntries).map(([keyword, value]) => (
                     <DropdownContent
                         key={keyword}
                         onClick={() => {
                             props.changeCategory(keyword as CategoryTypeEnum);
-                            setShowState(!isShowList)
+                            setShowState(!isShowList);
                         }}
                     >
                         <ContentSpan>{value}</ContentSpan>
                     </DropdownContent>
-                );
-            })}
+                ))}
         </DropdownContainer>
     );
 };

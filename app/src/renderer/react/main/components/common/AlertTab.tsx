@@ -27,7 +27,7 @@ const AlertTabContainer = Styled.div<{ state: TransitionStatus }>`
     text-align: center;
     height: 0;
     line-height: 35px;
-    ${({state}) => {
+    ${({ state }) => {
     switch (state) {
         case ENTERING:
         case ENTERED:

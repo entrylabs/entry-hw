@@ -30,8 +30,7 @@ const CommentMessage = Styled.div`
     font-size: 11px;
 `;
 
-const ErrorAlert = (props: Preload) => {
-    return (
+const ErrorAlert = (props: Preload) => (
         <ErrorAlertContainer>
             <div>
                 <ErrorImage src="../images/alert.png"/>
@@ -57,6 +56,5 @@ const ErrorAlert = (props: Preload) => {
             </CommentMessage>
         </ErrorAlertContainer>
     );
-};
 
 export default withPreload(ErrorAlert);
