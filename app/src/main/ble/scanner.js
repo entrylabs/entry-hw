@@ -93,8 +93,10 @@ class BleScanner extends BaseScanner {
         // scan 이 한번 실행되면 await navigator.bluetooth.requestDevice 가 계속 이벤트를 발생시킴
         // 디바이스 객체는 렌더러에서 다루며, 직접 메인으로 가져와서 다루지 않는다.
         await this.ipcManager.invoke('scanBleDevice', scanOption);
-        this.connector = await this.prepareConnector();
-        return this.connector;
+        if (this.isScanning) {
+            this.connector = await this.prepareConnector();
+            return this.connector;
+        }
     }
 
     async prepareConnector() {
