@@ -92,24 +92,25 @@ class BleConnector extends BaseConnector {
      * @private
      */
     async _checkCommandQueue() {
-        if (!this.connected) {
-            return;
-        }
+        while (true) {
+            if (!this.connected) {
+                break;
+            }
 
-        const command = this._commandQueue.shift();
-        if (command) {
-            const { key, value, callback } = command;
+            const command = this._commandQueue.shift();
+            if (command) {
+                const { key, value, callback } = command;
 
-            await this.send({ key, value });
-            if (callback && typeof callback === 'function') {
-                const result = callback.bind(this.hwModule)();
-                if (result instanceof Promise) {
-                    await result;
+                await this.send({ key, value });
+                if (callback && typeof callback === 'function') {
+                    const result = callback.bind(this.hwModule)();
+                    if (result instanceof Promise) {
+                        await result;
+                    }
                 }
             }
+            await new Promise((resolve) => setTimeout(resolve, this.commandQueueCheckDuration));
         }
-        await new Promise((resolve) => setTimeout(resolve, this.commandQueueCheckDuration));
-        await this._checkCommandQueue();
     }
 }
 
