@@ -314,9 +314,8 @@ const ui = new class {
                     router.startScan(window.currentConfig);
                 }
             }, 1000);
-        } else {
-            isSelectPort = true;
         }
+
         if (
             JSON.stringify(portList) !== this.cachedPortList &&
             isSelectPort &&
@@ -329,9 +328,9 @@ const ui = new class {
             });
 
             $('#select_port_box select').html(portHtml);
+            $('#select_port_box').css('display', 'flex');
             this.cachedPortList = JSON.stringify(portList);
         }
-        $('#select_port_box').css('display', 'flex');
     }
 
     quit() {
@@ -605,12 +604,12 @@ $('#btn_select_port').click((e) => {
 
 $('#select_port_box .cancel_event').click((e) => {
     clearSelectPort();
-    ui.cachedPortList = '';
     clearTimeout(selectPortConnectionTimeout);
 });
 
 function clearSelectPort() {
     isSelectPort = false;
+    ui.cachedPortList = '';
     $('#select_port_box').css('display', 'none');
 }
 
