@@ -1,10 +1,11 @@
 const { app, ipcMain, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
-const Scanner = require('./serial/scanner');
+const ScannerManager = require('./ScannerManager');
 const Flasher = require('./serial/flasher');
 const Utils = require('./utils/fileUtils');
 const rendererConsole = require('./utils/rendererConsole');
+const IpcManager = require('./utils/ipcMainManager');
 const HardwareListManager = require('./hardwareListManager');
 const HandlerCreator = require('./datahandler/handler');
 
@@ -25,14 +26,16 @@ class MainRouter {
     constructor(mainWindow, entryServer) {
         global.$ = require('lodash');
         rendererConsole.initialize(mainWindow);
+        this.ipcManager = new IpcManager(mainWindow);
         this.browser = mainWindow;
-        this.scanner = new Scanner(this);
+        this.scannerManager = new ScannerManager(this);
         this.server = entryServer;
         this.flasher = new Flasher();
         this.hardwareListManager = new HardwareListManager(this);
 
         this.selectedPort = undefined;
         this.config = undefined;
+        this.scanner = undefined;
         /** @type {Connector} */
         this.connector = undefined;
         this.hwModule = undefined;
@@ -42,11 +45,10 @@ class MainRouter {
         entryServer.setRouter(this);
         this.server.open();
 
-        ipcMain.on('state', (e, state) => {
-            this.onChangeState(state);
-        });
         ipcMain.on('startScan', async (e, config) => {
             try {
+                const { hardware: { type = '' } = {} } = config || {};
+                this.scanner = this.scannerManager.getScanner(type);
                 await this.startScan(config);
             } catch (e) {
                 rendererConsole.error('startScan err : ', e);
@@ -204,48 +206,27 @@ class MainRouter {
     }
 
     /**
-     * ipcMain.on('state', ...) 처리함수
-     * @param state
-     */
-    onChangeState(state) {
-        console.log('server state', state);
-        // this.server.setState(state);
-    }
-
-    /**
      * 현재 컴퓨터에 연결된 포트들을 검색한다.
      * 특정 시간(Scanner.SCAN_INTERVAL_MILLS) 마다 체크한다.
      * 연결성공시 'state' 이벤트가 발생된다.
      * @param config
      */
     async startScan(config) {
-        this.config = config;
-        if (this.scanner) {
-            this.hwModule = require(`../../modules/${config.module}`);
-            this.sendState('scan');
-            this.scanner.stopScan();
-            const connector = await this.scanner.startScan(this.hwModule, this.config);
-            if (connector) {
-                this.sendState('connected');
-                this.connector = connector;
-                connector.setRouter(this);
-                this._connect(connector);
-                /*if (this.scanner.isScanning) {
-                    this.scanner.config = config;
-                    return;
+        try {
+            this.config = config;
+            if (this.scanner) {
+                this.hwModule = require(`../../modules/${config.module}`);
+                this.sendState('scan');
+                this.scanner.stopScan();
+                const connector = await this.scanner.startScan(this.hwModule, this.config);
+                if (connector) {
+                    this.connector = connector;
+                    connector.setRouter(this);
+                    this._connect(connector);
                 }
-
-                if (this.scanner.isScanning) {
-                    this.scanner.setConfig(config);
-                } else {
-                    const connector = await this.scanner.startScan(this.hwModule, this.config);
-                    if (connector) {
-                        this.sendState('connected');
-                        this.connector = connector;
-                        connector.setRouter(this);
-                        this._connect(connector);
-                    }*/
             }
+        } catch (e) {
+            console.error(e);
         }
     }
 
@@ -335,25 +316,40 @@ class MainRouter {
     handleServerData({ data, type }) {
         const hwModule = this.hwModule;
         const handler = this.handler;
+        const { direct } = this.config;
 
         if (!hwModule || !handler) {
             return;
         }
 
-        handler.decode(data, type);
-
-        if (hwModule.handleRemoteData) {
-            hwModule.handleRemoteData(handler);
+        if (direct && this.connector) {
+            let result = data;
+            if (hwModule.handleRemoteData) {
+                result = hwModule.handleRemoteData(result);
+            }
+            if (hwModule.requestLocalData) {
+                result = hwModule.requestLocalData(result);
+            }
+            this.connector.send(result);
+        } else {
+            handler.decode(data, type);
+            if (hwModule.handleRemoteData) {
+                hwModule.handleRemoteData(handler);
+            }
         }
     }
 
     /**
      * 서버로 인코딩된 데이터를 보낸다.
      */
-    sendEncodedDataToServer() {
-        const data = this.handler.encode();
-        if (this.server && data) {
+    sendEncodedDataToServer(data) {
+        if (data) {
             this.server.send(data);
+        } else {
+            const data = this.handler.encode();
+            if (this.server && data) {
+                this.server.send(data);
+            }
         }
     }
 
@@ -364,6 +360,10 @@ class MainRouter {
         if (this.hwModule.requestRemoteData) {
             this.hwModule.requestRemoteData(this.handler);
         }
+    }
+
+    setConnector(connector) {
+        this.connector = connector;
     }
 
     /**
@@ -407,7 +407,7 @@ class MainRouter {
         }
 
         const asarIndex = app.getAppPath().indexOf(`${path.sep}app.asar`);
-        let sourcePath = '';
+        let sourcePath;
         if (asarIndex > -1) {
             const asarPath = app.getAppPath().substr(0, asarIndex);
             const externalDriverPath = path.join(asarPath, 'drivers');

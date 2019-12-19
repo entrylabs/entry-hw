@@ -43,4 +43,5 @@ export default (state = initialState, { type, payload }: AnyAction) => {
             return produce(state, () => {
             });
     }
-}
+};
+

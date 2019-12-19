@@ -19,10 +19,15 @@ module.exports = class {
         try {
             fs.readdirSync(this.moduleBasePath)
                 .filter((file) => !!file.match(/\.json$/))
-                .map((file) => fs.readFileSync(path.join(this.moduleBasePath, file)))
+                .map((file) =>
+                    fs.readFileSync(path.join(this.moduleBasePath, file)),
+                )
                 .map(JSON.parse)
-                .filter((config) => config.platform &&
-                    config.platform.indexOf(process.platform) > -1)
+                .filter(
+                    (config) =>
+                        config.platform &&
+                        config.platform.indexOf(process.platform) > -1,
+                )
                 .sort((left, right) => {
                     const lName = left.name.ko.trim();
                     const rName = right.name.ko.trim();
@@ -35,9 +40,11 @@ module.exports = class {
                         return 0;
                     }
                 })
-                .forEach((config) => config && this.allHardwareList.push(config));
+                .forEach(
+                    (config) => config && this.allHardwareList.push(config),
+                );
         } catch (e) {
-            console.error('error occurred while reading module json files');
+            console.error('error occurred while reading module json files', e);
         }
     }
 

@@ -1,6 +1,8 @@
 const { ipcRenderer, clipboard, remote } = require('electron');
 const Translator = require('./js/translator');
 const RendererRouter = require('./js/rendererRouter');
+// const BleRouter = require('./js/BleRouter');
+const BleRouter = require('./js/bleProcessManager');
 const constants = require('../common/constants');
 
 function getInitializeList() {
@@ -9,6 +11,7 @@ function getInitializeList() {
     preload.clipboard = clipboard;
     preload.remote = remote;
     preload.rendererRouter = new RendererRouter();
+    preload.BleRouter = new BleRouter();
     preload.constants = constants;
 
     const translator = new Translator();

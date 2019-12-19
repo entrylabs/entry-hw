@@ -2,6 +2,7 @@
 const Readline = require('@serialport/parser-readline'); // modify
 const Delimiter = require('@serialport/parser-delimiter');
 const SerialPort = require('@serialport/stream');
+const BaseConnector = require('../baseConnector');
 SerialPort.Binding = require('@serialport/bindings');
 
 /**
@@ -9,39 +10,14 @@ SerialPort.Binding = require('@serialport/bindings');
  * 스캐너에서 open, initialize 가 일어나고,
  * 라우터에서 setRouter, connect 를 거쳐 통신한다.
  */
-class Connector {
-    static get DEFAULT_CONNECT_LOST_MILLS() {
-        return 1000;
-    }
-
-    static get DEFAULT_SLAVE_DURATION() {
-        return 1000;
-    }
-
+class SerialConnector extends BaseConnector {
     constructor(hwModule, hardwareOptions) {
-        this.options = hardwareOptions;
-        this.hwModule = hwModule;
-
-        /**
-         * @type {MainRouter}
-         */
-        this.router = undefined;
+        super(hwModule, hardwareOptions);
 
         /**
          * @type {SerialPort}
          */
         this.serialPort = undefined;
-
-        this.connected = false;
-        this.received = false;
-    }
-
-    /**
-     * MainRouter 를 세팅한다.
-     * @param {MainRouter} router
-     */
-    setRouter(router) {
-        this.router = router;
     }
 
     /**
@@ -79,7 +55,7 @@ class Connector {
     open(port) {
         return new Promise((resolve, reject) => {
             const hardwareOptions = this.options;
-            this.lostTimer = hardwareOptions.lostTimer || Connector.DEFAULT_CONNECT_LOST_MILLS;
+            this.lostTimer = hardwareOptions.lostTimer || BaseConnector.DEFAULT_CONNECT_LOST_MILLS;
 
             const serialPort = new SerialPort(port, this._makeSerialPortOptions(hardwareOptions));
             this.serialPort = serialPort;
@@ -118,7 +94,7 @@ class Connector {
         return new Promise((resolve, reject) => {
             const {
                 control,
-                duration = Connector.DEFAULT_SLAVE_DURATION,
+                duration = BaseConnector.DEFAULT_SLAVE_DURATION,
                 firmwarecheck,
             } = this.options;
             const hwModule = this.hwModule;
@@ -203,16 +179,6 @@ class Connector {
         });
     }
 
-    /**
-     * router 와 hwModule 양쪽에 state 변경점을 보낸다.
-     * @param {string} state
-     * @private
-     */
-    _sendState(state) {
-        this.hwModule.eventController && this.hwModule.eventController(state);
-        this.router.sendState(state);
-    }
-
     connect() {
         if (!this.router) {
             throw new Error('router must be set');
@@ -227,7 +193,7 @@ class Connector {
         const hwModule = this.hwModule;
         const {
             control,
-            duration = Connector.DEFAULT_SLAVE_DURATION,
+            duration = BaseConnector.DEFAULT_SLAVE_DURATION,
             advertise,
             softwareReset,
         } = this.options;
@@ -282,6 +248,7 @@ class Connector {
 
         serialPort.on('disconnect', () => {
             this.close();
+            this._sendState('disconnected');
         });
 
         // 디바이스 연결 잃어버린 상태에 대한 관리를 모듈에 맡기거나, 직접 관리한다.
@@ -324,7 +291,7 @@ class Connector {
         }
     }
 
-    clear() {
+    _clear() {
         this.connected = false;
         if (this.connectionLostTimer) {
             clearInterval(this.connectionLostTimer);
@@ -351,7 +318,7 @@ class Connector {
     };
 
     close() {
-        this.clear();
+        this._clear();
         if (this.serialPort && this.serialPort.isOpen) {
             this.serialPort.close((e) => {
                 this.serialPort = undefined;
@@ -384,4 +351,4 @@ class Connector {
     };
 }
 
-module.exports = Connector;
+module.exports = SerialConnector;

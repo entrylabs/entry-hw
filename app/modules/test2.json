@@ -1,0 +1,22 @@
+{
+    "id": "999997",
+    "name": {
+        "en": "Btest",
+        "ko": "B테스트"
+    },
+    "category": "board",
+    "platform": [
+        "win32",
+        "darwin"
+    ],
+    "icon": "test2.png",
+    "module": "test2.js",
+    "reconnect": true,
+    "entry": {
+        "protocol": "json"
+    },
+    "hardware": {
+        "type": "ble",
+        "duration": 100
+    }
+}
