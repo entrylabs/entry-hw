@@ -790,9 +790,9 @@ Module.prototype.isRecentData = function(port, type, data)
 Module.prototype.isRecentDataClover = function(port, type, data)
 {
     var self = this;
-    if(self.recentCheckData[port] == null)
+    if(self.recentCheckDataClover[port] == null)
     {
-        self.recentCheckData[port] =
+        self.recentCheckDataClover[port] =
         {
             type : 0,
             data : 0,
