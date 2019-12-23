@@ -55,6 +55,8 @@ const functionKeys = {
     SENSOR_REGULAR: 0xab,
 };
 
+const EXCEPTION_COMMAND_CODE = [170, 171, 172];
+
 class Microbit extends BaseModule {
     constructor() {
         super();
@@ -93,9 +95,7 @@ class Microbit extends BaseModule {
             },
         };
     }
-    getStatusMapCodes() {
-        return [170, 171, 172];
-    }
+
     /**
      * payload 에 앞, 뒤 고정 버퍼를 추가한다.
      * @param {number} key
@@ -284,7 +284,6 @@ class Microbit extends BaseModule {
                     return this.makeBuffer(type, [pinNumber, ...uInt8Value]);
                 }
                 case functionKeys.SET_TONE: {
-                    // const { noteValue, beatValue } = payload; console.
                     const noteValue = payload.noteValue;
                     const beatValue = payload.beatValue;
                     const noteValue1 = noteValue / 256;
@@ -325,9 +324,8 @@ class Microbit extends BaseModule {
                     return this.makeBuffer(type, [value]);
                 }
 
-                case functionKeys.GET_LIGHT_LEVEL:
-                // return this.makeBuffer(type);
                 // 그냥 값 없이 바로 커맨드만 보내는 경우
+                case functionKeys.GET_LIGHT_LEVEL:
                 case functionKeys.GET_ACCELEROMETER:
                 case functionKeys.GET_BUTTON:
                 case functionKeys.GET_TEMPERATURE:
@@ -336,7 +334,6 @@ class Microbit extends BaseModule {
                 case functionKeys.GET_PITCH:
                 case functionKeys.GET_ROLL:
                 case functionKeys.GET_GESTURE:
-                    // return this.makeBuffer(type);
                     return null;
                 default:
                     return null;
@@ -376,14 +373,7 @@ class Microbit extends BaseModule {
                 );
                 break;
             }
-            // case functionKeys.GET_LIGHT_LEVEL: {
-            //     // data = [pinNumber, value]
-            //     const light = Number(Buffer.from([data[1]]).readUInt8(0));
-            //     this.setStatusMap(['sensorData', 'lightLevel'], light);
-            //     break;
-            // }
             case functionKeys.GET_ANALOG: {
-                // data = [pinNumber, value{2} ]
                 this.setStatusMap(
                     ['sensorData', 'analog', data[1]],
                     Buffer.from([data[2], data[3]]).readInt16LE(0)
@@ -392,13 +382,11 @@ class Microbit extends BaseModule {
             }
 
             case functionKeys.GET_DIGITAL: {
-                // data = [pinNumber, value]
                 this.setStatusMap(['sensorData', 'digital', data[1]], data[2]);
                 break;
             }
 
             case functionKeys.ACC_REGULAR: {
-                // console.log('ACC_REGULAR RECEIVED');
                 const x = Number(
                     Buffer.from([data[1], data[2]]).readInt16LE(0)
                 );
@@ -420,8 +408,6 @@ class Microbit extends BaseModule {
                     Buffer.from([data[12]]).readUInt8(0)
                 );
                 const button = Number(Buffer.from([data[13]]).readUInt8(0));
-                // console.log(x, y, z, 'ACC', pitch, roll);
-                // console.log(light, temperature, button);
 
                 this.setStatusMap(['sensorData', 'accelerometer', 'x'], x);
                 this.setStatusMap(['sensorData', 'accelerometer', 'y'], y);
@@ -439,7 +425,6 @@ class Microbit extends BaseModule {
                 break;
             }
             case functionKeys.SENSOR_REGULAR: {
-                // console.log('SENSOR_REGULAR RECEIVED');
                 this.setStatusMap(
                     ['sensorData', 'compassHeading'],
                     Buffer.from([data[1], data[2]]).readUInt16LE(0)
@@ -451,18 +436,8 @@ class Microbit extends BaseModule {
                 break;
             }
         }
-        // this.socket.send('abcde');
-        // const count = data[data.length - 3];
-        // const blockId = this.executeCheckList[count];
-        // if (blockId) {
-        //     const socketData = this.handler.encode();
-        //     socketData.blockId = blockId;
-        //     this.setSocketData({
-        //         data,
-        //         socketData,
-        //     });
-        //     this.socket.send(socketData);
-        // }
+
+        return EXCEPTION_COMMAND_CODE.indexOf(data[0]) === -1;
     }
 
     disconnect(connect) {

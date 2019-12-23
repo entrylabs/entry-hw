@@ -295,14 +295,12 @@ class Connector {
                 }
 
                 this.received = true;
+                let shouldSendToWs = true;
                 if (hwModule.handleLocalData) {
-                    hwModule.handleLocalData(data);
+                    shouldSendToWs = hwModule.handleLocalData(data);
                 }
 
-                if (
-                    !hwModule.getStatusMapCodes ||
-                    hwModule.getStatusMapCodes().indexOf(data[0]) == -1
-                ) {
+                if (shouldSendToWs) {
                     // 서버로 데이터를 요청한다.
                     router.setHandlerData();
                     router.sendEncodedDataToServer();
