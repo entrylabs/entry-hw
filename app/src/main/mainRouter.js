@@ -1,9 +1,7 @@
 const { app, ipcMain, shell } = require('electron');
 const path = require('path');
-const fs = require('fs');
-const ScannerManager = require('./ScannerManager');
+const ScannerManager = require('./scannerManager');
 const Flasher = require('./serial/flasher');
-const Utils = require('./utils/fileUtils');
 const rendererConsole = require('./utils/rendererConsole');
 const IpcManager = require('./utils/ipcMainManager');
 const HardwareListManager = require('./hardwareListManager');
@@ -409,13 +407,7 @@ class MainRouter {
         const asarIndex = app.getAppPath().indexOf(`${path.sep}app.asar`);
         let sourcePath;
         if (asarIndex > -1) {
-            const asarPath = app.getAppPath().substr(0, asarIndex);
-            const externalDriverPath = path.join(asarPath, 'drivers');
-            const internalDriverPath = path.resolve(app.getAppPath(), __dirname, '..', '..', 'drivers');
-            if (!fs.existsSync(externalDriverPath)) {
-                Utils.copyRecursiveSync(internalDriverPath, externalDriverPath);
-            }
-            sourcePath = externalDriverPath;
+            sourcePath = path.join(app.getAppPath(), '..', 'drivers');
         } else {
             sourcePath = path.resolve(__dirname, '..', '..', 'drivers');
         }

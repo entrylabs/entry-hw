@@ -1,8 +1,8 @@
 const _ = require('lodash');
 const HID = require('node-hid');
 const rendererConsole = require('../utils/rendererConsole');
-const BaseScanner = require('../BaseScanner');
-const Connector = require('./Connector');
+const BaseScanner = require('../baseScanner');
+const Connector = require('./connector');
 
 class HidScanner extends BaseScanner {
     constructor(router) {

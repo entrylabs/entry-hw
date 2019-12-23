@@ -1,8 +1,8 @@
 const _ = require('lodash');
 const rendererConsole = require('../utils/rendererConsole');
 const IpcManager = require('../utils/ipcMainManager');
-const BaseScanner = require('../BaseScanner');
-const Connector = require('./Connector');
+const BaseScanner = require('../baseScanner');
+const Connector = require('./connector');
 
 class BleScanner extends BaseScanner {
     constructor(router) {

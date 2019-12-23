@@ -1,4 +1,4 @@
-const BaseConnector = require('../BaseConnector');
+const BaseConnector = require('../baseConnector');
 const _ipcManager = require('../utils/ipcMainManager');
 
 class BleConnector extends BaseConnector {

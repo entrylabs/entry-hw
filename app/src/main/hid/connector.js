@@ -1,5 +1,5 @@
 const HID = require('node-hid');
-const BaseConnector = require('../BaseConnector');
+const BaseConnector = require('../baseConnector');
 
 class HidConnector extends BaseConnector {
     open(path) {
