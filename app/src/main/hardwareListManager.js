@@ -7,14 +7,14 @@ module.exports = class {
         this.moduleBasePath = path.resolve(app.getAppPath(), __dirname, '..', '..', 'modules');
         this.allHardwareList = [];
         this.router = router;
-        this.initialize();
-        this.notifyHardwareListChanged();
+        this._initialize();
+        this._notifyHardwareListChanged();
     }
 
     /**
      * 파일을 읽어와 리스트에 작성한다.
      */
-    initialize() {
+    _initialize() {
         try {
             // noinspection JSCheckFunctionSignatures
             fs.readdirSync(this.moduleBasePath)
@@ -32,7 +32,7 @@ module.exports = class {
         }
     }
 
-    notifyHardwareListChanged() {
+    _notifyHardwareListChanged() {
         this.router &&
         this.router.sendEventToMainWindow('hardwareListChanged');
     }
