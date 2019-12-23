@@ -3,7 +3,7 @@ import produce from 'immer';
 import {
     CategoryTypeEnum,
     CloudModeTypesEnum,
-    HardwareModuleStateEnum,
+    HardwareConnectionStatusEnum,
     HardwarePageStateEnum,
 } from '../../constants/constants';
 import { makePayloadAction } from '../../functions/makeAction';
@@ -16,7 +16,7 @@ export interface ICommonState {
     alertMessage?: IAlertMessage
     currentPageState: HardwarePageStateEnum;
     categoryState: CategoryTypeEnum;
-    moduleState: HardwareModuleStateEnum;
+    moduleState: HardwareConnectionStatusEnum;
     isLicenseShow: boolean;
     isCloudMode: CloudModeTypesEnum;
 }
@@ -40,14 +40,14 @@ export const changeCurrentPageState = makePayloadAction<HardwarePageStateEnum>(C
 export const changeCloudMode = makePayloadAction<CloudModeTypesEnum>(CLOUD_MODE_CHANGED);
 export const changeStateTitle = makePayloadAction<string>(STATE_TITLE_CHANGED);
 export const changeAlertMessage = makePayloadAction<IAlertMessage>(ALERT_MESSAGE_CHANGED);
-export const changeHardwareModuleState = makePayloadAction<HardwareModuleStateEnum>(MODULE_STATE_CHANGED);
+export const changeHardwareModuleState = makePayloadAction<HardwareConnectionStatusEnum>(MODULE_STATE_CHANGED);
 
 // reducer
 const initialState: ICommonState = {
     stateTitle: translator.translate('Select hardware'),
     currentPageState: HardwarePageStateEnum.list,
     categoryState: CategoryTypeEnum.all,
-    moduleState: HardwareModuleStateEnum.disconnected,
+    moduleState: HardwareConnectionStatusEnum.disconnected,
     isLicenseShow: false,
     isCloudMode: ipcRenderer.sendSync('getCurrentCloudModeSync'),
 };

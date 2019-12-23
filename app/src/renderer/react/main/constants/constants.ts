@@ -10,7 +10,13 @@ export enum CategoryTypeEnum {
     board = 'board',
 }
 
-export enum HardwareModuleStateEnum {
+export enum HardwareModuleStatus {
+    available = 'available',
+    needUpdate = 'needUpdate',
+    needDownload = 'needDownload',
+}
+
+export enum HardwareConnectionStatusEnum {
     lost = 'lost',
     disconnected = 'disconnected',
     selectPort = 'select_port',

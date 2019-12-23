@@ -9,17 +9,19 @@ declare type IFirmwareInfo =
 declare interface IHardware {
     category: 'board' | 'robot' | 'module';
     entry: { protocol: 'json' };
+    id: string;
+    name: any;
+    icon: string;
+    module: string;
+    platform: any;
+    hardware: any;
+
+    // optional
     driver?: IDriverInfo;
     firmware?: IFirmwareInfo;
-    hardware: any;
-    icon: string;
-    id: string;
-    module: string;
     url?: string;
     email?: string;
     video?: string | string[];
-    name: any;
-    platform: any;
     reconnect?: boolean;
     select_com_port?: boolean;
     tryFlasherNumber?: number;
