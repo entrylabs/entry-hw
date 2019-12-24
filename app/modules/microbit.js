@@ -323,9 +323,11 @@ class Microbit extends BaseModule {
                     const value = payload[0];
                     return this.makeBuffer(type, [value]);
                 }
-
+                case functionKeys.GET_LIGHT_LEVEL: {
+                    return this.makeBuffer(type);
+                }
                 // 그냥 값 없이 바로 커맨드만 보내는 경우
-                case functionKeys.GET_LIGHT_LEVEL:
+
                 case functionKeys.GET_ACCELEROMETER:
                 case functionKeys.GET_BUTTON:
                 case functionKeys.GET_TEMPERATURE:
@@ -374,11 +376,16 @@ class Microbit extends BaseModule {
                 break;
             }
             case functionKeys.GET_ANALOG: {
-                this.setStatusMap(
-                    ['sensorData', 'analog', data[1]],
-                    Buffer.from([data[2], data[3]]).readInt16LE(0)
-                );
+                let result = data[2] * 256 + data[3];
+                this.setStatusMap(['sensorData', 'analog', data[1]], result);
                 break;
+            }
+
+            case functionKeys.GET_LIGHT_LEVEL: {
+                this.setStatusMap(
+                    ['sensorData', 'lightLevel'],
+                    Buffer.from([data[1]]).readUInt8(0)
+                );
             }
 
             case functionKeys.GET_DIGITAL: {
@@ -403,11 +410,10 @@ class Microbit extends BaseModule {
                 const roll = Number(
                     Buffer.from([data[9], data[10]]).readInt16LE(0)
                 );
-                const light = Number(Buffer.from([data[11]]).readUInt8(0));
                 const temperature = Number(
-                    Buffer.from([data[12]]).readUInt8(0)
+                    Buffer.from([data[11]]).readUInt8(0)
                 );
-                const button = Number(Buffer.from([data[13]]).readUInt8(0));
+                const button = Number(Buffer.from([data[12]]).readUInt8(0));
 
                 this.setStatusMap(['sensorData', 'accelerometer', 'x'], x);
                 this.setStatusMap(['sensorData', 'accelerometer', 'y'], y);
@@ -419,7 +425,6 @@ class Microbit extends BaseModule {
                 );
                 this.setStatusMap(['sensorData', 'tilt', 'pitch'], pitch);
                 this.setStatusMap(['sensorData', 'tilt', 'roll'], roll);
-                this.setStatusMap(['sensorData', 'lightLevel'], light);
                 this.setStatusMap(['sensorData', 'temperature'], temperature);
                 this.setStatusMap(['sensorData', 'button'], button);
                 break;
