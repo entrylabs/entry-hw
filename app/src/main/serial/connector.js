@@ -341,7 +341,6 @@ class SerialConnector extends BaseConnector {
             this.serialPort.write(data, () => {
                 if (this.serialPort) {
                     this.serialPort.drain(() => {
-                        this.connected = true;
                         this.isSending = false;
                         callback && callback();
                     });
