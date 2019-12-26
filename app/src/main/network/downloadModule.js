@@ -1,11 +1,12 @@
 const { net } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const { AVAILABLE_TYPE } = require('../../common/constants');
 const NetworkZipHandlerStream = require('../utils/networkZipHandleStream');
 
-module.exports = ({ moduleFile, version, moduleName }) => new Promise((resolve, reject) => {
+module.exports = (moduleName) => new Promise((resolve, reject) => {
     if (!moduleName) {
-        reject();
+        reject(new Error('moduleName it not present'));
         return;
     }
 
@@ -20,12 +21,16 @@ module.exports = ({ moduleFile, version, moduleName }) => new Promise((resolve, 
             const zipStream = new NetworkZipHandlerStream(moduleDirPath);
             zipStream.on('done', () => {
                 fs.readFile(
-                    path.join(moduleDirPath, `${moduleName}.json`),
+                    // path.join(moduleDirPath, `${moduleName}.json`),
+                    path.join(moduleDirPath, 'metadata.json'),
                     (err, data) => {
                         if (err) {
                             reject(err);
+                            return;
                         }
-                        resolve(JSON.parse(data));
+                        const configJson = JSON.parse(data);
+                        configJson.availableType = AVAILABLE_TYPE.available;
+                        resolve(configJson);
                     });
             });
 

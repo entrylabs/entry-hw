@@ -6,6 +6,7 @@ const rendererConsole = require('./utils/rendererConsole');
 const IpcManager = require('./utils/ipcMainManager');
 const HardwareListManager = require('./hardwareListManager');
 const HandlerCreator = require('./datahandler/handler');
+const downloadModule = require('./network/downloadModule');
 
 /**
  * scanner, server, connector 를 총괄하는 중앙 클래스.
@@ -93,6 +94,10 @@ class MainRouter {
         });
         ipcMain.on('requestHardwareListSync', (e) => {
             e.returnValue = this.hardwareListManager.allHardwareList;
+        });
+        
+        ipcMain.handle('requestDownloadModule', async (e, moduleName) => {
+            await this.requestHardwareModule(moduleName);
         });
     }
 
@@ -413,6 +418,11 @@ class MainRouter {
         }
 
         shell.openItem(path.resolve(sourcePath, driverPath));
+    }
+    
+    async requestHardwareModule(moduleName) {
+        const moduleConfig = await downloadModule(moduleName);
+        this.hardwareListManager.updateHardwareList([moduleConfig]);
     }
 }
 

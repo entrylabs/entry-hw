@@ -6,6 +6,7 @@ import { changeCurrentPageState } from '../../store/modules/common';
 import { HardwareAvailableTypeEnum, HardwarePageStateEnum } from '../../constants/constants';
 import { selectHardware } from '../../store/modules/connection';
 import styled from 'styled-components';
+import { requestHardwareModuleDownload } from '../../store/modules/hardware';
 
 const HardwareTypeDiv = styled.div`
     width: 170px;
@@ -38,9 +39,15 @@ const HardwareElement: React.FC<Preload & IDispatchProps & { hardware: any }> = 
 
     const langType = useMemo(() => translator.currentLanguage, [translator]);
     const onElementClick = useCallback(() => {
-        props.selectHardware(hardware);
-        props.changeCurrentState(HardwarePageStateEnum.connection);
-    }, [hardware]);
+        if (availableType === HardwareAvailableTypeEnum.available) {
+            props.selectHardware(hardware);
+            props.changeCurrentState(HardwarePageStateEnum.connection);
+        } else {
+            hardware.moduleName
+                ? props.requestHardwareModuleDownload(hardware.moduleName)
+                : console.log('moduleName is not defined');
+        }
+    }, [hardware, availableType]);
     
     const getImageBaseSrc = useMemo(() => {
         const imageBaseUrl =
@@ -69,11 +76,13 @@ const HardwareElement: React.FC<Preload & IDispatchProps & { hardware: any }> = 
 interface IDispatchProps {
     selectHardware: (hardware: IHardware) => void;
     changeCurrentState: (category: HardwarePageStateEnum) => void;
+    requestHardwareModuleDownload: (moduleName: string) => void;
 }
 
 const mapDispatchToProps: IMapDispatchToProps<IDispatchProps> = (dispatch) => ({
     selectHardware: selectHardware(dispatch),
     changeCurrentState: changeCurrentPageState(dispatch),
+    requestHardwareModuleDownload: requestHardwareModuleDownload(dispatch),
 });
 
 export default connect(undefined, mapDispatchToProps)(withPreload(HardwareElement));

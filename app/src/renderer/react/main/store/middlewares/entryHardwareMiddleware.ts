@@ -5,6 +5,7 @@ import {
     CATEGORY_CHANGED,
     changeHardwareList,
     HARDWARE_LIST_RESET,
+    HARDWARE_MODULE_DOWNLOAD_REQUESTED,
     HARDWARE_SEARCH_KEYWORD_CHANGED,
 } from '../modules/hardware';
 import filterHardwareList from '../../functions/filterHardware';
@@ -20,8 +21,8 @@ const { translator, rendererRouter } = window;
  * 리액트 엘리먼트에서는 뷰 전환에 관련한 로직만 생각하고, 여기서는 메인프로세스와의 통신만을 다룬다.
  */
 // eslint-disable-next-line max-len
-const entryHardwareMiddleware: Middleware = ({ getState }: { getState: () => IStoreState }) => (next: Dispatch<AnyAction>) => (action: AnyAction) => {
-    const { type } = action; // currentAction
+const entryHardwareMiddleware: Middleware = ({ getState }: { getState: () => IStoreState }) => (next: Dispatch<AnyAction>) => async (action: AnyAction) => {
+    const { type, payload } = action; // currentAction
 
     switch (type) {
         case CATEGORY_CHANGED: {
@@ -106,6 +107,11 @@ const entryHardwareMiddleware: Middleware = ({ getState }: { getState: () => ISt
                         changeAlertMessage(next)({ message: translator.translate('Failed Firmware Upload') });
                     });
             }
+            break;
+        }
+        case HARDWARE_MODULE_DOWNLOAD_REQUESTED: {
+            await rendererRouter.requestDownloadModule(payload);
+            changeHardwareList(next)(rendererRouter.hardwareList);
             break;
         }
         default:

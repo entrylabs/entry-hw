@@ -3,6 +3,7 @@ const { app } = require('electron');
 const path = require('path');
 const { unionWith } = require('lodash');
 const { AVAILABLE_TYPE } = require('../common/constants');
+const { valid, lt } = require('semver');
 const getModuleList = require('./network/getModuleList');
 
 const nameSortComparator = (left, right) => {
@@ -63,7 +64,7 @@ module.exports = class {
                 return;
             }
 
-            this._updateHardwareList(moduleList.map((elem) => {
+            this.updateHardwareList(moduleList.map((elem) => {
                 elem.availableType = AVAILABLE_TYPE.needDownload;
                 return elem;
             }));
@@ -72,16 +73,15 @@ module.exports = class {
         }
     }
 
-    _updateHardwareList(source) {
+    updateHardwareList(source) {
         const availables = this._getAllHardwareModulesFromDisk();
         const mergedList = unionWith(availables, source, (src, ori) => {
             if (ori.id === src.id) {
-                if (!ori.version || ori.version < src.version) {
+                if (!ori.version || lt(valid(ori.version), valid(src.version))) {
                     ori.availableType = AVAILABLE_TYPE.needUpdate;
-                    src.availableType = AVAILABLE_TYPE.needUpdate;
-                    return true;
+                    return ori;
                 }
-                return false;
+                return src;
             }
         });
 
@@ -94,24 +94,5 @@ module.exports = class {
     _notifyHardwareListChanged() {
         this.router &&
         this.router.sendEventToMainWindow('hardwareListChanged');
-    }
-
-    /**
-     * 현재 모듈과 특정 외부 모듈이 동일한 모듈인지 판단한다.
-     * 함수가 따로 존재하는 이유는, 기존 모듈 데이터가 legacy 라서
-     * moduleName 프로퍼티가 없고 id 만 존재할 수 있기 때문이다.
-     * 이 함수는 moduleName 이 없으면 id 로 비교하고 있으면 moduleName 으로 비교한다.
-     * id 비교시엔 outdated 경고를 출력한다.
-     * @param original 기존에 가지고 있던 모듈데이터
-     * @param source 신규로 추가된 모듈데이터
-     * @private
-     */
-    _isSameModule(original, source) {
-        if (original.moduleName) {
-            return original.moduleName === source.moduleName;
-        } else {
-            console.warn(`${original.id} was outdated. please modulize`);
-            return original.id === source.id;
-        }
     }
 };
