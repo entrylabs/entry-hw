@@ -31,12 +31,8 @@ export enum CloudModeTypesEnum {
     cloud,
 }
 
-/*
-    lost = 'lost',
-    list = 'list',
-    selectPort = 'select_port',
-    flash = 'flash',
-    beforeConnect = 'before_connect',
-    connected = 'connected',
-    showRobot = 'show_robot',
- */
+export enum HardwareAvailableTypeEnum {
+    available = 'available',
+    needUpdate = 'needUpdate',
+    needDownload = 'needDownload',
+}

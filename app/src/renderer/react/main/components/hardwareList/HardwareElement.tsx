@@ -3,7 +3,7 @@ import withPreload from '../../hoc/withPreload';
 import { connect } from 'react-redux';
 import { IMapDispatchToProps } from '../../store';
 import { changeCurrentPageState } from '../../store/modules/common';
-import { HardwarePageStateEnum } from '../../constants/constants';
+import { HardwareAvailableTypeEnum, HardwarePageStateEnum } from '../../constants/constants';
 import { selectHardware } from '../../store/modules/connection';
 import styled from 'styled-components';
 
@@ -14,10 +14,15 @@ const HardwareTypeDiv = styled.div`
     text-align: center;
 `;
 
-const HardwareThumbnailImg = styled.img`
+const HardwareThumbnailImg = styled.img<{type: HardwareAvailableTypeEnum}>`
     width: 100px;
     height: 100px;
     cursor: pointer;
+    ${({ type }) => {
+        if (type !== HardwareAvailableTypeEnum.available) {
+            return 'filter: grayscale(1);';
+        }
+    }}
 `;
 
 const HardwareTitle = styled.h2`
@@ -28,16 +33,32 @@ const HardwareTitle = styled.h2`
 `;
 
 const HardwareElement: React.FC<Preload & IDispatchProps & { hardware: any }> = (props) => {
-    const { hardware, translator } = props;
+    const { hardware, translator, rendererRouter } = props;
+    const { availableType } = hardware;
+
     const langType = useMemo(() => translator.currentLanguage, [translator]);
     const onElementClick = useCallback(() => {
         props.selectHardware(hardware);
         props.changeCurrentState(HardwarePageStateEnum.connection);
     }, [hardware]);
+    
+    const getImageBaseSrc = useMemo(() => {
+        const imageBaseUrl =
+            rendererRouter.sharedObject?.moduleResourceUrl || 'https://playentry.org/';
+
+        switch (availableType) {
+            case HardwareAvailableTypeEnum.needUpdate:
+            case HardwareAvailableTypeEnum.needDownload:
+                return `${imageBaseUrl}/${hardware.moduleName}/image`;
+            case HardwareAvailableTypeEnum.available:
+            default:
+                return `../../../modules/${hardware.icon}`;
+        }
+    }, [availableType]);
 
     return (
         <HardwareTypeDiv id={`${hardware.id}`} onClick={onElementClick}>
-            <HardwareThumbnailImg src={`../../../modules/${hardware.icon}`} alt=""/>
+            <HardwareThumbnailImg src={getImageBaseSrc} type={availableType} alt=""/>
             <HardwareTitle>
                 {`${hardware.name && hardware.name[langType] || hardware.name.en}`}
             </HardwareTitle>
