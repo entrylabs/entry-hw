@@ -1,5 +1,6 @@
 const { app, ipcMain, shell } = require('electron');
 const path = require('path');
+const { HARDWARE_STATEMENT } = require('../common/constants');
 const ScannerManager = require('./scannerManager');
 const Flasher = require('./serial/flasher');
 const rendererConsole = require('./utils/rendererConsole');
@@ -95,7 +96,7 @@ class MainRouter {
         ipcMain.on('requestHardwareListSync', (e) => {
             e.returnValue = this.hardwareListManager.allHardwareList;
         });
-        
+
         ipcMain.handle('requestDownloadModule', async (e, moduleName) => {
             await this.requestHardwareModule(moduleName);
         });
@@ -111,7 +112,7 @@ class MainRouter {
      */
     flashFirmware(firmwareName) {
         if (this.connector && this.connector.serialPort && this.config) {
-            this.sendState('flash');
+            this.sendState(HARDWARE_STATEMENT.flash);
             let firmware = firmwareName;
             const {
                 firmware: firmwareInConfig,
@@ -168,7 +169,6 @@ class MainRouter {
      * startScan 의 결과는 기다리지 않는다.
      */
     reconnect() {
-        this.close();
         this.startScan(this.config);
     }
 
@@ -179,14 +179,18 @@ class MainRouter {
      */
     sendState(state, ...args) {
         let resultState = state;
-        if (state === 'lost' || state === 'disconnect') {
+        if (state === HARDWARE_STATEMENT.lost) {
             if (this.config && this.config.reconnect) {
                 this.reconnect();
             } else {
                 // 연결 잃은 후 재연결 속성 없으면 연결해제처리
-                resultState = 'disconnect';
+                resultState = HARDWARE_STATEMENT.disconnected;
                 this.close();
             }
+        } else if (state === HARDWARE_STATEMENT.connected && this.config.moduleName) {
+            this.sendActionDataToServer('init', {
+                name: this.config.moduleName,
+            });
         }
 
         this.sendEventToMainWindow('state', resultState, ...args);
@@ -219,7 +223,7 @@ class MainRouter {
             this.config = config;
             if (this.scanner) {
                 this.hwModule = require(`../../modules/${config.module}`);
-                this.sendState('scan');
+                this.sendState(HARDWARE_STATEMENT.scan);
                 this.scanner.stopScan();
                 const connector = await this.scanner.startScan(this.hwModule, this.config);
                 if (connector) {
@@ -265,7 +269,7 @@ class MainRouter {
         - 3000ms 동안 checkInitialData 가 정상적으로 이루어지지 않은 경우이다.
          */
         if (this.connector.executeFlash) {
-            this.sendState('flash');
+            this.sendState(HARDWARE_STATEMENT.flash);
             delete this.connector.executeFlash;
             return;
         }
@@ -357,6 +361,17 @@ class MainRouter {
     }
 
     /**
+     * 단순 데이터가 아닌 통신규약을 잡기 위한 모듈화용 추가 송신용함수
+     * 규약이 잘 잡히면 기존의 데이터 전송도 이쪽으로 편입할 것
+     * @param action 'init', 'state' | 없으면 기존 레거시 로직으로 동작한
+     * @param data
+     * init 시에는 data: { name: string }
+     */
+    sendActionDataToServer(action, data) {
+        this.server.send({ action, data });
+    }
+
+    /**
      * 하드웨어 모듈의 requestRemoteData 를 통해 핸들러 내 데이터를 세팅한다.
      */
     setHandlerData() {
@@ -385,7 +400,7 @@ class MainRouter {
             } else {
                 this.connector.close();
             }
-            this.sendState('disconnected');
+            this.sendState(HARDWARE_STATEMENT.disconnected);
         }
         if (this.scanner) {
             this.scanner.stopScan();
@@ -419,7 +434,7 @@ class MainRouter {
 
         shell.openItem(path.resolve(sourcePath, driverPath));
     }
-    
+
     async requestHardwareModule(moduleName) {
         const moduleConfig = await downloadModule(moduleName);
         this.hardwareListManager.updateHardwareList([moduleConfig]);

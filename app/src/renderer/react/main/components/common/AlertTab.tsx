@@ -47,6 +47,7 @@ interface IProps extends IAlertMessage {
 const AlertTab: React.FC<IProps> = (props) => {
     const [animate, setAnimate] = useState<boolean>(true);
     const { message, duration } = props;
+    let clearAnimationTimeout: number;
 
     useEffect(() => {
         setAnimate(true);
@@ -54,10 +55,13 @@ const AlertTab: React.FC<IProps> = (props) => {
 
     useEffect(() => {
         if (duration) {
-            setTimeout(() => {
+            clearAnimationTimeout = window.setTimeout(() => {
                 setAnimate(false);
             }, 3000);
         }
+        return () => {
+            clearAnimationTimeout && clearTimeout(clearAnimationTimeout);
+        };
     }, [duration]);
 
     return (

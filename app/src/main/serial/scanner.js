@@ -122,7 +122,7 @@ class SerialScanner {
 
         const electedConnector = await electPort(selectedPorts, hardware, this.hwModule,
             ({ connector }) => {
-                if (this.config.firmware) {
+                if (this.config && this.config.firmware) {
                     /*
                     펌웨어가 없는 상태에서 통신이 이루어지지 않는 경우,
                     before_connect 로 임시 연결됨 상태로 만들어서 펌웨어 버튼은 동작할 수 있게끔

@@ -14,7 +14,7 @@ module.exports = {
         flash: 'flash',
         beforeConnect: 'before_connect',
         connected: 'connected',
-        showRobot: 'show_robot',
+        scan: 'scan',
     },
     AVAILABLE_TYPE: {
         available: 'available',
