@@ -354,7 +354,11 @@ class Microbit extends BaseModule {
 
     handleLocalData(data) {
         this.pending = false;
-        console.log('received from microbit : ', data);
+        // show only reqs not status updates
+        if (data[0] != 171 && data[0] != 170 && data[0] != 0) {
+            console.log('received from microbit : ', data);
+        }
+
         const receivedCommandType = data[0];
         switch (receivedCommandType) {
             case functionKeys.RST:
@@ -442,7 +446,7 @@ class Microbit extends BaseModule {
             }
         }
 
-        return EXCEPTION_COMMAND_CODE.indexOf(data[0]) === -1;
+        return true;
     }
 
     disconnect(connect) {
