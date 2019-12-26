@@ -1,10 +1,10 @@
 const { net } = require('electron');
 
 module.exports = () => new Promise((resolve, reject) => {
-    const { baseUrl, versionCheckApi, hardwareVersion } = global.sharedObject;
+    const { updateCheckUrl, hardwareVersion } = global.sharedObject;
     const request = net.request({
         method: 'POST',
-        url: `${baseUrl}${versionCheckApi}`,
+        url: updateCheckUrl,
     });
 
     request.setHeader('content-type', 'application/json; charset=utf-8');

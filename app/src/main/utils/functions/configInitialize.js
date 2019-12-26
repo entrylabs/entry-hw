@@ -9,10 +9,8 @@ const fs = require('fs');
  * 아래 로직상 여기에 없는 키는 적용되지 않는다.
  */
 const defaultConfigSchema = {
-    'baseUrl': 'https://playentry.org',
-    'baseResource': '/public/hardware',
-    'versionCheckApi': '/api/checkVersion',
-    'moduleCheckApi': '/api/hardware',
+    updateCheckUrl: 'https://playentry.org/api/checkVersion',
+    moduleResourceUrl: 'https://playentry.org/api/hardware',
 };
 
 /**

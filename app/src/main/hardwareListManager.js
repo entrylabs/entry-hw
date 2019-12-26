@@ -1,6 +1,7 @@
 const fs = require('fs');
 const { app } = require('electron');
 const path = require('path');
+const { unionWith } = require('lodash');
 const { AVAILABLE_TYPE } = require('../common/constants');
 const getModuleList = require('./network/getModuleList');
 
@@ -62,57 +63,29 @@ module.exports = class {
                 return;
             }
 
-            console.log(moduleList);
-            this._updateHardwareList(moduleList);
-            // const onlineHardwareList = moduleList.map(this._convertMetadataToHardwareConfig);
-            // this.updateHardwareList(onlineHardwareList);
+            this._updateHardwareList(moduleList.map((elem) => {
+                elem.availableType = AVAILABLE_TYPE.needDownload;
+                return elem;
+            }));
         } catch (e) {
-            console.log(e);
+            console.log('online hardware list update failed');
         }
     }
 
-    // _convertMetadataToHardwareConfig(metadata) {
-    //     const { baseUrl, baseResource } = global.sharedObject;
-    //     const resourceUrl = `${baseUrl}${baseResource}`;
-    //
-    //     const { moduleName, moduleFile, imageFile, version, name, hardware } = metadata;
-    //     const { id, platform } = hardware;
-    //     return {
-    //         id,
-    //         version,
-    //         image: `${resourceUrl}/${moduleName}/${version}/${imageFile}`,
-    //         name,
-    //         moduleName,
-    //         moduleFile,
-    //         platform,
-    //         availableType: AVAILABLE_TYPE.needDownload,
-    //     };
-    // }
-
     _updateHardwareList(source) {
         const availables = this._getAllHardwareModulesFromDisk();
-        this.allHardwareList = [];
-        const mergedList = availables.map((original) => {
-            const foundElem = source.find((srcElem, index) => {
-                if (this._isSameModule(original, srcElem)) {
-                    source.splice(index, 1);
+        const mergedList = unionWith(availables, source, (src, ori) => {
+            if (ori.id === src.id) {
+                if (!ori.version || ori.version < src.version) {
+                    ori.availableType = AVAILABLE_TYPE.needUpdate;
+                    src.availableType = AVAILABLE_TYPE.needUpdate;
                     return true;
                 }
                 return false;
-            });
-
-            if (foundElem) {
-                // != 의 경우 일부러 그랬습니다. 문자열 / 숫자를 상관하지 않게 하기 위함
-                // noinspection EqualityComparisonWithCoercionJS
-                if (!original.version || original.version != foundElem.version) {
-                    original.availableType = AVAILABLE_TYPE.needUpdate;
-                }
             }
-            return original;
         });
 
         this.allHardwareList = mergedList
-            .concat(source || [])
             .filter(platformFilter)
             .sort(nameSortComparator);
         this._notifyHardwareListChanged();

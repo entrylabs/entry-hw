@@ -1,10 +1,10 @@
 const { net } = require('electron');
 
 module.exports = () => new Promise((resolve, reject) => {
-    const { baseUrl, moduleCheckApi } = global.sharedObject;
+    const { moduleResourceUrl } = global.sharedObject;
 
     //TODO 개발간 임시
-    const request = net.request(`${baseUrl}${moduleCheckApi}`);
+    const request = net.request(`${moduleResourceUrl}`);
     request.on('response', (response) => {
         let buffer = '';
         response.on('error', reject);
