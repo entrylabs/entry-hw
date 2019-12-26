@@ -21,8 +21,7 @@ module.exports = (moduleName) => new Promise((resolve, reject) => {
             const zipStream = new NetworkZipHandlerStream(moduleDirPath);
             zipStream.on('done', () => {
                 fs.readFile(
-                    // path.join(moduleDirPath, `${moduleName}.json`),
-                    path.join(moduleDirPath, 'metadata.json'),
+                    path.join(moduleDirPath, `${moduleName}.json`),
                     (err, data) => {
                         if (err) {
                             reject(err);
