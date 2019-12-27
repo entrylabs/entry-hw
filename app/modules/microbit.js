@@ -1,5 +1,6 @@
 const _ = require('lodash');
 const BaseModule = require('./baseModule');
+const Connector = require('../src/main/serial/connector');
 
 /**
  * NOTE
@@ -190,22 +191,25 @@ class Microbit extends BaseModule {
             payload,
             codeId,
         });
-        this.codeIdQueue.push({ type, codeId });
+        this.codeIdQueue.push({
+            type,
+            payload,
+            codeId,
+        });
     }
 
     requestLocalData() {
         if (this.commandQueue.length !== 0 && !this.pending) {
             this.pending = true;
             //for failure tolerance
-            if (this.commandQueue.length < this.codeIdQueue.length) {
-                this.setStatusMap(
-                    ['codeIdMiss'],
-                    this.codeIdQueue.shift().codeId
-                );
+            let targetCommand;
+            if (this.commandQueue.length + 2 < this.codeIdQueue.length) {
+                targetCommand = this.codeIdQueue[0];
             } else {
-                this.setStatusMap(['codeIdMiss'], null);
+                targetCommand = this.commandQueue.shift();
             }
-            const { type, payload, codeId } = this.commandQueue.shift();
+            const { type, payload, codeId } = targetCommand;
+
             switch (type) {
                 case functionKeys.SET_LED: {
                     const { x, y, value } = payload;
@@ -377,6 +381,8 @@ class Microbit extends BaseModule {
         if (data[0] != 171 && data[0] != 170 && data[0] != 0) {
             console.log('received from microbit : ', data);
         }
+        // if (this.commandQueue.length > 0) console.log(this.commandQueue);
+        // if (this.codeIdQueue.length > 0) console.log(this.codeIdQueue);
 
         const receivedCommandType = data[0];
         switch (receivedCommandType) {
@@ -397,6 +403,7 @@ class Microbit extends BaseModule {
 
             case functionKeys.SET_STRING:
             case functionKeys.SET_IMAGE: {
+                codeId = this.codeIdQueue.shift().codeId;
                 this.setStatusMap(['isSensorMap'], false);
                 break;
             }
