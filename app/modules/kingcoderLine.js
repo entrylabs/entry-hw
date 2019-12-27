@@ -1,5 +1,4 @@
 function Module() {
-    //
     this.digitalValue = new Array(11);
     this.remoteDigitalValue = [0];
     this.motor1 = 0;

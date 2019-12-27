@@ -1,0 +1,195 @@
+{
+	"en": {
+		"en-GB": "en",
+		"en-US": "en",
+		"ko": "ko"
+	},
+	"If unexpected problem occurs while operating,": {
+		"ko": "하드웨어 연결과 작동 시 예기치 못한 문제가 발생할 수 있습니다.",
+		"jp": "ハードウェア接続においてエラーが発生した場合は、"
+	},
+	"contact the hardware company to resolve the problem.": {
+		"ko": "문제 발생 시 해당 하드웨어 업체에 문의해주세요.",
+		"jp": "ハードウェアの製造元に問い合わせてください。"
+	},
+	"* Entry Labs is not responsible for the extension program and hardware products on this site.": {
+		"ko": "* 하드웨어 연결 프로그램에 등록된 하드웨어들은 각 업체가 제공하고 개발한 것이며, 엔트리는 본 프로그램 이외에는 책임지지 않습니다.",
+		"jp": "※ハードウェアは各製造元が開発・提供するものであり、LINE株式会社はLINE entryのプログラム以外に責任を負いませんので、ご了承ください。"
+	},
+	"Choose a hardware to connect.": {
+		"ko": "연결할 하드웨어를 선택해 주세요.",
+		"jp": "接続させたいハードウェアを選択してください"
+	},
+	"Have you installed the device driver?": {
+		"ko": "디바이스 드라이버를 설치하셨나요?",
+		"jp": "デバイスのドライバをインストールしましたか"
+	},
+	"Install Device Driver": {
+		"ko": "드라이버 설치",
+		"jp": "ドライバ・インストール"
+	},
+	"Install Firmware": {
+		"ko": "펌웨어 설치",
+		"jp": "ファームウェア・インストール"
+	},
+	"Possible Install Firmware": {
+		"ko": "펌웨어 설치 가능",
+		"jp": "ファームウェア・インストール可能"
+	},
+	"Install Firmware(Sensor Board)": {
+		"ko": "센서/확장보드 유선 펌웨어",
+		"jp": "センサ／拡張ボードの有線ファームウェア"
+	},
+	"Install Firmware(Sensor Board Bluetooth)": {
+		"ko": "센서/확장보드 무선 펌웨어",
+		"jp": "センサ／拡張ボードの無線ファームウェア"
+	},
+	"Install Firmware(Extension Project)": {
+		"ko": "펌웨어 설치(확장프로젝트)",
+		"jp": "ファームウェア・インストール（拡張プロジェクト）"
+	},
+	"Hardware Device Is Not Connected": {
+		"ko": "하드웨어 장치가 아직 연결되지 않았습니다.",
+		"jp": "ハードウェア装置がまだ接続されていません"
+	},
+	"Connect Other Hardware": {
+		"ko": "다른 하드웨어 연결",
+		"jp": "他のハードウェアを接続する"
+	},
+	"Show Entry Web Page": {
+		"ko": "엔트리 웹 페이지 보이기",
+		"jp": "LINE entryのWEBサイトへ"
+	},
+	"Reconnect Hardware": {
+		"ko": "하드웨어 다시 연결",
+		"jp": "ハードウェアにもう一度接続する"
+	},
+	"Select hardware": {
+		"ko": "하드웨어 선택",
+		"jp": "ハードウェアを選択"
+	},
+	"Version Info": {
+		"ko": "버전 정보",
+		"jp": "バージョン情報"
+	},
+	"Firmware Uploaded!": {
+		"ko": "펌웨어가 업로드 되었습니다.",
+		"jp": "ファームウェアがアップロードされました"
+	},
+	"Failed Firmware Upload": {
+		"ko": "펌웨어 업로드가 실패하였습니다.",
+		"jp": "ファームウェアのアップロードに失敗しました"
+	},
+	"Firmware Uploading...": {
+		"ko": "펌웨어 업로드 중입니다...",
+		"jp": "ファームウェアのアップロード中..."
+	},
+	"hardware > connecting": {
+		"ko": "하드웨어 > 연결 대기",
+		"jp": "ハードウェア > 待機中"
+	},
+	"hardware > connected": {
+		"ko": "하드웨어 > 연결 성공",
+		"jp": "ハードウェア > 接続完了"
+	},
+	"hardware > disconnected": {
+		"ko": "하드웨어 > 연결 끊김",
+		"jp": "ハードウェア > 接続解除"
+	},
+	"Connecting to hardware device.": {
+		"ko": "하드웨어와 연결을 시도하고 있습니다.",
+		"jp": "ハードウェア接続：待機中"
+	},
+	"Connected to hardware device.": {
+		"ko": "하드웨어와 연결되었습니다.",
+		"jp": "ハードウェア接続完了"
+	},
+	"Hardware device is disconnected. Please restart this program.": {
+		"ko": "하드웨어 연결이 끊어졌습니다. 연결 프로그램을 다시 시작해 주세요.",
+		"jp": "ハードウェアとの接続が解除されました。接続ソフトを再起動してください。"
+	},
+	"Connection to the hardware will terminate once program is closed.": {
+		"ko": "프로그램 종료 시 하드웨어와 연결이 끊어집니다.",
+		"jp": "プログラムが終了するとハードウェアとの接続が解除されます。"
+	},
+	"E-Mail : ": {
+		"ko": "이메일 : ",
+		"jp": "メールアドレス : "
+	},
+	"WebSite : ": {
+		"ko": "홈페이지 : ",
+		"jp": "ホームページ : "
+	},
+	"Video : ": {
+		"ko": "관련영상 : ",
+		"jp": "関連動画 : "
+	},
+	"Copied to clipboard": {
+		"ko": "이메일 주소가 복사되었습니다.",
+		"jp": "メールアドレスがコピーされました"
+	},
+	"Select": {
+		"ko": "선택하세요",
+		"jp": "選択"
+	},
+	"Select the COM PORT to connect": {
+		"ko": "연결할 COM PORT를 선택하세요",
+		"jp": "接続するCOM PORTを選択してください"
+	},
+	"Cancel": {
+		"ko": "취소",
+		"jp": "キャンセル"
+	},
+	"Connect": {
+		"ko": "연결",
+		"jp": "接続する"
+	},
+	"Arduino compatible driver": {
+		"ko": "아두이노 호환보드 드라이버",
+		"jp": "Arduino互換ボードドライバ"
+	},
+	"Bluetooth driver": {
+		"ko": "블루투스 동글 드라이버",
+		"jp": "Bluetooth ドングルドライバ"
+	},
+	"No results found": {
+		"ko": "검색 결과가 없습니다.",
+		"jp": "検索結果がありません"
+	},
+	"Do you want to restart the program?": {
+		"ko": "프로그램을 재시작 하시겠습니까?",
+		"jp": "プログラムを再起動させますか？"
+	},
+	"Please select the firmware.": {
+		"ko": "펌웨어를 선택해 주세요.",
+		"jp": "ファームウェアを選択してください。"
+	},
+	"Opensource lincense": {
+		"ko": "오픈소스 라이선스",
+		"jp": "オープンソースライセンス"
+	},
+	"Close": {
+		"ko": "닫기",
+		"jp": "閉じる"
+	},
+	"You are running the latest version.": {
+		"ko": "최신 버전입니다.",
+		"jp": "最新バージョンです。"
+	},
+	"Download the latest version": {
+		"ko": "최신버전 다운로드",
+		"jp": "最新バージョンをダウンロード"
+	},
+	"You can use the latest Entry Hardware version(%1).": {
+		"ko": "엔트리 하드웨어 새 버전(%1)을\n사용하실 수 있습니다.",
+		"jp": "エントリーハードウェアの最新バージョン(%1)を\nご使用いただけます。"
+	},
+	"Alert": {
+		"ko": "업데이트 알림",
+		"jp": "アップデート通知"
+	},
+	"Download": {
+		"ko": "최신 버전 다운로드",
+		"jp": "今すぐアップデート"
+	}
+}

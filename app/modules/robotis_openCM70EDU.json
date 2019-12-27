@@ -11,7 +11,6 @@
 	"url": "http://www.robotis.com",
 	"email": "kjs@robotis.com",
 	"reconnect" : true,
-	"select_com_port" : true,
 	"entry": {
 		"protocol": "json"
 	},
@@ -19,11 +18,13 @@
         "win32-ia32": "ROBOTIS/ROBOTIS CDC Driver.bat",
         "win32-x64": "ROBOTIS/ROBOTIS CDC Driver.bat"
 	},
+	"select_com_port" : true,
 	"hardware": {
 		"type": "serial",
 		"control": "slave",
 		"vendor": "ROBOTIS",
-		"duration": 15,
+		"pnpId": 6001,
+		"duration": 250,
 		"baudRate": 57600
 	}
 }

@@ -9,7 +9,7 @@
     "icon" : "truetrue.png",
     "module": "truetrue.js",
     "url": "https://www.truetruebot.com",
-    "email": "truetrue@sigongmedia.co.kr",
+    "email": "truetrue@i-screammedia.com",
     "video": "https://goo.gl/6f1VwT",
     "driver": {
         "win32-ia32": "truetrue/TrueTrueDrivers.exe",

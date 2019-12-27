@@ -1,7 +1,7 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/5qp10j3j20xyf7c0/branch/build?svg=true)](https://ci.appveyor.com/project/kimorkim/entry-hw/branch/build)
 
 
-![Entry Logo](app/src/images/logo.png)
+![Entry Logo](app/src/renderer/images/logo.png)
 ---
 
 ## What is Entry Hardware
