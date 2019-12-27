@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import withPreload from '../../hoc/withPreload';
 import { connect } from 'react-redux';
 import { IMapDispatchToProps } from '../../store';
@@ -15,15 +15,15 @@ const HardwareTypeDiv = styled.div`
     text-align: center;
 `;
 
-const HardwareThumbnailImg = styled.img<{type: HardwareAvailableTypeEnum}>`
+const HardwareThumbnailImg = styled.img<{ type: HardwareAvailableTypeEnum }>`
     width: 100px;
     height: 100px;
     cursor: pointer;
     ${({ type }) => {
-        if (type !== HardwareAvailableTypeEnum.available) {
-            return 'filter: grayscale(1);';
-        }
-    }}
+    if (type !== HardwareAvailableTypeEnum.available) {
+        return 'filter: grayscale(1);';
+    }
+}}
 `;
 
 const HardwareTitle = styled.h2`
@@ -37,6 +37,7 @@ const HardwareElement: React.FC<Preload & IDispatchProps & { hardware: any }> = 
     const { hardware, translator, rendererRouter } = props;
     const { availableType } = hardware;
 
+    const [isImageSrcNotFound, setImageNotFound] = useState(false);
     const langType = useMemo(() => translator.currentLanguage, [translator]);
     const onElementClick = useCallback(() => {
         if (availableType === HardwareAvailableTypeEnum.available) {
@@ -48,8 +49,12 @@ const HardwareElement: React.FC<Preload & IDispatchProps & { hardware: any }> = 
                 : console.log('moduleName is not defined');
         }
     }, [hardware, availableType]);
-    
+
     const getImageBaseSrc = useMemo(() => {
+        if (isImageSrcNotFound) {
+            return '../images/empty_module_image.png';
+        }
+
         const imageBaseUrl =
             rendererRouter.sharedObject?.moduleResourceUrl || 'https://playentry.org/';
 
@@ -61,11 +66,18 @@ const HardwareElement: React.FC<Preload & IDispatchProps & { hardware: any }> = 
             default:
                 return `../../../modules/${hardware.icon}`;
         }
-    }, [availableType]);
+    }, [isImageSrcNotFound, availableType]);
 
     return (
         <HardwareTypeDiv id={`${hardware.id}`} onClick={onElementClick}>
-            <HardwareThumbnailImg src={getImageBaseSrc} type={availableType} alt=""/>
+            <HardwareThumbnailImg
+                src={getImageBaseSrc}
+                type={availableType}
+                alt=""
+                onError={() => {
+                    setImageNotFound(true);
+                }}
+            />
             <HardwareTitle>
                 {`${hardware.name && hardware.name[langType] || hardware.name.en}`}
             </HardwareTitle>
