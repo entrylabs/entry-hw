@@ -1,6 +1,5 @@
 const _ = require('lodash');
 const BaseModule = require('./baseModule');
-const Connector = require('../src/main/serial/connector');
 
 /**
  * NOTE
@@ -203,7 +202,7 @@ class Microbit extends BaseModule {
             this.pending = true;
             //for failure tolerance
             let targetCommand;
-            if (this.commandQueue.length + 2 < this.codeIdQueue.length) {
+            if (this.commandQueue.length < this.codeIdQueue.length) {
                 targetCommand = this.codeIdQueue[0];
             } else {
                 targetCommand = this.commandQueue.shift();
@@ -381,8 +380,6 @@ class Microbit extends BaseModule {
         if (data[0] != 171 && data[0] != 170 && data[0] != 0) {
             console.log('received from microbit : ', data);
         }
-        // if (this.commandQueue.length > 0) console.log(this.commandQueue);
-        // if (this.codeIdQueue.length > 0) console.log(this.codeIdQueue);
 
         const receivedCommandType = data[0];
         switch (receivedCommandType) {
