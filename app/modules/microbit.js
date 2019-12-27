@@ -98,6 +98,7 @@ class Microbit extends BaseModule {
             },
             isSensorMap: false,
             codeId: null,
+            codeIdMiss: null,
         };
     }
 
@@ -189,14 +190,21 @@ class Microbit extends BaseModule {
             payload,
             codeId,
         });
-        if (codeId) {
-            this.codeIdQueue.push({ type, payload, codeId });
-        }
+        this.codeIdQueue.push({ type, codeId });
     }
 
     requestLocalData() {
         if (this.commandQueue.length !== 0 && !this.pending) {
             this.pending = true;
+            //for failure tolerance
+            if (this.commandQueue.length < this.codeIdQueue.length) {
+                this.setStatusMap(
+                    ['codeIdMiss'],
+                    this.codeIdQueue.shift().codeId
+                );
+            } else {
+                this.setStatusMap(['codeIdMiss'], null);
+            }
             const { type, payload, codeId } = this.commandQueue.shift();
             switch (type) {
                 case functionKeys.SET_LED: {
@@ -375,6 +383,7 @@ class Microbit extends BaseModule {
             case functionKeys.SET_DIGITAL:
             case functionKeys.SET_TONE:
             case functionKeys.SET_LED: {
+                //only if command is waiting for response
                 codeId = this.codeIdQueue.shift().codeId;
                 this.setStatusMap(['isSensorMap'], false);
                 break;
