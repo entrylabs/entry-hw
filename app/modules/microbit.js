@@ -67,9 +67,12 @@ class Microbit extends BaseModule {
 
         this.resetMicrobitStatusMap();
         this.commandQueue = [];
+        this.codeIdQueue = [];
     }
 
     resetMicrobitStatusMap() {
+        this.commandQueue = [];
+        this.codeIdQueue = [];
         this.microbitStatusMap = {
             payload: undefined,
             sensorData: {
@@ -93,6 +96,8 @@ class Microbit extends BaseModule {
                     strength: 0,
                 },
             },
+            isSensorMap: false,
+            codeId: null,
         };
     }
 
@@ -175,19 +180,24 @@ class Microbit extends BaseModule {
     handleRemoteData(handler) {
         const type = handler.read('type') || undefined;
         const payload = handler.read('payload') || {};
+        const codeId = handler.read('codeId') || null;
 
         // 리퀘스트 목록이 마지막으로 확인한 버전과 다르기 때문에, 업데이트한다.
         // 업데이트는 중복되지 않는 id 의 커맨드만 뒤에 추가한다.
         this.commandQueue.push({
             type,
             payload,
+            codeId,
         });
+        if (codeId) {
+            this.codeIdQueue.push({ type, payload, codeId });
+        }
     }
 
     requestLocalData() {
         if (this.commandQueue.length !== 0 && !this.pending) {
             this.pending = true;
-            const { type, payload } = this.commandQueue.shift();
+            const { type, payload, codeId } = this.commandQueue.shift();
             switch (type) {
                 case functionKeys.SET_LED: {
                     const { x, y, value } = payload;
@@ -354,6 +364,7 @@ class Microbit extends BaseModule {
 
     handleLocalData(data) {
         this.pending = false;
+        let codeId = null;
         // show only reqs not status updates
         if (data[0] != 171 && data[0] != 170 && data[0] != 0) {
             console.log('received from microbit : ', data);
@@ -361,39 +372,56 @@ class Microbit extends BaseModule {
 
         const receivedCommandType = data[0];
         switch (receivedCommandType) {
+            case functionKeys.SET_DIGITAL:
+            case functionKeys.SET_TONE:
+            case functionKeys.SET_LED: {
+                codeId = this.codeIdQueue.shift().codeId;
+                this.setStatusMap(['isSensorMap'], false);
+                break;
+            }
             case functionKeys.RST:
             case functionKeys.SET_BPM:
             case functionKeys.PLAY_NOTE:
             case functionKeys.GET_ACCELEROMETER:
             case functionKeys.GET_SENSOR:
             case functionKeys.GET_BUTTON:
-            case functionKeys.SET_LED:
+
             case functionKeys.SET_STRING:
             case functionKeys.SET_IMAGE: {
+                this.setStatusMap(['isSensorMap'], false);
                 break;
             }
             case functionKeys.GET_LED: {
+                codeId = this.codeIdQueue.shift().codeId;
                 this.setStatusMap(
                     ['sensorData', 'led', data[1], data[2]],
                     data[3]
                 );
+                this.setStatusMap(['isSensorMap'], false);
                 break;
             }
             case functionKeys.GET_ANALOG: {
+                codeId = this.codeIdQueue.shift().codeId;
                 let result = data[2] * 256 + data[3];
                 this.setStatusMap(['sensorData', 'analog', data[1]], result);
+                this.setStatusMap(['isSensorMap'], false);
                 break;
             }
 
             case functionKeys.GET_LIGHT_LEVEL: {
+                codeId = this.codeIdQueue.shift().codeId;
                 this.setStatusMap(
                     ['sensorData', 'lightLevel'],
                     Buffer.from([data[1]]).readUInt8(0)
                 );
+                this.setStatusMap(['isSensorMap'], false);
+                break;
             }
 
             case functionKeys.GET_DIGITAL: {
+                codeId = this.codeIdQueue.shift().codeId;
                 this.setStatusMap(['sensorData', 'digital', data[1]], data[2]);
+                this.setStatusMap(['isSensorMap'], false);
                 break;
             }
 
@@ -431,6 +459,7 @@ class Microbit extends BaseModule {
                 this.setStatusMap(['sensorData', 'tilt', 'roll'], roll);
                 this.setStatusMap(['sensorData', 'temperature'], temperature);
                 this.setStatusMap(['sensorData', 'button'], button);
+                this.setStatusMap(['isSensorMap'], true);
                 break;
             }
             case functionKeys.SENSOR_REGULAR: {
@@ -442,10 +471,11 @@ class Microbit extends BaseModule {
                     ['sensorData', 'gesture'],
                     Buffer.from([data[3]]).readUInt8(0)
                 );
+                this.setStatusMap(['isSensorMap'], true);
                 break;
             }
         }
-
+        this.setStatusMap(['codeId'], codeId);
         return true;
     }
 
