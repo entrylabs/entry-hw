@@ -6,7 +6,7 @@ const Flasher = require('./serial/flasher');
 const rendererConsole = require('./utils/rendererConsole');
 const IpcManager = require('./utils/ipcMainManager');
 const HardwareListManager = require('./hardwareListManager');
-const HandlerCreator = require('./datahandler/handler');
+const DataHandler = require('./dataHandler');
 const downloadModule = require('./network/downloadModule');
 
 /**
@@ -276,8 +276,7 @@ class MainRouter {
 
         // 엔트리측, 하드웨어측이 정상적으로 준비된 경우
         if (this.hwModule && this.server) {
-            // 엔트리쪽으로 송수신시 변환할 방식. 현재 json 만 지원한다.
-            this.handler = HandlerCreator.create(this.config);
+            this.handler = new DataHandler(this.config);
             this._connectToServer();
             this.connector.connect(); // router 설정 후 실제 기기와의 통신 시작
         }
@@ -339,7 +338,7 @@ class MainRouter {
             }
             this.connector.send(result);
         } else {
-            handler.decode(data, type);
+            handler.decode(data);
             if (hwModule.handleRemoteData) {
                 hwModule.handleRemoteData(handler);
             }
