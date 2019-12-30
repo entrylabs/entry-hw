@@ -1,3 +1,4 @@
+const rendererConsole = require('../src/main/utils/rendererConsole');
 function Module() {
     this.sp = null;
     this.sensorTypes = {
@@ -92,9 +93,9 @@ Module.prototype.setSerialPort = function (sp) {
 Module.prototype.requestInitialData = function() {
     return true;
     // MRT 개선 코드 구성 중 : 주석 처리 시 자사 다른 펌웨어와의 연결 오류 없음
-    //return this.makeSensorReadBuffer(this.sensorTypes.ANALOG, 0);  
+    //return this.makeSensorReadBuffer(this.sensorTypes.ANALOG, 0);
 };
-   
+
 
 Module.prototype.checkInitialData = function(data, config) {
     return true;
@@ -124,7 +125,7 @@ Module.prototype.requestRemoteData = function(handler) {
     }
     Object.keys(this.sensorData).forEach(function (key) {
         if(self.sensorData[key] != undefined) {
-            handler.write(key, self.sensorData[key]);           
+            handler.write(key, self.sensorData[key]);
         }
     })
 };
@@ -135,7 +136,6 @@ Module.prototype.handleRemoteData = function(handler) {
     var setDatas = handler.read('SET') || this.defaultOutput;
     var time = handler.read('TIME');
     var buffer = new Buffer([]);
-
     if(getDatas) {
         var keys = Object.keys(getDatas);
         keys.forEach(function(key) {
@@ -161,6 +161,7 @@ Module.prototype.handleRemoteData = function(handler) {
             }
 
             if(isSend) {
+                // buffer = Buffer.concat([buffer, self.makeSensorReadBuffer(key, dataObj.port, dataObj.data)]);
                 if(!self.isRecentData(dataObj.port, key, dataObj.data)) {
                     self.recentCheckData[dataObj.port] = {
                         type: key,
@@ -169,7 +170,7 @@ Module.prototype.handleRemoteData = function(handler) {
                     buffer = Buffer.concat([buffer, self.makeSensorReadBuffer(key, dataObj.port, dataObj.data)]);
                 }
             }
-        });        
+        });
     }
 
     if(setDatas) {
@@ -191,7 +192,6 @@ Module.prototype.handleRemoteData = function(handler) {
             }
         });
     }
-
     if(buffer.length) {
         this.sendBuffers.push(buffer);
     }
@@ -211,7 +211,7 @@ Module.prototype.isRecentData = function(port, type, data) {
 
 Module.prototype.requestLocalData = function() {
     var self = this;
-    
+
      if(!this.isDraing && this.sendBuffers.length > 0) {
         this.isDraing = true;
         this.sp.write(this.sendBuffers.shift(), function () {
@@ -220,7 +220,7 @@ Module.prototype.requestLocalData = function() {
                     self.isDraing = false;
                 });
             }
-        });        
+        });
     }
 
     return null;
@@ -242,7 +242,7 @@ Module.prototype.handleLocalData = function(data) {
         switch(readData[0]) {
             case self.sensorValueSize.FLOAT: {
                 value = new Buffer(readData.subarray(1, 5)).readFloatLE();
-                value = Math.round(value * 100) / 100;                    
+                value = Math.round(value * 100) / 100;
                 break;
             }
             case self.sensorValueSize.SHORT: {
