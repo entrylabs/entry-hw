@@ -21,4 +21,12 @@ module.exports = {
         needUpdate: 'needUpdate',
         needDownload: 'needDownload',
     },
+    ENTRY_MESSAGE_ACTION: {
+        init: 'init',
+        state: 'state',
+    },
+    ENTRY_STATE_PAYLOAD: {
+        disconnectHardware: 'disconnectHardware',
+        connected: 'connected', // {name: string}
+    },
 };

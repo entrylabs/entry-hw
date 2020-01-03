@@ -1,6 +1,6 @@
 const { app, ipcMain, shell } = require('electron');
 const path = require('path');
-const { HARDWARE_STATEMENT } = require('../common/constants');
+const { HARDWARE_STATEMENT, ENTRY_MESSAGE_ACTION, ENTRY_STATE_PAYLOAD } = require('../common/constants');
 const ScannerManager = require('./scannerManager');
 const Flasher = require('./serial/flasher');
 const rendererConsole = require('./utils/rendererConsole');
@@ -304,9 +304,16 @@ class MainRouter {
 
     handleServerSocketConnected() {
         const hwModule = this.hwModule || {};
+        const config = this.config || {};
         const moduleConnected = this.connector && this.connector.serialPort;
         if (moduleConnected && hwModule.socketReconnection) {
             hwModule.socketReconnection();
+        }
+        if (config.moduleName) {
+            this.sendActionDataToServer(ENTRY_MESSAGE_ACTION.state, {
+                statement: ENTRY_STATE_PAYLOAD.connected,
+                name: config.moduleName,
+            });
         }
     }
 
@@ -390,27 +397,21 @@ class MainRouter {
     close(option) {
         const { saveSelectedPort = false } = option || {};
 
-        if (this.server) {
-            this.server.disconnectHardware();
-        }
+        this.server && this.server.disconnectHardware();
+        this.scanner && this.scanner.stopScan();
+
         if (this.connector) {
-            if (this.hwModule.disconnect) {
-                this.hwModule.disconnect(this.connector);
-            } else {
-                this.connector.close();
-            }
+            this.hwModule && this.hwModule.disconnect
+                ? this.hwModule.disconnect(this.connector)
+                : this.connector.close();
+
             this.sendState(HARDWARE_STATEMENT.disconnected);
         }
-        if (this.scanner) {
-            this.scanner.stopScan();
-        }
-        if (this.handler) {
-            this.handler = undefined;
-        }
 
-        if (!saveSelectedPort) {
-            this.selectedPort = undefined;
-        }
+        this.config = undefined;
+        this.hwModule = undefined;
+        this.handler = undefined;
+        !saveSelectedPort && (this.selectedPort = undefined);
     };
 
     /**
