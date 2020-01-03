@@ -294,17 +294,13 @@ class Connector {
                     this._sendState('connected');
                 }
 
-                this.received = true;
-                let shouldSendToWs = true;
                 if (hwModule.handleLocalData) {
-                    shouldSendToWs = hwModule.handleLocalData(data);
+                    hwModule.handleLocalData(data);
                 }
 
-                if (shouldSendToWs) {
-                    // 서버로 데이터를 요청한다.
-                    router.setHandlerData();
-                    router.sendEncodedDataToServer();
-                }
+                // 서버로 데이터를 요청한다.
+                router.setHandlerData();
+                router.sendEncodedDataToServer();
 
                 // 마스터모드인 경우, 데이터를 받자마자 디바이스로 데이터를 보낸다.
                 if (control === 'master' && hwModule.requestLocalData) {
