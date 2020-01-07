@@ -90,6 +90,7 @@ const entryHardwareMiddleware: Middleware = ({ getState }: { getState: () => ISt
             const { moduleState } = common;
 
             if (
+                action.payload.type !== 'copy' &&
                 moduleState !== HardwareConnectionStatusEnum.beforeConnect &&
                 moduleState !== HardwareConnectionStatusEnum.connected
             ) {
