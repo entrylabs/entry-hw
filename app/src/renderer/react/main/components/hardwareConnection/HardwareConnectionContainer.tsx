@@ -123,7 +123,7 @@ const HardwareConnectionContainer: React.FC<IStateProps & Preload> = (props) => 
                 <HardwareElement>
                     <SelectedHardwareThumb
                         alt={''}
-                        src={`../../../modules/${icon}`}
+                        src={`${rendererRouter.baseModulePath}/${icon}`}
                     />
                     {
                         firmware &&

@@ -1,7 +1,8 @@
-const { net } = require('electron');
+const { app, net } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const { AVAILABLE_TYPE } = require('../../common/constants');
+const commonUtils = require('../utils/commonUtils');
 const NetworkZipHandlerStream = require('../utils/networkZipHandleStream');
 
 module.exports = (moduleName) => new Promise((resolve, reject) => {
@@ -17,7 +18,7 @@ module.exports = (moduleName) => new Promise((resolve, reject) => {
     request.on('response', (response) => {
         response.on('error', reject);
         if (response.statusCode === 200) {
-            const moduleDirPath = path.resolve('app', 'modules');
+            const moduleDirPath = commonUtils.getExtraDirectoryPath('modules');
             const zipStream = new NetworkZipHandlerStream(moduleDirPath);
             zipStream.on('done', () => {
                 fs.readFile(

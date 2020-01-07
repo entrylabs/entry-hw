@@ -1,7 +1,8 @@
 const { app, dialog } = require('electron');
 const exec = require('child_process').exec;
 const path = require('path');
-const Utils = require('../utils/fileUtils');
+const fileUtils = require('../utils/fileUtils');
+const commonUtils = require('../utils/commonUtils');
 const platform = process.platform;
 
 /**
@@ -12,12 +13,7 @@ const platform = process.platform;
  */
 class Flasher {
     static get firmwareDirectoryPath() {
-        const asarIndex = app.getAppPath().indexOf(`${path.sep}app.asar`);
-        if (asarIndex > -1) {
-            return path.join(app.getAppPath(), '..', 'firmwares');
-        } else {
-            return path.resolve(__dirname, '..', '..', '..', 'firmwares');
-        }
+        return commonUtils.getExtraDirectoryPath('firmware');
     }
 
     _flashArduino(firmware, port, options) {
@@ -77,7 +73,7 @@ class Flasher {
             if (!destPath) {
                 return resolve(['경로 미선택']);
             }
-            Utils.copyFile(
+            fileUtils.copyFile(
                 path.join(firmwareDirectory, `${firmware.name}.hex`),
                 path.join(destPath[0], `${firmware.name}.hex`),
             ).then(() => {

@@ -1,4 +1,5 @@
 const { ipcRenderer, shell, remote } = require('electron');
+const path = require('path');
 const {
     HARDWARE_STATEMENT: Statement,
     RUNNING_MODE_TYPES: RunningMode,
@@ -12,6 +13,16 @@ class RendererRouter {
     get hardwareList() {
         this.refreshHardwareModules();
         return this._hardwareList;
+    }
+
+    get baseModulePath() {
+        const app = remote.app;
+        const asarIndex = app.getAppPath().indexOf(`${path.sep}app.asar`);
+        if (asarIndex > -1) {
+            return path.join(app.getAppPath(), '..', 'modules');
+        } else {
+            return path.resolve(__dirname, '..', '..', '..', 'modules');
+        }
     }
 
     get priorHardwareList() {

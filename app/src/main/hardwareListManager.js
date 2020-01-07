@@ -1,9 +1,10 @@
 const fs = require('fs');
-const { app } = require('electron');
 const path = require('path');
+const { app } = require('electron');
 const { unionWith } = require('lodash');
 const { AVAILABLE_TYPE } = require('../common/constants');
 const { valid, lt } = require('semver');
+const commonUtils = require('./utils/commonUtils');
 const getModuleList = require('./network/getModuleList');
 
 const nameSortComparator = (left, right) => {
@@ -24,7 +25,7 @@ const platformFilter = (config) =>
 
 module.exports = class {
     constructor(router) {
-        this.moduleBasePath = path.resolve(app.getAppPath(), __dirname, '..', '..', 'modules');
+        this.moduleBasePath = commonUtils.getExtraDirectoryPath('modules');
         this.allHardwareList = [];
         this.router = router;
         this._initialize();

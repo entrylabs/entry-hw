@@ -1,6 +1,11 @@
 const { app, ipcMain, shell } = require('electron');
 const path = require('path');
-const { HARDWARE_STATEMENT, ENTRY_MESSAGE_ACTION, ENTRY_STATE_PAYLOAD } = require('../common/constants');
+const {
+    HARDWARE_STATEMENT,
+    ENTRY_MESSAGE_ACTION,
+    ENTRY_STATE_PAYLOAD,
+} = require('../common/constants');
+const commonUtils = require('./utils/commonUtils');
 const ScannerManager = require('./scannerManager');
 const Flasher = require('./serial/flasher');
 const rendererConsole = require('./utils/rendererConsole');
@@ -58,13 +63,13 @@ class MainRouter {
             this.selectedPort = portName;
         });
         ipcMain.on('stopScan', () => {
-            this.close();
+            this.stopScan();
         });
         ipcMain.on('close', () => {
             this.close();
         });
         ipcMain.on('requestFlash', (e, firmwareName) => {
-            this.flashFirmware(firmwareName)
+            this._flashFirmware(firmwareName)
                 .then((firmware) => {
                     if (!e.sender.isDestroyed()) {
                         e.sender.send('requestFlash');
@@ -110,7 +115,7 @@ class MainRouter {
      * @param firmwareName 다중 펌웨어 존재시 펌웨어명을 명시
      * @returns {Promise<void|Error>}
      */
-    flashFirmware(firmwareName) {
+    _flashFirmware(firmwareName) {
         if (this.connector && this.connector.serialPort && this.config) {
             this.sendState(HARDWARE_STATEMENT.flash);
             let firmware = firmwareName;
@@ -129,7 +134,7 @@ class MainRouter {
                 firmware = firmwareInConfig;
             }
 
-            this.close({ saveSelectedPort: true }); // 서버 통신 중지, 시리얼포트 연결 해제
+            this.stopScan({ saveSelectedPort: true }); // 서버 통신 중지, 시리얼포트 연결 해제
 
             const flashFunction = () => new Promise((resolve, reject) => {
                 setTimeout(() => {
@@ -222,7 +227,9 @@ class MainRouter {
         try {
             this.config = config;
             if (this.scanner) {
-                this.hwModule = require(`../../modules/${config.module}`);
+                this.hwModule = require(
+                    path.join(commonUtils.getExtraDirectoryPath('modules'), config.module)
+                );
                 this.sendState(HARDWARE_STATEMENT.scan);
                 this.scanner.stopScan();
                 const connector = await this.scanner.startScan(this.hwModule, this.config);
@@ -247,15 +254,6 @@ class MainRouter {
         this.server.addRoomIdsOnSecondInstance(roomId);
     }
 
-    stopScan() {
-        if (this.scanner) {
-            this.scanner.stopScan();
-        }
-        if (this.connector) {
-            this.connector.close();
-        }
-    }
-
     /**
      * 연결이 정상적으로 된 경우 startScan 의 callback 에서 호출된다.
      * @param connector
@@ -271,6 +269,16 @@ class MainRouter {
         if (this.connector.executeFlash) {
             this.sendState(HARDWARE_STATEMENT.flash);
             delete this.connector.executeFlash;
+
+            this._flashFirmware(this.config.firmware)
+                .finally(async (firmware) => {
+                    this.flasher.kill();
+                    if (firmware && firmware.afterDelay) {
+                        await new Promise((resolve) => setTimeout(resolve, firmware.afterDelay));
+                    }
+                    await this.startScan(this.config);
+                });
+
             return;
         }
 
@@ -390,11 +398,7 @@ class MainRouter {
         this.connector = connector;
     }
 
-    /**
-     *
-     * @param option {Object=} true 인 경우, 포트선택했던 내역을 지우지 않는다.
-     */
-    close(option) {
+    stopScan(option) {
         const { saveSelectedPort = false } = option || {};
 
         this.server && this.server.disconnectHardware();
@@ -408,10 +412,18 @@ class MainRouter {
             this.sendState(HARDWARE_STATEMENT.disconnected);
         }
 
+        !saveSelectedPort && (this.selectedPort = undefined);
+    }
+
+    /**
+     *
+     * @param option {Object=} true 인 경우, 포트선택했던 내역을 지우지 않는다.
+     */
+    close(option) {
+        this.stopScan(option);
         this.config = undefined;
         this.hwModule = undefined;
         this.handler = undefined;
-        !saveSelectedPort && (this.selectedPort = undefined);
     };
 
     /**
@@ -424,13 +436,7 @@ class MainRouter {
             return;
         }
 
-        const asarIndex = app.getAppPath().indexOf(`${path.sep}app.asar`);
-        let sourcePath;
-        if (asarIndex > -1) {
-            sourcePath = path.join(app.getAppPath(), '..', 'drivers');
-        } else {
-            sourcePath = path.resolve(__dirname, '..', '..', 'drivers');
-        }
+        const sourcePath = commonUtils.getExtraDirectoryPath('driver');
 
         shell.openItem(path.resolve(sourcePath, driverPath));
     }

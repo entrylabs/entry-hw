@@ -65,6 +65,7 @@
         "!app/src/renderer/react/**",
         "!app/firmwares/**/*",
         "!app/drivers/**/*",
+        "!app/modules/**/*",
         "!app/server",
         "!app/test.html",
         "app/src/renderer/react/dist"
@@ -81,6 +82,10 @@
         {
             "from": "app/drivers",
             "to": "drivers"
+        },
+        {
+            "from": "app/modules",
+            "to": "modules"
         }
     ],
     "appId": "org.playentry.entryhw",

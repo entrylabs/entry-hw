@@ -1,3 +1,6 @@
+const { app } = require('electron');
+const path = require('path');
+
 class CommonUtils {
     lpad(str, len) {
         const strLen = str.length;
@@ -35,6 +38,26 @@ class CommonUtils {
         }
 
         return roomId.replace(/\//g, '');
+    }
+
+    getExtraDirectoryPath(target) {
+        const asarIndex = app.getAppPath().indexOf(`${path.sep}app.asar`);
+        const isInAsar = asarIndex > -1;
+
+        return {
+            driver: {
+                dev: path.resolve(__dirname, '..', '..', '..', 'drivers'),
+                prod: path.join(app.getAppPath(), '..', 'drivers'),
+            },
+            firmware: {
+                dev: path.resolve(__dirname, '..', '..', '..', 'firmwares'),
+                prod: path.join(app.getAppPath(), '..', 'firmwares'),
+            },
+            modules: {
+                dev: path.resolve(__dirname, '..', '..', '..', 'modules'),
+                prod: path.join(app.getAppPath(), '..', 'modules'),
+            },
+        }[target][isInAsar ? 'prod' : 'dev'];
     }
 }
 

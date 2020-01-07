@@ -64,7 +64,7 @@ const HardwareElement: React.FC<Preload & IDispatchProps & { hardware: any }> = 
                 return `${imageBaseUrl}/${hardware.moduleName}/image`;
             case HardwareAvailableTypeEnum.available:
             default:
-                return `../../../modules/${hardware.icon}`;
+                return `${rendererRouter.baseModulePath}/${hardware.icon}`;
         }
     }, [isImageSrcNotFound, availableType]);
 
