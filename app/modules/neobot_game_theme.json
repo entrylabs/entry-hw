@@ -1,21 +1,20 @@
 {
-	"id": "050201",
-	"name": {
-		"en": "NEOCODING SensorTheme",
-		"ko": "네오코딩 센서테마"
-	},
-	"category": "module",
-	"platform": ["win32", "darwin"],
-	"icon" : "neobot_sensor_theme.png",
-	"module": "neobot_sensor_theme.js",
-	"url": "http://neobot.co.kr/",
-	"email": "neobot@neobot.co.kr",
-	"video": "https://goo.gl/hAXFZT",
+    "id": "050401",
+    "name": {
+        "en": "NEOCODING GameTheme",
+        "ko": "네오코딩 게임테마"
+    },
+    "category": "module",
+    "platform": ["win32", "darwin"],
+    "icon" : "neobot_game_theme.png",
+    "module": "neobot_game_theme.js",
+    "url": "http://neobot.co.kr/",
+    "email": "neobot@neobot.co.kr",
     "reconnect" : true,
-	"entry": {
+    "entry": {
 		"protocol": "json"
-	},
-	"driver": [
+    },
+    "driver": [
 		{
 			"win32-ia32": "NEOBOT/VCP_V1.5.0_Setup_W8_x64_32bits.exe",
 			"win32-x64": "NEOBOT/VCP_V1.5.0_Setup_W8_x64_64bits.exe",
@@ -31,7 +30,7 @@
 		"type": "serial",
 		"control": "master",
 		"vendor": ["Microsoft", "STMicroelectronics"],
-		"duration": 32,
-		"baudRate": 9600
+		"duration": 8,
+		"baudRate": 115200
 	}
 }
