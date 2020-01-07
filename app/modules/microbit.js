@@ -191,165 +191,166 @@ class Microbit extends BaseModule {
     }
 
     requestLocalData() {
-        if (this.commandQueue.length !== 0 && !this.pending) {
-            this.pending = true;
-            //for failure tolerance
-            let targetCommand;
-            targetCommand = this.commandQueue[0];
-            const { type, payload, codeId } = targetCommand;
+        if (this.commandQueue.length === 0 || this.pending) {
+            return;
+        }
+        this.pending = true;
+        //for failure tolerance
+        let targetCommand;
+        targetCommand = this.commandQueue[0];
+        const { type, payload, codeId } = targetCommand;
 
-            switch (type) {
-                case functionKeys.SET_LED: {
-                    const { x, y, value } = payload;
-                    const valueType = {
-                        on: 1,
-                        off: 0,
-                        toggle: 2,
-                    };
-                    // 임시로 statusMap 을 업데이트 한다.
-                    // 실제 값은 getLED 시 다시 업데이트 된다.
-                    let dummyCacheLedValue = 0;
-                    if (value === 'toggle') {
-                        dummyCacheLedValue =
-                            _.get(this.microbitStatusMap, [
-                                'sensorData',
-                                'led',
-                                x,
-                                y,
-                            ]) === 0
-                                ? 1
-                                : 0;
-                    } else {
-                        dummyCacheLedValue = valueType[value];
-                    }
-                    _.set(
-                        this.microbitStatusMap,
-                        ['sensorData', 'led', x, y],
-                        dummyCacheLedValue
-                    );
-                    return this.makeBuffer(functionKeys.SET_LED, [
-                        x,
-                        y,
-                        valueType[value],
-                    ]);
+        switch (type) {
+            case functionKeys.SET_LED: {
+                const { x, y, value } = payload;
+                const valueType = {
+                    on: 1,
+                    off: 0,
+                    toggle: 2,
+                };
+                // 임시로 statusMap 을 업데이트 한다.
+                // 실제 값은 getLED 시 다시 업데이트 된다.
+                let dummyCacheLedValue = 0;
+                if (value === 'toggle') {
+                    dummyCacheLedValue =
+                        _.get(this.microbitStatusMap, [
+                            'sensorData',
+                            'led',
+                            x,
+                            y,
+                        ]) === 0
+                            ? 1
+                            : 0;
+                } else {
+                    dummyCacheLedValue = valueType[value];
                 }
-
-                case functionKeys.SET_CUSTOM_IMAGE: {
-                    const { value } = payload;
-                    let dataToSend = [];
-                    let temp = 0;
-                    for (let i = 0; i < 25; i++) {
-                        let x = parseInt(i / 5);
-                        let y = i % 5;
-                        if (value[x][y] == 1) {
-                            temp += value[x][y] * Math.pow(2, 24 - i);
-                        }
-                    }
-                    for (let i = 0; i < 4; i++) {
-                        if (temp < 1) {
-                            dataToSend.unshift(0);
-                        } else {
-                            let remainder = temp % 256;
-                            temp = parseInt(temp / 256);
-                            dataToSend.unshift(remainder);
-                        }
-                    }
-
-                    return this.makeBuffer(
-                        functionKeys.SET_CUSTOM_IMAGE,
-                        dataToSend
-                    );
-                }
-
-                case functionKeys.GET_LED: {
-                    const { x, y } = payload;
-                    return this.makeBuffer(functionKeys.GET_LED, [x, y]);
-                }
-                case functionKeys.RESET:
-                    this.resetMicrobitStatusMap();
-                    return this.makeBuffer(functionKeys.RESET);
-                case functionKeys.SET_STRING:
-                    return this.makeBuffer(
-                        functionKeys.SET_STRING,
-                        Buffer.from(payload).toJSON().data
-                    );
-                case functionKeys.SET_DIGITAL: {
-                    const { pinNumber, value } = payload;
-                    return this.makeBuffer(functionKeys.SET_DIGITAL, [
-                        pinNumber,
-                        value,
-                    ]);
-                }
-                // 전달값이 uint8_t 이상인 경우
-                case functionKeys.SET_ANALOG:
-                case functionKeys.SET_SERVO_PERIOD:
-                case functionKeys.SET_ANALOG_PERIOD: {
-                    const { pinNumber, value } = payload;
-                    const uInt8Value = [];
-                    let targetValue = value;
-                    while (targetValue) {
-                        uInt8Value.push(targetValue & 0xff);
-                        targetValue >>= 8;
-                    }
-                    return this.makeBuffer(type, [pinNumber, ...uInt8Value]);
-                }
-                case functionKeys.SET_TONE: {
-                    const noteValue = payload.noteValue;
-                    const beatValue = payload.beatValue;
-                    const noteValue1 = noteValue / 256;
-                    const noteValue2 = noteValue % 256;
-                    const beatValue1 = beatValue / (256 * 256 * 256);
-                    const beatValue2 = beatValue / (256 * 256);
-                    const beatValue3 = beatValue / 256;
-                    const beatValue4 = beatValue % 256;
-
-                    return this.makeBuffer(type, [
-                        noteValue1,
-                        noteValue2,
-                        beatValue1,
-                        beatValue2,
-                        beatValue3,
-                        beatValue4,
-                    ]);
-                }
-                case functionKeys.SET_RELATIVE_TEMPO:
-                case functionKeys.SET_TEMPO: {
-                    const { value } = payload;
-                    return this.makeBuffer(type, [value]);
-                }
-
-                // 필요한 값이 value property 하나인 경우 전부
-                case functionKeys.SET_SERVO: {
-                    const { pinNumber, value } = payload;
-                    return this.makeBuffer(type, [pinNumber, value]);
-                }
-                case functionKeys.SET_IMAGE: {
-                    const { value } = payload;
-                    return this.makeBuffer(type, [value]);
-                }
-
-                case functionKeys.GET_ANALOG:
-                case functionKeys.GET_DIGITAL: {
-                    const value = payload[0];
-                    return this.makeBuffer(type, [value]);
-                }
-                case functionKeys.GET_LIGHT_LEVEL: {
-                    return this.makeBuffer(type);
-                }
-                // 그냥 값 없이 바로 커맨드만 보내는 경우
-
-                case functionKeys.GET_ACCELEROMETER:
-                case functionKeys.GET_BUTTON:
-                case functionKeys.GET_TEMPERATURE:
-                case functionKeys.GET_COMPASS_HEADING:
-                case functionKeys.RESET_SCREEN:
-                case functionKeys.GET_PITCH:
-                case functionKeys.GET_ROLL:
-                case functionKeys.GET_GESTURE:
-                    return null;
-                default:
-                    return null;
+                _.set(
+                    this.microbitStatusMap,
+                    ['sensorData', 'led', x, y],
+                    dummyCacheLedValue
+                );
+                return this.makeBuffer(functionKeys.SET_LED, [
+                    x,
+                    y,
+                    valueType[value],
+                ]);
             }
+
+            case functionKeys.SET_CUSTOM_IMAGE: {
+                const { value } = payload;
+                let dataToSend = [];
+                let temp = 0;
+                for (let i = 0; i < 25; i++) {
+                    let x = parseInt(i / 5);
+                    let y = i % 5;
+                    if (value[x][y] == 1) {
+                        temp += value[x][y] * Math.pow(2, 24 - i);
+                    }
+                }
+                for (let i = 0; i < 4; i++) {
+                    if (temp < 1) {
+                        dataToSend.unshift(0);
+                    } else {
+                        let remainder = temp % 256;
+                        temp = parseInt(temp / 256);
+                        dataToSend.unshift(remainder);
+                    }
+                }
+
+                return this.makeBuffer(
+                    functionKeys.SET_CUSTOM_IMAGE,
+                    dataToSend
+                );
+            }
+
+            case functionKeys.GET_LED: {
+                const { x, y } = payload;
+                return this.makeBuffer(functionKeys.GET_LED, [x, y]);
+            }
+            case functionKeys.RESET:
+                this.resetMicrobitStatusMap();
+                return this.makeBuffer(functionKeys.RESET);
+            case functionKeys.SET_STRING:
+                return this.makeBuffer(
+                    functionKeys.SET_STRING,
+                    Buffer.from(payload).toJSON().data
+                );
+            case functionKeys.SET_DIGITAL: {
+                const { pinNumber, value } = payload;
+                return this.makeBuffer(functionKeys.SET_DIGITAL, [
+                    pinNumber,
+                    value,
+                ]);
+            }
+            // 전달값이 uint8_t 이상인 경우
+            case functionKeys.SET_ANALOG:
+            case functionKeys.SET_SERVO_PERIOD:
+            case functionKeys.SET_ANALOG_PERIOD: {
+                const { pinNumber, value } = payload;
+                const uInt8Value = [];
+                let targetValue = value;
+                while (targetValue) {
+                    uInt8Value.push(targetValue & 0xff);
+                    targetValue >>= 8;
+                }
+                return this.makeBuffer(type, [pinNumber, ...uInt8Value]);
+            }
+            case functionKeys.SET_TONE: {
+                const noteValue = payload.noteValue;
+                const beatValue = payload.beatValue;
+                const noteValue1 = noteValue / 256;
+                const noteValue2 = noteValue % 256;
+                const beatValue1 = beatValue / (256 * 256 * 256);
+                const beatValue2 = beatValue / (256 * 256);
+                const beatValue3 = beatValue / 256;
+                const beatValue4 = beatValue % 256;
+
+                return this.makeBuffer(type, [
+                    noteValue1,
+                    noteValue2,
+                    beatValue1,
+                    beatValue2,
+                    beatValue3,
+                    beatValue4,
+                ]);
+            }
+            case functionKeys.SET_RELATIVE_TEMPO:
+            case functionKeys.SET_TEMPO: {
+                const { value } = payload;
+                return this.makeBuffer(type, [value]);
+            }
+
+            // 필요한 값이 value property 하나인 경우 전부
+            case functionKeys.SET_SERVO: {
+                const { pinNumber, value } = payload;
+                return this.makeBuffer(type, [pinNumber, value]);
+            }
+            case functionKeys.SET_IMAGE: {
+                const { value } = payload;
+                return this.makeBuffer(type, [value]);
+            }
+
+            case functionKeys.GET_ANALOG:
+            case functionKeys.GET_DIGITAL: {
+                const value = payload[0];
+                return this.makeBuffer(type, [value]);
+            }
+            case functionKeys.GET_LIGHT_LEVEL: {
+                return this.makeBuffer(type);
+            }
+            // 그냥 값 없이 바로 커맨드만 보내는 경우
+
+            case functionKeys.GET_ACCELEROMETER:
+            case functionKeys.GET_BUTTON:
+            case functionKeys.GET_TEMPERATURE:
+            case functionKeys.GET_COMPASS_HEADING:
+            case functionKeys.RESET_SCREEN:
+            case functionKeys.GET_PITCH:
+            case functionKeys.GET_ROLL:
+            case functionKeys.GET_GESTURE:
+                return null;
+            default:
+                return null;
         }
     }
 
@@ -377,7 +378,7 @@ class Microbit extends BaseModule {
             case functionKeys.SET_LED: {
                 //only if command is waiting for response
                 if (
-                    commandQueue[0].type !=
+                    this.commandQueue[0].type !=
                     (functionKeys.SET_DIGITAL ||
                         functionKeys.SET_TONE ||
                         functionKeys.SET_LED)
@@ -399,7 +400,7 @@ class Microbit extends BaseModule {
             case functionKeys.SET_STRING:
             case functionKeys.SET_IMAGE: {
                 if (
-                    commandQueue[0].type !=
+                    this.commandQueue[0].type !=
                     (functionKeys.SET_IMAGE || functionKeys.SET_STRING)
                 ) {
                     break;
@@ -409,7 +410,7 @@ class Microbit extends BaseModule {
                 break;
             }
             case functionKeys.GET_LED: {
-                if (commandQueue[0].type != functionKeys.GET_LED) {
+                if (this.commandQueue[0].type != functionKeys.GET_LED) {
                     break;
                 }
                 codeId = this.commandQueue.shift().codeId;
@@ -421,7 +422,7 @@ class Microbit extends BaseModule {
                 break;
             }
             case functionKeys.GET_ANALOG: {
-                if (commandQueue[0].type != functionKeys.GET_ANALOG) {
+                if (this.commandQueue[0].type != functionKeys.GET_ANALOG) {
                     break;
                 }
                 codeId = this.commandQueue.shift().codeId;
@@ -432,7 +433,7 @@ class Microbit extends BaseModule {
             }
 
             case functionKeys.GET_LIGHT_LEVEL: {
-                if (commandQueue[0].type != functionKeys.GET_LIGHT_LEVEL) {
+                if (this.commandQueue[0].type != functionKeys.GET_LIGHT_LEVEL) {
                     break;
                 }
                 codeId = this.commandQueue.shift().codeId;
@@ -445,7 +446,7 @@ class Microbit extends BaseModule {
             }
 
             case functionKeys.GET_DIGITAL: {
-                if (commandQueue[0].type != functionKeys.GET_DIGITAL) {
+                if (this.commandQueue[0].type != functionKeys.GET_DIGITAL) {
                     break;
                 }
                 codeId = this.commandQueue.shift().codeId;
