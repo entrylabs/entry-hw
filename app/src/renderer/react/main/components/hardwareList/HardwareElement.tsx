@@ -61,7 +61,7 @@ const HardwareElement: React.FC<Preload & IDispatchProps & { hardware: any }> = 
         switch (availableType) {
             case HardwareAvailableTypeEnum.needUpdate:
             case HardwareAvailableTypeEnum.needDownload:
-                return `${imageBaseUrl}/${hardware.moduleName}/image`;
+                return `${imageBaseUrl}/${hardware.moduleName}/files/image`;
             case HardwareAvailableTypeEnum.available:
             default:
                 return `${rendererRouter.baseModulePath}/${hardware.icon}`;

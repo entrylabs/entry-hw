@@ -1,7 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { app } = require('electron');
-const { unionWith } = require('lodash');
+const { unionWith, merge } = require('lodash');
 const { AVAILABLE_TYPE } = require('../common/constants');
 const { valid, lt } = require('semver');
 const commonUtils = require('./utils/commonUtils');
@@ -22,6 +21,15 @@ const nameSortComparator = (left, right) => {
 
 const platformFilter = (config) =>
     config.platform && config.platform.indexOf(process.platform) > -1;
+
+const onlineModuleSchemaModifier = (schema) => {
+    schema.name = schema.title;
+    schema.availableType = AVAILABLE_TYPE.needDownload;
+
+    delete schema.title;
+    delete schema.files;
+    return merge(schema, schema.properties);
+};
 
 module.exports = class {
     constructor(router) {
@@ -65,10 +73,7 @@ module.exports = class {
                 return;
             }
 
-            this.updateHardwareList(moduleList.map((elem) => {
-                elem.availableType = AVAILABLE_TYPE.needDownload;
-                return elem;
-            }));
+            this.updateHardwareList(moduleList.map(onlineModuleSchemaModifier));
         } catch (e) {
             console.log('online hardware list update failed');
         }
@@ -79,6 +84,8 @@ module.exports = class {
         const mergedList = unionWith(availables, source, (src, ori) => {
             if (ori.id === src.id) {
                 if (!ori.version || lt(valid(ori.version), valid(src.version))) {
+                    // legacy 는 moduleName 이 없기 때문에 서버에 요청을 줄 인자가 없다.
+                    ori.moduleName = src.moduleName;
                     ori.availableType = AVAILABLE_TYPE.needUpdate;
                     return ori;
                 }

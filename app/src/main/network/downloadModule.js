@@ -14,7 +14,7 @@ module.exports = (moduleName) => new Promise((resolve, reject) => {
     const { moduleResourceUrl } = global.sharedObject;
 
     //TODO 개발간 임시
-    const request = net.request(`${moduleResourceUrl}/${moduleName}`);
+    const request = net.request(`${moduleResourceUrl}/${moduleName}/files/module`);
     request.on('response', (response) => {
         response.on('error', reject);
         if (response.statusCode === 200) {
