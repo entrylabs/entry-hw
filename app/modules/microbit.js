@@ -270,11 +270,19 @@ class Microbit extends BaseModule {
             case functionKeys.RESET:
                 this.resetMicrobitStatusMap();
                 return this.makeBuffer(functionKeys.RESET);
-            case functionKeys.SET_STRING:
+            case functionKeys.SET_STRING: {
+                console.log(
+                    this.makeBuffer(
+                        functionKeys.SET_STRING,
+                        Buffer.from(payload).toJSON().data
+                    )
+                );
                 return this.makeBuffer(
                     functionKeys.SET_STRING,
                     Buffer.from(payload).toJSON().data
                 );
+            }
+
             case functionKeys.SET_DIGITAL: {
                 const { pinNumber, value } = payload;
                 return this.makeBuffer(functionKeys.SET_DIGITAL, [
@@ -370,21 +378,13 @@ class Microbit extends BaseModule {
         if (data[0] != 171 && data[0] != 170 && data[0] != 0) {
             console.log('received from microbit : ', data);
         }
-
         const receivedCommandType = data[0];
+
         switch (receivedCommandType) {
             case functionKeys.SET_DIGITAL:
             case functionKeys.SET_TONE:
             case functionKeys.SET_LED: {
                 //only if command is waiting for response
-                if (
-                    this.commandQueue[0].type !=
-                    (functionKeys.SET_DIGITAL ||
-                        functionKeys.SET_TONE ||
-                        functionKeys.SET_LED)
-                ) {
-                    break;
-                }
                 codeId = this.commandQueue.shift().codeId;
                 this.setStatusMap(['isSensorMap'], false);
                 break;
@@ -397,22 +397,25 @@ class Microbit extends BaseModule {
             case functionKeys.GET_BUTTON: {
                 break;
             }
-            case functionKeys.SET_STRING:
+            case functionKeys.SET_CUSTOM_IMAGE: {
+                this.commandQueue.shift();
+                break;
+            }
+            case functionKeys.SET_CUSTOM_IMAGE: {
+                this.commandQueue.shift();
+                break;
+            }
+            case functionKeys.SET_STRING: {
+                codeId = this.commandQueue.shift().codeId;
+                this.setStatusMap(['isSensorMap'], false);
+                break;
+            }
             case functionKeys.SET_IMAGE: {
-                if (
-                    this.commandQueue[0].type !=
-                    (functionKeys.SET_IMAGE || functionKeys.SET_STRING)
-                ) {
-                    break;
-                }
                 codeId = this.commandQueue.shift().codeId;
                 this.setStatusMap(['isSensorMap'], false);
                 break;
             }
             case functionKeys.GET_LED: {
-                if (this.commandQueue[0].type != functionKeys.GET_LED) {
-                    break;
-                }
                 codeId = this.commandQueue.shift().codeId;
                 this.setStatusMap(
                     ['sensorData', 'led', data[1], data[2]],
@@ -422,9 +425,6 @@ class Microbit extends BaseModule {
                 break;
             }
             case functionKeys.GET_ANALOG: {
-                if (this.commandQueue[0].type != functionKeys.GET_ANALOG) {
-                    break;
-                }
                 codeId = this.commandQueue.shift().codeId;
                 let result = data[2] * 256 + data[3];
                 this.setStatusMap(['sensorData', 'analog', data[1]], result);
@@ -433,9 +433,6 @@ class Microbit extends BaseModule {
             }
 
             case functionKeys.GET_LIGHT_LEVEL: {
-                if (this.commandQueue[0].type != functionKeys.GET_LIGHT_LEVEL) {
-                    break;
-                }
                 codeId = this.commandQueue.shift().codeId;
                 this.setStatusMap(
                     ['sensorData', 'lightLevel'],
@@ -446,9 +443,6 @@ class Microbit extends BaseModule {
             }
 
             case functionKeys.GET_DIGITAL: {
-                if (this.commandQueue[0].type != functionKeys.GET_DIGITAL) {
-                    break;
-                }
                 codeId = this.commandQueue.shift().codeId;
                 this.setStatusMap(['sensorData', 'digital', data[1]], data[2]);
                 this.setStatusMap(['isSensorMap'], false);
