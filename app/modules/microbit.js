@@ -96,7 +96,6 @@ class Microbit extends BaseModule {
             },
             isSensorMap: false,
             codeId: null,
-            codeIdMiss: null,
         };
     }
 
@@ -180,7 +179,6 @@ class Microbit extends BaseModule {
         const type = handler.read('type') || undefined;
         const payload = handler.read('payload') || {};
         const codeId = handler.read('codeId') || null;
-
         // 리퀘스트 목록이 마지막으로 확인한 버전과 다르기 때문에, 업데이트한다.
         // 업데이트는 중복되지 않는 id 의 커맨드만 뒤에 추가한다.
         this.commandQueue.push({
@@ -199,7 +197,6 @@ class Microbit extends BaseModule {
         let targetCommand;
         targetCommand = this.commandQueue[0];
         const { type, payload, codeId } = targetCommand;
-
         switch (type) {
             case functionKeys.SET_LED: {
                 const { x, y, value } = payload;
@@ -268,15 +265,10 @@ class Microbit extends BaseModule {
                 return this.makeBuffer(functionKeys.GET_LED, [x, y]);
             }
             case functionKeys.RESET:
+                this.commandQueue = [];
                 this.resetMicrobitStatusMap();
                 return this.makeBuffer(functionKeys.RESET);
             case functionKeys.SET_STRING: {
-                console.log(
-                    this.makeBuffer(
-                        functionKeys.SET_STRING,
-                        Buffer.from(payload).toJSON().data
-                    )
-                );
                 return this.makeBuffer(
                     functionKeys.SET_STRING,
                     Buffer.from(payload).toJSON().data
@@ -379,7 +371,9 @@ class Microbit extends BaseModule {
             console.log('received from microbit : ', data);
         }
         const receivedCommandType = data[0];
-
+        if (this.commandQueue.length < 1) {
+            return true;
+        }
         switch (receivedCommandType) {
             case functionKeys.SET_DIGITAL:
             case functionKeys.SET_TONE:
@@ -389,12 +383,16 @@ class Microbit extends BaseModule {
                 this.setStatusMap(['isSensorMap'], false);
                 break;
             }
-            case functionKeys.RESET:
+            case functionKeys.RESET: {
+                this.commandQueue = [];
+                break;
+            }
             case functionKeys.SET_BPM:
             case functionKeys.PLAY_NOTE:
             case functionKeys.GET_ACCELEROMETER:
             case functionKeys.GET_SENSOR:
             case functionKeys.GET_BUTTON: {
+                this.commandQueue.shift();
                 break;
             }
             case functionKeys.SET_CUSTOM_IMAGE: {
