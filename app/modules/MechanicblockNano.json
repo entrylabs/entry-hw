@@ -1,13 +1,13 @@
 {
-    "id": "390101",
+    "id": "390102",
     "name": {
-        "en": "MechanicblockController",
-        "ko": "메카닉블럭 조종기"
+        "en": "Mechanicblock Nano",
+        "ko": "메카닉블럭 Nano"
     },
-    "category": "board",
+    "category": "module",
     "platform": ["win32"],
-    "icon": "MechanicblockController.png",
-    "module": "arduinoExt.js",
+    "icon": "MechanicblockNano.png",
+    "module": "arduinoNano.js",
     "url": "http://www.mechanicblock.com/",
 	"email": "interboard@naver.com",
     "driver": {
@@ -15,7 +15,8 @@
         "win32-x64": "arduino/dpinst-amd64.exe"
     },
     "reconnect": true,
-    "firmware": "arduino_ext",
+    "firmwareBaudRate": 57600,
+    "firmware": "arduino_nano",
     "entry": {
         "protocol": "json"
     },
@@ -24,8 +25,9 @@
         "control": "slave",
         "duration": 32,
         "vendor": ["Arduino", "wch.cn", "FTDI"],
-        "baudRate": 115200,
-        "firmwarecheck": false,
-        "byteDelimiter": [13, 10]
+        "baudRate": 57600,
+        "lostTimer": 1000,
+        "byteDelimiter": [13, 10],
+        "firmwarecheck": false
     }
 }

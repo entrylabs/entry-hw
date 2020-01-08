@@ -1,12 +1,12 @@
 {
-    "id": "390101",
+    "id": "390103",
     "name": {
-        "en": "MechanicblockController",
-        "ko": "메카닉블럭 조종기"
+        "en": "Mechanicblock Uno",
+        "ko": "메카닉블럭 Uno"
     },
-    "category": "board",
+    "category": "module",
     "platform": ["win32"],
-    "icon": "MechanicblockController.png",
+    "icon": "MechanicblockUno.png",
     "module": "arduinoExt.js",
     "url": "http://www.mechanicblock.com/",
 	"email": "interboard@naver.com",
