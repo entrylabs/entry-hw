@@ -371,9 +371,7 @@ class Microbit extends BaseModule {
             console.log('received from microbit : ', data);
         }
         const receivedCommandType = data[0];
-        if (this.commandQueue.length < 1) {
-            return true;
-        }
+
         switch (receivedCommandType) {
             case functionKeys.SET_DIGITAL:
             case functionKeys.SET_TONE:
