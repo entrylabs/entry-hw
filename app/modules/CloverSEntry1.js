@@ -18,6 +18,7 @@ function Module()
          CLOVER_SW :      12,              
          CLOVER_LED :     13,              
          CLOVER_RGB :     14,              
+         CLOVER_TEMP :    15,              
     };
     
     
@@ -137,6 +138,7 @@ function Module()
         },
         PULSEIN: { },
         TIMER: 0,
+        TEMP : 10,
     };
 
     this.defaultOutput = { };
@@ -404,9 +406,11 @@ Module.prototype.handleLocalDataProcess = function(data)
                 break;
         }
         case self.sensorTypes.TIMER :
-           self.sensorData.TIMER[port] = value;
-           break;
-
+                self.sensorData.TIMER[port] = value;
+                break;
+        case self.sensorTypes.CLOVER_TEMP :
+                self.sensorData.TEMP = value;
+                break;
     }
 };
 
