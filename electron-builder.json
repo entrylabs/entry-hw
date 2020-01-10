@@ -1,0 +1,72 @@
+{
+    "mac": {
+        "target": "dmg",
+        "category": "public.app-category.education",
+        "identity": "Connect Foundation (DLFUSDA3L5)",
+        "hardenedRuntime": true,
+        "gatekeeperAssess": false,
+        "entitlements": "build/entitlements.mac.plist",
+        "entitlementsInherit": "build/entitlements.mac.plist",
+        "extendInfo": {
+            "URL Types": [
+                {
+                    "URL Identifie": "org.playentry.entryhw",
+                    "URL Schemes": [
+                        "entryhw"
+                    ]
+                }
+            ],
+            "CFBundleURLTypes": [
+                {
+                    "CFBundleURLName": "org.playentry.entryhw",
+                    "CFBundleURLSchemes": [
+                        "entryhw"
+                    ]
+                }
+            ]
+        },
+        "extraResources": [
+            {
+                "from": "app/server/mac/server.exe",
+                "to": "server.exe"
+            }
+        ]
+    },
+    "dmg": {
+        "icon": "build/icon.icns",
+        "iconSize": 80,
+        "sign": false,
+        "background": "build/background.png",
+        "contents": [
+            {
+                "x": 240,
+                "y": 120
+            },
+            {
+                "x": 240,
+                "y": 380,
+                "type": "link",
+                "path": "/Applications"
+            }
+        ]
+    },
+    "win": {
+        "target": "dir",
+        "extraResources": [
+            {
+                "from": "app/server/win/server.exe",
+                "to": "server.exe"
+            }
+        ]
+    },
+    "files": [
+        "app",
+        "!app/firmwares/examples",
+        "!app/server",
+        "!app/test.html"
+    ],
+    "asar": true,
+    "appId": "org.playentry.entryhw",
+    "productName": "Entry_HW",
+    "afterSign": "scripts/notarize.js"
+}

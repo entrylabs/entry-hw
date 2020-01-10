@@ -162,6 +162,7 @@ Module.prototype.requestRemoteData = function(handler) {
     handler.write('DETECTEDSOUNDE', this.detectedSound); // 최종 소리 감지 횟수
     handler.write('DETECTINGSOUNDE1', this.detectringSound); // 실시간 소리 감지 횟수
     handler.write('USERBUTTONSTATE', this.userButtonState);
+
 };
 
 Module.prototype.handleRemoteData = function(handler) {

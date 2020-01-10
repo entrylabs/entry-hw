@@ -1,0 +1,23 @@
+{
+	"id": "2C0101",
+	"name": {
+		"ko": "암즈",
+		"en": "ARMZ"
+	},
+	"category": "robot",
+	"platform": ["win32", "darwin"],
+	"icon" : "armz.png",
+	"module": "armz.js",
+	"url": "http://www.myarmz.com",
+	"entry": {
+		"protocol": "json"
+	},
+	"select_com_port" : true,
+	"hardware": {
+		"type": "serial",
+		"control": "slave",
+		"vendor": "Gearbugs",
+		"duration": 1000,
+		"baudRate": 115200
+	}
+}
