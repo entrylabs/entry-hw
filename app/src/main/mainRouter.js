@@ -350,7 +350,7 @@ class MainRouter {
         if (data) {
             this.server.send(data);
         } else {
-            const data = this.handler.encode();
+            const data = this.handler && this.handler.encode();
             if (this.server && data) {
                 this.server.send(data);
             }
