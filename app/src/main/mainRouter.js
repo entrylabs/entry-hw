@@ -227,7 +227,7 @@ class MainRouter {
                 this.scanner.config = config;
                 return;
             }
-            
+
             if (this.scanner.isScanning) {
                 this.scanner.setConfig(config);
             } else {
@@ -344,9 +344,11 @@ class MainRouter {
      * 서버로 인코딩된 데이터를 보낸다.
      */
     sendEncodedDataToServer() {
-        const data = this.handler.encode();
-        if (this.server && data) {
-            this.server.send(data);
+        if (this.handler) {
+            const data = this.handler.encode();
+            if (this.server && data) {
+                this.server.send(data);
+            }
         }
     }
 

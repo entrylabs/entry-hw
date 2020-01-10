@@ -79,19 +79,28 @@ class Connector {
     open(port) {
         return new Promise((resolve, reject) => {
             const hardwareOptions = this.options;
-            this.lostTimer = hardwareOptions.lostTimer || Connector.DEFAULT_CONNECT_LOST_MILLS;
+            this.lostTimer =
+                hardwareOptions.lostTimer ||
+                Connector.DEFAULT_CONNECT_LOST_MILLS;
 
-            const serialPort = new SerialPort(port, this._makeSerialPortOptions(hardwareOptions));
+            const serialPort = new SerialPort(
+                port,
+                this._makeSerialPortOptions(hardwareOptions)
+            );
             this.serialPort = serialPort;
 
             const { delimiter, byteDelimiter } = hardwareOptions;
             if (delimiter) {
-                serialPort.parser = serialPort.pipe(new Readline({ delimiter }));
+                serialPort.parser = serialPort.pipe(
+                    new Readline({ delimiter })
+                );
             } else if (byteDelimiter) {
-                serialPort.parser = serialPort.pipe(new Delimiter({
-                    delimiter: byteDelimiter,
-                    includeDelimiter: true,
-                }));
+                serialPort.parser = serialPort.pipe(
+                    new Delimiter({
+                        delimiter: byteDelimiter,
+                        includeDelimiter: true,
+                    })
+                );
             }
 
             serialPort.on('error', reject);
@@ -104,7 +113,7 @@ class Connector {
                 }
             });
         });
-    };
+    }
 
     /**
      * checkInitialData, requestInitialData 가 둘다 존재하는 경우 handShake 를 진행한다.
@@ -122,12 +131,16 @@ class Connector {
                 firmwarecheck,
             } = this.options;
             const hwModule = this.hwModule;
-            const serialPortReadStream =
-                        this.serialPort.parser ? this.serialPort.parser : this.serialPort;
+            const serialPortReadStream = this.serialPort.parser
+                ? this.serialPort.parser
+                : this.serialPort;
 
             const runAsMaster = () => {
                 serialPortReadStream.on('data', (data) => {
-                    const result = hwModule.checkInitialData(data, this.options);
+                    const result = hwModule.checkInitialData(
+                        data,
+                        this.options
+                    );
 
                     if (result === undefined) {
                         this.send(hwModule.requestInitialData());
@@ -157,8 +170,11 @@ class Connector {
 
                 // control type is slave
                 serialPortReadStream.on('data', (data) => {
-                    const result = hwModule.checkInitialData(data, this.options);
-                    if (result !== undefined) {
+                    const result = hwModule.checkInitialData(
+                        data,
+                        this.options
+                    );
+                    if (result !== undefined && result !== false) {
                         this.serialPort.removeAllListeners('data');
                         serialPortReadStream.removeAllListeners('data');
                         clearTimeout(this.flashFirmware);
@@ -182,9 +198,9 @@ class Connector {
             if (firmwarecheck) {
                 this.flashFirmware = setTimeout(() => {
                     if (this.serialPort) {
-                        this.serialPort.parser ?
-                            this.serialPort.parser.removeAllListeners('data') :
-                            this.serialPort.removeAllListeners('data');
+                        this.serialPort.parser
+                            ? this.serialPort.parser.removeAllListeners('data')
+                            : this.serialPort.removeAllListeners('data');
                         this.executeFlash = true;
                     }
                     resolve();
@@ -213,6 +229,14 @@ class Connector {
         this.router.sendState(state);
     }
 
+    /**
+     * SerialPort 통신 성립 후 데이터 송수신 대기상태로 만든다.
+     * 로직의 순서는 아래와 같다.
+     * - 'connect' state 전파 및 모듈 내 connect() 실행
+     * - 소프트웨어 리셋 / afterConnect 실행. 이 함수는 state 조작이 가능하다.
+     * - data, disconnect, advertise, lostTimer 이벤트 결합.
+     * - 워크스페이스에 heartbeat 용 데이터 송신 / connected flag on
+     */
     connect() {
         if (!this.router) {
             throw new Error('router must be set');
@@ -235,16 +259,18 @@ class Connector {
         this.connected = false;
         this.received = true;
 
+        // 연결 중 상태임을 알림.
+        this._sendState('connect');
         if (hwModule.connect) {
             hwModule.connect();
         }
-        this._sendState('connect');
 
+        // 소프트웨어 리셋 플래그 및 afterConnect. 이 때 펌웨어가 없는 경우 업로드 가능
         if (softwareReset) {
             serialPort.set({ dtr: false });
             setTimeout(() => {
                 serialPort.set({ dtr: true });
-            },1000);
+            }, 1000);
         }
 
         if (hwModule.afterConnect) {
@@ -253,17 +279,21 @@ class Connector {
             });
         }
 
-        const serialPortReadStream =
-            serialPort.parser ? serialPort.pipe(serialPort.parser) : serialPort;
+        const serialPortReadStream = serialPort.parser
+            ? serialPort.pipe(serialPort.parser)
+            : serialPort;
 
+        // 기기와의 데이터 통신 수립
         serialPortReadStream.on('data', (data) => {
-            if (!hwModule.validateLocalData || hwModule.validateLocalData(data)) {
+            if (
+                !hwModule.validateLocalData ||
+                hwModule.validateLocalData(data)
+            ) {
                 if (!this.connected) {
                     this.connected = true;
                     this._sendState('connected');
                 }
 
-                this.received = true;
                 if (hwModule.handleLocalData) {
                     hwModule.handleLocalData(data);
                 }
@@ -323,6 +353,14 @@ class Connector {
                 router.sendEncodedDataToServer();
             }, advertise);
         }
+
+        /*
+        연결이 완료되고 나서, connected 및 연결수립을 알리는 더미데이터를 보낸다.
+        이후 lost | disconnect 상태로 변환되는 것은 기기 선택상 문제이다.
+         */
+        this.connected = true;
+        this.router.sendEncodedDataToServer();
+        this._sendState('connected');
     }
 
     clear() {
@@ -349,7 +387,7 @@ class Connector {
             clearTimeout(this.flashFirmware);
             this.flashFirmware = undefined;
         }
-    };
+    }
 
     close() {
         this.clear();
@@ -358,7 +396,7 @@ class Connector {
                 this.serialPort = undefined;
             }, null);
         }
-    };
+    }
 
     /**
      * 시리얼포트로 연결된 디바이스에 데이터를 보낸다.
@@ -366,7 +404,12 @@ class Connector {
      * @param callback
      */
     send(data, callback) {
-        if (this.serialPort && this.serialPort.isOpen && data && !this.isSending) {
+        if (
+            this.serialPort &&
+            this.serialPort.isOpen &&
+            data &&
+            !this.isSending
+        ) {
             this.isSending = true;
 
             if (this.options.stream === 'string') {
@@ -382,7 +425,7 @@ class Connector {
                 }
             });
         }
-    };
+    }
 }
 
 module.exports = Connector;
