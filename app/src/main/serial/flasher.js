@@ -77,7 +77,7 @@ class Flasher {
         });
     }
 
-    _flashCopy(firmware, port, options) {
+    _flashCopy(firmware) {
         return new Promise((resolve, reject) => {
             const firmwareDirectory = Flasher.firmwareDirectoryPath;
             const destPath = dialog.showOpenDialogSync({
