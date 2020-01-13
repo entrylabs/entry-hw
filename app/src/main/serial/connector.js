@@ -290,9 +290,10 @@ class Connector {
                 hwModule.validateLocalData(data)
             ) {
                 if (!this.connected) {
-                    this.connected = true;
                     this._sendState('connected');
                 }
+                this.connected = true;
+                this.received = true;
 
                 if (hwModule.handleLocalData) {
                     hwModule.handleLocalData(data);
@@ -353,14 +354,6 @@ class Connector {
                 router.sendEncodedDataToServer();
             }, advertise);
         }
-
-        /*
-        연결이 완료되고 나서, connected 및 연결수립을 알리는 더미데이터를 보낸다.
-        이후 lost | disconnect 상태로 변환되는 것은 기기 선택상 문제이다.
-         */
-        this.connected = true;
-        this.router.sendEncodedDataToServer();
-        this._sendState('connected');
     }
 
     clear() {
