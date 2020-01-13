@@ -5,22 +5,26 @@ import { makePayloadAction } from '../../functions/makeAction';
 export interface IConnectionState {
     selectedHardware?: IHardware;
     isNeedPortSelect: boolean;
+    isPortSelectCanceled: boolean;
     portList: ISerialPortScanData[];
 }
 
 export const HARDWARE_SELECTED = 'connection/HARDWARE_SELECTED';
 export const PORTLIST_CHANGED = 'connection/PORTLIST_CHANGED';
+export const PORTLIST_VISIBLE_CHANGED = 'connection/PORTLIST_VISIBLE_CHANGED';
 export const PORT_SELECTED = 'connection/PORT_SELECTED';
 export const FIRMWARE_INSTALL_REQUESTED = 'connection/FIRMWARE_INSTALL_REQUESTED';
 
 export const selectHardware = makePayloadAction<IHardware>(HARDWARE_SELECTED);
 export const changePortList = makePayloadAction<ISerialPortScanData[]>(PORTLIST_CHANGED);
+export const changeVisiblePortList = makePayloadAction<boolean>(PORTLIST_VISIBLE_CHANGED);
 export const selectPort = makePayloadAction<string>(PORT_SELECTED);
 export const requestFirmwareInstall = makePayloadAction<IFirmwareInfo>(FIRMWARE_INSTALL_REQUESTED);
 
 const initialState: IConnectionState = {
     selectedHardware: undefined,
     isNeedPortSelect: false,
+    isPortSelectCanceled: false,
     portList: [],
 };
 
@@ -34,6 +38,10 @@ export default (state = initialState, { type, payload }: AnyAction) => {
             return produce(state, (nextState) => {
                 nextState.isNeedPortSelect = (payload as ISerialPortScanData[]).length !== 0;
                 nextState.portList = payload;
+            });
+        case PORTLIST_VISIBLE_CHANGED:
+            return produce(state, (nextState) => {
+                nextState.isPortSelectCanceled = payload;
             });
         case PORT_SELECTED:
             return produce(state, (nextState) => {

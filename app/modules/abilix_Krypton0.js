@@ -192,6 +192,38 @@ class Abilix_Krypton0 extends BaseModule {
 	setSerialPort(sp) {
         this.sp = sp;
     }
+
+	/*************************************************************************
+	 * Name: getPortIndex
+	 *
+	 * Description: get port index (0x01 : PORT #4, 0x02 : PORT #3, 0x03 : PORT #2, 0x04 : PORT #1
+	 *
+	 * port - Port index
+	 *
+	 * Returned Value :
+	 *************************************************************************/
+	getPortIndex(port) {
+		var port_index = 0x00;
+		
+		switch(port) {
+			case 1 : 
+				port_index = 0x04;
+				break;
+			case 2 :
+				port_index = 0x03;
+				break;
+			case 3 :
+				port_index = 0x02;
+				break;
+			case 4 :
+				port_index = 0x01;
+				break;
+			default :
+				break;
+		}
+		
+		return port_index;
+	}
 	
 	/*************************************************************************
 	 * Name: makeCmdHeaderBuffer
@@ -419,8 +451,9 @@ class Abilix_Krypton0 extends BaseModule {
 		this.isSensorCheck = true;
 		var cmdheader = new Buffer([0xaa, 0x55, 0xFF, 0xFF, 0x72, 0xA4, 0x17, 0x00, 0x00, 0x00, 0x00]);
 		var param1 = new Buffer([0x00, 0x00]);
+		var pIndex = this.getPortIndex(port + 1);
 		
-		param1[0] = port;
+		param1[0] = pIndex;
 		param1[1] = onoff;
 		
 		if (onoff == 0)
@@ -538,7 +571,7 @@ class Abilix_Krypton0 extends BaseModule {
 		if (!this.isSensorCheck) {
 			this.writeDebug('info', 'sendCheckSensorcmd');
 			this.isSensorCheck = true;
-			this.waitingcmd ++
+			this.waitingcmd ++;
 			if (this.isLEDenabled == false && this.led.port != -1 && (this.waitingcmd > 10) ) {
 				this.writeDebug('debug', 'checkSensorStatus : send LED off cmd => port = ' + this.led.port);
 				this.sp.write(this.makePortonoffcmd(this.led.port, 0x01));
@@ -647,7 +680,7 @@ class Abilix_Krypton0 extends BaseModule {
 						this.SENSOR.MICROPHONE = values;
 						break;
 					case 7 : 
-						this.led.port = 4 - index;
+						this.led.port = index; //4 - index;
 						this.writeDebug('debug', 'checkSensorStatus : LED_DATA =' + this.SENSOR.LED + ' port = ' + this.led.port);
 						this.SENSOR_MAP[port].port_values = this.SENSOR.LED;
 						break;
@@ -935,7 +968,7 @@ class Abilix_Krypton0 extends BaseModule {
 			this.isSendStartSnd = true;
 			this.isSensorCheck = true;
 			
-			this.sp.write(sndbuf);
+		//	this.sp.write(sndbuf);
 		}
 	}
 

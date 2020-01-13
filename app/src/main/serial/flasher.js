@@ -64,7 +64,7 @@ class Flasher {
         });
     }
 
-    _flashCopy(firmware, port, options) {
+    _flashCopy(firmware) {
         return new Promise((resolve, reject) => {
             const firmwareDirectory = Flasher.firmwareDirectoryPath;
             const destPath = dialog.showOpenDialogSync({
@@ -88,7 +88,7 @@ class Flasher {
         if (typeof firmware === 'string' || firmware.type === 'arduino') {
             return this._flashArduino(firmware, port, options);
         } else if (firmware.type === 'copy') {
-            return this._flashCopy(firmware, port, options);
+            return this._flashCopy(firmware);
         } else {
             return Promise.reject(new Error());
         }

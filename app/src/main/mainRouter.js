@@ -116,7 +116,13 @@ class MainRouter {
      * @returns {Promise<void|Error>}
      */
     _flashFirmware(firmwareName) {
-        if (this.connector && this.connector.serialPort && this.config) {
+        const connectorSerialPort = this.connector && this.connector.serialPort;
+        // firmware type 이 copy 인 경우는 시리얼포트를 경유하지 않으므로 체크하지 않는다.
+        // 그러나 config 은 필요하다.
+        if (
+            this.config &&
+            (firmwareName.type === 'copy' || connectorSerialPort)
+        ) {
             this.sendState(HARDWARE_STATEMENT.flash);
             let firmware = firmwareName;
             const {
@@ -125,10 +131,10 @@ class MainRouter {
                 firmwareMCUType: MCUType,
                 tryFlasherNumber: maxFlashTryCount = 10,
             } = this.config;
-            const lastSerialPortCOMPort = this.connector.serialPort.path;
+            const lastSerialPortCOMPort = connectorSerialPort && connectorSerialPort.path;
             this.firmwareTryCount = 0;
 
-            if (firmwareName === undefined || firmwareName === '') {
+            if (!firmwareName || firmwareName === '') {
                 console.warn('firmware requested without firmware info!');
                 console.warn('try to default firmware info in config file');
                 firmware = firmwareInConfig;
@@ -367,7 +373,7 @@ class MainRouter {
         if (data) {
             this.server.send(data);
         } else {
-            const data = this.handler.encode();
+            const data = this.handler && this.handler.encode();
             if (this.server && data) {
                 this.server.send(data);
             }

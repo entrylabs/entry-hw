@@ -12,7 +12,13 @@ import filterHardwareList from '../../functions/filterHardware';
 import { changeAlertMessage, CURRENT_PAGE_STATE_CHANGED } from '../modules/common';
 import { HardwareConnectionStatusEnum, HardwarePageStateEnum } from '../../constants/constants';
 import refreshPriorHardwareList from '../../functions/refreshPriorHardwareList';
-import { changePortList, FIRMWARE_INSTALL_REQUESTED, HARDWARE_SELECTED, PORT_SELECTED } from '../modules/connection';
+import {
+    changePortList,
+    changeVisiblePortList,
+    FIRMWARE_INSTALL_REQUESTED,
+    HARDWARE_SELECTED,
+    PORT_SELECTED,
+} from '../modules/connection';
 
 const { translator, rendererRouter } = window;
 
@@ -91,6 +97,7 @@ const entryHardwareMiddleware: Middleware = ({ getState }: { getState: () => ISt
             const { moduleState } = common;
 
             if (
+                action.payload.type !== 'copy' &&
                 moduleState !== HardwareConnectionStatusEnum.beforeConnect &&
                 moduleState !== HardwareConnectionStatusEnum.connected
             ) {
@@ -104,7 +111,14 @@ const entryHardwareMiddleware: Middleware = ({ getState }: { getState: () => ISt
                         });
                     })
                     .catch(() => {
-                        changeAlertMessage(next)({ message: translator.translate('Failed Firmware Upload') });
+                        changeAlertMessage(next)({
+                            message: translator.translate('Failed Firmware Upload'),
+                        });
+                    })
+                    .finally(() => {
+                        if (action.payload.type === 'copy') {
+                            changeVisiblePortList(next)(false);
+                        }
                     });
             }
             break;

@@ -80,7 +80,7 @@ class SerialConnector extends BaseConnector {
                 }
             });
         });
-    };
+    }
 
     /**
      * checkInitialData, requestInitialData 가 둘다 존재하는 경우 handShake 를 진행한다.
@@ -98,8 +98,9 @@ class SerialConnector extends BaseConnector {
                 firmwarecheck,
             } = this.options;
             const hwModule = this.hwModule;
-            const serialPortReadStream =
-                        this.serialPort.parser ? this.serialPort.parser : this.serialPort;
+            const serialPortReadStream = this.serialPort.parser
+                ? this.serialPort.parser
+                : this.serialPort;
 
             const runAsMaster = () => {
                 serialPortReadStream.on('data', (data) => {
@@ -158,9 +159,9 @@ class SerialConnector extends BaseConnector {
             if (firmwarecheck) {
                 this.flashFirmware = setTimeout(() => {
                     if (this.serialPort) {
-                        this.serialPort.parser ?
-                            this.serialPort.parser.removeAllListeners('data') :
-                            this.serialPort.removeAllListeners('data');
+                        this.serialPort.parser
+                            ? this.serialPort.parser.removeAllListeners('data')
+                            : this.serialPort.removeAllListeners('data');
                         this.executeFlash = true;
                     }
                     resolve();
@@ -201,16 +202,18 @@ class SerialConnector extends BaseConnector {
         this.connected = false;
         this.received = true;
 
+        // 연결 중 상태임을 알림.
+        this._sendState('connect');
         if (hwModule.connect) {
             hwModule.connect();
         }
-        this._sendState('connect');
 
+        // 소프트웨어 리셋 플래그 및 afterConnect. 이 때 펌웨어가 없는 경우 업로드 가능
         if (softwareReset) {
             serialPort.set({ dtr: false });
             setTimeout(() => {
                 serialPort.set({ dtr: true });
-            },1000);
+            }, 1000);
         }
 
         if (hwModule.afterConnect) {
@@ -219,15 +222,21 @@ class SerialConnector extends BaseConnector {
             });
         }
 
-        const serialPortReadStream =
-            serialPort.parser ? serialPort.pipe(serialPort.parser) : serialPort;
+        const serialPortReadStream = serialPort.parser
+            ? serialPort.pipe(serialPort.parser)
+            : serialPort;
 
+        // 기기와의 데이터 통신 수립
         serialPortReadStream.on('data', (data) => {
-            if (!hwModule.validateLocalData || hwModule.validateLocalData(data)) {
+            if (
+                !hwModule.validateLocalData ||
+                hwModule.validateLocalData(data)
+            ) {
                 if (!this.connected) {
-                    this.connected = true;
                     this._sendState('connected');
                 }
+                this.connected = true;
+                this.received = true;
 
                 this.received = true;
                 if (hwModule.handleLocalData) {
@@ -315,7 +324,7 @@ class SerialConnector extends BaseConnector {
             clearTimeout(this.flashFirmware);
             this.flashFirmware = undefined;
         }
-    };
+    }
 
     close() {
         this._clear();
@@ -324,7 +333,7 @@ class SerialConnector extends BaseConnector {
                 this.serialPort = undefined;
             }, null);
         }
-    };
+    }
 
     /**
      * 시리얼포트로 연결된 디바이스에 데이터를 보낸다.
@@ -332,7 +341,12 @@ class SerialConnector extends BaseConnector {
      * @param callback
      */
     send(data, callback) {
-        if (this.serialPort && this.serialPort.isOpen && data && !this.isSending) {
+        if (
+            this.serialPort &&
+            this.serialPort.isOpen &&
+            data &&
+            !this.isSending
+        ) {
             this.isSending = true;
 
             if (this.options.stream === 'string') {
@@ -347,7 +361,7 @@ class SerialConnector extends BaseConnector {
                 }
             });
         }
-    };
+    }
 }
 
 module.exports = SerialConnector;
