@@ -7,7 +7,7 @@
     "category": "module",
     "platform": ["win32"],
     "icon": "mechanicblock_nano.png",
-    "module": "arduinoNano.js",
+    "module": "mechanicblock_nano.js",
     "url": "http://www.mechanicblock.com/",
 	"email": "interboard@naver.com",
     "driver": {
