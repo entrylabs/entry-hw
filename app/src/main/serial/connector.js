@@ -233,9 +233,10 @@ class SerialConnector extends BaseConnector {
                 hwModule.validateLocalData(data)
             ) {
                 if (!this.connected) {
-                    this.connected = true;
                     this._sendState('connected');
                 }
+                this.connected = true;
+                this.received = true;
 
                 this.received = true;
                 if (hwModule.handleLocalData) {
