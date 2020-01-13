@@ -234,7 +234,7 @@ class MainRouter {
             this.config = config;
             if (this.scanner) {
                 this.hwModule = require(
-                    path.join(commonUtils.getExtraDirectoryPath('modules'), config.module)
+                    path.join(commonUtils.getExtraDirectoryPath('modules'), config.module),
                 );
                 this.sendState(HARDWARE_STATEMENT.scan);
                 this.scanner.stopScan();
