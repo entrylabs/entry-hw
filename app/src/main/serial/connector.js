@@ -128,7 +128,7 @@ class SerialConnector extends BaseConnector {
             const runAsSlave = () => {
                 // 최소 한번은 requestInitialData 전송을 강제
                 this.send(hwModule.requestInitialData(this.serialPort));
-                this.slaveTimer = setInterval(() => {
+                this.slaveInitRequestInterval = setInterval(() => {
                     this.send(hwModule.requestInitialData(this.serialPort));
                 }, duration);
 
@@ -139,7 +139,7 @@ class SerialConnector extends BaseConnector {
                         this.serialPort.removeAllListeners('data');
                         serialPortReadStream.removeAllListeners('data');
                         clearTimeout(this.flashFirmware);
-                        clearTimeout(this.slaveTimer);
+                        clearInterval(this.slaveInitRequestInterval);
                         if (result === true) {
                             if (hwModule.setSerialPort) {
                                 hwModule.setSerialPort(this.serialPort);
@@ -314,15 +314,22 @@ class SerialConnector extends BaseConnector {
             clearInterval(this.advertiseInterval);
             this.advertiseInterval = undefined;
         }
+
+        if (this.flashFirmware) {
+            clearTimeout(this.flashFirmware);
+            this.flashFirmware = undefined;
+        }
+
+        if (this.slaveInitRequestInterval) {
+            clearInterval(this.slaveInitRequestInterval);
+            this.slaveInitRequestInterval = undefined;
+        }
+
         if (this.serialPort) {
             this.serialPort.removeAllListeners();
             if (this.serialPort.parser) {
                 this.serialPort.parser.removeAllListeners();
             }
-        }
-        if (this.flashFirmware) {
-            clearTimeout(this.flashFirmware);
-            this.flashFirmware = undefined;
         }
     }
 
