@@ -1,13 +1,13 @@
 {
-    "id": "390301",
+    "id": "390201",
     "name": {
-        "en": "Mechanicblock Uno",
-        "ko": "메카닉블럭 Uno"
+        "en": "Mechanicblock Uno S",
+        "ko": "메카닉블럭 Uno S"
     },
     "category": "module",
     "platform": ["win32"],
-    "icon": "mechanicblock_uno.png",
-    "module": "mechanicblock_uno.js",
+    "icon": "mechanicblock_uno_s.png",
+    "module": "mechanicblock_uno_s.js",
     "url": "http://www.mechanicblock.co.kr/",
 	"email": "mechanicblock@naver.com",
     "driver": {
