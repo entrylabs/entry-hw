@@ -51,8 +51,7 @@ const functionKeys = {
     PLAY_NOTE: 0x04,
     CHANGE_BPM: 0x05,
     SET_BPM: 0x06,
-    ACC_REGULAR: 0xaa,
-    SENSOR_REGULAR: 0xab,
+    REGULAR_SENSORS: 0xaa,
 };
 
 const EXCEPTION_COMMAND_CODE = [170, 171, 172];
@@ -335,15 +334,15 @@ class Microbit extends BaseModule {
                 const value = payload[0];
                 return this.makeBuffer(type, [value]);
             }
+            case functionKeys.GET_COMPASS_HEADING:
             case functionKeys.GET_LIGHT_LEVEL: {
                 return this.makeBuffer(type);
             }
-            // 그냥 값 없이 바로 커맨드만 보내는 경우
 
+            // 그냥 값 없이 바로 커맨드만 보내는 경우
             case functionKeys.GET_ACCELEROMETER:
             case functionKeys.GET_BUTTON:
             case functionKeys.GET_TEMPERATURE:
-            case functionKeys.GET_COMPASS_HEADING:
             case functionKeys.RESET_SCREEN:
             case functionKeys.GET_PITCH:
             case functionKeys.GET_ROLL:
@@ -401,12 +400,8 @@ class Microbit extends BaseModule {
                 this.commandQueue.shift();
                 break;
             }
+            case functionKeys.SET_IMAGE:
             case functionKeys.SET_STRING: {
-                codeId = this.commandQueue.shift().codeId;
-                this.setStatusMap(['isSensorMap'], false);
-                break;
-            }
-            case functionKeys.SET_IMAGE: {
                 codeId = this.commandQueue.shift().codeId;
                 this.setStatusMap(['isSensorMap'], false);
                 break;
@@ -437,6 +432,15 @@ class Microbit extends BaseModule {
                 this.setStatusMap(['isSensorMap'], false);
                 break;
             }
+            case functionKeys.GET_COMPASS_HEADING: {
+                codeId = this.commandQueue.shift().codeId;
+                this.setStatusMap(
+                    ['sensorData', 'compassHeading'],
+                    data[1] * 256 + data[2]
+                );
+                this.setStatusMap(['isSensorMap'], false);
+                break;
+            }
 
             case functionKeys.GET_DIGITAL: {
                 codeId = this.commandQueue.shift().codeId;
@@ -445,7 +449,7 @@ class Microbit extends BaseModule {
                 break;
             }
 
-            case functionKeys.ACC_REGULAR: {
+            case functionKeys.REGULAR_SENSORS: {
                 const x = Number(
                     Buffer.from([data[1], data[2]]).readInt16LE(0)
                 );
@@ -466,6 +470,7 @@ class Microbit extends BaseModule {
                     Buffer.from([data[11]]).readUInt8(0)
                 );
                 const button = Number(Buffer.from([data[12]]).readUInt8(0));
+                const gesture = Number(Buffer.from([data[13]]).readUInt8(0));
 
                 this.setStatusMap(['sensorData', 'accelerometer', 'x'], x);
                 this.setStatusMap(['sensorData', 'accelerometer', 'y'], y);
@@ -479,18 +484,7 @@ class Microbit extends BaseModule {
                 this.setStatusMap(['sensorData', 'tilt', 'roll'], roll);
                 this.setStatusMap(['sensorData', 'temperature'], temperature);
                 this.setStatusMap(['sensorData', 'button'], button);
-                this.setStatusMap(['isSensorMap'], true);
-                break;
-            }
-            case functionKeys.SENSOR_REGULAR: {
-                this.setStatusMap(
-                    ['sensorData', 'compassHeading'],
-                    Buffer.from([data[1], data[2]]).readUInt16LE(0)
-                );
-                this.setStatusMap(
-                    ['sensorData', 'gesture'],
-                    Buffer.from([data[3]]).readUInt8(0)
-                );
+                this.setStatusMap(['sensorData', 'gesture'], gesture);
                 this.setStatusMap(['isSensorMap'], true);
                 break;
             }
