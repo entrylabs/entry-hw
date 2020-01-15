@@ -1,5 +1,5 @@
 const path = require('path');
-const fs = require('fs');
+const fs = require('fs-extra');
 
 class FileUtils {
     static copyRecursiveSync(src, dest) {
