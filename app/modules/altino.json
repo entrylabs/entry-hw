@@ -4,6 +4,7 @@
         "en": "Altino",
         "ko": "알티노"
     },
+    "category": "robot",
     "platform": ["win32", "darwin"],
     "icon": "altino.png",
     "module": "altino.js",

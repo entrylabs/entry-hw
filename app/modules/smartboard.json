@@ -4,6 +4,7 @@
 		"en": "Sciencebox Codingboard",
 		"ko": "과학상자 코딩보드"
 	},
+	"category": "board",
 	"platform": ["win32"],
 	"icon" : "smartboard.png",
 	"module": "smartboard.js",

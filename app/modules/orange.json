@@ -4,6 +4,7 @@
 		"en": "Orange Board",
 		"ko": "오렌지 보드"
 	},
+	"category": "board",
 	"platform": ["win32"],
 	"icon" : "orange.png",
 	"module": "arduinoExt.js",

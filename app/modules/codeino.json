@@ -4,6 +4,7 @@
 		"en": "CODEino",
 		"ko": "코드이노"
 	},
+	"category": "board",
 	"platform": ["win32", "darwin"],
 	"icon" : "codeino.png",
 	"module": "codeino.js",

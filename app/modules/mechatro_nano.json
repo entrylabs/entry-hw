@@ -4,6 +4,7 @@
         "en": "Mechatro Nano+",
         "ko": "메카트로 나노+"
     },
+    "category": "board",
     "platform": ["win32", "darwin"],
     "icon": "mechatro_nano.png",
     "url": "http://cafe.naver.com/easybread",

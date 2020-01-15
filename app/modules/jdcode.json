@@ -4,6 +4,7 @@
 		"en": "JDCode",
 		"ko": "제이디코드"
 	},
+	"category": "robot",
 	"platform": ["win32", "darwin"],
 	"icon" : "jdcode.png",
 	"module": "jdcode.js",

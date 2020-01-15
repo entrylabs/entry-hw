@@ -1,0 +1,32 @@
+{
+    "id": "210201",
+    "name": {
+        "en": "Thinkboard",
+        "ko": "씽크보드"
+    },
+    "category": "module",
+    "platform": ["win32", "darwin"],
+    "icon": "thinkboard.png",
+    "module": "thinkboard.js",
+    "url": "http://www.thinkfunedu.com",
+	"email": "help6337@gmail.com",
+    "video": "https://goo.gl/okk8s9",
+    "driver": {
+		"win32-ia32": "CDM21228_Driver/CDM21228_Setup.exe",
+		"win32-x64": "CDM21228_Driver/CDM21228_Setup.exe",
+        "darwin-x64": "Mac_OSX_VCP_Driver/SiLabsUSBDriverDisk.dmg"
+    },
+    "select_com_port": true,
+    "reconnect": true,
+    "firmware": "thinkboard",
+    "entry": {
+        "protocol": "json"
+    },
+    "hardware": {
+        "type": "serial",
+        "control": "slave",
+        "duration": 32,
+        "vendor": "",
+        "baudRate": 115200
+    }
+}

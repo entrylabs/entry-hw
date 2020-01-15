@@ -4,6 +4,7 @@
 		"en": "Codingmachine",
 		"ko": "코딩머신"
 	},
+	"category": "board",
 	"platform": ["win32", "darwin"],
 	"icon" : "codingmachine.png",
 	"module": "codingmachine.js",

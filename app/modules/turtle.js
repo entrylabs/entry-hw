@@ -56,7 +56,8 @@ function Module() {
 		soundState: -1,
 		soundStateId: 0,
 		lineTracerState: 0,
-		lineTracerStateId: 0
+		lineTracerStateId: 0,
+		batteryState: 2
 	};
 	this.motoring = {
 		leftWheel: 0,
@@ -140,7 +141,14 @@ function Module() {
 		pivotLeft: 0,
 		offset: 0
 	};
-	this.timeouts = [];
+	this.battery = {
+		state: 2,
+		data: new Array(10),
+		sum: 0.0,
+		index: 0,
+		count: 0
+	};
+	this.timerId = undefined;
 }
 
 Module.prototype.toHex = function(number) {
@@ -155,7 +163,7 @@ Module.prototype.toHex = function(number) {
 Module.prototype.toHex2 = function(number) {
 	var value = parseInt(number);
 	if(value < 0) value += 0x10000;
-	
+
 	value = value.toString(16).toUpperCase();
 	var result = '';
 	for(var i = value.length; i < 4; ++i) {
@@ -163,11 +171,11 @@ Module.prototype.toHex2 = function(number) {
 	}
 	return result + value;
 };
-	
+
 Module.prototype.toHex3 = function(number) {
 	var value = parseInt(number);
 	if(value < 0) value += 0x1000000;
-	
+
 	value = value.toString(16).toUpperCase();
 	var result = '';
 	for(var i = value.length; i < 6; ++i) {
@@ -184,21 +192,9 @@ Module.prototype.calculatePulse = function(deg, radius, offset) {
 	return Math.round(deg * (Turtle.DEG_TO_PULSE + offset) * (radius + this.alignment.distance) / 360.0 / this.alignment.distance);
 };
 
-Module.prototype.removeTimeout = function(id) {
-	clearTimeout(id);
-	var timeouts = this.timeouts;
-	var index = timeouts.indexOf(id);
-	if(index >= 0) {
-		timeouts.splice(index, 1);
-	}
-};
-
-Module.prototype.clearTimeouts = function() {
-	var timeouts = this.timeouts;
-	for(var i in timeouts) {
-		clearTimeout(timeouts[i]);
-	}
-	this.timeouts = [];
+Module.prototype.cancelTimeout = function() {
+	if(this.timerId !== undefined) clearTimeout(this.timerId);
+	this.timerId = undefined;
 };
 
 Module.prototype.parseAlignment = function(data) {
@@ -301,9 +297,9 @@ Module.prototype.handleLocalData = function(data) { // data: string
 	var str = data.slice(0, 1);
 	var value = parseInt(str, 16);
 	if(value != 1) return; // invalid data
-	
+
 	var sensory = this.sensory;
-	
+
 	// r, g, b
 	str = data.slice(2, 6);
 	var red = parseInt(str, 16);
@@ -313,7 +309,7 @@ Module.prototype.handleLocalData = function(data) { // data: string
 	var blue = parseInt(str, 16);
 	str = data.slice(14, 16);
 	value = parseInt(str, 16);
-	
+
 	var r = parseInt(red * 255 / 1023);
 	var g = parseInt(green * 255 / 1023);
 	var b = parseInt(blue * 255 / 1023);
@@ -323,12 +319,12 @@ Module.prototype.handleLocalData = function(data) { // data: string
 	else if(g < 0) g = 0;
 	if(b > 255) b = 255;
 	else if(b < 0) b = 0;
-	
+
 	sensory.colorRed = r;
 	sensory.colorGreen = g;
 	sensory.colorBlue = b;
 	sensory.colorClear = value;
-	
+
 	// color number
 	var colorNumber = -1;
 	if(value < 75) {
@@ -359,7 +355,7 @@ Module.prototype.handleLocalData = function(data) { // data: string
 		event.colorNumber = colorNumber;
 		sensory.colorNumber = colorNumber;
 	}
-	
+
 	// clicked / double clicked / long pressed
 	str = data.slice(16, 18);
 	value = parseInt(str, 16);
@@ -386,7 +382,7 @@ Module.prototype.handleLocalData = function(data) { // data: string
 		sensory.longPressed = 1;
 		sensory.longPressedId = (sensory.longPressedId % 255) + 1;
 	}
-	
+
 	// floor
 	str = data.slice(18, 20);
 	value = parseInt(str, 16);
@@ -418,7 +414,7 @@ Module.prototype.handleLocalData = function(data) { // data: string
 		event.pulseCount = value;
 		sensory.pulseCount = value;
 	}
-	
+
 	var acc = this.acceleration;
 	if(acc.count < 10) {
 		++ acc.count;
@@ -465,14 +461,39 @@ Module.prototype.handleLocalData = function(data) { // data: string
 	value = parseInt(str, 16);
 	value -= 0x100;
 	sensory.signalStrength = value;
+	// battery
+	str = data.slice(36, 38);
+	value = parseInt(str, 16);
+	value = value / 100.0 + 2;
+	// battery state
+	var batt = this.battery;
+	if(batt.count < 10) {
+		++ batt.count;
+	} else {
+		batt.index %= 10;
+		batt.sum -= batt.data[batt.index];
+	}
+	batt.sum += value;
+	batt.data[batt.index] = value;
+	++ batt.index;
+	value = batt.sum / batt.count;
+	var state = 2;
+	if(value < 3.63) state = 0;
+	else if(value < 3.65) state = 1;
+	if(state != event.batteryState) {
+		event.batteryState = state;
+		sensory.batteryState = state;
+	}
 	// wheel state / sound state / linetracer state
 	str = data.slice(38, 40);
 	value = parseInt(str, 16);
-	var state = (value >> 4) & 0x01;
+	state = (value >> 4) & 0x01;
 	var wheel = this.wheel;
 	if(wheel.event == 1) {
 		if(state == 0) {
-			if(++wheel.count > 5) wheel.event = 2;
+			if(wheel.pulse > 0 && wheel.pulse < 12) {
+				if(++wheel.count > 5) wheel.event = 2;
+			}
 		} else {
 			wheel.event = 2;
 		}
@@ -730,8 +751,9 @@ Module.prototype.requestLocalData = function() {
 	var wheel = self.wheel;
 	var leftWheel = motoring.leftWheel, rightWheel = motoring.rightWheel;
 	if(motion.written) {
+		self.cancelTimeout();
 		motion.type = parseInt(motoring.motionType);
-		if(motion.type < 0 || motion.type > 12) {
+		if(motion.type < 0 || motion.type > 12) { // MOTION_SWING_RIGHT_TAIL
 			motion.type = 0;
 		}
 		if(motion.type != 0) {
@@ -739,7 +761,7 @@ Module.prototype.requestLocalData = function() {
 			wheel.pulse = 0;
 			var unit = parseInt(motoring.motionUnit);
 			var value = motoring.motionValue;
-			if(unit == 2) {
+			if(unit == 2) { // UNIT_SEC
 				if(value == 0) {
 					leftWheel = 0;
 					rightWheel = 0;
@@ -747,46 +769,45 @@ Module.prototype.requestLocalData = function() {
 					wheel.event = -1;
 					motion.type = 0;
 				} else {
-					var timer = setTimeout(function() {
-						self.removeTimeout(timer);
+					self.timerId = setTimeout(function() {
+						self.cancelTimeout();
 						leftWheel = 0;
 						rightWheel = 0;
 						wheel.count = 0;
 						wheel.event = -1;
 						motion.type = 0;
 					}, value * 1000);
-					self.timeouts.push(timer);
 				}
 			} else {
-				if(unit == 3) {
+				if(unit == 3) { // UNIT_PULSE
 					wheel.pulse = Math.round(value);
-				} else if(unit == 1) {
+				} else if(unit == 1) { // UNIT_CM_DEG
 					var alignment = self.alignment;
 					switch(motion.type) {
-						case 1:
-						case 2:
+						case 1: // MOTION_MOVE_FORWARD
+						case 2: // MOTION_MOVE_BACKWARD
 							wheel.pulse = Math.round(value * Turtle.CM_TO_PULSE);
 							break;
-						case 3:
+						case 3: // MOTION_TURN_LEFT
 							wheel.pulse = Math.round(value * (Turtle.DEG_TO_PULSE + alignment.spinLeft) / 360.0);
 							break;
-						case 4:
+						case 4: // MOTION_TURN_RIGHT
 							wheel.pulse = Math.round(value * (Turtle.DEG_TO_PULSE + alignment.spinRight) / 360.0);
 							break;
-						case 5:
-						case 6:
+						case 5: // MOTION_PIVOT_LEFT_HEAD
+						case 6: // MOTION_PIVOT_LEFT_TAIL
 							wheel.pulse = Math.round(value * (2 * Turtle.DEG_TO_PULSE + alignment.pivotLeft) / 360.0);
 							break;
-						case 7:
-						case 8:
+						case 7: // MOTION_PIVOT_RIGHT_HEAD
+						case 8: // MOTION_PIVOT_RIGHT_TAIL
 							wheel.pulse = Math.round(value * (2 * Turtle.DEG_TO_PULSE + alignment.pivotRight) / 360.0);
 							break;
-						case 9:
-						case 10:
+						case 9: // MOTION_SWING_LEFT_HEAD
+						case 10: // MOTION_SWING_LEFT_TAIL
 							wheel.pulse = self.calculatePulse(value, motoring.motionRadius, alignment.spinLeft);
 							break;
-						case 11:
-						case 12:
+						case 11: // MOTION_SWING_RIGHT_HEAD
+						case 12: // MOTION_SWING_RIGHT_TAIL
 							wheel.pulse = self.calculatePulse(value, motoring.motionRadius, alignment.spinRight);
 							break;
 						default:
@@ -805,71 +826,65 @@ Module.prototype.requestLocalData = function() {
 		}
 	}
 	if(motion.type == 0) wheel.pulse = motoring.pulse;
-	
+
 	var speed = motion.speed;
 	if(speed == 0) speed = Turtle.DEFAULT_SPEED;
 	switch(motion.type) {
-		case 1:
+		case 1: // MOTION_MOVE_FORWARD
 			leftWheel = speed;
 			rightWheel = speed;
 			break;
-		case 2:
+		case 2: // MOTION_MOVE_BACKWARD
 			leftWheel = -speed;
 			rightWheel = -speed;
 			break;
-		case 3:
+		case 3: // MOTION_TURN_LEFT
 			leftWheel = -speed;
 			rightWheel = speed;
 			break;
-		case 4:
+		case 4: // MOTION_TURN_RIGHT
 			leftWheel = speed;
 			rightWheel = -speed;
 			break;
-		case 5:
+		case 5: // MOTION_PIVOT_LEFT_HEAD
 			leftWheel = 0;
 			rightWheel = speed;
 			break;
-		case 6:
+		case 6: // MOTION_PIVOT_LEFT_TAIL
 			leftWheel = 0;
 			rightWheel = -speed;
 			break;
-		case 7:
+		case 7: // MOTION_PIVOT_RIGHT_HEAD
 			leftWheel = speed;
 			rightWheel = 0;
 			break;
-		case 8:
+		case 8: // MOTION_PIVOT_RIGHT_TAIL
 			leftWheel = -speed;
 			rightWheel = 0;
 			break;
-		case 9: {
-				var slowSpeed = self.calculateSpeed(speed, motoring.motionRadius);
-				leftWheel = slowSpeed;
-				rightWheel = speed;
-			}
+		case 9: // MOTION_SWING_LEFT_HEAD
+			leftWheel = self.calculateSpeed(speed, motoring.motionRadius);
+			rightWheel = speed;
 			break;
-		case 10: {
-				var slowSpeed = self.calculateSpeed(speed, motoring.motionRadius);
-				leftWheel = -slowSpeed;
-				rightWheel = -speed;
-			}
+		case 10: // MOTION_SWING_LEFT_TAIL
+			leftWheel = -self.calculateSpeed(speed, motoring.motionRadius);
+			rightWheel = -speed;
 			break;
-		case 11: {
-				var slowSpeed = self.calculateSpeed(speed, motoring.motionRadius);
-				leftWheel = speed;
-				rightWheel = slowSpeed;
-			}
+		case 11: // MOTION_SWING_RIGHT_HEAD
+			leftWheel = speed;
+			rightWheel = self.calculateSpeed(speed, motoring.motionRadius);
 			break;
-		case 12: {
-				var slowSpeed = self.calculateSpeed(speed, motoring.motionRadius);
-				leftWheel = -speed;
-				rightWheel = -slowSpeed;
-			}
+		case 12: // MOTION_SWING_RIGHT_TAIL
+			leftWheel = -speed;
+			rightWheel = -self.calculateSpeed(speed, motoring.motionRadius);
 			break;
 	}
-	
+
 	var str = '10';
-	str += self.toHex2(leftWheel * 10.68 + 0.5);
-	str += self.toHex2(rightWheel * 10.68 + 0.5);
+	if(leftWheel < 0) str += self.toHex2(leftWheel * 10.68 - 0.5);
+	else str += self.toHex2(leftWheel * 10.68 + 0.5);
+	if(rightWheel < 0) str += self.toHex2(rightWheel * 10.68 - 0.5);
+	else str += self.toHex2(rightWheel * 10.68 + 0.5);
 	if(motion.written || wheel.written) {
 		motion.written = false;
 		wheel.written = false;
@@ -886,7 +901,7 @@ Module.prototype.requestLocalData = function() {
 	}
 	str += self.toHex(wheel.id);
 	str += self.toHex2(wheel.pulse);
-	
+
 	var lineTracer = self.lineTracer;
 	var tmp = 0;
 	switch(motoring.lineTracerMode) {
@@ -932,7 +947,7 @@ Module.prototype.requestLocalData = function() {
 	str += self.toHex(tmp);
 	str += self.toHex3(motoring.buzzer * 100);
 	str += self.toHex(motoring.note);
-	
+
 	var sound = self.sound;
 	tmp = 0;
 	switch(motoring.sound) {
@@ -969,6 +984,7 @@ Module.prototype.requestLocalData = function() {
 };
 
 Module.prototype.reset = function() {
+	this.cancelTimeout();
 	var motoring = this.motoring;
 	motoring.leftWheel = 0;
 	motoring.rightWheel = 0;
@@ -992,7 +1008,7 @@ Module.prototype.reset = function() {
 	motoring.motionSpeed = 0;
 	motoring.motionValue = 0;
 	motoring.motionRadius = 0;
-	
+
 	var sensory = this.sensory;
 	sensory.button = 0;
 	sensory.clicked = 0;
@@ -1011,23 +1027,24 @@ Module.prototype.reset = function() {
 	sensory.soundStateId = 0;
 	sensory.lineTracerState = 0;
 	sensory.lineTracerStateId = 0;
-	
+	sensory.batteryState = 2;
+
 	var motion = this.motion;
 	motion.written = false;
 	motion.type = 0;
 	motion.speed = 0;
-	
+
 	var acc = this.acceleration;
 	acc.sumx = 0.0;
 	acc.sumy = 0.0;
 	acc.sumz = 0.0;
 	acc.index = 0;
 	acc.count = 0;
-	
+
 	var button = this.button;
 	button.clickId = -1;
 	button.longPressId = -1;
-	
+
 	var wheel = this.wheel;
 	wheel.written = false;
 	wheel.pulse = 0;
@@ -1035,24 +1052,30 @@ Module.prototype.reset = function() {
 	wheel.event = 0;
 	wheel.state = 0;
 	wheel.count = 0;
-	
+
 	var sound = this.sound;
 	sound.written = false;
 	sound.event = 0;
 	sound.state = 0;
 	sound.count = 0;
-	
+
 	var lineTracer = this.lineTracer;
 	lineTracer.written = false;
 	lineTracer.event = 0;
 	lineTracer.state = 0;
 	lineTracer.count = 0;
-	
+
 	var event = this.event;
 	event.button = 0;
 	event.colorNumber = -1;
 	event.colorPattern = -1;
 	event.pulseCount = 0;
+	
+	var batt = this.battery;
+	batt.state = 2;
+	batt.sum = 0.0;
+	batt.index = 0;
+	batt.count = 0;
 };
 
 module.exports = new Module();

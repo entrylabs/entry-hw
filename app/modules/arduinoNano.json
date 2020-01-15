@@ -4,6 +4,7 @@
         "en": "Arduino Nano",
         "ko": "아두이노 Nano"
     },
+    "category": "board",
     "platform": ["win32", "darwin"],
     "icon": "arduinoNano.png",
     "module": "arduinoNano.js",
@@ -24,6 +25,7 @@
         "vendor": ["Arduino", "wch.cn", "FTDI"],
         "baudRate": 57600,
         "lostTimer": 1000,
+        "byteDelimiter": [13, 10],
         "firmwarecheck": false
     }
 }

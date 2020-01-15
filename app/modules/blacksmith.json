@@ -4,6 +4,7 @@
         "en": "Blacksmith Board",
         "ko": "대장장이 보드"
     },
+    "category": "module",
     "platform": ["win32", "darwin"],
     "icon": "blacksmith.png",
     "module": "blacksmith.js",
@@ -13,7 +14,7 @@
     },
     "url": "http://www.hanibot.com",
     "email": "mrtinternational@google.com",
-    "reconnect": false,
+    "reconnect": true,
     "firmware": "blacksmith",
     "entry": {
         "protocol": "json"

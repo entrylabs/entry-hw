@@ -4,6 +4,7 @@
 		"en": "ardublock",
 		"ko": "아두블럭"
 	},
+	"category": "board",
 	"platform": ["win32"],
 	"icon" : "ardublock.png",
 	"module": "ardublock.js",

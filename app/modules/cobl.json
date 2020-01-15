@@ -4,6 +4,7 @@
         "en": "Cobl",
         "ko": "코블"
     },
+    "category": "module",
     "platform": ["win32"],
     "icon": "cobl.png",
     "module": "cobl.js",

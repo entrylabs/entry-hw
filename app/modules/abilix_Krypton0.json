@@ -1,0 +1,31 @@
+{
+	"id": "300101",
+	"name": {
+		"en": "Abilix Kripton 0 for school",
+		"ko": "Abilix 크립톤 0 for school"
+	},
+	"category": "robot",
+	"platform": ["win32"],
+	"icon" : "abilix_Krypton0.png",
+	"module": "abilix_Krypton0.js",
+	"url": "http://abilix.co.kr",
+	"email": "info@abilix.co.kr",
+	"driver": {
+		"win32-ia32": "Abilix_Krypton0/CH340-Driver.exe",
+		"win32-x64": "Abilix_Krypton0/CH340-Driver.exe"
+	},
+	"reconnect" : true,
+	"entry": {
+		"protocol": "json"
+	},
+	"hardware": {
+		"type": "serial",
+		"control": "slave",
+		"duration": 32,
+		"vendor": "wch.cn",
+		"baudRate": 115200,
+        "parity" : "none",
+        "dataBits" : 8,
+        "stopBits" : 1
+	}
+}

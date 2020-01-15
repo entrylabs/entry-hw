@@ -4,6 +4,7 @@
         "en": "Mechatro Uno+BT",
         "ko": "메카트로 우노+블루투스"
     },
+    "category": "board",
     "platform": ["win32", "darwin"],
     "icon": "mechatro_uno_bt.png",
     "url": "http://cafe.naver.com/easybread",

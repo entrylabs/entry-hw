@@ -4,6 +4,7 @@
         "en": "4D Mechatronics",
         "ko": "4D 메카트로닉스"
     },
+    "category": "robot",
     "platform": ["win32"],
     "icon" : "mechatronics_4d.png",
     "module": "mechatronics_4d.js",

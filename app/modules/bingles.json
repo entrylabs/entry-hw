@@ -4,6 +4,7 @@
 		"en": "BINGLES",
 		"ko": "빙글S"
 	},
+	"category": "robot",
 	"platform": ["win32", "darwin"],
 	"icon" : "bingles.png",
 	"module": "bingles.js",

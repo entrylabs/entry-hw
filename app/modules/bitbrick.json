@@ -4,6 +4,7 @@
 		"en": "bitBrick",
 		"ko": "비트브릭"
 	},
+	"category": "module",
 	"platform": ["win32", "darwin"],
 	"icon" : "bitbrick.png",
 	"module": "bitbrick.js",

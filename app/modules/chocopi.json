@@ -4,7 +4,8 @@
 		"en": "ChocoPi",
 		"ko": "초코파이보드"
 	},
-	"platform": ["win32", "darwin"],	
+	"category": "module",
+	"platform": ["win32", "darwin"],
 	"icon" : "chocopi.png",
 	"module": "chocopi.js",
 	"url": "http://chocopi.org/entry",

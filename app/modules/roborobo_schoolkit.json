@@ -4,6 +4,7 @@
         "en": "School Kit",
         "ko": "스쿨키트"
     },
+    "category": "robot",
     "platform": ["win32"],
     "icon": "roborobo_schoolkit.png",
     "module": "roborobo_schoolkit.js",

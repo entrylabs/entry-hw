@@ -4,6 +4,7 @@
         "en": "rokoboard",
         "ko": "로코보드"
     },
+    "category": "board",
     "platform": ["win32", "darwin"],
     "icon": "rokoboard.png",
     "module": "rokoboard.js",

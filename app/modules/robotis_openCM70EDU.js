@@ -51,10 +51,8 @@ function Module() {
     this.maxPortValue = []; // add by 191029 5핀포트 최대값 저장 후 monitor 전송
     this.isEdu = false;
     this.prevIsEdu = true;
-
     this.zeroCount = 0;
     this.readSetzero = false;
-
     this.sendPacketFlag = false;
 }
 
@@ -150,15 +148,8 @@ Module.prototype.checkInitialData = function (data, config) {
 };
 
 Module.prototype.validateLocalData = function (data) {
-    /*if (this.isEdu) {
-        this.robotisBuffer.push([INST_WRITE, 21, 1, 8]);
-    }
-    else {
-        if (this.isEdu != this.prevIsEdu) {
-            this.robotisBuffer.push([INST_WRITE, 21, 1, 2]);
-            this.prevIsEdu = this.isEdu;
-        }
-    }  */
+
+
     return true;
 };
 
@@ -194,6 +185,7 @@ Module.prototype.handleRemoteData = function (handler) {
 
     this.prevIsEdu = this.isEdu;
     this.isEdu = handler.read('IS_EDU');
+
 
     var againSetzero = false;
     console.log("handleRemoteData : " + this.isEdu + "   " + this.prevIsEdu);
