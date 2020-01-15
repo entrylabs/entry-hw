@@ -1,7 +1,9 @@
 const { net } = require('electron');
 const path = require('path');
 const fs = require('fs-extra');
+const rimraf = require('rimraf');
 const { AVAILABLE_TYPE } = require('../../common/constants');
+const fileUtils = require('../utils/fileUtils');
 const commonUtils = require('../utils/commonUtils');
 const NetworkZipHandlerStream = require('../utils/networkZipHandleStream');
 
@@ -55,16 +57,16 @@ const moveFirmwareAndDriverDirectory = async () => {
     const srcFirmwaresDirPath = path.join(moduleDirPath, 'firmwares');
     const destFirmwareDirPath = commonUtils.getExtraDirectoryPath('firmware');
 
+    //TODO Promise.all
+    if (fs.pathExistsSync(srcDriverDirPath)) {
+        await fileUtils.moveFileOrDirectory(srcDriverDirPath, destDriverDirPath);
+    }
+    if (fs.pathExistsSync(srcFirmwaresDirPath)) {
+        await fileUtils.moveFileOrDirectory(srcFirmwaresDirPath, destFirmwareDirPath);
+    }
+
     await Promise.all([
-        async () => {
-            if (fs.pathExistsSync(srcDriverDirPath)) {
-                await fs.move(srcDriverDirPath, destDriverDirPath, { overwrite: true });
-            }
-        },
-        async () => {
-            if (fs.pathExistsSync(srcFirmwaresDirPath)) {
-                await fs.move(srcFirmwaresDirPath, destFirmwareDirPath, { overwrite: true });
-            }    
-        },
+        fileUtils.rmdir(srcDriverDirPath),
+        fileUtils.rmdir(srcFirmwaresDirPath),
     ]);
 };

@@ -1,5 +1,5 @@
 const Stream = require('stream');
-const fs = require('fs');
+const fs = require('fs-extra');
 const path = require('path');
 const tar = require('tar');
 
@@ -28,15 +28,27 @@ module.exports = class NetworkZipHandleStream extends Stream.PassThrough {
             const type = entry.type;
             const fileName = entry.path;
             if (type === 'File') {
-                fileList.push(fileName);
+                const filePath = path.join(targetPath, fileName);
+
+                // 경로가 1depth 이상의 디렉토리로 구성되어있는 경우
+                if (fileName.indexOf('/') >= 0) {
+                    fs.ensureDirSync(path.dirname(filePath));
+                }
+                const fileWriteStream = fs.createWriteStream(filePath);
+
+                fileList.push(path.basename(filePath));
+                fileWriteStreamPromises.push(new Promise((resolve, reject) => {
+                    fileWriteStream.on('error', reject);
+                    fileWriteStream.on('finish', resolve);
+                }));
+                entry.pipe(fileWriteStream);
+            } else if (type === 'Directory') {
                 const fileWriteStream = fs.createWriteStream(path.join(targetPath, fileName));
                 fileWriteStreamPromises.push(new Promise((resolve, reject) => {
                     fileWriteStream.on('error', reject);
                     fileWriteStream.on('finish', resolve);
                 }));
                 entry.pipe(fileWriteStream);
-            } else {
-                entry.autodrain();
             }
         });
         tarParse.on('close', () => {

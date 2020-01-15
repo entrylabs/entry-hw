@@ -1,4 +1,5 @@
 const path = require('path');
+const rimraf = require('rimraf');
 const fs = require('fs-extra');
 
 class FileUtils {
@@ -34,6 +35,32 @@ class FileUtils {
         }));
     }
 
+    static async moveFileOrDirectory(src, dest) {
+        try {
+            const stat = await fs.stat(src);
+            if (stat.isFile()) {
+                await this.ensureDirectoryExist(dest);
+                await fs.move(src, dest, { overwrite: true });
+            } else if (stat.isDirectory()) {
+                const files = await fs.readdir(src);
+                await Promise.all(files.map((file) => this.moveFileOrDirectory(
+                    path.join(src, file),
+                    path.join(dest, file),
+                )));
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    static async ensureDirectoryExist(dirPath) {
+        try {
+            await fs.ensureDir(dirPath);
+        } catch (e) {
+
+        }
+    }
+
     static mkdir(target) {
         return new Promise(((resolve, reject) => {
             fs.stat(target, (err, stats) => {
@@ -61,6 +88,12 @@ class FileUtils {
                 }
             });
         }));
+    }
+
+    static rmdir(dirPath) {
+        return new Promise((resolve) => {
+            rimraf(dirPath, resolve);
+        });
     }
 }
 
