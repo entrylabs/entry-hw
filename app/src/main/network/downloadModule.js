@@ -57,16 +57,20 @@ const moveFirmwareAndDriverDirectory = async () => {
     const srcFirmwaresDirPath = path.join(moduleDirPath, 'firmwares');
     const destFirmwareDirPath = commonUtils.getExtraDirectoryPath('firmware');
 
-    //TODO Promise.all
-    if (fs.pathExistsSync(srcDriverDirPath)) {
-        await fileUtils.moveFileOrDirectory(srcDriverDirPath, destDriverDirPath);
-    }
-    if (fs.pathExistsSync(srcFirmwaresDirPath)) {
-        await fileUtils.moveFileOrDirectory(srcFirmwaresDirPath, destFirmwareDirPath);
-    }
-
     await Promise.all([
-        fileUtils.rmdir(srcDriverDirPath),
-        fileUtils.rmdir(srcFirmwaresDirPath),
+        new Promise(async (resolve) => {
+            if (fs.pathExistsSync(srcDriverDirPath)) {
+                await fileUtils.moveFileOrDirectory(srcDriverDirPath, destDriverDirPath);
+                await fileUtils.rmdir(srcDriverDirPath);
+            }
+            resolve();
+        }),
+        new Promise(async (resolve) => {
+            if (fs.pathExistsSync(srcDriverDirPath)) {
+                await fileUtils.moveFileOrDirectory(srcFirmwaresDirPath, destFirmwareDirPath);
+                await fileUtils.rmdir(srcFirmwaresDirPath);
+            }
+            resolve();
+        }),
     ]);
 };
