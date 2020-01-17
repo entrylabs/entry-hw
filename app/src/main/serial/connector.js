@@ -238,7 +238,6 @@ class SerialConnector extends BaseConnector {
                 this.connected = true;
                 this.received = true;
 
-                this.received = true;
                 if (hwModule.handleLocalData) {
                     hwModule.handleLocalData(data);
                 }
@@ -302,6 +301,7 @@ class SerialConnector extends BaseConnector {
 
     _clear() {
         this.connected = false;
+        this.received = false;
         if (this.connectionLostTimer) {
             clearInterval(this.connectionLostTimer);
             this.connectionLostTimer = undefined;
@@ -362,7 +362,7 @@ class SerialConnector extends BaseConnector {
             this.serialPort.write(data, () => {
                 if (this.serialPort) {
                     this.serialPort.drain(() => {
-                        this.connected = true;
+                        this.received = true;
                         this.isSending = false;
                         callback && callback();
                     });
