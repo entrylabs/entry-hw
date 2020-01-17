@@ -10,12 +10,12 @@
    Copyright (C) 2013 - 2016 Maker Works Technology Co., Ltd. All right reserved.
  **********************************************************************************/
 
-#include <Servo.h>                /* 서보 라이브러리 */
-#include <LiquidCrystal_I2C.h>  /* LCD 라이브러리 */
-#include <SoftwareSerial.h>     /* 소프트 시리얼 라이브러리 */
+#include <Servo.h>            //헤더 호출
+#include <LiquidCrystal_I2C.h>
+#include <SoftwareSerial.h>
+#include "U8glib.h"
 
-
-/* 동작 상수 */
+// Module Constant //핀설정
 #define ALIVE 0
 #define DIGITAL 1
 #define ANALOG 2
@@ -25,58 +25,60 @@
 #define PULSEIN 6
 #define ULTRASONIC 7
 #define TIMER 8
-#define rxBLUETOOTH 9
-#define LCD 10
-#define txBLUETOOTH 11
+#define READ_BLUETOOTH 9
+#define WRITE_BLUETOOTH 10
+#define LCD 11
+#define RGBLED 12
+#define DCMOTOR 13
+#define OLED 14
 
-/* 상태 상수 */
+// State Constant
 #define GET 1
 #define SET 2
-#define RESET 3
+#define MODULE 3
+#define RESET 4
 
-/* val Union */
+Servo servos[8];
+Servo sv;
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+SoftwareSerial softSerial(2, 3);
+U8GLIB_SSD1306_128X64 oled(U8G_I2C_OPT_NONE);
+
+// val Union        //??
 union {
   byte byteVal[4];
   float floatVal;
   long longVal;
 } val;
 
-/* valShort Union */
+// valShort Union       //??
 union {
   byte byteVal[2];
   short shortVal;
 } valShort;
 
-/* 전역변수 선언 시작 */
-Servo servos[8];
-LiquidCrystal_I2C lcd(0x27, 16, 2);
-SoftwareSerial mySerial(2, 3);
-
-/* 포트별 상태 */
-int analogs[6] = {0, 0, 0, 0, 0, 0};
+int analogs[6] = {0, 0, 0, 0, 0, 0};   // 아날로그 디지털 핀 값저장
 int digitals[14] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 int servo_pins[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 
-/* 울트라 소닉 포트 */
+// Ultrasonic             //초음파 센서
+float lastUltrasonic = 0;
 int trigPin = 13;
 int echoPin = 12;
 
-/* 울트라소닉 최종 값 */
-float lastUltrasonic = 0;
+// bluetooth                //블루투스
+String makeBtString;
+int softSerialRX = 2;
+int softSerialTX = 3;
+unsigned long prev_time_BT=0;
 
-/* 블루투스 포트 */
-int mySerialRX = 12;
+// LCD
+String lastLcdDataLine0;
+String lastLcdDataLine1;
 
-/* 블루투스 임시값 */
-char tempBluetooth;
-
-/* 블루투스 최종 값 */
-char lastBluetooth;
-
-/* 버퍼 */
+// Buffer
 char buffer[52];
 unsigned char prevc = 0;
-
 byte index = 0;
 byte dataLen;
 
@@ -88,25 +90,24 @@ uint8_t command_index = 0;
 boolean isStart = false;
 boolean isUltrasonic = false;
 boolean isBluetooth = false;
-/* 전역변수 선언 종료 */
+// End Public Value
 
-void setup() {
-  Serial.begin(115200);
-  mySerial.begin(9600);
+void setup() {                            //초기화
+  Serial.begin(115200);                   //시리얼 115200
+  softSerial.begin(9600);                 //블루투스 9600
   initPorts();
   initLCD();
   delay(200);
 }
 
-void initPorts() {
+void initPorts() {                          //디지털 포트 초기화(4~14)
   for (int pinNumber = 4; pinNumber < 14; pinNumber++) {
     pinMode(pinNumber, OUTPUT);
     digitalWrite(pinNumber, LOW);
   }
 }
 
-/* 대장장이 LCD 초기화 */
-void initLCD() {
+void initLCD() {                          //lcd 초기화
   lcd.init();
   lcd.backlight();
   lcd.clear();
@@ -116,21 +117,21 @@ void initLCD() {
   lcd.print("with Entry");
 }
 
-void loop() {
+void loop() {                    //반복 시리얼 값 , 블루투스 값 받기
   while (Serial.available()) {
     if (Serial.available() > 0) {
       char serialRead = Serial.read();
       setPinValue(serialRead & 0xff);
     }
   }
-  /* 소프트 시리얼을 이용 -> 블루투스 값 */
-  while (mySerial.available()) {
-    if (mySerial.available() > 0) {
-      tempBluetooth = mySerial.read();
+  while (softSerial.available()) {
+    if (softSerial.available() > 0) {
+      char softSerialRead = softSerial.read();
+      makeBtString += softSerialRead;
     }
   }
   delay(15);
-  sendPinValues();
+  sendPinValues();                    //핀 값보내기
   delay(10);
 }
 
@@ -148,7 +149,6 @@ void setPinValue(unsigned char c) {
       } else if (index > 2) {
         dataLen--;
       }
-
       writeBuffer(index, c);
     }
   }
@@ -178,6 +178,7 @@ void parseData() {
   int action = readBuffer(4);
   int device = readBuffer(5);
   int port = readBuffer(6);
+
   switch (action) {
     case GET: {
         if (device == ULTRASONIC) {
@@ -204,27 +205,33 @@ void parseData() {
             }
           }
         }
-        else if (device == rxBLUETOOTH) {
+        else if (device == READ_BLUETOOTH) {
+          softSerial.begin(9600);
+          pinMode(softSerialRX, INPUT);
           if (!isBluetooth) {
             setBluetoothMode(true);
-            mySerialRX = readBuffer(6);
-            delay(5);
           }
-          else {
-            int rx = readBuffer(6);
-            if (rx != mySerialRX) {
-              mySerialRX = rx;
-              delay(5);
-            }
+        }
+        else if (device == WRITE_BLUETOOTH) {
+          softSerial.begin(9600);
+          pinMode(softSerialTX, OUTPUT);
+          if (!isBluetooth) {
+            setBluetoothMode(true);
           }
         }
         else if (port == trigPin || port == echoPin) {
           setUltrasonicMode(false);
           digitals[port] = 0;
         }
-        else if (port == mySerialRX ) { // || port == mySerialTX
+        else if (device != READ_BLUETOOTH && port == softSerialRX ) {
+          softSerial.end();
           setBluetoothMode(false);
-          //digitals[port] = 0;
+          digitals[port] = 0;
+        }
+        else if (device != WRITE_BLUETOOTH && port == softSerialTX) {
+          softSerial.end();
+          setBluetoothMode(false);
+          digitals[port] = 0;
         }
         else {
           digitals[port] = 0;
@@ -232,10 +239,14 @@ void parseData() {
       }
       break;
     case SET: {
-        runModule(device);
+        runSet(device);
         callOK();
       }
       break;
+    case MODULE: {
+        runModule(device);
+        callOK();
+      }
     case RESET: {
         callOK();
       }
@@ -243,17 +254,14 @@ void parseData() {
   }
 }
 
-void runModule(int device) {
+void runSet(int device) {
   //0xff 0x55 0x6 0x0 0x1 0xa 0x9 0x0 0x0 0xa
-  int port = readBuffer(6);
-  int pin = port;
 
+  int port = readBuffer(6);
+  unsigned char pin = port;
   if (pin == trigPin || pin == echoPin) {
     setUltrasonicMode(false);
-  } else if (device == rxBLUETOOTH) {
-    setBluetoothMode(false);
   }
-
   switch (device) {
     case DIGITAL: {
         setPortWritable(pin);
@@ -282,9 +290,17 @@ void runModule(int device) {
         setPortWritable(pin);
         int v = readBuffer(7);
         if (v >= 0 && v <= 180) {
-          Servo sv = servos[searchServoPin(pin)];
+          byte rg[]={TCCR1A,TCCR1B,OCR1A,TIMSK1};
+          delay(5);
+          sv = servos[searchServoPin(pin)];
           sv.attach(pin);
           sv.write(v);
+          delay(100);
+          sv.detach();
+          TCCR1A=rg[0];
+          TCCR1B=rg[1];
+          TIMSK1=rg[3];
+          OCR1A=rg[2];
         }
       }
       break;
@@ -292,41 +308,119 @@ void runModule(int device) {
         lastTime = millis() / 1000.0;
       }
       break;
-    case txBLUETOOTH: {
-        char mySerialTemp[32];
-        unsigned int lcdTempInt;
-        int arrayNum = 7;
-        for (int i = 0; i < 17; i++) {
-          mySerialTemp[i] = readBuffer(arrayNum);
-          arrayNum += 2;
-        }
-        mySerial.write(mySerialTemp);
+    case RGBLED: {
+        // 지정된 색깔을 제대로 표현하기 위해 강제로 3회 반복 함
+        //if (pin == 3 || pin == 8 || pin == 9) rgbLedVer2(pin);
+        //else
+        rgbLedVer1(pin);
+        delay(10);
+        //if (pin == 3 || pin == 8 || pin == 9) rgbLedVer2(pin);
+        //else
+        rgbLedVer1(pin);
+        delay(10);
+        //if (pin == 3 || pin == 8 || pin == 9) rgbLedVer2(pin);
+       // else
+       rgbLedVer1(pin);
+        delay(10);
       }
       break;
-    case LCD: {
-        char lcdTempChar[32];
-        unsigned int lcdTempInt;
-        int arrayNum = 7;
-        for (int i = 0; i < 17; i++) {
-          lcdTempChar[i] = readBuffer(arrayNum);
-          arrayNum += 2;
-        }
-        lcd.clear();
-        lcd.setCursor(0, pin);
-        if (lcdTempChar[0] == 1) {
-          lcdTempInt = readShort(9);
-          lcd.print(lcdTempInt);
-        }
-        else {
-          lcd.print(lcdTempChar);
-        }
+    case DCMOTOR: {
+        int directionPort = readBuffer(7);
+        int speedPort = readBuffer(9);
+        int directionValue = readBuffer(11);
+        int speedValue = readBuffer(13);
+        setPortWritable(directionPort);
+        setPortWritable(speedPort);
+        digitalWrite(directionPort, directionValue);
+        analogWrite(speedPort, speedValue);
       }
+      break;
+    default:
+      break;
   }
 }
 
-void sendPinValues() {
+void runModule(int device) {
+  //0xff 0x55 0x6 0x0 0x1 0xa 0x9 0x0 0x0 0xa
+  //head head                        pinNUM
+  //                                      A/D
+
+  int port = readBuffer(6);
+  unsigned char pin = port;
+  switch (device) {
+    case LCD: {
+        String makeLcdString;
+        int arrayNum = 7;
+        for (int i = 0; i < 17; i++) {
+          char lcdRead = readBuffer(arrayNum);
+          if (lcdRead > 0) makeLcdString += lcdRead;
+          arrayNum += 2;
+        }
+        if (makeLcdString.equals(lastLcdDataLine0) == false || makeLcdString.equals(lastLcdDataLine1) == false)
+        {
+          lcd.setCursor(0, pin);
+          lcd.print("                ");
+        }
+        lcd.setCursor(0, pin);
+        if (readBuffer(7) == 1) {
+          int lcdInt = readShort(9);
+          lcd.print(lcdInt);
+        }
+        else {
+          lcd.print(makeLcdString);
+        }
+        if (pin == 0) lastLcdDataLine0 = makeLcdString;
+        else if (pin == 1) lastLcdDataLine1 = makeLcdString;
+      }
+      break;
+    case OLED: {
+        int x = readBuffer(7);
+        int y = readBuffer(9);
+        String makeOledString;
+        int arrayNum = 11;
+        for (int i = 0; i < 17; i++) {
+          char oledRead = readBuffer(arrayNum);
+          if (oledRead > 0) makeOledString += oledRead;
+          arrayNum += 2;
+        }
+
+        if (readBuffer(11) == 1) {
+          int oledInt = readShort(13);
+          oled.firstPage();
+          do {
+            oled.setFont(u8g_font_unifont);
+            oled.setPrintPos(x, y);
+            oled.print(oledInt);
+          } while (oled.nextPage());
+        }
+        else {
+          oled.firstPage();
+          do {
+            oled.setFont(u8g_font_unifont);
+            oled.setPrintPos(x, y);
+            oled.print(makeOledString);
+          } while (oled.nextPage());
+        }
+      }
+      break;
+    case WRITE_BLUETOOTH: {
+        char softSerialTemp[32];
+        int arrayNum = 7;
+        for (int i = 0; i < 17; i++) {
+          softSerialTemp[i] = readBuffer(arrayNum);
+          arrayNum += 2;
+        }
+        softSerial.write(softSerialTemp);
+      }
+      break;
+    default:
+      break;
+  }
+}
+
+void sendPinValues() {   //핀 값 보내기
   int pinNumber = 0;
-  for (pinNumber = 4; pinNumber < 12; pinNumber++) {
+  for (pinNumber = 4; pinNumber < 14; pinNumber++) {
     if (digitals[pinNumber] == 0) {
       sendDigitalValue(pinNumber);
       callOK();
@@ -344,9 +438,12 @@ void sendPinValues() {
     callOK();
   }
 
-  if (isBluetooth) {
+  if (isBluetooth&& millis()-prev_time_BT<300) {
     sendBluetooth();
     callOK();
+  }else{
+    makeBtString = "";
+    prev_time_BT=millis();
   }
 }
 
@@ -360,7 +457,7 @@ void setUltrasonicMode(boolean mode) {
 void setBluetoothMode(boolean mode) {
   isBluetooth = mode;
   if (!mode) {
-    lastBluetooth = 0;
+    makeBtString = "";
   }
 }
 
@@ -387,19 +484,10 @@ void sendUltrasonic() {
 }
 
 void sendBluetooth() {
-  char value;
-  value = tempBluetooth;
-
-  if (value == 0) {
-    value = lastBluetooth;
-  } else {
-    lastBluetooth = value;
-  }
-
   writeHead();
-  sendFloat(value);
-  writeSerial(mySerialRX);
-  writeSerial(rxBLUETOOTH);
+  sendString(makeBtString);
+  writeSerial(softSerialRX);
+  writeSerial(READ_BLUETOOTH);
   writeEnd();
 }
 
@@ -412,25 +500,23 @@ void sendDigitalValue(int pinNumber) {
   writeEnd();
 }
 
-/*
- *    LM35 사용시 adc값 신뢰성 부족
- *   -> LPF를 사용하여 보정
-*/
 void sendAnalogValue(int pinNumber) {
-  float prevx, xlpf, measurement;
+  float prevData, lpfData, measurement;
   float alpha = 0.1;
   bool firstRun = true;
-  writeHead();
+
   for (int i = 0; i < 20; i++) {
     measurement = analogRead(pinNumber);
     if (firstRun == true) {
-      prevx = measurement;
+      prevData = measurement;
       firstRun = false;
     }
-    xlpf = alpha * prevx + (1 - alpha) * measurement ;
-    prevx = xlpf;
+    lpfData = alpha * prevData + (1 - alpha) * measurement ;
+    prevData = lpfData;
   }
-  sendFloat((int)xlpf);
+
+  writeHead();
+  sendFloat((int)lpfData);
   writeSerial(pinNumber);
   writeSerial(ANALOG);
   writeEnd();
@@ -520,10 +606,10 @@ void setPortWritable(int pin) {
   }
 }
 
-void callOK() {
-  writeSerial(0xff);
-  writeSerial(0x55);
-  writeEnd();
+void callOK() {          //상태 확인용
+  writeSerial(0xff);     //테일
+  writeSerial(0x55);    //테일2
+  writeEnd();           //다음줄로 넘기기
 }
 
 void callDebug(char c) {
@@ -532,3 +618,345 @@ void callDebug(char c) {
   writeSerial(c);
   writeEnd();
 }
+
+void rgbLedVer1(int pin) {
+  cli();
+  byte color[3] = {0};
+  byte colorBuff[3][8] = {0};
+  setPortWritable(pin);
+  color[0] = readBuffer(9);   // green
+  color[1] = readBuffer(7);   // red
+  color[2] = readBuffer(11);  // blue
+
+  for (int i = 0; i < 3; i++) {
+    for (int j = 7; j >= 0; j--) {
+      colorBuff[i][j] = (color[i] >> j ) & 0x01;
+    }
+  }
+  if (2 <= pin && pin <= 7) {
+    if (pin == 3) PORTD &= ~B00001000;
+    else if (pin == 4) PORTD &= ~B00010000;
+    else if (pin == 5) PORTD &= ~B00100000;
+    else if (pin == 6) PORTD &= ~B01000000;
+    else if (pin == 7) PORTD &= ~B10000000;
+    for (register unsigned char i = 0; i < 85; i++) // 80 us
+    {
+      asm volatile(" PUSH R0 ");
+      asm volatile(" POP R0 ");
+      asm volatile(" PUSH R0 ");
+      asm volatile(" POP R0 ");
+      asm volatile(" PUSH R0 ");
+      asm volatile(" POP R0 ");
+    }
+    for (int i = 0; i < 3; i++) {
+      for (int j = 7; j >= 0; j--) {
+        if (colorBuff[i][j] == 1) {
+          if (pin == 3) PORTD |= B00001000;
+          else if (pin == 4) PORTD |= B00010000;
+          else if (pin == 5) PORTD |= B00100000;
+          else if (pin == 6) PORTD |= B01000000;
+          else if (pin == 7) PORTD |= B10000000;
+          for (register unsigned char i = 0; i < 26; i++) // 25 us
+          {
+            asm volatile(" PUSH R0 ");
+            asm volatile(" POP R0 ");
+            asm volatile(" PUSH R0 ");
+            asm volatile(" POP R0 ");
+            asm volatile(" PUSH R0 ");
+            asm volatile(" POP R0 ");
+          }
+          if (pin == 3) PORTD &= ~B00001000;
+          else if (pin == 4) PORTD &= ~B00010000;
+          else if (pin == 5) PORTD &= ~B00100000;
+          else if (pin == 6) PORTD &= ~B01000000;
+          else if (pin == 7) PORTD &= ~B10000000;
+          for (register unsigned char i = 0; i < 25; i++) // 25 us
+          {
+            asm volatile(" PUSH R0 ");
+            asm volatile(" POP R0 ");
+            asm volatile(" PUSH R0 ");
+            asm volatile(" POP R0 ");
+            asm volatile(" PUSH R0 ");
+            asm volatile(" POP R0 ");
+          }
+        }
+        else {
+          if (pin == 3) PORTD |= B00001000;
+          else if (pin == 4) PORTD |= B00010000;
+          else if (pin == 5) PORTD |= B00100000;
+          else if (pin == 6) PORTD |= B01000000;
+          else if (pin == 7) PORTD |= B10000000;
+          for (register unsigned char i = 0; i < 15; i++) // 15 us
+          {
+            asm volatile(" PUSH R0 ");
+            asm volatile(" POP R0 ");
+            asm volatile(" PUSH R0 ");
+            asm volatile(" POP R0 ");
+            asm volatile(" PUSH R0 ");
+            asm volatile(" POP R0 ");
+          }
+          if (pin == 3) PORTD &= ~B00001000;
+          else if (pin == 4) PORTD &= ~B00010000;
+          else if (pin == 5) PORTD &= ~B00100000;
+          else if (pin == 6) PORTD &= ~B01000000;
+          else if (pin == 7) PORTD &= ~B10000000;
+          for (register unsigned char i = 0; i < 14; i++) // 15 us
+          {
+            asm volatile(" PUSH R0 ");
+            asm volatile(" POP R0 ");
+            asm volatile(" PUSH R0 ");
+            asm volatile(" POP R0 ");
+            asm volatile(" PUSH R0 ");
+            asm volatile(" POP R0 ");
+          }
+        }
+      }
+    }
+    if (pin == 3) PORTD |= B00001000;
+    else if (pin == 4) PORTD |= B00010000;
+    else if (pin == 5) PORTD |= B00100000;
+    else if (pin == 6) PORTD |= B01000000;
+    else if (pin == 7) PORTD |= B10000000;
+  } // if(2 <= pin && pin <= 7)
+  else if (8 <= pin && pin <= 13) {
+    if (pin == 8) PORTB &= ~B00000001;
+    else if (pin == 9) PORTB &= ~B00000010;
+    else if (pin == 10) PORTB &= ~B00000100;
+    else if (pin == 11) PORTB &= ~B00001000;
+    else if (pin == 12) PORTB &= ~B00010000;
+    else if (pin == 13) PORTB &= ~B00100000;
+    for (register unsigned char i = 0; i < 85; i++)
+    {
+      asm volatile(" PUSH R0 ");
+      asm volatile(" POP R0 ");
+      asm volatile(" PUSH R0 ");
+      asm volatile(" POP R0 ");
+      asm volatile(" PUSH R0 ");
+      asm volatile(" POP R0 ");
+    }
+    for (int i = 0; i < 3; i++) {
+      for (int j = 7; j >= 0; j--) {
+        if (colorBuff[i][j] == 1) {
+          if (pin == 8) PORTB |= B00000001;
+          else if (pin == 9) PORTB |= B00000010;
+          else if (pin == 10) PORTB |= B00000100;
+          else if (pin == 11) PORTB |= B00001000;
+          else if (pin == 12) PORTB |= B00010000;
+          else if (pin == 13) PORTB |= B00100000;
+          for (register unsigned char i = 0; i < 26; i++)
+          {
+            asm volatile(" PUSH R0 ");
+            asm volatile(" POP R0 ");
+            asm volatile(" PUSH R0 ");
+            asm volatile(" POP R0 ");
+            asm volatile(" PUSH R0 ");
+            asm volatile(" POP R0 ");
+          }
+          if (pin == 8) PORTB &= ~B00000001;
+          else if (pin == 9) PORTB &= ~B00000010;
+          else if (pin == 10) PORTB &= ~B00000100;
+          else if (pin == 11) PORTB &= ~B00001000;
+          else if (pin == 12) PORTB &= ~B00010000;
+          else if (pin == 13) PORTB &= ~B00100000;
+          for (register unsigned char i = 0; i < 25; i++)
+          {
+            asm volatile(" PUSH R0 ");
+            asm volatile(" POP R0 ");
+            asm volatile(" PUSH R0 ");
+            asm volatile(" POP R0 ");
+            asm volatile(" PUSH R0 ");
+            asm volatile(" POP R0 ");
+          }
+        }
+        else {
+          if (pin == 8) PORTB |= B00000001;
+          else if (pin == 9) PORTB |= B00000010;
+          else if (pin == 10) PORTB |= B00000100;
+          else if (pin == 11) PORTB |= B00001000;
+          else if (pin == 12) PORTB |= B00010000;
+          else if (pin == 13) PORTB |= B00100000;
+          for (register unsigned char i = 0; i < 15; i++)
+          {
+            asm volatile(" PUSH R0 ");
+            asm volatile(" POP R0 ");
+            asm volatile(" PUSH R0 ");
+            asm volatile(" POP R0 ");
+            asm volatile(" PUSH R0 ");
+            asm volatile(" POP R0 ");
+          }
+          if (pin == 8) PORTB &= ~B00000001;
+          else if (pin == 9) PORTB &= ~B00000010;
+          else if (pin == 10) PORTB &= ~B00000100;
+          else if (pin == 11) PORTB &= ~B00001000;
+          else if (pin == 12) PORTB &= ~B00010000;
+          else if (pin == 13) PORTB &= ~B00100000;
+          for (register unsigned char i = 0; i < 14; i++)
+          {
+            asm volatile(" PUSH R0 ");
+            asm volatile(" POP R0 ");
+            asm volatile(" PUSH R0 ");
+            asm volatile(" POP R0 ");
+            asm volatile(" PUSH R0 ");
+            asm volatile(" POP R0 ");
+          }
+        }
+      }
+    }
+    if (pin == 8) PORTB |= B00000001;
+    else if (pin == 9) PORTB |= B00000010;
+    else if (pin == 10) PORTB |= B00000100;
+    else if (pin == 11) PORTB |= B00001000;
+    else if (pin == 12) PORTB |= B00010000;
+    else if (pin == 13) PORTB |= B00100000;
+  } // if(8 <= pin && pin <= 13)
+  sei();
+}
+
+/*
+// 대장장이 주니어 3, 8, 9 번핀 작동 함수
+void rgbLedVer2(int pin) {
+  byte color[3] = {0};
+  byte colorBuff[3][8] = {0};
+  setPortWritable(pin);
+  color[0] = readBuffer(9);   // green
+  color[1] = readBuffer(7);   // red
+  color[2] = readBuffer(11);  // blue
+  if (color[0] > 254) color[0] = 254; // 255 일 경우 오동작이 자주 됨
+  if (color[1] > 254) color[1] = 254; // 255 일 경우 오동작이 자주 됨
+  if (color[2] > 254) color[2] = 254; // 255 일 경우 오동작이 자주 됨
+  for (int i = 0; i < 3; i++) {
+    for (int j = 7; j >= 0; j--) {
+      colorBuff[i][j] = (color[i] >> j ) & 0x01;
+    }
+  }
+  if (2 <= pin && pin <= 7) {
+    if (pin == 3) PORTD &= ~B00001000;
+    for (register unsigned char i = 0; i < 85; i++) // 80 us
+    {
+      asm volatile(" PUSH R0 ");
+      asm volatile(" POP R0 ");
+      asm volatile(" PUSH R0 ");
+      asm volatile(" POP R0 ");
+      asm volatile(" PUSH R0 ");
+      asm volatile(" POP R0 ");
+    }
+    for (int i = 0; i < 3; i++) {
+      for (int j = 7; j >= 0; j--) {
+        if (colorBuff[i][j] == 1) {
+          if (pin == 3) PORTD |= B00001000;
+          for (register unsigned char i = 0; i < 27; i++) // 25 us
+          {
+            asm volatile(" PUSH R0 ");
+            asm volatile(" POP R0 ");
+            asm volatile(" PUSH R0 ");
+            asm volatile(" POP R0 ");
+            asm volatile(" PUSH R0 ");
+            asm volatile(" POP R0 ");
+          }
+          if (pin == 3) PORTD &= ~B00001000;
+          for (register unsigned char i = 0; i < 26; i++) // 25 us
+          {
+            asm volatile(" PUSH R0 ");
+            asm volatile(" POP R0 ");
+            asm volatile(" PUSH R0 ");
+            asm volatile(" POP R0 ");
+            asm volatile(" PUSH R0 ");
+            asm volatile(" POP R0 ");
+          }
+        }
+        else {
+          if (pin == 3) PORTD |= B00001000;
+          for (register unsigned char i = 0; i < 16; i++) // 15 us
+          {
+            asm volatile(" PUSH R0 ");
+            asm volatile(" POP R0 ");
+            asm volatile(" PUSH R0 ");
+            asm volatile(" POP R0 ");
+            asm volatile(" PUSH R0 ");
+            asm volatile(" POP R0 ");
+          }
+          if (pin == 3) PORTD &= ~B00001000;
+          for (register unsigned char i = 0; i < 15; i++) // 15 us
+          {
+            asm volatile(" PUSH R0 ");
+            asm volatile(" POP R0 ");
+            asm volatile(" PUSH R0 ");
+            asm volatile(" POP R0 ");
+            asm volatile(" PUSH R0 ");
+            asm volatile(" POP R0 ");
+          }
+        }
+      }
+    }
+    if (pin == 3) PORTD |= B00001000;
+  } // if(2 <= pin && pin <= 7)
+
+  else if (8 <= pin && pin <= 13) {
+    if (pin == 8) PORTB &= ~B00000001;
+    else if (pin == 9) PORTB &= ~B00000010;
+    for (register unsigned char i = 0; i < 85; i++)
+    {
+      asm volatile(" PUSH R0 ");
+      asm volatile(" POP R0 ");
+      asm volatile(" PUSH R0 ");
+      asm volatile(" POP R0 ");
+      asm volatile(" PUSH R0 ");
+      asm volatile(" POP R0 ");
+    }
+    for (int i = 0; i < 3; i++) {
+      for (int j = 7; j >= 0; j--) {
+        if (colorBuff[i][j] == 1) {
+          if (pin == 8) PORTB |= B00000001;
+          else if (pin == 9) PORTB |= B00000010;
+          for (register unsigned char i = 0; i < 27; i++)
+          {
+            asm volatile(" PUSH R0 ");
+            asm volatile(" POP R0 ");
+            asm volatile(" PUSH R0 ");
+            asm volatile(" POP R0 ");
+            asm volatile(" PUSH R0 ");
+            asm volatile(" POP R0 ");
+          }
+          if (pin == 8) PORTB &= ~B00000001;
+          else if (pin == 9) PORTB &= ~B00000010;
+          for (register unsigned char i = 0; i < 26; i++)
+          {
+            asm volatile(" PUSH R0 ");
+            asm volatile(" POP R0 ");
+            asm volatile(" PUSH R0 ");
+            asm volatile(" POP R0 ");
+            asm volatile(" PUSH R0 ");
+            asm volatile(" POP R0 ");
+          }
+        }
+        else {
+          if (pin == 8) PORTB |= B00000001;
+          else if (pin == 9) PORTB |= B00000010;
+          for (register unsigned char i = 0; i < 16; i++)
+          {
+            asm volatile(" PUSH R0 ");
+            asm volatile(" POP R0 ");
+            asm volatile(" PUSH R0 ");
+            asm volatile(" POP R0 ");
+            asm volatile(" PUSH R0 ");
+            asm volatile(" POP R0 ");
+          }
+          if (pin == 8) PORTB &= ~B00000001;
+          else if (pin == 9) PORTB &= ~B00000010;
+          for (register unsigned char i = 0; i < 15; i++)
+          {
+            asm volatile(" PUSH R0 ");
+            asm volatile(" POP R0 ");
+            asm volatile(" PUSH R0 ");
+            asm volatile(" POP R0 ");
+            asm volatile(" PUSH R0 ");
+            asm volatile(" POP R0 ");
+          }
+        }
+      }
+    }
+    if (pin == 8) PORTB |= B00000001;
+    else if (pin == 9) PORTB |= B00000010;
+  } // if(8 <= pin && pin <= 13)
+}
+*/

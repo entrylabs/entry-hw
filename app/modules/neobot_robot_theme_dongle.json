@@ -1,8 +1,8 @@
 {
 	"id": "050302",
 	"name": {
-		"en": "NEOBOT Robot Theme-NEW",
-		"ko": "네오봇 로봇 테마(무선형)"
+		"en": "NEOCODING RobotTheme-NEW",
+		"ko": "네오코딩 로봇테마(무선형)"
 	},
 	"category": "module",
 	"platform": ["win32", "darwin"],

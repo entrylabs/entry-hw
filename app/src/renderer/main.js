@@ -1,10 +1,8 @@
 'use strict';
 const {
     clipboard, RendererRouter, constants, translator, platform, os,
-} = window.preload;
-const langType = translator.currentLangauge;
-const Modal = window.Modal.default;
-const modal = new Modal();
+} = window;
+const langType = translator.currentLanguage;
 
 const {
     AVAILABLE_TYPE: AvaliableType,
@@ -122,10 +120,6 @@ const ui = new class {
     constructor() {
         this.cachedPortList = [];
     }
-
-    showModal(message, title = '', styleOptions = {}, onclickCallback) {
-        modal.alert(message, title, styleOptions).one('click', onclickCallback);
-    };
 
     showRobotList() {
         viewMode = 'main';
@@ -320,9 +314,8 @@ const ui = new class {
                     router.startScan(window.currentConfig);
                 }
             }, 1000);
-        } else {
-            isSelectPort = true;
         }
+
         if (
             JSON.stringify(portList) !== this.cachedPortList &&
             isSelectPort &&
@@ -331,13 +324,13 @@ const ui = new class {
             let portHtml = '';
             portList.forEach((port) => {
                 portHtml +=
-                    `<option title="${port.comName}">${port.comName}</option>`;
+                    `<option title="${port.path}">${port.path}</option>`;
             });
 
             $('#select_port_box select').html(portHtml);
+            $('#select_port_box').css('display', 'flex');
             this.cachedPortList = JSON.stringify(portList);
         }
-        $('#select_port_box').css('display', 'flex');
     }
 
     quit() {
@@ -366,7 +359,7 @@ const ui = new class {
 
         isSelectPort = hardware.select_com_port ||
             hardware.hardware.type === 'bluetooth' ||
-            router.serverMode === 1 ||
+            router.cloudMode === 1 ||
             false;
 
         const newSelectList = priorHardwareList
@@ -611,12 +604,12 @@ $('#btn_select_port').click((e) => {
 
 $('#select_port_box .cancel_event').click((e) => {
     clearSelectPort();
-    ui.cachedPortList = '';
     clearTimeout(selectPortConnectionTimeout);
 });
 
 function clearSelectPort() {
     isSelectPort = false;
+    ui.cachedPortList = '';
     $('#select_port_box').css('display', 'none');
 }
 

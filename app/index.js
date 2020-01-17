@@ -1,7 +1,7 @@
 'use strict';
 
-const electron = require('electron');
 const MainRouter = require('./src/main/mainRouter');
+const EntryServer = require('./src/main/serverProcessManager');
 const {
     app,
     BrowserWindow,
@@ -10,7 +10,8 @@ const {
     webContents,
     dialog,
     net,
-} = electron;
+    Menu,
+} = require('electron');
 const path = require('path');
 const fs = require('fs');
 const packageJson = require('../package.json');
@@ -18,6 +19,7 @@ const packageJson = require('../package.json');
 let mainWindow = null;
 let aboutWindow = null;
 let mainRouter = null;
+let entryServer = null;
 
 const roomIds = [];
 
@@ -67,6 +69,9 @@ function createAboutWindow(mainWindow) {
         frame: false,
         modal: true,
         show: false,
+        webPreferences: {
+            nodeIntegration: true,
+        },
     });
 
     aboutWindow.loadURL(`file:///${
@@ -161,17 +166,20 @@ if (!app.requestSingleInstanceLock()) {
         }
     });
 
-    ipcMain.on('reload', (event, arg) => {
-        app.relaunch({ args: process.argv.slice(1).concat(['--relaunch']) });
+    ipcMain.on('reload', () => {
+        entryServer.close();
+        app.relaunch();
         app.exit(0);
     });
 
     app.commandLine.appendSwitch('enable-web-bluetooth', true);
     app.commandLine.appendSwitch('enable-experimental-web-platform-features', true);
-    app.commandLine.appendSwitch("disable-renderer-backgrounding");
+    app.commandLine.appendSwitch('disable-renderer-backgrounding');
     // app.commandLine.appendSwitch('enable-web-bluetooth');
+    app.setAsDefaultProtocolClient('entryhw');
     app.once('ready', () => {
         const language = app.getLocale();
+        Menu.setApplicationMenu(null);
 
         let title;
 
@@ -192,19 +200,21 @@ if (!app.requestSingleInstanceLock()) {
             },
         });
 
+        mainWindow.setMenu(null);
+
         mainWindow.webContents.on(
             'select-bluetooth-device',
             (event, deviceList, callback) => {
                 event.preventDefault();
                 const result = deviceList.find(
-                    (device) => device.deviceName === 'LPF2 Smart Hub 2 I/O'
+                    (device) => device.deviceName === 'LPF2 Smart Hub 2 I/O',
                 );
                 if (!result) {
                     callback('A0:E6:F8:1D:FB:E3');
                 } else {
                     callback(result.deviceId);
                 }
-            }
+            },
         );
 
         mainWindow.loadURL(`file:///${path.join(__dirname, 'src', 'renderer', 'views', 'index.html')}`);
@@ -213,7 +223,7 @@ if (!app.requestSingleInstanceLock()) {
             mainWindow.webContents.openDevTools();
         }
 
-        mainWindow.setMenu(null);
+
 
         mainWindow.on('close', (e) => {
             if (!isForceClose) {
@@ -241,7 +251,9 @@ if (!app.requestSingleInstanceLock()) {
         });
 
         createAboutWindow(mainWindow);
-        mainRouter = new MainRouter(mainWindow);
+
+        entryServer = new EntryServer();
+        mainRouter = new MainRouter(mainWindow, entryServer);
     });
 
     ipcMain.on('hardwareForceClose', () => {
@@ -273,7 +285,8 @@ if (!app.requestSingleInstanceLock()) {
                 let data = {};
                 try {
                     data = JSON.parse(body);
-                } catch (e) {}
+                } catch (e) {
+                }
                 e.sender.send('checkUpdateResult', data);
             });
         });
@@ -284,7 +297,7 @@ if (!app.requestSingleInstanceLock()) {
             JSON.stringify({
                 category: 'hardware',
                 version: packageJson.version,
-            })
+            }),
         );
         request.end();
     });
@@ -321,3 +334,17 @@ if (!app.requestSingleInstanceLock()) {
         clearInterval(requestLocalDataInterval);
     });
 }
+
+process.on('uncaughtException', (error) => {
+    const whichButtonClicked = dialog.showMessageBox({
+        type: 'error',
+        title: 'Unexpected Error',
+        message: 'Unexpected Error',
+        detail: error.toString(),
+        buttons: ['ignore', 'exit'],
+    });
+    console.error(error.message, error.stack);
+    if (whichButtonClicked === 1) {
+        process.exit(-1);
+    }
+});
