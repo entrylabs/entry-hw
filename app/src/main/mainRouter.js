@@ -56,7 +56,7 @@ class MainRouter {
             this.selectedPort = portName;
         });
         ipcMain.on('stopScan', () => {
-            this.close();
+            this.stopScan();
         });
         ipcMain.on('close', () => {
             this.close();
@@ -249,7 +249,12 @@ class MainRouter {
             this.scanner.stopScan();
         }
         if (this.connector) {
-            this.connector.close();
+            if (this.hwModule && this.hwModule.disconnect) {
+                this.hwModule.disconnect(this.connector);
+            } else {
+                this.connector.close();
+            }
+            this.sendState('disconnected');
         }
     }
 
@@ -381,20 +386,9 @@ class MainRouter {
         if (this.server) {
             this.server.disconnectHardware();
         }
-        if (this.connector) {
-            if (this.hwModule.disconnect) {
-                this.hwModule.disconnect(this.connector);
-            } else {
-                this.connector.close();
-            }
-            this.sendState('disconnected');
-        }
-        if (this.scanner) {
-            this.scanner.stopScan();
-        }
-        if (this.handler) {
-            this.handler = undefined;
-        }
+        this.stopScan();
+        this.hwModule = undefined;
+        this.handler = undefined;
 
         if (!saveSelectedPort) {
             this.selectedPort = undefined;
