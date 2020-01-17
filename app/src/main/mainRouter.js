@@ -318,13 +318,14 @@ class MainRouter {
 
     // 엔트리 측에서 데이터를 받아온 경우 전달
     handleServerData({ data, type }) {
+        if (!this.hwModule || !this.handler || !this.config) {
+            console.warn('hardware is not connected but entry server data is received');
+            return;
+        }
+
         const hwModule = this.hwModule;
         const handler = this.handler;
         const { direct } = this.config;
-
-        if (!hwModule || !handler) {
-            return;
-        }
 
         if (direct && this.connector) {
             let result = data;
