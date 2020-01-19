@@ -1,7 +1,76 @@
 ﻿
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 function Module() 
 {
     this.sp = null;
+    
+    
+    this.MonitoringData = {
+        M_SW1 : 0,
+        M_SW2 : 0,
+        
+        
+        
+        
+        
+        M_ANALOG1 : 0,
+        M_ANALOG2 : 0,
+        M_ULTRASONIC : 0,
+        M_CDS : 0,
+        M_TEMP : 0,
+        M_C_SW1 : 0,
+        M_C_SW2 : 0,
+        M_C_SW3 : 0,
+        M_C_SW4 : 0,
+        M_C_SW5 : 0,
+        M_C_SW6 : 0,
+        M_C_SW7 : 0,
+        M_C_SW8 : 0,
+    }
+    
+    
+    
     this.sensorTypes = {
 		 ALIVE :          0,               
          DIGITAL :        1,               
@@ -121,9 +190,9 @@ function Module()
             '17': 0,
         },
         ANALOG: {
-            '0': 0,
-            '1': 0,
-            '7': 0,
+            '0': 0,  
+            '1': 0,  
+            '7': 0,  
         },
         CLOVER: {
             '0': 0,
@@ -163,6 +232,15 @@ function Module()
     this.check_getDatas = 0;
     this.check_getClover_old = 0;
     this.check_getClover = 0;
+    
+    
+    
+    this.motor_left_data_type = 0;
+    this.motor_left_data_direction = 0;
+    this.motor_left_data_speed = 0;
+    this.motor_right_data_type = 0;
+    this.motor_right_data_direction = 0;
+    this.motor_right_data_speed = 0;
 }
 
 var sensorIdx = 0;
@@ -339,7 +417,7 @@ Module.prototype.handleLocalDataProcess = function(data)
     var value;
     var port;
     var device;
-
+    
     
     switch(data.length)
     {
@@ -436,6 +514,31 @@ Module.prototype.requestRemoteData = function(handler)
             handler.write(key, self.sensorData[key]);           
         }
     })
+    
+    
+    var MonitoringData = this.MonitoringData;
+    
+    MonitoringData.M_SW1 = (self.sensorData.DIGITAL[2] == 0) ? 'ON' : 'OFF' ;
+    MonitoringData.M_SW2 = (self.sensorData.DIGITAL[7] == 0) ? 'ON' : 'OFF' ;
+    MonitoringData.M_ANALOG1 = self.sensorData.ANALOG[0];
+    MonitoringData.M_ANALOG2 = self.sensorData.ANALOG[1];
+    MonitoringData.M_ULTRASONIC = (Math.round(self.sensorData.ULTRASONIC*10) / 10);
+    MonitoringData.M_CDS = self.sensorData.ANALOG[7];
+    MonitoringData.M_TEMP = (Math.round(self.sensorData.TEMP*10) / 10);
+    
+    MonitoringData.M_C_SW1 = (self.sensorData.CLOVER[1] & 0x01) == 0x01 ? 'ON' : 'OFF';
+    MonitoringData.M_C_SW2 = (self.sensorData.CLOVER[1] & 0x02) == 0x02 ? 'ON' : 'OFF';
+    MonitoringData.M_C_SW3 = (self.sensorData.CLOVER[1] & 0x04) == 0x04 ? 'ON' : 'OFF';
+    MonitoringData.M_C_SW4 = (self.sensorData.CLOVER[1] & 0x08) == 0x08 ? 'ON' : 'OFF';
+    MonitoringData.M_C_SW5 = (self.sensorData.CLOVER[1] & 0x10) == 0x10 ? 'ON' : 'OFF';
+    MonitoringData.M_C_SW6 = (self.sensorData.CLOVER[1] & 0x20) == 0x20 ? 'ON' : 'OFF';
+    MonitoringData.M_C_SW7 = (self.sensorData.CLOVER[1] & 0x40) == 0x40 ? 'ON' : 'OFF';
+    MonitoringData.M_C_SW8 = (self.sensorData.CLOVER[1] & 0x80) == 0x80 ? 'ON' : 'OFF';
+    
+    for(var key in MonitoringData) {
+		handler.write(key, self.MonitoringData[key]);
+	}
+    
 };
 
 
@@ -505,6 +608,7 @@ Module.prototype.handleRemoteData = function(handler)
                         type: key,
                         data: dataObj.data
                     };
+                    
                     buffer = Buffer.concat([buffer, self.makeSensorReadBuffer(key, dataObj.port, dataObj.data)]);
                 }
             }
@@ -536,15 +640,47 @@ Module.prototype.handleRemoteData = function(handler)
             {
                 if(self.digitalPortTimeList[port] < data.time) 
                 {
-                    self.digitalPortTimeList[port] = data.time;
-                    if(!self.isRecentData(port, data.type, data.data))
+                    
+                    if(data.type == self.sensorTypes.MOTOR_L)
                     {
-                        self.recentCheckData[port] = 
+                        if((self.motor_left_data_type != data.type) 
+                            || (self.motor_left_data_direction != data.data.direction) 
+                            || (self.motor_left_data_speed != data.data.speed)
+                            )
                         {
-                            type: data.type,
-                            data: data.data
-                        };
-                        buffer = Buffer.concat([buffer, self.makeOutputBuffer(data.type, port, data.data)]);  
+                            self.motor_left_data_type = data.type;
+                            self.motor_left_data_direction = data.data.direction;
+                            self.motor_left_data_speed = data.data.speed;
+                            
+                            buffer = Buffer.concat([buffer, self.makeOutputBuffer(data.type, port, data.data)]);
+                        }
+                    }
+                    else if(data.type == self.sensorTypes.MOTOR_R)
+                    {
+                        if((self.motor_right_data_type != data.type) 
+                            || (self.motor_right_data_direction != data.data.direction) 
+                            || (self.motor_right_data_speed != data.data.speed)
+                            )
+                        {
+                            self.motor_right_data_type = data.type;
+                            self.motor_right_data_direction = data.data.direction;
+                            self.motor_right_data_speed = data.data.speed;
+                            
+                            buffer = Buffer.concat([buffer, self.makeOutputBuffer(data.type, port, data.data)]);
+                        }
+                    }
+                    else
+                    {
+                        self.digitalPortTimeList[port] = data.time;
+                        if(!self.isRecentData(port, data.type, data.data))
+                        {
+                            self.recentCheckData[port] = 
+                            {
+                                type: data.type,
+                                data: data.data
+                            };
+                            buffer = Buffer.concat([buffer, self.makeOutputBuffer(data.type, port, data.data)]);  
+                        }
                     }
                 }
             }
@@ -782,6 +918,11 @@ Module.prototype.isRecentData = function(port, type, data)
             return false;
         }
     }
+    else if (self.sensorTypes.MOTOR_L == type || self.sensorTypes.MOTOR_R == type)
+    {
+        
+        return true;
+    }
     else if(self.recentCheckData[port].type == type && self.recentCheckData[port].data == data)
     {
         return true;
@@ -900,7 +1041,7 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
             }
             buffer = new Buffer([255, 85, 8, sensorIdx, this.actionTypes.SET, device, port]);
             buffer = Buffer.concat([buffer, direction, speed, dummy]);
-         
+            
             break;
         }
         case this.sensorTypes.ULTRASONIC : 
@@ -948,7 +1089,6 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
             
             buffer = new Buffer([255, 85, 9, sensorIdx, this.actionTypes.SET, device, 0x0A]);
             buffer = Buffer.concat([buffer, value, dummy]);
-            
             break;
         }
     }
