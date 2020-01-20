@@ -22,8 +22,8 @@
 	"hardware": {
 		"type": "serial",
 		"control": "slave",
-		"vendor": "ROBOTIS",
-		"pnpId": 6001,
+		"vendor": ["ROBOTIS","FTDI"],
+		"pnpId": "6001",
 		"duration": 250,
 		"baudRate": 57600
 	}
