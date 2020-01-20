@@ -272,7 +272,6 @@ class MainRouter {
             } else {
                 this.connector.close();
             }
-            this.sendState('disconnected');
         }
     }
 
