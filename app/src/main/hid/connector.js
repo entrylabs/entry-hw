@@ -32,7 +32,6 @@ class HidConnector extends BaseConnector {
                                     this._registerIntervalSend.bind(this),
                                 );
                             }
-                            this.connected = true;
                             resolve();
                         } else {
                             reject(new Error('Invalid hardware'));
@@ -43,7 +42,6 @@ class HidConnector extends BaseConnector {
                 this.device.on('error', reject);
                 this.send(hwModule.requestInitialData());
             } else {
-                this.connected = true;
                 resolve();
             }
         });
