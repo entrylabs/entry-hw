@@ -63,7 +63,7 @@ class MainRouter {
             }
         });
         ipcMain.on('stopScan', () => {
-            this.close();
+            this.stopScan();
         });
         ipcMain.on('close', () => {
             this.close();
