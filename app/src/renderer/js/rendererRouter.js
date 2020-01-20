@@ -28,6 +28,13 @@ class RendererRouter {
         this._toggleCloudModeUI(initialCloudMode);
 
         //ipcEvent
+        ipcRenderer.removeAllListeners('console');
+        ipcRenderer.removeAllListeners('onlineHardwareUpdated');
+        ipcRenderer.removeAllListeners('state');
+        ipcRenderer.removeAllListeners('hardwareCloseConfirm');
+        ipcRenderer.removeAllListeners('serverMode');
+        ipcRenderer.removeAllListeners('cloudMode');
+
         ipcRenderer.on('console', (event, ...args) => {
             console.log(...args);
         });
@@ -127,7 +134,7 @@ class RendererRouter {
 
         if (appName === 'hardware' && navigator.onLine) {
             ipcRenderer.send('checkUpdate');
-            ipcRenderer.on(
+            ipcRenderer.once(
                 'checkUpdateResult',
                 (e, { hasNewVersion, version: latestVersion } = {}) => {
                     const lastDontCheckedVersion = localStorage.getItem('lastDontCheckedVersion');
