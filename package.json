@@ -15,7 +15,7 @@
         "dist:mac:notarize": "cross-env NOTARIZE=true CSC_NAME=\"Connect Foundation (DLFUSDA3L5)\" electron-builder",
         "dist:mac": "cross-env NOTARIZE=false CSC_NAME=\"Connect Foundation (DLFUSDA3L5)\" electron-builder",
         "rebuild": "electron-rebuild -f -w serialport,node-hid",
-        "postinstall": "webpack"
+        "postinstall": "webpack --config ./webpack.config.js"
     },
     "devDependencies": {
         "@types/lodash": "^4.14.144",
