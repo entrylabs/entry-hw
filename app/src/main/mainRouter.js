@@ -41,6 +41,16 @@ class MainRouter {
         entryServer.setRouter(this);
         this.server.open();
 
+        ipcMain.removeAllListeners('state');
+        ipcMain.removeAllListeners('startScan');
+        ipcMain.removeAllListeners('stopScan');
+        ipcMain.removeAllListeners('close');
+        ipcMain.removeAllListeners('requestFlash');
+        ipcMain.removeAllListeners('executeDriver');
+        ipcMain.removeAllListeners('getCurrentServerModeSync');
+        ipcMain.removeAllListeners('getCurrentCloudModeSync');
+        ipcMain.removeAllListeners('requestHardwareListSync');
+
         ipcMain.on('state', (e, state) => {
             this.onChangeState(state);
         });
@@ -257,7 +267,12 @@ class MainRouter {
             this.scanner.stopScan();
         }
         if (this.connector) {
-            this.connector.close();
+            if (this.hwModule && this.hwModule.disconnect) {
+                this.hwModule.disconnect(this.connector);
+            } else {
+                this.connector.close();
+            }
+            this.sendState('disconnected');
         }
     }
 
@@ -363,21 +378,10 @@ class MainRouter {
         if (this.server) {
             this.server.disconnectHardware();
         }
-        if (this.connector) {
-            rendererConsole.log('disconnect');
-            if (this.hwModule.disconnect) {
-                this.hwModule.disconnect(this.connector);
-            } else {
-                this.connector.close();
-            }
-        }
-        if (this.scanner) {
-            this.scanner.stopScan();
-        }
-        if (this.handler) {
-            this.handler = undefined;
-        }
-    };
+        this.stopScan();
+        this.hwModule = undefined;
+        this.handler = undefined;
+    }
 
     /**
      * 드라이버를 실행한다. 최초 실행시 app.asar 에 파일이 들어가있는 경우,
