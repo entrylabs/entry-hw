@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Styled from 'styled-components';
 import Logo from '../../../images/about/logo.png';
+import Fill from '../../../images/about/fill-1.png';
 
 const { translator, rendererRouter, ipcRenderer } = window;
 
@@ -20,7 +21,7 @@ const InnerContainer = Styled.div`
 `;
 
 const LogoWrapper = Styled.div`
-    background-image: url(../images/about/fill-1.png);
+    background-image: url(${Fill});
     background-repeat: repeat-x;
     width: 100%;
     height: 142px;
