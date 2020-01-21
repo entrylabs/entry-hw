@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Styled from 'styled-components';
+import Logo from '../../../images/about/logo.png';
 
 const { translator, rendererRouter, ipcRenderer } = window;
 
@@ -89,7 +90,7 @@ const Main: React.FC = () => {
         <MainContainer>
             <InnerContainer>
                 <LogoWrapper className={'logo_wrapper'}>
-                    <LogoImage src="../images/about/logo.png" className={'logo'} alt="logo"/>
+                    <LogoImage src={Logo} className={'logo'} alt="logo"/>
                 </LogoWrapper>
                 <div>
                     <VersionNotifyContainer>

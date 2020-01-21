@@ -4,6 +4,7 @@ import withPreload from '../../hoc/withPreload';
 import { IMapDispatchToProps } from '../../store';
 import { toggleLicenseView } from '../../store/modules/common';
 import { connect } from 'react-redux';
+import Logo from '../../../../images/logo.png';
 
 const FooterContainer = Styled.div`
     flex: none;
@@ -11,7 +12,7 @@ const FooterContainer = Styled.div`
     height: 60px;
     background-position: 30px 15px;
     background-repeat: no-repeat;
-    background-image: url('../images/logo.png');
+    background-image: url(${Logo});
     background-color: white;
 `;
 

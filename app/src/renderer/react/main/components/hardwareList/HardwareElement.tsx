@@ -48,7 +48,7 @@ const HardwareElement: React.FC<Preload & IDispatchProps & { hardware: any }> = 
     return (
         <HardwareTypeDiv id={`${hardware.id}`} onClick={onElementClick}>
             <HardwareThumbnailContainer>
-                <HardwareThumbnailImg src={`../../../modules/${hardware.icon}`} alt=""/>
+                <HardwareThumbnailImg src={`../../modules/${hardware.icon}`} alt=""/>
             </HardwareThumbnailContainer>
             <HardwareTitle>
                 {`${hardware.name && hardware.name[langType] || hardware.name.en}`}

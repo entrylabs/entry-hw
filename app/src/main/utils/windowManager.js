@@ -1,7 +1,7 @@
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
 
-const viewDirectoryPath = path.resolve(__dirname, '..', '..', 'renderer', 'views');
+const viewDirectoryPath = path.resolve(__dirname, '..', '..', 'views');
 module.exports = new class {
     aboutWindow = undefined;
     mainWindow = undefined;
@@ -29,7 +29,7 @@ module.exports = new class {
             show: false,
             webPreferences: {
                 nodeIntegration: true,
-                preload: path.join(viewDirectoryPath, '..', 'preload.js'),
+                preload: path.join(viewDirectoryPath, '..', 'renderer', 'preload.js'),
             },
         });
 
@@ -53,7 +53,7 @@ module.exports = new class {
             webPreferences: {
                 backgroundThrottling: false,
                 nodeIntegration: false,
-                preload: path.join(viewDirectoryPath, '..', 'preload.js'),
+                preload: path.join(viewDirectoryPath, '..', 'renderer', 'preload.js'),
             },
         });
 

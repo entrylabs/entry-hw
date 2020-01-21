@@ -35,3 +35,13 @@ declare interface ISerialPortScanData {
     vendorId?: string;
     productId?: string;
 }
+
+declare module '*.png' {
+    const value: string;
+    export default value;
+}
+
+declare module '*.woff' {
+    const value: string;
+    export default value;
+}
