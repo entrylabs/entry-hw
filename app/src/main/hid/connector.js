@@ -26,13 +26,13 @@ class HidConnector extends BaseConnector {
                         this.send(hwModule.requestInitialData());
                     } else {
                         this.device.removeAllListeners('data');
+                        clearInterval(this.requestInitialDataInterval);
                         if (result === true) {
                             if (hwModule.registerIntervalSend) {
                                 this.hwModule.registerIntervalSend(
                                     this._registerIntervalSend.bind(this),
                                 );
                             }
-                            this.connected = true;
                             resolve();
                         } else {
                             reject(new Error('Invalid hardware'));
@@ -41,9 +41,11 @@ class HidConnector extends BaseConnector {
                     console.log(result, data);
                 });
                 this.device.on('error', reject);
-                this.send(hwModule.requestInitialData());
+                // this.send(hwModule.requestInitialData());
+                this.requestInitialDataInterval = setInterval(() => {
+                    this.send(hwModule.requestInitialData());
+                }, 1000);
             } else {
-                this.connected = true;
                 resolve();
             }
         });
@@ -58,7 +60,7 @@ class HidConnector extends BaseConnector {
      * @returns {number} 사실 딱히 쓸모는 없다.
      */
     send(data, type = 'output') {
-        if (this.device) {
+        if (this.device && data) {
             try {
                 const writer =
                     type === 'feature'
@@ -138,6 +140,7 @@ class HidConnector extends BaseConnector {
         this.connected = false;
         this.registeredIntervals.forEach(clearInterval);
         this.requestLocalDataInterval && clearInterval(this.requestLocalDataInterval);
+        this.requestInitialDataInterval && clearInterval(this.requestInitialDataInterval);
         this.device.removeAllListeners();
         if (this.device) {
             this.device.close();

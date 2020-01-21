@@ -5,7 +5,7 @@
             "type": "node",
             "request": "launch",
             "name": "Electron Main",
-            "cwd": "${workspaceRoot}",
+            "cwd": "${workspaceRoot}/app",
             "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron",
             "windows": {
                 "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron.cmd"

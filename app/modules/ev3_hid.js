@@ -154,13 +154,19 @@ class EV3HID extends BaseModule {
         register(() => this._sensorCheck(), 200);
     }
 
+    getData(buffer) {
+        const data = buffer.toJSON().data;
+        data.unshift(0x00);
+        return data;
+    }
+    
     requestInitialData(sp) {
         const initBuf = this._makeInitBuffer([0x00], [0, 0]);
         const motorStop = Buffer.from([0xa3, 0x81, 0, 0x81, 0x0f, 0x81, 0]);
         const initMotor = Buffer.concat([initBuf, motorStop]);
 
         this._injectByteSize(initMotor);
-        return initMotor.toJSON().data;
+        return this.getData(initMotor);
     }
 
     requestLocalData() {
@@ -204,10 +210,9 @@ class EV3HID extends BaseModule {
             const totalLength = initBuf.length + sendBody.length;
             const sendBuffer = Buffer.concat([initBuf, sendBody], totalLength);
             this._injectByteSize(sendBuffer);
-            return sendBuffer.toJSON().data;
-        }
-
-        return undefined;
+            console.log('send', sendBuffer);
+            return this.getData(sendBuffer);
+        }   
     }
 
     requestRemoteData(handler) {
@@ -343,7 +348,8 @@ class EV3HID extends BaseModule {
             totalLength,
         );
         this._injectByteSize(sendBuffer);
-        return sendBuffer.toJSON().data;
+        console.log('sensorCheck', sendBuffer);
+        return this.getData(sendBuffer);
     }
 
     _makeInitBuffer(replyModeByte, allocHeaderByte) {

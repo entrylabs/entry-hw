@@ -11,19 +11,28 @@ import { requestHardwareModuleDownload } from '../../store/modules/hardware';
 const HardwareTypeDiv = styled.div`
     width: 170px;
     height: 170px;
-    display: inline-block;
-    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 `;
 
-const HardwareThumbnailImg = styled.img<{ type: HardwareAvailableTypeEnum }>`
+const HardwareThumbnailContainer = styled.div`
     width: 100px;
     height: 100px;
     cursor: pointer;
+    display: flex;
+`;
+
+const HardwareThumbnailImg = styled.img<{ type: HardwareAvailableTypeEnum }>`
+    max-width: 100px;
+    margin: auto;
+    cursor: pointer;
     ${({ type }) => {
-    if (type !== HardwareAvailableTypeEnum.available) {
-        return 'filter: grayscale(1);';
-    }
-}}
+        if (type !== HardwareAvailableTypeEnum.available) {
+            return 'filter: grayscale(1);';
+        }
+    }}
 `;
 
 const HardwareTitle = styled.h2`
@@ -31,6 +40,7 @@ const HardwareTitle = styled.h2`
     color: #595757;
     margin-top: 15px;
     cursor: pointer;
+    display: flex;
 `;
 
 const HardwareElement: React.FC<Preload & IDispatchProps & { hardware: any }> = (props) => {
@@ -70,14 +80,16 @@ const HardwareElement: React.FC<Preload & IDispatchProps & { hardware: any }> = 
 
     return (
         <HardwareTypeDiv id={`${hardware.id}`} onClick={onElementClick}>
-            <HardwareThumbnailImg
-                src={getImageBaseSrc}
-                type={availableType}
-                alt=""
-                onError={() => {
-                    setImageNotFound(true);
-                }}
-            />
+            <HardwareThumbnailContainer>
+                <HardwareThumbnailImg
+                    src={getImageBaseSrc}
+                    type={availableType}
+                    alt=""
+                    onError={() => {
+                        setImageNotFound(true);
+                    }}
+                />
+            </HardwareThumbnailContainer>
             <HardwareTitle>
                 {`${hardware.name && hardware.name[langType] || hardware.name.en}`}
             </HardwareTitle>

@@ -260,6 +260,23 @@ class MainRouter {
         this.server.addRoomIdsOnSecondInstance(roomId);
     }
 
+    stopScan(option) {
+        const { saveSelectedPort = false } = option || {};
+
+        this.server && this.server.disconnectHardware();
+        this.scanner && this.scanner.stopScan();
+
+        if (this.connector) {
+            this.hwModule && this.hwModule.disconnect
+                ? this.hwModule.disconnect(this.connector)
+                : this.connector.close();
+
+            this.sendState(HARDWARE_STATEMENT.disconnected);
+        }
+
+        !saveSelectedPort && (this.selectedPort = undefined);
+    }
+
     /**
      * 연결이 정상적으로 된 경우 startScan 의 callback 에서 호출된다.
      * @param connector
@@ -341,13 +358,14 @@ class MainRouter {
 
     // 엔트리 측에서 데이터를 받아온 경우 전달
     handleServerData({ data, type }) {
+        if (!this.hwModule || !this.handler || !this.config) {
+            console.warn('hardware is not connected but entry server data is received');
+            return;
+        }
+
         const hwModule = this.hwModule;
         const handler = this.handler;
         const { direct } = this.config;
-
-        if (!hwModule || !handler) {
-            return;
-        }
 
         if (direct && this.connector) {
             let result = data;
@@ -404,32 +422,24 @@ class MainRouter {
         this.connector = connector;
     }
 
-    stopScan(option) {
-        const { saveSelectedPort = false } = option || {};
-
-        this.server && this.server.disconnectHardware();
-        this.scanner && this.scanner.stopScan();
-
-        if (this.connector) {
-            this.hwModule && this.hwModule.disconnect
-                ? this.hwModule.disconnect(this.connector)
-                : this.connector.close();
-
-            this.sendState(HARDWARE_STATEMENT.disconnected);
-        }
-
-        !saveSelectedPort && (this.selectedPort = undefined);
-    }
-
     /**
      *
      * @param option {Object=} true 인 경우, 포트선택했던 내역을 지우지 않는다.
      */
     close(option) {
+        const { saveSelectedPort = false } = option || {};
+
+        if (this.server) {
+            this.server.disconnectHardware();
+        }
         this.stopScan(option);
         this.config = undefined;
         this.hwModule = undefined;
         this.handler = undefined;
+
+        if (!saveSelectedPort) {
+            this.selectedPort = undefined;
+        }
     };
 
     /**
