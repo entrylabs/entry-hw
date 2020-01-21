@@ -36,37 +36,13 @@ module.exports = class {
         this.moduleBasePath = commonUtils.getExtraDirectoryPath('modules');
         this.allHardwareList = [];
         this.router = router;
-        this._initialize();
-        this._requestModuleList();
-        this._notifyHardwareListChanged();
+
+        // 두번 하는 이유는, 먼저 유저에게 로컬 모듈 목록을 보여주기 위함
+        this.updateHardwareList();
+        this.updateHardwareListWithOnline();
     }
 
-    /**
-     * 파일을 읽어와 리스트에 작성한다.
-     */
-    _initialize() {
-        try {
-            this._getAllHardwareModulesFromDisk()
-                .forEach((config) => config && this.allHardwareList.push(config));
-        } catch (e) {
-            console.error('error occurred while reading module json files', e);
-        }
-    }
-
-    _getAllHardwareModulesFromDisk() {
-        return fs.readdirSync(this.moduleBasePath)
-            .filter((file) => !!file.match(/\.json$/))
-            .map((file) => {
-                const bufferData = fs.readFileSync(path.join(this.moduleBasePath, file));
-                const configJson = JSON.parse(bufferData.toString());
-                configJson.availableType = AVAILABLE_TYPE.available;
-                return configJson;
-            })
-            .filter(platformFilter)
-            .sort(nameSortComparator);
-    }
-
-    async _requestModuleList() {
+    async updateHardwareListWithOnline() {
         try {
             const moduleList = await getModuleList();
             if (!moduleList || moduleList.length === 0) {
@@ -79,7 +55,7 @@ module.exports = class {
         }
     }
 
-    updateHardwareList(source) {
+    updateHardwareList(source = []) {
         const availables = this._getAllHardwareModulesFromDisk();
         const mergedList = unionWith(availables, source, (src, ori) => {
             if (ori.id === src.id) {
@@ -97,6 +73,23 @@ module.exports = class {
             .filter(platformFilter)
             .sort(nameSortComparator);
         this._notifyHardwareListChanged();
+    }
+
+    _getAllHardwareModulesFromDisk() {
+        try {
+            return fs.readdirSync(this.moduleBasePath)
+                .filter((file) => !!file.match(/\.json$/))
+                .map((file) => {
+                    const bufferData = fs.readFileSync(path.join(this.moduleBasePath, file));
+                    const configJson = JSON.parse(bufferData.toString());
+                    configJson.availableType = AVAILABLE_TYPE.available;
+                    return configJson;
+                })
+                .filter(platformFilter)
+                .sort(nameSortComparator);
+        } catch (e) {
+            console.error('error occurred while reading module json files', e);
+        }
     }
 
     _notifyHardwareListChanged() {

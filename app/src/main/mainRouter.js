@@ -460,6 +460,7 @@ class MainRouter {
     async requestHardwareModule(moduleName) {
         const moduleConfig = await downloadModule(moduleName);
         this.hardwareListManager.updateHardwareList([moduleConfig]);
+        await this.hardwareListManager.updateHardwareListWithOnline();
     }
 }
 
