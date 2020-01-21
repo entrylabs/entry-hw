@@ -55,6 +55,7 @@ const ContentSpan = Styled.span`
     font-weight: bold;
     color: #4c94f8;
     line-height: 28px;
+    cursor: inherit;
 `;
 
 const HardwareCategoryEntries: { [key in keyof typeof CategoryTypeEnum]: string } = {

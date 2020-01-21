@@ -7,8 +7,7 @@ global.$ = require('lodash');
 
 // classes
 const EntryServer = require('./src/main/serverProcessManager');
-// const MainRouter = require('./src/main/mainRouter');
-const MainRouter = require('./src/main/dist/main.build');
+const MainRouter = require('./src/main/mainRouter');
 const WindowManager = require('./src/main/utils/windowManager');
 const CommonUtils = require('./src/main/utils/commonUtils');
 

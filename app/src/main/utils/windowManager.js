@@ -29,7 +29,7 @@ module.exports = new class {
             show: false,
             webPreferences: {
                 nodeIntegration: true,
-                preload: path.join(viewDirectoryPath, '..', 'renderer', 'preload.js'),
+                preload: path.join(viewDirectoryPath, '..', 'preload', 'preload.bundle.js'),
             },
         });
 
@@ -53,7 +53,7 @@ module.exports = new class {
             webPreferences: {
                 backgroundThrottling: false,
                 nodeIntegration: false,
-                preload: path.join(viewDirectoryPath, '..', 'renderer', 'preload.js'),
+                preload: path.join(viewDirectoryPath, '..', 'preload', 'preload.bundle.js'),
             },
         });
 

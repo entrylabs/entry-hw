@@ -2,7 +2,7 @@ const { ipcRenderer, shell, remote } = require('electron');
 const {
     HARDWARE_STATEMENT: Statement,
     RUNNING_MODE_TYPES: RunningMode,
-} = require('../../common/constants');
+} = require('../common/constants');
 
 /**
  * 렌더러 비즈니스로직을 담은 클래스.
