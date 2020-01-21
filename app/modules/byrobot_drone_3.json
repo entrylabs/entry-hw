@@ -1,8 +1,8 @@
 {
-    "id": "0F0A01",
+    "id": "0F0901",
     "name": {
-        "en": "BYROBOT Drone 4",
-        "ko": "바이로봇 드론 4"
+        "en": "BYROBOT Drone 3",
+        "ko": "바이로봇 드론 3"
     },
     "category": "robot",
     "platform": ["win32", "darwin"],

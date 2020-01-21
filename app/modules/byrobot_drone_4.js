@@ -578,7 +578,7 @@ class byrobot_drone_4 extends BaseModule
         let ack = this.ack;
         if( ack._updated == true )
         {
-            config.id = '0F0901';
+            config.id = '0F0A01';
             return true;
         }
 
@@ -1317,10 +1317,10 @@ class byrobot_drone_4 extends BaseModule
 
             // Data Array
             dataArray.concat(new Uint8Array(floatArray.buffer));
-            dataArray.push(this.getByte0(controlHeading);
-            dataArray.push(this.getByte1(controlHeading);
-            dataArray.push(this.getByte0(controlRotationalvelocity);
-            dataArray.push(this.getByte1(controlRotationalvelocity);
+            dataArray.push(this.getByte0(controlHeading));
+            dataArray.push(this.getByte1(controlHeading));
+            dataArray.push(this.getByte0(controlRotationalvelocity));
+            dataArray.push(this.getByte1(controlRotationalvelocity));
     
             // CRC16
             this.addCRC16(dataArray, indexStart, dataLength);

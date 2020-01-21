@@ -6,7 +6,7 @@ const BaseModule = require('./baseModule');
  *  기본 클래스
  ***************************************************************************************/
 
-class byrobot_controller_3 extends BaseModule
+class byrobot_drone_3 extends BaseModule
 {
     /*
         클래스 내부에서 사용될 필드들을 이곳에서 선언합니다.
@@ -56,9 +56,20 @@ class byrobot_controller_3 extends BaseModule
             BUZZER_VALUE:               'buzzer_value',
             BUZZER_TIME:                'buzzer_time',
 
+            // Control::Quad8
+            CONTROL_QUAD8_ROLL:                   'control_quad8_roll',
+            CONTROL_QUAD8_PITCH:                  'control_quad8_pitch',
+            CONTROL_QUAD8_YAW:                    'control_quad8_yaw',
+            CONTROL_QUAD8_THROTTLE:               'control_quad8_throttle',
+
             // Command
             COMMAND_COMMAND:            'command_command',
             COMMAND_OPTION:             'command_option',
+
+            // Motor
+            MOTORSINGLE_TARGET:         'motorsingle_target',
+            MOTORSINGLE_ROTATION:       'motorsingle_rotation',     // direction -> rotation
+            MOTORSINGLE_VALUE:          'motorsingle_value',
         };
 
         this.crc16table =
@@ -130,6 +141,67 @@ class byrobot_controller_3 extends BaseModule
             _updated        : 1,
             button_button   : 0,    // u16
             button_event    : 0     // u8
+        };
+    
+        // State
+        this.state = 
+        {
+            _updated                : 1,
+            state_modeSystem        : 0,    // u8
+            state_modeFlight        : 0,    // u8
+            state_modeControlFlight : 0,    // u8
+            state_modeMovement      : 0,    // u8
+            state_headless          : 0,    // u8
+            state_sensorOrientation : 0,    // u8
+            state_battery           : 0     // u8
+        };
+
+        // Position
+        this.position =
+        {
+            _updated    : 1,
+            position_x  : 0,    // f32
+            position_y  : 0,    // f32
+            position_z  : 0     // f32
+        };
+    
+        // Altitude
+        this.altitude =
+        {
+            _updated                : 1,
+            altitude_temperature    : 0,    // f32
+            altitude_pressure       : 0,    // f32
+            altitude_altitude       : 0,    // f32
+            altitude_rangeHeight    : 0     // f32
+        };
+    
+        // Motion
+        this.motion =
+        {
+            _updated            : 1,
+            motion_accX         : 0,    // s16
+            motion_accY         : 0,    // s16
+            motion_accZ         : 0,    // s16
+            motion_gyroRoll     : 0,    // s16
+            motion_gyroPitch    : 0,    // s16
+            motion_gyroYaw      : 0,    // s16
+            motion_angleRoll    : 0,    // s16
+            motion_anglePitch   : 0,    // s16
+            motion_angleYaw     : 0     // s16
+        };
+
+        // InformationAssembledForEntry
+        this.informationAssembledForEntry =
+        {
+            _updated        : 1,
+            informationAssembledForEntry_angleRoll      : 0,    // s16
+            informationAssembledForEntry_anglePitch     : 0,    // s16
+            informationAssembledForEntry_angleYaw       : 0,    // s16
+            informationAssembledForEntry_positionX      : 0,    // s16
+            informationAssembledForEntry_positionY      : 0,    // s16
+            informationAssembledForEntry_positionZ      : 0,    // s16
+            informationAssembledForEntry_rangeHeight    : 0,    // s16
+            informationAssembledForEntry_altitude       : 0,    // float
         };
 
 
@@ -307,6 +379,62 @@ class byrobot_controller_3 extends BaseModule
         button._updated                     = 0;
         button.button_button                = 0;
         button.button_event                 = 0;
+        
+        // State
+        let state                           = this.state;
+        state._updated                      = 0;
+        state.state_modeSystem              = 0;
+        state.state_modeFlight              = 0;
+        state.state_modeControlFlight       = 0;
+        state.state_modeMovement            = 0;
+        state.state_headless                = 0;
+        state.state_sensorOrientation       = 0;
+        state.state_battery                 = 0;
+
+        // Position
+        let position                        = this.position;
+        position._updated                   = 0;
+        position.position_x                 = 0;
+        position.position_y                 = 0;
+        position.position_z                 = 0;
+    
+        // Altitude
+        let altitude                        = this.altitude;
+        altitude._updated                   = 0;
+        altitude.altitude_temperature       = 0;
+        altitude.altitude_pressure          = 0;
+        altitude.altitude_altitude          = 0;
+        altitude.altitude_rangeHeight       = 0;
+    
+        // Motion
+        let motion                          = this.motion;
+        motion._updated                     = 0;
+        motion.motion_accX                  = 0;
+        motion.motion_accY                  = 0;
+        motion.motion_accZ                  = 0;
+        motion.motion_gyroRoll              = 0;
+        motion.motion_gyroPitch             = 0;
+        motion.motion_gyroYaw               = 0;
+        motion.motion_angleRoll             = 0;
+        motion.motion_anglePitch            = 0;
+        motion.motion_angleYaw              = 0;
+        
+        // InformationAssembledForEntry
+        let informationAssembledForEntry                                        = this.informationAssembledForEntry;
+        informationAssembledForEntry.informationAssembledForEntry_angleRoll     = 0;    // s16
+        informationAssembledForEntry.informationAssembledForEntry_anglePitch    = 0;    // s16
+        informationAssembledForEntry.informationAssembledForEntry_angleYaw      = 0;    // s16
+        informationAssembledForEntry.informationAssembledForEntry_positionX     = 0;    // s16
+        informationAssembledForEntry.informationAssembledForEntry_positionY     = 0;    // s16
+        informationAssembledForEntry.informationAssembledForEntry_positionZ     = 0;    // s16
+        informationAssembledForEntry.informationAssembledForEntry_rangeHeight   = 0;    // s16
+        informationAssembledForEntry.informationAssembledForEntry_altitude      = 0;    // float
+
+        // -- Control -----------------------------------------------------------------
+        this.controlRoll                    = 0;        // 
+        this.controlPitch                   = 0;        // 
+        this.controlYaw                     = 0;        // 
+        this.controlThrottle                = 0;        // 
 
         // -- Hardware ----------------------------------------------------------------
         this.bufferReceive                  = [];       // 데이터 수신 버퍼
@@ -346,9 +474,9 @@ class byrobot_controller_3 extends BaseModule
         this.receiverForDevice(data);
 
         let ack = this.ack;
-        if (ack._updated == true)
+        if( ack._updated == true )
         {
-            config.id = '0F0701';
+            config.id = '0F0901';
             return true;
         }
 
@@ -372,21 +500,21 @@ class byrobot_controller_3 extends BaseModule
     //   Entry.hw.update를 호출하면 등록된 값 전체를 한 번에 즉시 전송하는 것으로 보임
     handlerForEntry(handler)
     {
-        if (this.bufferTransfer == undefined)
+        if( this.bufferTransfer == undefined )
         {
             this.bufferTransfer = [];
         }
 
         // Buffer Clear
-        if (handler.e(this.DataType.BUFFER_CLEAR) == true)
+        if( handler.e(this.DataType.BUFFER_CLEAR) == true )
         {
             this.bufferTransfer = [];
         }
 
 
         // Light Manual
-        if ((handler.e(this.DataType.LIGHT_MANUAL_FLAGS)        == true) &&
-            (handler.e(this.DataType.LIGHT_MANUAL_BRIGHTNESS)   == true))
+        if( (handler.e(this.DataType.LIGHT_MANUAL_FLAGS)        == true) &&
+            (handler.e(this.DataType.LIGHT_MANUAL_BRIGHTNESS)   == true) )
         {
             let dataArray = [];
 
@@ -420,11 +548,11 @@ class byrobot_controller_3 extends BaseModule
 
 
         // LightModeColor
-        if ((handler.e(this.DataType.LIGHT_MODE_MODE)       == true) &&
+        if( (handler.e(this.DataType.LIGHT_MODE_MODE)       == true) &&
             (handler.e(this.DataType.LIGHT_MODE_INTERVAL)   == true) &&
             (handler.e(this.DataType.LIGHT_COLOR_R)         == true) &&
             (handler.e(this.DataType.LIGHT_COLOR_G)         == true) &&
-            (handler.e(this.DataType.LIGHT_COLOR_B)         == true))
+            (handler.e(this.DataType.LIGHT_COLOR_B)         == true) )
         {
             let dataArray = [];
     
@@ -464,7 +592,7 @@ class byrobot_controller_3 extends BaseModule
         }
         // LightMode
         else if((handler.e(this.DataType.LIGHT_MODE_MODE)       == true) &&
-                (handler.e(this.DataType.LIGHT_MODE_INTERVAL)   == true))
+                (handler.e(this.DataType.LIGHT_MODE_INTERVAL)   == true) )
         {
             let dataArray = [];
 
@@ -497,7 +625,7 @@ class byrobot_controller_3 extends BaseModule
 
 
         // Command
-        if (handler.e(this.DataType.COMMAND_COMMAND) == true)
+        if( handler.e(this.DataType.COMMAND_COMMAND) == true )
         {
             let dataArray = [];
 
@@ -528,7 +656,7 @@ class byrobot_controller_3 extends BaseModule
 
             this.bufferTransfer.push(dataArray);
 
-            switch (command_command)
+            switch( command_command )
             {
             case 0x01:  // CommandType::Stop
                 {
@@ -543,8 +671,84 @@ class byrobot_controller_3 extends BaseModule
         }
 
 
+        // Control
+        if( (handler.e(this.DataType.CONTROL_QUAD8_ROLL)      == true) ||
+            (handler.e(this.DataType.CONTROL_QUAD8_PITCH)     == true) ||
+            (handler.e(this.DataType.CONTROL_QUAD8_YAW)       == true) ||
+            (handler.e(this.DataType.CONTROL_QUAD8_THROTTLE)  == true) )
+        {
+            let dataArray = [];
+
+            // Start Code
+            this.addStartCode(dataArray);
+            
+            let target          = handler.e(this.DataType.TARGET)                 ? handler.read(this.DataType.TARGET)                  : 0x10;
+            let controlRoll     = handler.e(this.DataType.CONTROL_QUAD8_ROLL)     ? handler.read(this.DataType.CONTROL_QUAD8_ROLL)      : this.controlRoll;
+            let controlPitch    = handler.e(this.DataType.CONTROL_QUAD8_PITCH)    ? handler.read(this.DataType.CONTROL_QUAD8_PITCH)     : this.controlPitch;
+            let controlYaw      = handler.e(this.DataType.CONTROL_QUAD8_YAW)      ? handler.read(this.DataType.CONTROL_QUAD8_YAW)       : this.controlYaw;
+            let controlThrottle = handler.e(this.DataType.CONTROL_QUAD8_THROTTLE) ? handler.read(this.DataType.CONTROL_QUAD8_THROTTLE)  : this.controlThrottle;
+
+            let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
+            let dataLength = 4;                     // 데이터의 길이
+    
+            // Header
+            dataArray.push(0x10);                   // Data Type
+            dataArray.push(dataLength);             // Data Length
+            dataArray.push(0x82);                   // From (네이버 엔트리)
+            dataArray.push(target);                 // To
+
+            // Data Array
+            dataArray.push(controlRoll);
+            dataArray.push(controlPitch);
+            dataArray.push(controlYaw);
+            dataArray.push(controlThrottle);
+    
+            // CRC16
+            this.addCRC16(dataArray, indexStart, dataLength);
+
+            //this.log("handlerForEntry() / Control / roll: " + controlRoll + ", pitch: " + controlPitch + ", yaw: " + controlYaw + ", throttle: " + controlThrottle, dataArray);
+
+            this.bufferTransfer.push(dataArray);
+        }
+
+
+        // MotorSingle
+        if( handler.e(this.DataType.MOTORSINGLE_TARGET) == true )
+        {
+            let dataArray = [];
+
+            // Start Code
+            this.addStartCode(dataArray);
+            
+            let target              = handler.e(this.DataType.TARGET)               ? handler.read(this.DataType.TARGET)                : 0x10;
+            let motorSingleTarget   = handler.e(this.DataType.MOTORSINGLE_TARGET)   ? handler.read(this.DataType.MOTORSINGLE_TARGET)    : 0;
+            let motorSingleRotation = handler.e(this.DataType.MOTORSINGLE_ROTATION) ? handler.read(this.DataType.MOTORSINGLE_ROTATION)  : 0;
+            let motorSingleValue    = handler.e(this.DataType.MOTORSINGLE_VALUE)    ? handler.read(this.DataType.MOTORSINGLE_VALUE)     : 0;
+
+            let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
+            let dataLength = 4;                     // 데이터의 길이
+
+            // Header
+            dataArray.push(0x61);                   // Data Type
+            dataArray.push(dataLength);             // Data Length
+            dataArray.push(0x82);                   // From (네이버 엔트리)
+            dataArray.push(target);                 // To
+
+            // Data Array
+            dataArray.push(motorSingleTarget);
+            dataArray.push(motorSingleRotation);
+            dataArray.push(this.getByte0(motorSingleValue));
+            dataArray.push(this.getByte1(motorSingleValue));
+
+            // CRC16
+            this.addCRC16(dataArray, indexStart, dataLength);
+
+            this.bufferTransfer.push(dataArray);
+        }
+
+
         // Buzzer
-        if (handler.e(this.DataType.BUZZER_MODE) == true)
+        if( handler.e(this.DataType.BUZZER_MODE) == true )
         {
             let dataArray = [];
 
@@ -587,7 +791,7 @@ class byrobot_controller_3 extends BaseModule
     // 시작 코드 추가
     addStartCode(dataArray)
     {
-        if (dataArray == undefined)
+        if( dataArray == undefined )
         {
             dataArray = [];
         }
@@ -601,7 +805,7 @@ class byrobot_controller_3 extends BaseModule
     // CRC16을 계산해서 추가
     addCRC16(dataArray, indexStart, dataLength)
     {
-        if (dataArray.length < indexStart + 4 + dataLength)
+        if( dataArray.length < indexStart + 4 + dataLength )
         {
             return;
         }
@@ -624,7 +828,7 @@ class byrobot_controller_3 extends BaseModule
         // Joystick
         {
             let joystick = this.joystick;
-            if (joystick._updated == true)
+            if( joystick._updated == true )
             {
                 for(let key in joystick)
                 {
@@ -639,7 +843,7 @@ class byrobot_controller_3 extends BaseModule
         // Button
         {
             let button = this.button;
-            if (button._updated == true)
+            if( button._updated == true )
             {
                 for(let key in button)
                 {
@@ -651,9 +855,99 @@ class byrobot_controller_3 extends BaseModule
             }
         }
 
+        // State
+        {
+            let state = this.state;
+            if( state._updated == true )
+            {
+                for(let key in state)
+                {
+                    handler.write(key, state[key]);
+                }
+
+                state._updated = false;
+                //this.log("transferForEntry() / state", "");
+            }
+        }
+    
+        // Position
+        {
+            let position = this.position;
+            if( position._updated == true )
+            {
+                for(let key in position)
+                {
+                    handler.write(key, position[key]);
+                }
+    
+                position._updated = false;
+                //this.log("tansferForEntry() / position", "");
+            }
+        }
+    
+        // Altitude
+        {
+            let altitude = this.altitude;
+            if( altitude._updated == true )
+            {
+                for(let key in altitude)
+                {
+                    handler.write(key, altitude[key]);
+                }
+    
+                altitude._updated = false;
+                //this.log("tansferForEntry() / altitude", "");
+            }
+        }
+
+        // Motion
+        {
+            let motion = this.motion;
+            if( motion._updated == true )
+            {
+                for(let key in motion)
+                {
+                    handler.write(key, motion[key]);
+                }
+
+                motion._updated = false;
+                //this.log("transferForEntry() / imu", "");
+            }
+        }
+
+        // Range
+        {
+            let range = this.range;
+            if( range._updated == true )
+            {
+                for(let key in range)
+                {
+                    handler.write(key, range[key]);
+                }
+
+                range._updated = false;
+                //this.log("transferForEntry() / range", "");
+            }
+        }
+    
+        // InformationAssembledForEntry
+        {
+            let informationAssembledForEntry = this.informationAssembledForEntry;
+            if( informationAssembledForEntry._updated == true )
+            {
+                for(let key in informationAssembledForEntry)
+                {
+                    handler.write(key, informationAssembledForEntry[key]);
+                }
+    
+                informationAssembledForEntry._updated = false;
+                //this.log("Module.prototype.tansferForEntry() / informationAssembledForEntry", "");
+            }
+        }
+
         // Entry-hw information
         {
-            if (this.bufferTransfer == undefined)
+            if( this.bufferTransfer == undefined )
             {
                 this.bufferTransfer = [];
             }
@@ -670,7 +964,7 @@ class byrobot_controller_3 extends BaseModule
     // 장치로부터 받은 데이터 배열 처리
     receiverForDevice(data)
     {
-        if (this.receiveBuffer == undefined)
+        if( this.receiveBuffer == undefined )
         {
             this.receiveBuffer = [];
         }
@@ -696,17 +990,17 @@ class byrobot_controller_3 extends BaseModule
             case 0:
                 // Start Code
                 {               
-                    switch (this.indexReceiver)
+                    switch( this.indexReceiver )
                     {
                     case 0:
-                        if (data != 0x0A)
+                        if( data != 0x0A )
                         {
                             continue;
                         }
                         break;
                     
                     case 1:
-                        if (data != 0x55)
+                        if( data != 0x55 )
                         {
                             flagContinue = false;
                         }
@@ -722,7 +1016,7 @@ class byrobot_controller_3 extends BaseModule
             case 1:
                 // Header
                 {
-                    switch (this.indexReceiver)
+                    switch( this.indexReceiver )
                     {
                     case 0:
                         {
@@ -750,7 +1044,7 @@ class byrobot_controller_3 extends BaseModule
                             this.to = data;
                             this.crc16Calculated = this.calcCRC16(data, this.crc16Calculated);
                             this.dataBlock = [];        // 수신 받은 데이터 블럭
-                            if (this.dataLength == 0)
+                            if( this.dataLength == 0 )
                             {
                                 this.indexSession++;    // 데이터의 길이가 0인 경우 바로 CRC16으로 넘어가게 함
                             }
@@ -767,7 +1061,7 @@ class byrobot_controller_3 extends BaseModule
                     this.dataBlock.push(data);
                     this.crc16Calculated = this.calcCRC16(data, this.crc16Calculated);
                     
-                    if (this.dataBlock.length == this.dataLength)
+                    if( this.dataBlock.length == this.dataLength )
                     {
                         flagSessionNext = true;
                     }
@@ -777,7 +1071,7 @@ class byrobot_controller_3 extends BaseModule
             case 3:
                 // CRC16
                 {
-                    switch (this.indexReceiver)
+                    switch( this.indexReceiver )
                     {
                     case 0:
                         {
@@ -803,9 +1097,9 @@ class byrobot_controller_3 extends BaseModule
             }
 
             // 데이터 전송 완료 처리
-            if (flagComplete == true)
+            if( flagComplete == true )
             {
-                if (this.crc16Calculated == this.crc16Received)
+                if( this.crc16Calculated == this.crc16Received )
                 {
                     this.handlerForDevice();
                 }
@@ -814,9 +1108,9 @@ class byrobot_controller_3 extends BaseModule
             }
 
             // 데이터 처리 결과에 따라 인덱스 변수 처리
-            if (flagContinue == true)
+            if( flagContinue == true )
             {
-                if (flagSessionNext == true)
+                if( flagSessionNext == true )
                 {
                     this.indexSession++;
                     this.indexReceiver = 0;             
@@ -839,7 +1133,7 @@ class byrobot_controller_3 extends BaseModule
     handlerForDevice()
     {
         // skip 할 대상만 case로 등록
-        switch (this.dataType)
+        switch( this.dataType )
         {
         case 0x02:  break;      // Ack
         case 0x40:  break;      // State (0x40)
@@ -851,17 +1145,19 @@ class byrobot_controller_3 extends BaseModule
         case 0xA1:  break;      // 
 
         default:
-            this.log("handlerForDevice() / From: " + this.from + " / To: " + this.to + " / Type: " + this.dataType + " / ", this.dataBlock);
+            {
+                this.log("handlerForDevice() / From: " + this.from + " / To: " + this.to + " / Type: " + this.dataType + " / ", this.dataBlock);
+            }
             break;
         }
 
         this.timeReceive = (new Date()).getTime();
 
         // 상대측에 정상적으로 데이터를 전달했는지 확인
-        switch (this.dataType)
+        switch( this.dataType )
         {
         case 0x02:  // Ack
-            if (this.dataBlock.length == 7)
+            if( this.dataBlock.length == 7 )
             {
                 // Device -> Entry 
                 let ack             = this.ack;
@@ -871,16 +1167,16 @@ class byrobot_controller_3 extends BaseModule
                 ack.ack_crc16       = this.extractUInt16(this.dataBlock, 5);
 
                 // ping에 대한 ack는 로그 출력하지 않음
-                if (ack.ack_dataType != 0x01)
+                if( ack.ack_dataType != 0x01 )
                 {
                     console.log("handlerForDevice - Ack / From: " + this.from + " / SystemTime: " + ack.ack_systemTime + " / DataType: " + ack.ack_dataType + " / Repeat: " + this.countTransferRepeat + " / Crc16Transfer: " + this.crc16Transfered + " / Crc16Get: " + ack.ack_crc16);
                 }
 
                 // 마지막으로 전송한 데이터에 대한 응답을 받았다면 
-                if (this.bufferTransfer != undefined &&
+                if( this.bufferTransfer != undefined &&
                     this.bufferTransfer.length > 0 &&
                     this.dataTypeLastTransfered == ack.ack_dataType &&
-                    this.crc16Transfered == ack.ack_crc16)
+                    this.crc16Transfered == ack.ack_crc16 )
                 {
                     this.bufferTransfer.shift();
                     this.countTransferRepeat = 0;
@@ -891,9 +1187,9 @@ class byrobot_controller_3 extends BaseModule
         default:
             {
                 // 마지막으로 요청한 데이터를 받았다면 
-                if (this.bufferTransfer != undefined &&
+                if( this.bufferTransfer != undefined &&
                     this.bufferTransfer.length > 0 &&
-                    this.dataTypeLastTransfered == this.dataType)
+                    this.dataTypeLastTransfered == this.dataType )
                 {
                     this.bufferTransfer.shift();
                     this.countTransferRepeat = 0;
@@ -905,10 +1201,65 @@ class byrobot_controller_3 extends BaseModule
         }
     
     
-        switch (this.dataType)
+        switch( this.dataType )
         {
+        case 0x40:  // State
+            if( this.dataBlock.length == 7 )
+            {
+                // Device -> Entry 
+                let state                       = this.state;
+                state._updated                  = true;
+                state.state_modeSystem          = this.extractUInt8(this.dataBlock, 0);
+                state.state_modeFlight          = this.extractUInt8(this.dataBlock, 1);
+                state.state_modeControlFlight   = this.extractUInt8(this.dataBlock, 2);
+                state.state_modeMovement        = this.extractUInt8(this.dataBlock, 3);
+                state.state_headless            = this.extractUInt8(this.dataBlock, 4);
+                state.state_sensorOrientation   = this.extractUInt8(this.dataBlock, 5);
+                state.state_battery             = this.extractUInt8(this.dataBlock, 6);
+    
+                //console.log("handlerForDevice - state: " + state.state_modeVehicle);
+            }
+            break;
+    
+    /*
+        case 0x43:  // Altitude
+            if( this.dataBlock.length == 16 )
+            {
+                // Device -> Entry 
+                let altitude                    = this.altitude;
+                altitude._updated               = true;
+                altitude.altitude_temperature   = this.extractFloat32(this.dataBlock, 0);
+                altitude.altitude_pressure      = this.extractFloat32(this.dataBlock, 4);
+                altitude.altitude_altitude      = this.extractFloat32(this.dataBlock, 8);
+                altitude.altitude_rangeHeight   = this.extractFloat32(this.dataBlock, 12);
+    
+                //console.log("handlerForDevice - altitude: " + altitude.altitude_temperature + ", " + altitude.altitude_altitude);
+            }
+            break;
+    
+        case 0x44:  // Motion
+            if( this.dataBlock.length == 18 )
+            {
+                // Device -> Entry 
+                let motion                  = this.motion;
+                motion._updated             = true;
+                motion.motion_accX          = (this.extractInt16(this.dataBlock, 0) * 10).toFixed(3);
+                motion.motion_accY          = (this.extractInt16(this.dataBlock, 2) * 10).toFixed(3);
+                motion.motion_accZ          = (this.extractInt16(this.dataBlock, 4) * 10).toFixed(3);
+                motion.motion_gyroRoll      = (this.extractInt16(this.dataBlock, 6)).toFixed(3);
+                motion.motion_gyroPitch     = (this.extractInt16(this.dataBlock, 8)).toFixed(3);
+                motion.motion_gyroYaw       = (this.extractInt16(this.dataBlock, 10)).toFixed(3);
+                motion.motion_angleRoll     = this.extractInt16(this.dataBlock, 12);
+                motion.motion_anglePitch    = this.extractInt16(this.dataBlock, 14);
+                motion.motion_angleYaw      = this.extractInt16(this.dataBlock, 16);
+    
+                //console.log("handlerForDevice - motion: " + motion.motion_angleRoll + ", " + motion.motion_anglePitch + ", " + motion.motion_angleYaw);
+            }
+            break;
+    // */
+    
         case 0x70:  // Button
-            if (this.dataBlock.length == 3)
+            if( this.dataBlock.length == 3 )
             {
                 // Device -> Entry 
                 let button              = this.button;
@@ -921,7 +1272,7 @@ class byrobot_controller_3 extends BaseModule
             break;
     
         case 0x71:  // Joystick
-            if (this.dataBlock.length == 8)
+            if( this.dataBlock.length == 8 )
             {
                 // Device -> Entry 
                 let joystick                        = this.joystick;
@@ -939,6 +1290,25 @@ class byrobot_controller_3 extends BaseModule
             }
             break;
     
+        case 0xA1:  // Information Assembled For Entry 자주 갱신되는 데이터 모음(엔트리)
+            if( this.dataBlock.length == 18 )
+            {
+                // Device -> Entry 
+                let informationAssembledForEntry            = this.informationAssembledForEntry;
+                informationAssembledForEntry._updated       = true;
+                informationAssembledForEntry.informationAssembledForEntry_angleRoll      = this.extractInt16(this.dataBlock, 0);
+                informationAssembledForEntry.informationAssembledForEntry_anglePitch     = this.extractInt16(this.dataBlock, 2);
+                informationAssembledForEntry.informationAssembledForEntry_angleYaw       = this.extractInt16(this.dataBlock, 4);
+                informationAssembledForEntry.informationAssembledForEntry_positionX      = this.extractInt16(this.dataBlock, 6) / 100.0;
+                informationAssembledForEntry.informationAssembledForEntry_positionY      = this.extractInt16(this.dataBlock, 8) / 100.0;
+                informationAssembledForEntry.informationAssembledForEntry_positionZ      = this.extractInt16(this.dataBlock, 10) / 100.0;
+                informationAssembledForEntry.informationAssembledForEntry_rangeHeight    = this.extractInt16(this.dataBlock, 12) / 100.0;
+                informationAssembledForEntry.informationAssembledForEntry_altitude       = this.extractFloat32(this.dataBlock, 14);
+    
+                // console.log("handlerForDevice - Information Assembled For Entry: " + this.dataBlock.length + ", " + this.dataBlock);
+            }
+            break;
+    
         default:
             break;
         }
@@ -949,7 +1319,7 @@ class byrobot_controller_3 extends BaseModule
     extractInt8(dataArray, startIndex)
     {
         let value = this.extractUInt8(dataArray, startIndex);
-        if ((value & 0x80) != 0)
+        if( (value & 0x80) != 0)
         {
             value = -(0x100 - value);
         }
@@ -958,7 +1328,7 @@ class byrobot_controller_3 extends BaseModule
 
     extractUInt8(dataArray, startIndex)
     {
-        if (dataArray.length >= startIndex + 1)
+        if( dataArray.length >= startIndex + 1 )
         {
             let value = dataArray[startIndex];
             return value;
@@ -972,7 +1342,7 @@ class byrobot_controller_3 extends BaseModule
     extractInt16(dataArray, startIndex)
     {
         let value = this.extractUInt16(dataArray, startIndex);
-        if ((value & 0x8000) != 0)
+        if( (value & 0x8000) != 0)
         {
             value = -(0x10000 - value);
         }
@@ -981,7 +1351,7 @@ class byrobot_controller_3 extends BaseModule
 
     extractUInt16(dataArray, startIndex)
     {
-        if (dataArray.length >= startIndex + 2)
+        if( dataArray.length >= startIndex + 2 )
         {
             let value = ((dataArray[startIndex + 1]) << 8) + dataArray[startIndex];
             return value;
@@ -995,7 +1365,7 @@ class byrobot_controller_3 extends BaseModule
     extractInt32(dataArray, startIndex)
     {
         let value = this.extractUInt32(dataArray, startIndex);
-        if ((value & 0x80000000) != 0)
+        if( (value & 0x80000000) != 0)
         {
             value = -(0x100000000 - value);
         }
@@ -1004,7 +1374,7 @@ class byrobot_controller_3 extends BaseModule
 
     extractUInt32(dataArray, startIndex)
     {
-        if (dataArray.length >= startIndex + 4)
+        if( dataArray.length >= startIndex + 4 )
         {
             let value = ((dataArray[startIndex + 3]) << 24) + ((dataArray[startIndex + 2]) << 16) + ((dataArray[startIndex + 1]) << 8) + dataArray[startIndex];
             return value;
@@ -1061,38 +1431,64 @@ class byrobot_controller_3 extends BaseModule
     {
         let now = (new Date()).getTime();
 
-        if (now < this.timeTransferNext)
+        if( now < this.timeTransferNext )
         {
             return null;
         }
         
         this.timeTransferNext = now + this.timeTransferInterval;
 
-        if (this.bufferTransfer == undefined)
+        if( this.bufferTransfer == undefined )
         {
             this.bufferTransfer = [];
         }
 
         this.countReqeustDevice++;
 
-        if (this.bufferTransfer.length == 0)
+        if( this.bufferTransfer.length == 0 )
         {
-            // 예약된 요청이 없는 경우 데이터 요청 등록
-            this.ping(0x20);
+            // 예약된 요청이 없는 경우 데이터 요청 등록(현재는 자세 데이터 요청)
+            switch( this.countReqeustDevice % 6 )
+            {
+            case 0:     return this.ping(0x10);                     // E-DRONE 드론
+            case 2:     return this.ping(0x20);                     // 조종기
+            case 4:     return this.reserveRequest(0x10, 0x40);     // E-DRONE 드론
+            /*
+            case 6:     return this.reserveRequest(0x10, 0x42);     // E-DRONE 드론
+            case 8:     return this.reserveRequest(0x10, 0x43);     // E-DRONE 드론
+            case 10:    return this.reserveRequest(0x10, 0x44);     // E-DRONE 드론
+            case 12:    return this.reserveRequest(0x10, 0x45);     // E-DRONE 드론
+            // */
+            default:    return this.reserveRequest(0x10, 0xA1);     // E-DRONE 드론
+            }
         }
         else
         {
-            // 예약된 요청이 있는 경우에도 한 번씩 데이터 요청 등록
-            switch (this.countReqeustDevice % 4)
+            /*
+            // 예약된 요청이 있는 경우에도 간헐적으로 장치 검색(연결 유지를 위해)
+            switch( this.countReqeustDevice % 24 )
             {
-                case 1:     return this.ping(0x20);
+            case 3:     return this.ping(0x10);
+            case 6:     return this.ping(0x20);
+            case 9:     return this.reserveRequest(0x10, 0x40);
+            case 12:    return this.reserveRequest(0x10, 0x42);
+            case 15:    return this.reserveRequest(0x10, 0x42);
+            case 18:    return this.reserveRequest(0x10, 0x44);
+            case 21:    return this.reserveRequest(0x10, 0x45);
+            default:    break;
+            }
+            // */
+            // 예약된 요청이 없는 경우 데이터 요청 등록(현재는 자세 데이터 요청)
+            switch (this.countReqeustDevice % 5)
+            {
+                case 1:     return this.reserveRequest(0x10, 0xA1);     // E-DRONE 드론, 자주 갱신되는 데이터 모음(엔트리)
                 default:    break;
             }
         }
     
         // 예약된 데이터 전송 처리
         let arrayTransfer = this.bufferTransfer[0];             // 전송할 데이터 배열(첫 번째 데이터 블럭 전송)
-        if (arrayTransfer[2] == 0x04)
+        if( arrayTransfer[2] == 0x04 )
         {
             this.dataTypeLastTransfered = arrayTransfer[6];     // 요청한 데이터의 타입(Request인 경우)
         }
@@ -1105,12 +1501,12 @@ class byrobot_controller_3 extends BaseModule
     
         this.crc16Transfered = (arrayTransfer[arrayTransfer.length - 1] << 8) | (arrayTransfer[arrayTransfer.length - 2]);
     
-        //if (this.countTransferRepeat > 1 && this.countTransferRepeat < 3)
+        //if( this.countTransferRepeat > 1 && this.countTransferRepeat < 3 )
         this.log("Data Transfer - Repeat(" + this.bufferTransfer.length + ") : " + this.countTransferRepeat, this.bufferTransfer[0]);
         //console.log("Data Transfer - Repeat: " + this.countTransferRepeat, this.bufferTransfer[0]);
     
         // maxTransferRepeat 이상 전송했음에도 응답이 없는 경우엔 다음으로 넘어감
-        if (this.countTransferRepeat >= this.maxTransferRepeat)
+        if( this.countTransferRepeat >= this.maxTransferRepeat)
         {
             this.bufferTransfer.shift();
             this.countTransferRepeat = 0;
@@ -1193,7 +1589,7 @@ class byrobot_controller_3 extends BaseModule
         for(let i=0; i<str.length; i++)
         {
             let charCode = str.charCodeAt(i);
-            if (charCode > 0xFF)  // char > 1 byte since charCodeAt returns the UTF-16 value
+            if( charCode > 0xFF )  // char > 1 byte since charCodeAt returns the UTF-16 value
             {
                 // throw new Error('Character ' + String.fromCharCode(charCode) + ' can\'t be represented by a US-ASCII byte.');
                 continue;
@@ -1237,7 +1633,7 @@ class byrobot_controller_3 extends BaseModule
     */
     calcCRC16(data, crc)
     {
-        if (data > 255)
+        if( data > 255 )
         {
             throw new RangeError();
         }
@@ -1258,7 +1654,7 @@ class byrobot_controller_3 extends BaseModule
         //*
         let strInfo = "";
 
-        switch (typeof data)
+        switch( typeof data )
         {
         case "object":
             {
@@ -1281,13 +1677,13 @@ class byrobot_controller_3 extends BaseModule
         let strHexArray = "";
         let strHex;
 
-        if (typeof data == "object" && data.length > 1)
+        if( typeof data == "object" && data.length > 1 )
         {
             for(let i=0; i<data.length; i++)
             {
                 strHex = data[i].toString(16).toUpperCase();
                 strHexArray += " ";
-                if (strHex.length == 1)
+                if( strHex.length == 1 )
                 {
                     strHexArray += "0";
                 }
@@ -1305,5 +1701,5 @@ class byrobot_controller_3 extends BaseModule
 }
 
 
-module.exports = new byrobot_controller_3();
+module.exports = new byrobot_drone_3();
 
