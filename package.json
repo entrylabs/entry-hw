@@ -7,7 +7,7 @@
     "scripts": {
         "lint": "eslint app",
         "clean": "rimraf dist",
-        "start": "cross-env NODE_ENV=development && electron -d app",
+        "start": "cross-env NODE_ENV=development && electron ./app/index.js",
         "debug": "cross-env NODE_ENV=development && electron -d app --inspect",
         "webpack:deploy": "cross-env DEPLOY=true webpack",
         "webpack:dev": "webpack",

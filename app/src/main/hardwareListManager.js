@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { app } = require('electron');
 const { AVAILABLE_TYPE } = require('../common/constants');
 const getModuleList = require('./network/getModuleList');
 
@@ -21,7 +22,8 @@ const platformFilter = (config) =>
 
 module.exports = class {
     constructor(router) {
-        this.moduleBasePath = path.resolve(__dirname, '..', '..', 'modules');
+        console.log(app.getAppPath());
+        this.moduleBasePath = path.join(app.getAppPath(), 'modules');
         this.allHardwareList = [];
         this.router = router;
         this._initialize();
