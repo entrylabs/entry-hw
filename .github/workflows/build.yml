@@ -19,7 +19,7 @@ jobs:
       run: |
         yarn install --ignore-scripts
         yarn webpack:deploy
-    - name: echo test
+    - name: Execute scripts
       run: |
         ./scripts/deploy.sh
       env:

@@ -11,7 +11,7 @@ git checkout -b "$targetBranchName"
 git push --delete "https://github.com/${GITHUB_REPO}" "$targetBranchName"
 
 # TODO rm all unrelated files
-git add -f app/src/main/dist/**
+git add -f app/src/main/**
 git add -f app/src/preload/**
 git add -f app/src/renderer/**
 
