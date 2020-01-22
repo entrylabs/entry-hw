@@ -198,7 +198,7 @@ class byrobot_drone_8 extends BaseModule
             _updated            : 1,
             ack_systemTime      : 0,    // u64
             ack_dataType        : 0,    // u8
-            ack_crc16           : 0     // u16
+            ack_crc16           : 0,    // u16
         };
     
         // Joystick
@@ -220,7 +220,7 @@ class byrobot_drone_8 extends BaseModule
         {
             _updated        : 1,
             button_button   : 0,    // u16
-            button_event    : 0     // u8
+            button_event    : 0,    // u8
         };
     
         // State
@@ -233,7 +233,7 @@ class byrobot_drone_8 extends BaseModule
             state_modeMovement      : 0,    // u8
             state_headless          : 0,    // u8
             state_sensorOrientation : 0,    // u8
-            state_battery           : 0     // u8
+            state_battery           : 0,    // u8
         };
 
         // Position
@@ -242,7 +242,7 @@ class byrobot_drone_8 extends BaseModule
             _updated    : 1,
             position_x  : 0,    // f32
             position_y  : 0,    // f32
-            position_z  : 0     // f32
+            position_z  : 0,    // f32
         };
     
         // Altitude
@@ -252,7 +252,7 @@ class byrobot_drone_8 extends BaseModule
             altitude_temperature    : 0,    // f32
             altitude_pressure       : 0,    // f32
             altitude_altitude       : 0,    // f32
-            altitude_rangeHeight    : 0     // f32
+            altitude_rangeHeight    : 0,    // f32
         };
     
         // Motion
@@ -267,7 +267,7 @@ class byrobot_drone_8 extends BaseModule
             motion_gyroYaw      : 0,    // s16
             motion_angleRoll    : 0,    // s16
             motion_anglePitch   : 0,    // s16
-            motion_angleYaw     : 0     // s16
+            motion_angleYaw     : 0,    // s16
         };
     
         // Range
@@ -279,7 +279,7 @@ class byrobot_drone_8 extends BaseModule
             range_right     : 0,    // s16
             range_rear      : 0,    // s16
             range_top       : 0,    // s16
-            range_bottom    : 0     // s16
+            range_bottom    : 0,    // s16
         };
 
         // InformationAssembledForEntry
@@ -353,7 +353,7 @@ class byrobot_drone_8 extends BaseModule
             this.serialport = serialport;
         }
 
-        return this.ping(0x20);
+        return this.ping(0x10);
     }
 
 
@@ -804,7 +804,7 @@ class byrobot_drone_8 extends BaseModule
 
             this.bufferTransfer.push(dataArray);
         }
-        
+
 
         // 화면 전체 지우기
         if( handler.e(this.DataType.DISPLAY_CLEAR_ALL_PIXEL) == true )
@@ -813,7 +813,7 @@ class byrobot_drone_8 extends BaseModule
 
             // Start Code
             this.addStartCode(dataArray);
-            
+
             let target                   = handler.e(this.DataType.TARGET)                    ? handler.read(this.DataType.TARGET)                     : 0xFF;
             let display_clear_all_pixel  = handler.e(this.DataType.DISPLAY_CLEAR_ALL_PIXEL)   ? handler.read(this.DataType.DISPLAY_CLEAR_ALL_PIXEL)    : 0;
 
@@ -887,7 +887,7 @@ class byrobot_drone_8 extends BaseModule
 
             // Start Code
             this.addStartCode(dataArray);
-            
+
             let target                  = handler.e(this.DataType.TARGET)                   ? handler.read(this.DataType.TARGET)                : 0xFF;
             let display_invert_x        = handler.e(this.DataType.DISPLAY_INVERT_X)         ? handler.read(this.DataType.DISPLAY_INVERT_X)      : 0;
             let display_invert_y        = handler.e(this.DataType.DISPLAY_INVERT_Y)         ? handler.read(this.DataType.DISPLAY_INVERT_Y)      : 0;
@@ -929,12 +929,12 @@ class byrobot_drone_8 extends BaseModule
 
             // Start Code
             this.addStartCode(dataArray);
-            
+
             let target                      = handler.e(this.DataType.TARGET)                   ? handler.read(this.DataType.TARGET)                    : 0xFF;
             let display_draw_point_x        = handler.e(this.DataType.DISPLAY_DRAW_POINT_X)     ? handler.read(this.DataType.DISPLAY_DRAW_POINT_X)      : 0;
             let display_draw_point_y        = handler.e(this.DataType.DISPLAY_DRAW_POINT_Y)     ? handler.read(this.DataType.DISPLAY_DRAW_POINT_Y)      : 0;
             let display_draw_point_pixel    = handler.e(this.DataType.DISPLAY_DRAW_POINT_PIXEL) ? handler.read(this.DataType.DISPLAY_DRAW_POINT_PIXEL)  : 0;
-            
+
             let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
             let dataLength = 5;                     // 데이터의 길이
 
@@ -968,7 +968,7 @@ class byrobot_drone_8 extends BaseModule
 
             // Start Code
             this.addStartCode(dataArray);
-            
+
             let target                      = handler.e(this.DataType.TARGET)                    ? handler.read(this.DataType.TARGET)                     : 0xFF;
             let display_draw_line_x1        = handler.e(this.DataType.DISPLAY_DRAW_LINE_X1)      ? handler.read(this.DataType.DISPLAY_DRAW_LINE_X1)       : 0;
             let display_draw_line_y1        = handler.e(this.DataType.DISPLAY_DRAW_LINE_Y1)      ? handler.read(this.DataType.DISPLAY_DRAW_LINE_Y1)       : 0;
@@ -976,7 +976,7 @@ class byrobot_drone_8 extends BaseModule
             let display_draw_line_y2        = handler.e(this.DataType.DISPLAY_DRAW_LINE_Y2)      ? handler.read(this.DataType.DISPLAY_DRAW_LINE_Y2)       : 0;
             let display_draw_line_pixel     = handler.e(this.DataType.DISPLAY_DRAW_LINE_PIXEL)   ? handler.read(this.DataType.DISPLAY_DRAW_LINE_PIXEL)    : 0;
             let display_draw_line_line      = handler.e(this.DataType.DISPLAY_DRAW_LINE_LINE)    ? handler.read(this.DataType.DISPLAY_DRAW_LINE_LINE)     : 0;
-            
+
             let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
             let dataLength = 10;                     // 데이터의 길이
 
