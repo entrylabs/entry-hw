@@ -35,3 +35,4 @@ build/*.zip
 .idea/
 *.build.js
 *.bundle.js
+*.map
