@@ -22,4 +22,5 @@ jobs:
     - name: echo test
       run: |
         ./scripts/deploy.sh
-
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
