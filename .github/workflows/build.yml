@@ -21,8 +21,5 @@ jobs:
         yarn webpack:deploy
     - name: echo test
       run: |
-        cd entry-hw
-        ls -al
-        cd scripts
-        ls -al
+        ./scripts/deploy.sh
 
