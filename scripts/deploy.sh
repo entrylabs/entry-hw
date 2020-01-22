@@ -11,7 +11,4 @@ targetBranchName="deploy/${GITHUB_REF##*/}"
 #git push --delete
 
 echo ${targetBranchName}
-echo ${secrets.GITHUB_TOKEN}
-echo ${GITHUB_TOKEN}
-echo ${GH_REF}
-echo ${GITHUB_REF}
+export
