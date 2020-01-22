@@ -25,7 +25,9 @@ jobs:
     steps:
       - name: echo test
         run: |
-          chmod +x ./scripts/deploy.sh
-          ./scripts/deploy.sh
+          pwd
+          ls -l
+#          chmod +x scripts/deploy.sh
+#          ./scripts/deploy.sh
 
 
