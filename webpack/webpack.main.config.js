@@ -37,7 +37,7 @@ module.exports = merge({
             if (commonjsDirectories.some((directory) => requestDirectoryPath === directory)) {
                 return callback(
                     null,
-                    `commonjs ${requestDirectoryPath}/${requestModuleName.replace('./', '')}`,
+                    `commonjs ${requestModuleName.replace('./', `./../../${path.basename(requestDirectoryPath)}/`)}`,
                 );
             }
 
