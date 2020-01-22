@@ -24,7 +24,7 @@ module.exports = merge({
                 loader: 'file-loader',
                 options: {
                     outputPath: 'resources',
-                    publicPath: `${distTargetPath}/resources`,
+                    publicPath: '../renderer/react/dist/resources',
                 },
             },
         ],
