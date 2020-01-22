@@ -21,7 +21,6 @@ const commonjsModules = [
 
 module.exports = merge({
     target: 'electron-main',
-    devtool: 'source-map',
     entry: ['babel-polyfill', path.join(mainDirectoryPath, 'mainRouter.js')],
     node: {
         __dirname: false,
