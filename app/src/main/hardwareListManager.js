@@ -22,7 +22,6 @@ const platformFilter = (config) =>
 
 module.exports = class {
     constructor(router) {
-        console.log(app.getAppPath());
         this.moduleBasePath = path.resolve(app.getAppPath(), __dirname, '..', '..', 'modules');
         this.allHardwareList = [];
         this.router = router;

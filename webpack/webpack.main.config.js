@@ -27,7 +27,7 @@ module.exports = merge({
         __dirname: false,
     },
     output: {
-        path: path.resolve(mainDirectoryPath, 'dist'),
+        path: mainDirectoryPath,
         filename: 'mainRouter.build.js',
         library: 'mainRouter',
         libraryTarget: 'umd',
