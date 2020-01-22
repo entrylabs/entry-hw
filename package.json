@@ -9,7 +9,7 @@
         "clean": "rimraf dist",
         "start": "cross-env NODE_ENV=development && electron -d app",
         "debug": "cross-env NODE_ENV=development && electron -d app --inspect",
-        "webpack:deploy": "cross-env DEPLOY=true && webpack",
+        "webpack:deploy": "cross-env DEPLOY=true webpack",
         "webpack:dev": "webpack",
         "webpack:watch": "webpack -w",
         "update:licence": "lcdoc make -o app/OPENSOURCE.md -d 1",
