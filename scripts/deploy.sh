@@ -7,6 +7,7 @@ git config user.email "entrydev@nts-corp.com"
 
 targetBranchName="dist/${GITHUB_REF##*/}"
 
+cd build-base
 git checkout -b "$targetBranchName"
 git push --delete "https://github.com/${GITHUB_REPO}" "$targetBranchName"
 

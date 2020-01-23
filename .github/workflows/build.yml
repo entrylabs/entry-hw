@@ -21,6 +21,7 @@ jobs:
         yarn webpack:deploy
     - name: Execute scripts
       run: |
+        ./scripts/build.sh
         ./scripts/deploy.sh
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
