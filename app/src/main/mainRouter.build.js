@@ -37234,7 +37234,7 @@ module.exports = require("./../../modules/xbotBT.png");
 /***/ (function(module, exports, __webpack_require__) {
 
 __webpack_require__(/*! babel-polyfill */"./node_modules/babel-polyfill/lib/index.js");
-module.exports = __webpack_require__(/*! /Users/user/entry_projects/entry-hw/app/src/main/mainRouter.js */"./app/src/main/mainRouter.js");
+module.exports = __webpack_require__(/*! /home/runner/work/entry-hw/entry-hw/app/src/main/mainRouter.js */"./app/src/main/mainRouter.js");
 
 
 /***/ }),
