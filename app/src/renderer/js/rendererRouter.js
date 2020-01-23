@@ -34,6 +34,9 @@ class RendererRouter {
 
         this._consoleWriteServerMode(initialServerMode);
 
+        ipcRenderer.removeAllListeners('hardwareListChanged');
+        ipcRenderer.removeAllListeners('hardwareCloseConfirm');
+        ipcRenderer.removeAllListeners('serverMode');
         ipcRenderer.on('hardwareListChanged', this.refreshHardwareModules.bind(this));
         ipcRenderer.on('hardwareCloseConfirm', this._confirmHardwareClose.bind(this));
         ipcRenderer.on('serverMode', (event, mode) => {
@@ -128,7 +131,7 @@ class RendererRouter {
 
         if (appName === 'hardware' && navigator.onLine) {
             ipcRenderer.send('checkUpdate');
-            ipcRenderer.on(
+            ipcRenderer.once(
                 'checkUpdateResult',
                 (e, { hasNewVersion, version: latestVersion } = {}) => {
                     const lastDontCheckedVersion = localStorage.getItem('lastDontCheckedVersion');
