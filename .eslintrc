@@ -63,7 +63,7 @@
         "space-in-parens": ["warn", "never"],
         "array-bracket-spacing": ["warn", "never"],
         "object-curly-spacing": ["warn", "always"],
-        "max-len": ["warn", { "code": 100 }],
+        "max-len": ["warn", { "code": 120 }],
         "comma-style": ["warn", "last"],
         "comma-dangle": ["warn", "always-multiline"],
         "semi": ["warn"],
