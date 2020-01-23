@@ -27,6 +27,7 @@ jobs:
         ./scripts/deploy.sh
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
     - name: Execute deploy.sh
       run: |
         chmod +x ./scripts/deploy.sh
