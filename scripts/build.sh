@@ -3,10 +3,13 @@
 git config user.name "Entry Dev"
 git config user.email "entrydev@nts-corp.com"
 
-git clone -b build-base "https://github.com/${GITHUB_REPO}" build-base
+echo 'Clone BuildBase..'
+git clone -b build-base "https://${GITHUB_TOKEN}@github.com/${GITHUB_REPO}" build-base
 
+echo 'Clean BuildBase..'
 rm -rf build-base/**/*
 
+echo 'Copy from projects..'
 rsync -rR app/drivers build-base
 rsync -rR app/firmwares build-base
 rsync -rR app/modules build-base
