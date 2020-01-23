@@ -23,13 +23,14 @@ jobs:
       run: |
         chmod +x ./scripts/build.sh
         ./scripts/build.sh
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
     - name: Execute deploy.sh
       run: |
         chmod +x ./scripts/deploy.sh
         ./scripts/deploy.sh
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+    - name: Push Changes in build-base
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        force: true
+        directory: ./build-base
+        branch: dist/test

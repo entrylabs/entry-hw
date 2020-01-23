@@ -4,7 +4,7 @@ git config --global user.name "Entry Dev";
 git config --global user.email "entrydev@nts-corp.com";
 
 echo 'Clone BuildBase..'
-git clone -b build-base "https://${ACCESS_TOKEN}@github.com/entrylabs/entry-hw" build-base;
+git clone -b build-base "https://github.com/entrylabs/entry-hw" build-base;
 
 echo 'Clean BuildBase..'
 rm -rf build-base/**/*;

@@ -2,6 +2,9 @@
 
 rm .gitignore
 
+git config --local user.email "entrydev@nts-corp.com"
+git config --local user.name "Entry Dev"
+
 targetBranchName="dist/${GITHUB_REF##*/}"
 
 echo "into build-base directory"
@@ -14,4 +17,3 @@ echo "forceful add files to git"
 git add -f .
 
 git commit -m "Entry-HW for electron embed into $targetBranchName"
-git push --force --quiet "https://github.com/entrylabs/entry-hw" "$targetBranchName"
