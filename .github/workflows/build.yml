@@ -22,9 +22,7 @@ jobs:
     - name: Execute build.sh
       run: |
         chmod +x ./scripts/build.sh
-        chmod +x ./scripts/deploy.sh
         ./scripts/build.sh
-        ./scripts/deploy.sh
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
@@ -32,3 +30,6 @@ jobs:
       run: |
         chmod +x ./scripts/deploy.sh
         ./scripts/deploy.sh
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
