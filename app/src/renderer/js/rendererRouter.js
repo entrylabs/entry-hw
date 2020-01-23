@@ -122,6 +122,8 @@ class RendererRouter {
         const { appName } = this.sharedObject;
         const { translator, Modal } = window;
         const translate = (str) => translator.translate(str);
+
+        // eslint-disable-next-line new-cap
         const modal = new Modal.default();
 
         if (appName === 'hardware' && navigator.onLine) {
