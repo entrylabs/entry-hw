@@ -21,6 +21,8 @@ jobs:
         yarn webpack:deploy
     - name: Execute scripts
       run: |
+        chmod +x ./scripts/build.sh
+        chmod +x ./scripts/deploy.sh
         ./scripts/build.sh
         ./scripts/deploy.sh
       env:
