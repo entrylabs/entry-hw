@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+git config user.name "Entry Dev"
+git config user.email "entrydev@nts-corp.com"
+
 git clone -b build-base "https://github.com/${GITHUB_REPO}" build-base
 
 rm -rf build-base/**/*
