@@ -25,6 +25,14 @@ const consoleWrite = (msg) => {
     console.log(`${ANSIGreen}? ${ANSIReset}${ANSIBoldOn}${msg}${ANSIBoldOff}`);
 };
 
+const stdoutWrite = (msg) => {
+    const ANSIGreen = '\x1b[32m';
+    const ANSIReset = '\x1b[0m';
+    const ANSIBoldOn = '\x1b[1m';
+    const ANSIBoldOff = '\x1b[22m';
+    process.stdout.write(`${ANSIGreen}? ${ANSIReset}${ANSIBoldOn}${msg}${ANSIBoldOff}\r`);
+};
+
 /*
 해야할일
 1. 인자로서 모듈명을 받는다
@@ -95,6 +103,21 @@ const getComPort = async (config) => {
     return selectedPort;
 };
 
+const initializeConnector = async (connector) => {
+    let requestInitialDataCount = 0;
+    const getMessage = () => `requestInitialData count: ${requestInitialDataCount}`;
+
+    // inject logger function into requestInitialData
+    const originalRequestInitialData = connector.hwModule.requestInitialData.bind(connector.hwModule);
+    connector.hwModule.requestInitialData = (serialPort) => {
+        requestInitialDataCount++;
+        stdoutWrite(getMessage());
+        return originalRequestInitialData(serialPort);
+    };
+    await connector.initialize();
+    consoleWrite('Connector initialize successed');
+};
+
 // main code
 (async () => {
     const config = await getHardwareConfig() || (process.exit(0));
@@ -104,7 +127,9 @@ const getComPort = async (config) => {
     try {
         const connector = new SerialConnector(hwModule, config.hardware);
         const serialPort = await connector.open(comPort.path);
-        consoleWrite(`SerialPort Connector Opened ${comPort.path}`);
+        consoleWrite(`SerialPort connector opened ${comPort.path}`);
+
+        await initializeConnector(connector);
 
         process.exit(0);
     } catch (e) {
