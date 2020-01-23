@@ -17,6 +17,14 @@ const printError = (e, msg) => {
     console.error(msg);
 };
 
+const consoleWrite = (msg) => {
+    const ANSIGreen = '\x1b[32m';
+    const ANSIReset = '\x1b[0m';
+    const ANSIBoldOn = '\x1b[1m';
+    const ANSIBoldOff = '\x1b[22m';
+    console.log(`${ANSIGreen}? ${ANSIReset}${ANSIBoldOn}${msg}${ANSIBoldOff}`);
+};
+
 /*
 해야할일
 1. 인자로서 모듈명을 받는다
@@ -70,13 +78,13 @@ const getComPort = async (config) => {
 
         const { question: answer } = await inquirer.prompt([{
             type: 'list',
-            name: 'question', // key
+            name: 'question',
             message,
             choices: [
                 ...portList.map((port) => port.path),
                 new inquirer.Separator(),
                 'rescan',
-            ], // value
+            ],
         }]);
 
         if (answer !== 'rescan') {
@@ -93,6 +101,13 @@ const getComPort = async (config) => {
     const hwModule = getHardwareModule(config) || (process.exit(0));
     const comPort = await getComPort(config) || (process.exit(0));
 
-    console.log(config);
-    // const selectedPort = await getComPort();
+    try {
+        const connector = new SerialConnector(hwModule, config.hardware);
+        const serialPort = await connector.open(comPort.path);
+        consoleWrite(`SerialPort Connector Opened ${comPort.path}`);
+
+        process.exit(0);
+    } catch (e) {
+        printError(e, 'serial connector throw error');
+    }
 })();
