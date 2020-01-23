@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
-git config user.name "Entry Dev"
-git config user.email "entrydev@nts-corp.com"
+git config --global user.name "Entry Dev"
+git config --global user.email "entrydev@nts-corp.com"
 
 echo 'Clone BuildBase..'
-git clone -b build-base "https://${GITHUB_TOKEN}@github.com/${GITHUB_REPO}" build-base
+git clone -b build-base "https://${GITHUB_TOKEN}@github.com/entrylabs/entry-hw" build-base
 
 echo 'Clean BuildBase..'
 rm -rf build-base/**/*

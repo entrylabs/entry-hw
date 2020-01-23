@@ -19,7 +19,7 @@ jobs:
       run: |
         yarn install --ignore-scripts
         yarn webpack:deploy
-    - name: Execute scripts
+    - name: Execute build.sh
       run: |
         chmod +x ./scripts/build.sh
         chmod +x ./scripts/deploy.sh
@@ -27,4 +27,7 @@ jobs:
         ./scripts/deploy.sh
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        GITHUB_REPO: ${{ github.repository }}
+    - name: Execute deploy.sh
+      run: |
+        chmod +x ./scripts/deploy.sh
+        ./scripts/deploy.sh
