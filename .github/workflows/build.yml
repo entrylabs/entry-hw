@@ -27,10 +27,14 @@ jobs:
       run: |
         chmod +x ./scripts/deploy.sh
         ./scripts/deploy.sh
+    - name: Define branch name
+      id: target_branch
+      shell: bash
+      run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF##*/})"
     - name: Push Changes in build-base
       uses: ad-m/github-push-action@master
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         force: true
         directory: ./build-base
-        branch: dist/test
+        branch: dist/${{ steps.target_branch.outputs.branch }}
