@@ -7,6 +7,21 @@ const serialport = require('serialport');
 const SerialScanner = require('../app/src/main/serial/scanner');
 const SerialConnector = require('../app/src/main/serial/connector');
 
+const dummyRouter = {
+    setHandlerData: () => {},
+    sendEncodedDataToServer: () => {},
+    sendState: (state) => {
+        consoleWrite(`router ${state} called`);
+
+        if (state === 'connected') {
+            consoleWrite('connection test completed. test will be close after 3 second.');
+            setTimeout(() => {
+                process.exit(0);
+            }, 3000);
+        }
+    },
+};
+
 const modulesDirPath = path.join(__dirname, '..', 'app', 'modules');
 const isDebugMode = process.argv.some((arg) => arg === '--verbose');
 
@@ -31,6 +46,17 @@ const stdoutWrite = (msg) => {
     const ANSIBoldOn = '\x1b[1m';
     const ANSIBoldOff = '\x1b[22m';
     process.stdout.write(`${ANSIGreen}? ${ANSIReset}${ANSIBoldOn}${msg}${ANSIBoldOff}\r`);
+};
+
+const resetableStdoutWrite = (clear, multiLineMessage) => {
+    clear && process.stdout.clearScreenDown();
+    multiLineMessage.forEach((msg) => {
+        process.stdout.write(msg);
+        process.stdout.write('\n');
+    });
+    process.stdout.moveCursor(0, -1 * multiLineMessage.length);
+    process.stdout.cursorTo(0);
+    process.stdout.clearScreenDown();
 };
 
 /*
@@ -115,7 +141,7 @@ const initializeConnector = async (connector) => {
         return originalRequestInitialData(serialPort);
     };
     await connector.initialize();
-    consoleWrite('Connector initialize successed');
+    consoleWrite('Connector initialize success');
 };
 
 // main code
@@ -127,12 +153,18 @@ const initializeConnector = async (connector) => {
     try {
         const connector = new SerialConnector(hwModule, config.hardware);
         const serialPort = await connector.open(comPort.path);
+        connector.setRouter(dummyRouter);
         consoleWrite(`SerialPort connector opened ${comPort.path}`);
 
         await initializeConnector(connector);
 
-        process.exit(0);
+        // mainRouter._connect()
+        if (connector.executeFlash) {
+            consoleWrite('Entry hardware will be execute Flash (from firmwarecheck property)');
+        }
+        connector.connect();
     } catch (e) {
         printError(e, 'serial connector throw error');
+        process.exit(-1);
     }
 })();
