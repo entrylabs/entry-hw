@@ -1,5 +1,5 @@
 import React from 'react';
-import { CloudModeTypesEnum, HardwareConnectionStatusEnum, HardwarePageStateEnum } from '../constants/constants';
+import {CloudModeTypesEnum, HardwareConnectionStatusEnum, HardwarePageStateEnum} from '../constants/constants';
 import {
     changeAlertMessage,
     changeCloudMode,
@@ -7,9 +7,9 @@ import {
     changeStateTitle,
     IAlertMessage,
 } from '../store/modules/common';
-import { changePortList } from '../store/modules/connection';
-import { connect } from 'react-redux';
-import { IMapDispatchToProps, IMapStateToProps } from '../store';
+import {changePortList} from '../store/modules/connection';
+import {connect} from 'react-redux';
+import {IMapDispatchToProps, IMapStateToProps} from '../store';
 
 const { translator, ipcRenderer } = window;
 
@@ -18,6 +18,11 @@ type IProps = IStateProps & IDispatchProps;
 class IpcRendererWatchComponent extends React.PureComponent<IProps> {
     constructor(props: Readonly<IProps>) {
         super(props);
+
+        ipcRenderer.removeAllListeners('console');
+        ipcRenderer.removeAllListeners('state');
+        ipcRenderer.removeAllListeners('portListScanned');
+        ipcRenderer.removeAllListeners('cloudMode');
 
         ipcRenderer.on('console', (event: Electron.Event, ...args: any[]) => {
             console.log(...args);

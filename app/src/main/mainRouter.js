@@ -43,57 +43,8 @@ class MainRouter {
         entryServer.setRouter(this);
         this.server.open();
 
-        ipcMain.on('startScan', async (e, config) => {
-            try {
-                const { hardware: { type = '' } = {} } = config || {};
-                this.scanner = this.scannerManager.getScanner(type);
-                await this.startScan(config);
-            } catch (e) {
-                rendererConsole.error('startScan err : ', e);
-            }
-        });
-        ipcMain.on('selectPort', (e, portName) => {
-            this.selectedPort = portName;
-        });
-        ipcMain.on('stopScan', () => {
-            this.stopScan();
-        });
-        ipcMain.on('close', () => {
-            this.close();
-        });
-        ipcMain.on('requestFlash', (e, firmwareName) => {
-            this.flashFirmware(firmwareName)
-                .then((firmware) => {
-                    if (!e.sender.isDestroyed()) {
-                        e.sender.send('requestFlash');
-                    }
-                    return firmware;
-                })
-                .catch((err) => {
-                    if (!e.sender.isDestroyed()) {
-                        e.sender.send('requestFlash', err);
-                    }
-                })
-                .then(async (firmware) => {
-                    this.flasher.kill();
-                    if (firmware && firmware.afterDelay) {
-                        await new Promise((resolve) => setTimeout(resolve, firmware.afterDelay));
-                    }
-                    await this.startScan(this.config);
-                });
-        });
-        ipcMain.on('executeDriver', (e, driverPath) => {
-            this.executeDriver(driverPath);
-        });
-        ipcMain.on('getCurrentServerModeSync', (e) => {
-            e.returnValue = this.currentServerRunningMode;
-        });
-        ipcMain.on('getCurrentCloudModeSync', (e) => {
-            e.returnValue = this.currentCloudMode;
-        });
-        ipcMain.on('requestHardwareListSync', (e) => {
-            e.returnValue = this.hardwareListManager.allHardwareList;
-        });
+        this._resetIpcEvents();
+        this._registerIpcEvents();
     }
 
     /**
@@ -414,6 +365,72 @@ class MainRouter {
         }
 
         shell.openItem(path.resolve(sourcePath, driverPath));
+    }
+
+    _registerIpcEvents() {
+        ipcMain.on('startScan', async (e, config) => {
+            try {
+                const { hardware: { type = '' } = {} } = config || {};
+                this.scanner = this.scannerManager.getScanner(type);
+                await this.startScan(config);
+            } catch (e) {
+                rendererConsole.error('startScan err : ', e);
+            }
+        });
+        ipcMain.on('selectPort', (e, portName) => {
+            this.selectedPort = portName;
+        });
+        ipcMain.on('stopScan', () => {
+            this.stopScan();
+        });
+        ipcMain.on('close', () => {
+            this.close();
+        });
+        ipcMain.on('requestFlash', (e, firmwareName) => {
+            this.flashFirmware(firmwareName)
+                .then((firmware) => {
+                    if (!e.sender.isDestroyed()) {
+                        e.sender.send('requestFlash');
+                    }
+                    return firmware;
+                })
+                .catch((err) => {
+                    if (!e.sender.isDestroyed()) {
+                        e.sender.send('requestFlash', err);
+                    }
+                })
+                .then(async (firmware) => {
+                    this.flasher.kill();
+                    if (firmware && firmware.afterDelay) {
+                        await new Promise((resolve) => setTimeout(resolve, firmware.afterDelay));
+                    }
+                    await this.startScan(this.config);
+                });
+        });
+        ipcMain.on('executeDriver', (e, driverPath) => {
+            this.executeDriver(driverPath);
+        });
+        ipcMain.on('getCurrentServerModeSync', (e) => {
+            e.returnValue = this.currentServerRunningMode;
+        });
+        ipcMain.on('getCurrentCloudModeSync', (e) => {
+            e.returnValue = this.currentCloudMode;
+        });
+        ipcMain.on('requestHardwareListSync', (e) => {
+            e.returnValue = this.hardwareListManager.allHardwareList;
+        });
+    }
+
+    _resetIpcEvents() {
+        ipcMain.removeAllListeners('startScan');
+        ipcMain.removeAllListeners('selectPort');
+        ipcMain.removeAllListeners('stopScan');
+        ipcMain.removeAllListeners('close');
+        ipcMain.removeAllListeners('requestFlash');
+        ipcMain.removeAllListeners('executeDriver');
+        ipcMain.removeAllListeners('getCurrentServerModeSync');
+        ipcMain.removeAllListeners('getCurrentCloudModeSync');
+        ipcMain.removeAllListeners('requestHardwareListSync');
     }
 }
 

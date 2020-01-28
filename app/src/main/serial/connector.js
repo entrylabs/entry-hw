@@ -355,11 +355,11 @@ class SerialConnector extends BaseConnector {
             !this.isSending
         ) {
             this.isSending = true;
-
+            let resultData = data;
             if (this.options.stream === 'string') {
-                data = Buffer.from(data, 'utf8');
+                resultData = Buffer.from(data, 'utf8');
             }
-            this.serialPort.write(data, () => {
+            this.serialPort.write(resultData, () => {
                 if (this.serialPort) {
                     this.serialPort.drain(() => {
                         this.received = true;
