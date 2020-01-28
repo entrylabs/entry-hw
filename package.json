@@ -12,7 +12,7 @@
         "webpack:deploy": "cross-env DEPLOY=true webpack",
         "webpack:watch": "cross-env NODE_ENV=development webpack -w",
         "update:licence": "lcdoc make -o app/OPENSOURCE.md -d 1",
-        "test": "node --no-warnings ./test",
+        "test": "node --no-warnings ./cli",
         "dist:win32": "npm run webpack:prod && electron-builder --win --ia32",
         "dist:mac:notarize": "npm run webpack:prod && cross-env NOTARIZE=true CSC_NAME=\"Connect Foundation (DLFUSDA3L5)\" electron-builder",
         "dist:mac": "npm run webpack:prod && cross-env NOTARIZE=false CSC_NAME=\"Connect Foundation (DLFUSDA3L5)\" electron-builder",
