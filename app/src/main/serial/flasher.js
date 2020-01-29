@@ -16,7 +16,7 @@ class Flasher {
         if (asarIndex > -1) {
             return path.join(app.getAppPath(), '..', 'firmwares');
         } else {
-            return path.resolve(__dirname, '..', '..', '..', 'firmwares');
+            return path.resolve(app.getAppPath(), __dirname, '..', '..', 'firmwares');
         }
     }
 

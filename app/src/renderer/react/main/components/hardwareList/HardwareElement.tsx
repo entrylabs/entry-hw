@@ -1,10 +1,10 @@
-import React, { useCallback, useMemo } from 'react';
+import React, {useCallback, useMemo} from 'react';
 import withPreload from '../../hoc/withPreload';
-import { connect } from 'react-redux';
-import { IMapDispatchToProps } from '../../store';
-import { changeCurrentPageState } from '../../store/modules/common';
-import { HardwarePageStateEnum } from '../../constants/constants';
-import { selectHardware } from '../../store/modules/connection';
+import {connect} from 'react-redux';
+import {IMapDispatchToProps} from '../../store';
+import {changeCurrentPageState} from '../../store/modules/common';
+import {HardwarePageStateEnum} from '../../constants/constants';
+import {selectHardware} from '../../store/modules/connection';
 import styled from 'styled-components';
 
 const HardwareTypeDiv = styled.div`
@@ -48,7 +48,7 @@ const HardwareElement: React.FC<Preload & IDispatchProps & { hardware: any }> = 
     return (
         <HardwareTypeDiv id={`${hardware.id}`} onClick={onElementClick}>
             <HardwareThumbnailContainer>
-                <HardwareThumbnailImg src={`../../../modules/${hardware.icon}`} alt=""/>
+                <HardwareThumbnailImg src={`../../modules/${hardware.icon}`} alt=""/>
             </HardwareThumbnailContainer>
             <HardwareTitle>
                 {`${hardware.name && hardware.name[langType] || hardware.name.en}`}
@@ -58,7 +58,7 @@ const HardwareElement: React.FC<Preload & IDispatchProps & { hardware: any }> = 
 };
 
 interface IDispatchProps {
-    selectHardware: (hardware: IHardware) => void;
+    selectHardware: (hardware: IHardwareConfig) => void;
     changeCurrentState: (category: HardwarePageStateEnum) => void;
 }
 

@@ -1,6 +1,6 @@
 const fs = require('fs');
-const { app } = require('electron');
 const path = require('path');
+const { app } = require('electron');
 const { AVAILABLE_TYPE } = require('../common/constants');
 const getModuleList = require('./network/getModuleList');
 

@@ -1,9 +1,10 @@
-import { createGlobalStyle } from 'styled-components';
+import {createGlobalStyle} from 'styled-components';
+import NanumGothicFont from '../../fonts/NanumGothic.woff';
 
 const GlobalStyle = createGlobalStyle`
     @font-face {
         font-family: NanumGothic;
-        src: url('../fonts/NanumGothic.woff');
+        src: url(${NanumGothicFont});
     }
     
     .darwin ::-webkit-scrollbar {

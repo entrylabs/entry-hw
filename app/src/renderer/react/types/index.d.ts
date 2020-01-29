@@ -6,7 +6,7 @@ declare type IFirmwareInfo =
     | [{ name: string; translate: string }]
     | { afterDelay: number, name: string; type: string }
 
-declare interface IHardware {
+declare interface IHardwareConfig {
     category: 'board' | 'robot' | 'module';
     entry: { protocol: 'json' };
     id: string;
@@ -34,4 +34,14 @@ declare interface ISerialPortScanData {
     locationId?: string;
     vendorId?: string;
     productId?: string;
+}
+
+declare module '*.png' {
+    const value: string;
+    export default value;
+}
+
+declare module '*.woff' {
+    const value: string;
+    export default value;
 }

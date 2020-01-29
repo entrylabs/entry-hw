@@ -33,3 +33,6 @@ app/node_modules/
 build/*.zip
 .DS_Store
 .idea/
+*.build.js
+*.bundle.js
+*.map

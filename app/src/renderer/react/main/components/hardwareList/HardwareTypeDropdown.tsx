@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import Styled from 'styled-components';
-import { IMapDispatchToProps, IMapStateToProps } from '../../store';
-import { changeHardwareCategory } from '../../store/modules/hardware';
-import { connect } from 'react-redux';
-import { CategoryTypeEnum } from '../../constants/constants';
+import {IMapDispatchToProps, IMapStateToProps} from '../../store';
+import {changeHardwareCategory} from '../../store/modules/hardware';
+import {connect} from 'react-redux';
+import {CategoryTypeEnum} from '../../constants/constants';
+import ArrowUpImage from '../../../../images/arrow_up.png';
+import ArrowDownImage from '../../../../images/arrow_down.png';
 
 const DropdownContainer = Styled.ul`
     float: right;
@@ -25,7 +27,7 @@ const DropdownContent = Styled.li`
         border-bottom: 1px #4c94f8 solid;
         &.open {
             .arrow {
-                background-image: url('../images/arrow_up.png');
+                background-image: url(${ArrowUpImage});
             }
         }
         .arrow {
@@ -34,7 +36,7 @@ const DropdownContent = Styled.li`
             float: right;
             margin: -1px;
             border-left: 1px #4c94f8 solid;
-            background-image: url('../images/arrow_down.png');
+            background-image: url(${ArrowDownImage});
             background-repeat: no-repeat;
             background-position: center;
         }
@@ -53,6 +55,7 @@ const ContentSpan = Styled.span`
     font-weight: bold;
     color: #4c94f8;
     line-height: 28px;
+    cursor: inherit;
 `;
 
 const HardwareCategoryEntries: { [key in keyof typeof CategoryTypeEnum]: string } = {

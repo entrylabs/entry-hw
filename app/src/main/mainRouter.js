@@ -361,7 +361,7 @@ class MainRouter {
         if (asarIndex > -1) {
             sourcePath = path.join(app.getAppPath(), '..', 'drivers');
         } else {
-            sourcePath = path.resolve(__dirname, '..', '..', 'drivers');
+            sourcePath = path.resolve(app.getAppPath(), __dirname, '..', '..', 'drivers');
         }
 
         shell.openItem(path.resolve(sourcePath, driverPath));

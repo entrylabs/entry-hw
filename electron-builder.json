@@ -60,14 +60,17 @@
         ]
     },
     "files": [
-        "app",
-        "!test",
-        "!app/src/renderer/react/**",
-        "!app/firmwares/**/*",
-        "!app/drivers/**/*",
-        "!app/server",
-        "!app/test.html",
-        "app/src/renderer/react/dist"
+        "app/modules",
+        "app/src/main",
+        "app/src/common",
+        "app/src/preload/lang",
+        "app/src/preload/preload.bundle.js",
+        "app/src/renderer/modal",
+        "app/src/renderer/react/dist",
+        "app/src/views",
+        "app/index.js",
+        "app/OPENSOURCE.md",
+        "package.json"
     ],
     "asar": true,
     "compression": "maximum",
