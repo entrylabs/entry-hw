@@ -1,15 +1,15 @@
-import React, { useEffect } from 'react';
+import React, {useEffect} from 'react';
 import HardwareConnectionContainer from './hardwareConnection/HardwareConnectionContainer';
 import LicenseViewerContainer from './hardwareList/opensourceLicenseViewer/LicenseViewerContainer';
 import ErrorAlert from './hardwareList/ErrorAlert';
 import SelectPortContainer from './hardwareConnection/SelectPortContainer';
 import HardwareListContainer from './hardwareList/HardwareListContainer';
-import { connect } from 'react-redux';
-import { HardwarePageStateEnum } from '../constants/constants';
-import { IMapDispatchToProps, IMapStateToProps } from '../store';
+import {connect} from 'react-redux';
+import {HardwarePageStateEnum} from '../constants/constants';
+import {IMapDispatchToProps, IMapStateToProps} from '../store';
 import AlertTab from './common/AlertTab';
-import { IAlertMessage } from '../store/modules/common';
-import { changeVisiblePortList } from '../store/modules/connection';
+import {IAlertMessage} from '../store/modules/common';
+import {changeVisiblePortList} from '../store/modules/connection';
 
 const Main: React.FC<IStateProps & IDispatchProps> = (props) => {
     const {
@@ -22,7 +22,6 @@ const Main: React.FC<IStateProps & IDispatchProps> = (props) => {
         }
     }, [currentState]);
 
-    console.log(isNeedPortSelect && !isPortSelectCanceled);
     return (
         <>
             {currentState === HardwarePageStateEnum.list && (
