@@ -7,12 +7,12 @@ global.$ = require('lodash');
 
 // classes
 const EntryServer = require('./src/main/serverProcessManager');
-const MainRouter = require('./src/main/mainRouter');
+const MainRouter = require('./src/main/mainRouter.build');
 const WindowManager = require('./src/main/utils/windowManager');
 const CommonUtils = require('./src/main/utils/commonUtils');
 
 // functions
-const parseCommaneLine = require('./src/main/utils/functions/parseCommandLine');
+const parseCommandLine = require('./src/main/utils/functions/parseCommandLine');
 const configInit = require('./src/main/utils/functions/configInitialize');
 const registerGlobalShortcut = require('./src/main/utils/functions/registerGlobalShortcut');
 const checkUpdate = require('./src/main/network/checkUpdate');
@@ -22,7 +22,7 @@ let mainRouter = null;
 let entryServer = null;
 
 const argv = process.argv.slice(1);
-const commandLineOptions = parseCommaneLine(argv);
+const commandLineOptions = parseCommandLine(argv);
 const configuration = configInit(commandLineOptions.config);
 const { roomIds = [], hardwareVersion } = configuration;
 if (argv.indexOf('entryhw:')) {

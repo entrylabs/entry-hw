@@ -11,7 +11,6 @@
         "create": "node ./cli/createJson.js",
         "webpack:dev": "cross-env NODE_ENV=development webpack",
         "webpack:prod": "cross-env NODE_ENV=production webpack",
-        "webpack:deploy": "cross-env DEPLOY=true webpack",
         "webpack:watch": "cross-env NODE_ENV=development webpack -w",
         "update:licence": "lcdoc make -o app/OPENSOURCE.md -d 1",
         "dist:win32": "npm run webpack:prod && electron-builder --win --ia32",

@@ -2,7 +2,7 @@
 # shell cwd must be project's root
 
 yarn install
-yarn webpack:deploy
+yarn webpack:prod
 
 export GITHUB_REF=build/dummy
 ./scripts/build.sh

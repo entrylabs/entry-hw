@@ -18,7 +18,7 @@ jobs:
     - name: Yarn install, webpacking
       run: |
         yarn install --ignore-scripts
-        yarn webpack:deploy
+        yarn webpack:prod
     - name: Execute build.sh
       run: |
         chmod +x ./scripts/build.sh
