@@ -82,7 +82,6 @@ class MainRouter {
             this.sendState('flash');
             const firmware = firmwareName;
             const {
-                firmware: firmwareInConfig,
                 firmwareBaudRate: baudRate,
                 firmwareMCUType: MCUType,
                 tryFlasherNumber: maxFlashTryCount = 10,

@@ -1,7 +1,8 @@
-const { app, dialog } = require('electron');
-const exec = require('child_process').exec;
-const path = require('path');
-const Utils = require('../fileUtils');
+import { app, dialog } from 'electron';
+import { ChildProcess, exec } from 'child_process';
+import path from 'path';
+import Utils from '../fileUtils';
+
 const platform = process.platform;
 
 /**
@@ -11,6 +12,8 @@ const platform = process.platform;
  *
  */
 class Flasher {
+    public flasherProcess?: ChildProcess;
+
     static get firmwareDirectoryPath() {
         const asarIndex = app.getAppPath().indexOf(`${path.sep}app.asar`);
         if (asarIndex > -1) {
@@ -20,7 +23,7 @@ class Flasher {
         }
     }
 
-    _flashArduino(firmware, port, options) {
+    _flashArduino(firmware: IFirmwareInfo, port: string, options: { baudRate?: string; MCUType?: string; }) {
         return new Promise((resolve) => {
             const appPath = Flasher.firmwareDirectoryPath;
             const baudRate = options.baudRate || '115200';
@@ -68,7 +71,7 @@ class Flasher {
         });
     }
 
-    _flashCopy(firmware) {
+    _flashCopy(firmware: ICopyTypeFirmware) {
         return new Promise((resolve, reject) => {
             const firmwareDirectory = Flasher.firmwareDirectoryPath;
             const destPath = dialog.showOpenDialogSync({
@@ -88,11 +91,11 @@ class Flasher {
         });
     }
 
-    flash(firmware, port, options) {
-        if (typeof firmware === 'string' || firmware.type === 'arduino') {
+    flash(firmware: IFirmwareInfo, port: string, options: { baudRate?: string; MCUType?: string; }) {
+        if (typeof firmware === 'string') {
             return this._flashArduino(firmware, port, options);
-        } else if (firmware.type === 'copy') {
-            return this._flashCopy(firmware);
+        } else if ((firmware as ICopyTypeFirmware).type === 'copy') {
+            return this._flashCopy(firmware as ICopyTypeFirmware);
         } else {
             return Promise.reject(new Error());
         }
@@ -106,4 +109,4 @@ class Flasher {
     }
 }
 
-module.exports = Flasher;
+export default Flasher;
