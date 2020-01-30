@@ -1,33 +1,36 @@
 import { BrowserWindow, WebContents } from 'electron';
 
-module.exports = class {
+class RendererConsole {
     static sender: WebContents;
 
     static initialize(rendererWindow: BrowserWindow) {
         this.sender = rendererWindow.webContents;
     }
 
-    static log(contents: string, ...args: string[]) {
+    static log(contents: any, ...args: any[]) {
         if (!this.sender.isDestroyed()) {
             this.sender.send('console', contents, ...args);
         }
     }
 
-    static info(contents: string) {
+    static info(contents: any) {
         if (!this.sender.isDestroyed()) {
             this.sender.send('console', `%c${contents}`, 'color: dodgerblue');
         }
     }
 
-    static warn(contents: string) {
+    static warn(contents: any) {
         if (!this.sender.isDestroyed()) {
             this.sender.send('console', `%c${contents}`, 'color: orange');
         }
     }
 
-    static error<T extends Error = Error>(contents: string, error: T) {
+    static error<T extends Error = Error>(contents: any, error: T) {
         if (!this.sender.isDestroyed()) {
             this.sender.send('console', `%c${contents}`, 'color: red', error);
         }
     }
-};
+}
+
+export default RendererConsole;
+module.exports = RendererConsole;

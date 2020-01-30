@@ -1,8 +1,8 @@
-const _ = require('lodash');
-const rendererConsole = require('../rendererConsole');
-const SerialPort = require('@serialport/stream');
-const electPort = require('./electPortFunction');
-const { CLOUD_MODE_TYPES: CloudModeTypes } = require('../../../common/constants');
+import _ from 'lodash';
+import rendererConsole from '../rendererConsole';
+import SerialPort from 'serialport';
+import electPort from './electPortFunction';
+import { CLOUD_MODE_TYPES as CloudModeTypes } from '../../../common/constants';
 
 /**
  * 전체 포트를 검색한다.
@@ -12,27 +12,32 @@ const { CLOUD_MODE_TYPES: CloudModeTypes } = require('../../../common/constants'
  * 결과의 송수신은 router 에 만들어진 함수로 보낸다.
  */
 class SerialScanner {
+    private router: any;
+    private isScanning = false;
+    private hwModule?: IHardwareModule;
+    private config?: IHardwareConfig;
+
     static get SCAN_INTERVAL_MILLS() {
         return 1500;
     }
 
-    constructor(router) {
+    constructor(router: any) {
         this.router = router;
-        this.isScanning = false;
     }
 
-    async startScan(hwModule, config) {
+    public async startScan(hwModule: IHardwareModule, config: IHardwareConfig) {
         this.stopScan();
-        this.setConfig(config);
+        this.config = config;
         this.hwModule = hwModule;
         return await this.intervalScan();
     };
 
-    setConfig(config) {
-        this.config = config;
-    }
+    public stopScan() {
+        this.config = undefined;
+        this.isScanning = false;
+    };
 
-    async intervalScan() {
+    private async intervalScan() {
         this.isScanning = true;
         let scanResult = undefined;
         while (this.isScanning) {
@@ -46,9 +51,9 @@ class SerialScanner {
         return scanResult;
     }
 
-    async scan() {
-        if (!this.config) {
-            console.warn('config is not present');
+    private async scan() {
+        if (!this.config || !this.hwModule) {
+            console.warn('config or hwModule is not present');
             return;
         }
 
@@ -59,7 +64,7 @@ class SerialScanner {
         const { type } = hardware;
 
         // win, mac 플랫폼에 맞춰 COMPort 확인창 필요한지 설정
-        if (needCOMPortSelect && _.isPlainObject(needCOMPortSelect)) {
+        if (needCOMPortSelect && typeof needCOMPortSelect !== 'boolean') {
             needCOMPortSelect = needCOMPortSelect[process.platform];
         }
 
@@ -97,8 +102,8 @@ class SerialScanner {
         }
 
         const electedConnector = await electPort(selectedPorts, hardware, this.hwModule,
-            ({ connector }) => {
-                if (this.config.firmware) {
+            ({ connector }: { connector: any }) => {
+                if (this.config && this.config.firmware) {
                     /*
                     펌웨어가 없는 상태에서 통신이 이루어지지 않는 경우,
                     before_connect 로 임시 연결됨 상태로 만들어서 펌웨어 버튼은 동작할 수 있게끔
@@ -118,16 +123,18 @@ class SerialScanner {
         }
     };
 
-    _selectCOMPortUsingProperties(hardwareConfig, comPort) {
+    private _selectCOMPortUsingProperties(hardwareConfig: IHardwareConfig, comPort: SerialPort.PortInfo) {
         const { vendor, pnpId: verifiedPnpId, comName: verifiedComPortNames, name: hardwareName } = hardwareConfig;
         const { path, manufacturer, pnpId } = comPort;
 
         const comName = path || hardwareName;
-        let platformVendor = vendor;
+        let platformVendor: string | string[];
 
         // win, mac 플랫폼에 맞는 벤더명 설정
-        if (vendor && _.isPlainObject(vendor)) {
-            platformVendor = vendor[process.platform];
+        if (vendor && typeof vendor !== 'string' && !Array.isArray(vendor)) {
+            platformVendor = vendor[process.platform as 'win32' | 'darwin'];
+        } else {
+            platformVendor = vendor;
         }
 
         // config 에 입력한 특정 벤더와 겹치는지 여부
@@ -151,25 +158,17 @@ class SerialScanner {
      * @param {?String} target
      * @returns {boolean}
      */
-    _indexOfStringOrArray(arrayOrString, target) {
+    private _indexOfStringOrArray(arrayOrString?: string | string[], target?: string): boolean {
         if (!target || !arrayOrString) {
             return false;
         }
 
         if (Array.isArray(arrayOrString)) {
-            // arrayOrString.some((item)=>target.includes(item))
-            // noinspection JSUnresolvedFunction
             return arrayOrString.some((item) => target.indexOf(item) >= 0);
         } else {
-            // noinspection JSValidateTypes
             return target.indexOf(arrayOrString) >= 0;
         }
     }
-
-    stopScan() {
-        this.config = undefined;
-        this.isScanning = false;
-    };
 }
 
 module.exports = SerialScanner;

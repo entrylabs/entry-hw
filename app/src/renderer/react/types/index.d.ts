@@ -19,6 +19,11 @@ declare interface IHardwareConfig {
     platform: any;
     hardware: any;
 
+    // for automatic port select
+    vendor: string | string[] | { [key in 'win32' | 'darwin']: string | string[] };
+    pnpId: string | string[];
+    comName: string;
+
     // optional
     driver?: IDriverInfo;
     firmware?: IFirmwareInfo;
@@ -26,7 +31,7 @@ declare interface IHardwareConfig {
     email?: string;
     video?: string | string[];
     reconnect?: boolean;
-    select_com_port?: boolean;
+    select_com_port?: boolean | { [platform: string]: boolean };
     tryFlasherNumber?: number;
 }
 
