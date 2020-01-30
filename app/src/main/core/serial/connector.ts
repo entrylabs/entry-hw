@@ -390,4 +390,4 @@ class SerialConnector extends BaseConnector {
     }
 }
 
-module.exports = SerialConnector;
+export default SerialConnector;

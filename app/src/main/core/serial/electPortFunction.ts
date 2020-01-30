@@ -1,6 +1,7 @@
-const Connector = require('./connector');
-const { compact } = require('lodash');
+import SerialConnector from './connector';
+import { compact } from 'lodash';
 
+type IElectedResult = { port: string; connector: SerialConnector; };
 /**
  * @param ports {string[]}
  * @param hwConfig {Object}
@@ -8,7 +9,12 @@ const { compact } = require('lodash');
  * @param beforeConnectCallback {Function=}
  * @return Promise <{port: string, connector: Connector} | void>
  */
-const electPort = async (ports, hwConfig, hwModule, beforeConnectCallback) => {
+const electPort = async (
+    ports: string[],
+    hwConfig: IHardwareModuleConfig,
+    hwModule: IHardwareModule,
+    beforeConnectCallback: (connector: SerialConnector) => void,
+) => {
     // 선출 후보 포트 모두 오픈
     const connectors = await _initialize(ports, hwConfig, hwModule);
 
@@ -21,7 +27,8 @@ const electPort = async (ports, hwConfig, hwModule, beforeConnectCallback) => {
     //  이는 프로세스 자체의 변경이 필요하므로 기획팀 논의를 거쳐서
     //  '펌웨어 클릭 > 포트가 여러개인경우 목록노출 > 선택적 플래시' 프로세스로 추후개발필요
     if (beforeConnectCallback) {
-        beforeConnectCallback(connectors[0]);
+        const {connector} = connectors[0];
+        beforeConnectCallback(connector);
     }
 
     // 전부 checkInitialData 로직 수행
@@ -44,10 +51,14 @@ const electPort = async (ports, hwConfig, hwModule, beforeConnectCallback) => {
  * 결과는 this.connectors 에 저장한다
  * @private
  */
-const _initialize = async (ports, hwConfig, hwModule) => {
+const _initialize: (
+    ports: string[], hwConfig: IHardwareModuleConfig, hwModule: IHardwareModule,
+) => Promise<IElectedResult[]> = async (
+    ports, hwConfig, hwModule,
+) => {
     const portList = await Promise.all(ports.map(async (port) => {
         try {
-            const connector = new Connector(hwModule, hwConfig);
+            const connector = new SerialConnector(hwModule, hwConfig);
             await connector.open(port);
             return { port, connector };
         } catch (e) {
@@ -59,11 +70,10 @@ const _initialize = async (ports, hwConfig, hwModule) => {
     return compact(portList);
 };
 
-const _finalize = (connectors) => {
+const _finalize = (connectors: IElectedResult[]) => {
     connectors.forEach(({ connector }) => {
         connector.close();
     });
 };
 
-module.exports = electPort;
-module.exports.electPort = electPort;
+export default electPort;

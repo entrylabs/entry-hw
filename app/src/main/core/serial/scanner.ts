@@ -102,7 +102,7 @@ class SerialScanner {
         }
 
         const electedConnector = await electPort(selectedPorts, hardware, this.hwModule,
-            ({ connector }: { connector: any }) => {
+            (connector) => {
                 if (this.config && this.config.firmware) {
                     /*
                     펌웨어가 없는 상태에서 통신이 이루어지지 않는 경우,
