@@ -123,11 +123,11 @@ class SerialScanner {
         }
     };
 
-    private _selectCOMPortUsingProperties(hardwareConfig: IHardwareConfig, comPort: SerialPort.PortInfo) {
-        const { vendor, pnpId: verifiedPnpId, comName: verifiedComPortNames, name: hardwareName } = hardwareConfig;
+    private _selectCOMPortUsingProperties(hardwareConfig: IHardwareModuleConfig, comPort: SerialPort.PortInfo) {
+        const { vendor, pnpId: verifiedPnpId, comName: verifiedComPortNames } = hardwareConfig;
         const { path, manufacturer, pnpId } = comPort;
 
-        const comName = path || hardwareName;
+        const comName = path;
         let platformVendor: string | string[];
 
         // win, mac 플랫폼에 맞는 벤더명 설정

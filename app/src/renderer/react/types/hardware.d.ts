@@ -2,8 +2,10 @@
 
 declare interface IHardwareModule {
     // 디바이스 데이터 송수신 라이프사이클
-    requestInitialData: () => any;
-    checkInitialData: (data: any, options: IHardwareConfig) => boolean;
+
+    // TODO serialport or undefined 를 어떻게 처리해야하나?
+    requestInitialData: (serialPort?: any) => any;
+    checkInitialData: (data: any, options: IHardwareModuleConfig) => boolean | undefined;
     requestRemoteData: (handler: any) => void;
     handleRemoteData?: (handler: any) => void;
     validateLocalData?: (data: any) => boolean;
@@ -12,7 +14,7 @@ declare interface IHardwareModule {
 
     // 연결 절차
     connect?: () => void;
-    afterConnect?: (router: any) => void;
+    afterConnect?: (router: any, callback: (state: string) => void) => void;
     disconnect?: (connector: any) => void;
 
     // 기타 최초 연결 수립시 사용되는 함수. 사용처가 통일되지 않아 정리 대상

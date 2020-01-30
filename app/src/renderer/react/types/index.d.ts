@@ -8,6 +8,31 @@ declare type IFirmwareInfo =
     | [{ name: string; translate: string }]
     | ICopyTypeFirmware
 
+declare type IHardwareType = 'serial' | 'bluetooth' | 'hid' | 'ble';
+declare type IHardwareControlType = 'slave' | 'master';
+declare interface IHardwareModuleConfig {
+    type: IHardwareType;
+    control: IHardwareControlType;
+    duration: number;
+    baudRate: number;
+
+    firmwarecheck?: boolean;
+
+    // for automatic port select
+    vendor: string | string[] | { [key in 'win32' | 'darwin']: string | string[] };
+    pnpId: string | string[];
+    comName: string;
+
+    lostTimer?: number;
+    flowControl?: 'hardware' | 'software';
+    byteDelimiter?: number[];
+    delimiter?: string;
+
+    advertise?: number;
+    softwareReset?: boolean;
+    stream?: 'string';
+}
+
 declare interface IHardwareConfig {
     version?: string;
     moduleName?: string;
@@ -19,12 +44,7 @@ declare interface IHardwareConfig {
     icon: string;
     module: string;
     platform: any;
-    hardware: any;
-
-    // for automatic port select
-    vendor: string | string[] | { [key in 'win32' | 'darwin']: string | string[] };
-    pnpId: string | string[];
-    comName: string;
+    hardware: IHardwareModuleConfig;
 
     // optional
     driver?: IDriverInfo;

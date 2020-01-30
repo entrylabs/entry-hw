@@ -1,8 +1,9 @@
-'use strict';
-const Readline = require('@serialport/parser-readline'); // modify
-const Delimiter = require('@serialport/parser-delimiter');
-const SerialPort = require('@serialport/stream');
-const BaseConnector = require('../baseConnector');
+import Readline from '@serialport/parser-readline';
+import Delimiter from '@serialport/parser-delimiter';
+import SerialPort from 'serialport';
+import Stream from 'stream';
+import BaseConnector from '../baseConnector_ts';
+
 SerialPort.Binding = require('@serialport/bindings');
 
 /**
@@ -11,29 +12,47 @@ SerialPort.Binding = require('@serialport/bindings');
  * 라우터에서 setRouter, connect 를 거쳐 통신한다.
  */
 class SerialConnector extends BaseConnector {
-    constructor(hwModule, hardwareOptions) {
+    static get DEFAULT_CONNECT_LOST_MILLS() {
+        return 1000;
+    }
+    static get DEFAULT_SLAVE_DURATION() {
+        return 1000;
+    }
+
+    private serialPort?: SerialPort;
+    private serialPortParser?: Stream.Duplex;
+
+    // 현재상태 체크
+    private isSending = false;
+    private lostTimer: number;
+
+    private flashFirmware?: NodeJS.Timeout;
+    private slaveInitRequestInterval?: NodeJS.Timeout;
+    private connectionLostTimer?: NodeJS.Timeout;
+    private requestLocalDataInterval?: NodeJS.Timeout;
+    private advertiseInterval?: NodeJS.Timeout;
+
+    public executeFlash = false;
+
+    constructor(hwModule: IHardwareModule, hardwareOptions: IHardwareModuleConfig) {
         super(hwModule, hardwareOptions);
 
-        /**
-         * @type {SerialPort}
-         */
+        this.connected = false;
+        this.received = false;
+
+        this.lostTimer =
+            hardwareOptions.lostTimer || SerialConnector.DEFAULT_CONNECT_LOST_MILLS;
         this.serialPort = undefined;
     }
 
-    /**
-     * 시리얼포트 생성자 옵션을 만든다.
-     * @param serialPortOptions
-     * @returns {Object} SerialPort 내 defaultSettings 참조
-     * @private
-     */
-    _makeSerialPortOptions(serialPortOptions) {
-        const _options = {
+    private _makeSerialPortOptions(serialPortOptions: IHardwareModuleConfig): SerialPort.OpenOptions {
+        const _options: Partial<SerialPort.OpenOptions> = {
             autoOpen: true,
             baudRate: 9600,
             parity: 'none',
             dataBits: 8,
             stopBits: 1,
-            bufferSize: 65536,
+            highWaterMark: 65536, // size of read, write buffer
         };
 
         if (serialPortOptions.flowControl === 'hardware') {
@@ -47,27 +66,22 @@ class SerialConnector extends BaseConnector {
         return _options;
     }
 
-    /**
-     * 시리얼포트를 오픈한다.
-     * @param {string} port COMPortName
-     * @returns {Promise<SerialPort>}
-     */
-    open(port) {
+    open(port: string) {
         return new Promise((resolve, reject) => {
             const hardwareOptions = this.options;
-            this.lostTimer = hardwareOptions.lostTimer || BaseConnector.DEFAULT_CONNECT_LOST_MILLS;
+            this.lostTimer = hardwareOptions.lostTimer || SerialConnector.DEFAULT_CONNECT_LOST_MILLS;
 
             const serialPort = new SerialPort(port, this._makeSerialPortOptions(hardwareOptions));
             this.serialPort = serialPort;
 
             const { delimiter, byteDelimiter } = hardwareOptions;
             if (delimiter) {
-                serialPort.parser = serialPort.pipe(new Readline({ delimiter }));
+                this.serialPortParser = new Readline({ delimiter });
             } else if (byteDelimiter) {
-                serialPort.parser = serialPort.pipe(new Delimiter({
+                this.serialPortParser = new Delimiter({
                     delimiter: byteDelimiter,
                     includeDelimiter: true,
-                }));
+                });
             }
 
             serialPort.on('error', reject);
@@ -92,14 +106,18 @@ class SerialConnector extends BaseConnector {
      */
     initialize() {
         return new Promise((resolve, reject) => {
+            if (!this.serialPort) {
+                return reject(new Error('serialport is not found'));
+            }
+
             const {
                 control,
-                duration = BaseConnector.DEFAULT_SLAVE_DURATION,
+                duration = SerialConnector.DEFAULT_SLAVE_DURATION,
                 firmwarecheck,
             } = this.options;
             const hwModule = this.hwModule;
-            const serialPortReadStream = this.serialPort.parser
-                ? this.serialPort.parser
+            const serialPortReadStream = this.serialPortParser
+                ? this.serialPort.pipe(this.serialPortParser)
                 : this.serialPort;
 
             const runAsMaster = () => {
@@ -109,10 +127,10 @@ class SerialConnector extends BaseConnector {
                     if (result === undefined) {
                         this.send(hwModule.requestInitialData());
                     } else {
-                        this.serialPort.removeAllListeners('data');
                         serialPortReadStream.removeAllListeners('data');
-                        clearTimeout(this.flashFirmware);
-                        if (result === true) {
+                        this.flashFirmware && clearTimeout(this.flashFirmware);
+
+                        if (result) {
                             if (hwModule.setSerialPort) {
                                 hwModule.setSerialPort(this.serialPort);
                             }
@@ -135,12 +153,13 @@ class SerialConnector extends BaseConnector {
                 // control type is slave
                 serialPortReadStream.on('data', (data) => {
                     const result = hwModule.checkInitialData(data, this.options);
+
                     if (result !== undefined) {
-                        this.serialPort.removeAllListeners('data');
                         serialPortReadStream.removeAllListeners('data');
-                        clearTimeout(this.flashFirmware);
-                        clearInterval(this.slaveInitRequestInterval);
-                        if (result === true) {
+                        this.flashFirmware && clearTimeout(this.flashFirmware);
+                        this.slaveInitRequestInterval && clearInterval(this.slaveInitRequestInterval);
+
+                        if (result) {
                             if (hwModule.setSerialPort) {
                                 hwModule.setSerialPort(this.serialPort);
                             }
@@ -159,9 +178,8 @@ class SerialConnector extends BaseConnector {
             if (firmwarecheck) {
                 this.flashFirmware = setTimeout(() => {
                     if (this.serialPort) {
-                        this.serialPort.parser
-                            ? this.serialPort.parser.removeAllListeners('data')
-                            : this.serialPort.removeAllListeners('data');
+                        this.serialPortParser?.removeAllListeners('data');
+                        this.serialPort.removeAllListeners('data');
                         this.executeFlash = true;
                     }
                     resolve();
@@ -194,7 +212,7 @@ class SerialConnector extends BaseConnector {
         const hwModule = this.hwModule;
         const {
             control,
-            duration = BaseConnector.DEFAULT_SLAVE_DURATION,
+            duration = SerialConnector.DEFAULT_SLAVE_DURATION,
             advertise,
             softwareReset,
         } = this.options;
@@ -208,7 +226,6 @@ class SerialConnector extends BaseConnector {
             hwModule.connect();
         }
 
-        // 소프트웨어 리셋 플래그 및 afterConnect. 이 때 펌웨어가 없는 경우 업로드 가능
         if (softwareReset) {
             serialPort.set({ dtr: false });
             setTimeout(() => {
@@ -217,14 +234,14 @@ class SerialConnector extends BaseConnector {
         }
 
         if (hwModule.afterConnect) {
-            hwModule.afterConnect(this, (state) => {
-                this.router.sendState(state);
+            hwModule.afterConnect(this, (state: string) => {
+                this.router?.sendState(state);
             });
         }
 
-        const serialPortReadStream = serialPort.parser
-            ? serialPort.pipe(serialPort.parser)
-            : serialPort;
+        const serialPortReadStream = this.serialPortParser
+            ? this.serialPort.pipe(this.serialPortParser)
+            : this.serialPort;
 
         // 기기와의 데이터 통신 수립
         serialPortReadStream.on('data', (data) => {
@@ -268,7 +285,7 @@ class SerialConnector extends BaseConnector {
              */
             this.connectionLostTimer = setInterval(() => {
                 if (this.connected) {
-                    if (this.received === false) {
+                    if (!this.received) {
                         this.connected = false;
                         this._sendState('lost');
                     }
@@ -327,8 +344,8 @@ class SerialConnector extends BaseConnector {
 
         if (this.serialPort) {
             this.serialPort.removeAllListeners();
-            if (this.serialPort.parser) {
-                this.serialPort.parser.removeAllListeners();
+            if (this.serialPortParser) {
+                this.serialPortParser.removeAllListeners();
             }
         }
     }
@@ -337,8 +354,9 @@ class SerialConnector extends BaseConnector {
         this._clear();
         if (this.serialPort && this.serialPort.isOpen) {
             this.serialPort.close((e) => {
+                console.log('serialport closed', e);
                 this.serialPort = undefined;
-            }, null);
+            });
         }
     }
 
@@ -347,7 +365,7 @@ class SerialConnector extends BaseConnector {
      * @param data
      * @param callback
      */
-    send(data, callback) {
+    send(data: any, callback?: () => void) {
         if (
             this.serialPort &&
             this.serialPort.isOpen &&

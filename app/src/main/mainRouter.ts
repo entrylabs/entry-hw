@@ -140,8 +140,6 @@ class MainRouter {
 
     /**
      * renderer 에 state 인자를 보낸다. 주로 ui 변경을 위해 사용된다.
-     * @param {string} state 변경된 state
-     * @param {...*} args 추가로 보낼 인자
      */
     sendState(state: string, ...args: any[]) {
         let resultState = state;
@@ -308,7 +306,7 @@ class MainRouter {
     /**
      * 서버로 인코딩된 데이터를 보낸다.
      */
-    sendEncodedDataToServer(data: any) {
+    sendEncodedDataToServer(data?: any) {
         if (data) {
             this.server.send(data);
         } else {
@@ -437,4 +435,5 @@ class MainRouter {
     }
 }
 
+export default MainRouter;
 module.exports = MainRouter;
