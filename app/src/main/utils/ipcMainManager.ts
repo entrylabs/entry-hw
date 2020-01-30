@@ -1,4 +1,4 @@
-import {ipcMain, WebContents} from 'electron';
+import { ipcMain, WebContents } from 'electron';
 
 class IpcMainManager {
     static instance?: IpcMainManager = undefined;

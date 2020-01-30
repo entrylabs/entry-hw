@@ -7,6 +7,9 @@ declare type IFirmwareInfo =
     | { afterDelay: number, name: string; type: string }
 
 declare interface IHardwareConfig {
+    version?: string;
+    moduleName?: string;
+
     category: 'board' | 'robot' | 'module';
     entry: { protocol: 'json' };
     id: string;

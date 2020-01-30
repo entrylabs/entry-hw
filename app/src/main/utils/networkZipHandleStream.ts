@@ -1,7 +1,7 @@
 import Stream from 'stream';
 import fs from 'fs';
 import path from 'path';
-import tar, {ParseStream} from 'tar';
+import tar, { ParseStream } from 'tar';
 
 /**
  * 네트워크를 통해 들어온 압축파일을 받아 targetPath 에 바로 압축을 푸는 스트림이다.

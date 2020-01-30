@@ -1,10 +1,10 @@
-const fs = require('fs');
-const path = require('path');
-const { app } = require('electron');
-const { AVAILABLE_TYPE } = require('../common/constants');
-const getModuleList = require('./network/getModuleList');
+import fs from 'fs';
+import path from 'path';
+import { app } from 'electron';
+import { AVAILABLE_TYPE } from '../common/constants';
+import getModuleList from './network/getModuleList';
 
-const nameSortComparator = (left, right) => {
+const nameSortComparator = (left: IHardwareConfig, right: IHardwareConfig) => {
     const lName = left.name.ko.trim();
     const rName = right.name.ko.trim();
 
@@ -17,13 +17,15 @@ const nameSortComparator = (left, right) => {
     }
 };
 
-const platformFilter = (config) =>
+const platformFilter = (config: IHardwareConfig) =>
     config.platform && config.platform.indexOf(process.platform) > -1;
 
-module.exports = class {
-    constructor(router) {
-        this.moduleBasePath = path.resolve(app.getAppPath(), __dirname, '..', '..', 'modules');
-        this.allHardwareList = [];
+export default class {
+    private moduleBasePath = path.resolve(app.getAppPath(), __dirname, '..', '..', 'modules');
+    private allHardwareList: IHardwareConfig[] = [];
+    private readonly router?: any;
+
+    constructor(router: any) {
         this.router = router;
         this._initialize();
         this._requestModuleList();
@@ -33,7 +35,7 @@ module.exports = class {
     /**
      * 파일을 읽어와 리스트에 작성한다.
      */
-    _initialize() {
+    private _initialize() {
         try {
             this._getAllHardwareModulesFromDisk()
                 .forEach((config) => config && this.allHardwareList.push(config));
@@ -42,7 +44,7 @@ module.exports = class {
         }
     }
 
-    _getAllHardwareModulesFromDisk() {
+    private _getAllHardwareModulesFromDisk() {
         return fs.readdirSync(this.moduleBasePath)
             .filter((file) => !!file.match(/\.json$/))
             .map((file) => {
@@ -62,34 +64,13 @@ module.exports = class {
                 return;
             }
 
-            console.log(moduleList);
             this._updateHardwareList(moduleList);
-            // const onlineHardwareList = moduleList.map(this._convertMetadataToHardwareConfig);
-            // this.updateHardwareList(onlineHardwareList);
         } catch (e) {
             console.log(e);
         }
     }
 
-    // _convertMetadataToHardwareConfig(metadata) {
-    //     const { baseUrl, baseResource } = global.sharedObject;
-    //     const resourceUrl = `${baseUrl}${baseResource}`;
-    //
-    //     const { moduleName, moduleFile, imageFile, version, name, hardware } = metadata;
-    //     const { id, platform } = hardware;
-    //     return {
-    //         id,
-    //         version,
-    //         image: `${resourceUrl}/${moduleName}/${version}/${imageFile}`,
-    //         name,
-    //         moduleName,
-    //         moduleFile,
-    //         platform,
-    //         availableType: AVAILABLE_TYPE.needDownload,
-    //     };
-    // }
-
-    _updateHardwareList(source) {
+    _updateHardwareList(source: IHardwareConfig[]) {
         const availables = this._getAllHardwareModulesFromDisk();
         this.allHardwareList = [];
         const mergedList = availables.map((original) => {
@@ -118,7 +99,7 @@ module.exports = class {
         this._notifyHardwareListChanged();
     }
 
-    _notifyHardwareListChanged() {
+    private _notifyHardwareListChanged() {
         this.router &&
         this.router.sendEventToMainWindow('hardwareListChanged');
     }
@@ -133,7 +114,7 @@ module.exports = class {
      * @param source 신규로 추가된 모듈데이터
      * @private
      */
-    _isSameModule(original, source) {
+    _isSameModule(original: IHardwareConfig, source: IHardwareConfig) {
         if (original.moduleName) {
             return original.moduleName === source.moduleName;
         } else {

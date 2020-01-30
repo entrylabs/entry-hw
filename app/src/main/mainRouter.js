@@ -4,7 +4,7 @@ const ScannerManager = require('./scannerManager');
 const Flasher = require('./serial/flasher');
 const rendererConsole = require('./utils/rendererConsole').default;
 const IpcManager = require('./utils/ipcMainManager');
-const HardwareListManager = require('./hardwareListManager');
+const HardwareListManager = require('./hardwareListManager').default;
 const DataHandler = require('./dataHandler').default;
 
 /**

@@ -1,4 +1,4 @@
-import {BrowserWindow, WebContents} from 'electron';
+import { BrowserWindow, WebContents } from 'electron';
 
 export default class {
     static sender: WebContents;
