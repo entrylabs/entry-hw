@@ -27,4 +27,4 @@ class IpcMainManager {
     removeHandler = ipcMain.removeHandler.bind(ipcMain);
 }
 
-export default IpcMainManager;
+module.exports = IpcMainManager;
