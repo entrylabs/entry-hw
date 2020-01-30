@@ -4,7 +4,7 @@ class IpcMainManager {
     static instance?: IpcMainManager = undefined;
     private readonly mainWindow?: WebContents;
 
-    constructor(mainWindow: WebContents) {
+    constructor(mainWindow?: WebContents) {
         if (IpcMainManager.instance) {
             return IpcMainManager.instance;
         } else if (mainWindow) {
@@ -27,4 +27,4 @@ class IpcMainManager {
     removeHandler = ipcMain.removeHandler.bind(ipcMain);
 }
 
-module.exports = IpcMainManager;
+export default IpcMainManager;

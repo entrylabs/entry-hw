@@ -1,10 +1,12 @@
 declare type ObjectLike = { [key: string]: string };
 
 declare type IDriverInfo = ObjectLike | [{ translate: string } & ObjectLike]
+
+declare type ICopyTypeFirmware = { type: 'copy'; afterDelay?: number, name: string; }
 declare type IFirmwareInfo =
     string
     | [{ name: string; translate: string }]
-    | { afterDelay: number, name: string; type: string }
+    | ICopyTypeFirmware
 
 declare interface IHardwareConfig {
     version?: string;
@@ -27,6 +29,9 @@ declare interface IHardwareConfig {
     // optional
     driver?: IDriverInfo;
     firmware?: IFirmwareInfo;
+    firmwareBaudRate?: number;
+    firmwareMCUType?: string;
+
     url?: string;
     email?: string;
     video?: string | string[];

@@ -1,5 +1,6 @@
 const path = require('path');
 const merge = require('webpack-merge');
+const { SourceMapDevToolPlugin } = require('webpack');
 const base = require('./webpack.base.config');
 
 const mainDirectoryPath = path.join(__dirname, '..', 'app', 'src', 'main');
@@ -21,7 +22,7 @@ const commonjsModules = [
 
 module.exports = merge({
     target: 'electron-main',
-    entry: ['babel-polyfill', path.join(mainDirectoryPath, 'mainRouter.js')],
+    entry: ['babel-polyfill', path.join(mainDirectoryPath, 'mainRouter.ts')],
     node: {
         __dirname: false,
     },
@@ -45,5 +46,10 @@ module.exports = merge({
             }
             callback();
         },
+    ],
+    plugins: [
+        new SourceMapDevToolPlugin({
+            filename: 'mainRouter.build.js.map',
+        }),
     ],
 }, base);

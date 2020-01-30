@@ -1,6 +1,6 @@
 const _ = require('lodash');
 const rendererConsole = require('../rendererConsole');
-const IpcManager = require('../ipcMainManager');
+const IpcManager = require('../ipcMainManager').default;
 const BaseScanner = require('../baseScanner');
 const Connector = require('./connector');
 

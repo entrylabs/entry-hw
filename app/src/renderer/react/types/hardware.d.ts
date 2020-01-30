@@ -5,7 +5,7 @@ declare interface IHardwareModule {
     requestInitialData: () => any;
     checkInitialData: (data: any, options: IHardwareConfig) => boolean;
     requestRemoteData: (handler: any) => void;
-    handleRemoteData: (handler: any) => void;
+    handleRemoteData?: (handler: any) => void;
     validateLocalData?: (data: any) => boolean;
     handleLocalData: (data: any) => void;
     requestLocalData: () => any;

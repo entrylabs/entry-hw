@@ -22,8 +22,8 @@ const platformFilter = (config: IHardwareConfig) =>
 
 export default class {
     private moduleBasePath = path.resolve(app.getAppPath(), __dirname, '..', '..', 'modules');
-    private allHardwareList: IHardwareConfig[] = [];
     private readonly router?: any;
+    public allHardwareList: IHardwareConfig[] = [];
 
     constructor(router: any) {
         this.router = router;
