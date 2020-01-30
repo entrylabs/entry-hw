@@ -1,8 +1,8 @@
 const { app, ipcMain, shell } = require('electron');
 const path = require('path');
-const ScannerManager = require('./scannerManager');
+const ScannerManager = require('./scannerManager').default;
 const Flasher = require('./serial/flasher');
-const rendererConsole = require('./utils/rendererConsole').default;
+const rendererConsole = require('./utils/rendererConsole');
 const IpcManager = require('./utils/ipcMainManager');
 const HardwareListManager = require('./hardwareListManager').default;
 const DataHandler = require('./dataHandler').default;

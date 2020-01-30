@@ -1,6 +1,6 @@
 import { BrowserWindow, WebContents } from 'electron';
 
-export default class {
+module.exports = class {
     static sender: WebContents;
 
     static initialize(rendererWindow: BrowserWindow) {
