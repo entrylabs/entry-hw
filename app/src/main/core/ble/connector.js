@@ -1,5 +1,5 @@
 const BaseConnector = require('../baseConnector');
-const _ipcManager = require('../utils/ipcMainManager');
+const _ipcManager = require('../ipcMainManager');
 
 class BleConnector extends BaseConnector {
     get commandQueueCheckDuration() {

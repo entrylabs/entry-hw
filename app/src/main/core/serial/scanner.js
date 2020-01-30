@@ -1,8 +1,8 @@
 const _ = require('lodash');
-const rendererConsole = require('../utils/rendererConsole');
+const rendererConsole = require('../rendererConsole');
 const SerialPort = require('@serialport/stream');
 const electPort = require('./electPortFunction');
-const { CLOUD_MODE_TYPES: CloudModeTypes } = require('../../common/constants');
+const { CLOUD_MODE_TYPES: CloudModeTypes } = require('../../../common/constants');
 
 /**
  * 전체 포트를 검색한다.

@@ -1,7 +1,7 @@
 const { net } = require('electron');
 const path = require('path');
 const fs = require('fs');
-const NetworkZipHandlerStream = require('../utils/networkZipHandleStream');
+const NetworkZipHandlerStream = require('../networkZipHandleStream');
 
 module.exports = ({ moduleFile, version, moduleName }) => new Promise((resolve, reject) => {
     if (!moduleName) {

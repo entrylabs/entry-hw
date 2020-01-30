@@ -1,6 +1,6 @@
 const _ = require('lodash');
 const HID = require('node-hid');
-const rendererConsole = require('../utils/rendererConsole');
+const rendererConsole = require('../rendererConsole');
 const BaseScanner = require('../baseScanner');
 const Connector = require('./connector');
 

@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { app } from 'electron';
-import { AVAILABLE_TYPE } from '../common/constants';
+import { AVAILABLE_TYPE } from '../../common/constants';
 import getModuleList from './network/getModuleList';
 
 const nameSortComparator = (left: IHardwareConfig, right: IHardwareConfig) => {

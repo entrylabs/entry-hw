@@ -4,8 +4,8 @@ const path = require('path');
 const fs = require('fs').promises;
 const serialport = require('serialport');
 
-const SerialScanner = require('../app/src/main/serial/scanner');
-const SerialConnector = require('../app/src/main/serial/connector');
+const SerialScanner = require('../app/src/main/core/serial/scanner');
+const SerialConnector = require('../app/src/main/core/serial/connector');
 
 const dummyRouter = {
     setHandlerData: () => {},

@@ -1,11 +1,11 @@
 const { app, ipcMain, shell } = require('electron');
 const path = require('path');
-const ScannerManager = require('./scannerManager').default;
-const Flasher = require('./serial/flasher');
-const rendererConsole = require('./utils/rendererConsole');
-const IpcManager = require('./utils/ipcMainManager');
-const HardwareListManager = require('./hardwareListManager').default;
-const DataHandler = require('./dataHandler').default;
+const ScannerManager = require('./core/scannerManager').default;
+const Flasher = require('./core/serial/flasher');
+const rendererConsole = require('./core/rendererConsole');
+const IpcManager = require('./core/ipcMainManager');
+const HardwareListManager = require('./core/hardwareListManager').default;
+const DataHandler = require('./core/dataHandler').default;
 
 /**
  * scanner, server, connector 를 총괄하는 중앙 클래스.

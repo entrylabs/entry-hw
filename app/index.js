@@ -15,7 +15,7 @@ const CommonUtils = require('./src/main/utils/commonUtils');
 const parseCommandLine = require('./src/main/utils/functions/parseCommandLine');
 const configInit = require('./src/main/utils/functions/configInitialize');
 const registerGlobalShortcut = require('./src/main/utils/functions/registerGlobalShortcut');
-const checkUpdate = require('./src/main/network/checkUpdate');
+const checkUpdate = require('./src/main/core/network/checkUpdate');
 
 let mainWindow = null;
 let mainRouter = null;
