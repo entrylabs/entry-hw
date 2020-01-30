@@ -1,7 +1,7 @@
-const Stream = require('stream');
-const fs = require('fs');
-const path = require('path');
-const tar = require('tar');
+import Stream from 'stream';
+import fs from 'fs';
+import path from 'path';
+import tar, {ParseStream} from 'tar';
 
 /**
  * 네트워크를 통해 들어온 압축파일을 받아 targetPath 에 바로 압축을 푸는 스트림이다.
@@ -9,14 +9,16 @@ const tar = require('tar');
  * 모든 파일의 압축해제가 끝난 다음에는 'done' 이벤트를 emit 한다.
  * @type {Stream}
  */
-module.exports = class NetworkZipHandleStream extends Stream.PassThrough {
-    constructor(targetPath) {
+export default class NetworkZipHandleStream extends Stream.PassThrough {
+    constructor(targetPath: string) {
         super();
 
-        const fileList = [];
-        const fileWriteStreamPromises = [];
-        const tarParse = new tar.Parse();
+        const fileList: string[] = [];
+        const fileWriteStreamPromises: Promise<void>[] = [];
+
         // eslint-disable-next-line new-cap
+        const tarParse: ParseStream = tar.Parse();
+
         tarParse.on('error', (e) => {
             throw e;
         });

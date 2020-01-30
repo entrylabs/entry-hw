@@ -1,4 +1,4 @@
-import { assign } from 'lodash';
+import {assign} from 'lodash';
 
 class DataHandler {
     private deviceData: {[key: string]: any};
@@ -42,4 +42,4 @@ class DataHandler {
     }
 }
 
-module.exports = DataHandler;
+export default DataHandler;

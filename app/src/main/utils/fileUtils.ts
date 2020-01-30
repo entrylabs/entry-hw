@@ -1,12 +1,11 @@
-const path = require('path');
-const fs = require('fs');
+import path from 'path';
+import fs from 'fs';
 
 class FileUtils {
-    static copyRecursiveSync(src, dest) {
-        const exists = fs.existsSync(src);
-        const stats = exists && fs.statSync(src);
-        const isDirectory = exists && stats.isDirectory();
-        if (exists && isDirectory) {
+    static copyRecursiveSync(src: string, dest: string) {
+        const stats = fs.existsSync(src) && fs.statSync(src);
+        const isDirectory = stats && stats.isDirectory();
+        if (isDirectory) {
             if (!fs.existsSync(dest)) {
                 fs.mkdirSync(dest);
             }
@@ -22,7 +21,7 @@ class FileUtils {
         }
     };
 
-    static copyFile(src, dest) {
+    static copyFile(src: string, dest: string) {
         return new Promise(((resolve, reject) => {
             fs.copyFile(src, dest, (err) => {
                 if (err) {
@@ -34,7 +33,7 @@ class FileUtils {
         }));
     }
 
-    static mkdir(target) {
+    static mkdir(target: string) {
         return new Promise(((resolve, reject) => {
             fs.stat(target, (err, stats) => {
                 if (err) {
@@ -64,4 +63,4 @@ class FileUtils {
     }
 }
 
-module.exports = FileUtils;
+export default FileUtils;

@@ -1,8 +1,10 @@
-const { ipcMain } = require('electron');
+import {ipcMain, WebContents} from 'electron';
 
 class IpcMainManager {
-    static instance = undefined;
-    constructor(mainWindow) {
+    static instance?: IpcMainManager = undefined;
+    private readonly mainWindow?: WebContents;
+
+    constructor(mainWindow: WebContents) {
         if (IpcMainManager.instance) {
             return IpcMainManager.instance;
         } else if (mainWindow) {
@@ -11,9 +13,9 @@ class IpcMainManager {
         IpcMainManager.instance = this;
     }
 
-    invoke(channel, ...args) {
+    invoke(channel: string, ...args: any[]) {
         const key = `${channel}_${Date.now()}`;
-        this.mainWindow.send(channel, key, ...args);
+        this.mainWindow && this.mainWindow.send(channel, key, ...args);
         return new Promise((resolve) => {
             ipcMain.handleOnce(key, (event, device) => {
                 resolve(device);
@@ -25,4 +27,4 @@ class IpcMainManager {
     removeHandler = ipcMain.removeHandler.bind(ipcMain);
 }
 
-module.exports = IpcMainManager;
+export default IpcMainManager;
