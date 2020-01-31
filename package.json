@@ -25,6 +25,7 @@
         "@babel/plugin-proposal-private-methods": "^7.8.3",
         "@babel/preset-env": "^7.8.3",
         "@types/lodash": "^4.14.149",
+        "@types/node-hid": "^0.7.3",
         "@types/react": "^16.9.9",
         "@types/react-dom": "^16.9.2",
         "@types/react-redux": "^7.1.5",

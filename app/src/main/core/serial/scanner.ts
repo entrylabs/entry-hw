@@ -3,6 +3,8 @@ import rendererConsole from '../rendererConsole';
 import SerialPort from 'serialport';
 import electPort from './electPortFunction';
 import { CLOUD_MODE_TYPES as CloudModeTypes } from '../../../common/constants';
+import BaseScanner from '../baseScanner_ts';
+import SerialConnector from './connector';
 
 /**
  * 전체 포트를 검색한다.
@@ -11,33 +13,19 @@ import { CLOUD_MODE_TYPES as CloudModeTypes } from '../../../common/constants';
  *
  * 결과의 송수신은 router 에 만들어진 함수로 보낸다.
  */
-class SerialScanner {
-    private router: any;
+class SerialScanner extends BaseScanner<SerialConnector> {
     private isScanning = false;
-    private hwModule?: IHardwareModule;
-    private config?: IHardwareConfig;
 
     static get SCAN_INTERVAL_MILLS() {
         return 1500;
     }
-
-    constructor(router: any) {
-        this.router = router;
-    }
-
-    public async startScan(hwModule: IHardwareModule, config: IHardwareConfig) {
-        this.stopScan();
-        this.config = config;
-        this.hwModule = hwModule;
-        return await this.intervalScan();
-    };
 
     public stopScan() {
         this.config = undefined;
         this.isScanning = false;
     };
 
-    private async intervalScan() {
+    protected async intervalScan() {
         this.isScanning = true;
         let scanResult = undefined;
         while (this.isScanning) {
@@ -152,12 +140,6 @@ class SerialScanner {
         }
     }
 
-    /**
-     * arrayOrString 내에 target 이 포함되어있는지 검사한다.
-     * @param {?String|?Array<String>} arrayOrString
-     * @param {?String} target
-     * @returns {boolean}
-     */
     private _indexOfStringOrArray(arrayOrString?: string | string[], target?: string): boolean {
         if (!target || !arrayOrString) {
             return false;
@@ -171,4 +153,4 @@ class SerialScanner {
     }
 }
 
-module.exports = SerialScanner;
+export default SerialScanner;

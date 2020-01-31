@@ -1,4 +1,5 @@
-const SerialScanner = require('./serial/scanner');
+import SerialScanner from './serial/scanner';
+
 const HidScanner = require('./hid/scanner');
 const BleScanner = require('./ble/scanner');
 

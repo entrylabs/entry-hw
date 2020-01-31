@@ -34,9 +34,9 @@ class MainRouter {
     public selectedPort?: string;
     public currentCloudMode: number = 0;
     public currentServerRunningMode: number = 2;
+    public connector?: any;
     private config?: IHardwareConfig;
     private scanner?: any;
-    private connector?: any;
     private hwModule?: IHardwareModule;
     private handler?: DataHandler;
 
