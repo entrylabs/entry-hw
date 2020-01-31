@@ -61,8 +61,8 @@
     },
     "files": [
         "app/modules",
-        "app/src/main",
-        "app/src/common",
+        "app/src/main/electron",
+        "app/src/main/mainRouter.build.*",
         "app/src/preload/lang",
         "app/src/preload/preload.bundle.js",
         "app/src/renderer/modal",
