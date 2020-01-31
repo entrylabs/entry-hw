@@ -25,7 +25,7 @@ interface IEntryServer {
  */
 class MainRouter {
     private ipcManager: IpcManager;
-    private browser: BrowserWindow;
+    public browser: BrowserWindow; // TODO private
     private scannerManager: ScannerManager;
     private readonly server: IEntryServer;
     private hardwareListManager: HardwareListManager;

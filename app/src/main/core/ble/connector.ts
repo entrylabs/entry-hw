@@ -1,14 +1,19 @@
-const BaseConnector = require('../baseConnector');
-const _ipcManager = require('../ipcMainManager');
+import BaseConnector from '../baseConnector_ts';
+import _ipcManager from '../ipcMainManager';
+
+type IBLECommandMessage = { key: string, value: string, callback?: () => void | Promise<void>; }
 
 class BleConnector extends BaseConnector {
     get commandQueueCheckDuration() {
         return 100;
     }
 
-    constructor(hwModule, hardware) {
-        super(hwModule, hardware);
-        this._ipcManager = new _ipcManager();
+    private _ipcManager = new _ipcManager();
+    private _requestLocalDataInterval?: NodeJS.Timeout;
+    private _commandQueue: IBLECommandMessage[];
+
+    constructor(hwModule: IHardwareModule, config: IHardwareModuleConfig) {
+        super(hwModule, config);
 
         this._requestLocalDataInterval = undefined;
         this._commandQueue = [];
@@ -33,8 +38,12 @@ class BleConnector extends BaseConnector {
             throw new Error('router must be set');
         }
 
+        if (!this.options) {
+            throw new Error('config file must be set');
+        }
+
         const router = this.router;
-        const { duration = BaseConnector.DEFAULT_SLAVE_DURATION } = this.hwModule;
+        const { duration = BaseConnector.DEFAULT_SLAVE_DURATION } = this.options;
 
         //TODO 통신 수립 이후 지속적인 통신 및 이벤트리스닝 은 이쪽
 
@@ -44,7 +53,7 @@ class BleConnector extends BaseConnector {
             }
 
             if (this.hwModule.handleLocalData) {
-                this.hwModule.handleLocalData(key, value);
+                this.hwModule.handleLocalData({ key, value });
             }
 
             router.setHandlerData();
@@ -64,7 +73,7 @@ class BleConnector extends BaseConnector {
     }
 
 
-    async send(data) {
+    async send(data: any) {
         if (this.connected) {
             try {
                 await this._ipcManager.invoke('writeBleDevice', data);
@@ -79,8 +88,8 @@ class BleConnector extends BaseConnector {
         this._commandQueue = [];
         this._requestLocalDataInterval && clearInterval(this._requestLocalDataInterval);
 
-        if (this.hwModule.disconnect) {
-            this.hwModule.disconnect();
+        if (this.hwModule && this.hwModule.disconnect) {
+            this.hwModule.disconnect(this);
         }
         this._ipcManager.removeHandler('readBleDevice');
         await this._ipcManager.invoke('disconnectBleDevice');
@@ -114,4 +123,4 @@ class BleConnector extends BaseConnector {
     }
 }
 
-module.exports = BleConnector;
+export default BleConnector;

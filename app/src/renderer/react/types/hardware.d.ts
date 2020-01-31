@@ -1,4 +1,5 @@
 /// <reference path="./index.d.ts" />
+/// <reference path="./ble.d.ts" />
 
 declare interface IHardwareModule {
     // 디바이스 데이터 송수신 라이프사이클
@@ -10,7 +11,7 @@ declare interface IHardwareModule {
     handleRemoteData?: (handler: any) => void;
     validateLocalData?: (data: any) => boolean;
     handleLocalData: (data: any) => void;
-    requestLocalData: () => any;
+    requestLocalData: (commandQueue?: any[] /* for ble. 추후 모듈 상속으로 제거 */) => any;
 
     // 연결 절차
     connect?: () => void;
@@ -32,6 +33,15 @@ declare interface IHardwareModule {
 
     // for HID (modern)
     registerIntervalSend?: (registerFunction: IRegisterIntervalSendArg) => void;
+
+    // for BLE
+    getProfiles?: () => IBleProfileInformation[];
+    // https://developer.mozilla.org/en-US/docs/Web/API/Bluetooth/requestDevice
+    getScanOptions?: () => {
+        filters?: any[];
+        optionalServices?: string[];
+        acceptAllDevices?: boolean;
+    }
 }
 
 type IRegisterIntervalSendArg = (sendDataFunction: () => any, interval: number) => void;

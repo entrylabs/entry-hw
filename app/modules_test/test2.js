@@ -118,7 +118,7 @@ class Test2 extends BaseModule {
      * @param key {string} - 특성 Profile 에 작성한 key 값
      * @param value {*}
      */
-    handleLocalData(key, value) {
+    handleLocalData({ key, value }) {
         this.sensorStateMap[key] = value;
     }
 

@@ -6,7 +6,7 @@ class HidConnector extends BaseConnector {
     private requestInitialDataInterval?: NodeJS.Timeout;
     private requestLocalDataInterval?: NodeJS.Timeout;
     private device?: HIDImpl;
-    
+
     open(path: string) {
         this.connected = false;
         this.registeredIntervals = [];

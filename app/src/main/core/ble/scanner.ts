@@ -1,32 +1,37 @@
-const _ = require('lodash');
-const rendererConsole = require('../rendererConsole');
-const IpcManager = require('../ipcMainManager').default;
-const BaseScanner = require('../baseScanner');
-const Connector = require('./connector');
+import _ from 'lodash';
+import rendererConsole from '../rendererConsole';
+import IpcManager from '../ipcMainManager';
+import BaseScanner from '../baseScanner_ts';
+import BleConnector from './connector';
+import MainRouter from '../../mainRouter';
+import { BrowserWindow } from 'electron';
 
-class BleScanner extends BaseScanner {
-    constructor(router) {
+class BleScanner extends BaseScanner<BleConnector> {
+    private isScanning = false;
+    private ipcManager = new IpcManager();
+    private devices = [];
+    private browser: BrowserWindow;
+
+    constructor(router: MainRouter) {
         super(router);
-        this.router = router;
         this.browser = router.browser;
-        this.ipcManager = new IpcManager();
-        this.isScanning = false;
         this.devices = [];
         this.selectBluetoothDevice = this.selectBluetoothDevice.bind(this);
     }
 
-    async startScan(hwModule, config) {
+    async startScan(hwModule: IHardwareModule, config: IHardwareConfig) {
         this.stopScan();
-        this.setConfig(config);
-        this.initScan();
+        this.config = config;
         this.hwModule = hwModule;
-        return await this.scan();
+        this.initScan();
+        return await this.intervalScan();
     }
 
-    async selectBluetoothDevice(event, deviceList, callback) {
+    async selectBluetoothDevice(event: Event, deviceList: any[], callback: (id: string) => void) {
         event.preventDefault();
-        if (!this.isScanning) {
+        if (!this.isScanning || !this.config) {
             callback('');
+            return;
         }
         const { hardware } = this.config;
         const selectedId = this.router.selectedPort;
@@ -39,10 +44,8 @@ class BleScanner extends BaseScanner {
         } else {
             const scannedDevices = _.filter(deviceList, (device) => {
                 for (const key in device) {
-                    if (
-                        hardware[key] &&
-                        device[key].indexOf(hardware[key]) === -1
-                    ) {
+                    // @ts-ignore
+                    if (hardware[key] && device[key].indexOf(hardware[key]) === -1) {
                         return false;
                     }
                 }
@@ -63,13 +66,15 @@ class BleScanner extends BaseScanner {
             if (this.devices) {
                 this.devices = [];
             }
+
+            // @ts-ignore
             _.mergeWith(this.devices, scannedDevices, _.get('deviceId'));
             this.router.sendEventToMainWindow('portListScanned', this.devices);
             rendererConsole.log(this.devices);
         }
     }
 
-    async initScan() {
+    initScan() {
         if (!this.config || this.isScanning) {
             return;
         }
@@ -80,12 +85,17 @@ class BleScanner extends BaseScanner {
         );
     }
 
-    async scan() {
-        if (!this.config) {
+    async intervalScan() {
+        if (!this.config || !this.hwModule) {
             return;
         }
 
-        let scanOption = { acceptAllDevices: true };
+        // TODO type 화
+        let scanOption: {
+            filters?: any[];
+            optionalServices?: string[];
+            acceptAllDevices?: boolean;
+        } = { acceptAllDevices: true };
         if (this.hwModule.getScanOptions) {
             scanOption = this.hwModule.getScanOptions() || scanOption;
         }
@@ -94,27 +104,26 @@ class BleScanner extends BaseScanner {
         // 디바이스 객체는 렌더러에서 다루며, 직접 메인으로 가져와서 다루지 않는다.
         await this.ipcManager.invoke('scanBleDevice', scanOption);
         if (this.isScanning) {
-            this.connector = await this.prepareConnector();
-            return this.connector;
+            return await this.prepareConnector();
         }
     }
 
     async prepareConnector() {
+        if (!this.config || !this.hwModule) {
+            throw new Error('config or hwModule is not found');
+        }
+
         try {
             const { hardware } = this.config;
-            const connector = new Connector(this.hwModule, hardware);
+            const connector = new BleConnector(this.hwModule, hardware);
             this.router.setConnector(connector);
             this.router.sendState('before_connect');
             await connector.initialize();
-            this.finalizeScan();
+            this.stopScan();
             return connector;
         } catch (e) {
             console.error(e);
         }
-    }
-
-    finalizeScan() {
-        this.stopScan();
     }
 
     stopScan() {
@@ -122,10 +131,10 @@ class BleScanner extends BaseScanner {
             'select-bluetooth-device',
             this.selectBluetoothDevice,
         );
+
         this.config = undefined;
         this.devices = [];
         this.isScanning = false;
-        this.clearTimers();
     }
 }
 
