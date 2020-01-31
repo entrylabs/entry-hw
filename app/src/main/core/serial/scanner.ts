@@ -3,7 +3,7 @@ import rendererConsole from '../rendererConsole';
 import SerialPort from 'serialport';
 import electPort from './electPortFunction';
 import { CLOUD_MODE_TYPES as CloudModeTypes } from '../../../common/constants';
-import BaseScanner from '../baseScanner_ts';
+import BaseScanner from '../baseScanner';
 import SerialConnector from './connector';
 
 /**

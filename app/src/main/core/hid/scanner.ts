@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import HID, { Device } from 'node-hid';
 import rendererConsole from '../rendererConsole';
-import BaseScanner from '../baseScanner_ts';
+import BaseScanner from '../baseScanner';
 import HidConnector from './connector';
 import MainRouter from '../../mainRouter';
 

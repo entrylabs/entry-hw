@@ -1,5 +1,5 @@
 import HID, { HID as HIDImpl } from 'node-hid';
-import BaseConnector from '../baseConnector_ts';
+import BaseConnector from '../baseConnector';
 
 class HidConnector extends BaseConnector {
     private registeredIntervals: NodeJS.Timeout[] = [];

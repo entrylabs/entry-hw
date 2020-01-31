@@ -1,4 +1,4 @@
-import BaseConnector from '../baseConnector_ts';
+import BaseConnector from '../baseConnector';
 import _ipcManager from '../ipcMainManager';
 
 type IBLECommandMessage = { key: string, value: string, callback?: () => void | Promise<void>; }

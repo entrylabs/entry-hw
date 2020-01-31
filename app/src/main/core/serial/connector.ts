@@ -2,7 +2,7 @@ import Readline from '@serialport/parser-readline';
 import Delimiter from '@serialport/parser-delimiter';
 import SerialPort from 'serialport';
 import Stream from 'stream';
-import BaseConnector from '../baseConnector_ts';
+import BaseConnector from '../baseConnector';
 
 SerialPort.Binding = require('@serialport/bindings');
 

@@ -1,5 +1,5 @@
 import MainRouter from '../mainRouter';
-import BaseConnector from './baseConnector_ts';
+import BaseConnector from './baseConnector';
 
 abstract class BaseScanner<T extends BaseConnector> {
     static get SCAN_INTERVAL_MILLS() {

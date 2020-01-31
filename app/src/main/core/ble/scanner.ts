@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import rendererConsole from '../rendererConsole';
 import IpcManager from '../ipcMainManager';
-import BaseScanner from '../baseScanner_ts';
+import BaseScanner from '../baseScanner';
 import BleConnector from './connector';
 import MainRouter from '../../mainRouter';
 import { BrowserWindow } from 'electron';
