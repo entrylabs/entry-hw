@@ -11,9 +11,13 @@ declare interface Preload {
         writeText(str: string): void;
     }
     rendererRouter: any; //instance
-    Modal: any;
     os: string;
 }
 
 declare interface Window extends Preload {
+    Modal: any;
+    Lang: any;
 }
+
+// eslint-disable-next-line no-var
+declare var Lang: any;

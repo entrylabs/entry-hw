@@ -9,7 +9,7 @@ class BleConnector extends BaseConnector {
     }
 
     private _ipcManager = new _ipcManager();
-    private _requestLocalDataInterval?: NodeJS.Timeout;
+    private _requestLocalDataInterval?: number;
     private _commandQueue: IBLECommandMessage[];
 
     constructor(hwModule: IHardwareModule, config: IHardwareModuleConfig) {

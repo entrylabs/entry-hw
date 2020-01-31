@@ -26,11 +26,11 @@ class SerialConnector extends BaseConnector {
     private isSending = false;
     private lostTimer: number;
 
-    private flashFirmware?: NodeJS.Timeout;
-    private slaveInitRequestInterval?: NodeJS.Timeout;
-    private connectionLostTimer?: NodeJS.Timeout;
-    private requestLocalDataInterval?: NodeJS.Timeout;
-    private advertiseInterval?: NodeJS.Timeout;
+    private flashFirmware?: number;
+    private slaveInitRequestInterval?: number;
+    private connectionLostTimer?: number;
+    private requestLocalDataInterval?: number;
+    private advertiseInterval?: number;
 
     public executeFlash = false;
 

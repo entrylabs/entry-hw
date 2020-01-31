@@ -6,7 +6,7 @@ const preloadDirectoryPath = path.join(__dirname, '..', 'app', 'src', 'preload')
 
 module.exports = merge({
     target: 'electron-preload',
-    entry: ['babel-polyfill', path.join(preloadDirectoryPath, 'index.js')],
+    entry: path.join(preloadDirectoryPath, 'index.ts'),
     output: {
         path: preloadDirectoryPath,
         filename: 'preload.bundle.js',

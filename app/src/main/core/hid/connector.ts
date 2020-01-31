@@ -2,9 +2,9 @@ import HID, { HID as HIDImpl } from 'node-hid';
 import BaseConnector from '../baseConnector';
 
 class HidConnector extends BaseConnector {
-    private registeredIntervals: NodeJS.Timeout[] = [];
-    private requestInitialDataInterval?: NodeJS.Timeout;
-    private requestLocalDataInterval?: NodeJS.Timeout;
+    private registeredIntervals: number[] = [];
+    private requestInitialDataInterval?: number;
+    private requestLocalDataInterval?: number;
     private device?: HIDImpl;
 
     open(path: string) {

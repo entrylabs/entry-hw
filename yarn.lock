@@ -1002,6 +1002,11 @@
   dependencies:
     "@types/node" "*"
 
+"@types/web-bluetooth@^0.0.5":
+  version "0.0.5"
+  resolved "https://registry.yarnpkg.com/@types/web-bluetooth/-/web-bluetooth-0.0.5.tgz#f952d1481572798dd20a381135bef3d8b1ef305a"
+  integrity sha512-gaSAxNePCVJUR1a+4jKMaukjEzE4XuJd9fzSx/mAy6BrVoJXnACmfaBkaXU/K0frxJVfHvMDJx96hbNt4NXd9Q==
+
 "@typescript-eslint/eslint-plugin@^2.11.0":
   version "2.18.0"
   resolved "https://registry.yarnpkg.com/@typescript-eslint/eslint-plugin/-/eslint-plugin-2.18.0.tgz#f8cf272dfb057ecf1ea000fea1e0b3f06a32f9cb"

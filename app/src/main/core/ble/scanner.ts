@@ -91,11 +91,7 @@ class BleScanner extends BaseScanner<BleConnector> {
         }
 
         // TODO type 화
-        let scanOption: {
-            filters?: any[];
-            optionalServices?: string[];
-            acceptAllDevices?: boolean;
-        } = { acceptAllDevices: true };
+        let scanOption: RequestDeviceOptions = { acceptAllDevices: true };
         if (this.hwModule.getScanOptions) {
             scanOption = this.hwModule.getScanOptions() || scanOption;
         }

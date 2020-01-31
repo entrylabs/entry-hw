@@ -34,6 +34,7 @@
         "@types/serialport": "^8.0.0",
         "@types/styled-components": "^4.1.19",
         "@types/tar": "^4.0.3",
+        "@types/web-bluetooth": "^0.0.5",
         "@typescript-eslint/eslint-plugin": "^2.11.0",
         "@typescript-eslint/parser": "^2.11.0",
         "babel-eslint": "^10.0.3",

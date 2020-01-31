@@ -1,21 +1,22 @@
-const { ipcRenderer, shell, remote } = require('electron');
-const {
-    HARDWARE_STATEMENT: Statement,
-    RUNNING_MODE_TYPES: RunningMode,
-} = require('../common/constants');
+import { ipcRenderer, remote, shell } from 'electron';
+import { HardwareStatement, RunningModeTypes } from '../common/constants_ts';
 
 /**
  * 렌더러 비즈니스로직을 담은 클래스.
  * 해당 클래스는 preload 페이즈에서 선언되므로 nodejs, electron 관련 import가 가능
  */
 class RendererRouter {
+    private _hardwareList: IHardwareConfig[] = [];
+    public currentState = HardwareStatement.disconnected;
+    public serverMode = RunningModeTypes.server;
+
     get hardwareList() {
         this.refreshHardwareModules();
         return this._hardwareList;
     }
 
-    get priorHardwareList() {
-        return (JSON.parse(localStorage.getItem('hardwareList')) || []).reverse();
+    get priorHardwareList(): IHardwareConfig[] {
+        return (JSON.parse(localStorage.getItem('hardwareList') as string) || []).reverse();
     }
 
     get sharedObject() {
@@ -27,10 +28,8 @@ class RendererRouter {
     }
 
     constructor() {
-        this.currentState = Statement.disconnected;
-        this._hardwareList = [];
         const initialServerMode =
-            ipcRenderer.sendSync('getCurrentServerModeSync') || RunningMode.server;
+            ipcRenderer.sendSync('getCurrentServerModeSync') || RunningModeTypes.server;
 
         this._consoleWriteServerMode(initialServerMode);
 
@@ -44,7 +43,7 @@ class RendererRouter {
         });
     }
 
-    startScan(hardware) {
+    startScan(hardware: IHardwareConfig) {
         ipcRenderer.send('startScan', hardware);
     };
 
@@ -56,7 +55,7 @@ class RendererRouter {
         ipcRenderer.send('close');
     }
 
-    sendSelectedPort(portName) {
+    sendSelectedPort(portName: string) {
         ipcRenderer.send('selectPort', portName);
     }
 
@@ -64,10 +63,10 @@ class RendererRouter {
         ipcRenderer.send('openAboutWindow');
     }
 
-    requestFlash(firmwareName) {
+    requestFlash(firmwareName: IFirmwareInfo) {
         return new Promise((resolve, reject) => {
             ipcRenderer.send('requestFlash', firmwareName);
-            ipcRenderer.once('requestFlash', (error) => {
+            ipcRenderer.once('requestFlash', (e, error) => {
                 if (error instanceof Error) {
                     console.log(error.message);
                     reject(error);
@@ -78,7 +77,7 @@ class RendererRouter {
         });
     }
 
-    openExternalUrl(url) {
+    openExternalUrl(url: string) {
         shell.openExternal(url);
     }
 
@@ -91,11 +90,11 @@ class RendererRouter {
         });
     }
 
-    executeDriverFile(driverPath) {
+    executeDriverFile(driverPath: string) {
         ipcRenderer.send('executeDriver', driverPath);
     }
 
-    requestDownloadModule(config) {
+    requestDownloadModule(config: IHardwareConfig) {
         ipcRenderer.send('requestHardwareModule', config);
     }
 
@@ -124,7 +123,7 @@ class RendererRouter {
     checkProgramUpdate() {
         const { appName } = this.sharedObject;
         const { translator, Modal } = window;
-        const translate = (str) => translator.translate(str);
+        const translate = (str: string) => translator.translate(str);
 
         // eslint-disable-next-line new-cap
         const modal = new Modal.default();
@@ -152,7 +151,7 @@ class RendererRouter {
                                 },
                                 parentClassName: 'versionAlert',
                                 withDontShowAgain: true,
-                            }).one('click', (event, { dontShowChecked }) => {
+                            }).one('click', (event: any, { dontShowChecked }: { dontShowChecked: boolean }) => {
                             if (event === 'ok') {
                                 shell.openExternal(
                                     'https://playentry.org/#!/offlineEditor',
@@ -168,21 +167,21 @@ class RendererRouter {
         }
     }
 
-    _getHardwareListSync() {
+    _getHardwareListSync(): IHardwareConfig[] {
         return ipcRenderer.sendSync('requestHardwareListSync');
     }
 
-    _consoleWriteServerMode(mode) {
+    _consoleWriteServerMode(mode: RunningModeTypes) {
         if (this.serverMode === mode) {
             return;
         }
 
-        if (mode === RunningMode.client) {
+        if (mode === RunningModeTypes.client) {
             console.log(
                 '%cI`M CLIENT',
                 'background:black;color:yellow;font-size: 30px',
             );
-        } else if (mode === RunningMode.server) {
+        } else if (mode === RunningModeTypes.server) {
             console.log('%cI`M SERVER', 'background:orange; font-size: 30px');
         }
         this.serverMode = mode;
@@ -190,7 +189,7 @@ class RendererRouter {
 
     _confirmHardwareClose() {
         const { translator } = window;
-        const translate = (str) => translator.translate(str);
+        const translate = (str: string) => translator.translate(str);
         let isQuit = true;
         if (this.currentState === 'connected') {
             isQuit = confirm(
@@ -207,4 +206,4 @@ class RendererRouter {
     }
 }
 
-module.exports = RendererRouter;
+export default RendererRouter;

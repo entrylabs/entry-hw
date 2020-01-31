@@ -1,15 +1,18 @@
-module.exports = class {
+class Translator {
+    public lang: string;
+    private readonly data: any;
+
     get currentLanguage() {
         return this.lang;
     }
 
-    constructor(lang) {
+    constructor(lang?: string) {
         if (!window.navigator) {
             throw Error('translator must be created on browser environment');
         }
 
         let selectedLang = lang || 'ko';
-        const browserLanguage = window.navigator.userLanguage || window.navigator.language;
+        const browserLanguage = window.navigator.language;
         if (browserLanguage) {
             selectedLang = browserLanguage.substr(0, 2);
         }
@@ -20,8 +23,10 @@ module.exports = class {
         this.data = require('./translations.json');
     }
 
-    translate(str) {
+    translate(str: string) {
         const value = this.data[str] || [];
         return value[this.lang] || str;
     }
-};
+}
+
+export default Translator;

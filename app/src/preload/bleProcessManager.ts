@@ -1,42 +1,26 @@
-const IpcRendererManager = require('./ipcManager');
+import IpcRendererManager from './ipcManager';
 
 class BleProcessManager {
+    private ipcManager = new IpcRendererManager();
+    private connectedDevice?: BluetoothDevice;
+    private bleServices?: BluetoothRemoteGATTService[];
+    private _readEvents: { key: string; value: BluetoothRemoteGATTCharacteristic }[] = [];
+    private _writeEvents: { key: string, value: BluetoothRemoteGATTCharacteristic }[] = [];
+    private connected = false; // HW 모듈과 커뮤니케이션 준비가 되었는지 여부
+
     constructor() {
-        this.ipcManager = new IpcRendererManager();
-
-        /**
-         * @type {BluetoothDevice}
-         */
-        this.connectedDevice = undefined;
-
-        /**
-         * @type {BluetoothRemoteGATTService[]}
-         */
-        this.bleServices = undefined;
-
-        /**
-         * @type {{ key: string, value: BluetoothRemoteGATTCharacteristic}[]}
-         */
-        this._readEvents = [];
-
-        /**
-         * @type {{key: string, value: BluetoothRemoteGATTCharacteristic}[]}
-         */
-        this._writeEvents = [];
-        this.connected = false; // HW 모듈과 커뮤니케이션 준비가 되었는지 여부
         this._initialize();
     }
 
-    _initialize() {
+    private _initialize() {
         this.ipcManager.handle('scanBleDevice', async (event, options) => {
             try {
                 this.connectedDevice = await navigator.bluetooth.requestDevice(options);
 
                 const device = this.connectedDevice;
-                !device.gatt.connected && await device.gatt.connect();
+                !(device?.gatt?.connected) && await device?.gatt?.connect();
 
                 console.log(this.connectedDevice);
-
                 return this.connectedDevice.id;
             } catch (e) {
                 console.error(e);
@@ -54,20 +38,18 @@ class BleProcessManager {
          *     }
          * }[]
          */
-        this.ipcManager.handle('connectBleDevice', async (e, profiles) => {
-            if (this.connectedDevice) {
-                this.bleServices = await this.connectedDevice.gatt.getPrimaryServices();
+        this.ipcManager.handle('connectBleDevice', async (e, profiles: IBleProfileInformation[]) => {
+            if (this.connectedDevice && this.connectedDevice.gatt) {
+                this.bleServices = await this.connectedDevice.gatt.getPrimaryServices() || [];
 
                 /**
                  * 등록된 key 목록 요약본. 결과로 제출된다.
-                 * @type {{read: string[], write: string[]}}
                  */
-                const summary = { write: [], read: [] };
+                const summary: { read: string[]; write: string[] } = { write: [], read: [] };
 
                 // 모든 서비스 등록
                 await Promise.all(profiles.map(async ({ service, characteristics }) => {
-                    const targetService = this.bleServices
-                        .find((bleService) => bleService.uuid === service);
+                    const targetService = this.bleServices!.find((bleService) => bleService.uuid === service);
 
                     if (targetService) {
                         // 모든 특성 등록
@@ -91,14 +73,9 @@ class BleProcessManager {
             }
         });
 
-        /**
-         * {
-         *     key: string;
-         *     value: any;
-         * }
-         */
-        this.ipcManager.handle('writeBleDevice', async (e, { key, value }) => {
+        this.ipcManager.handle('writeBleDevice', async (e, { key, value }: { key: string; value: any; }) => {
             if (!key) {
+                console.log('key is not present');
                 return;
             }
 
@@ -113,7 +90,7 @@ class BleProcessManager {
 
         this.ipcManager.handle('disconnectBleDevice', async (e) => {
             this._writeEvents = [];
-            this.connectedDevice.gatt.disconnect();
+            this.connectedDevice?.gatt?.disconnect();
             this.connectedDevice = undefined;
             this.bleServices = undefined;
             this.connected = false;
@@ -124,15 +101,9 @@ class BleProcessManager {
         });
     }
 
-    /**
-     *
-     * @param key {string}
-     * @param characteristic {BluetoothRemoteGATTCharacteristic}
-     * @private
-     */
-    async _registerReadCharacteristic(key, characteristic) {
+    private async _registerReadCharacteristic(key: string, characteristic: BluetoothRemoteGATTCharacteristic) {
         await characteristic.startNotifications();
-        characteristic.addEventListener('characteristicvaluechanged', ({ target }) => {
+        characteristic.addEventListener('characteristicvaluechanged', ({ target }: any) => {
             this.connected && this.ipcManager.invoke('readBleDevice', key, target.value);
         });
 
@@ -140,17 +111,11 @@ class BleProcessManager {
         this._readEvents.push({ key, value: characteristic });
     }
 
-    /**
-     *
-     * @param key {string}
-     * @param characteristic {BluetoothRemoteGATTCharacteristic}
-     * @private
-     */
-    _registerWriteCharacteristic(key, characteristic) {
+    private _registerWriteCharacteristic(key: string, characteristic: BluetoothRemoteGATTCharacteristic) {
         this._writeEvents.push({ key, value: characteristic });
     }
 
-    _encodeString(text) {
+    private _encodeString(text: string) {
         const buffer = new ArrayBuffer(text.length);
         const view = new Uint8Array(buffer);
         for (let i = 0; i < text.length; i++) {
@@ -160,5 +125,5 @@ class BleProcessManager {
     }
 }
 
-module.exports = BleProcessManager;
+export default BleProcessManager;
 

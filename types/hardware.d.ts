@@ -1,5 +1,6 @@
 /// <reference path="./index.d.ts" />
 /// <reference path="./ble.d.ts" />
+/// <reference types="web-bluetooth" />
 
 declare interface IHardwareModule {
     // 디바이스 데이터 송수신 라이프사이클
@@ -36,12 +37,9 @@ declare interface IHardwareModule {
 
     // for BLE
     getProfiles?: () => IBleProfileInformation[];
+
     // https://developer.mozilla.org/en-US/docs/Web/API/Bluetooth/requestDevice
-    getScanOptions?: () => {
-        filters?: any[];
-        optionalServices?: string[];
-        acceptAllDevices?: boolean;
-    }
+    getScanOptions?: () => RequestDeviceOptions;
 }
 
 type IRegisterIntervalSendArg = (sendDataFunction: () => any, interval: number) => void;
