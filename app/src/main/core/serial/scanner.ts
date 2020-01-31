@@ -98,7 +98,7 @@ class SerialScanner extends BaseScanner<SerialConnector> {
                     만든다.
                     TODO 현재는 여러개의 포트가 선출되는 경우, 가장 첫번째 포트를 선택한다.
                      */
-                    this.router.connector = connector;
+                    this.router.setConnector(connector);
                     this.router.sendState('before_connect');
                 }
             },

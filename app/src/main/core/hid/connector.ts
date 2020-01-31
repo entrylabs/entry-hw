@@ -1,35 +1,33 @@
-const HID = require('node-hid');
-const BaseConnector = require('../baseConnector');
+import HID, { HID as HIDImpl } from 'node-hid';
+import BaseConnector from '../baseConnector_ts';
 
 class HidConnector extends BaseConnector {
-    open(path) {
+    private registeredIntervals: NodeJS.Timeout[] = [];
+    private requestInitialDataInterval?: NodeJS.Timeout;
+    private requestLocalDataInterval?: NodeJS.Timeout;
+    private device?: HIDImpl;
+    
+    open(path: string) {
         this.connected = false;
-        /**
-         * @type {number[]}
-         */
         this.registeredIntervals = [];
         this.device = new HID.HID(path);
-        return this.device;
+        return Promise.resolve(this.device);
     }
 
     initialize() {
         return new Promise((resolve, reject) => {
-            const { isInitialCheck = true } = this.options;
             const hwModule = this.hwModule;
-            if (isInitialCheck &&
-                hwModule.requestInitialData &&
-                hwModule.checkInitialData
-            ) {
+            if (this.device && hwModule.requestInitialData && hwModule.checkInitialData) {
                 this.device.on('data', (data) => {
                     const result = hwModule.checkInitialData(data, this.options);
                     if (result === undefined) {
                         this.send(hwModule.requestInitialData());
                     } else {
-                        this.device.removeAllListeners('data');
-                        clearInterval(this.requestInitialDataInterval);
-                        if (result === true) {
+                        this.device!.removeAllListeners('data');
+                        this.requestInitialDataInterval && clearInterval(this.requestInitialDataInterval);
+                        if (result) {
                             if (hwModule.registerIntervalSend) {
-                                this.hwModule.registerIntervalSend(
+                                hwModule.registerIntervalSend(
                                     this._registerIntervalSend.bind(this),
                                 );
                             }
@@ -53,20 +51,18 @@ class HidConnector extends BaseConnector {
 
     /**
      * 디바이스에 데이터를 보낸다. write 는 기본적으로 동기동작한다.
-     * featureReport 를 따로 입력하지 않으면 0x00 으로 간주한다.
+     * 따로 입력없이 write 하는 경우, buffer[0] 을 featureReport 라고 간주하므로 주의
      * @see https://github.com/node-hid/node-hid#devicewritedata
-     * @param data {string[]}
-     * @param type {string="output"}
-     * @returns {number} 사실 딱히 쓸모는 없다.
      */
-    send(data, type = 'output') {
+    send(data: any) {
         if (this.device && data) {
             try {
-                const writer =
-                    type === 'feature'
-                        ? this.device.sendFeatureReport
-                        : this.device.write;
-                return this.device.write(data);
+                // TODO 현재는 EV3 만 쓰고 이는 featureReport 가 따로 없기 때문에 보류.
+                // const writer =
+                //     type === 'feature'
+                //         ? this.device.sendFeatureReport
+                //         : this.device.write;
+                this.device.write(data);
             } catch (e) {
                 console.error(e);
             }
@@ -112,7 +108,7 @@ class HidConnector extends BaseConnector {
 
                 // 서버로 데이터를 요청한다.
                 router.setHandlerData();
-                router.sendEncodedDataToServer(/*result*/);
+                router.sendEncodedDataToServer();
             }
         });
 
@@ -129,23 +125,23 @@ class HidConnector extends BaseConnector {
         }
     }
 
-    _registerIntervalSend(sendDataFunction, interval) {
-        this.registeredIntervals.push(setInterval(() => {
-            const data = sendDataFunction();
-            data && this.send(data);
-        }, interval));
-    }
-
     close() {
         this.connected = false;
         this.registeredIntervals.forEach(clearInterval);
         this.requestLocalDataInterval && clearInterval(this.requestLocalDataInterval);
         this.requestInitialDataInterval && clearInterval(this.requestInitialDataInterval);
-        this.device.removeAllListeners();
         if (this.device) {
+            this.device.removeAllListeners();
             this.device.close();
         }
     }
+
+    private _registerIntervalSend(sendDataFunction: () => any, interval: number) {
+        this.registeredIntervals.push(setInterval(() => {
+            const data = sendDataFunction();
+            data && this.send(data);
+        }, interval));
+    }
 }
 
-module.exports = HidConnector;
+export default HidConnector;

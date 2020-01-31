@@ -24,7 +24,7 @@ abstract class BaseConnector {
     protected connected = false;
     protected received = false;
 
-    protected constructor(hwModule: IHardwareModule, hardwareOptions: IHardwareModuleConfig) {
+    constructor(hwModule: IHardwareModule, hardwareOptions: IHardwareModuleConfig) {
         this.options = hardwareOptions;
         this.hwModule = hwModule;
         this.router = undefined;

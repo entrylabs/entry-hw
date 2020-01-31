@@ -1,29 +1,16 @@
-const _ = require('lodash');
-const HID = require('node-hid');
-const rendererConsole = require('../rendererConsole');
-const BaseScanner = require('../baseScanner');
-const Connector = require('./connector');
+import _ from 'lodash';
+import HID, { Device } from 'node-hid';
+import rendererConsole from '../rendererConsole';
+import BaseScanner from '../baseScanner_ts';
+import HidConnector from './connector';
+import MainRouter from '../../mainRouter';
 
-class HidScanner extends BaseScanner {
-    constructor(router) {
+class HidScanner extends BaseScanner<HidConnector> {
+    private isScanning = false;
+
+    constructor(router: MainRouter) {
         super(router);
-        this.router = router;
-        this.isScanning = false;
-    }
-
-    async startScan(hwModule, config) {
-        this.stopScan();
-        this.setConfig(config);
-        this.hwModule = hwModule;
-        this.connectors = {};
-        return await this.intervalScan();
-    }
-
-    setConfig(config) {
-        const { hardware } = config;
-        const { driverType = 'hidraw' } = hardware;
-        HID.setDriverType(driverType);
-        this.config = config;
+        HID.setDriverType('hidraw');
     }
 
     async intervalScan() {
@@ -51,15 +38,17 @@ class HidScanner extends BaseScanner {
         const selectedPath = this.router.selectedPort;
         const devices = HID.devices();
         rendererConsole.log(devices);
+
         if (selectedPath) {
             const selectedDevice = _.find(devices, ['product', selectedPath]);
-            if (!selectedDevice) {
+            if (!selectedDevice || !selectedDevice.path) {
                 return;
             }
             return await this.prepareConnector(selectedDevice.path);
         } else {
-            const pathList = _.filter(devices, (device) => {
+            const pathList = _.filter<Device>(devices, (device) => {
                 for (const key in device) {
+                    // @ts-ignore hardware config 에서 해당 값을 왜 찾는지 알수없음
                     if (hardware[key] && hardware[key] !== device[key]) {
                         return false;
                     }
@@ -67,6 +56,7 @@ class HidScanner extends BaseScanner {
                 return true;
             })
                 .sort((left, right) => {
+                    // @ts-ignore 그럼에도 상관없음
                     if (left.product > right.product) {
                         return 1;
                     } else {
@@ -82,25 +72,24 @@ class HidScanner extends BaseScanner {
         }
     }
 
-    async prepareConnector(path) {
+    private async prepareConnector(path: string) {
+        if (!this.config || !this.hwModule) {
+            throw new Error('Hardware config is not found');
+        }
+
         try {
             const { hardware } = this.config;
-            const connector = new Connector(this.hwModule, hardware);
+            const connector = new HidConnector(this.hwModule, hardware);
             connector.open(path);
             this.router.setConnector(connector);
             this.router.sendState('before_connect');
             await connector.initialize();
-            this.finalizeScan(path);
+            this.stopScan();
             return connector;
         } catch (e) {
             throw e;
         }
-        // const device = new HID.HID(path);
-    }
-
-    finalizeScan(path) {
-        this.stopScan();
     }
 }
 
-module.exports = HidScanner;
+export default HidScanner;

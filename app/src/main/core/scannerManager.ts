@@ -1,6 +1,6 @@
 import SerialScanner from './serial/scanner';
+import HidScanner from './hid/scanner';
 
-const HidScanner = require('./hid/scanner');
 const BleScanner = require('./ble/scanner');
 
 type IScannerSelector = {
