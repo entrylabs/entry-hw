@@ -1,6 +1,6 @@
-const { net } = require('electron');
+import { net } from 'electron';
 
-module.exports = () => new Promise((resolve, reject) => {
+const getModuleListFunction: () => Promise<IHardwareConfig[]> = () => new Promise((resolve, reject) => {
     const { baseUrl, moduleCheckApi } = global.sharedObject;
 
     //TODO 개발간 임시
@@ -25,3 +25,5 @@ module.exports = () => new Promise((resolve, reject) => {
     request.on('error', reject);
     request.end();
 });
+
+export default getModuleListFunction;

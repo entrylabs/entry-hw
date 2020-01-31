@@ -12,7 +12,7 @@ const platform = process.platform;
  *
  */
 class Flasher {
-    public flasherProcess?: ChildProcess;
+    private flasherProcess?: ChildProcess;
 
     static get firmwareDirectoryPath() {
         const asarIndex = app.getAppPath().indexOf(`${path.sep}app.asar`);
@@ -23,7 +23,7 @@ class Flasher {
         }
     }
 
-    _flashArduino(firmware: IFirmwareInfo, port: string, options: { baudRate?: string; MCUType?: string; }) {
+    private _flashArduino(firmware: IFirmwareInfo, port: string, options: { baudRate?: string; MCUType?: string; }) {
         return new Promise((resolve) => {
             const appPath = Flasher.firmwareDirectoryPath;
             const baudRate = options.baudRate || '115200';
@@ -71,7 +71,7 @@ class Flasher {
         });
     }
 
-    _flashCopy(firmware: ICopyTypeFirmware) {
+    private _flashCopy(firmware: ICopyTypeFirmware) {
         return new Promise((resolve, reject) => {
             const firmwareDirectory = Flasher.firmwareDirectoryPath;
             const destPath = dialog.showOpenDialogSync({

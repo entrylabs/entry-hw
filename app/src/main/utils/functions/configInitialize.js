@@ -22,8 +22,6 @@ const internalConfig = {
     appName: 'hardware',
     hardwareVersion: packageJson.version,
     roomIds: [],
-    hostURI: 'playentry.org',
-    hostProtocol: 'https:',
 };
 
 // target 에 있는 키만 병합한다.
