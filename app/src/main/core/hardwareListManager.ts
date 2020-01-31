@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { app } from 'electron';
 import { AvailableTypes } from '../../common/constants';
-import getModuleList from './network/getModuleList';
+import getModuleList from './functions/getModuleList';
 
 const nameSortComparator = (left: IHardwareConfig, right: IHardwareConfig) => {
     const lName = left.name.ko.trim();

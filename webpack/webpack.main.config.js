@@ -50,7 +50,7 @@ module.exports = merge({
     ],
     plugins: [
         new SourceMapDevToolPlugin({
-            filename: '[name].build.map',
+            filename: 'mainRouter.build.js.map',
         }),
     ],
 }, base);

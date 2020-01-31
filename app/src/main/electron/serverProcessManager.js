@@ -31,7 +31,7 @@ class ServerProcessManager {
         if (asarIndex > -1) {
             return path.join(app.getAppPath().substr(0, asarIndex), 'server.exe');
         } else {
-            const serverDirPath = [__dirname, '..', '..', 'server'];
+            const serverDirPath = [__dirname, '..', '..', '..', 'server'];
             if (os.type().includes('Darwin')) {
                 return path.resolve(...serverDirPath, 'mac', 'server.exe');
             } else {

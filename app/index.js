@@ -6,16 +6,16 @@ const fs = require('fs');
 global.$ = require('lodash');
 
 // classes
-const EntryServer = require('./src/main/serverProcessManager');
 const MainRouter = require('./src/main/mainRouter.build');
-const WindowManager = require('./src/main/utils/windowManager');
-const CommonUtils = require('./src/main/utils/commonUtils');
+const EntryServer = require('./src/main/electron/serverProcessManager');
+const WindowManager = require('./src/main/electron/windowManager');
+const CommonUtils = require('./src/main/electron/commonUtils');
 
 // functions
-const parseCommandLine = require('./src/main/utils/functions/parseCommandLine');
-const configInit = require('./src/main/utils/functions/configInitialize');
-const registerGlobalShortcut = require('./src/main/utils/functions/registerGlobalShortcut');
-const checkUpdate = require('./src/main/core/network/checkUpdate');
+const parseCommandLine = require('./src/main/electron/functions/parseCommandLine');
+const configInit = require('./src/main/electron/functions/configInitialize');
+const registerGlobalShortcut = require('./src/main/electron/functions/registerGlobalShortcut');
+const checkUpdate = require('./src/main/electron/functions/checkUpdate');
 
 let mainWindow = null;
 let mainRouter = null;
