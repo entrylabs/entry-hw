@@ -2,7 +2,7 @@ import _ from 'lodash';
 import rendererConsole from '../rendererConsole';
 import SerialPort from 'serialport';
 import electPort from './electPortFunction';
-import { CLOUD_MODE_TYPES as CloudModeTypes } from '../../../common/constants';
+import { CloudModeTypes } from '../../../common/constants';
 import BaseScanner from '../baseScanner';
 import SerialConnector from './connector';
 

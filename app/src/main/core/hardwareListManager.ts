@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { app } from 'electron';
-import { AVAILABLE_TYPE } from '../../common/constants';
+import { AvailableTypes } from '../../common/constants';
 import getModuleList from './network/getModuleList';
 
 const nameSortComparator = (left: IHardwareConfig, right: IHardwareConfig) => {
@@ -50,7 +50,7 @@ export default class {
             .map((file) => {
                 const bufferData = fs.readFileSync(path.join(this.moduleBasePath, file));
                 const configJson = JSON.parse(bufferData.toString());
-                configJson.availableType = AVAILABLE_TYPE.available;
+                configJson.availableType = AvailableTypes.available;
                 return configJson;
             })
             .filter(platformFilter)
@@ -86,7 +86,7 @@ export default class {
                 // != 의 경우 일부러 그랬습니다. 문자열 / 숫자를 상관하지 않게 하기 위함
                 // noinspection EqualityComparisonWithCoercionJS
                 if (!original.version || original.version != foundElem.version) {
-                    original.availableType = AVAILABLE_TYPE.needUpdate;
+                    original.availableType = AvailableTypes.needUpdate;
                 }
             }
             return original;

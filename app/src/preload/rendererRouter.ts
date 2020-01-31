@@ -1,5 +1,5 @@
 import { ipcRenderer, remote, shell } from 'electron';
-import { HardwareStatement, RunningModeTypes } from '../common/constants_ts';
+import { HardwareStatement, RunningModeTypes } from '../common/constants';
 
 /**
  * 렌더러 비즈니스로직을 담은 클래스.
