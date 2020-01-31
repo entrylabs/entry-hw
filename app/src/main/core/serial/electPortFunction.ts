@@ -27,7 +27,7 @@ const electPort = async (
     //  이는 프로세스 자체의 변경이 필요하므로 기획팀 논의를 거쳐서
     //  '펌웨어 클릭 > 포트가 여러개인경우 목록노출 > 선택적 플래시' 프로세스로 추후개발필요
     if (beforeConnectCallback) {
-        const {connector} = connectors[0];
+        const { connector } = connectors[0];
         beforeConnectCallback(connector);
     }
 

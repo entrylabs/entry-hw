@@ -1,16 +1,17 @@
-const inquirer = require('inquirer');
-const _ = require('lodash');
-const path = require('path');
-const fs = require('fs').promises;
-const serialport = require('serialport');
+import inquirer from 'inquirer';
+import _ from 'lodash';
+import path from 'path';
+import serialport from 'serialport';
 
-const SerialScanner = require('../app/src/main/core/serial/scanner');
-const SerialConnector = require('../app/src/main/core/serial/connector');
+import SerialScanner from '../app/src/main/core/serial/scanner';
+import SerialConnector from '../app/src/main/core/serial/connector';
+
+const fs = require('fs').promises;
 
 const dummyRouter = {
     setHandlerData: () => {},
     sendEncodedDataToServer: () => {},
-    sendState: (state) => {
+    sendState: (state: string) => {
         consoleWrite(`router ${state} called`);
 
         if (state === 'connected') {
@@ -25,14 +26,14 @@ const dummyRouter = {
 const modulesDirPath = path.join(__dirname, '..', 'app', 'modules');
 const isDebugMode = process.argv.some((arg) => arg === '--verbose');
 
-const printError = (e, msg) => {
+const printError = (e: Error, msg: string) => {
     if (isDebugMode) {
         console.error(e);
     }
     console.error(msg);
 };
 
-const consoleWrite = (msg) => {
+const consoleWrite = (msg: string) => {
     const ANSIGreen = '\x1b[32m';
     const ANSIReset = '\x1b[0m';
     const ANSIBoldOn = '\x1b[1m';
@@ -40,23 +41,12 @@ const consoleWrite = (msg) => {
     console.log(`${ANSIGreen}? ${ANSIReset}${ANSIBoldOn}${msg}${ANSIBoldOff}`);
 };
 
-const stdoutWrite = (msg) => {
+const stdoutWrite = (msg: string) => {
     const ANSIGreen = '\x1b[32m';
     const ANSIReset = '\x1b[0m';
     const ANSIBoldOn = '\x1b[1m';
     const ANSIBoldOff = '\x1b[22m';
     process.stdout.write(`${ANSIGreen}? ${ANSIReset}${ANSIBoldOn}${msg}${ANSIBoldOff}\r`);
-};
-
-const resetableStdoutWrite = (clear, multiLineMessage) => {
-    clear && process.stdout.clearScreenDown();
-    multiLineMessage.forEach((msg) => {
-        process.stdout.write(msg);
-        process.stdout.write('\n');
-    });
-    process.stdout.moveCursor(0, -1 * multiLineMessage.length);
-    process.stdout.cursorTo(0);
-    process.stdout.clearScreenDown();
 };
 
 /*
@@ -82,7 +72,7 @@ const getHardwareConfig = async () => {
     }
 };
 
-const getHardwareModule = (config) => {
+const getHardwareModule = (config: IHardwareConfig) => {
     try {
         if (config) {
             return require(`../app/modules/${config.module}`);
@@ -92,7 +82,8 @@ const getHardwareModule = (config) => {
     }
 };
 
-const getComPort = async (config) => {
+const getComPort = async (config: IHardwareConfig) => {
+    // @ts-ignore
     const scanner = new SerialScanner();
     let selectedPort = undefined;
 
@@ -129,12 +120,15 @@ const getComPort = async (config) => {
     return selectedPort;
 };
 
-const initializeConnector = async (connector) => {
+const initializeConnector = async (connector: SerialConnector) => {
     let requestInitialDataCount = 0;
     const getMessage = () => `requestInitialData count: ${requestInitialDataCount}`;
 
     // inject logger function into requestInitialData
+    // @ts-ignore
     const originalRequestInitialData = connector.hwModule.requestInitialData.bind(connector.hwModule);
+
+    // @ts-ignore
     connector.hwModule.requestInitialData = (serialPort) => {
         requestInitialDataCount++;
         stdoutWrite(getMessage());
@@ -153,6 +147,8 @@ const initializeConnector = async (connector) => {
     try {
         const connector = new SerialConnector(hwModule, config.hardware);
         const serialPort = await connector.open(comPort.path);
+
+        // @ts-ignore
         connector.setRouter(dummyRouter);
         consoleWrite(`SerialPort connector opened ${comPort.path}`);
 

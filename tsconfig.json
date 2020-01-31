@@ -71,7 +71,6 @@
         // "emitDecoratorMetadata": true,         /* Enables experimental support for emitting type metadata for decorators. */
     },
     "include": [
-        "./app/src/main/**/*.ts",
-        "./app/src/renderer/react"
+        "./**/*.ts"
     ]
 }

@@ -22,7 +22,8 @@ const commonjsModules = [
 
 module.exports = merge({
     target: 'electron-main',
-    entry: ['babel-polyfill', path.join(mainDirectoryPath, 'mainRouter.ts')],
+    entry: path.join(mainDirectoryPath, 'mainRouter.ts'),
+    devtool: false,
     node: {
         __dirname: false,
     },
@@ -49,7 +50,7 @@ module.exports = merge({
     ],
     plugins: [
         new SourceMapDevToolPlugin({
-            filename: 'mainRouter.build.js.sourcemap.map',
+            filename: '[name].build.map',
         }),
     ],
 }, base);

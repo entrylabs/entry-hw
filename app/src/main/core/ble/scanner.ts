@@ -138,4 +138,4 @@ class BleScanner extends BaseScanner<BleConnector> {
     }
 }
 
-module.exports = BleScanner;
+export default BleScanner;
