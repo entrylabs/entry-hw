@@ -12,7 +12,7 @@ class mechatro extends BaseModule {
     
     // 클래스 내부에서 사용될 필드들을 이곳에서 선언합니다.
     constructor() {
-
+        super();
         // 0일 때 requestLocalData()에서 초기화를 진행한다. 초기화 진행 후 값:2
         // 엔트리에서 데이터 입력 있으면, 3으로 셋팅
         // 정지, 데이터 없으면 3값에서 0으로 셋팅 후 HW 프로그램 초기화
