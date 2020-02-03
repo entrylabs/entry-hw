@@ -8,9 +8,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2.0.0
       - name: ESlint
-        uses: reviewdog/action-eslint@v1
+        uses: hallee/eslint-action@master
         with:
-          github_token: ${{ secrets.github_token }}
-          reporter: github-pr-review
-          eslint_flags: 'app/'
+          repo-token: ${{secrets.GITHUB_TOKEN}}
 
