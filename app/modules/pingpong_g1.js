@@ -72,23 +72,6 @@ class pingpong_g1 extends BaseModule {
                 0x00,
                 0x0d,
             ]);
-        } else if (method === 'setColorLed') {
-            result = Buffer.from([
-                0xff,
-                0xff,
-                0x00,
-                0x07,
-                0x00,
-                0x00,
-                0xce,
-                0x00,
-                0x0e,
-                0x02,
-                0x00,
-                0x00,
-                0x07,
-                0x50,
-            ]);
         } else if (method === 'getSensorData') {
             result = Buffer.from([
                 0xff,
@@ -100,7 +83,7 @@ class pingpong_g1 extends BaseModule {
                 0xb8,
                 0x00,
                 0x0b,
-                10,
+                20,
                 0x01,
             ]);
         }
@@ -319,14 +302,10 @@ class pingpong_g1 extends BaseModule {
         console.log('P: connect: ');
 
         setTimeout(() => {
-            this.sp.write(this.makePackets('setColorLed'), (err) => {});
-        }, 1000);
-
-        setTimeout(() => {
             this.sp.write(this.makePackets('getSensorData'), (err) => {
                 console.log('done.........');
             });
-        }, 2000);
+        }, 1000);
     }
 
     // 하드웨어 연결 해제 시 호출됩니다.
