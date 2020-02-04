@@ -66,12 +66,6 @@ class byrobot_drone_4 extends BaseModule
             DISPLAY_CLEAR_HEIGHT:       'display_clear_height',
             DISPLAY_CLEAR_PIXEL:        'display_clear_pixel',
 
-            // 선택 영역 반전
-            DISPLAY_INVERT_X:           'display_invert_x',
-            DISPLAY_INVERT_Y:           'display_invert_y',
-            DISPLAY_INVERT_WIDTH:       'display_invert_width',
-            DISPLAY_INVERT_HEIGHT:      'display_invert_height',
-
             // 화면에 점 찍기
             DISPLAY_DRAW_POINT_X:       'display_draw_point_x',
             DISPLAY_DRAW_POINT_Y:       'display_draw_point_y',
@@ -394,7 +388,7 @@ class byrobot_drone_4 extends BaseModule
         this.crc16Calculated                = 0;        // CRC16 계산 된 결과
         this.crc16Received                  = 0;        // CRC16 수신 받은 블럭
 
-        this.maxTransferRepeat              = 2;        // 최대 반복 전송 횟수
+        this.maxTransferRepeat              = 3;        // 최대 반복 전송 횟수
         this.countTransferRepeat            = 0;        // 반복 전송 횟수
         this.dataTypeLastTransfered         = 0;        // 마지막으로 전송한 데이터의 타입
 
@@ -732,49 +726,6 @@ class byrobot_drone_4 extends BaseModule
             this.bufferTransfer.push(dataArray);
             
             this.log("Transfer_To_Device / DisplayClear", dataArray);
-        }
-
-
-        // 선택 영역 반전
-        if( (handler.e(this.DataType.DISPLAY_INVERT_WIDTH)  == true) ||
-            (handler.e(this.DataType.DISPLAY_INVERT_HEIGHT) == true) )
-        {
-            let dataArray = [];
-
-            // Start Code
-            this.addStartCode(dataArray);
-            
-            let target                  = handler.e(this.DataType.TARGET)                   ? handler.read(this.DataType.TARGET)                : 0xFF;
-            let display_invert_x        = handler.e(this.DataType.DISPLAY_INVERT_X)         ? handler.read(this.DataType.DISPLAY_INVERT_X)      : 0;
-            let display_invert_y        = handler.e(this.DataType.DISPLAY_INVERT_Y)         ? handler.read(this.DataType.DISPLAY_INVERT_Y)      : 0;
-            let display_invert_width    = handler.e(this.DataType.DISPLAY_INVERT_WIDTH)     ? handler.read(this.DataType.DISPLAY_INVERT_WIDTH)  : 0;
-            let display_invert_height   = handler.e(this.DataType.DISPLAY_INVERT_HEIGHT)    ? handler.read(this.DataType.DISPLAY_INVERT_HEIGHT) : 0;
-
-            let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-            let dataLength = 8;                     // 데이터의 길이
-
-            // Header
-            dataArray.push(0x81);                   // Data Type
-            dataArray.push(dataLength);             // Data Length
-            dataArray.push(0x82);                   // From (네이버 엔트리)
-            dataArray.push(target);                 // To
-
-            // Data
-            dataArray.push(this.getByte0(display_invert_x));
-            dataArray.push(this.getByte1(display_invert_x));
-            dataArray.push(this.getByte0(display_invert_y));
-            dataArray.push(this.getByte1(display_invert_y));
-            dataArray.push(this.getByte0(display_invert_width));
-            dataArray.push(this.getByte1(display_invert_width));
-            dataArray.push(this.getByte0(display_invert_height));
-            dataArray.push(this.getByte1(display_invert_height));
-
-            // CRC16
-            this.addCRC16(dataArray, indexStart, dataLength);
-
-            this.bufferTransfer.push(dataArray);
-            
-            this.log("Transfer_To_Device / DisplayInvert", dataArray);
         }
 
 
