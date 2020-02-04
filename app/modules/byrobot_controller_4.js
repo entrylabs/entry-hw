@@ -487,6 +487,8 @@ class byrobot_drone_4 extends BaseModule
             this.addCRC16(dataArray, indexStart, dataLength);
 
             this.bufferTransfer.push(dataArray);
+            
+            this.log("Transfer_To_Device / LightManual", dataArray);
         }
 
 
@@ -533,6 +535,8 @@ class byrobot_drone_4 extends BaseModule
             // this.log("Light Mode");
     
             this.bufferTransfer.push(dataArray);
+            
+            this.log("Transfer_To_Device / LightModeColor", dataArray);
         }
         // LightMode
         else if((handler.e(this.DataType.LIGHT_MODE_MODE)       == true) &&
@@ -565,6 +569,8 @@ class byrobot_drone_4 extends BaseModule
             this.addCRC16(dataArray, indexStart, dataLength);
 
             this.bufferTransfer.push(dataArray);
+            
+            this.log("Transfer_To_Device / LightMode", dataArray);
         }
         
 
@@ -611,6 +617,8 @@ class byrobot_drone_4 extends BaseModule
             this.addCRC16(dataArray, indexStart, dataLength);
 
             this.bufferTransfer.push(dataArray);
+            
+            this.log("Transfer_To_Device / LightEventColor", dataArray);
         }
         else if((handler.e(this.DataType.LIGHT_EVENT_EVENT)     == true) &&
                 (handler.e(this.DataType.LIGHT_EVENT_INTERVAL)  == true) &&
@@ -645,6 +653,8 @@ class byrobot_drone_4 extends BaseModule
             this.addCRC16(dataArray, indexStart, dataLength);
 
             this.bufferTransfer.push(dataArray);
+            
+            this.log("Transfer_To_Device / LightEvent", dataArray);
         }
         
 
@@ -675,6 +685,8 @@ class byrobot_drone_4 extends BaseModule
             this.addCRC16(dataArray, indexStart, dataLength);
 
             this.bufferTransfer.push(dataArray);
+            
+            this.log("Transfer_To_Device / DisplayClearAll", dataArray);
         }
 
 
@@ -718,6 +730,8 @@ class byrobot_drone_4 extends BaseModule
             this.addCRC16(dataArray, indexStart, dataLength);
 
             this.bufferTransfer.push(dataArray);
+            
+            this.log("Transfer_To_Device / DisplayClear", dataArray);
         }
 
 
@@ -759,6 +773,8 @@ class byrobot_drone_4 extends BaseModule
             this.addCRC16(dataArray, indexStart, dataLength);
 
             this.bufferTransfer.push(dataArray);
+            
+            this.log("Transfer_To_Device / DisplayInvert", dataArray);
         }
 
 
@@ -797,6 +813,8 @@ class byrobot_drone_4 extends BaseModule
             this.addCRC16(dataArray, indexStart, dataLength);
 
             this.bufferTransfer.push(dataArray);
+            
+            this.log("Transfer_To_Device / DisplayDrawPoint", dataArray);
         }
 
 
@@ -844,6 +862,8 @@ class byrobot_drone_4 extends BaseModule
             this.addCRC16(dataArray, indexStart, dataLength);
 
             this.bufferTransfer.push(dataArray);
+            
+            this.log("Transfer_To_Device / DisplayDrawLine", dataArray);
         }
 
         
@@ -891,6 +911,8 @@ class byrobot_drone_4 extends BaseModule
             this.addCRC16(dataArray, indexStart, dataLength);
 
             this.bufferTransfer.push(dataArray);
+
+            this.log("Transfer_To_Device / DisplayDrawRect", dataArray);
         }
 
 
@@ -932,6 +954,8 @@ class byrobot_drone_4 extends BaseModule
             this.addCRC16(dataArray, indexStart, dataLength);
 
             this.bufferTransfer.push(dataArray);
+            
+            this.log("Transfer_To_Device / DisplayDrawCircle", dataArray);
         }
 
 
@@ -979,6 +1003,8 @@ class byrobot_drone_4 extends BaseModule
             this.addCRC16(dataArray, indexStart, dataLength);
 
             this.bufferTransfer.push(dataArray);
+
+            this.log("Transfer_To_Device / DisplayDrawString", dataArray);
         }
 
 
@@ -1031,6 +1057,8 @@ class byrobot_drone_4 extends BaseModule
             this.addCRC16(dataArray, indexStart, dataLength);
 
             this.bufferTransfer.push(dataArray);
+            
+            this.log("Transfer_To_Device / DisplayDrawStringAlign", dataArray);
         }
 
 
@@ -1062,8 +1090,6 @@ class byrobot_drone_4 extends BaseModule
             // CRC16
             this.addCRC16(dataArray, indexStart, dataLength);
 
-            this.log("handlerForEntry() / COMMAND / command: " + command_command + ", option: " + command_option, dataArray);
-
             this.bufferTransfer.push(dataArray);
 
             switch( command_command )
@@ -1078,6 +1104,8 @@ class byrobot_drone_4 extends BaseModule
                 }
                 break;
             }
+
+            this.log("Transfer_To_Device / Command" + command_command + ", option: " + command_option, dataArray);
         }
 
 
@@ -1113,9 +1141,9 @@ class byrobot_drone_4 extends BaseModule
             // CRC16
             this.addCRC16(dataArray, indexStart, dataLength);
 
-            this.log("handlerForEntry() / BUZZER / buzzer_mode: " + buzzer_mode + ", buzzer_value: " + buzzer_value + ", buzzer_time: " + buzzer_time, dataArray);
-
             this.bufferTransfer.push(dataArray);
+
+            this.log("Transfer_To_Device / Buzzer / buzzer_mode: " + buzzer_mode + ", buzzer_value: " + buzzer_value + ", buzzer_time: " + buzzer_time, dataArray);
         }
 
 
@@ -1127,7 +1155,7 @@ class byrobot_drone_4 extends BaseModule
             // Start Code
             this.addStartCode(dataArray);
             
-            let target          = handler.e(this.DataType.TARGET)           ? handler.read(this.DataType.TARGET)            : 0x31;
+            let target          = handler.e(this.DataType.TARGET)           ? handler.read(this.DataType.TARGET)            : 0x20;
             let vibrator_mode   = handler.e(this.DataType.VIBRATOR_MODE)    ? handler.read(this.DataType.VIBRATOR_MODE)     : 0;
             let vibrator_on     = handler.e(this.DataType.VIBRATOR_ON)      ? handler.read(this.DataType.VIBRATOR_ON)       : 0;
             let vibrator_off    = handler.e(this.DataType.VIBRATOR_OFF)     ? handler.read(this.DataType.VIBRATOR_OFF)      : 0;
@@ -1155,6 +1183,8 @@ class byrobot_drone_4 extends BaseModule
             this.addCRC16(dataArray, indexStart, dataLength);
 
             this.bufferTransfer.push(dataArray);
+
+            this.log("Transfer_To_Device / Vibrator", dataArray);
         }
 
         //this.log("handlerForEntry()", dataArray);
@@ -1425,11 +1455,13 @@ class byrobot_drone_4 extends BaseModule
         case 0x43:  break;      // 
         case 0x44:  break;      // 
         case 0x45:  break;      // 
+        case 0x70:  break;      // 
+        case 0x71:  break;      // 
         case 0xA1:  break;      // 
 
         default:
             {
-                this.log("handlerForDevice() / From: " + this.from + " / To: " + this.to + " / Type: " + this.dataType + " / ", this.dataBlock);
+                this.log("Receive_From_Device / From: " + this.from + " / To: " + this.to + " / Type: " + this.dataType + " / ", this.dataBlock);
             }
             break;
         }
@@ -1452,7 +1484,7 @@ class byrobot_drone_4 extends BaseModule
                 // ping에 대한 ack는 로그 출력하지 않음
                 if( ack.ack_dataType != 0x01 )
                 {
-                    console.log("handlerForDevice - Ack / From: " + this.from + " / SystemTime: " + ack.ack_systemTime + " / DataType: " + ack.ack_dataType + " / Repeat: " + this.countTransferRepeat + " / Crc16Transfer: " + this.crc16Transfered + " / Crc16Get: " + ack.ack_crc16);
+                    console.log("Receive_From_Device - Ack / From: " + this.from + " / SystemTime: " + ack.ack_systemTime + " / DataType: " + ack.ack_dataType + " / Repeat: " + this.countTransferRepeat + " / Crc16Transfer: " + this.crc16Transfered + " / Crc16Get: " + ack.ack_crc16);
                 }
 
                 // 마지막으로 전송한 데이터에 대한 응답을 받았다면 
@@ -1477,7 +1509,7 @@ class byrobot_drone_4 extends BaseModule
                     this.bufferTransfer.shift();
                     this.countTransferRepeat = 0;
                     
-                    console.log("handlerForDevice - Response / From: " + this.from + " / DataType: " + this.dataType);
+                    console.log("Receive_From_Device - Response / From: " + this.from + " / DataType: " + this.dataType);
                 }
             }
             break;
@@ -1495,7 +1527,7 @@ class byrobot_drone_4 extends BaseModule
                 button.button_button    = this.extractUInt16(this.dataBlock, 0);
                 button.button_event     = this.extractUInt8(this.dataBlock, 2);
     
-                //console.log("handlerForDevice - Button: " + button.button_button + ", " + button.button_event);
+                //console.log("Receive_From_Device - Button: " + button.button_button + ", " + button.button_event);
             }
             break;
     
@@ -1514,7 +1546,7 @@ class byrobot_drone_4 extends BaseModule
                 joystick.joystick_right_direction   = this.extractUInt8(this.dataBlock, 6);
                 joystick.joystick_right_event       = this.extractUInt8(this.dataBlock, 7);
     
-                //console.log("handlerForDevice - Joystick: " + joystick.joystick_left_x + ", " + joystick.joystick_left_y + ", " + joystick.joystick_right_x + ", " + joystick.joystick_right_y);
+                //console.log("Receive_From_Device - Joystick: " + joystick.joystick_left_x + ", " + joystick.joystick_left_y + ", " + joystick.joystick_right_x + ", " + joystick.joystick_right_y);
             }
             break;
     
@@ -1685,7 +1717,7 @@ class byrobot_drone_4 extends BaseModule
         this.crc16Transfered = (arrayTransfer[arrayTransfer.length - 1] << 8) | (arrayTransfer[arrayTransfer.length - 2]);
     
         //if( this.countTransferRepeat > 1 && this.countTransferRepeat < 3 )
-        this.log("Data Transfer - Repeat(" + this.bufferTransfer.length + ") : " + this.countTransferRepeat, this.bufferTransfer[0]);
+        //this.log("Data Transfer - Repeat(" + this.bufferTransfer.length + ") : " + this.countTransferRepeat, this.bufferTransfer[0]);
         //console.log("Data Transfer - Repeat: " + this.countTransferRepeat, this.bufferTransfer[0]);
     
         // maxTransferRepeat 이상 전송했음에도 응답이 없는 경우엔 다음으로 넘어감
@@ -1831,7 +1863,7 @@ class byrobot_drone_4 extends BaseModule
     /***************************************************************************************
      *  로그 출력
      ***************************************************************************************/
-    log(location, data)
+    log(message, data = 'undefined')
     {
         // 로그를 출력하지 않으려면 아래 주석을 활성화 할 것
         //*
@@ -1842,14 +1874,17 @@ class byrobot_drone_4 extends BaseModule
         case "object":
             {
                 strInfo = " / [ " + this.convertByteArrayToHexString(data) + " ]";
+                console.log(message + " / " + (typeof data) + strInfo);
             }
             break;
 
         default:
+            {
+                console.log(message);
+            }
             break;
         }
 
-        console.log(location + " / " + (typeof data) + strInfo);
         // */
     }
 

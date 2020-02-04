@@ -6,8 +6,8 @@
     },
     "category": "robot",
     "platform": ["win32", "darwin"],
-    "icon" : "byrobot_drone_4.png",
-    "module": "byrobot_drone_4.js",
+    "icon" : "byrobot_drone_3.png",
+    "module": "byrobot_drone_3.js",
     "driver": {
         "win32-ia32": "BYROBOT/petrone_v2_usb_driver_32.exe",
         "win32-x64": "BYROBOT/petrone_v2_usb_driver_64.exe"
