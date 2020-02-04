@@ -1,8 +1,8 @@
 const PingpongBase = require('./pingpong_base');
 
-class pingpong_g2 extends PingpongBase {
+class pingpong_g3 extends PingpongBase {
     constructor() {
-        super(2);
+        super(3);
 
         this._sensorData = [
             {
@@ -27,6 +27,17 @@ class pingpong_g2 extends PingpongBase {
                 PROXIMITY: 0,
                 AIN: 0,
             },
+            {
+                MOVE_X: 0,
+                MOVE_Y: 0,
+                MOVE_Z: 0,
+                TILT_X: 0,
+                TILT_Y: 0,
+                TILT_Z: 0,
+                BUTTON: 0,
+                PROXIMITY: 0,
+                AIN: 0,
+            },
         ];
     }
 
@@ -35,7 +46,7 @@ class pingpong_g2 extends PingpongBase {
 
         if (data.length >= 18) {
             if (data[6] == 0xad || data[6] == 0xae) {
-                if (data[11] == 0x01) {
+                if (data[12] == 0x02) {
                     console.log('checkinit: all cube connected!');
                     return true;
                 }
@@ -44,4 +55,4 @@ class pingpong_g2 extends PingpongBase {
     }
 }
 
-module.exports = new pingpong_g2();
+module.exports = new pingpong_g3();
