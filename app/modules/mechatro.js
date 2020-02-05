@@ -9,7 +9,6 @@ const _ = require('lodash');
 const BaseModule = require('./baseModule');
 
 class mechatro extends BaseModule {
-    
     // 클래스 내부에서 사용될 필드들을 이곳에서 선언합니다.
     constructor() {
         super();
@@ -201,9 +200,9 @@ class mechatro extends BaseModule {
     */
     requestLocalData() {
         //console.log( '     ■ -->> Device');
-        let queryString = [];
+        const queryString = [];
         let query;
-        let portkeys;
+        const portkeys = Object.keys(this.dataFromEntry);
         let mode;
         let value;
         let modeGroup;
@@ -215,15 +214,13 @@ class mechatro extends BaseModule {
             return queryString;
         }
 
-        portkeys = Object.keys(this.dataFromEntry);
-
         // handleRemoteData()에서 값이 들어오지 않으면,
         // this.dataFromEntry={} 로 초기화시켜 정시 시 데이터 전송하지 않음.
         portkeys.forEach((portNo) => {
             //console.log( 'portkeys.forEach ');
-            if ( this.dataFromEntry[portNo].flag < 2 ) {
+            if (this.dataFromEntry[portNo].flag < 2) {
                 mode = this.dataFromEntry[portNo].mode;
-                if ( portNo==3 || portNo==11 ) {
+                if (portNo == 3 || portNo == 11) {
                     mode = this.setMode.SET_MOTOR_SPEED;  //모터는 모드를 직접 지정
                 }
                 modeGroup = mode & 0xe0;
@@ -247,10 +244,10 @@ class mechatro extends BaseModule {
                                 query = this.setMode.SET_BLUE_PW;
                                 queryString.push(query);
     
-                                query = parseInt(value / 100);
+                                query = parseInt(value / 100,10);
                                 queryString.push(query);
     
-                                query = value - parseInt(value / 100) * 100;
+                                query = value - parseInt(value / 100,10) * 100;
                                 queryString.push(query);
                                 break;
                             }
@@ -337,14 +334,12 @@ class mechatro extends BaseModule {
                                 break;
                             }
                         break;
-                    default:
-                        break;
                     }
             }
         });
     
-        if ( queryString.length > 0 ) {
-            queryString.unshift( this.setMode.SET_STANDBY_DEVICE );
+        if (queryString.length > 0) {
+            queryString.unshift(this.setMode.SET_STANDBY_DEVICE);
             //console.log("    ■ --> Data to Device: " , queryString);
             return queryString;
         } else {
@@ -363,9 +358,9 @@ class mechatro extends BaseModule {
 
         //console.log(data);
 
-        if ( this.remainmode ) {
+        if (this.remainmode) {
             data2 = data[0];
-            if ( this.remainmode > this.getMode.GET_DIGITAL_IN ) {
+            if (this.remainmode > this.getMode.GET_DIGITAL_IN) {
                 modeGroup = this.getMode.GET_ANALOG_IN;
             } else {
                 modeGroup = this.remainmode & 0xf8; // b1111 1000
@@ -375,26 +370,26 @@ class mechatro extends BaseModule {
                 case this.getMode.GET_DIGITAL_IN :
                     // 디지털 값은 6bit로 한번에 들어온다.
                     // 인풋 모드인 PortNO 만 업데이트 한다.
-                    for ( portkey=0 ; portkey < 6 ; portkey++ ) {
+                    for (portkey = 0 ; portkey < 6 ; portkey++) {
                         portNo = this.portMapToEntry.DIGITAL[portkey];
-                        if ( this.isDigitalIn[portNo] ) {
-                            this.dataFromDevice[portNo] = ( data2 >> portkey ) & 0x01;
+                        if (this.isDigitalIn[portNo]) {
+                            this.dataFromDevice[portNo] = (data2 >> portkey) & 0x01;
                         }
                     }
                     break;
                 case this.getMode.GET_ANALOG_IN:
-                    portkey = ( this.remainmode >>> 3 ) & 0x0F;
+                    portkey = (this.remainmode >>> 3) & 0x0F;
                     portNo = this.portMapToEntry.ANALOG[portkey];
                     //b0011 1000 0000 = 0x380
-                    this.dataFromDevice[portNo] = ( ( this.remainmode << 7 ) & 0x380 ) | data[0];
+                    this.dataFromDevice[portNo] = ((this.remainmode << 7) & 0x380) | data[0];
                     break;
-            }
+                }
             this.remainmode = 0;
         }
 
         data.forEach((value,idx) => {
             if (value & 0x80) { // b1000 0000 DATA1 일 때 실행
-                if ( value > this.getMode.GET_DIGITAL_IN ) {
+                if (value > this.getMode.GET_DIGITAL_IN) {
                     modeGroup = this.getMode.GET_ANALOG_IN;
                 } else {
                     modeGroup = value & 0xf8; // b1111 1000
@@ -402,31 +397,31 @@ class mechatro extends BaseModule {
                 
                 switch (modeGroup) {
                     case this.getMode.GET_DIGITAL_IN :
-                        if (data[idx+1] === undefined) {
+                        if (data[idx + 1] === undefined) {
                             this.remainmode = value;
                             //console.log( "     ■ <-- Rmode_D: ", value);
                         } else {
                             this.remainmode = 0;
-                            data2 = data[idx+1];
+                            data2 = data[idx + 1];
                             // 디지털 값은 6bit로 한번에 들어온다.
                             // 인풋 모드인 PortNO 만 업데이트 한다.
-                            for ( portkey=0 ; portkey < 6 ; portkey++ ) {
+                            for (portkey = 0 ; portkey < 6 ; portkey++) {
                                 portNo = this.portMapToEntry.DIGITAL[portkey];
-                                if ( this.isDigitalIn[portNo] ) {
+                                if (this.isDigitalIn[portNo]) {
                                     this.dataFromDevice[portNo] = (data2 >> portkey) & 0x01;
                                 }
                             }
                         }
                         break;
                     case this.getMode.GET_ANALOG_IN:
-                        if (data[idx+1] === undefined) {
+                        if (data[idx + 1] === undefined) {
                             this.remainmode = value;
                         } else {
                             this.remainmode = 0;
-                            portkey = (value>>>3) & 0x0F;
+                            portkey = (value >>> 3) & 0x0F;
                             portNo = this.portMapToEntry.ANALOG[portkey];
                             //b0011 1000 0000 = 0x380
-                            this.dataFromDevice[portNo] = ( (value<<7) & 0x380 ) | data[idx+1];
+                            this.dataFromDevice[portNo] = ((value << 7) & 0x380) | data[idx + 1];
                         }
                         break;
                     case this.getMode.COM_BLUETOOTH_PW_OK:
@@ -435,21 +430,18 @@ class mechatro extends BaseModule {
                     case this.getMode.COM_BLUETOOTH_PW_ERR:
                         this.dataFromDevice[2] = 'FAIL';
                         break;
-                    default:
-                        break;
-                }
+                    }
             }
         });
     }
 
     // 엔트리로 전달할 데이터, 하드웨어 연결되면 주기적인 실행.
     requestRemoteData(handler) {
-
-        if ( this.entryStopFlag === 3 ) {
+        if (this.entryStopFlag === 3) {
             this.entryStopFlag++;
             //console.log("set 4 entryStopFlag ", this.entryStopFlag);
-            Object.keys(this.portMapToEntry.ANALOG).forEach((key)=>{
-                this.dataFromDevice[this.portMapToEntry.ANALOG[key]]=0;
+            Object.keys(this.portMapToEntry.ANALOG).forEach((key) => {
+                this.dataFromDevice[this.portMapToEntry.ANALOG[key]] = 0;
             });
         }
         //console.log("dataFromDevice data: ", this.dataFromDevice );
@@ -470,60 +462,56 @@ class mechatro extends BaseModule {
     //    },
     //};
     handleRemoteData(handler) {
-        
         //console.log("Entry -->> ■");
-
         //let getDatas = handler.receiveHandler.data;
         //console.log("handler : " , getDatas );
-
         let portNo;
-        let setkeys = Object.keys(handler.receiveHandler.data);  // 엔트리가 정지하면 {} 입력 들어옴.
+        const setkeys = Object.keys(handler.receiveHandler.data);  // 엔트리가 정지하면 {} 입력 들어옴.
 
         if (setkeys.length) {
-
             // 데이터가 들어오기 시작하면, 정지 시 데이터가 초기화가 될 수 있도록 this.entryStopFlag === 3으로 설정
             // entryStopFlag < 2  requestLocalData()에서 entryStopFlag++ 및 하드웨어 초기화 데이터 송부
             // entryStopFlag = 3 전송 데이터 안들어 올경우 변경으로 초기화 준비
-            if ( this.entryStopFlag === 2 ) {
+            if (this.entryStopFlag === 2) {
                 this.entryStopFlag++;
                 //console.log("set 3 entryStopFlag ", this.entryStopFlag);
 
                 // 필요한 포트만 인풋모드로 설정하기 위해 인풋모드를 모두 해제한다.
-                Object.keys(this.isDigitalIn).forEach( (key) => {
+                Object.keys(this.isDigitalIn).forEach((key) => {
                     this.isDigitalIn[key] = 0;
                 });
             }
 
-            setkeys.forEach((key)=> {
+            setkeys.forEach((key) => {
                 // handler key 값에서 portNo 추출
-                if( key.startsWith('m') ) {
+                if (key.startsWith('m')) {
                     portNo = key.substring(1);
                 } else {
                     portNo = key;
                 }
                 // 포트 넘버에 대한 key값이 undefined 시 값을 할당
-                if( !this.dataFromEntry[portNo] ) {   
+                if (!this.dataFromEntry[portNo]) {   
                     //console.log("Entry -->> ■" ,this.dataFromEntry ); // key 없을 때 return : undefined
                     this.dataFromEntry[portNo] = {
                         flag : 0,
                     };
                 }
                 //value 값 없데이트
-                if( !key.startsWith('m') ){  
-                    if ( !this.dataFromEntry[portNo].value ) {
+                if (!key.startsWith('m')) {  
+                    if (!this.dataFromEntry[portNo].value) {
                         this.dataFromEntry[portNo].value = 0;
                     }
-                    if ( this.dataFromEntry[portNo].value != handler.read(key) ) {
+                    if (this.dataFromEntry[portNo].value != handler.read(key)) {
                         this.dataFromEntry[portNo].value = handler.read(key);
                         this.dataFromEntry[portNo].flag = 0;
                     }
                 }
                 //mode 값 없데이트
-                if( key.startsWith('m') ) {
-                    if ( !this.dataFromEntry[portNo].mode ) {
+                if (key.startsWith('m')) {
+                    if (!this.dataFromEntry[portNo].mode) {
                         this.dataFromEntry[portNo].mode = 0;
                     }                    
-                    if ( this.dataFromEntry[portNo].mode != handler.read(key) ) {
+                    if (this.dataFromEntry[portNo].mode != handler.read(key)) {
                         this.dataFromEntry[portNo].mode = handler.read(key);
                         this.dataFromEntry[portNo].flag = 0;
 
@@ -532,9 +520,9 @@ class mechatro extends BaseModule {
                         // 디바이스에서 들어온 데이를 해석할 때
                         // portNo값이 디지털 포트인지 확인한다. 아날로그 portNo는 키값이 없으므로,
                         // ( typeof this.isDigitalIn[portNo] === undefined ) 이다.
-                        if( typeof this.isDigitalIn[portNo] === 'number'){  
+                        if (typeof this.isDigitalIn[portNo] === 'number') {  
                             this.isDigitalIn[portNo] =
-                            ( this.dataFromEntry[portNo].mode == this.setMode.SET_DIGITAL_IN ) ? 1 : 0 ;
+                            (this.dataFromEntry[portNo].mode == this.setMode.SET_DIGITAL_IN) ? 1 : 0 ;
                         }
                     }
                 }
@@ -544,7 +532,7 @@ class mechatro extends BaseModule {
         // 데이터가 있었다가 없는 상태가 되는지 검사
         // 엔트리 실행 정지되어 데이터가 없을 경우, 실행 되었으나 데이터 없을 경우 초기화를 한다.
         // 프로그램 실행 초기값으로 entryStopFlag==0 이여야 한다. 3인 상태는 이전에 데이터가 있었음을 의미한다.
-        else if ( this.entryStopFlag === 4 ) {
+        else if (this.entryStopFlag === 4) {
             this.dataFromEntry = {};
             this.entryStopFlag = 0;
             //console.log("set 0 entryStopFlag ", this.entryStopFlag);
@@ -555,4 +543,5 @@ class mechatro extends BaseModule {
         //console.log( this.dataFromEntry );
     }
 }
+
 module.exports = new mechatro();
