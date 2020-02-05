@@ -337,8 +337,6 @@ class mechatro extends BaseModule {
                                 break;
                             }
                         break;
-                    default:
-                        break;
                     }
             }
         });
@@ -388,7 +386,7 @@ class mechatro extends BaseModule {
                     //b0011 1000 0000 = 0x380
                     this.dataFromDevice[portNo] = ( ( this.remainmode << 7 ) & 0x380 ) | data[0];
                     break;
-            }
+                }
             this.remainmode = 0;
         }
 
@@ -435,9 +433,7 @@ class mechatro extends BaseModule {
                     case this.getMode.COM_BLUETOOTH_PW_ERR:
                         this.dataFromDevice[2] = 'FAIL';
                         break;
-                    default:
-                        break;
-                }
+                    }
             }
         });
     }
