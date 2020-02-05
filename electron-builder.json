@@ -61,11 +61,28 @@
     },
     "files": [
         "app",
-        "!app/firmwares/examples",
+        "!test",
+        "!app/src/renderer/react/**",
+        "!app/firmwares/**/*",
+        "!app/drivers/**/*",
         "!app/server",
-        "!app/test.html"
+        "!app/test.html",
+        "app/src/renderer/react/dist"
     ],
     "asar": true,
+    "compression": "maximum",
+    "extraResources": [
+        "config/**/*",
+        {
+            "from": "app/firmwares",
+            "to": "firmwares",
+            "filter": ["!examples"]
+        },
+        {
+            "from": "app/drivers",
+            "to": "drivers"
+        }
+    ],
     "appId": "org.playentry.entryhw",
     "productName": "Entry_HW",
     "afterSign": "scripts/notarize.js"

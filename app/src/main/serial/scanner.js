@@ -1,5 +1,3 @@
-'use strict';
-
 const _ = require('lodash');
 const rendererConsole = require('../utils/rendererConsole');
 const SerialPort = require('@serialport/stream');
@@ -13,7 +11,7 @@ const { CLOUD_MODE_TYPES: CloudModeTypes } = require('../../common/constants');
  *
  * 결과의 송수신은 router 에 만들어진 함수로 보낸다.
  */
-class Scanner {
+class SerialScanner {
     static get SCAN_INTERVAL_MILLS() {
         return 1500;
     }
@@ -43,7 +41,7 @@ class Scanner {
                 this.isScanning = false;
                 break;
             }
-            await new Promise((resolve) => setTimeout(resolve, Scanner.SCAN_INTERVAL_MILLS));
+            await new Promise((resolve) => setTimeout(resolve, SerialScanner.SCAN_INTERVAL_MILLS));
         }
         return scanResult;
     }
@@ -55,19 +53,10 @@ class Scanner {
         }
 
         const serverMode = this.router.currentCloudMode;
-        const { hardware, this_com_port: selectedComPortName } = this.config;
+        const selectedComPortName = this.router.selectedPort;
+        const { hardware } = this.config;
         let { select_com_port: needCOMPortSelect } = this.config;
-        const {
-            comName: verifiedComPortNames,
-            pnpId,
-            type,
-        } = hardware;
-        let { vendor } = hardware;
-
-        // win, mac 플랫폼에 맞는 벤더명 설정
-        if (vendor && _.isPlainObject(vendor)) {
-            vendor = vendor[process.platform];
-        }
+        const { type } = hardware;
 
         // win, mac 플랫폼에 맞춰 COMPort 확인창 필요한지 설정
         if (needCOMPortSelect && _.isPlainObject(needCOMPortSelect)) {
@@ -82,8 +71,6 @@ class Scanner {
 
         // 전체 포트 가져오기
         const comPorts = await SerialPort.list();
-        rendererConsole.log(JSON.stringify(comPorts));
-
         const selectedPorts = [];
 
         // 포트 선택을 유저에게서 직접 받아야 하는가?
@@ -98,28 +85,15 @@ class Scanner {
                 }
                 selectedPorts.push(selectedComPortName);
             } else {
-                this.router.sendState('select_port', comPorts);
+                rendererConsole.log(comPorts);
+                this.router.sendEventToMainWindow('portListScanned', comPorts);
                 return;
             }
         } else {
             // 포트 선택을 config 에서 처리해야 하는 경우
-            comPorts.forEach((port) => {
-                const comName = port.path || hardware.name;
-
-                // config 에 입력한 특정 벤더와 겹치는지 여부
-                const isVendor = this._indexOfStringOrArray(vendor, port.manufacturer);
-
-                // config 에 입력한 특정 COMPortName과 겹치는지 여부
-                const isComName = this._indexOfStringOrArray(verifiedComPortNames, comName);
-
-                // config 에 입력한 특정 pnpId와 겹치는지 여부
-                const isPnpId = this._indexOfStringOrArray(pnpId, port.pnpId);
-
-                // 현재 포트가 config 과 일치하는 경우 연결시도할 포트목록에 추가
-                if (isVendor || isPnpId || isComName) {
-                    selectedPorts.push(comName);
-                }
-            });
+            selectedPorts.push(
+                ..._.compact(comPorts.map((port) => this._selectCOMPortUsingProperties(hardware, port))),
+            );
         }
 
         const electedConnector = await electPort(selectedPorts, hardware, this.hwModule,
@@ -143,6 +117,33 @@ class Scanner {
             return electedConnector.connector;
         }
     };
+
+    _selectCOMPortUsingProperties(hardwareConfig, comPort) {
+        const { vendor, pnpId: verifiedPnpId, comName: verifiedComPortNames, name: hardwareName } = hardwareConfig;
+        const { path, manufacturer, pnpId } = comPort;
+
+        const comName = path || hardwareName;
+        let platformVendor = vendor;
+
+        // win, mac 플랫폼에 맞는 벤더명 설정
+        if (vendor && _.isPlainObject(vendor)) {
+            platformVendor = vendor[process.platform];
+        }
+
+        // config 에 입력한 특정 벤더와 겹치는지 여부
+        const isVendor = this._indexOfStringOrArray(platformVendor, manufacturer);
+
+        // config 에 입력한 특정 COMPortName과 겹치는지 여부
+        const isComName = this._indexOfStringOrArray(verifiedComPortNames, comName);
+
+        // config 에 입력한 특정 pnpId와 겹치는지 여부
+        const isPnpId = this._indexOfStringOrArray(verifiedPnpId, pnpId);
+
+        // 현재 포트가 config 과 일치하는 경우 연결시도할 포트목록에 추가
+        if (isVendor || isPnpId || isComName) {
+            return comName;
+        }
+    }
 
     /**
      * arrayOrString 내에 target 이 포함되어있는지 검사한다.
@@ -171,4 +172,4 @@ class Scanner {
     };
 }
 
-module.exports = Scanner;
+module.exports = SerialScanner;

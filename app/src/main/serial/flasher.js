@@ -1,7 +1,6 @@
 const { app, dialog } = require('electron');
 const exec = require('child_process').exec;
 const path = require('path');
-const fs = require('fs');
 const Utils = require('../utils/fileUtils');
 const platform = process.platform;
 
@@ -15,13 +14,7 @@ class Flasher {
     static get firmwareDirectoryPath() {
         const asarIndex = app.getAppPath().indexOf(`${path.sep}app.asar`);
         if (asarIndex > -1) {
-            const asarPath = app.getAppPath().substr(0, asarIndex);
-            const externalFlasherPath = path.join(asarPath, 'firmwares');
-            const flasherPath = path.resolve(app.getAppPath(), __dirname, '..', '..', '..', 'firmwares');
-            if (!fs.existsSync(externalFlasherPath)) {
-                Utils.copyRecursiveSync(flasherPath, externalFlasherPath);
-            }
-            return externalFlasherPath;
+            return path.join(app.getAppPath(), '..', 'firmwares');
         } else {
             return path.resolve(__dirname, '..', '..', '..', 'firmwares');
         }
@@ -37,18 +30,16 @@ class Flasher {
             let avrConf;
             let portPrefix;
 
-            switch (platform) {
-                case 'darwin':
-                    avrName = './avrdude';
-                    avrConf = './avrdude.conf';
-                    portPrefix = '';
-                    break;
-                default:
-                    avrName = 'avrdude.exe';
-                    avrConf = './avrdude.conf';
-                    portPrefix = '\\\\.\\';
-                    break;
+            if (platform === 'darwin') {
+                avrName = './avrdude';
+                avrConf = './avrdude.conf';
+                portPrefix = '';
+            } else {
+                avrName = 'avrdude.exe';
+                avrConf = './avrdude.conf';
+                portPrefix = '\\\\.\\';
             }
+
             const cmd = [
                 avrName,
                 ' -p',
@@ -101,7 +92,7 @@ class Flasher {
         if (typeof firmware === 'string' || firmware.type === 'arduino') {
             return this._flashArduino(firmware, port, options);
         } else if (firmware.type === 'copy') {
-            return this._flashCopy(firmware, port, options);
+            return this._flashCopy(firmware);
         } else {
             return Promise.reject(new Error());
         }

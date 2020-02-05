@@ -71,7 +71,7 @@ class ServerProcessManager {
      * @private
      */
     _sendToChild(methodName, message) {
-        this.childProcess && this.childProcess.send && this.childProcess.send({
+        this._isProcessLive() && this.childProcess.send({
             key: methodName,
             value: message,
         });
@@ -118,6 +118,13 @@ class ServerProcessManager {
                 }
             }
         });
+    }
+
+    _isProcessLive() {
+        return this.childProcess &&
+            !this.childProcess.killed &&
+            this.childProcess.connected &&
+            this.childProcess.channel;
     }
 }
 

@@ -1,0 +1,4 @@
+**/renderer/modal/*
+**/renderer/lang/*
+*.bundle.js*
+*.build.js*
