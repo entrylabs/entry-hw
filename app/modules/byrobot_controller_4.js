@@ -6,7 +6,7 @@ const BaseModule = require('./baseModule');
  *  기본 클래스
  ***************************************************************************************/
 
-class byrobot_drone_4 extends BaseModule
+class byrobot_controller_4 extends BaseModule
 {
     /*
         클래스 내부에서 사용될 필드들을 이곳에서 선언합니다.
@@ -1870,5 +1870,5 @@ class byrobot_drone_4 extends BaseModule
 }
 
 
-module.exports = new byrobot_drone_4();
+module.exports = new byrobot_controller_4();
 
