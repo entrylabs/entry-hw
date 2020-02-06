@@ -8,13 +8,16 @@ const BaseModule = require('./baseModule');
 
 class byrobot_base extends BaseModule
 {
-    /*
-        클래스 내부에서 사용될 필드들을 이곳에서 선언합니다.
-    */
+    /***************************************************************************************
+     *  클래스 내부에서 사용될 필드들을 이곳에서 선언합니다.
+     ***************************************************************************************/
+    // #region Constructor
+
     constructor()
     {
         super();
 
+        createCRC16Array();
 
         this.serialport = null;
         this.isConnect = false;
@@ -33,160 +36,124 @@ class byrobot_base extends BaseModule
         this.DataType =
         {
             // 전송 버퍼
-            BUFFER_CLEAR:               'buffer_clear',
+            BUFFER_CLEAR                : 'buffer_clear',
         
             // 전송 대상
-            TARGET:                     'target',
+            TARGET                      : 'target',
 
-            // Light Manual
-            LIGHT_MANUAL_FLAGS:         'light_manual_flags',
-            LIGHT_MANUAL_BRIGHTNESS:    'light_manual_brightness',
+            // Light Manaul
+            LIGHT_MANUAL_FLAGS          : 'light_manual_flags',
+            LIGHT_MANUAL_BRIGHTNESS     : 'light_manual_brightness',
 
             // Light Mode
-            LIGHT_MODE_MODE:            'light_mode_mode',
-            LIGHT_MODE_INTERVAL:        'light_mode_interval',
+            LIGHT_MODE_MODE             : 'light_mode_mode',
+            LIGHT_MODE_INTERVAL         : 'light_mode_interval',
 
             // Light Event
-            LIGHT_EVENT_EVENT:          'light_event_event',
-            LIGHT_EVENT_INTERVAL:       'light_event_interval',
-            LIGHT_EVENT_REPEAT:         'light_event_repeat',
+            LIGHT_EVENT_EVENT           : 'light_event_event',
+            LIGHT_EVENT_INTERVAL        : 'light_event_interval',
+            LIGHT_EVENT_REPEAT          : 'light_event_repeat',
 
             // Light Color
-            LIGHT_COLOR_R:              'light_color_r',
-            LIGHT_COLOR_G:              'light_color_g',
-            LIGHT_COLOR_B:              'light_color_b',
+            LIGHT_COLOR_R               : 'light_color_r',
+            LIGHT_COLOR_G               : 'light_color_g',
+            LIGHT_COLOR_B               : 'light_color_b',
 
             // 화면 전체 지우기
-            DISPLAY_CLEAR_ALL_PIXEL:    'display_clear_all_pixel',
+            DISPLAY_CLEAR_ALL_PIXEL     : 'display_clear_all_pixel',
 
             // 선택 영역 지우기
-            DISPLAY_CLEAR_X:            'display_clear_x',
-            DISPLAY_CLEAR_Y:            'display_clear_y',
-            DISPLAY_CLEAR_WIDTH:        'display_clear_width',
-            DISPLAY_CLEAR_HEIGHT:       'display_clear_height',
-            DISPLAY_CLEAR_PIXEL:        'display_clear_pixel',
+            DISPLAY_CLEAR_X             : 'display_clear_x',
+            DISPLAY_CLEAR_Y             : 'display_clear_y',
+            DISPLAY_CLEAR_WIDTH         : 'display_clear_width',
+            DISPLAY_CLEAR_HEIGHT        : 'display_clear_height',
+            DISPLAY_CLEAR_PIXEL         : 'display_clear_pixel',
 
             // 선택 영역 반전
-            DISPLAY_INVERT_X:           'display_invert_x',
-            DISPLAY_INVERT_Y:           'display_invert_y',
-            DISPLAY_INVERT_WIDTH:       'display_invert_width',
-            DISPLAY_INVERT_HEIGHT:      'display_invert_height',
+            DISPLAY_INVERT_X            : 'display_invert_x',
+            DISPLAY_INVERT_Y            : 'display_invert_y',
+            DISPLAY_INVERT_WIDTH        : 'display_invert_width',
+            DISPLAY_INVERT_HEIGHT       : 'display_invert_height',
 
             // 화면에 점 찍기
-            DISPLAY_DRAW_POINT_X:       'display_draw_point_x',
-            DISPLAY_DRAW_POINT_Y:       'display_draw_point_y',
-            DISPLAY_DRAW_POINT_PIXEL:   'display_draw_point_pixel',
+            DISPLAY_DRAW_POINT_X        : 'display_draw_point_x',
+            DISPLAY_DRAW_POINT_Y        : 'display_draw_point_y',
+            DISPLAY_DRAW_POINT_PIXEL    : 'display_draw_point_pixel',
 
             // 화면에 선 그리기
-            DISPLAY_DRAW_LINE_X1:       'display_draw_line_x1',
-            DISPLAY_DRAW_LINE_Y1:       'display_draw_line_y1',
-            DISPLAY_DRAW_LINE_X2:       'display_draw_line_x2',
-            DISPLAY_DRAW_LINE_Y2:       'display_draw_line_y2',
-            DISPLAY_DRAW_LINE_PIXEL:    'display_draw_line_pixel',
-            DISPLAY_DRAW_LINE_LINE:     'display_draw_line_line',
+            DISPLAY_DRAW_LINE_X1        : 'display_draw_line_x1',
+            DISPLAY_DRAW_LINE_Y1        : 'display_draw_line_y1',
+            DISPLAY_DRAW_LINE_X2        : 'display_draw_line_x2',
+            DISPLAY_DRAW_LINE_Y2        : 'display_draw_line_y2',
+            DISPLAY_DRAW_LINE_PIXEL     : 'display_draw_line_pixel',
+            DISPLAY_DRAW_LINE_LINE      : 'display_draw_line_line',
 
             // 화면에 사각형 그리기
-            DISPLAY_DRAW_RECT_X:        'display_draw_rect_x',
-            DISPLAY_DRAW_RECT_Y:        'display_draw_rect_y',
-            DISPLAY_DRAW_RECT_WIDTH:    'display_draw_rect_width',
-            DISPLAY_DRAW_RECT_HEIGHT:   'display_draw_rect_height',
-            DISPLAY_DRAW_RECT_PIXEL:    'display_draw_rect_pixel',
-            DISPLAY_DRAW_RECT_FLAGFILL: 'display_draw_rect_flagfill',
-            DISPLAY_DRAW_RECT_LINE:     'display_draw_rect_line',
+            DISPLAY_DRAW_RECT_X         : 'display_draw_rect_x',
+            DISPLAY_DRAW_RECT_Y         : 'display_draw_rect_y',
+            DISPLAY_DRAW_RECT_WIDTH     : 'display_draw_rect_width',
+            DISPLAY_DRAW_RECT_HEIGHT    : 'display_draw_rect_height',
+            DISPLAY_DRAW_RECT_PIXEL     : 'display_draw_rect_pixel',
+            DISPLAY_DRAW_RECT_FLAGFILL  : 'display_draw_rect_flagfill',
+            DISPLAY_DRAW_RECT_LINE      : 'display_draw_rect_line',
 
             // 화면에 원 그리기
-            DISPLAY_DRAW_CIRCLE_X:        'display_draw_circle_x',
-            DISPLAY_DRAW_CIRCLE_Y:        'display_draw_circle_y',
-            DISPLAY_DRAW_CIRCLE_RADIUS:   'display_draw_circle_radius',
-            DISPLAY_DRAW_CIRCLE_PIXEL:    'display_draw_circle_pixel',
-            DISPLAY_DRAW_CIRCLE_FLAGFILL: 'display_draw_circle_flagfill',
+            DISPLAY_DRAW_CIRCLE_X        : 'display_draw_circle_x',
+            DISPLAY_DRAW_CIRCLE_Y        : 'display_draw_circle_y',
+            DISPLAY_DRAW_CIRCLE_RADIUS   : 'display_draw_circle_radius',
+            DISPLAY_DRAW_CIRCLE_PIXEL    : 'display_draw_circle_pixel',
+            DISPLAY_DRAW_CIRCLE_FLAGFILL : 'display_draw_circle_flagfill',
 
             // 화면에 문자열 쓰기
-            DISPLAY_DRAW_STRING_X:      'display_draw_string_x',
-            DISPLAY_DRAW_STRING_Y:      'display_draw_string_y',
-            DISPLAY_DRAW_STRING_FONT:   'display_draw_string_font',
-            DISPLAY_DRAW_STRING_PIXEL:  'display_draw_string_pixel',
-            DISPLAY_DRAW_STRING_STRING: 'display_draw_string_string',
+            DISPLAY_DRAW_STRING_X       : 'display_draw_string_x',
+            DISPLAY_DRAW_STRING_Y       : 'display_draw_string_y',
+            DISPLAY_DRAW_STRING_FONT    : 'display_draw_string_font',
+            DISPLAY_DRAW_STRING_PIXEL   : 'display_draw_string_pixel',
+            DISPLAY_DRAW_STRING_STRING  : 'display_draw_string_string',
 
             // 화면에 문자열 정렬하여 그리기
-            DISPLAY_DRAW_STRING_ALIGN_X_START:  'display_draw_string_align_x_start',
-            DISPLAY_DRAW_STRING_ALIGN_X_END:    'display_draw_string_align_x_end',
-            DISPLAY_DRAW_STRING_ALIGN_Y:        'display_draw_string_align_y',
-            DISPLAY_DRAW_STRING_ALIGN_ALIGN:    'display_draw_string_align_align',
-            DISPLAY_DRAW_STRING_ALIGN_FONT:     'display_draw_string_align_font',
-            DISPLAY_DRAW_STRING_ALIGN_PIXEL:    'display_draw_string_align_pixel',
-            DISPLAY_DRAW_STRING_ALIGN_STRING:   'display_draw_string_align_string',
+            DISPLAY_DRAW_STRING_ALIGN_X_START   : 'display_draw_string_align_x_start',
+            DISPLAY_DRAW_STRING_ALIGN_X_END     : 'display_draw_string_align_x_end',
+            DISPLAY_DRAW_STRING_ALIGN_Y         : 'display_draw_string_align_y',
+            DISPLAY_DRAW_STRING_ALIGN_ALIGN     : 'display_draw_string_align_align',
+            DISPLAY_DRAW_STRING_ALIGN_FONT      : 'display_draw_string_align_font',
+            DISPLAY_DRAW_STRING_ALIGN_PIXEL     : 'display_draw_string_align_pixel',
+            DISPLAY_DRAW_STRING_ALIGN_STRING    : 'display_draw_string_align_string',
 
             // Buzzer
-            BUZZER_MODE:                'buzzer_mode',
-            BUZZER_VALUE:               'buzzer_value',
-            BUZZER_TIME:                'buzzer_time',
+            BUZZER_MODE                 : 'buzzer_mode',
+            BUZZER_VALUE                : 'buzzer_value',
+            BUZZER_TIME                 : 'buzzer_time',
 
             // Vibrator
-            VIBRATOR_MODE:              'vibrator_mode',
-            VIBRATOR_ON:                'vibrator_on',
-            VIBRATOR_OFF:               'vibrator_off',
-            VIBRATOR_TOTAL:             'vibrator_total',
+            VIBRATOR_MODE               : 'vibrator_mode',
+            VIBRATOR_ON                 : 'vibrator_on',
+            VIBRATOR_OFF                : 'vibrator_off',
+            VIBRATOR_TOTAL              : 'vibrator_total',
 
             // Control::Quad8
-            CONTROL_QUAD8_ROLL:                   'control_quad8_roll',
-            CONTROL_QUAD8_PITCH:                  'control_quad8_pitch',
-            CONTROL_QUAD8_YAW:                    'control_quad8_yaw',
-            CONTROL_QUAD8_THROTTLE:               'control_quad8_throttle',
+            CONTROL_QUAD8_ROLL                   : 'control_quad8_roll',
+            CONTROL_QUAD8_PITCH                  : 'control_quad8_pitch',
+            CONTROL_QUAD8_YAW                    : 'control_quad8_yaw',
+            CONTROL_QUAD8_THROTTLE               : 'control_quad8_throttle',
             
             // Control::Position
-            CONTROL_POSITION_X:                   'control_position_x',
-            CONTROL_POSITION_Y:                   'control_position_y',
-            CONTROL_POSITION_Z:                   'control_position_z',
-            CONTROL_POSITION_VELOCITY:            'control_position_velocity',
-            CONTROL_POSITION_HEADING:             'control_position_heading',
-            CONTROL_POSITION_ROTATIONAL_VELOCITY: 'control_position_rotational_velocity',
+            CONTROL_POSITION_X                   : 'control_position_x',
+            CONTROL_POSITION_Y                   : 'control_position_y',
+            CONTROL_POSITION_Z                   : 'control_position_z',
+            CONTROL_POSITION_VELOCITY            : 'control_position_velocity',
+            CONTROL_POSITION_HEADING             : 'control_position_heading',
+            CONTROL_POSITION_ROTATIONAL_VELOCITY : 'control_position_rotational_velocity',
 
             // Command
-            COMMAND_COMMAND:            'command_command',
-            COMMAND_OPTION:             'command_option',
+            COMMAND_COMMAND            : 'command_command',
+            COMMAND_OPTION             : 'command_option',
 
             // Motor
-            MOTORSINGLE_TARGET:         'motorsingle_target',
-            MOTORSINGLE_ROTATION:       'motorsingle_rotation',     // direction -> rotation
-            MOTORSINGLE_VALUE:          'motorsingle_value',
+            MOTORSINGLE_TARGET         : 'motorsingle_target',
+            MOTORSINGLE_ROTATION       : 'motorsingle_rotation',     // direction -> rotation
+            MOTORSINGLE_VALUE          : 'motorsingle_value',
         };
-
-        this.crc16table =
-        [
-            0x0000, 0x1021, 0x2042, 0x3063, 0x4084, 0x50a5, 0x60c6, 0x70e7,
-            0x8108, 0x9129, 0xa14a, 0xb16b, 0xc18c, 0xd1ad, 0xe1ce, 0xf1ef,
-            0x1231, 0x0210, 0x3273, 0x2252, 0x52b5, 0x4294, 0x72f7, 0x62d6,
-            0x9339, 0x8318, 0xb37b, 0xa35a, 0xd3bd, 0xc39c, 0xf3ff, 0xe3de,
-            0x2462, 0x3443, 0x0420, 0x1401, 0x64e6, 0x74c7, 0x44a4, 0x5485,
-            0xa56a, 0xb54b, 0x8528, 0x9509, 0xe5ee, 0xf5cf, 0xc5ac, 0xd58d,
-            0x3653, 0x2672, 0x1611, 0x0630, 0x76d7, 0x66f6, 0x5695, 0x46b4,
-            0xb75b, 0xa77a, 0x9719, 0x8738, 0xf7df, 0xe7fe, 0xd79d, 0xc7bc,
-            0x48c4, 0x58e5, 0x6886, 0x78a7, 0x0840, 0x1861, 0x2802, 0x3823,
-            0xc9cc, 0xd9ed, 0xe98e, 0xf9af, 0x8948, 0x9969, 0xa90a, 0xb92b,
-            0x5af5, 0x4ad4, 0x7ab7, 0x6a96, 0x1a71, 0x0a50, 0x3a33, 0x2a12,
-            0xdbfd, 0xcbdc, 0xfbbf, 0xeb9e, 0x9b79, 0x8b58, 0xbb3b, 0xab1a,
-            0x6ca6, 0x7c87, 0x4ce4, 0x5cc5, 0x2c22, 0x3c03, 0x0c60, 0x1c41,
-            0xedae, 0xfd8f, 0xcdec, 0xddcd, 0xad2a, 0xbd0b, 0x8d68, 0x9d49,
-            0x7e97, 0x6eb6, 0x5ed5, 0x4ef4, 0x3e13, 0x2e32, 0x1e51, 0x0e70,
-            0xff9f, 0xefbe, 0xdfdd, 0xcffc, 0xbf1b, 0xaf3a, 0x9f59, 0x8f78,
-            0x9188, 0x81a9, 0xb1ca, 0xa1eb, 0xd10c, 0xc12d, 0xf14e, 0xe16f,
-            0x1080, 0x00a1, 0x30c2, 0x20e3, 0x5004, 0x4025, 0x7046, 0x6067,
-            0x83b9, 0x9398, 0xa3fb, 0xb3da, 0xc33d, 0xd31c, 0xe37f, 0xf35e,
-            0x02b1, 0x1290, 0x22f3, 0x32d2, 0x4235, 0x5214, 0x6277, 0x7256,
-            0xb5ea, 0xa5cb, 0x95a8, 0x8589, 0xf56e, 0xe54f, 0xd52c, 0xc50d,
-            0x34e2, 0x24c3, 0x14a0, 0x0481, 0x7466, 0x6447, 0x5424, 0x4405,
-            0xa7db, 0xb7fa, 0x8799, 0x97b8, 0xe75f, 0xf77e, 0xc71d, 0xd73c,
-            0x26d3, 0x36f2, 0x0691, 0x16b0, 0x6657, 0x7676, 0x4615, 0x5634,
-            0xd94c, 0xc96d, 0xf90e, 0xe92f, 0x99c8, 0x89e9, 0xb98a, 0xa9ab,
-            0x5844, 0x4865, 0x7806, 0x6827, 0x18c0, 0x08e1, 0x3882, 0x28a3,
-            0xcb7d, 0xdb5c, 0xeb3f, 0xfb1e, 0x8bf9, 0x9bd8, 0xabbb, 0xbb9a,
-            0x4a75, 0x5a54, 0x6a37, 0x7a16, 0x0af1, 0x1ad0, 0x2ab3, 0x3a92,
-            0xfd2e, 0xed0f, 0xdd6c, 0xcd4d, 0xbdaa, 0xad8b, 0x9de8, 0x8dc9,
-            0x7c26, 0x6c07, 0x5c64, 0x4c45, 0x3ca2, 0x2c83, 0x1ce0, 0x0cc1,
-            0xef1f, 0xff3e, 0xcf5d, 0xdf7c, 0xaf9b, 0xbfba, 0x8fd9, 0x9ff8,
-            0x6e17, 0x7e36, 0x4e55, 0x5e74, 0x2e93, 0x3eb2, 0x0ed1, 0x1ef0
-        ];
     
 
         // -- JSON Objects ----------------------------------------------------------------
@@ -200,7 +167,8 @@ class byrobot_base extends BaseModule
             ack_dataType        : 0,    // u8
             ack_crc16           : 0,    // u16
         };
-    
+
+
         // Joystick
         this.joystick = 
         {
@@ -214,7 +182,8 @@ class byrobot_base extends BaseModule
             joystick_right_direction    : 0,    // u8
             joystick_right_event        : 0,    // u8
         };
-    
+
+
         // Button
         this.button = 
         {
@@ -222,7 +191,8 @@ class byrobot_base extends BaseModule
             button_button   : 0,    // u16
             button_event    : 0,    // u8
         };
-    
+
+
         // State
         this.state = 
         {
@@ -236,6 +206,7 @@ class byrobot_base extends BaseModule
             state_battery           : 0,    // u8
         };
 
+
         // Position
         this.position =
         {
@@ -244,7 +215,8 @@ class byrobot_base extends BaseModule
             position_y  : 0,    // f32
             position_z  : 0,    // f32
         };
-    
+
+
         // Altitude
         this.altitude =
         {
@@ -254,7 +226,8 @@ class byrobot_base extends BaseModule
             altitude_altitude       : 0,    // f32
             altitude_rangeHeight    : 0,    // f32
         };
-    
+
+
         // Motion
         this.motion =
         {
@@ -269,7 +242,8 @@ class byrobot_base extends BaseModule
             motion_anglePitch   : 0,    // s16
             motion_angleYaw     : 0,    // s16
         };
-    
+
+
         // Range
         this.range =
         {
@@ -281,6 +255,7 @@ class byrobot_base extends BaseModule
             range_top       : 0,    // s16
             range_bottom    : 0,    // s16
         };
+
 
         // InformationAssembledForEntry
         this.informationAssembledForEntry =
@@ -296,6 +271,14 @@ class byrobot_base extends BaseModule
             informationAssembledForEntry_altitude       : 0,    // float
         };
 
+
+        // -- Control -----------------------------------------------------------------
+        this.controlWheel           = 0;        // 
+        this.controlAccel           = 0;        // 
+        this.controlRoll            = 0;        // 
+        this.controlPitch           = 0;        // 
+        this.controlYaw             = 0;        // 
+        this.controlThrottle        = 0;        // 
 
 
         // -- Hardware ----------------------------------------------------------------
@@ -327,6 +310,15 @@ class byrobot_base extends BaseModule
         this.targetDevice           = 0;            // 연결 대상 장치 DeviceType
         this.targetDeviceID         = undefined;    // 연결 대상 장치의 ID
     }
+
+    // #endregion Constructor
+
+
+
+    /***************************************************************************************
+     *  Entry 기본 함수
+     ***************************************************************************************/
+    // #region Base Functions for Entry
 
     /*
         초기설정
@@ -406,7 +398,7 @@ class byrobot_base extends BaseModule
     */
     requestRemoteData(handler)
     {
-        this.transferForEntry(handler);
+        this.transferToEntry(handler);
     }
 
 
@@ -441,10 +433,15 @@ class byrobot_base extends BaseModule
         this.resetData();
     }
 
+    
+    // #endregion Base Functions for Entry
+
+
 
     /***************************************************************************************
      *  초기화
      ***************************************************************************************/
+    // #region Data Reset
 
     resetData()
     {
@@ -475,7 +472,7 @@ class byrobot_base extends BaseModule
         button._updated                     = 0;
         button.button_button                = 0;
         button.button_event                 = 0;
-        
+
         // State
         let state                           = this.state;
         state._updated                      = 0;
@@ -493,7 +490,7 @@ class byrobot_base extends BaseModule
         position.position_x                 = 0;
         position.position_y                 = 0;
         position.position_z                 = 0;
-    
+
         // Altitude
         let altitude                        = this.altitude;
         altitude._updated                   = 0;
@@ -501,7 +498,7 @@ class byrobot_base extends BaseModule
         altitude.altitude_pressure          = 0;
         altitude.altitude_altitude          = 0;
         altitude.altitude_rangeHeight       = 0;
-    
+
         // Motion
         let motion                          = this.motion;
         motion._updated                     = 0;
@@ -514,7 +511,7 @@ class byrobot_base extends BaseModule
         motion.motion_angleRoll             = 0;
         motion.motion_anglePitch            = 0;
         motion.motion_angleYaw              = 0;
-        
+
         // Range
         let range                           = this.range;
         range._updated                      = 0;
@@ -524,7 +521,7 @@ class byrobot_base extends BaseModule
         range.range_rear                    = 0;
         range.range_top                     = 0;
         range.range_bottom                  = 0;
-    
+
         // Range
         let informationAssembledForEntry                                        = this.informationAssembledForEntry;
         informationAssembledForEntry.informationAssembledForEntry_angleRoll     = 0;    // s16
@@ -567,14 +564,15 @@ class byrobot_base extends BaseModule
 
         this.countReqeustDevice             = 0;        // 장치에 데이터를 요청한 횟수 카운트 
     }
+    // #endregion Data Reset
 
-    
+
 
     /***************************************************************************************
-     *  Communciation - 연결된 장치 확인
+     *  Communciation - 초기 연결 시 장치 확인
      ***************************************************************************************/
+    // #region check Ack for first connection
 
-    // 수신 받은 Ack 처리
     checkAck(data, config)
     {
         this.receiverForDevice(data);
@@ -593,22 +591,28 @@ class byrobot_base extends BaseModule
 
         return false;
     }
+    // #endregion check Ack for first connection
 
 
 
     /***************************************************************************************
-     *  Communciation - Entry.JS
+     *  Communciation - Entry로부터 받은 데이터를 장치에 전송
      ***************************************************************************************/
+    // #region Data Transfer to Device from Entry
 
-    // Entry에서 받은 데이터 블럭 처리
-    // Entry에서 수신 받은 데이터는 bufferTransfer에 바로 등록
-    //
-    // * entryjs에서 변수값을 entry-hw로 전송할 때 절차
-    //   1. Entry.hw.setDigitalPortValue("", value) 명령을 사용하여 지정한 변수의 값을 등록
-    //   2. Entry.hw.update() 를 사용하여 등록된 값 전체 전달
-    //   3. delete Entry.hw.sendQueue[""] 를 사용하여 전달한 값을 삭제
-    //   위와 같은 절차로 데이터를 전송해야 1회만 전송 됨.
-    //   Entry.hw.update를 호출하면 등록된 값 전체를 한 번에 즉시 전송하는 것으로 보임
+    /*
+        Entry에서 받은 데이터 블럭 처리
+        Entry에서 수신 받은 데이터는 bufferTransfer에 바로 등록
+
+        * entryjs에서 변수값을 entry-hw로 전송할 때 절차
+
+            1. Entry.hw.setDigitalPortValue("", value) 명령을 사용하여 지정한 변수의 값을 등록
+            2. Entry.hw.update() 를 사용하여 등록된 값 전체 전달
+            3. delete Entry.hw.sendQueue[""] 를 사용하여 전달한 값을 삭제
+
+            위와 같은 절차로 데이터를 전송해야 1회만 전송 됨.
+            Entry.hw.update를 호출하면 등록된 값 전체를 한 번에 즉시 전송하는 것으로 보임
+    */
     handlerForEntry(handler)
     {
         if( this.bufferTransfer == undefined )
@@ -657,7 +661,6 @@ class byrobot_base extends BaseModule
             
             this.log("Transfer_To_Device / LightManual", dataArray);
         }
-
 
 
         // LightModeColor
@@ -741,7 +744,7 @@ class byrobot_base extends BaseModule
         }
         
 
-        // LightEvent
+        // LightEventColor
         if( (handler.e(this.DataType.LIGHT_EVENT_EVENT)     == true) &&
             (handler.e(this.DataType.LIGHT_EVENT_INTERVAL)  == true) &&
             (handler.e(this.DataType.LIGHT_EVENT_REPEAT)    == true) &&
@@ -761,7 +764,7 @@ class byrobot_base extends BaseModule
             let lightColor_r        = handler.e(this.DataType.LIGHT_COLOR_R)         ? handler.read(this.DataType.LIGHT_COLOR_R)        : 0;
             let lightColor_g        = handler.e(this.DataType.LIGHT_COLOR_G)         ? handler.read(this.DataType.LIGHT_COLOR_G)        : 0;
             let lightColor_b        = handler.e(this.DataType.LIGHT_COLOR_B)         ? handler.read(this.DataType.LIGHT_COLOR_B)        : 0;
-            
+
             let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
             let dataLength = 7;                     // 데이터의 길이
 
@@ -787,6 +790,7 @@ class byrobot_base extends BaseModule
             
             this.log("Transfer_To_Device / LightEventColor", dataArray);
         }
+        // LightEvent
         else if((handler.e(this.DataType.LIGHT_EVENT_EVENT)     == true) &&
                 (handler.e(this.DataType.LIGHT_EVENT_INTERVAL)  == true) &&
                 (handler.e(this.DataType.LIGHT_EVENT_REPEAT)    == true) )
@@ -823,7 +827,7 @@ class byrobot_base extends BaseModule
             
             this.log("Transfer_To_Device / LightEvent", dataArray);
         }
-        
+
 
         // 화면 전체 지우기
         if( handler.e(this.DataType.DISPLAY_CLEAR_ALL_PIXEL) == true )
@@ -1295,7 +1299,12 @@ class byrobot_base extends BaseModule
 
             let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
             let dataLength = 4;                     // 데이터의 길이
-    
+
+            this.controlRoll        = controlRoll;
+            this.controlPitch       = controlPitch;
+            this.controlYaw         = controlYaw;
+            this.controlThrottle    = controlThrottle;
+
             // Header
             dataArray.push(0x10);                   // Data Type
             dataArray.push(dataLength);             // Data Length
@@ -1348,6 +1357,7 @@ class byrobot_base extends BaseModule
 
             let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
             let dataLength = 18;                     // 데이터의 길이
+
             // Header
             dataArray.push(0x10);                   // Data Type
             dataArray.push(dataLength);             // Data Length
@@ -1521,10 +1531,17 @@ class byrobot_base extends BaseModule
         dataArray.push((crc16 & 0xff));
         dataArray.push(((crc16 >> 8) & 0xff));
     }
+    // #endregion Data Transfer to Device from Entry
 
+
+
+    /***************************************************************************************
+     *  Communciation - 장치로부터 받은 데이터를 Entry에 전송
+     ***************************************************************************************/
+    // #region Data Transfer to Entry from Device
 
     // Entry에 데이터 전송
-    transferForEntry(handler)
+    transferToEntry(handler)
     {
         // Joystick
         {
@@ -1537,7 +1554,7 @@ class byrobot_base extends BaseModule
                 }
 
                 joystick._updated = false;
-                //this.log("transferForEntry() / joystick", "");
+                //this.log("transferToEntry() / joystick", "");
             }
         }
 
@@ -1552,7 +1569,7 @@ class byrobot_base extends BaseModule
                 }
 
                 button._updated = false;
-                //this.log("transferForEntry() / button", "");
+                //this.log("transferToEntry() / button", "");
             }
         }
 
@@ -1567,7 +1584,7 @@ class byrobot_base extends BaseModule
                 }
 
                 state._updated = false;
-                //this.log("transferForEntry() / state", "");
+                //this.log("transferToEntry() / state", "");
             }
         }
     
@@ -1597,7 +1614,7 @@ class byrobot_base extends BaseModule
                 }
     
                 altitude._updated = false;
-                //this.log("tansferForEntry() / altitude", "");
+                //this.log("tansferForEntry() / Altitude", "");
             }
         }
 
@@ -1612,7 +1629,7 @@ class byrobot_base extends BaseModule
                 }
 
                 motion._updated = false;
-                //this.log("transferForEntry() / imu", "");
+                //this.log("transferToEntry() / Motion", "");
             }
         }
 
@@ -1627,7 +1644,7 @@ class byrobot_base extends BaseModule
                 }
 
                 range._updated = false;
-                //this.log("transferForEntry() / range", "");
+                //this.log("transferToEntry() / range", "");
             }
         }
     
@@ -1642,7 +1659,7 @@ class byrobot_base extends BaseModule
                 }
     
                 informationAssembledForEntry._updated = false;
-                //this.log("Module.prototype.tansferForEntry() / informationAssembledForEntry", "");
+                //this.log("tansferForEntry() / informationAssembledForEntry", "");
             }
         }
 
@@ -1656,11 +1673,15 @@ class byrobot_base extends BaseModule
             handler.write("entryhw_countTransferReserved", this.bufferTransfer.length);
         }
     }
+    
+    // #endregion Data Transfer to Entry from Device
+
 
 
     /***************************************************************************************
-     *  Communciation
+     *  Communciation - 장치로부터 받은 데이터를 검증
      ***************************************************************************************/
+    // #region Data Receiver from Device
 
     // 장치로부터 받은 데이터 배열 처리
     receiverForDevice(data)
@@ -1828,7 +1849,15 @@ class byrobot_base extends BaseModule
             }
         }
     }
+    
+    // #endregion Data Receiver from Device
 
+
+
+    /***************************************************************************************
+     *  Communciation - 장치로부터 받은 데이터 수신 처리
+     ***************************************************************************************/
+    // #region Data Handler for received data from Device
 
     // 장치로부터 받은 데이터 블럭 처리
     handlerForDevice()
@@ -1902,8 +1931,8 @@ class byrobot_base extends BaseModule
             }
             break;
         }
-    
-    
+
+
         switch( this.dataType )
         {
         case 0x40:  // State
@@ -1920,7 +1949,7 @@ class byrobot_base extends BaseModule
                 state.state_sensorOrientation   = this.extractUInt8(this.dataBlock, 5);
                 state.state_battery             = this.extractUInt8(this.dataBlock, 6);
     
-                //console.log("handlerForDevice - state: " + state.state_modeVehicle);
+                //console.log("Receive_From_Device - state: " + state.state_modeVehicle);
             }
             break;
         
@@ -1937,10 +1966,11 @@ class byrobot_base extends BaseModule
                 position.position_y    = this.extractFloat32(this.dataBlock, 4);
                 position.position_z    = this.extractFloat32(this.dataBlock, 8);
     
-                //console.log("handlerForDevice - position: " + position.position_x + ", " + position.position_y);
+                //console.log("Receive_From_Device - position: " + position.position_x + ", " + position.position_y);
             }
             break;
-    
+
+
         case 0x43:  // Altitude
             if( this.dataBlock.length == 16 )
             {
@@ -1952,10 +1982,11 @@ class byrobot_base extends BaseModule
                 altitude.altitude_altitude      = this.extractFloat32(this.dataBlock, 8);
                 altitude.altitude_rangeHeight   = this.extractFloat32(this.dataBlock, 12);
     
-                //console.log("handlerForDevice - altitude: " + altitude.altitude_temperature + ", " + altitude.altitude_altitude);
+                //console.log("Receive_From_Device - altitude: " + altitude.altitude_temperature + ", " + altitude.altitude_altitude);
             }
             break;
-    
+
+
         case 0x44:  // Motion
             if( this.dataBlock.length == 18 )
             {
@@ -1972,9 +2003,11 @@ class byrobot_base extends BaseModule
                 motion.motion_anglePitch    = this.extractInt16(this.dataBlock, 14);
                 motion.motion_angleYaw      = this.extractInt16(this.dataBlock, 16);
     
-                //console.log("handlerForDevice - motion: " + motion.motion_angleRoll + ", " + motion.motion_anglePitch + ", " + motion.motion_angleYaw);
+                //console.log("Receive_From_Device - motion: " + motion.motion_angleRoll + ", " + motion.motion_anglePitch + ", " + motion.motion_angleYaw);
             }
             break;
+
+
         case 0x45:  // Range
             if( this.dataBlock.length == 12 )
             {
@@ -1988,12 +2021,12 @@ class byrobot_base extends BaseModule
                 range.range_top         = this.extractInt16(this.dataBlock, 8);
                 range.range_bottom      = this.extractInt16(this.dataBlock, 10);
     
-                //console.log("handlerForDevice - range: " + range.range_left + ", " + range.range_front + ", " + range.range_right + ", " + range.range_rear + ", " + range.range_top + ", " + range.range_bottom);
+                //console.log("Receive_From_Device - range: " + range.range_left + ", " + range.range_front + ", " + range.range_right + ", " + range.range_rear + ", " + range.range_top + ", " + range.range_bottom);
             }
             break;
         // */
-        
-        
+
+
         case 0x70:  // Button
             if( this.dataBlock.length == 3 )
             {
@@ -2002,11 +2035,12 @@ class byrobot_base extends BaseModule
                 button._updated         = true;
                 button.button_button    = this.extractUInt16(this.dataBlock, 0);
                 button.button_event     = this.extractUInt8(this.dataBlock, 2);
-    
+
                 //console.log("Receive_From_Device - Button: " + button.button_button + ", " + button.button_event);
             }
             break;
-    
+
+
         case 0x71:  // Joystick
             if( this.dataBlock.length == 8 )
             {
@@ -2021,11 +2055,12 @@ class byrobot_base extends BaseModule
                 joystick.joystick_right_y           = this.extractInt8(this.dataBlock,  5);
                 joystick.joystick_right_direction   = this.extractUInt8(this.dataBlock, 6);
                 joystick.joystick_right_event       = this.extractUInt8(this.dataBlock, 7);
-    
+
                 //console.log("Receive_From_Device - Joystick: " + joystick.joystick_left_x + ", " + joystick.joystick_left_y + ", " + joystick.joystick_right_x + ", " + joystick.joystick_right_y);
             }
             break;
-    
+
+
         case 0xA1:  // Information Assembled For Entry 자주 갱신되는 데이터 모음(엔트리)
             if( this.dataBlock.length == 18 )
             {
@@ -2041,126 +2076,23 @@ class byrobot_base extends BaseModule
                 informationAssembledForEntry.informationAssembledForEntry_rangeHeight    = this.extractInt16(this.dataBlock, 12) / 100.0;
                 informationAssembledForEntry.informationAssembledForEntry_altitude       = this.extractFloat32(this.dataBlock, 14);
     
-                // console.log("handlerForDevice - Information Assembled For Entry: " + this.dataBlock.length + ", " + this.dataBlock);
+                //console.log("Receive_From_Device - Information Assembled For Entry: " + this.dataBlock.length + ", " + this.dataBlock);
             }
             break;
-    
+
+
         default:
             break;
         }
     }
+    // #endregion Data Receiver for received data from Device
 
-    // 자바스크립트에서 바이너리 핸들링
-    // http://mohwa.github.io/blog/javascript/2015/08/31/binary-inJS/
-    extractInt8(dataArray, startIndex)
-    {
-        let value = this.extractUInt8(dataArray, startIndex);
-        if( (value & 0x80) != 0)
-        {
-            value = -(0x100 - value);
-        }
-        return value;
-    }
 
-    extractUInt8(dataArray, startIndex)
-    {
-        if( dataArray.length >= startIndex + 1 )
-        {
-            let value = dataArray[startIndex];
-            return value;
-        }
-        else
-        {
-            return 0;
-        }
-    }
 
-    extractInt16(dataArray, startIndex)
-    {
-        let value = this.extractUInt16(dataArray, startIndex);
-        if( (value & 0x8000) != 0)
-        {
-            value = -(0x10000 - value);
-        }
-        return value;
-    }
-
-    extractUInt16(dataArray, startIndex)
-    {
-        if( dataArray.length >= startIndex + 2 )
-        {
-            let value = ((dataArray[startIndex + 1]) << 8) + dataArray[startIndex];
-            return value;
-        }
-        else
-        {
-            return 0;
-        }
-    }
-
-    extractInt32(dataArray, startIndex)
-    {
-        let value = this.extractUInt32(dataArray, startIndex);
-        if( (value & 0x80000000) != 0)
-        {
-            value = -(0x100000000 - value);
-        }
-        return value;
-    }
-
-    extractUInt32(dataArray, startIndex)
-    {
-        if( dataArray.length >= startIndex + 4 )
-        {
-            let value = ((dataArray[startIndex + 3]) << 24) + ((dataArray[startIndex + 2]) << 16) + ((dataArray[startIndex + 1]) << 8) + dataArray[startIndex];
-            return value;
-        }
-        else
-        {
-            return 0;
-        }
-    }
-
-    extractFloat32(dataArray, startIndex)
-    {
-        if (dataArray.length >= startIndex + 4)
-        {
-            let buffer = new ArrayBuffer(4);
-            let float32View = new Float32Array(buffer, 0, 1);
-            let uint8View = new Uint8Array(buffer, 0, 4)
-            uint8View[0] = dataArray[startIndex];
-            uint8View[1] = dataArray[startIndex + 1];
-            uint8View[2] = dataArray[startIndex + 2];
-            uint8View[3] = dataArray[startIndex + 3];
-    
-            return float32View[0].toFixed(2);
-        }
-        else
-        {
-            return 0;
-        }
-    }
-
-    // 값 추출
-    getByte0(b)
-    {
-        return (b & 0xff);
-    }
-
-    getByte1(b)
-    {
-        return ((b >> 8) & 0xff);
-    }
-
-    getByte2(b)
-    {
-        return ((b >> 16) & 0xff);
-    }
-
-    getByte3(b)
-    {
-        return ((b >> 24) & 0xff);
-    }
+    /***************************************************************************************
+     *  Communciation - 데이터를 장치로 전송(주기적으로 호출됨)
+     ***************************************************************************************/
+    // #region Data Transfer
 
     // 장치에 데이터 전송
     transferForDevice()
@@ -2183,30 +2115,29 @@ class byrobot_base extends BaseModule
 
         if( this.bufferTransfer.length == 0 )
         {
+            // 예약된 요청이 없는 경우 데이터 요청 등록(현재는 자세 데이터 요청)
             switch( this.targetDevice )
             {
             case 0x10:
                 {
-                    // 예약된 요청이 없는 경우 데이터 요청 등록(현재는 자세 데이터 요청)
                     switch( this.countReqeustDevice % 6 )
                     {
-                    case 0:     return this.ping(0x10);                     // 드론
-                    case 2:     return this.ping(0x20);                     // 조종기
-                    case 4:     return this.reserveRequest(0x10, 0x40);     // 드론
+                    case 0:    return this.ping(0x10);                     // 드론
+                    case 2:    return this.ping(0x20);                     // 조종기
+                    case 4:    return this.reserveRequest(0x10, 0x40);     // 드론
                     /*
-                    case 6:     return this.reserveRequest(0x10, 0x42);     // 드론
-                    case 8:     return this.reserveRequest(0x10, 0x43);     // 드론
-                    case 10:    return this.reserveRequest(0x10, 0x44);     // 드론
-                    case 12:    return this.reserveRequest(0x10, 0x45);     // 드론
+                    case 6:    return this.reserveRequest(0x10, 0x42);     // 드론
+                    case 8:    return this.reserveRequest(0x10, 0x43);     // 드론
+                    case 10:   return this.reserveRequest(0x10, 0x44);     // 드론
+                    case 12:   return this.reserveRequest(0x10, 0x45);     // 드론
                     // */
-                    default:    return this.reserveRequest(0x10, 0xA1);     // 드론, 자주 갱신되는 데이터 모음(엔트리)
+                    default:   return this.reserveRequest(0x10, 0xA1);     // 드론, 자주 갱신되는 데이터 모음(엔트리)
                     }
                 }
                 break;
 
             default:
                 {
-                    // 예약된 요청이 없는 경우 데이터 요청
                     return this.ping(this.targetDevice);
                 }
                 break;
@@ -2214,11 +2145,11 @@ class byrobot_base extends BaseModule
         }
         else
         {
+            // 예약된 요청이 있는 경우
             switch( this.targetDevice )
             {
             case 0x10:
                 {
-                    // 예약된 요청이 있는 경우 데이터 요청 등록
                     switch (this.countReqeustDevice % 3)
                     {
                         case 1:     return this.reserveRequest(0x10, 0xA1);     // 드론, 자주 갱신되는 데이터 모음(엔트리)
@@ -2229,7 +2160,6 @@ class byrobot_base extends BaseModule
 
             default:
                 {
-                    // 예약된 요청이 있는 경우
                     switch( this.countReqeustDevice % 10 )
                     {
                     case 0:     return this.ping(this.targetDevice);
@@ -2270,6 +2200,15 @@ class byrobot_base extends BaseModule
         return arrayTransfer;
     }
 
+    // #endregion Data Transfer
+
+
+
+    /***************************************************************************************
+     *  Communciation - Entry-HW 내부 코드용 데이터 전송 명령
+     ***************************************************************************************/
+    // #region Data Transfer Functions for Entry-HW internal code
+
     // Ping
     ping(target)
     {
@@ -2305,6 +2244,7 @@ class byrobot_base extends BaseModule
         return dataArray;
     }
 
+
     // 데이터 요청
     reserveRequest(target, dataType)
     {
@@ -2333,30 +2273,140 @@ class byrobot_base extends BaseModule
         return dataArray;
     }
 
+    // #endregion Data Transfer Functions for Entry-HW internal code
 
-    // 입력받은 문자열 처리
-    // https://stackoverflow.com/questions/6226189/how-to-convert-a-string-to-bytearray
-    stringToAsciiByteArray(str)
+
+
+    /***************************************************************************************
+     *  자바스크립트 바이너리 핸들링
+     *  http://mohwa.github.io/blog/javascript/2015/08/31/binary-inJS/
+     ***************************************************************************************/
+    // #region Functions for Binary Handling
+
+    extractInt8(dataArray, startIndex)
     {
-        let bytes = [];
-        for(let i=0; i<str.length; i++)
+        let value = this.extractUInt8(dataArray, startIndex);
+        if( (value & 0x80) != 0)
         {
-            let charCode = str.charCodeAt(i);
-            if( charCode > 0xFF )  // char > 1 byte since charCodeAt returns the UTF-16 value
-            {
-                // throw new Error('Character ' + String.fromCharCode(charCode) + ' can\'t be represented by a US-ASCII byte.');
-                continue;
-            }
-            bytes.push(charCode);
+            value = -(0x100 - value);
         }
-        return bytes;
+        return value;
     }
+
+
+    extractUInt8(dataArray, startIndex)
+    {
+        if( dataArray.length >= startIndex + 1 )
+        {
+            let value = dataArray[startIndex];
+            return value;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+
+
+    extractInt16(dataArray, startIndex)
+    {
+        let value = this.extractUInt16(dataArray, startIndex);
+        if( (value & 0x8000) != 0)
+        {
+            value = -(0x10000 - value);
+        }
+        return value;
+    }
+
+
+    extractUInt16(dataArray, startIndex)
+    {
+        if( dataArray.length >= startIndex + 2 )
+        {
+            let value = ((dataArray[startIndex + 1]) << 8) + dataArray[startIndex];
+            return value;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+
+
+    extractInt32(dataArray, startIndex)
+    {
+        let value = this.extractUInt32(dataArray, startIndex);
+        if( (value & 0x80000000) != 0)
+        {
+            value = -(0x100000000 - value);
+        }
+        return value;
+    }
+
+
+    extractUInt32(dataArray, startIndex)
+    {
+        if( dataArray.length >= startIndex + 4 )
+        {
+            let value = ((dataArray[startIndex + 3]) << 24) + ((dataArray[startIndex + 2]) << 16) + ((dataArray[startIndex + 1]) << 8) + dataArray[startIndex];
+            return value;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+
+
+    extractFloat32(dataArray, startIndex)
+    {
+        if (dataArray.length >= startIndex + 4)
+        {
+            let buffer = new ArrayBuffer(4);
+            let float32View = new Float32Array(buffer, 0, 1);
+            let uint8View = new Uint8Array(buffer, 0, 4)
+            uint8View[0] = dataArray[startIndex];
+            uint8View[1] = dataArray[startIndex + 1];
+            uint8View[2] = dataArray[startIndex + 2];
+            uint8View[3] = dataArray[startIndex + 3];
+    
+            return float32View[0].toFixed(2);
+        }
+        else
+        {
+            return 0;
+        }
+    }
+
+
+    // 값 추출
+    getByte0(b)
+    {
+        return (b & 0xff);
+    }
+
+    getByte1(b)
+    {
+        return ((b >> 8) & 0xff);
+    }
+
+    getByte2(b)
+    {
+        return ((b >> 16) & 0xff);
+    }
+
+    getByte3(b)
+    {
+        return ((b >> 24) & 0xff);
+    }
+    // #endregion Functions for Binary Handling
 
 
 
     /***************************************************************************************
      *  CRC16
      ***************************************************************************************/
+    // #region CRC16
 
     /*
     * Copyright 2001-2010 Georges Menie (www.menie.org)
@@ -2384,6 +2434,45 @@ class byrobot_base extends BaseModule
     * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
     * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     */
+    createCRC16Array()
+    {
+        this.crc16table =
+        [
+            0x0000, 0x1021, 0x2042, 0x3063, 0x4084, 0x50a5, 0x60c6, 0x70e7,
+            0x8108, 0x9129, 0xa14a, 0xb16b, 0xc18c, 0xd1ad, 0xe1ce, 0xf1ef,
+            0x1231, 0x0210, 0x3273, 0x2252, 0x52b5, 0x4294, 0x72f7, 0x62d6,
+            0x9339, 0x8318, 0xb37b, 0xa35a, 0xd3bd, 0xc39c, 0xf3ff, 0xe3de,
+            0x2462, 0x3443, 0x0420, 0x1401, 0x64e6, 0x74c7, 0x44a4, 0x5485,
+            0xa56a, 0xb54b, 0x8528, 0x9509, 0xe5ee, 0xf5cf, 0xc5ac, 0xd58d,
+            0x3653, 0x2672, 0x1611, 0x0630, 0x76d7, 0x66f6, 0x5695, 0x46b4,
+            0xb75b, 0xa77a, 0x9719, 0x8738, 0xf7df, 0xe7fe, 0xd79d, 0xc7bc,
+            0x48c4, 0x58e5, 0x6886, 0x78a7, 0x0840, 0x1861, 0x2802, 0x3823,
+            0xc9cc, 0xd9ed, 0xe98e, 0xf9af, 0x8948, 0x9969, 0xa90a, 0xb92b,
+            0x5af5, 0x4ad4, 0x7ab7, 0x6a96, 0x1a71, 0x0a50, 0x3a33, 0x2a12,
+            0xdbfd, 0xcbdc, 0xfbbf, 0xeb9e, 0x9b79, 0x8b58, 0xbb3b, 0xab1a,
+            0x6ca6, 0x7c87, 0x4ce4, 0x5cc5, 0x2c22, 0x3c03, 0x0c60, 0x1c41,
+            0xedae, 0xfd8f, 0xcdec, 0xddcd, 0xad2a, 0xbd0b, 0x8d68, 0x9d49,
+            0x7e97, 0x6eb6, 0x5ed5, 0x4ef4, 0x3e13, 0x2e32, 0x1e51, 0x0e70,
+            0xff9f, 0xefbe, 0xdfdd, 0xcffc, 0xbf1b, 0xaf3a, 0x9f59, 0x8f78,
+            0x9188, 0x81a9, 0xb1ca, 0xa1eb, 0xd10c, 0xc12d, 0xf14e, 0xe16f,
+            0x1080, 0x00a1, 0x30c2, 0x20e3, 0x5004, 0x4025, 0x7046, 0x6067,
+            0x83b9, 0x9398, 0xa3fb, 0xb3da, 0xc33d, 0xd31c, 0xe37f, 0xf35e,
+            0x02b1, 0x1290, 0x22f3, 0x32d2, 0x4235, 0x5214, 0x6277, 0x7256,
+            0xb5ea, 0xa5cb, 0x95a8, 0x8589, 0xf56e, 0xe54f, 0xd52c, 0xc50d,
+            0x34e2, 0x24c3, 0x14a0, 0x0481, 0x7466, 0x6447, 0x5424, 0x4405,
+            0xa7db, 0xb7fa, 0x8799, 0x97b8, 0xe75f, 0xf77e, 0xc71d, 0xd73c,
+            0x26d3, 0x36f2, 0x0691, 0x16b0, 0x6657, 0x7676, 0x4615, 0x5634,
+            0xd94c, 0xc96d, 0xf90e, 0xe92f, 0x99c8, 0x89e9, 0xb98a, 0xa9ab,
+            0x5844, 0x4865, 0x7806, 0x6827, 0x18c0, 0x08e1, 0x3882, 0x28a3,
+            0xcb7d, 0xdb5c, 0xeb3f, 0xfb1e, 0x8bf9, 0x9bd8, 0xabbb, 0xbb9a,
+            0x4a75, 0x5a54, 0x6a37, 0x7a16, 0x0af1, 0x1ad0, 0x2ab3, 0x3a92,
+            0xfd2e, 0xed0f, 0xdd6c, 0xcd4d, 0xbdaa, 0xad8b, 0x9de8, 0x8dc9,
+            0x7c26, 0x6c07, 0x5c64, 0x4c45, 0x3ca2, 0x2c83, 0x1ce0, 0x0cc1,
+            0xef1f, 0xff3e, 0xcf5d, 0xdf7c, 0xaf9b, 0xbfba, 0x8fd9, 0x9ff8,
+            0x6e17, 0x7e36, 0x4e55, 0x5e74, 0x2e93, 0x3eb2, 0x0ed1, 0x1ef0
+        ];
+    }
+
     calcCRC16(data, crc)
     {
         if( data > 255 )
@@ -2396,11 +2485,15 @@ class byrobot_base extends BaseModule
 
         return crcNext;
     }
+    // #endregion CRC16
+
 
 
     /***************************************************************************************
      *  로그 출력
      ***************************************************************************************/
+    // #region Functions for log
+
     log(message, data = 'undefined')
     {
         // 로그를 출력하지 않으려면 아래 주석을 활성화 할 것
@@ -2454,7 +2547,29 @@ class byrobot_base extends BaseModule
         
         return strHexArray;
     }
+
+
+    // 입력받은 문자열 처리
+    // https://stackoverflow.com/questions/6226189/how-to-convert-a-string-to-bytearray
+    stringToAsciiByteArray(str)
+    {
+        let bytes = [];
+        for(let i=0; i<str.length; i++)
+        {
+            let charCode = str.charCodeAt(i);
+            if( charCode > 0xFF )  // char > 1 byte since charCodeAt returns the UTF-16 value
+            {
+                // throw new Error('Character ' + String.fromCharCode(charCode) + ' can\'t be represented by a US-ASCII byte.');
+                continue;
+            }
+            bytes.push(charCode);
+        }
+        return bytes;
+    }
+
+    // #endregion Functions for log
 }
+
 
 module.exports = byrobot_base;
 
