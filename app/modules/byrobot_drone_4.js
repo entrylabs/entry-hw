@@ -9,35 +9,16 @@ const byrobot_base = require('./byrobot_base');
 class byrobot_drone_4 extends byrobot_base
 {
     /*
-        초기 수신데이터 체크(필수)
-        연결 후 초기에 수신받아서 정상연결인지를 확인해야하는 경우 사용합니다.
-     */
-    checkInitialData(data, config)
+        생성자
+    */
+    constructor()
     {
-        return this.checkAck(data, config); 
-    }
+        super();
 
-
-    /***************************************************************************************
-     *  Communciation - 연결된 장치 확인
-     ***************************************************************************************/
-
-    // 수신 받은 Ack 처리
-    checkAck(data, config)
-    {
-        super.receiverForDevice(data);
-
-        let ack = this.ack;
-        if( ack._updated == true )
-        {
-            config.id = '0F0A01';
-            return true;
-        }
-
-        return false;
+        this.targetDevice   = 0x10;
+        this.targetDeviceID = '0F0A01';
     }
 }
 
 
 module.exports = new byrobot_drone_4();
-

@@ -134,7 +134,7 @@ class byrobot_base extends BaseModule
             CONTROL_QUAD8_YAW:                    'control_quad8_yaw',
             CONTROL_QUAD8_THROTTLE:               'control_quad8_throttle',
             
-            // Control::Position16
+            // Control::Position
             CONTROL_POSITION_X:                   'control_position_x',
             CONTROL_POSITION_Y:                   'control_position_y',
             CONTROL_POSITION_Z:                   'control_position_z',
@@ -198,7 +198,7 @@ class byrobot_base extends BaseModule
             _updated            : 1,
             ack_systemTime      : 0,    // u64
             ack_dataType        : 0,    // u8
-            ack_crc16           : 0     // u16
+            ack_crc16           : 0,    // u16
         };
     
         // Joystick
@@ -220,7 +220,7 @@ class byrobot_base extends BaseModule
         {
             _updated        : 1,
             button_button   : 0,    // u16
-            button_event    : 0     // u8
+            button_event    : 0,    // u8
         };
     
         // State
@@ -233,7 +233,7 @@ class byrobot_base extends BaseModule
             state_modeMovement      : 0,    // u8
             state_headless          : 0,    // u8
             state_sensorOrientation : 0,    // u8
-            state_battery           : 0     // u8
+            state_battery           : 0,    // u8
         };
 
         // Position
@@ -242,7 +242,7 @@ class byrobot_base extends BaseModule
             _updated    : 1,
             position_x  : 0,    // f32
             position_y  : 0,    // f32
-            position_z  : 0     // f32
+            position_z  : 0,    // f32
         };
     
         // Altitude
@@ -252,7 +252,7 @@ class byrobot_base extends BaseModule
             altitude_temperature    : 0,    // f32
             altitude_pressure       : 0,    // f32
             altitude_altitude       : 0,    // f32
-            altitude_rangeHeight    : 0     // f32
+            altitude_rangeHeight    : 0,    // f32
         };
     
         // Motion
@@ -267,7 +267,7 @@ class byrobot_base extends BaseModule
             motion_gyroYaw      : 0,    // s16
             motion_angleRoll    : 0,    // s16
             motion_anglePitch   : 0,    // s16
-            motion_angleYaw     : 0     // s16
+            motion_angleYaw     : 0,    // s16
         };
     
         // Range
@@ -279,7 +279,7 @@ class byrobot_base extends BaseModule
             range_right     : 0,    // s16
             range_rear      : 0,    // s16
             range_top       : 0,    // s16
-            range_bottom    : 0     // s16
+            range_bottom    : 0,    // s16
         };
 
         // InformationAssembledForEntry
@@ -322,7 +322,10 @@ class byrobot_base extends BaseModule
         this.timeTransferNext       = 0;        // 전송 가능한 다음 시간
         this.timeTransferInterval   = 20;       // 최소 전송 시간 간격
 
-        this.countReqeustDevice     = 0;        // 장치에 데이터를 요청한 횟수 카운트 
+        this.countReqeustDevice     = 0;        // 장치에 데이터를 요청한 횟수 카운트
+
+        this.targetDevice           = 0;            // 연결 대상 장치 DeviceType
+        this.targetDeviceID         = undefined;    // 연결 대상 장치의 ID
     }
 
     /*
@@ -553,7 +556,7 @@ class byrobot_base extends BaseModule
         this.crc16Calculated                = 0;        // CRC16 계산 된 결과
         this.crc16Received                  = 0;        // CRC16 수신 받은 블럭
 
-        this.maxTransferRepeat              = 2;        // 최대 반복 전송 횟수
+        this.maxTransferRepeat              = 3;        // 최대 반복 전송 횟수
         this.countTransferRepeat            = 0;        // 반복 전송 횟수
         this.dataTypeLastTransfered         = 0;        // 마지막으로 전송한 데이터의 타입
 
@@ -576,10 +579,15 @@ class byrobot_base extends BaseModule
     {
         this.receiverForDevice(data);
 
+        if( this.targetDeviceID == undefined )
+        {
+            return false;
+        }
+
         let ack = this.ack;
         if( ack._updated == true )
         {
-            config.id = '0F0A01';
+            config.id = this.targetDeviceID;
             return true;
         }
 
@@ -646,6 +654,8 @@ class byrobot_base extends BaseModule
             this.addCRC16(dataArray, indexStart, dataLength);
 
             this.bufferTransfer.push(dataArray);
+            
+            this.log("Transfer_To_Device / LightManual", dataArray);
         }
 
 
@@ -692,6 +702,8 @@ class byrobot_base extends BaseModule
             // this.log("Light Mode");
     
             this.bufferTransfer.push(dataArray);
+            
+            this.log("Transfer_To_Device / LightModeColor", dataArray);
         }
         // LightMode
         else if((handler.e(this.DataType.LIGHT_MODE_MODE)       == true) &&
@@ -724,6 +736,8 @@ class byrobot_base extends BaseModule
             this.addCRC16(dataArray, indexStart, dataLength);
 
             this.bufferTransfer.push(dataArray);
+            
+            this.log("Transfer_To_Device / LightMode", dataArray);
         }
         
 
@@ -770,6 +784,8 @@ class byrobot_base extends BaseModule
             this.addCRC16(dataArray, indexStart, dataLength);
 
             this.bufferTransfer.push(dataArray);
+            
+            this.log("Transfer_To_Device / LightEventColor", dataArray);
         }
         else if((handler.e(this.DataType.LIGHT_EVENT_EVENT)     == true) &&
                 (handler.e(this.DataType.LIGHT_EVENT_INTERVAL)  == true) &&
@@ -804,6 +820,8 @@ class byrobot_base extends BaseModule
             this.addCRC16(dataArray, indexStart, dataLength);
 
             this.bufferTransfer.push(dataArray);
+            
+            this.log("Transfer_To_Device / LightEvent", dataArray);
         }
         
 
@@ -834,6 +852,8 @@ class byrobot_base extends BaseModule
             this.addCRC16(dataArray, indexStart, dataLength);
 
             this.bufferTransfer.push(dataArray);
+            
+            this.log("Transfer_To_Device / DisplayClearAll", dataArray);
         }
 
 
@@ -877,6 +897,8 @@ class byrobot_base extends BaseModule
             this.addCRC16(dataArray, indexStart, dataLength);
 
             this.bufferTransfer.push(dataArray);
+            
+            this.log("Transfer_To_Device / DisplayClear", dataArray);
         }
 
 
@@ -918,6 +940,8 @@ class byrobot_base extends BaseModule
             this.addCRC16(dataArray, indexStart, dataLength);
 
             this.bufferTransfer.push(dataArray);
+            
+            this.log("Transfer_To_Device / DisplayInvert", dataArray);
         }
 
 
@@ -956,6 +980,8 @@ class byrobot_base extends BaseModule
             this.addCRC16(dataArray, indexStart, dataLength);
 
             this.bufferTransfer.push(dataArray);
+            
+            this.log("Transfer_To_Device / DisplayDrawPoint", dataArray);
         }
 
 
@@ -1003,6 +1029,8 @@ class byrobot_base extends BaseModule
             this.addCRC16(dataArray, indexStart, dataLength);
 
             this.bufferTransfer.push(dataArray);
+            
+            this.log("Transfer_To_Device / DisplayDrawLine", dataArray);
         }
 
         
@@ -1050,6 +1078,8 @@ class byrobot_base extends BaseModule
             this.addCRC16(dataArray, indexStart, dataLength);
 
             this.bufferTransfer.push(dataArray);
+
+            this.log("Transfer_To_Device / DisplayDrawRect", dataArray);
         }
 
 
@@ -1091,6 +1121,8 @@ class byrobot_base extends BaseModule
             this.addCRC16(dataArray, indexStart, dataLength);
 
             this.bufferTransfer.push(dataArray);
+            
+            this.log("Transfer_To_Device / DisplayDrawCircle", dataArray);
         }
 
 
@@ -1138,6 +1170,8 @@ class byrobot_base extends BaseModule
             this.addCRC16(dataArray, indexStart, dataLength);
 
             this.bufferTransfer.push(dataArray);
+
+            this.log("Transfer_To_Device / DisplayDrawString", dataArray);
         }
 
 
@@ -1190,6 +1224,8 @@ class byrobot_base extends BaseModule
             this.addCRC16(dataArray, indexStart, dataLength);
 
             this.bufferTransfer.push(dataArray);
+            
+            this.log("Transfer_To_Device / DisplayDrawStringAlign", dataArray);
         }
 
 
@@ -1221,8 +1257,6 @@ class byrobot_base extends BaseModule
             // CRC16
             this.addCRC16(dataArray, indexStart, dataLength);
 
-            this.log("handlerForEntry() / COMMAND / command: " + command_command + ", option: " + command_option, dataArray);
-
             this.bufferTransfer.push(dataArray);
 
             switch( command_command )
@@ -1237,6 +1271,8 @@ class byrobot_base extends BaseModule
                 }
                 break;
             }
+
+            this.log("Transfer_To_Device / Command" + command_command + ", option: " + command_option, dataArray);
         }
 
 
@@ -1278,13 +1314,15 @@ class byrobot_base extends BaseModule
             //this.log("handlerForEntry() / Control / roll: " + controlRoll + ", pitch: " + controlPitch + ", yaw: " + controlYaw + ", throttle: " + controlThrottle, dataArray);
 
             this.bufferTransfer.push(dataArray);
+            
+            this.log("Transfer_To_Device / ControlQuad8", dataArray);
         }
 
 
         // Control
-        if( (handler.e(this.DataType.CONTROL_POSITION_X)           == true) ||
-            (handler.e(this.DataType.CONTROL_POSITION_Y)           == true) ||
-            (handler.e(this.DataType.CONTROL_POSITION_Z)           == true) ||
+        if( (handler.e(this.DataType.CONTROL_POSITION_X)                    == true) ||
+            (handler.e(this.DataType.CONTROL_POSITION_Y)                    == true) ||
+            (handler.e(this.DataType.CONTROL_POSITION_Z)                    == true) ||
             (handler.e(this.DataType.CONTROL_POSITION_VELOCITY)             == true) ||
             (handler.e(this.DataType.CONTROL_POSITION_HEADING)              == true) ||
             (handler.e(this.DataType.CONTROL_POSITION_ROTATIONAL_VELOCITY)  == true) )
@@ -1295,9 +1333,9 @@ class byrobot_base extends BaseModule
             this.addStartCode(dataArray);
             
             let target                      = handler.e(this.DataType.TARGET)                               ? handler.read(this.DataType.TARGET)                                : 0x10;
-            let controlPositionX            = handler.e(this.DataType.CONTROL_POSITION_X)          ? handler.read(this.DataType.CONTROL_POSITION_X)           : 0;
-            let controlPositionY            = handler.e(this.DataType.CONTROL_POSITION_Y)          ? handler.read(this.DataType.CONTROL_POSITION_Y)           : 0;
-            let controlPositionZ            = handler.e(this.DataType.CONTROL_POSITION_Z)          ? handler.read(this.DataType.CONTROL_POSITION_Z)           : 0;
+            let controlPositionX            = handler.e(this.DataType.CONTROL_POSITION_X)                   ? handler.read(this.DataType.CONTROL_POSITION_X)           : 0;
+            let controlPositionY            = handler.e(this.DataType.CONTROL_POSITION_Y)                   ? handler.read(this.DataType.CONTROL_POSITION_Y)           : 0;
+            let controlPositionZ            = handler.e(this.DataType.CONTROL_POSITION_Z)                   ? handler.read(this.DataType.CONTROL_POSITION_Z)           : 0;
             let controlVelocity             = handler.e(this.DataType.CONTROL_POSITION_VELOCITY)            ? handler.read(this.DataType.CONTROL_POSITION_VELOCITY)             : 0;
             let controlHeading              = handler.e(this.DataType.CONTROL_POSITION_HEADING)             ? handler.read(this.DataType.CONTROL_POSITION_HEADING)              : 0;
             let controlRotationalvelocity   = handler.e(this.DataType.CONTROL_POSITION_ROTATIONAL_VELOCITY) ? handler.read(this.DataType.CONTROL_POSITION_ROTATIONAL_VELOCITY)  : 0;
@@ -1326,9 +1364,9 @@ class byrobot_base extends BaseModule
             // CRC16
             this.addCRC16(dataArray, indexStart, dataLength);
 
-            //this.log("handlerForEntry() / Control");
-
             this.bufferTransfer.push(dataArray);
+            
+            this.log("Transfer_To_Device / ControlPosition", dataArray);
         }
 
 
@@ -1364,6 +1402,8 @@ class byrobot_base extends BaseModule
             this.addCRC16(dataArray, indexStart, dataLength);
 
             this.bufferTransfer.push(dataArray);
+            
+            this.log("Transfer_To_Device / MotorSingle", dataArray);
         }
 
 
@@ -1399,9 +1439,9 @@ class byrobot_base extends BaseModule
             // CRC16
             this.addCRC16(dataArray, indexStart, dataLength);
 
-            this.log("handlerForEntry() / BUZZER / buzzer_mode: " + buzzer_mode + ", buzzer_value: " + buzzer_value + ", buzzer_time: " + buzzer_time, dataArray);
-
             this.bufferTransfer.push(dataArray);
+
+            this.log("Transfer_To_Device / Buzzer / buzzer_mode: " + buzzer_mode + ", buzzer_value: " + buzzer_value + ", buzzer_time: " + buzzer_time, dataArray);
         }
 
 
@@ -1413,7 +1453,7 @@ class byrobot_base extends BaseModule
             // Start Code
             this.addStartCode(dataArray);
             
-            let target          = handler.e(this.DataType.TARGET)           ? handler.read(this.DataType.TARGET)            : 0x31;
+            let target          = handler.e(this.DataType.TARGET)           ? handler.read(this.DataType.TARGET)            : 0x20;
             let vibrator_mode   = handler.e(this.DataType.VIBRATOR_MODE)    ? handler.read(this.DataType.VIBRATOR_MODE)     : 0;
             let vibrator_on     = handler.e(this.DataType.VIBRATOR_ON)      ? handler.read(this.DataType.VIBRATOR_ON)       : 0;
             let vibrator_off    = handler.e(this.DataType.VIBRATOR_OFF)     ? handler.read(this.DataType.VIBRATOR_OFF)      : 0;
@@ -1441,6 +1481,8 @@ class byrobot_base extends BaseModule
             this.addCRC16(dataArray, indexStart, dataLength);
 
             this.bufferTransfer.push(dataArray);
+
+            this.log("Transfer_To_Device / Vibrator", dataArray);
         }
 
         //this.log("handlerForEntry()", dataArray);
@@ -1617,7 +1659,7 @@ class byrobot_base extends BaseModule
 
 
     /***************************************************************************************
-     *  Communciation - Petrone V2
+     *  Communciation
      ***************************************************************************************/
 
     // 장치로부터 받은 데이터 배열 처리
@@ -1678,29 +1720,37 @@ class byrobot_base extends BaseModule
                     switch( this.indexReceiver )
                     {
                     case 0:
-                        this.dataType = data;
-                        this.crc16Calculated = this.calcCRC16(data, 0);
+                        {
+                            this.dataType = data;
+                            this.crc16Calculated = this.calcCRC16(data, 0);
+                        }
                         break;
                     
                     case 1:
-                        this.dataLength = data;
-                        this.crc16Calculated = this.calcCRC16(data, this.crc16Calculated);
+                        {
+                            this.dataLength = data;
+                            this.crc16Calculated = this.calcCRC16(data, this.crc16Calculated);
+                        }
                         break;
                     
                     case 2:
-                        this.from = data;
-                        this.crc16Calculated = this.calcCRC16(data, this.crc16Calculated);
+                        {
+                            this.from = data;
+                            this.crc16Calculated = this.calcCRC16(data, this.crc16Calculated);
+                        }
                         break;
                     
                     case 3:
-                        this.to = data;
-                        this.crc16Calculated = this.calcCRC16(data, this.crc16Calculated);
-                        this.dataBlock = [];        // 수신 받은 데이터 블럭
-                        if( this.dataLength == 0 )
                         {
-                            this.indexSession++;    // 데이터의 길이가 0인 경우 바로 CRC16으로 넘어가게 함
+                            this.to = data;
+                            this.crc16Calculated = this.calcCRC16(data, this.crc16Calculated);
+                            this.dataBlock = [];        // 수신 받은 데이터 블럭
+                            if( this.dataLength == 0 )
+                            {
+                                this.indexSession++;    // 데이터의 길이가 0인 경우 바로 CRC16으로 넘어가게 함
+                            }
+                            flagSessionNext = true;
                         }
-                        flagSessionNext = true;
                         break;
                     }
                 }
@@ -1725,19 +1775,25 @@ class byrobot_base extends BaseModule
                     switch( this.indexReceiver )
                     {
                     case 0:
-                        this.crc16Received = data;
+                        {
+                            this.crc16Received = data;
+                        }
                         break;
                     
                     case 1:
-                        this.crc16Received = this.crc16Received + (data << 8);
-                        flagComplete = true;
+                        {
+                            this.crc16Received = this.crc16Received + (data << 8);
+                            flagComplete = true;
+                        }
                         break;
                     }
                 }
                 break;
 
             default:
-                flagContinue = false;
+                {
+                    flagContinue = false;
+                }
                 break;
             }
 
@@ -1787,10 +1843,14 @@ class byrobot_base extends BaseModule
         case 0x43:  break;      // 
         case 0x44:  break;      // 
         case 0x45:  break;      // 
+        case 0x70:  break;      // 
+        case 0x71:  break;      // 
         case 0xA1:  break;      // 
 
         default:
-            this.log("handlerForDevice() / From: " + this.from + " / To: " + this.to + " / Type: " + this.dataType + " / ", this.dataBlock);
+            {
+                this.log("Receive_From_Device / From: " + this.from + " / To: " + this.to + " / Type: " + this.dataType + " / ", this.dataBlock);
+            }
             break;
         }
 
@@ -1812,7 +1872,7 @@ class byrobot_base extends BaseModule
                 // ping에 대한 ack는 로그 출력하지 않음
                 if( ack.ack_dataType != 0x01 )
                 {
-                    console.log("handlerForDevice - Ack / From: " + this.from + " / SystemTime: " + ack.ack_systemTime + " / DataType: " + ack.ack_dataType + " / Repeat: " + this.countTransferRepeat + " / Crc16Transfer: " + this.crc16Transfered + " / Crc16Get: " + ack.ack_crc16);
+                    console.log("Receive_From_Device - Ack / From: " + this.from + " / SystemTime: " + ack.ack_systemTime + " / DataType: " + ack.ack_dataType + " / Repeat: " + this.countTransferRepeat + " / Crc16Transfer: " + this.crc16Transfered + " / Crc16Get: " + ack.ack_crc16);
                 }
 
                 // 마지막으로 전송한 데이터에 대한 응답을 받았다면 
@@ -1837,7 +1897,7 @@ class byrobot_base extends BaseModule
                     this.bufferTransfer.shift();
                     this.countTransferRepeat = 0;
                     
-                    console.log("handlerForDevice - Response / From: " + this.from + " / DataType: " + this.dataType);
+                    console.log("Receive_From_Device - Response / From: " + this.from + " / DataType: " + this.dataType);
                 }
             }
             break;
@@ -1863,8 +1923,10 @@ class byrobot_base extends BaseModule
                 //console.log("handlerForDevice - state: " + state.state_modeVehicle);
             }
             break;
-    
-    /*
+        
+        
+        // 아래의 주석 데이터는 State와 InformationAssembledForEntry로 대체함
+        /*
         case 0x42:  // Position
             if( this.dataBlock.length == 12 )
             {
@@ -1929,8 +1991,9 @@ class byrobot_base extends BaseModule
                 //console.log("handlerForDevice - range: " + range.range_left + ", " + range.range_front + ", " + range.range_right + ", " + range.range_rear + ", " + range.range_top + ", " + range.range_bottom);
             }
             break;
-    // */
-    
+        // */
+        
+        
         case 0x70:  // Button
             if( this.dataBlock.length == 3 )
             {
@@ -1940,7 +2003,7 @@ class byrobot_base extends BaseModule
                 button.button_button    = this.extractUInt16(this.dataBlock, 0);
                 button.button_event     = this.extractUInt8(this.dataBlock, 2);
     
-                //console.log("handlerForDevice - Button: " + button.button_button + ", " + button.button_event);
+                //console.log("Receive_From_Device - Button: " + button.button_button + ", " + button.button_event);
             }
             break;
     
@@ -1959,7 +2022,7 @@ class byrobot_base extends BaseModule
                 joystick.joystick_right_direction   = this.extractUInt8(this.dataBlock, 6);
                 joystick.joystick_right_event       = this.extractUInt8(this.dataBlock, 7);
     
-                //console.log("handlerForDevice - Joystick: " + joystick.joystick_left_x + ", " + joystick.joystick_left_y + ", " + joystick.joystick_right_x + ", " + joystick.joystick_right_y);
+                //console.log("Receive_From_Device - Joystick: " + joystick.joystick_left_x + ", " + joystick.joystick_left_y + ", " + joystick.joystick_right_x + ", " + joystick.joystick_right_y);
             }
             break;
     
@@ -2120,42 +2183,60 @@ class byrobot_base extends BaseModule
 
         if( this.bufferTransfer.length == 0 )
         {
-            // 예약된 요청이 없는 경우 데이터 요청 등록(현재는 자세 데이터 요청)
-            switch( this.countReqeustDevice % 6 )
+            switch( this.targetDevice )
             {
-            case 0:     return this.ping(0x10);                     // E-DRONE 드론
-            case 2:     return this.ping(0x20);                     // 조종기
-            case 4:     return this.reserveRequest(0x10, 0x40);     // E-DRONE 드론
-            /*
-            case 6:     return this.reserveRequest(0x10, 0x42);     // E-DRONE 드론
-            case 8:     return this.reserveRequest(0x10, 0x43);     // E-DRONE 드론
-            case 10:    return this.reserveRequest(0x10, 0x44);     // E-DRONE 드론
-            case 12:    return this.reserveRequest(0x10, 0x45);     // E-DRONE 드론
-            // */
-            default:    return this.reserveRequest(0x10, 0xA1);     // E-DRONE 드론
+            case 0x10:
+                {
+                    // 예약된 요청이 없는 경우 데이터 요청 등록(현재는 자세 데이터 요청)
+                    switch( this.countReqeustDevice % 6 )
+                    {
+                    case 0:     return this.ping(0x10);                     // 드론
+                    case 2:     return this.ping(0x20);                     // 조종기
+                    case 4:     return this.reserveRequest(0x10, 0x40);     // 드론
+                    /*
+                    case 6:     return this.reserveRequest(0x10, 0x42);     // 드론
+                    case 8:     return this.reserveRequest(0x10, 0x43);     // 드론
+                    case 10:    return this.reserveRequest(0x10, 0x44);     // 드론
+                    case 12:    return this.reserveRequest(0x10, 0x45);     // 드론
+                    // */
+                    default:    return this.reserveRequest(0x10, 0xA1);     // 드론, 자주 갱신되는 데이터 모음(엔트리)
+                    }
+                }
+                break;
+
+            default:
+                {
+                    // 예약된 요청이 없는 경우 데이터 요청
+                    return this.ping(this.targetDevice);
+                }
+                break;
             }
         }
         else
         {
-            /*
-            // 예약된 요청이 있는 경우에도 간헐적으로 장치 검색(연결 유지를 위해)
-            switch( this.countReqeustDevice % 24 )
+            switch( this.targetDevice )
             {
-            case 3:     return this.ping(0x10);
-            case 6:     return this.ping(0x20);
-            case 9:     return this.reserveRequest(0x10, 0x40);
-            case 12:    return this.reserveRequest(0x10, 0x42);
-            case 15:    return this.reserveRequest(0x10, 0x42);
-            case 18:    return this.reserveRequest(0x10, 0x44);
-            case 21:    return this.reserveRequest(0x10, 0x45);
-            default:    break;
-            }
-            // */
-            // 예약된 요청이 없는 경우 데이터 요청 등록(현재는 자세 데이터 요청)
-            switch (this.countReqeustDevice % 3)
-            {
-                case 1:     return this.reserveRequest(0x10, 0xA1);     // E-DRONE 드론, 자주 갱신되는 데이터 모음(엔트리)
-                default:    break;
+            case 0x10:
+                {
+                    // 예약된 요청이 있는 경우 데이터 요청 등록
+                    switch (this.countReqeustDevice % 3)
+                    {
+                        case 1:     return this.reserveRequest(0x10, 0xA1);     // 드론, 자주 갱신되는 데이터 모음(엔트리)
+                        default:    break;
+                    }
+                }
+                break;
+
+            default:
+                {
+                    // 예약된 요청이 있는 경우
+                    switch( this.countReqeustDevice % 10 )
+                    {
+                    case 0:     return this.ping(this.targetDevice);
+                    default:    break;
+                    }
+                }
+                break;
             }
         }
     
@@ -2174,9 +2255,8 @@ class byrobot_base extends BaseModule
     
         this.crc16Transfered = (arrayTransfer[arrayTransfer.length - 1] << 8) | (arrayTransfer[arrayTransfer.length - 2]);
     
-        //if( this.countTransferRepeat > 1 && this.countTransferRepeat < 3 )
-        this.log("Data Transfer - Repeat(" + this.bufferTransfer.length + ") : " + this.countTransferRepeat, this.bufferTransfer[0]);
-            //console.log("Data Transfer - Repeat: " + this.countTransferRepeat, this.bufferTransfer[0]);
+        //this.log("Data Transfer - Repeat(" + this.bufferTransfer.length + ") : " + this.countTransferRepeat, this.bufferTransfer[0]);
+        //console.log("Data Transfer - Repeat: " + this.countTransferRepeat, this.bufferTransfer[0]);
     
         // maxTransferRepeat 이상 전송했음에도 응답이 없는 경우엔 다음으로 넘어감
         if( this.countTransferRepeat >= this.maxTransferRepeat)
@@ -2321,7 +2401,7 @@ class byrobot_base extends BaseModule
     /***************************************************************************************
      *  로그 출력
      ***************************************************************************************/
-    log(location, data)
+    log(message, data = 'undefined')
     {
         // 로그를 출력하지 않으려면 아래 주석을 활성화 할 것
         //*
@@ -2332,14 +2412,17 @@ class byrobot_base extends BaseModule
         case "object":
             {
                 strInfo = " / [ " + this.convertByteArrayToHexString(data) + " ]";
+                console.log(message + " / " + (typeof data) + strInfo);
             }
             break;
 
         default:
+            {
+                console.log(message);
+            }
             break;
         }
 
-        console.log(location + " / " + (typeof data) + strInfo);
         // */
     }
 
