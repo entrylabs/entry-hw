@@ -89,36 +89,13 @@ class PingpongBase extends BaseModule {
         return result;
     }
 
-    checkPongConnect() {
-        if (!this.isCheckConnecting) {
-            this.checkConnecting = setInterval(() => {
-                console.log('checkPongConnect');
-                if (!this.isConnected) {
-                    this.sp.write(this.makePackets('connect'));
-                }
-            }, 1000);
-            this.isCheckConnecting = true;
-        }
+    setSerialPort(sp) {
+        this.sp = sp;
     }
 
     // 연결 후 초기에 송신할 데이터가 필요한 경우 사용합니다.
     requestInitialData(sp) {
         //console.log('P:requestInitialData: ');
-        /*
-		if (!this.sp) {
-			this.sp = sp;
-		}
-
-		if (!this.isCubeConnecting) {
-			//var checkDongle = this.makePackets('checkdongle');
-			var checkDongle = this.makePackets('connect');
-			sp.write(checkDongle, ()=> {
-				this.checkPongConnect();
-			});
-			this.isCubeConnecting = true;
-		}
-		return null;
-		*/
         return this.makePackets('setMultirole');
     }
 
@@ -135,16 +112,6 @@ class PingpongBase extends BaseModule {
     /*
     // 연결 후 초기에 수신받아서 정상연결인지를 확인해야하는 경우 사용합니다.
     checkInitialData(data, config) {
-        //console.log('P:checkInitialData: /  data(%d) = %s', data.length, this.dbgHexstr(data));
-
-        if (data.length >= 18) {
-            if (data[6] == 0xad || data[6] == 0xae) {
-                if (data[11] == 0x01) {
-                    console.log('checkinit: all cube connected!');
-                    return true;
-                }
-            }
-        }
     }
 	*/
 
@@ -174,34 +141,7 @@ class PingpongBase extends BaseModule {
 
     // 하드웨어 기기에 전달할 데이터
     requestLocalData() {
-        /*
-		var isSendData = false;
-		var sendBuffer;
-
-		if (this.send_cmd && this.send_cmd.id > this.cmd_seq) {
-			isSendData = true;
-			//console.log('P:request LD: ', this.send_cmd);
-			this.cmd_seq = this.send_cmd.id;
-			sendBuffer = Buffer.from(this.send_cmd.data);
-		}
-
-		if (isSendData) {
-			console.log('P:request LD: ');
-			return sendBuffer;
-		}
-		*/
-
         return null;
-
-        /*
-		const header = new Buffer([0xff, 0xff, 0xff]);
-		const position = new Buffer([0xff]);
-		const data = new Buffer([0x00, 0xc8, 0xb8, 0x00, 0x0b]);
-		const interval = new Buffer([10]);
-		const tail = new Buffer([0x01]);
-
-        return Buffer.concat([header, position, data, interval, tail]);
-		*/
     }
 
     // 하드웨어에서 온 데이터 처리

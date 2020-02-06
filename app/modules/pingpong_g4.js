@@ -57,7 +57,7 @@ class pingpong_g4 extends PingpongBase {
 
         if (data.length >= 18) {
             if (data[6] == 0xad || data[6] == 0xae) {
-                if (data[13] == 0x03) {
+                if (data[11] == 0x01 && data[12] == 0x02 && data[13] == 0x03) {
                     console.log('checkinit: all cube connected!');
                     return true;
                 }
