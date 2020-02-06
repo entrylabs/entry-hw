@@ -12,6 +12,7 @@ class byrobot_dronefighter_base extends BaseModule
      *  클래스 내부에서 사용될 필드들을 이곳에서 선언합니다.
      ***************************************************************************************/
     // #region Constructor
+
     constructor()
     {
         super();
@@ -20,6 +21,7 @@ class byrobot_dronefighter_base extends BaseModule
 
         this.serialport = null;
         this.isConnect = false;
+
 
         /***************************************************************************************
          *  드론, 조종기에 전달하는 명령
@@ -38,31 +40,31 @@ class byrobot_dronefighter_base extends BaseModule
         
             // 전송 대상
             TARGET                      : 'target',
-        
+
             // Light Manaul
             LIGHT_MANUAL_FLAGS          : 'light_manual_flags',
             LIGHT_MANUAL_BRIGHTNESS     : 'light_manual_brightness',
-        
+
             // Light Mode
             LIGHT_MODE_MODE             : 'light_mode_mode',
             LIGHT_MODE_INTERVAL         : 'light_mode_interval',
-        
+
             // Light Event
             LIGHT_EVENT_EVENT           : 'light_event_event',
             LIGHT_EVENT_INTERVAL        : 'light_event_interval',
             LIGHT_EVENT_REPEAT          : 'light_event_repeat',
-        
+
             // Buzzer
             BUZZER_MODE                 : 'buzzer_mode',
             BUZZER_VALUE                : 'buzzer_value',
             BUZZER_TIME                 : 'buzzer_time',
-        
+
             // Vibrator
             VIBRATOR_MODE               : 'vibrator_mode',
             VIBRATOR_ON                 : 'vibrator_on',
             VIBRATOR_OFF                : 'vibrator_off',
             VIBRATOR_TOTAL              : 'vibrator_total',
-        
+
             // Control - Double
             CONTROL_WHEEL               : 'control_wheel',
             CONTROL_ACCEL               : 'control_accel',
@@ -72,19 +74,19 @@ class byrobot_dronefighter_base extends BaseModule
             CONTROL_PITCH               : 'control_pitch',
             CONTROL_YAW                 : 'control_yaw',
             CONTROL_THROTTLE            : 'control_throttle',
-        
+
             // Command
             COMMAND_COMMAND             : 'command_command',
-            COMMAND_OPTIOIN             : 'command_option',
-        
+            COMMAND_OPTION              : 'command_option',
+
             // Motor
             MOTORSINGLE_TARGET          : 'motorsingle_target',
             MOTORSINGLE_DIRECTION       : 'motorsingle_direction',
             MOTORSINGLE_VALUE           : 'motorsingle_value',
-        
+
             // IrMessage
             IRMESSAGE_DATA              : 'irmessage_data',
-        
+
             // UserInterface
             USERINTERFACE_COMMAND       : 'userinterface_command',
             USERINTERFACE_FUNCTION      : 'userinterface_function',
@@ -102,7 +104,7 @@ class byrobot_dronefighter_base extends BaseModule
             ack_dataType        : 0,    // u8
             ack_crc16           : 0,    // u16
         };
-    
+
 
         // Joystick
         this.joystick = 
@@ -119,7 +121,7 @@ class byrobot_dronefighter_base extends BaseModule
             joystick_right_event        : 0,    // u8
             joystick_right_command      : 0,    // u8
         };
-    
+
 
         // Button
         this.button = 
@@ -128,7 +130,7 @@ class byrobot_dronefighter_base extends BaseModule
             button_button   : 0,    // u16
             button_event    : 0,    // u8
         };
-    
+
 
         // State
         this.state = 
@@ -152,7 +154,7 @@ class byrobot_dronefighter_base extends BaseModule
             attitude_pitch          : 0,
             attitude_yaw            : 0,
         };
-    
+
 
         // IR Message
         this.irmeessage = 
@@ -205,10 +207,12 @@ class byrobot_dronefighter_base extends BaseModule
     // #endregion Constructor
 
 
+
     /***************************************************************************************
      *  Entry 기본 함수
      ***************************************************************************************/
     // #region Base Functions for Entry
+
     /*
         초기설정
 
@@ -326,10 +330,12 @@ class byrobot_dronefighter_base extends BaseModule
     // #endregion Base Functions for Entry
 
 
+
     /***************************************************************************************
      *  초기화
      ***************************************************************************************/
     // #region Data Reset
+
     resetData()
     {
         // -- JSON Objects ----------------------------------------------------------------
@@ -361,7 +367,7 @@ class byrobot_dronefighter_base extends BaseModule
         button._updated                     = 0;
         button.button_button                = 0;
         button.button_event                 = 0;
-    
+
         // State
         let state                           = this.state;
         state._updated                      = 0;
@@ -372,19 +378,19 @@ class byrobot_dronefighter_base extends BaseModule
         state.state_sensorOrientation       = 0;
         state.state_coordinate              = 0;
         state.state_battery                 = 0;
-    
+
         // Attitude
         let attitude                        = this.attitude;
         attitude._updated                   = 0;
         attitude.attitude_roll              = 0;
         attitude.attitude_pitch             = 0;
         attitude.attitude_yaw               = 0;
-    
+
         // IR Message
         let irmeessage                      = this.irmeessage;
         irmeessage._updated                 = 0;
         irmeessage.irmessage_irdata         = 0;
-    
+
         // -- Control -----------------------------------------------------------------
         this.controlWheel                   = 0;        // 
         this.controlAccel                   = 0;        // 
@@ -421,6 +427,7 @@ class byrobot_dronefighter_base extends BaseModule
     // #endregion Data Reset
 
 
+
     /***************************************************************************************
      *  Communciation - 초기 연결 시 장치 확인
      ***************************************************************************************/
@@ -445,6 +452,7 @@ class byrobot_dronefighter_base extends BaseModule
         return false;
     }
     // #endregion check Ack for first connection
+
 
 
     /***************************************************************************************
@@ -494,13 +502,13 @@ class byrobot_dronefighter_base extends BaseModule
 
             let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
             let dataLength = 2;                     // 데이터의 길이
-    
+
             // Header
             dataArray.push(0x20);                   // Data Type
             dataArray.push(dataLength);             // Data Length
             dataArray.push(0x15);                   // From
             dataArray.push(target);                 // To
-    
+
             // Data
             dataArray.push(lightManual_flags);
             dataArray.push(lightManual_brightness);
@@ -512,6 +520,7 @@ class byrobot_dronefighter_base extends BaseModule
             
             this.log("Transfer_To_Device / LightManual", dataArray);
         }
+
 
         // LightMode
         if( (handler.e(this.DataType.LIGHT_MODE_MODE)       == true) &&
@@ -625,7 +634,7 @@ class byrobot_dronefighter_base extends BaseModule
                     this.controlPitch       = 0;
                     this.controlYaw         = 0;
                     this.controlThrottle    = 0;
-    
+
                     this.controlWheel       = 0;
                     this.controlAccel       = 0;
                 }
@@ -687,22 +696,22 @@ class byrobot_dronefighter_base extends BaseModule
         }
 
 
-        // Control
-        if( (handler.e(this.DataType.CONTROL_WHEEL)   == true) ||
-            (handler.e(this.DataType.CONTROL_ACCEL)   == true) )
+        // Control Wheel, Accel
+        if( (handler.e(this.DataType.CONTROL_WHEEL) == true) ||
+            (handler.e(this.DataType.CONTROL_ACCEL) == true) )
         {
             let dataArray = [];
 
             // Start Code
             this.addStartCode(dataArray);
             
-            let target          = handler.e(this.DataType.TARGET)           ? handler.read(this.DataType.TARGET)            : 0x10;
-            let controlWheel    = handler.e(this.DataType.CONTROL_WHEEL)    ? handler.read(this.DataType.CONTROL_WHEEL)     : this.controlWheel;
-            let controlAccel    = handler.e(this.DataType.CONTROL_ACCEL)    ? handler.read(this.DataType.CONTROL_ACCEL)     : this.controlAccel;
+            let target          = handler.e(this.DataType.TARGET)           ? handler.read(this.DataType.TARGET)        : 0x10;
+            let controlWheel    = handler.e(this.DataType.CONTROL_WHEEL)    ? handler.read(this.DataType.CONTROL_WHEEL) : this.controlWheel;
+            let controlAccel    = handler.e(this.DataType.CONTROL_ACCEL)    ? handler.read(this.DataType.CONTROL_ACCEL) : this.controlAccel;
 
             let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
             let dataLength = 2;                     // 데이터의 길이
-    
+
             this.controlWheel = controlWheel;
             this.controlAccel = controlAccel;
 
@@ -718,8 +727,6 @@ class byrobot_dronefighter_base extends BaseModule
     
             // CRC16
             this.addCRC16(dataArray, indexStart, dataLength);
-
-            //this.log("handlerForEntry() / Control / roll: " + controlRoll + ", pitch: " + controlPitch + ", yaw: " + controlYaw + ", throttle: " + controlThrottle, dataArray);
 
             this.bufferTransfer.push(dataArray);
             
@@ -742,13 +749,13 @@ class byrobot_dronefighter_base extends BaseModule
 
             let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
             let dataLength = 4;                     // 데이터의 길이
-    
+
             // Header
             dataArray.push(0x81);                   // Data Type
             dataArray.push(dataLength);             // Data Length
             dataArray.push(0x15);                   // From
             dataArray.push(target);                 // To
-    
+
             // Data Array
             dataArray.push(motorSingleTarget);
             dataArray.push(motorSingleDirection);
@@ -779,7 +786,7 @@ class byrobot_dronefighter_base extends BaseModule
 
             let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
             let dataLength = 5;                     // 데이터의 길이
-    
+
             // Header
             dataArray.push(0x83);                   // Data Type
             dataArray.push(dataLength);             // Data Length
@@ -818,7 +825,7 @@ class byrobot_dronefighter_base extends BaseModule
 
             let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
             let dataLength = 7;                     // 데이터의 길이
-    
+
             // Header
             dataArray.push(0x84);                   // Data Type
             dataArray.push(dataLength);             // Data Length
@@ -862,7 +869,7 @@ class byrobot_dronefighter_base extends BaseModule
             dataArray.push(dataLength);             // Data Length
             dataArray.push(0x15);                   // From
             dataArray.push(target);                 // To
-    
+
             // Data
             dataArray.push(this.getByte0(irmessage_data));
             dataArray.push(this.getByte1(irmessage_data));
@@ -874,7 +881,7 @@ class byrobot_dronefighter_base extends BaseModule
 
             this.bufferTransfer.push(dataArray);
 
-            this.log("Transfer_To_Device / IrMessage", dataArray);
+            this.log("Transfer_To_Device / IR Message", dataArray);
         }
 
 
@@ -950,6 +957,7 @@ class byrobot_dronefighter_base extends BaseModule
     // #endregion Data Transfer to Device from Entry
 
 
+
     /***************************************************************************************
      *  Communciation - 장치로부터 받은 데이터를 Entry에 전송
      ***************************************************************************************/
@@ -984,6 +992,7 @@ class byrobot_dronefighter_base extends BaseModule
                 }
 
                 button._updated = false;
+                //this.log("transferToEntry() / button", "");
             }
         }
 
@@ -1010,11 +1019,11 @@ class byrobot_dronefighter_base extends BaseModule
                 {
                     handler.write(key, attitude[key]);
                 }
-    
-                attitude._updated == false;
+
+                attitude._updated = false;
             }
         }
-    
+
         // IR Message
         {
             let irmeessage = this.irmeessage;
@@ -1024,8 +1033,8 @@ class byrobot_dronefighter_base extends BaseModule
                 {
                     handler.write(key, irmeessage[key]);
                 }
-    
-                irmeessage._updated == false;
+
+                irmeessage._updated = false;
             }
         }
 
@@ -1041,6 +1050,7 @@ class byrobot_dronefighter_base extends BaseModule
     }
     
     // #endregion Data Transfer to Entry from Device
+
 
 
     /***************************************************************************************
@@ -1218,6 +1228,7 @@ class byrobot_dronefighter_base extends BaseModule
     // #endregion Data Receiver from Device
 
 
+
     /***************************************************************************************
      *  Communciation - 장치로부터 받은 데이터 수신 처리
      ***************************************************************************************/
@@ -1242,6 +1253,7 @@ class byrobot_dronefighter_base extends BaseModule
         }
 
         this.timeReceive = (new Date()).getTime();
+
 
         // 상대측에 정상적으로 데이터를 전달했는지 확인
         switch( this.dataType )
@@ -1289,24 +1301,24 @@ class byrobot_dronefighter_base extends BaseModule
             }
             break;
         }
-    
-    
+
+
         switch( this.dataType )
         {
         case 0x40:  // State
             if( this.dataBlock.length == 7 )
             {
                 // Device -> Entry 
-                let state                        = this.state;
-                state._updated                   = true;
-                state.state_modeVehicle          = this.extractUInt8(this.dataBlock, 0);
-                state.state_modeSystem           = this.extractUInt8(this.dataBlock, 1);
-                state.state_modeFlight           = this.extractUInt8(this.dataBlock, 2);
-                state.state_modeDrive            = this.extractUInt8(this.dataBlock, 3);
-                state.state_sensorOrientation    = this.extractUInt8(this.dataBlock, 4);
-                state.state_coordinate           = this.extractUInt8(this.dataBlock, 5);
-                state.state_battery              = this.extractUInt8(this.dataBlock, 6);
-                
+                let state                       = this.state;
+                state._updated                  = true;
+                state.state_modeVehicle         = this.extractUInt8(this.dataBlock, 0);
+                state.state_modeSystem          = this.extractUInt8(this.dataBlock, 1);
+                state.state_modeFlight          = this.extractUInt8(this.dataBlock, 2);
+                state.state_modeDrive           = this.extractUInt8(this.dataBlock, 3);
+                state.state_sensorOrientation   = this.extractUInt8(this.dataBlock, 4);
+                state.state_coordinate          = this.extractUInt8(this.dataBlock, 5);
+                state.state_battery             = this.extractUInt8(this.dataBlock, 6);
+
                 // 비행 모드로 들어갔는데 설정이 비행 모드가 아닌경우 비행 모드로 변경
                 // 자동차 모드로 들어갔는데 설정이 자동차 모드가 아닌 경우 자동차 모드로 변경
                 if( this.targetModeVehicle != undefined )
@@ -1338,9 +1350,12 @@ class byrobot_dronefighter_base extends BaseModule
                         break;
                     }
                 }
+    
+                //console.log("Receive_From_Device - state: " + state.state_modeVehicle);
             }
             break;
-        
+
+
     case 0x41:  // Attitude
         if( this.dataBlock.length == 6 )
         {
@@ -1355,7 +1370,7 @@ class byrobot_dronefighter_base extends BaseModule
         }
         break;
 
-        
+
         case 0x70:  // Button
             if( this.dataBlock.length == 3 )
             {
@@ -1364,11 +1379,12 @@ class byrobot_dronefighter_base extends BaseModule
                 button._updated         = true;
                 button.button_button    = this.extractUInt16(this.dataBlock, 0);
                 button.button_event     = this.extractUInt8(this.dataBlock, 2);
-    
+
                 //console.log("Receive_From_Device - Button: " + button.button_button + ", " + button.button_event);
             }
             break;
-    
+
+
         case 0x71:  // Joystick
             if( this.dataBlock.length == 10 )
             {
@@ -1385,11 +1401,12 @@ class byrobot_dronefighter_base extends BaseModule
                 joystick.joystick_right_direction   = this.extractUInt8(this.dataBlock, 7);
                 joystick.joystick_right_event       = this.extractUInt8(this.dataBlock, 8);
                 joystick.joystick_right_command     = this.extractUInt8(this.dataBlock, 9);
-    
+
                 //console.log("Receive_From_Device - Joystick: " + joystick.joystick_left_x + ", " + joystick.joystick_left_y + ", " + joystick.joystick_right_x + ", " + joystick.joystick_right_y);
             }
             break;
-        
+
+
         case 0x82:  // IR Message
             if( this.dataBlock.length == 4 )
             {
@@ -1401,12 +1418,14 @@ class byrobot_dronefighter_base extends BaseModule
                 //console.log("Receive_From_Device - IR Message: " + irmeessage.irmessage_irdata);
             }
             break;
-    
+
+
         default:
             break;
         }
     }
     // #endregion Data Receiver for received data from Device
+
 
 
     /***************************************************************************************
@@ -1435,11 +1454,11 @@ class byrobot_dronefighter_base extends BaseModule
 
         if( this.bufferTransfer.length == 0 )
         {
+            // 예약된 요청이 없는 경우 데이터 요청 등록(현재는 자세 데이터 요청)
             switch( this.targetDevice )
             {
             case 0x10:
                 {
-                    // 예약된 요청이 없는 경우 데이터 요청 등록
                     switch( this.countReqeustDevice % 6 )
                     {
                     case 0:     return this.ping(0x10);                     // 드론
@@ -1452,7 +1471,6 @@ class byrobot_dronefighter_base extends BaseModule
 
             default:
                 {
-                    // 예약된 요청이 없는 경우 데이터 요청
                     return this.ping(this.targetDevice);
                 }
                 break;
@@ -1460,11 +1478,11 @@ class byrobot_dronefighter_base extends BaseModule
         }
         else
         {
+            // 예약된 요청이 있는 경우
             switch( this.targetDevice )
             {
             case 0x10:
                 {
-                    // 예약된 요청이 있는 경우 데이터 요청 등록
                     switch( this.countReqeustDevice % 15 )
                     {
                     case 3:     return this.ping(0x10);                     // 드론
@@ -1478,7 +1496,6 @@ class byrobot_dronefighter_base extends BaseModule
 
             default:
                 {
-                    // 예약된 요청이 있는 경우
                     switch( this.countReqeustDevice % 10 )
                     {
                     case 0:     return this.ping(this.targetDevice);
@@ -1518,7 +1535,9 @@ class byrobot_dronefighter_base extends BaseModule
     
         return arrayTransfer;
     }
+
     // #endregion Data Transfer
+
 
 
     /***************************************************************************************
@@ -1536,13 +1555,13 @@ class byrobot_dronefighter_base extends BaseModule
         
         let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
         let dataLength = 4;                     // 데이터의 길이
-    
+
         // Header
         dataArray.push(0x01);           // Data Type (UpdateLookupTarget)
         dataArray.push(dataLength);     // Data Length
         dataArray.push(0x15);           // From
         dataArray.push(target);         // To
-    
+
         // Data Array
         dataArray.push(0x00);           // systemTime
         dataArray.push(0x00);
@@ -1556,6 +1575,7 @@ class byrobot_dronefighter_base extends BaseModule
         
         return dataArray;
     }
+
 
     // 데이터 요청
     reserveRequest(target, dataType)
@@ -1585,6 +1605,7 @@ class byrobot_dronefighter_base extends BaseModule
         return dataArray;
     }
 
+
     // 모드 변경
     reserveModeVehicle(modeVehicle)
     {
@@ -1594,27 +1615,26 @@ class byrobot_dronefighter_base extends BaseModule
         this.addStartCode(dataArray);
         
         let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-        let dataLength = 2;     // 데이터의 길이
-    
+        let dataLength = 2;                     // 데이터의 길이
+
         // Header
         dataArray.push(0x11);           // Data Type
         dataArray.push(dataLength);     // Data Length
         dataArray.push(0x15);           // From
         dataArray.push(0x10);           // To
-    
+
         // Data Array
         dataArray.push(0x10);           // CommandType
         dataArray.push(modeVehicle);    // Option
 
         // CRC16
         this.addCRC16(dataArray, indexStart, dataLength);
-
-        //this.log("reserveRequest()", dataArray);
         
         return dataArray;
     }
 
     // #endregion Data Transfer Functions for Entry-HW internal code
+
 
 
     /***************************************************************************************
@@ -1718,6 +1738,7 @@ class byrobot_dronefighter_base extends BaseModule
         }
     }
 
+
     // 값 추출
     getByte0(b)
     {
@@ -1739,6 +1760,7 @@ class byrobot_dronefighter_base extends BaseModule
         return ((b >> 24) & 0xff);
     }
     // #endregion Functions for Binary Handling
+
 
 
     /***************************************************************************************
@@ -1826,6 +1848,7 @@ class byrobot_dronefighter_base extends BaseModule
     // #endregion CRC16
 
 
+
     /***************************************************************************************
      *  로그 출력
      ***************************************************************************************/
@@ -1906,6 +1929,7 @@ class byrobot_dronefighter_base extends BaseModule
 
     // #endregion Functions for log
 }
+
 
 module.exports = byrobot_dronefighter_base;
 
