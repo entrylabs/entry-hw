@@ -20,5 +20,4 @@ class byrobot_drone_4 extends byrobot_base
     }
 }
 
-
 module.exports = new byrobot_drone_4();
