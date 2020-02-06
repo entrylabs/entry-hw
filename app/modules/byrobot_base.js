@@ -313,7 +313,7 @@ class byrobot_base extends BaseModule
         this.crc16Received          = 0;        // CRC16 수신 받은 블럭
         this.crc16Transfered        = 0;        // 전송한 데이터의 crc16
         
-        this.maxTransferRepeat      = 2;        // 최대 반복 전송 횟수
+        this.maxTransferRepeat      = 3;        // 최대 반복 전송 횟수
         this.countTransferRepeat    = 0;        // 반복 전송 횟수
         this.dataTypeLastTransfered = 0;        // 마지막으로 전송한 데이터의 타입
 
@@ -357,7 +357,7 @@ class byrobot_base extends BaseModule
             this.serialport = serialport;
         }
 
-        return this.ping(0x20);
+        return this.ping(this.targetDevice);
     }
 
 
@@ -1537,7 +1537,7 @@ class byrobot_base extends BaseModule
                 }
 
                 joystick._updated = false;
-                //this.log("transferForEntry() / attitude", "");
+                //this.log("transferForEntry() / joystick", "");
             }
         }
 
@@ -1552,7 +1552,7 @@ class byrobot_base extends BaseModule
                 }
 
                 button._updated = false;
-                //this.log("transferForEntry() / attitude", "");
+                //this.log("transferForEntry() / button", "");
             }
         }
 
@@ -2145,22 +2145,22 @@ class byrobot_base extends BaseModule
     getByte0(b)
     {
         return (b & 0xff);
-    };
+    }
 
     getByte1(b)
     {
         return ((b >> 8) & 0xff);
-    };
+    }
 
     getByte2(b)
     {
         return ((b >> 16) & 0xff);
-    };
+    }
 
     getByte3(b)
     {
         return ((b >> 24) & 0xff);
-    };
+    }
 
     // 장치에 데이터 전송
     transferForDevice()
