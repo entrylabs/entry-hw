@@ -8,17 +8,18 @@ const BaseModule = require('./baseModule');
 
 class byrobot_dronefighter_base extends BaseModule
 {
-    /*
-        클래스 내부에서 사용될 필드들을 이곳에서 선언합니다.
-    */
+    /***************************************************************************************
+     *  클래스 내부에서 사용될 필드들을 이곳에서 선언합니다.
+     ***************************************************************************************/
+    // #region Constructor
     constructor()
     {
         super();
 
+        createCRC16Array();
 
         this.serialport = null;
         this.isConnect = false;
-
 
         /***************************************************************************************
          *  드론, 조종기에 전달하는 명령
@@ -38,6 +39,10 @@ class byrobot_dronefighter_base extends BaseModule
             // 전송 대상
             TARGET                      : 'target',
         
+            // Light Manaul
+            LIGHT_MANUAL_FLAGS          : 'light_manual_flags',
+            LIGHT_MANUAL_BRIGHTNESS     : 'light_manual_brightness',
+        
             // Light Mode
             LIGHT_MODE_MODE             : 'light_mode_mode',
             LIGHT_MODE_INTERVAL         : 'light_mode_interval',
@@ -46,10 +51,6 @@ class byrobot_dronefighter_base extends BaseModule
             LIGHT_EVENT_EVENT           : 'light_event_event',
             LIGHT_EVENT_INTERVAL        : 'light_event_interval',
             LIGHT_EVENT_REPEAT          : 'light_event_repeat',
-        
-            // Light Manaul
-            LIGHT_MANUAL_FLAGS          : 'light_manual_flags',
-            LIGHT_MANUAL_BRIGHTNESS     : 'light_manual_brightness',
         
             // Buzzer
             BUZZER_MODE                 : 'buzzer_mode',
@@ -88,42 +89,6 @@ class byrobot_dronefighter_base extends BaseModule
             USERINTERFACE_COMMAND       : 'userinterface_command',
             USERINTERFACE_FUNCTION      : 'userinterface_function',
         };
-
-        this.crc16table =
-        [
-            0x0000, 0x1021, 0x2042, 0x3063, 0x4084, 0x50a5, 0x60c6, 0x70e7,
-            0x8108, 0x9129, 0xa14a, 0xb16b, 0xc18c, 0xd1ad, 0xe1ce, 0xf1ef,
-            0x1231, 0x0210, 0x3273, 0x2252, 0x52b5, 0x4294, 0x72f7, 0x62d6,
-            0x9339, 0x8318, 0xb37b, 0xa35a, 0xd3bd, 0xc39c, 0xf3ff, 0xe3de,
-            0x2462, 0x3443, 0x0420, 0x1401, 0x64e6, 0x74c7, 0x44a4, 0x5485,
-            0xa56a, 0xb54b, 0x8528, 0x9509, 0xe5ee, 0xf5cf, 0xc5ac, 0xd58d,
-            0x3653, 0x2672, 0x1611, 0x0630, 0x76d7, 0x66f6, 0x5695, 0x46b4,
-            0xb75b, 0xa77a, 0x9719, 0x8738, 0xf7df, 0xe7fe, 0xd79d, 0xc7bc,
-            0x48c4, 0x58e5, 0x6886, 0x78a7, 0x0840, 0x1861, 0x2802, 0x3823,
-            0xc9cc, 0xd9ed, 0xe98e, 0xf9af, 0x8948, 0x9969, 0xa90a, 0xb92b,
-            0x5af5, 0x4ad4, 0x7ab7, 0x6a96, 0x1a71, 0x0a50, 0x3a33, 0x2a12,
-            0xdbfd, 0xcbdc, 0xfbbf, 0xeb9e, 0x9b79, 0x8b58, 0xbb3b, 0xab1a,
-            0x6ca6, 0x7c87, 0x4ce4, 0x5cc5, 0x2c22, 0x3c03, 0x0c60, 0x1c41,
-            0xedae, 0xfd8f, 0xcdec, 0xddcd, 0xad2a, 0xbd0b, 0x8d68, 0x9d49,
-            0x7e97, 0x6eb6, 0x5ed5, 0x4ef4, 0x3e13, 0x2e32, 0x1e51, 0x0e70,
-            0xff9f, 0xefbe, 0xdfdd, 0xcffc, 0xbf1b, 0xaf3a, 0x9f59, 0x8f78,
-            0x9188, 0x81a9, 0xb1ca, 0xa1eb, 0xd10c, 0xc12d, 0xf14e, 0xe16f,
-            0x1080, 0x00a1, 0x30c2, 0x20e3, 0x5004, 0x4025, 0x7046, 0x6067,
-            0x83b9, 0x9398, 0xa3fb, 0xb3da, 0xc33d, 0xd31c, 0xe37f, 0xf35e,
-            0x02b1, 0x1290, 0x22f3, 0x32d2, 0x4235, 0x5214, 0x6277, 0x7256,
-            0xb5ea, 0xa5cb, 0x95a8, 0x8589, 0xf56e, 0xe54f, 0xd52c, 0xc50d,
-            0x34e2, 0x24c3, 0x14a0, 0x0481, 0x7466, 0x6447, 0x5424, 0x4405,
-            0xa7db, 0xb7fa, 0x8799, 0x97b8, 0xe75f, 0xf77e, 0xc71d, 0xd73c,
-            0x26d3, 0x36f2, 0x0691, 0x16b0, 0x6657, 0x7676, 0x4615, 0x5634,
-            0xd94c, 0xc96d, 0xf90e, 0xe92f, 0x99c8, 0x89e9, 0xb98a, 0xa9ab,
-            0x5844, 0x4865, 0x7806, 0x6827, 0x18c0, 0x08e1, 0x3882, 0x28a3,
-            0xcb7d, 0xdb5c, 0xeb3f, 0xfb1e, 0x8bf9, 0x9bd8, 0xabbb, 0xbb9a,
-            0x4a75, 0x5a54, 0x6a37, 0x7a16, 0x0af1, 0x1ad0, 0x2ab3, 0x3a92,
-            0xfd2e, 0xed0f, 0xdd6c, 0xcd4d, 0xbdaa, 0xad8b, 0x9de8, 0x8dc9,
-            0x7c26, 0x6c07, 0x5c64, 0x4c45, 0x3ca2, 0x2c83, 0x1ce0, 0x0cc1,
-            0xef1f, 0xff3e, 0xcf5d, 0xdf7c, 0xaf9b, 0xbfba, 0x8fd9, 0x9ff8,
-            0x6e17, 0x7e36, 0x4e55, 0x5e74, 0x2e93, 0x3eb2, 0x0ed1, 0x1ef0
-        ];
     
 
         // -- JSON Objects ----------------------------------------------------------------
@@ -237,6 +202,13 @@ class byrobot_dronefighter_base extends BaseModule
         this.targetModeVehicle      = 0;            // 연결 대상 장치의 Vehicle 모드
     }
 
+    // #endregion Constructor
+
+
+    /***************************************************************************************
+     *  Entry 기본 함수
+     ***************************************************************************************/
+    // #region Base Functions for Entry
     /*
         초기설정
 
@@ -315,7 +287,7 @@ class byrobot_dronefighter_base extends BaseModule
     */
     requestRemoteData(handler)
     {
-        this.transferForEntry(handler);
+        this.transferToEntry(handler);
     }
 
 
@@ -350,11 +322,14 @@ class byrobot_dronefighter_base extends BaseModule
         this.resetData();
     }
 
+    
+    // #endregion Base Functions for Entry
+
 
     /***************************************************************************************
      *  초기화
      ***************************************************************************************/
-
+    // #region Data Reset
     resetData()
     {
         // -- JSON Objects ----------------------------------------------------------------
@@ -443,14 +418,14 @@ class byrobot_dronefighter_base extends BaseModule
 
         this.countReqeustDevice             = 0;        // 장치에 데이터를 요청한 횟수 카운트 
     }
+    // #endregion Data Reset
 
-    
 
     /***************************************************************************************
-     *  Communciation - 연결된 장치 확인
+     *  Communciation - 초기 연결 시 장치 확인
      ***************************************************************************************/
+    // #region check Ack for first connection
 
-    // 수신 받은 Ack 처리
     checkAck(data, config)
     {
         this.receiverForDevice(data);
@@ -469,22 +444,27 @@ class byrobot_dronefighter_base extends BaseModule
 
         return false;
     }
-
+    // #endregion check Ack for first connection
 
 
     /***************************************************************************************
-     *  Communciation - Entry.JS
+     *  Communciation - Entry로부터 받은 데이터를 장치에 전송
      ***************************************************************************************/
+    // #region Data Transfer to Device from Entry
 
-    // Entry에서 받은 데이터 블럭 처리
-    // Entry에서 수신 받은 데이터는 bufferTransfer에 바로 등록
-    //
-    // * entryjs에서 변수값을 entry-hw로 전송할 때 절차
-    //   1. Entry.hw.setDigitalPortValue("", value) 명령을 사용하여 지정한 변수의 값을 등록
-    //   2. Entry.hw.update() 를 사용하여 등록된 값 전체 전달
-    //   3. delete Entry.hw.sendQueue[""] 를 사용하여 전달한 값을 삭제
-    //   위와 같은 절차로 데이터를 전송해야 1회만 전송 됨.
-    //   Entry.hw.update를 호출하면 등록된 값 전체를 한 번에 즉시 전송하는 것으로 보임
+    /*
+        Entry에서 받은 데이터 블럭 처리
+        Entry에서 수신 받은 데이터는 bufferTransfer에 바로 등록
+
+        * entryjs에서 변수값을 entry-hw로 전송할 때 절차
+
+            1. Entry.hw.setDigitalPortValue("", value) 명령을 사용하여 지정한 변수의 값을 등록
+            2. Entry.hw.update() 를 사용하여 등록된 값 전체 전달
+            3. delete Entry.hw.sendQueue[""] 를 사용하여 전달한 값을 삭제
+
+            위와 같은 절차로 데이터를 전송해야 1회만 전송 됨.
+            Entry.hw.update를 호출하면 등록된 값 전체를 한 번에 즉시 전송하는 것으로 보임
+    */
     handlerForEntry(handler)
     {
         if( this.bufferTransfer == undefined )
@@ -967,10 +947,16 @@ class byrobot_dronefighter_base extends BaseModule
         dataArray.push((crc16 & 0xff));
         dataArray.push(((crc16 >> 8) & 0xff));
     }
+    // #endregion Data Transfer to Device from Entry
 
+
+    /***************************************************************************************
+     *  Communciation - 장치로부터 받은 데이터를 Entry에 전송
+     ***************************************************************************************/
+    // #region Data Transfer to Entry from Device
 
     // Entry에 데이터 전송
-    transferForEntry(handler)
+    transferToEntry(handler)
     {
         // Joystick
         {
@@ -983,7 +969,7 @@ class byrobot_dronefighter_base extends BaseModule
                 }
 
                 joystick._updated = false;
-                //this.log("transferForEntry() / joystick", "");
+                //this.log("transferToEntry() / joystick", "");
             }
         }
 
@@ -1053,11 +1039,14 @@ class byrobot_dronefighter_base extends BaseModule
             handler.write("entryhw_countTransferReserved", this.bufferTransfer.length);
         }
     }
+    
+    // #endregion Data Transfer to Entry from Device
 
 
     /***************************************************************************************
-     *  Communciation
+     *  Communciation - 장치로부터 받은 데이터를 검증
      ***************************************************************************************/
+    // #region Data Receiver from Device
 
     // 장치로부터 받은 데이터 배열 처리
     receiverForDevice(data)
@@ -1225,7 +1214,14 @@ class byrobot_dronefighter_base extends BaseModule
             }
         }
     }
+    
+    // #endregion Data Receiver from Device
 
+
+    /***************************************************************************************
+     *  Communciation - 장치로부터 받은 데이터 수신 처리
+     ***************************************************************************************/
+    // #region Data Handler for received data from Device
 
     // 장치로부터 받은 데이터 블럭 처리
     handlerForDevice()
@@ -1410,118 +1406,13 @@ class byrobot_dronefighter_base extends BaseModule
             break;
         }
     }
+    // #endregion Data Receiver for received data from Device
 
-    // 자바스크립트에서 바이너리 핸들링
-    // http://mohwa.github.io/blog/javascript/2015/08/31/binary-inJS/
-    extractInt8(dataArray, startIndex)
-    {
-        let value = this.extractUInt8(dataArray, startIndex);
-        if( (value & 0x80) != 0)
-        {
-            value = -(0x100 - value);
-        }
-        return value;
-    }
 
-    extractUInt8(dataArray, startIndex)
-    {
-        if( dataArray.length >= startIndex + 1 )
-        {
-            let value = dataArray[startIndex];
-            return value;
-        }
-        else
-        {
-            return 0;
-        }
-    }
-
-    extractInt16(dataArray, startIndex)
-    {
-        let value = this.extractUInt16(dataArray, startIndex);
-        if( (value & 0x8000) != 0)
-        {
-            value = -(0x10000 - value);
-        }
-        return value;
-    }
-
-    extractUInt16(dataArray, startIndex)
-    {
-        if( dataArray.length >= startIndex + 2 )
-        {
-            let value = ((dataArray[startIndex + 1]) << 8) + dataArray[startIndex];
-            return value;
-        }
-        else
-        {
-            return 0;
-        }
-    }
-
-    extractInt32(dataArray, startIndex)
-    {
-        let value = this.extractUInt32(dataArray, startIndex);
-        if( (value & 0x80000000) != 0)
-        {
-            value = -(0x100000000 - value);
-        }
-        return value;
-    }
-
-    extractUInt32(dataArray, startIndex)
-    {
-        if( dataArray.length >= startIndex + 4 )
-        {
-            let value = ((dataArray[startIndex + 3]) << 24) + ((dataArray[startIndex + 2]) << 16) + ((dataArray[startIndex + 1]) << 8) + dataArray[startIndex];
-            return value;
-        }
-        else
-        {
-            return 0;
-        }
-    }
-
-    extractFloat32(dataArray, startIndex)
-    {
-        if (dataArray.length >= startIndex + 4)
-        {
-            let buffer = new ArrayBuffer(4);
-            let float32View = new Float32Array(buffer, 0, 1);
-            let uint8View = new Uint8Array(buffer, 0, 4)
-            uint8View[0] = dataArray[startIndex];
-            uint8View[1] = dataArray[startIndex + 1];
-            uint8View[2] = dataArray[startIndex + 2];
-            uint8View[3] = dataArray[startIndex + 3];
-    
-            return float32View[0].toFixed(2);
-        }
-        else
-        {
-            return 0;
-        }
-    }
-
-    // 값 추출
-    getByte0(b)
-    {
-        return (b & 0xff);
-    }
-
-    getByte1(b)
-    {
-        return ((b >> 8) & 0xff);
-    }
-
-    getByte2(b)
-    {
-        return ((b >> 16) & 0xff);
-    }
-
-    getByte3(b)
-    {
-        return ((b >> 24) & 0xff);
-    }
+    /***************************************************************************************
+     *  Communciation - 데이터를 장치로 전송(주기적으로 호출됨)
+     ***************************************************************************************/
+    // #region Data Transfer
 
     // 장치에 데이터 전송
     transferForDevice()
@@ -1627,6 +1518,13 @@ class byrobot_dronefighter_base extends BaseModule
     
         return arrayTransfer;
     }
+    // #endregion Data Transfer
+
+
+    /***************************************************************************************
+     *  Communciation - Entry-HW 내부 코드용 데이터 전송 명령
+     ***************************************************************************************/
+    // #region Data Transfer Functions for Entry-HW internal code
 
     // Ping
     ping(target)
@@ -1716,30 +1614,137 @@ class byrobot_dronefighter_base extends BaseModule
         return dataArray;
     }
 
+    // #endregion Data Transfer Functions for Entry-HW internal code
 
-    // 입력받은 문자열 처리
-    // https://stackoverflow.com/questions/6226189/how-to-convert-a-string-to-bytearray
-    stringToAsciiByteArray(str)
+
+    /***************************************************************************************
+     *  자바스크립트 바이너리 핸들링
+     *  http://mohwa.github.io/blog/javascript/2015/08/31/binary-inJS/
+     ***************************************************************************************/
+    // #region Functions for Binary Handling
+
+    extractInt8(dataArray, startIndex)
     {
-        let bytes = [];
-        for(let i=0; i<str.length; i++)
+        let value = this.extractUInt8(dataArray, startIndex);
+        if( (value & 0x80) != 0)
         {
-            let charCode = str.charCodeAt(i);
-            if( charCode > 0xFF )  // char > 1 byte since charCodeAt returns the UTF-16 value
-            {
-                // throw new Error('Character ' + String.fromCharCode(charCode) + ' can\'t be represented by a US-ASCII byte.');
-                continue;
-            }
-            bytes.push(charCode);
+            value = -(0x100 - value);
         }
-        return bytes;
+        return value;
     }
 
+
+    extractUInt8(dataArray, startIndex)
+    {
+        if( dataArray.length >= startIndex + 1 )
+        {
+            let value = dataArray[startIndex];
+            return value;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+
+
+    extractInt16(dataArray, startIndex)
+    {
+        let value = this.extractUInt16(dataArray, startIndex);
+        if( (value & 0x8000) != 0)
+        {
+            value = -(0x10000 - value);
+        }
+        return value;
+    }
+
+
+    extractUInt16(dataArray, startIndex)
+    {
+        if( dataArray.length >= startIndex + 2 )
+        {
+            let value = ((dataArray[startIndex + 1]) << 8) + dataArray[startIndex];
+            return value;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+
+
+    extractInt32(dataArray, startIndex)
+    {
+        let value = this.extractUInt32(dataArray, startIndex);
+        if( (value & 0x80000000) != 0)
+        {
+            value = -(0x100000000 - value);
+        }
+        return value;
+    }
+
+
+    extractUInt32(dataArray, startIndex)
+    {
+        if( dataArray.length >= startIndex + 4 )
+        {
+            let value = ((dataArray[startIndex + 3]) << 24) + ((dataArray[startIndex + 2]) << 16) + ((dataArray[startIndex + 1]) << 8) + dataArray[startIndex];
+            return value;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+
+
+    extractFloat32(dataArray, startIndex)
+    {
+        if (dataArray.length >= startIndex + 4)
+        {
+            let buffer = new ArrayBuffer(4);
+            let float32View = new Float32Array(buffer, 0, 1);
+            let uint8View = new Uint8Array(buffer, 0, 4)
+            uint8View[0] = dataArray[startIndex];
+            uint8View[1] = dataArray[startIndex + 1];
+            uint8View[2] = dataArray[startIndex + 2];
+            uint8View[3] = dataArray[startIndex + 3];
+    
+            return float32View[0].toFixed(2);
+        }
+        else
+        {
+            return 0;
+        }
+    }
+
+    // 값 추출
+    getByte0(b)
+    {
+        return (b & 0xff);
+    }
+
+    getByte1(b)
+    {
+        return ((b >> 8) & 0xff);
+    }
+
+    getByte2(b)
+    {
+        return ((b >> 16) & 0xff);
+    }
+
+    getByte3(b)
+    {
+        return ((b >> 24) & 0xff);
+    }
+    // #endregion Functions for Binary Handling
 
 
     /***************************************************************************************
      *  CRC16
      ***************************************************************************************/
+    // #region CRC16
 
     /*
     * Copyright 2001-2010 Georges Menie (www.menie.org)
@@ -1767,6 +1772,45 @@ class byrobot_dronefighter_base extends BaseModule
     * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
     * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     */
+    createCRC16Array()
+    {
+        this.crc16table =
+        [
+            0x0000, 0x1021, 0x2042, 0x3063, 0x4084, 0x50a5, 0x60c6, 0x70e7,
+            0x8108, 0x9129, 0xa14a, 0xb16b, 0xc18c, 0xd1ad, 0xe1ce, 0xf1ef,
+            0x1231, 0x0210, 0x3273, 0x2252, 0x52b5, 0x4294, 0x72f7, 0x62d6,
+            0x9339, 0x8318, 0xb37b, 0xa35a, 0xd3bd, 0xc39c, 0xf3ff, 0xe3de,
+            0x2462, 0x3443, 0x0420, 0x1401, 0x64e6, 0x74c7, 0x44a4, 0x5485,
+            0xa56a, 0xb54b, 0x8528, 0x9509, 0xe5ee, 0xf5cf, 0xc5ac, 0xd58d,
+            0x3653, 0x2672, 0x1611, 0x0630, 0x76d7, 0x66f6, 0x5695, 0x46b4,
+            0xb75b, 0xa77a, 0x9719, 0x8738, 0xf7df, 0xe7fe, 0xd79d, 0xc7bc,
+            0x48c4, 0x58e5, 0x6886, 0x78a7, 0x0840, 0x1861, 0x2802, 0x3823,
+            0xc9cc, 0xd9ed, 0xe98e, 0xf9af, 0x8948, 0x9969, 0xa90a, 0xb92b,
+            0x5af5, 0x4ad4, 0x7ab7, 0x6a96, 0x1a71, 0x0a50, 0x3a33, 0x2a12,
+            0xdbfd, 0xcbdc, 0xfbbf, 0xeb9e, 0x9b79, 0x8b58, 0xbb3b, 0xab1a,
+            0x6ca6, 0x7c87, 0x4ce4, 0x5cc5, 0x2c22, 0x3c03, 0x0c60, 0x1c41,
+            0xedae, 0xfd8f, 0xcdec, 0xddcd, 0xad2a, 0xbd0b, 0x8d68, 0x9d49,
+            0x7e97, 0x6eb6, 0x5ed5, 0x4ef4, 0x3e13, 0x2e32, 0x1e51, 0x0e70,
+            0xff9f, 0xefbe, 0xdfdd, 0xcffc, 0xbf1b, 0xaf3a, 0x9f59, 0x8f78,
+            0x9188, 0x81a9, 0xb1ca, 0xa1eb, 0xd10c, 0xc12d, 0xf14e, 0xe16f,
+            0x1080, 0x00a1, 0x30c2, 0x20e3, 0x5004, 0x4025, 0x7046, 0x6067,
+            0x83b9, 0x9398, 0xa3fb, 0xb3da, 0xc33d, 0xd31c, 0xe37f, 0xf35e,
+            0x02b1, 0x1290, 0x22f3, 0x32d2, 0x4235, 0x5214, 0x6277, 0x7256,
+            0xb5ea, 0xa5cb, 0x95a8, 0x8589, 0xf56e, 0xe54f, 0xd52c, 0xc50d,
+            0x34e2, 0x24c3, 0x14a0, 0x0481, 0x7466, 0x6447, 0x5424, 0x4405,
+            0xa7db, 0xb7fa, 0x8799, 0x97b8, 0xe75f, 0xf77e, 0xc71d, 0xd73c,
+            0x26d3, 0x36f2, 0x0691, 0x16b0, 0x6657, 0x7676, 0x4615, 0x5634,
+            0xd94c, 0xc96d, 0xf90e, 0xe92f, 0x99c8, 0x89e9, 0xb98a, 0xa9ab,
+            0x5844, 0x4865, 0x7806, 0x6827, 0x18c0, 0x08e1, 0x3882, 0x28a3,
+            0xcb7d, 0xdb5c, 0xeb3f, 0xfb1e, 0x8bf9, 0x9bd8, 0xabbb, 0xbb9a,
+            0x4a75, 0x5a54, 0x6a37, 0x7a16, 0x0af1, 0x1ad0, 0x2ab3, 0x3a92,
+            0xfd2e, 0xed0f, 0xdd6c, 0xcd4d, 0xbdaa, 0xad8b, 0x9de8, 0x8dc9,
+            0x7c26, 0x6c07, 0x5c64, 0x4c45, 0x3ca2, 0x2c83, 0x1ce0, 0x0cc1,
+            0xef1f, 0xff3e, 0xcf5d, 0xdf7c, 0xaf9b, 0xbfba, 0x8fd9, 0x9ff8,
+            0x6e17, 0x7e36, 0x4e55, 0x5e74, 0x2e93, 0x3eb2, 0x0ed1, 0x1ef0
+        ];
+    }
+
     calcCRC16(data, crc)
     {
         if( data > 255 )
@@ -1779,11 +1823,14 @@ class byrobot_dronefighter_base extends BaseModule
 
         return crcNext;
     }
+    // #endregion CRC16
 
 
     /***************************************************************************************
      *  로그 출력
      ***************************************************************************************/
+    // #region Functions for log
+
     log(message, data = 'undefined')
     {
         // 로그를 출력하지 않으려면 아래 주석을 활성화 할 것
@@ -1837,6 +1884,27 @@ class byrobot_dronefighter_base extends BaseModule
         
         return strHexArray;
     }
+
+
+    // 입력받은 문자열 처리
+    // https://stackoverflow.com/questions/6226189/how-to-convert-a-string-to-bytearray
+    stringToAsciiByteArray(str)
+    {
+        let bytes = [];
+        for(let i=0; i<str.length; i++)
+        {
+            let charCode = str.charCodeAt(i);
+            if( charCode > 0xFF )  // char > 1 byte since charCodeAt returns the UTF-16 value
+            {
+                // throw new Error('Character ' + String.fromCharCode(charCode) + ' can\'t be represented by a US-ASCII byte.');
+                continue;
+            }
+            bytes.push(charCode);
+        }
+        return bytes;
+    }
+
+    // #endregion Functions for log
 }
 
 module.exports = byrobot_dronefighter_base;
