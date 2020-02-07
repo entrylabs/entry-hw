@@ -3,7 +3,7 @@ const byrobot_base = require('./byrobot_base');
 
 
 /***************************************************************************************
- *  기본 클래스
+ *  BYROBOT XTS-65 Controller
  ***************************************************************************************/
 
 class byrobot_controller_3 extends byrobot_base

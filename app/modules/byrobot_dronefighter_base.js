@@ -18,7 +18,7 @@ class byrobot_dronefighter_base extends BaseModule
     {
         super();
 
-        createCRC16Array();
+        this.createCRC16Array();
 
         this.serialport = null;
         this.isConnect = false;

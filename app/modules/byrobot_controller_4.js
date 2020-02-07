@@ -3,7 +3,7 @@ const byrobot_base = require('./byrobot_base');
 
 
 /***************************************************************************************
- *  기본 클래스
+ *  BYROBOT E-Drone Controller
  ***************************************************************************************/
 
 class byrobot_controller_4 extends byrobot_base
