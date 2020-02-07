@@ -22,7 +22,7 @@ class DataHandler {
     }
 
     e(key: string) {
-        return !!(this.serverData && this.serverData[key]);
+        return this.serverData && this.serverData[key] !== undefined;
     }
 
     read(key: string): any {

@@ -34,8 +34,8 @@ module.exports = {
         ],
     },
     plugins: [
-        new CleanWebpackPlugin({
-            cleanOnceBeforeBuildPatterns: [],
-        }),
+        // new CleanWebpackPlugin({
+        //     cleanOnceBeforeBuildPatterns: [],
+        // }),
     ],
 };
