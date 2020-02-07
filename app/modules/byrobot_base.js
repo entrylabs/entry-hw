@@ -163,69 +163,69 @@ class byrobot_base extends BaseModule
         // Ack
         this.ack =
         {
-            _updated            : 1,
-            ack_systemTime      : 0,    // u64
-            ack_dataType        : 0,    // u8
-            ack_crc16           : 0,    // u16
+            _updated        : 1,
+            systemTime      : 0,    // u64
+            dataType        : 0,    // u8
+            crc16           : 0,    // u16
         };
 
 
         // Joystick
         this.joystick = 
         {
-            _updated                    : 1,
-            joystick_left_x             : 0,    // s8
-            joystick_left_y             : 0,    // s8
-            joystick_left_direction     : 0,    // u8
-            joystick_left_event         : 0,    // u8
-            joystick_right_x            : 0,    // s8
-            joystick_right_y            : 0,    // s8
-            joystick_right_direction    : 0,    // u8
-            joystick_right_event        : 0,    // u8
+            _updated            : 1,
+            left_x              : 0,    // s8
+            left_y              : 0,    // s8
+            left_direction      : 0,    // u8
+            left_event          : 0,    // u8
+            right_x             : 0,    // s8
+            right_y             : 0,    // s8
+            right_direction     : 0,    // u8
+            right_event         : 0,    // u8
         };
 
 
         // Button
         this.button = 
         {
-            _updated        : 1,
-            button_button   : 0,    // u16
-            button_event    : 0,    // u8
+            _updated            : 1,
+            button              : 0,    // u16
+            event               : 0,    // u8
         };
 
 
         // State
         this.state = 
         {
-            _updated                : 1,
-            state_modeSystem        : 0,    // u8
-            state_modeFlight        : 0,    // u8
-            state_modeControlFlight : 0,    // u8
-            state_modeMovement      : 0,    // u8
-            state_headless          : 0,    // u8
-            state_sensorOrientation : 0,    // u8
-            state_battery           : 0,    // u8
+            _updated            : 1,
+            modeSystem          : 0,    // u8
+            modeFlight          : 0,    // u8
+            modeControlFlight   : 0,    // u8
+            modeMovement        : 0,    // u8
+            headless            : 0,    // u8
+            sensorOrientation   : 0,    // u8
+            battery             : 0,    // u8
         };
 
 
         // Position
         this.position =
         {
-            _updated    : 1,
-            position_x  : 0,    // f32
-            position_y  : 0,    // f32
-            position_z  : 0,    // f32
+            _updated            : 1,
+            x                   : 0,    // f32
+            y                   : 0,    // f32
+            z                   : 0,    // f32
         };
 
 
         // Altitude
         this.altitude =
         {
-            _updated                : 1,
-            altitude_temperature    : 0,    // f32
-            altitude_pressure       : 0,    // f32
-            altitude_altitude       : 0,    // f32
-            altitude_rangeHeight    : 0,    // f32
+            _updated            : 1,
+            temperature         : 0,    // f32
+            pressure            : 0,    // f32
+            altitude            : 0,    // f32
+            rangeHeight         : 0,    // f32
         };
 
 
@@ -233,43 +233,43 @@ class byrobot_base extends BaseModule
         this.motion =
         {
             _updated            : 1,
-            motion_accX         : 0,    // s16
-            motion_accY         : 0,    // s16
-            motion_accZ         : 0,    // s16
-            motion_gyroRoll     : 0,    // s16
-            motion_gyroPitch    : 0,    // s16
-            motion_gyroYaw      : 0,    // s16
-            motion_angleRoll    : 0,    // s16
-            motion_anglePitch   : 0,    // s16
-            motion_angleYaw     : 0,    // s16
+            accX                : 0,    // s16
+            accY                : 0,    // s16
+            accZ                : 0,    // s16
+            gyroRoll            : 0,    // s16
+            gyroPitch           : 0,    // s16
+            gyroYaw             : 0,    // s16
+            angleRoll           : 0,    // s16
+            anglePitch          : 0,    // s16
+            angleYaw            : 0,    // s16
         };
 
 
         // Range
         this.range =
         {
-            _updated        : 1,
-            range_left      : 0,    // s16
-            range_front     : 0,    // s16
-            range_right     : 0,    // s16
-            range_rear      : 0,    // s16
-            range_top       : 0,    // s16
-            range_bottom    : 0,    // s16
+            _updated            : 1,
+            left                : 0,    // s16
+            front               : 0,    // s16
+            right               : 0,    // s16
+            rear                : 0,    // s16
+            top                 : 0,    // s16
+            bottom              : 0,    // s16
         };
 
 
         // InformationAssembledForEntry
         this.informationAssembledForEntry =
         {
-            _updated        : 1,
-            informationAssembledForEntry_angleRoll      : 0,    // s16
-            informationAssembledForEntry_anglePitch     : 0,    // s16
-            informationAssembledForEntry_angleYaw       : 0,    // s16
-            informationAssembledForEntry_positionX      : 0,    // s16
-            informationAssembledForEntry_positionY      : 0,    // s16
-            informationAssembledForEntry_positionZ      : 0,    // s16
-            informationAssembledForEntry_rangeHeight    : 0,    // s16
-            informationAssembledForEntry_altitude       : 0,    // float
+            _updated            : 1,
+            angleRoll           : 0,    // s16
+            anglePitch          : 0,    // s16
+            angleYaw            : 0,    // s16
+            positionX           : 0,    // s16
+            positionY           : 0,    // s16
+            positionZ           : 0,    // s16
+            rangeHeight         : 0,    // s16
+            altitude            : 0,    // float
         };
 
 
@@ -450,89 +450,89 @@ class byrobot_base extends BaseModule
         // Device -> Entry 
 
         // Ack
-        let ack                             = this.ack;
-        ack._updated                        = 0;
-        ack.ack_systemTime                  = 0;
-        ack.ack_dataType                    = 0;
-        ack.ack_crc16                       = 0;
+        let ack                     = this.ack;
+        ack._updated                = 0;
+        ack.systemTime              = 0;
+        ack.dataType                = 0;
+        ack.crc16                   = 0;
         
         // Joystick
-        let joystick                        = this.joystick; 
-        joystick._updated                   = 0;
-        joystick.joystick_left_x            = 0;
-        joystick.joystick_left_y            = 0;
-        joystick.joystick_left_direction    = 0;
-        joystick.joystick_left_event        = 0;
-        joystick.joystick_right_x           = 0;
-        joystick.joystick_right_y           = 0;
-        joystick.joystick_right_direction   = 0;
-        joystick.joystick_right_event       = 0;
+        let joystick                = this.joystick; 
+        joystick._updated           = 0;
+        joystick.left_x             = 0;
+        joystick.left_y             = 0;
+        joystick.left_direction     = 0;
+        joystick.left_event         = 0;
+        joystick.right_x            = 0;
+        joystick.right_y            = 0;
+        joystick.right_direction    = 0;
+        joystick.right_event        = 0;
 
         // Button
-        let button                          = this.button;
-        button._updated                     = 0;
-        button.button_button                = 0;
-        button.button_event                 = 0;
+        let button                  = this.button;
+        button._updated             = 0;
+        button.button               = 0;
+        button.event                = 0;
 
         // State
-        let state                           = this.state;
-        state._updated                      = 0;
-        state.state_modeSystem              = 0;
-        state.state_modeFlight              = 0;
-        state.state_modeControlFlight       = 0;
-        state.state_modeMovement            = 0;
-        state.state_headless                = 0;
-        state.state_sensorOrientation       = 0;
-        state.state_battery                 = 0;
+        let state                   = this.state;
+        state._updated              = 0;
+        state.modeSystem            = 0;
+        state.modeFlight            = 0;
+        state.modeControlFlight     = 0;
+        state.modeMovement          = 0;
+        state.headless              = 0;
+        state.sensorOrientation     = 0;
+        state.battery               = 0;
 
         // Position
-        let position                        = this.position;
-        position._updated                   = 0;
-        position.position_x                 = 0;
-        position.position_y                 = 0;
-        position.position_z                 = 0;
+        let position                = this.position;
+        position._updated           = 0;
+        position.x                  = 0;
+        position.y                  = 0;
+        position.z                  = 0;
 
         // Altitude
-        let altitude                        = this.altitude;
-        altitude._updated                   = 0;
-        altitude.altitude_temperature       = 0;
-        altitude.altitude_pressure          = 0;
-        altitude.altitude_altitude          = 0;
-        altitude.altitude_rangeHeight       = 0;
+        let altitude                = this.altitude;
+        altitude._updated           = 0;
+        altitude.temperature        = 0;
+        altitude.pressure           = 0;
+        altitude.altitude           = 0;
+        altitude.rangeHeight        = 0;
 
         // Motion
-        let motion                          = this.motion;
-        motion._updated                     = 0;
-        motion.motion_accX                  = 0;
-        motion.motion_accY                  = 0;
-        motion.motion_accZ                  = 0;
-        motion.motion_gyroRoll              = 0;
-        motion.motion_gyroPitch             = 0;
-        motion.motion_gyroYaw               = 0;
-        motion.motion_angleRoll             = 0;
-        motion.motion_anglePitch            = 0;
-        motion.motion_angleYaw              = 0;
+        let motion                  = this.motion;
+        motion._updated             = 0;
+        motion.accX                 = 0;
+        motion.accY                 = 0;
+        motion.accZ                 = 0;
+        motion.gyroRoll             = 0;
+        motion.gyroPitch            = 0;
+        motion.gyroYaw              = 0;
+        motion.angleRoll            = 0;
+        motion.anglePitch           = 0;
+        motion.angleYaw             = 0;
 
         // Range
-        let range                           = this.range;
-        range._updated                      = 0;
-        range.range_left                    = 0;
-        range.range_front                   = 0;
-        range.range_right                   = 0;
-        range.range_rear                    = 0;
-        range.range_top                     = 0;
-        range.range_bottom                  = 0;
+        let range                   = this.range;
+        range._updated              = 0;
+        range.left                  = 0;
+        range.front                 = 0;
+        range.right                 = 0;
+        range.rear                  = 0;
+        range.top                   = 0;
+        range.bottom                = 0;
 
         // Range
-        let informationAssembledForEntry                                        = this.informationAssembledForEntry;
-        informationAssembledForEntry.informationAssembledForEntry_angleRoll     = 0;    // s16
-        informationAssembledForEntry.informationAssembledForEntry_anglePitch    = 0;    // s16
-        informationAssembledForEntry.informationAssembledForEntry_angleYaw      = 0;    // s16
-        informationAssembledForEntry.informationAssembledForEntry_positionX     = 0;    // s16
-        informationAssembledForEntry.informationAssembledForEntry_positionY     = 0;    // s16
-        informationAssembledForEntry.informationAssembledForEntry_positionZ     = 0;    // s16
-        informationAssembledForEntry.informationAssembledForEntry_rangeHeight   = 0;    // s16
-        informationAssembledForEntry.informationAssembledForEntry_altitude      = 0;    // float
+        let informationAssembledForEntry            = this.informationAssembledForEntry;
+        informationAssembledForEntry.angleRoll      = 0;    // s16
+        informationAssembledForEntry.anglePitch     = 0;    // s16
+        informationAssembledForEntry.angleYaw       = 0;    // s16
+        informationAssembledForEntry.positionX      = 0;    // s16
+        informationAssembledForEntry.positionY      = 0;    // s16
+        informationAssembledForEntry.positionZ      = 0;    // s16
+        informationAssembledForEntry.rangeHeight    = 0;    // s16
+        informationAssembledForEntry.altitude       = 0;    // float
 
         // -- Control -----------------------------------------------------------------
         this.controlRoll                    = 0;        // 
@@ -584,7 +584,7 @@ class byrobot_base extends BaseModule
         }
 
         let ack = this.ack;
-        if( ack._updated == true )
+        if( ack._updated )
         {
             config.id = this.targetDeviceID;
             return true;
@@ -600,6 +600,12 @@ class byrobot_base extends BaseModule
      *  Communciation - Entry로부터 받은 데이터를 장치에 전송
      ***************************************************************************************/
     // #region Data Transfer to Device from Entry
+
+
+    read(handler, dataType, defaultValue = 0)
+    {
+        return handler.e(dataType) ? handler.read(dataType) : defaultValue;
+    }
 
     /*
         Entry에서 받은 데이터 블럭 처리
@@ -622,19 +628,19 @@ class byrobot_base extends BaseModule
         }
 
         // Buffer Clear
-        if( handler.e(this.DataType.BUFFER_CLEAR) == true )
+        if( handler.e(this.DataType.BUFFER_CLEAR) )
         {
             this.bufferTransfer = [];
         }
 
+        let target = this.read(handler, this.DataType.TARGET, 0xFF);
 
         // Light Manual
-        if( (handler.e(this.DataType.LIGHT_MANUAL_FLAGS)        == true) &&
-            (handler.e(this.DataType.LIGHT_MANUAL_BRIGHTNESS)   == true) )
+        if( handler.e(this.DataType.LIGHT_MANUAL_FLAGS)       &&
+            handler.e(this.DataType.LIGHT_MANUAL_BRIGHTNESS)  )
         {
-            let target      = handler.e(this.DataType.TARGET)                    ? handler.read(this.DataType.TARGET)                     : 0xFF;
-            let flags       = handler.e(this.DataType.LIGHT_MANUAL_FLAGS)        ? handler.read(this.DataType.LIGHT_MANUAL_FLAGS)         : 0;
-            let brightness  = handler.e(this.DataType.LIGHT_MANUAL_BRIGHTNESS)   ? handler.read(this.DataType.LIGHT_MANUAL_BRIGHTNESS)    : 0;
+            let flags       = this.read(handler, this.DataType.LIGHT_MANUAL_FLAGS);
+            let brightness  = this.read(handler, this.DataType.LIGHT_MANUAL_BRIGHTNESS);
 
             let dataArray = this.reserveLightManual(target, flags, brightness);
             this.bufferTransfer.push(dataArray);
@@ -643,30 +649,28 @@ class byrobot_base extends BaseModule
 
 
         // LightModeColor
-        if( (handler.e(this.DataType.LIGHT_MODE_MODE)       == true) &&
-            (handler.e(this.DataType.LIGHT_MODE_INTERVAL)   == true) &&
-            (handler.e(this.DataType.LIGHT_COLOR_R)         == true) &&
-            (handler.e(this.DataType.LIGHT_COLOR_G)         == true) &&
-            (handler.e(this.DataType.LIGHT_COLOR_B)         == true) )
+        if(         handler.e(this.DataType.LIGHT_MODE_MODE)      &&
+                    handler.e(this.DataType.LIGHT_MODE_INTERVAL)  &&
+                    handler.e(this.DataType.LIGHT_COLOR_R)        &&
+                    handler.e(this.DataType.LIGHT_COLOR_G)        &&
+                    handler.e(this.DataType.LIGHT_COLOR_B)        )
         {
-            let target      = handler.e(this.DataType.TARGET)                ? handler.read(this.DataType.TARGET)               : 0xFF;
-            let mode        = handler.e(this.DataType.LIGHT_MODE_MODE)       ? handler.read(this.DataType.LIGHT_MODE_MODE)      : 0;
-            let interval    = handler.e(this.DataType.LIGHT_MODE_INTERVAL)   ? handler.read(this.DataType.LIGHT_MODE_INTERVAL)  : 0;
-            let r           = handler.e(this.DataType.LIGHT_COLOR_R)         ? handler.read(this.DataType.LIGHT_COLOR_R)        : 0;
-            let g           = handler.e(this.DataType.LIGHT_COLOR_G)         ? handler.read(this.DataType.LIGHT_COLOR_G)        : 0;
-            let b           = handler.e(this.DataType.LIGHT_COLOR_B)         ? handler.read(this.DataType.LIGHT_COLOR_B)        : 0;
+            let mode        = this.read(handler, this.DataType.LIGHT_MODE_MODE);
+            let interval    = this.read(handler, this.DataType.LIGHT_MODE_INTERVAL);
+            let r           = this.read(handler, this.DataType.LIGHT_COLOR_R);
+            let g           = this.read(handler, this.DataType.LIGHT_COLOR_G);
+            let b           = this.read(handler, this.DataType.LIGHT_COLOR_B);
             
             let dataArray = this.reserveLightModeColor(target, mode, interval, r, g, b);
             this.bufferTransfer.push(dataArray);
             this.log("Transfer_To_Device / LightModeColor", dataArray);
         }
         // LightMode
-        else if((handler.e(this.DataType.LIGHT_MODE_MODE)       == true) &&
-                (handler.e(this.DataType.LIGHT_MODE_INTERVAL)   == true) )
+        else if(    handler.e(this.DataType.LIGHT_MODE_MODE)      &&
+                    handler.e(this.DataType.LIGHT_MODE_INTERVAL)  )
         {
-            let target      = handler.e(this.DataType.TARGET)                    ? handler.read(this.DataType.TARGET)                 : 0xFF;
-            let mode        = handler.e(this.DataType.LIGHT_MODE_MODE)           ? handler.read(this.DataType.LIGHT_MODE_MODE)        : 0;
-            let interval    = handler.e(this.DataType.LIGHT_MODE_INTERVAL)       ? handler.read(this.DataType.LIGHT_MODE_INTERVAL)    : 0;
+            let mode        = this.read(handler, this.DataType.LIGHT_MODE_MODE);
+            let interval    = this.read(handler, this.DataType.LIGHT_MODE_INTERVAL);
 
             let dataArray = this.reserveLightMode(target, mode, interval);
             this.bufferTransfer.push(dataArray);
@@ -675,34 +679,32 @@ class byrobot_base extends BaseModule
         
 
         // LightEventColor
-        if( (handler.e(this.DataType.LIGHT_EVENT_EVENT)     == true) &&
-            (handler.e(this.DataType.LIGHT_EVENT_INTERVAL)  == true) &&
-            (handler.e(this.DataType.LIGHT_EVENT_REPEAT)    == true) &&
-            (handler.e(this.DataType.LIGHT_COLOR_R)         == true) &&
-            (handler.e(this.DataType.LIGHT_COLOR_G)         == true) &&
-            (handler.e(this.DataType.LIGHT_COLOR_B)         == true) )
+        if(         handler.e(this.DataType.LIGHT_EVENT_EVENT)     &&
+                    handler.e(this.DataType.LIGHT_EVENT_INTERVAL)  &&
+                    handler.e(this.DataType.LIGHT_EVENT_REPEAT)    &&
+                    handler.e(this.DataType.LIGHT_COLOR_R)         &&
+                    handler.e(this.DataType.LIGHT_COLOR_G)         &&
+                    handler.e(this.DataType.LIGHT_COLOR_B)         )
         {
-            let target      = handler.e(this.DataType.TARGET)                ? handler.read(this.DataType.TARGET)               : 0xFF;
-            let event       = handler.e(this.DataType.LIGHT_EVENT_EVENT)     ? handler.read(this.DataType.LIGHT_EVENT_EVENT)    : 0;
-            let interval    = handler.e(this.DataType.LIGHT_EVENT_INTERVAL)  ? handler.read(this.DataType.LIGHT_EVENT_INTERVAL) : 0;
-            let repeat      = handler.e(this.DataType.LIGHT_EVENT_REPEAT)    ? handler.read(this.DataType.LIGHT_EVENT_REPEAT)   : 0;
-            let r           = handler.e(this.DataType.LIGHT_COLOR_R)         ? handler.read(this.DataType.LIGHT_COLOR_R)        : 0;
-            let g           = handler.e(this.DataType.LIGHT_COLOR_G)         ? handler.read(this.DataType.LIGHT_COLOR_G)        : 0;
-            let b           = handler.e(this.DataType.LIGHT_COLOR_B)         ? handler.read(this.DataType.LIGHT_COLOR_B)        : 0;
+            let event       = this.read(handler, this.DataType.LIGHT_EVENT_EVENT);
+            let interval    = this.read(handler, this.DataType.LIGHT_EVENT_INTERVAL);
+            let repeat      = this.read(handler, this.DataType.LIGHT_EVENT_REPEAT);
+            let r           = this.read(handler, this.DataType.LIGHT_COLOR_R);
+            let g           = this.read(handler, this.DataType.LIGHT_COLOR_G);
+            let b           = this.read(handler, this.DataType.LIGHT_COLOR_B);
 
             let dataArray = this.reserveLightEventColor(target, event, interval, repeat, r, g, b);
             this.bufferTransfer.push(dataArray);
             this.log("Transfer_To_Device / LightEventColor", dataArray);
         }
         // LightEvent
-        else if((handler.e(this.DataType.LIGHT_EVENT_EVENT)     == true) &&
-                (handler.e(this.DataType.LIGHT_EVENT_INTERVAL)  == true) &&
-                (handler.e(this.DataType.LIGHT_EVENT_REPEAT)    == true) )
+        else if(    handler.e(this.DataType.LIGHT_EVENT_EVENT)     &&
+                    handler.e(this.DataType.LIGHT_EVENT_INTERVAL)  &&
+                    handler.e(this.DataType.LIGHT_EVENT_REPEAT)    )
         {
-            let target      = handler.e(this.DataType.TARGET)                ? handler.read(this.DataType.TARGET)               : 0xFF;
-            let event       = handler.e(this.DataType.LIGHT_EVENT_EVENT)     ? handler.read(this.DataType.LIGHT_EVENT_EVENT)    : 0;
-            let interval    = handler.e(this.DataType.LIGHT_EVENT_INTERVAL)  ? handler.read(this.DataType.LIGHT_EVENT_INTERVAL) : 0;
-            let repeat      = handler.e(this.DataType.LIGHT_EVENT_REPEAT)    ? handler.read(this.DataType.LIGHT_EVENT_REPEAT)   : 0;
+            let event       = this.read(handler, this.DataType.LIGHT_EVENT_EVENT);
+            let interval    = this.read(handler, this.DataType.LIGHT_EVENT_INTERVAL);
+            let repeat      = this.read(handler, this.DataType.LIGHT_EVENT_REPEAT);
 
             let dataArray = this.reserveLightEvent(target, event, interval, repeat);
             this.bufferTransfer.push(dataArray);
@@ -711,10 +713,9 @@ class byrobot_base extends BaseModule
 
 
         // 화면 전체 지우기
-        if( handler.e(this.DataType.DISPLAY_CLEAR_ALL_PIXEL) == true )
+        if( handler.e(this.DataType.DISPLAY_CLEAR_ALL_PIXEL) )
         {
-            let target  = handler.e(this.DataType.TARGET)                    ? handler.read(this.DataType.TARGET)                     : 0xFF;
-            let pixel   = handler.e(this.DataType.DISPLAY_CLEAR_ALL_PIXEL)   ? handler.read(this.DataType.DISPLAY_CLEAR_ALL_PIXEL)    : 0;
+            let pixel   = this.read(handler, this.DataType.DISPLAY_CLEAR_ALL_PIXEL);
 
             let dataArray = this.reserveDisplayClearAll(target, pixel);
             this.bufferTransfer.push(dataArray);
@@ -723,15 +724,14 @@ class byrobot_base extends BaseModule
 
 
         // 선택 영역 지우기
-        if( (handler.e(this.DataType.DISPLAY_CLEAR_WIDTH)   == true) ||
-            (handler.e(this.DataType.DISPLAY_CLEAR_HEIGHT)  == true) )
+        if( handler.e(this.DataType.DISPLAY_CLEAR_WIDTH)  ||
+            handler.e(this.DataType.DISPLAY_CLEAR_HEIGHT) )
         {
-            let target  = handler.e(this.DataType.TARGET)               ? handler.read(this.DataType.TARGET)               : 0xFF;
-            let x       = handler.e(this.DataType.DISPLAY_CLEAR_X)      ? handler.read(this.DataType.DISPLAY_CLEAR_X)      : 0;
-            let y       = handler.e(this.DataType.DISPLAY_CLEAR_Y)      ? handler.read(this.DataType.DISPLAY_CLEAR_Y)      : 0;
-            let width   = handler.e(this.DataType.DISPLAY_CLEAR_WIDTH)  ? handler.read(this.DataType.DISPLAY_CLEAR_WIDTH)  : 0;
-            let height  = handler.e(this.DataType.DISPLAY_CLEAR_HEIGHT) ? handler.read(this.DataType.DISPLAY_CLEAR_HEIGHT) : 0;
-            let pixel   = handler.e(this.DataType.DISPLAY_CLEAR_PIXEL)  ? handler.read(this.DataType.DISPLAY_CLEAR_PIXEL)  : 0;
+            let x       = this.read(handler, this.DataType.DISPLAY_CLEAR_X);
+            let y       = this.read(handler, this.DataType.DISPLAY_CLEAR_Y);
+            let width   = this.read(handler, this.DataType.DISPLAY_CLEAR_WIDTH);
+            let height  = this.read(handler, this.DataType.DISPLAY_CLEAR_HEIGHT);
+            let pixel   = this.read(handler, this.DataType.DISPLAY_CLEAR_PIXEL);
 
             let dataArray = this.reserveDisplayClear(target, x, y, width, height, pixel);
             this.bufferTransfer.push(dataArray);
@@ -740,14 +740,13 @@ class byrobot_base extends BaseModule
 
 
         // 선택 영역 반전
-        if( (handler.e(this.DataType.DISPLAY_INVERT_WIDTH)  == true) ||
-            (handler.e(this.DataType.DISPLAY_INVERT_HEIGHT) == true) )
+        if( handler.e(this.DataType.DISPLAY_INVERT_WIDTH)  ||
+            handler.e(this.DataType.DISPLAY_INVERT_HEIGHT) )
         {
-            let target  = handler.e(this.DataType.TARGET)                   ? handler.read(this.DataType.TARGET)                : 0xFF;
-            let x       = handler.e(this.DataType.DISPLAY_INVERT_X)         ? handler.read(this.DataType.DISPLAY_INVERT_X)      : 0;
-            let y       = handler.e(this.DataType.DISPLAY_INVERT_Y)         ? handler.read(this.DataType.DISPLAY_INVERT_Y)      : 0;
-            let width   = handler.e(this.DataType.DISPLAY_INVERT_WIDTH)     ? handler.read(this.DataType.DISPLAY_INVERT_WIDTH)  : 0;
-            let height  = handler.e(this.DataType.DISPLAY_INVERT_HEIGHT)    ? handler.read(this.DataType.DISPLAY_INVERT_HEIGHT) : 0;
+            let x       = this.read(handler, this.DataType.DISPLAY_INVERT_X);
+            let y       = this.read(handler, this.DataType.DISPLAY_INVERT_Y);
+            let width   = this.read(handler, this.DataType.DISPLAY_INVERT_WIDTH);
+            let height  = this.read(handler, this.DataType.DISPLAY_INVERT_HEIGHT);
 
             let dataArray = this.reserveDisplayInvert(target, x, y, width, height);
             this.bufferTransfer.push(dataArray);
@@ -756,14 +755,13 @@ class byrobot_base extends BaseModule
 
 
         // 화면에 점 찍기
-        if( (handler.e(this.DataType.DISPLAY_DRAW_POINT_X)      == true) ||
-            (handler.e(this.DataType.DISPLAY_DRAW_POINT_Y)      == true) ||
-            (handler.e(this.DataType.DISPLAY_DRAW_POINT_PIXEL)  == true) )
+        if( handler.e(this.DataType.DISPLAY_DRAW_POINT_X)      ||
+            handler.e(this.DataType.DISPLAY_DRAW_POINT_Y)      ||
+            handler.e(this.DataType.DISPLAY_DRAW_POINT_PIXEL)  )
         {
-            let target  = handler.e(this.DataType.TARGET)                   ? handler.read(this.DataType.TARGET)                    : 0xFF;
-            let x       = handler.e(this.DataType.DISPLAY_DRAW_POINT_X)     ? handler.read(this.DataType.DISPLAY_DRAW_POINT_X)      : 0;
-            let y       = handler.e(this.DataType.DISPLAY_DRAW_POINT_Y)     ? handler.read(this.DataType.DISPLAY_DRAW_POINT_Y)      : 0;
-            let pixel   = handler.e(this.DataType.DISPLAY_DRAW_POINT_PIXEL) ? handler.read(this.DataType.DISPLAY_DRAW_POINT_PIXEL)  : 0;
+            let x       = this.read(handler, this.DataType.DISPLAY_DRAW_POINT_X);
+            let y       = this.read(handler, this.DataType.DISPLAY_DRAW_POINT_Y);
+            let pixel   = this.read(handler, this.DataType.DISPLAY_DRAW_POINT_PIXEL);
             
             let dataArray = this.reserveDisplayDrawPoint(target, x, y, pixel);
             this.bufferTransfer.push(dataArray);
@@ -772,18 +770,17 @@ class byrobot_base extends BaseModule
 
 
         // 화면에 선 그리기
-        if( (handler.e(this.DataType.DISPLAY_DRAW_LINE_X1) == true) ||
-            (handler.e(this.DataType.DISPLAY_DRAW_LINE_Y1) == true) ||
-            (handler.e(this.DataType.DISPLAY_DRAW_LINE_X2) == true) ||
-            (handler.e(this.DataType.DISPLAY_DRAW_LINE_Y2) == true) )
+        if( handler.e(this.DataType.DISPLAY_DRAW_LINE_X1)  ||
+            handler.e(this.DataType.DISPLAY_DRAW_LINE_Y1)  ||
+            handler.e(this.DataType.DISPLAY_DRAW_LINE_X2)  ||
+            handler.e(this.DataType.DISPLAY_DRAW_LINE_Y2)  )
         {
-            let target  = handler.e(this.DataType.TARGET)                    ? handler.read(this.DataType.TARGET)                     : 0xFF;
-            let x1      = handler.e(this.DataType.DISPLAY_DRAW_LINE_X1)      ? handler.read(this.DataType.DISPLAY_DRAW_LINE_X1)       : 0;
-            let y1      = handler.e(this.DataType.DISPLAY_DRAW_LINE_Y1)      ? handler.read(this.DataType.DISPLAY_DRAW_LINE_Y1)       : 0;
-            let x2      = handler.e(this.DataType.DISPLAY_DRAW_LINE_X2)      ? handler.read(this.DataType.DISPLAY_DRAW_LINE_X2)       : 0;
-            let y2      = handler.e(this.DataType.DISPLAY_DRAW_LINE_Y2)      ? handler.read(this.DataType.DISPLAY_DRAW_LINE_Y2)       : 0;
-            let pixel   = handler.e(this.DataType.DISPLAY_DRAW_LINE_PIXEL)   ? handler.read(this.DataType.DISPLAY_DRAW_LINE_PIXEL)    : 0;
-            let line    = handler.e(this.DataType.DISPLAY_DRAW_LINE_LINE)    ? handler.read(this.DataType.DISPLAY_DRAW_LINE_LINE)     : 0;
+            let x1      = this.read(handler, this.DataType.DISPLAY_DRAW_LINE_X1);
+            let y1      = this.read(handler, this.DataType.DISPLAY_DRAW_LINE_Y1);
+            let x2      = this.read(handler, this.DataType.DISPLAY_DRAW_LINE_X2);
+            let y2      = this.read(handler, this.DataType.DISPLAY_DRAW_LINE_Y2);
+            let pixel   = this.read(handler, this.DataType.DISPLAY_DRAW_LINE_PIXEL);
+            let line    = this.read(handler, this.DataType.DISPLAY_DRAW_LINE_LINE);
             
             let dataArray = this.reserveDisplayDrawLine(target, x1, y1, x2, y2, pixel, line);
             this.bufferTransfer.push(dataArray);
@@ -792,17 +789,16 @@ class byrobot_base extends BaseModule
 
         
         // 화면에 사각형 그리기
-        if( (handler.e(this.DataType.DISPLAY_DRAW_RECT_WIDTH)   == true) ||
-            (handler.e(this.DataType.DISPLAY_DRAW_RECT_HEIGHT)  == true) )
+        if( handler.e(this.DataType.DISPLAY_DRAW_RECT_WIDTH)   ||
+            handler.e(this.DataType.DISPLAY_DRAW_RECT_HEIGHT)  )
         {
-            let target      = handler.e(this.DataType.TARGET)                        ? handler.read(this.DataType.TARGET)                         : 0xFF;
-            let x           = handler.e(this.DataType.DISPLAY_DRAW_RECT_X)           ? handler.read(this.DataType.DISPLAY_DRAW_RECT_X)            : 0;
-            let y           = handler.e(this.DataType.DISPLAY_DRAW_RECT_Y)           ? handler.read(this.DataType.DISPLAY_DRAW_RECT_Y)            : 0;
-            let width       = handler.e(this.DataType.DISPLAY_DRAW_RECT_WIDTH)       ? handler.read(this.DataType.DISPLAY_DRAW_RECT_WIDTH)        : 0;
-            let height      = handler.e(this.DataType.DISPLAY_DRAW_RECT_HEIGHT)      ? handler.read(this.DataType.DISPLAY_DRAW_RECT_HEIGHT)       : 0;
-            let pixel       = handler.e(this.DataType.DISPLAY_DRAW_RECT_PIXEL)       ? handler.read(this.DataType.DISPLAY_DRAW_RECT_PIXEL)        : 0;
-            let flagfill    = handler.e(this.DataType.DISPLAY_DRAW_RECT_FLAGFILL)    ? handler.read(this.DataType.DISPLAY_DRAW_RECT_FLAGFILL)     : 0;
-            let line        = handler.e(this.DataType.DISPLAY_DRAW_RECT_LINE)        ? handler.read(this.DataType.DISPLAY_DRAW_RECT_LINE)         : 0;
+            let x           = this.read(handler, this.DataType.DISPLAY_DRAW_RECT_X);
+            let y           = this.read(handler, this.DataType.DISPLAY_DRAW_RECT_Y);
+            let width       = this.read(handler, this.DataType.DISPLAY_DRAW_RECT_WIDTH);
+            let height      = this.read(handler, this.DataType.DISPLAY_DRAW_RECT_HEIGHT);
+            let pixel       = this.read(handler, this.DataType.DISPLAY_DRAW_RECT_PIXEL);
+            let flagfill    = this.read(handler, this.DataType.DISPLAY_DRAW_RECT_FLAGFILL);
+            let line        = this.read(handler, this.DataType.DISPLAY_DRAW_RECT_LINE);
 
             let dataArray = this.reserveDisplayDrawRect(target, x, y, width, height, pixel, flagfill, line);
             this.bufferTransfer.push(dataArray);
@@ -811,14 +807,13 @@ class byrobot_base extends BaseModule
 
 
         // 화면에 원 그리기
-        if( handler.e(this.DataType.DISPLAY_DRAW_CIRCLE_RADIUS) == true )
+        if( handler.e(this.DataType.DISPLAY_DRAW_CIRCLE_RADIUS) )
         {
-            let target   = handler.e(this.DataType.TARGET)                         ? handler.read(this.DataType.TARGET)                           : 0xFF;
-            let x        = handler.e(this.DataType.DISPLAY_DRAW_CIRCLE_X)          ? handler.read(this.DataType.DISPLAY_DRAW_CIRCLE_X)            : 0;
-            let y        = handler.e(this.DataType.DISPLAY_DRAW_CIRCLE_Y)          ? handler.read(this.DataType.DISPLAY_DRAW_CIRCLE_Y)            : 0;
-            let radius   = handler.e(this.DataType.DISPLAY_DRAW_CIRCLE_RADIUS)     ? handler.read(this.DataType.DISPLAY_DRAW_CIRCLE_RADIUS)       : 0;
-            let pixel    = handler.e(this.DataType.DISPLAY_DRAW_CIRCLE_PIXEL)      ? handler.read(this.DataType.DISPLAY_DRAW_CIRCLE_PIXEL)        : 0;
-            let flagfill = handler.e(this.DataType.DISPLAY_DRAW_CIRCLE_FLAGFILL)   ? handler.read(this.DataType.DISPLAY_DRAW_CIRCLE_FLAGFILL)     : 0;
+            let x        = this.read(handler, this.DataType.DISPLAY_DRAW_CIRCLE_X);
+            let y        = this.read(handler, this.DataType.DISPLAY_DRAW_CIRCLE_Y);
+            let radius   = this.read(handler, this.DataType.DISPLAY_DRAW_CIRCLE_RADIUS);
+            let pixel    = this.read(handler, this.DataType.DISPLAY_DRAW_CIRCLE_PIXEL);
+            let flagfill = this.read(handler, this.DataType.DISPLAY_DRAW_CIRCLE_FLAGFILL);
 
             let dataArray = this.reserveDisplayDrawCircle(target, x, y, radius, pixel, flagfill);
             this.bufferTransfer.push(dataArray);
@@ -827,14 +822,13 @@ class byrobot_base extends BaseModule
 
 
         // 화면에 문자열 쓰기
-        if( handler.e(this.DataType.DISPLAY_DRAW_STRING_STRING) == true )
+        if( handler.e(this.DataType.DISPLAY_DRAW_STRING_STRING) )
         {
-            let target  = handler.e(this.DataType.TARGET)                       ? handler.read(this.DataType.TARGET)                         : 0xFF;
-            let x       = handler.e(this.DataType.DISPLAY_DRAW_STRING_X)        ? handler.read(this.DataType.DISPLAY_DRAW_STRING_X)          : 0;
-            let y       = handler.e(this.DataType.DISPLAY_DRAW_STRING_Y)        ? handler.read(this.DataType.DISPLAY_DRAW_STRING_Y)          : 0;
-            let font    = handler.e(this.DataType.DISPLAY_DRAW_STRING_FONT)     ? handler.read(this.DataType.DISPLAY_DRAW_STRING_FONT)       : 0;
-            let pixel   = handler.e(this.DataType.DISPLAY_DRAW_STRING_PIXEL)    ? handler.read(this.DataType.DISPLAY_DRAW_STRING_PIXEL)      : 0;
-            let string  = handler.e(this.DataType.DISPLAY_DRAW_STRING_STRING)   ? handler.read(this.DataType.DISPLAY_DRAW_STRING_STRING)     : 0;
+            let x       = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_X);
+            let y       = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_Y);
+            let font    = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_FONT);
+            let pixel   = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_PIXEL);
+            let string  = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_STRING);
 
             let dataArray = reserveDisplayDrawString(target, x, y, font, pixel, string);
             this.bufferTransfer.push(dataArray);
@@ -843,16 +837,15 @@ class byrobot_base extends BaseModule
 
 
         // 화면에 문자열 정렬하여 그리기
-        if( handler.e(this.DataType.DISPLAY_DRAW_STRING_ALIGN_STRING) == true )
+        if( handler.e(this.DataType.DISPLAY_DRAW_STRING_ALIGN_STRING) )
         {
-            let target  = handler.e(this.DataType.TARGET)                                ? handler.read(this.DataType.TARGET)                             : 0xFF;
-            let x_start = handler.e(this.DataType.DISPLAY_DRAW_STRING_ALIGN_X_START)     ? handler.read(this.DataType.DISPLAY_DRAW_STRING_ALIGN_X_START)  : 0;
-            let x_end   = handler.e(this.DataType.DISPLAY_DRAW_STRING_ALIGN_X_END)       ? handler.read(this.DataType.DISPLAY_DRAW_STRING_ALIGN_X_END)    : 0;
-            let y       = handler.e(this.DataType.DISPLAY_DRAW_STRING_ALIGN_Y)           ? handler.read(this.DataType.DISPLAY_DRAW_STRING_ALIGN_Y)        : 0;
-            let align   = handler.e(this.DataType.DISPLAY_DRAW_STRING_ALIGN_ALIGN)       ? handler.read(this.DataType.DISPLAY_DRAW_STRING_ALIGN_ALIGN)    : 0;
-            let font    = handler.e(this.DataType.DISPLAY_DRAW_STRING_ALIGN_FONT)        ? handler.read(this.DataType.DISPLAY_DRAW_STRING_ALIGN_FONT)     : 0;
-            let pixel   = handler.e(this.DataType.DISPLAY_DRAW_STRING_ALIGN_PIXEL)       ? handler.read(this.DataType.DISPLAY_DRAW_STRING_ALIGN_PIXEL)    : 0;
-            let string  = handler.e(this.DataType.DISPLAY_DRAW_STRING_ALIGN_STRING)      ? handler.read(this.DataType.DISPLAY_DRAW_STRING_ALIGN_STRING)   : 0;
+            let x_start = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_ALIGN_X_START);
+            let x_end   = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_ALIGN_X_END);
+            let y       = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_ALIGN_Y);
+            let align   = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_ALIGN_ALIGN);
+            let font    = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_ALIGN_FONT);
+            let pixel   = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_ALIGN_PIXEL);
+            let string  = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_ALIGN_STRING);
 
             let dataArray = reserveDisplayDrawStringAlign(target, x_start, x_end, y, align, font, pixel, string);
             this.bufferTransfer.push(dataArray);
@@ -861,11 +854,10 @@ class byrobot_base extends BaseModule
 
 
         // Command
-        if( handler.e(this.DataType.COMMAND_COMMAND) == true )
+        if( handler.e(this.DataType.COMMAND_COMMAND) )
         {
-            let target          = handler.e(this.DataType.TARGET)           ? handler.read(this.DataType.TARGET)            : 0xFF;
-            let command_command = handler.e(this.DataType.COMMAND_COMMAND)  ? handler.read(this.DataType.COMMAND_COMMAND)   : 0;
-            let command_option  = handler.e(this.DataType.COMMAND_OPTION)   ? handler.read(this.DataType.COMMAND_OPTION)    : 0;
+            let command_command = this.read(handler, this.DataType.COMMAND_COMMAND);
+            let command_option  = this.read(handler, this.DataType.COMMAND_OPTION);
 
             switch( command_command )
             {
@@ -887,16 +879,15 @@ class byrobot_base extends BaseModule
 
 
         // Control
-        if( (handler.e(this.DataType.CONTROL_QUAD8_ROLL)      == true) ||
-            (handler.e(this.DataType.CONTROL_QUAD8_PITCH)     == true) ||
-            (handler.e(this.DataType.CONTROL_QUAD8_YAW)       == true) ||
-            (handler.e(this.DataType.CONTROL_QUAD8_THROTTLE)  == true) )
+        if( handler.e(this.DataType.CONTROL_QUAD8_ROLL)     ||
+            handler.e(this.DataType.CONTROL_QUAD8_PITCH)    ||
+            handler.e(this.DataType.CONTROL_QUAD8_YAW)      ||
+            handler.e(this.DataType.CONTROL_QUAD8_THROTTLE) )
         {
-            let target   = handler.e(this.DataType.TARGET)                 ? handler.read(this.DataType.TARGET)                  : 0x10;
-            let roll     = handler.e(this.DataType.CONTROL_QUAD8_ROLL)     ? handler.read(this.DataType.CONTROL_QUAD8_ROLL)      : this.controlRoll;
-            let pitch    = handler.e(this.DataType.CONTROL_QUAD8_PITCH)    ? handler.read(this.DataType.CONTROL_QUAD8_PITCH)     : this.controlPitch;
-            let yaw      = handler.e(this.DataType.CONTROL_QUAD8_YAW)      ? handler.read(this.DataType.CONTROL_QUAD8_YAW)       : this.controlYaw;
-            let throttle = handler.e(this.DataType.CONTROL_QUAD8_THROTTLE) ? handler.read(this.DataType.CONTROL_QUAD8_THROTTLE)  : this.controlThrottle;
+            let roll     = this.read(handler, this.DataType.CONTROL_QUAD8_ROLL,     this.controlRoll);
+            let pitch    = this.read(handler, this.DataType.CONTROL_QUAD8_PITCH,    this.controlPitch);
+            let yaw      = this.read(handler, this.DataType.CONTROL_QUAD8_YAW,      this.controlYaw);
+            let throttle = this.read(handler, this.DataType.CONTROL_QUAD8_THROTTLE, this.controlThrottle);
 
             let dataArray = reserveControlQuad8(target, roll, pitch, yaw, throttle);
             this.bufferTransfer.push(dataArray);
@@ -905,20 +896,19 @@ class byrobot_base extends BaseModule
 
 
         // Control
-        if( (handler.e(this.DataType.CONTROL_POSITION_X)                    == true) ||
-            (handler.e(this.DataType.CONTROL_POSITION_Y)                    == true) ||
-            (handler.e(this.DataType.CONTROL_POSITION_Z)                    == true) ||
-            (handler.e(this.DataType.CONTROL_POSITION_VELOCITY)             == true) ||
-            (handler.e(this.DataType.CONTROL_POSITION_HEADING)              == true) ||
-            (handler.e(this.DataType.CONTROL_POSITION_ROTATIONAL_VELOCITY)  == true) )
+        if( handler.e(this.DataType.CONTROL_POSITION_X)                   ||
+            handler.e(this.DataType.CONTROL_POSITION_Y)                   ||
+            handler.e(this.DataType.CONTROL_POSITION_Z)                   ||
+            handler.e(this.DataType.CONTROL_POSITION_VELOCITY)            ||
+            handler.e(this.DataType.CONTROL_POSITION_HEADING)             ||
+            handler.e(this.DataType.CONTROL_POSITION_ROTATIONAL_VELOCITY) )
         {
-            let target              = handler.e(this.DataType.TARGET)                               ? handler.read(this.DataType.TARGET)                                : 0x10;
-            let y                   = handler.e(this.DataType.CONTROL_POSITION_X)                   ? handler.read(this.DataType.CONTROL_POSITION_X)           : 0;
-            let y                   = handler.e(this.DataType.CONTROL_POSITION_Y)                   ? handler.read(this.DataType.CONTROL_POSITION_Y)           : 0;
-            let z                   = handler.e(this.DataType.CONTROL_POSITION_Z)                   ? handler.read(this.DataType.CONTROL_POSITION_Z)           : 0;
-            let velocity            = handler.e(this.DataType.CONTROL_POSITION_VELOCITY)            ? handler.read(this.DataType.CONTROL_POSITION_VELOCITY)             : 0;
-            let heading             = handler.e(this.DataType.CONTROL_POSITION_HEADING)             ? handler.read(this.DataType.CONTROL_POSITION_HEADING)              : 0;
-            let rotationalVelocity  = handler.e(this.DataType.CONTROL_POSITION_ROTATIONAL_VELOCITY) ? handler.read(this.DataType.CONTROL_POSITION_ROTATIONAL_VELOCITY)  : 0;
+            let y                   = this.read(handler, this.DataType.CONTROL_POSITION_X);
+            let y                   = this.read(handler, this.DataType.CONTROL_POSITION_Y);
+            let z                   = this.read(handler, this.DataType.CONTROL_POSITION_Z);
+            let velocity            = this.read(handler, this.DataType.CONTROL_POSITION_VELOCITY);
+            let heading             = this.read(handler, this.DataType.CONTROL_POSITION_HEADING);
+            let rotationalVelocity  = this.read(handler, this.DataType.CONTROL_POSITION_ROTATIONAL_VELOCITY);
 
             let dataArray = reserveControlPosition(target, x, y, z, velocity, heading, rotationalVelocity);
             this.bufferTransfer.push(dataArray);
@@ -927,26 +917,24 @@ class byrobot_base extends BaseModule
 
 
         // MotorSingle
-        if( handler.e(this.DataType.MOTORSINGLE_TARGET) == true )
+        if( handler.e(this.DataType.MOTORSINGLE_TARGET) )
         {
-            let target   = handler.e(this.DataType.TARGET)               ? handler.read(this.DataType.TARGET)                : 0x10;
-            let target   = handler.e(this.DataType.MOTORSINGLE_TARGET)   ? handler.read(this.DataType.MOTORSINGLE_TARGET)    : 0;
-            let rotation = handler.e(this.DataType.MOTORSINGLE_ROTATION) ? handler.read(this.DataType.MOTORSINGLE_ROTATION)  : 0;
-            let value    = handler.e(this.DataType.MOTORSINGLE_VALUE)    ? handler.read(this.DataType.MOTORSINGLE_VALUE)     : 0;
+            let targetMotor = this.read(handler, this.DataType.MOTORSINGLE_TARGET);
+            let rotation    = this.read(handler, this.DataType.MOTORSINGLE_ROTATION);
+            let value       = this.read(handler, this.DataType.MOTORSINGLE_VALUE);
 
-            let dataArray = reserveMotorSingle(target, rotation, value);
+            let dataArray = reserveMotorSingle(target, targetMotor, rotation, value);
             this.bufferTransfer.push(dataArray);
             this.log("Transfer_To_Device / MotorSingle", dataArray);
         }
 
 
         // Buzzer
-        if( handler.e(this.DataType.BUZZER_MODE) == true )
+        if( handler.e(this.DataType.BUZZER_MODE) )
         {
-            let target          = handler.e(this.DataType.TARGET)       ? handler.read(this.DataType.TARGET)        : 0x20;
-            let buzzer_mode     = handler.e(this.DataType.BUZZER_MODE)  ? handler.read(this.DataType.BUZZER_MODE)   : 0;
-            let buzzer_value    = handler.e(this.DataType.BUZZER_VALUE) ? handler.read(this.DataType.BUZZER_VALUE)  : 0;
-            let buzzer_time     = handler.e(this.DataType.BUZZER_TIME)  ? handler.read(this.DataType.BUZZER_TIME)   : 0;
+            let buzzer_mode     = this.read(handler, this.DataType.BUZZER_MODE);
+            let buzzer_value    = this.read(handler, this.DataType.BUZZER_VALUE);
+            let buzzer_time     = this.read(handler, this.DataType.BUZZER_TIME);
 
             let dataArray = reserveBuzzer(target, mode, time, value);
             this.bufferTransfer.push(dataArray);
@@ -955,15 +943,14 @@ class byrobot_base extends BaseModule
 
 
         // Vibrator
-        if( handler.e(this.DataType.VIBRATOR_ON) == true )
+        if( handler.e(this.DataType.VIBRATOR_ON) )
         {
-            let target = handler.e(this.DataType.TARGET)           ? handler.read(this.DataType.TARGET)            : 0x20;
-            let mode   = handler.e(this.DataType.VIBRATOR_MODE)    ? handler.read(this.DataType.VIBRATOR_MODE)     : 0;
-            let on     = handler.e(this.DataType.VIBRATOR_ON)      ? handler.read(this.DataType.VIBRATOR_ON)       : 0;
-            let off    = handler.e(this.DataType.VIBRATOR_OFF)     ? handler.read(this.DataType.VIBRATOR_OFF)      : 0;
-            let total  = handler.e(this.DataType.VIBRATOR_TOTAL)   ? handler.read(this.DataType.VIBRATOR_TOTAL)    : 0;
+            let mode   = this.read(handler, this.DataType.VIBRATOR_MODE);
+            let on     = this.read(handler, this.DataType.VIBRATOR_ON);
+            let off    = this.read(handler, this.DataType.VIBRATOR_OFF);
+            let total  = this.read(handler, this.DataType.VIBRATOR_TOTAL);
 
-            let dataArray = reserveVibrator(target, on, off, total);
+            let dataArray = reserveVibrator(target, mode, on, off, total);
             this.bufferTransfer.push(dataArray);
 
             this.log("Transfer_To_Device / Vibrator", dataArray);
@@ -1020,7 +1007,7 @@ class byrobot_base extends BaseModule
         // Joystick
         {
             let joystick = this.joystick;
-            if( joystick._updated == true )
+            if( joystick._updated )
             {
                 for(let key in joystick)
                 {
@@ -1035,7 +1022,7 @@ class byrobot_base extends BaseModule
         // Button
         {
             let button = this.button;
-            if( button._updated == true )
+            if( button._updated )
             {
                 for(let key in button)
                 {
@@ -1050,7 +1037,7 @@ class byrobot_base extends BaseModule
         // State
         {
             let state = this.state;
-            if( state._updated == true )
+            if( state._updated )
             {
                 for(let key in state)
                 {
@@ -1065,7 +1052,7 @@ class byrobot_base extends BaseModule
         // Position
         {
             let position = this.position;
-            if( position._updated == true )
+            if( position._updated )
             {
                 for(let key in position)
                 {
@@ -1080,7 +1067,7 @@ class byrobot_base extends BaseModule
         // Altitude
         {
             let altitude = this.altitude;
-            if( altitude._updated == true )
+            if( altitude._updated )
             {
                 for(let key in altitude)
                 {
@@ -1095,7 +1082,7 @@ class byrobot_base extends BaseModule
         // Motion
         {
             let motion = this.motion;
-            if( motion._updated == true )
+            if( motion._updated )
             {
                 for(let key in motion)
                 {
@@ -1110,7 +1097,7 @@ class byrobot_base extends BaseModule
         // Range
         {
             let range = this.range;
-            if( range._updated == true )
+            if( range._updated )
             {
                 for(let key in range)
                 {
@@ -1125,7 +1112,7 @@ class byrobot_base extends BaseModule
         // InformationAssembledForEntry
         {
             let informationAssembledForEntry = this.informationAssembledForEntry;
-            if( informationAssembledForEntry._updated == true )
+            if( informationAssembledForEntry._updated )
             {
                 for(let key in informationAssembledForEntry)
                 {
@@ -1293,7 +1280,7 @@ class byrobot_base extends BaseModule
             }
 
             // 데이터 전송 완료 처리
-            if( flagComplete == true )
+            if( flagComplete )
             {
                 if( this.crc16Calculated == this.crc16Received )
                 {
@@ -1304,9 +1291,9 @@ class byrobot_base extends BaseModule
             }
 
             // 데이터 처리 결과에 따라 인덱스 변수 처리
-            if( flagContinue == true )
+            if( flagContinue )
             {
-                if( flagSessionNext == true )
+                if( flagSessionNext )
                 {
                     this.indexSession++;
                     this.indexReceiver = 0;             
@@ -1368,21 +1355,21 @@ class byrobot_base extends BaseModule
                 // Device -> Entry 
                 let ack             = this.ack;
                 ack._updated        = true;
-                ack.ack_systemTime  = this.extractUInt32(this.dataBlock, 0);
-                ack.ack_dataType    = this.extractUInt8(this.dataBlock, 4);
-                ack.ack_crc16       = this.extractUInt16(this.dataBlock, 5);
+                ack.systemTime  = this.extractUInt32(this.dataBlock, 0);
+                ack.dataType    = this.extractUInt8(this.dataBlock, 4);
+                ack.crc16       = this.extractUInt16(this.dataBlock, 5);
 
                 // ping에 대한 ack는 로그 출력하지 않음
-                if( ack.ack_dataType != 0x01 )
+                if( ack.dataType != 0x01 )
                 {
-                    console.log("Receive_From_Device - Ack / From: " + this.from + " / SystemTime: " + ack.ack_systemTime + " / DataType: " + ack.ack_dataType + " / Repeat: " + this.countTransferRepeat + " / Crc16Transfer: " + this.crc16Transfered + " / Crc16Get: " + ack.ack_crc16);
+                    console.log("Receive_From_Device - Ack / From: " + this.from + " / SystemTime: " + ack.systemTime + " / DataType: " + ack.dataType + " / Repeat: " + this.countTransferRepeat + " / Crc16Transfer: " + this.crc16Transfered + " / Crc16Get: " + ack.crc16);
                 }
 
                 // 마지막으로 전송한 데이터에 대한 응답을 받았다면 
                 if( this.bufferTransfer != undefined &&
                     this.bufferTransfer.length > 0 &&
-                    this.dataTypeLastTransfered == ack.ack_dataType &&
-                    this.crc16Transfered == ack.ack_crc16 )
+                    this.dataTypeLastTransfered == ack.dataType &&
+                    this.crc16Transfered == ack.crc16 )
                 {
                     this.bufferTransfer.shift();
                     this.countTransferRepeat = 0;
@@ -1415,15 +1402,15 @@ class byrobot_base extends BaseModule
                 // Device -> Entry 
                 let state                       = this.state;
                 state._updated                  = true;
-                state.state_modeSystem          = this.extractUInt8(this.dataBlock, 0);
-                state.state_modeFlight          = this.extractUInt8(this.dataBlock, 1);
-                state.state_modeControlFlight   = this.extractUInt8(this.dataBlock, 2);
-                state.state_modeMovement        = this.extractUInt8(this.dataBlock, 3);
-                state.state_headless            = this.extractUInt8(this.dataBlock, 4);
-                state.state_sensorOrientation   = this.extractUInt8(this.dataBlock, 5);
-                state.state_battery             = this.extractUInt8(this.dataBlock, 6);
+                state.modeSystem          = this.extractUInt8(this.dataBlock, 0);
+                state.modeFlight          = this.extractUInt8(this.dataBlock, 1);
+                state.modeControlFlight   = this.extractUInt8(this.dataBlock, 2);
+                state.modeMovement        = this.extractUInt8(this.dataBlock, 3);
+                state.headless            = this.extractUInt8(this.dataBlock, 4);
+                state.sensorOrientation   = this.extractUInt8(this.dataBlock, 5);
+                state.battery             = this.extractUInt8(this.dataBlock, 6);
     
-                //console.log("Receive_From_Device - state: " + state.state_modeVehicle);
+                //console.log("Receive_From_Device - state: " + state.modeVehicle);
             }
             break;
         
@@ -1436,11 +1423,11 @@ class byrobot_base extends BaseModule
                 // Device -> Entry 
                 let position           = this.position;
                 position._updated      = true;
-                position.position_x    = this.extractFloat32(this.dataBlock, 0);
-                position.position_y    = this.extractFloat32(this.dataBlock, 4);
-                position.position_z    = this.extractFloat32(this.dataBlock, 8);
+                position.x    = this.extractFloat32(this.dataBlock, 0);
+                position.y    = this.extractFloat32(this.dataBlock, 4);
+                position.z    = this.extractFloat32(this.dataBlock, 8);
     
-                //console.log("Receive_From_Device - position: " + position.position_x + ", " + position.position_y);
+                //console.log("Receive_From_Device - position: " + position.x + ", " + position.y);
             }
             break;
 
@@ -1451,12 +1438,12 @@ class byrobot_base extends BaseModule
                 // Device -> Entry 
                 let altitude                    = this.altitude;
                 altitude._updated               = true;
-                altitude.altitude_temperature   = this.extractFloat32(this.dataBlock, 0);
-                altitude.altitude_pressure      = this.extractFloat32(this.dataBlock, 4);
-                altitude.altitude_altitude      = this.extractFloat32(this.dataBlock, 8);
-                altitude.altitude_rangeHeight   = this.extractFloat32(this.dataBlock, 12);
+                altitude.temperature   = this.extractFloat32(this.dataBlock, 0);
+                altitude.pressure      = this.extractFloat32(this.dataBlock, 4);
+                altitude.altitude      = this.extractFloat32(this.dataBlock, 8);
+                altitude.rangeHeight   = this.extractFloat32(this.dataBlock, 12);
     
-                //console.log("Receive_From_Device - altitude: " + altitude.altitude_temperature + ", " + altitude.altitude_altitude);
+                //console.log("Receive_From_Device - altitude: " + altitude.temperature + ", " + altitude.altitude);
             }
             break;
 
@@ -1467,17 +1454,17 @@ class byrobot_base extends BaseModule
                 // Device -> Entry 
                 let motion                  = this.motion;
                 motion._updated             = true;
-                motion.motion_accX          = (this.extractInt16(this.dataBlock, 0) * 10).toFixed(3);
-                motion.motion_accY          = (this.extractInt16(this.dataBlock, 2) * 10).toFixed(3);
-                motion.motion_accZ          = (this.extractInt16(this.dataBlock, 4) * 10).toFixed(3);
-                motion.motion_gyroRoll      = (this.extractInt16(this.dataBlock, 6)).toFixed(3);
-                motion.motion_gyroPitch     = (this.extractInt16(this.dataBlock, 8)).toFixed(3);
-                motion.motion_gyroYaw       = (this.extractInt16(this.dataBlock, 10)).toFixed(3);
-                motion.motion_angleRoll     = this.extractInt16(this.dataBlock, 12);
-                motion.motion_anglePitch    = this.extractInt16(this.dataBlock, 14);
-                motion.motion_angleYaw      = this.extractInt16(this.dataBlock, 16);
+                motion.accX          = (this.extractInt16(this.dataBlock, 0) * 10).toFixed(3);
+                motion.accY          = (this.extractInt16(this.dataBlock, 2) * 10).toFixed(3);
+                motion.accZ          = (this.extractInt16(this.dataBlock, 4) * 10).toFixed(3);
+                motion.gyroRoll      = (this.extractInt16(this.dataBlock, 6)).toFixed(3);
+                motion.gyroPitch     = (this.extractInt16(this.dataBlock, 8)).toFixed(3);
+                motion.gyroYaw       = (this.extractInt16(this.dataBlock, 10)).toFixed(3);
+                motion.angleRoll     = this.extractInt16(this.dataBlock, 12);
+                motion.anglePitch    = this.extractInt16(this.dataBlock, 14);
+                motion.angleYaw      = this.extractInt16(this.dataBlock, 16);
     
-                //console.log("Receive_From_Device - motion: " + motion.motion_angleRoll + ", " + motion.motion_anglePitch + ", " + motion.motion_angleYaw);
+                //console.log("Receive_From_Device - motion: " + motion.angleRoll + ", " + motion.anglePitch + ", " + motion.angleYaw);
             }
             break;
 
@@ -1488,14 +1475,14 @@ class byrobot_base extends BaseModule
                 // Device -> Entry 
                 let range               = this.range;
                 range._updated          = true;
-                range.range_left        = this.extractInt16(this.dataBlock, 0);
-                range.range_front       = this.extractInt16(this.dataBlock, 2);
-                range.range_right       = this.extractInt16(this.dataBlock, 4);
-                range.range_rear        = this.extractInt16(this.dataBlock, 6);
-                range.range_top         = this.extractInt16(this.dataBlock, 8);
-                range.range_bottom      = this.extractInt16(this.dataBlock, 10);
+                range.left        = this.extractInt16(this.dataBlock, 0);
+                range.front       = this.extractInt16(this.dataBlock, 2);
+                range.right       = this.extractInt16(this.dataBlock, 4);
+                range.rear        = this.extractInt16(this.dataBlock, 6);
+                range.top         = this.extractInt16(this.dataBlock, 8);
+                range.bottom      = this.extractInt16(this.dataBlock, 10);
     
-                //console.log("Receive_From_Device - range: " + range.range_left + ", " + range.range_front + ", " + range.range_right + ", " + range.range_rear + ", " + range.range_top + ", " + range.range_bottom);
+                //console.log("Receive_From_Device - range: " + range.left + ", " + range.front + ", " + range.right + ", " + range.rear + ", " + range.top + ", " + range.bottom);
             }
             break;
         // */
@@ -1507,10 +1494,10 @@ class byrobot_base extends BaseModule
                 // Device -> Entry 
                 let button              = this.button;
                 button._updated         = true;
-                button.button_button    = this.extractUInt16(this.dataBlock, 0);
-                button.button_event     = this.extractUInt8(this.dataBlock, 2);
+                button.button    = this.extractUInt16(this.dataBlock, 0);
+                button.event     = this.extractUInt8(this.dataBlock, 2);
 
-                //console.log("Receive_From_Device - Button: " + button.button_button + ", " + button.button_event);
+                //console.log("Receive_From_Device - Button: " + button.button + ", " + button.event);
             }
             break;
 
@@ -1521,16 +1508,16 @@ class byrobot_base extends BaseModule
                 // Device -> Entry 
                 let joystick                        = this.joystick;
                 joystick._updated                   = true;
-                joystick.joystick_left_x            = this.extractInt8(this.dataBlock,  0);
-                joystick.joystick_left_y            = this.extractInt8(this.dataBlock,  1);
-                joystick.joystick_left_direction    = this.extractUInt8(this.dataBlock, 2);
-                joystick.joystick_left_event        = this.extractUInt8(this.dataBlock, 3);
-                joystick.joystick_right_x           = this.extractInt8(this.dataBlock,  4);
-                joystick.joystick_right_y           = this.extractInt8(this.dataBlock,  5);
-                joystick.joystick_right_direction   = this.extractUInt8(this.dataBlock, 6);
-                joystick.joystick_right_event       = this.extractUInt8(this.dataBlock, 7);
+                joystick.left_x            = this.extractInt8(this.dataBlock,  0);
+                joystick.left_y            = this.extractInt8(this.dataBlock,  1);
+                joystick.left_direction    = this.extractUInt8(this.dataBlock, 2);
+                joystick.left_event        = this.extractUInt8(this.dataBlock, 3);
+                joystick.right_x           = this.extractInt8(this.dataBlock,  4);
+                joystick.right_y           = this.extractInt8(this.dataBlock,  5);
+                joystick.right_direction   = this.extractUInt8(this.dataBlock, 6);
+                joystick.right_event       = this.extractUInt8(this.dataBlock, 7);
 
-                //console.log("Receive_From_Device - Joystick: " + joystick.joystick_left_x + ", " + joystick.joystick_left_y + ", " + joystick.joystick_right_x + ", " + joystick.joystick_right_y);
+                //console.log("Receive_From_Device - Joystick: " + joystick.left_x + ", " + joystick.left_y + ", " + joystick.right_x + ", " + joystick.right_y);
             }
             break;
 
@@ -1541,14 +1528,14 @@ class byrobot_base extends BaseModule
                 // Device -> Entry 
                 let informationAssembledForEntry            = this.informationAssembledForEntry;
                 informationAssembledForEntry._updated       = true;
-                informationAssembledForEntry.informationAssembledForEntry_angleRoll      = this.extractInt16(this.dataBlock, 0);
-                informationAssembledForEntry.informationAssembledForEntry_anglePitch     = this.extractInt16(this.dataBlock, 2);
-                informationAssembledForEntry.informationAssembledForEntry_angleYaw       = this.extractInt16(this.dataBlock, 4);
-                informationAssembledForEntry.informationAssembledForEntry_positionX      = this.extractInt16(this.dataBlock, 6) / 100.0;
-                informationAssembledForEntry.informationAssembledForEntry_positionY      = this.extractInt16(this.dataBlock, 8) / 100.0;
-                informationAssembledForEntry.informationAssembledForEntry_positionZ      = this.extractInt16(this.dataBlock, 10) / 100.0;
-                informationAssembledForEntry.informationAssembledForEntry_rangeHeight    = this.extractInt16(this.dataBlock, 12) / 100.0;
-                informationAssembledForEntry.informationAssembledForEntry_altitude       = this.extractFloat32(this.dataBlock, 14);
+                informationAssembledForEntry.angleRoll      = this.extractInt16(this.dataBlock, 0);
+                informationAssembledForEntry.anglePitch     = this.extractInt16(this.dataBlock, 2);
+                informationAssembledForEntry.angleYaw       = this.extractInt16(this.dataBlock, 4);
+                informationAssembledForEntry.positionX      = this.extractInt16(this.dataBlock, 6) / 100.0;
+                informationAssembledForEntry.positionY      = this.extractInt16(this.dataBlock, 8) / 100.0;
+                informationAssembledForEntry.positionZ      = this.extractInt16(this.dataBlock, 10) / 100.0;
+                informationAssembledForEntry.rangeHeight    = this.extractInt16(this.dataBlock, 12) / 100.0;
+                informationAssembledForEntry.altitude       = this.extractFloat32(this.dataBlock, 14);
     
                 //console.log("Receive_From_Device - Information Assembled For Entry: " + this.dataBlock.length + ", " + this.dataBlock);
             }
@@ -1679,9 +1666,9 @@ class byrobot_base extends BaseModule
 
 
     /***************************************************************************************
-     *  Communciation - Entry-HW 내부 코드용 데이터 전송 명령
+     *  Communciation - 장치 전송용 데이터 배열 생성
      ***************************************************************************************/
-    // #region Data Transfer Functions for Entry-HW internal code
+    // #region Data Transfer Functions for Device
 
     // Ping
     reservePing(target)
@@ -2351,7 +2338,7 @@ class byrobot_base extends BaseModule
 
 
     // MotorSingle
-    reserveMotorSingle(target, rotation, value)
+    reserveMotorSingle(target, targetMotor, rotation, value)
     {
         let dataArray = [];
 
@@ -2416,7 +2403,7 @@ class byrobot_base extends BaseModule
 
 
     // Vibrator
-    reserveVibrator(target, on, off, total)
+    reserveVibrator(target, mode, on, off, total)
     {
         let dataArray = [];
 
@@ -2450,7 +2437,7 @@ class byrobot_base extends BaseModule
     }
 
 
-    // #endregion Data Transfer Functions for Entry-HW internal code
+    // #endregion Data Transfer Functions for Device
 
 
 
