@@ -350,7 +350,7 @@ class byrobot_base extends BaseModule
             this.serialport = serialport;
         }
 
-        return this.ping(this.targetDevice);
+        return this.reservePing(this.targetDevice);
     }
 
 
@@ -440,7 +440,7 @@ class byrobot_base extends BaseModule
 
 
     /***************************************************************************************
-     *  초기화
+     *  데이터 리셋
      ***************************************************************************************/
     // #region Data Reset
 
@@ -632,34 +632,12 @@ class byrobot_base extends BaseModule
         if( (handler.e(this.DataType.LIGHT_MANUAL_FLAGS)        == true) &&
             (handler.e(this.DataType.LIGHT_MANUAL_BRIGHTNESS)   == true) )
         {
-            let dataArray = [];
+            let target      = handler.e(this.DataType.TARGET)                    ? handler.read(this.DataType.TARGET)                     : 0xFF;
+            let flags       = handler.e(this.DataType.LIGHT_MANUAL_FLAGS)        ? handler.read(this.DataType.LIGHT_MANUAL_FLAGS)         : 0;
+            let brightness  = handler.e(this.DataType.LIGHT_MANUAL_BRIGHTNESS)   ? handler.read(this.DataType.LIGHT_MANUAL_BRIGHTNESS)    : 0;
 
-            // Start Code
-            this.addStartCode(dataArray);
-            
-            let target                  = handler.e(this.DataType.TARGET)                    ? handler.read(this.DataType.TARGET)                     : 0xFF;
-            let lightManual_flags       = handler.e(this.DataType.LIGHT_MANUAL_FLAGS)        ? handler.read(this.DataType.LIGHT_MANUAL_FLAGS)         : 0;
-            let lightManual_brightness  = handler.e(this.DataType.LIGHT_MANUAL_BRIGHTNESS)   ? handler.read(this.DataType.LIGHT_MANUAL_BRIGHTNESS)    : 0;
-
-            let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-            let dataLength = 3;                     // 데이터의 길이
-
-            // Header
-            dataArray.push(0x20);                   // Data Type
-            dataArray.push(dataLength);             // Data Length
-            dataArray.push(0x82);                   // From (네이버 엔트리)
-            dataArray.push(target);                 // To
-
-            // Data
-            dataArray.push(this.getByte0(lightManual_flags));
-            dataArray.push(this.getByte1(lightManual_flags));
-            dataArray.push(lightManual_brightness);
-
-            // CRC16
-            this.addCRC16(dataArray, indexStart, dataLength);
-
+            let dataArray = this.reserveLightManual(target, flags, brightness);
             this.bufferTransfer.push(dataArray);
-            
             this.log("Transfer_To_Device / LightManual", dataArray);
         }
 
@@ -671,76 +649,27 @@ class byrobot_base extends BaseModule
             (handler.e(this.DataType.LIGHT_COLOR_G)         == true) &&
             (handler.e(this.DataType.LIGHT_COLOR_B)         == true) )
         {
-            let dataArray = [];
-    
-            // Start Code
-            this.addStartCode(dataArray);
+            let target      = handler.e(this.DataType.TARGET)                ? handler.read(this.DataType.TARGET)               : 0xFF;
+            let mode        = handler.e(this.DataType.LIGHT_MODE_MODE)       ? handler.read(this.DataType.LIGHT_MODE_MODE)      : 0;
+            let interval    = handler.e(this.DataType.LIGHT_MODE_INTERVAL)   ? handler.read(this.DataType.LIGHT_MODE_INTERVAL)  : 0;
+            let r           = handler.e(this.DataType.LIGHT_COLOR_R)         ? handler.read(this.DataType.LIGHT_COLOR_R)        : 0;
+            let g           = handler.e(this.DataType.LIGHT_COLOR_G)         ? handler.read(this.DataType.LIGHT_COLOR_G)        : 0;
+            let b           = handler.e(this.DataType.LIGHT_COLOR_B)         ? handler.read(this.DataType.LIGHT_COLOR_B)        : 0;
             
-            let target              = handler.e(this.DataType.TARGET)                ? handler.read(this.DataType.TARGET)               : 0xFF;
-            let lightMode_mode      = handler.e(this.DataType.LIGHT_MODE_MODE)       ? handler.read(this.DataType.LIGHT_MODE_MODE)      : 0;
-            let lightMode_interval  = handler.e(this.DataType.LIGHT_MODE_INTERVAL)   ? handler.read(this.DataType.LIGHT_MODE_INTERVAL)  : 0;
-            let lightColor_r        = handler.e(this.DataType.LIGHT_COLOR_R)         ? handler.read(this.DataType.LIGHT_COLOR_R)        : 0;
-            let lightColor_g        = handler.e(this.DataType.LIGHT_COLOR_G)         ? handler.read(this.DataType.LIGHT_COLOR_G)        : 0;
-            let lightColor_b        = handler.e(this.DataType.LIGHT_COLOR_B)         ? handler.read(this.DataType.LIGHT_COLOR_B)        : 0;
-            
-            let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-            let dataLength = 6;                     // 데이터의 길이
-    
-            // Header
-            dataArray.push(0x21);                   // Data Type(LightModeColor)
-            dataArray.push(dataLength);             // Data Length
-            dataArray.push(0x82);                   // From (네이버 엔트리)
-            dataArray.push(target);                 // To
-    
-            // Data
-            dataArray.push(lightMode_mode);
-            dataArray.push(this.getByte0(lightMode_interval));
-            dataArray.push(this.getByte1(lightMode_interval));
-            dataArray.push(lightColor_r);
-            dataArray.push(lightColor_g);
-            dataArray.push(lightColor_b);
-    
-            // CRC16
-            this.addCRC16(dataArray, indexStart, dataLength);
-    
-            // this.log("Light Mode");
-    
+            let dataArray = this.reserveLightModeColor(target, mode, interval, r, g, b);
             this.bufferTransfer.push(dataArray);
-            
             this.log("Transfer_To_Device / LightModeColor", dataArray);
         }
         // LightMode
         else if((handler.e(this.DataType.LIGHT_MODE_MODE)       == true) &&
                 (handler.e(this.DataType.LIGHT_MODE_INTERVAL)   == true) )
         {
-            let dataArray = [];
+            let target      = handler.e(this.DataType.TARGET)                    ? handler.read(this.DataType.TARGET)                 : 0xFF;
+            let mode        = handler.e(this.DataType.LIGHT_MODE_MODE)           ? handler.read(this.DataType.LIGHT_MODE_MODE)        : 0;
+            let interval    = handler.e(this.DataType.LIGHT_MODE_INTERVAL)       ? handler.read(this.DataType.LIGHT_MODE_INTERVAL)    : 0;
 
-            // Start Code
-            this.addStartCode(dataArray);
-            
-            let target                  = handler.e(this.DataType.TARGET)                    ? handler.read(this.DataType.TARGET)                 : 0xFF;
-            let lightMode_mode          = handler.e(this.DataType.LIGHT_MODE_MODE)           ? handler.read(this.DataType.LIGHT_MODE_MODE)        : 0;
-            let lightMode_interval      = handler.e(this.DataType.LIGHT_MODE_INTERVAL)       ? handler.read(this.DataType.LIGHT_MODE_INTERVAL)    : 0;
-
-            let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-            let dataLength = 3;                     // 데이터의 길이
-
-            // Header
-            dataArray.push(0x21);                   // Data Type(LightMode)
-            dataArray.push(dataLength);             // Data Length
-            dataArray.push(0x82);                   // From (네이버 엔트리)
-            dataArray.push(target);                 // To
-
-            // Data
-            dataArray.push(lightMode_mode);
-            dataArray.push(this.getByte0(lightMode_interval));
-            dataArray.push(this.getByte1(lightMode_interval));
-
-            // CRC16
-            this.addCRC16(dataArray, indexStart, dataLength);
-
+            let dataArray = this.reserveLightMode(target, mode, interval);
             this.bufferTransfer.push(dataArray);
-            
             this.log("Transfer_To_Device / LightMode", dataArray);
         }
         
@@ -753,42 +682,16 @@ class byrobot_base extends BaseModule
             (handler.e(this.DataType.LIGHT_COLOR_G)         == true) &&
             (handler.e(this.DataType.LIGHT_COLOR_B)         == true) )
         {
-            let dataArray = [];
+            let target      = handler.e(this.DataType.TARGET)                ? handler.read(this.DataType.TARGET)               : 0xFF;
+            let event       = handler.e(this.DataType.LIGHT_EVENT_EVENT)     ? handler.read(this.DataType.LIGHT_EVENT_EVENT)    : 0;
+            let interval    = handler.e(this.DataType.LIGHT_EVENT_INTERVAL)  ? handler.read(this.DataType.LIGHT_EVENT_INTERVAL) : 0;
+            let repeat      = handler.e(this.DataType.LIGHT_EVENT_REPEAT)    ? handler.read(this.DataType.LIGHT_EVENT_REPEAT)   : 0;
+            let r           = handler.e(this.DataType.LIGHT_COLOR_R)         ? handler.read(this.DataType.LIGHT_COLOR_R)        : 0;
+            let g           = handler.e(this.DataType.LIGHT_COLOR_G)         ? handler.read(this.DataType.LIGHT_COLOR_G)        : 0;
+            let b           = handler.e(this.DataType.LIGHT_COLOR_B)         ? handler.read(this.DataType.LIGHT_COLOR_B)        : 0;
 
-            // Start Code
-            this.addStartCode(dataArray);
-            
-            let target              = handler.e(this.DataType.TARGET)                ? handler.read(this.DataType.TARGET)               : 0xFF;
-            let lightEvent_event    = handler.e(this.DataType.LIGHT_EVENT_EVENT)     ? handler.read(this.DataType.LIGHT_EVENT_EVENT)    : 0;
-            let lightEvent_interval = handler.e(this.DataType.LIGHT_EVENT_INTERVAL)  ? handler.read(this.DataType.LIGHT_EVENT_INTERVAL) : 0;
-            let lightEvent_repeat   = handler.e(this.DataType.LIGHT_EVENT_REPEAT)    ? handler.read(this.DataType.LIGHT_EVENT_REPEAT)   : 0;
-            let lightColor_r        = handler.e(this.DataType.LIGHT_COLOR_R)         ? handler.read(this.DataType.LIGHT_COLOR_R)        : 0;
-            let lightColor_g        = handler.e(this.DataType.LIGHT_COLOR_G)         ? handler.read(this.DataType.LIGHT_COLOR_G)        : 0;
-            let lightColor_b        = handler.e(this.DataType.LIGHT_COLOR_B)         ? handler.read(this.DataType.LIGHT_COLOR_B)        : 0;
-
-            let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-            let dataLength = 7;                     // 데이터의 길이
-
-            // Header
-            dataArray.push(0x22);                   // Data Type
-            dataArray.push(dataLength);             // Data Length
-            dataArray.push(0x82);                   // From (네이버 엔트리)
-            dataArray.push(target);                 // To
-
-            // Data Array
-            dataArray.push(lightEvent_event);
-            dataArray.push(this.getByte0(lightMode_interval));
-            dataArray.push(this.getByte1(lightMode_interval));
-            dataArray.push(lightEvent_repeat);
-            dataArray.push(lightColor_r);
-            dataArray.push(lightColor_g);
-            dataArray.push(lightColor_b);
-
-            // CRC16
-            this.addCRC16(dataArray, indexStart, dataLength);
-
+            let dataArray = this.reserveLightEventColor(target, event, interval, repeat, r, g, b);
             this.bufferTransfer.push(dataArray);
-            
             this.log("Transfer_To_Device / LightEventColor", dataArray);
         }
         // LightEvent
@@ -796,36 +699,13 @@ class byrobot_base extends BaseModule
                 (handler.e(this.DataType.LIGHT_EVENT_INTERVAL)  == true) &&
                 (handler.e(this.DataType.LIGHT_EVENT_REPEAT)    == true) )
         {
-            let dataArray = [];
+            let target      = handler.e(this.DataType.TARGET)                ? handler.read(this.DataType.TARGET)               : 0xFF;
+            let event       = handler.e(this.DataType.LIGHT_EVENT_EVENT)     ? handler.read(this.DataType.LIGHT_EVENT_EVENT)    : 0;
+            let interval    = handler.e(this.DataType.LIGHT_EVENT_INTERVAL)  ? handler.read(this.DataType.LIGHT_EVENT_INTERVAL) : 0;
+            let repeat      = handler.e(this.DataType.LIGHT_EVENT_REPEAT)    ? handler.read(this.DataType.LIGHT_EVENT_REPEAT)   : 0;
 
-            // Start Code
-            this.addStartCode(dataArray);
-            
-            let target              = handler.e(this.DataType.TARGET)                ? handler.read(this.DataType.TARGET)               : 0xFF;
-            let lightEvent_event    = handler.e(this.DataType.LIGHT_EVENT_EVENT)     ? handler.read(this.DataType.LIGHT_EVENT_EVENT)    : 0;
-            let lightEvent_interval = handler.e(this.DataType.LIGHT_EVENT_INTERVAL)  ? handler.read(this.DataType.LIGHT_EVENT_INTERVAL) : 0;
-            let lightEvent_repeat   = handler.e(this.DataType.LIGHT_EVENT_REPEAT)    ? handler.read(this.DataType.LIGHT_EVENT_REPEAT)   : 0;
-
-            let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-            let dataLength = 4;                     // 데이터의 길이
-
-            // Header
-            dataArray.push(0x22);                   // Data Type
-            dataArray.push(dataLength);             // Data Length
-            dataArray.push(0x82);                   // From (네이버 엔트리)
-            dataArray.push(target);                 // To
-
-            // Data Array
-            dataArray.push(lightEvent_event);
-            dataArray.push(this.getByte0(lightMode_interval));
-            dataArray.push(this.getByte1(lightMode_interval));
-            dataArray.push(lightEvent_repeat);
-
-            // CRC16
-            this.addCRC16(dataArray, indexStart, dataLength);
-
+            let dataArray = this.reserveLightEvent(target, event, interval, repeat);
             this.bufferTransfer.push(dataArray);
-            
             this.log("Transfer_To_Device / LightEvent", dataArray);
         }
 
@@ -833,31 +713,11 @@ class byrobot_base extends BaseModule
         // 화면 전체 지우기
         if( handler.e(this.DataType.DISPLAY_CLEAR_ALL_PIXEL) == true )
         {
-            let dataArray = [];
+            let target  = handler.e(this.DataType.TARGET)                    ? handler.read(this.DataType.TARGET)                     : 0xFF;
+            let pixel   = handler.e(this.DataType.DISPLAY_CLEAR_ALL_PIXEL)   ? handler.read(this.DataType.DISPLAY_CLEAR_ALL_PIXEL)    : 0;
 
-            // Start Code
-            this.addStartCode(dataArray);
-            
-            let target                   = handler.e(this.DataType.TARGET)                    ? handler.read(this.DataType.TARGET)                     : 0xFF;
-            let display_clear_all_pixel  = handler.e(this.DataType.DISPLAY_CLEAR_ALL_PIXEL)   ? handler.read(this.DataType.DISPLAY_CLEAR_ALL_PIXEL)    : 0;
-
-            let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-            let dataLength = 1;                     // 데이터의 길이
-
-            // Header
-            dataArray.push(0x80);                   // Data Type
-            dataArray.push(dataLength);             // Data Length
-            dataArray.push(0x82);                   // From (네이버 엔트리)
-            dataArray.push(target);                 // To
-
-            // Data
-            dataArray.push(display_clear_all_pixel);
-
-            // CRC16
-            this.addCRC16(dataArray, indexStart, dataLength);
-
+            let dataArray = this.reserveDisplayClearAll(target, pixel);
             this.bufferTransfer.push(dataArray);
-            
             this.log("Transfer_To_Device / DisplayClearAll", dataArray);
         }
 
@@ -866,43 +726,15 @@ class byrobot_base extends BaseModule
         if( (handler.e(this.DataType.DISPLAY_CLEAR_WIDTH)   == true) ||
             (handler.e(this.DataType.DISPLAY_CLEAR_HEIGHT)  == true) )
         {
-            let dataArray = [];
+            let target  = handler.e(this.DataType.TARGET)               ? handler.read(this.DataType.TARGET)               : 0xFF;
+            let x       = handler.e(this.DataType.DISPLAY_CLEAR_X)      ? handler.read(this.DataType.DISPLAY_CLEAR_X)      : 0;
+            let y       = handler.e(this.DataType.DISPLAY_CLEAR_Y)      ? handler.read(this.DataType.DISPLAY_CLEAR_Y)      : 0;
+            let width   = handler.e(this.DataType.DISPLAY_CLEAR_WIDTH)  ? handler.read(this.DataType.DISPLAY_CLEAR_WIDTH)  : 0;
+            let height  = handler.e(this.DataType.DISPLAY_CLEAR_HEIGHT) ? handler.read(this.DataType.DISPLAY_CLEAR_HEIGHT) : 0;
+            let pixel   = handler.e(this.DataType.DISPLAY_CLEAR_PIXEL)  ? handler.read(this.DataType.DISPLAY_CLEAR_PIXEL)  : 0;
 
-            // Start Code
-            this.addStartCode(dataArray);
-            
-            let target                  = handler.e(this.DataType.TARGET)               ? handler.read(this.DataType.TARGET)               : 0xFF;
-            let display_clear_x         = handler.e(this.DataType.DISPLAY_CLEAR_X)      ? handler.read(this.DataType.DISPLAY_CLEAR_X)      : 0;
-            let display_clear_y         = handler.e(this.DataType.DISPLAY_CLEAR_Y)      ? handler.read(this.DataType.DISPLAY_CLEAR_Y)      : 0;
-            let display_clear_width     = handler.e(this.DataType.DISPLAY_CLEAR_WIDTH)  ? handler.read(this.DataType.DISPLAY_CLEAR_WIDTH)  : 0;
-            let display_clear_height    = handler.e(this.DataType.DISPLAY_CLEAR_HEIGHT) ? handler.read(this.DataType.DISPLAY_CLEAR_HEIGHT) : 0;
-            let display_clear_pixel     = handler.e(this.DataType.DISPLAY_CLEAR_PIXEL)  ? handler.read(this.DataType.DISPLAY_CLEAR_PIXEL)  : 0;
-
-            let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-            let dataLength = 9;                     // 데이터의 길이
-
-            // Header
-            dataArray.push(0x80);                   // Data Type
-            dataArray.push(dataLength);             // Data Length
-            dataArray.push(0x82);                   // From (네이버 엔트리)
-            dataArray.push(target);                 // To
-
-            // Data
-            dataArray.push(this.getByte0(display_clear_x));
-            dataArray.push(this.getByte1(display_clear_x));
-            dataArray.push(this.getByte0(display_clear_y));
-            dataArray.push(this.getByte1(display_clear_y));
-            dataArray.push(this.getByte0(display_clear_width));
-            dataArray.push(this.getByte1(display_clear_width));
-            dataArray.push(this.getByte0(display_clear_height));
-            dataArray.push(this.getByte1(display_clear_height));
-            dataArray.push(display_clear_pixel);
-
-            // CRC16
-            this.addCRC16(dataArray, indexStart, dataLength);
-
+            let dataArray = this.reserveDisplayClear(target, x, y, width, height, pixel);
             this.bufferTransfer.push(dataArray);
-            
             this.log("Transfer_To_Device / DisplayClear", dataArray);
         }
 
@@ -911,41 +743,14 @@ class byrobot_base extends BaseModule
         if( (handler.e(this.DataType.DISPLAY_INVERT_WIDTH)  == true) ||
             (handler.e(this.DataType.DISPLAY_INVERT_HEIGHT) == true) )
         {
-            let dataArray = [];
+            let target  = handler.e(this.DataType.TARGET)                   ? handler.read(this.DataType.TARGET)                : 0xFF;
+            let x       = handler.e(this.DataType.DISPLAY_INVERT_X)         ? handler.read(this.DataType.DISPLAY_INVERT_X)      : 0;
+            let y       = handler.e(this.DataType.DISPLAY_INVERT_Y)         ? handler.read(this.DataType.DISPLAY_INVERT_Y)      : 0;
+            let width   = handler.e(this.DataType.DISPLAY_INVERT_WIDTH)     ? handler.read(this.DataType.DISPLAY_INVERT_WIDTH)  : 0;
+            let height  = handler.e(this.DataType.DISPLAY_INVERT_HEIGHT)    ? handler.read(this.DataType.DISPLAY_INVERT_HEIGHT) : 0;
 
-            // Start Code
-            this.addStartCode(dataArray);
-            
-            let target                  = handler.e(this.DataType.TARGET)                   ? handler.read(this.DataType.TARGET)                : 0xFF;
-            let display_invert_x        = handler.e(this.DataType.DISPLAY_INVERT_X)         ? handler.read(this.DataType.DISPLAY_INVERT_X)      : 0;
-            let display_invert_y        = handler.e(this.DataType.DISPLAY_INVERT_Y)         ? handler.read(this.DataType.DISPLAY_INVERT_Y)      : 0;
-            let display_invert_width    = handler.e(this.DataType.DISPLAY_INVERT_WIDTH)     ? handler.read(this.DataType.DISPLAY_INVERT_WIDTH)  : 0;
-            let display_invert_height   = handler.e(this.DataType.DISPLAY_INVERT_HEIGHT)    ? handler.read(this.DataType.DISPLAY_INVERT_HEIGHT) : 0;
-
-            let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-            let dataLength = 8;                     // 데이터의 길이
-
-            // Header
-            dataArray.push(0x81);                   // Data Type
-            dataArray.push(dataLength);             // Data Length
-            dataArray.push(0x82);                   // From (네이버 엔트리)
-            dataArray.push(target);                 // To
-
-            // Data
-            dataArray.push(this.getByte0(display_invert_x));
-            dataArray.push(this.getByte1(display_invert_x));
-            dataArray.push(this.getByte0(display_invert_y));
-            dataArray.push(this.getByte1(display_invert_y));
-            dataArray.push(this.getByte0(display_invert_width));
-            dataArray.push(this.getByte1(display_invert_width));
-            dataArray.push(this.getByte0(display_invert_height));
-            dataArray.push(this.getByte1(display_invert_height));
-
-            // CRC16
-            this.addCRC16(dataArray, indexStart, dataLength);
-
+            let dataArray = this.reserveDisplayInvert(target, x, y, width, height);
             this.bufferTransfer.push(dataArray);
-            
             this.log("Transfer_To_Device / DisplayInvert", dataArray);
         }
 
@@ -955,37 +760,13 @@ class byrobot_base extends BaseModule
             (handler.e(this.DataType.DISPLAY_DRAW_POINT_Y)      == true) ||
             (handler.e(this.DataType.DISPLAY_DRAW_POINT_PIXEL)  == true) )
         {
-            let dataArray = [];
-
-            // Start Code
-            this.addStartCode(dataArray);
+            let target  = handler.e(this.DataType.TARGET)                   ? handler.read(this.DataType.TARGET)                    : 0xFF;
+            let x       = handler.e(this.DataType.DISPLAY_DRAW_POINT_X)     ? handler.read(this.DataType.DISPLAY_DRAW_POINT_X)      : 0;
+            let y       = handler.e(this.DataType.DISPLAY_DRAW_POINT_Y)     ? handler.read(this.DataType.DISPLAY_DRAW_POINT_Y)      : 0;
+            let pixel   = handler.e(this.DataType.DISPLAY_DRAW_POINT_PIXEL) ? handler.read(this.DataType.DISPLAY_DRAW_POINT_PIXEL)  : 0;
             
-            let target                      = handler.e(this.DataType.TARGET)                   ? handler.read(this.DataType.TARGET)                    : 0xFF;
-            let display_draw_point_x        = handler.e(this.DataType.DISPLAY_DRAW_POINT_X)     ? handler.read(this.DataType.DISPLAY_DRAW_POINT_X)      : 0;
-            let display_draw_point_y        = handler.e(this.DataType.DISPLAY_DRAW_POINT_Y)     ? handler.read(this.DataType.DISPLAY_DRAW_POINT_Y)      : 0;
-            let display_draw_point_pixel    = handler.e(this.DataType.DISPLAY_DRAW_POINT_PIXEL) ? handler.read(this.DataType.DISPLAY_DRAW_POINT_PIXEL)  : 0;
-            
-            let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-            let dataLength = 5;                     // 데이터의 길이
-
-            // Header
-            dataArray.push(0x82);                   // Data Type
-            dataArray.push(dataLength);             // Data Length
-            dataArray.push(0x82);                   // From (네이버 엔트리)
-            dataArray.push(target);                 // To
-
-            // Data
-            dataArray.push(this.getByte0(display_draw_point_x));
-            dataArray.push(this.getByte1(display_draw_point_x));
-            dataArray.push(this.getByte0(display_draw_point_y));
-            dataArray.push(this.getByte1(display_draw_point_y));
-            dataArray.push(display_draw_point_pixel);
-
-            // CRC16
-            this.addCRC16(dataArray, indexStart, dataLength);
-
+            let dataArray = this.reserveDisplayDrawPoint(target, x, y, pixel);
             this.bufferTransfer.push(dataArray);
-            
             this.log("Transfer_To_Device / DisplayDrawPoint", dataArray);
         }
 
@@ -996,45 +777,16 @@ class byrobot_base extends BaseModule
             (handler.e(this.DataType.DISPLAY_DRAW_LINE_X2) == true) ||
             (handler.e(this.DataType.DISPLAY_DRAW_LINE_Y2) == true) )
         {
-            let dataArray = [];
-
-            // Start Code
-            this.addStartCode(dataArray);
+            let target  = handler.e(this.DataType.TARGET)                    ? handler.read(this.DataType.TARGET)                     : 0xFF;
+            let x1      = handler.e(this.DataType.DISPLAY_DRAW_LINE_X1)      ? handler.read(this.DataType.DISPLAY_DRAW_LINE_X1)       : 0;
+            let y1      = handler.e(this.DataType.DISPLAY_DRAW_LINE_Y1)      ? handler.read(this.DataType.DISPLAY_DRAW_LINE_Y1)       : 0;
+            let x2      = handler.e(this.DataType.DISPLAY_DRAW_LINE_X2)      ? handler.read(this.DataType.DISPLAY_DRAW_LINE_X2)       : 0;
+            let y2      = handler.e(this.DataType.DISPLAY_DRAW_LINE_Y2)      ? handler.read(this.DataType.DISPLAY_DRAW_LINE_Y2)       : 0;
+            let pixel   = handler.e(this.DataType.DISPLAY_DRAW_LINE_PIXEL)   ? handler.read(this.DataType.DISPLAY_DRAW_LINE_PIXEL)    : 0;
+            let line    = handler.e(this.DataType.DISPLAY_DRAW_LINE_LINE)    ? handler.read(this.DataType.DISPLAY_DRAW_LINE_LINE)     : 0;
             
-            let target                      = handler.e(this.DataType.TARGET)                    ? handler.read(this.DataType.TARGET)                     : 0xFF;
-            let display_draw_line_x1        = handler.e(this.DataType.DISPLAY_DRAW_LINE_X1)      ? handler.read(this.DataType.DISPLAY_DRAW_LINE_X1)       : 0;
-            let display_draw_line_y1        = handler.e(this.DataType.DISPLAY_DRAW_LINE_Y1)      ? handler.read(this.DataType.DISPLAY_DRAW_LINE_Y1)       : 0;
-            let display_draw_line_x2        = handler.e(this.DataType.DISPLAY_DRAW_LINE_X2)      ? handler.read(this.DataType.DISPLAY_DRAW_LINE_X2)       : 0;
-            let display_draw_line_y2        = handler.e(this.DataType.DISPLAY_DRAW_LINE_Y2)      ? handler.read(this.DataType.DISPLAY_DRAW_LINE_Y2)       : 0;
-            let display_draw_line_pixel     = handler.e(this.DataType.DISPLAY_DRAW_LINE_PIXEL)   ? handler.read(this.DataType.DISPLAY_DRAW_LINE_PIXEL)    : 0;
-            let display_draw_line_line      = handler.e(this.DataType.DISPLAY_DRAW_LINE_LINE)    ? handler.read(this.DataType.DISPLAY_DRAW_LINE_LINE)     : 0;
-            
-            let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-            let dataLength = 10;                     // 데이터의 길이
-
-            // Header
-            dataArray.push(0x83);                   // Data Type
-            dataArray.push(dataLength);             // Data Length
-            dataArray.push(0x82);                   // From (네이버 엔트리)
-            dataArray.push(target);                 // To
-
-            // Data
-            dataArray.push(this.getByte0(display_draw_line_x1));
-            dataArray.push(this.getByte1(display_draw_line_x1));
-            dataArray.push(this.getByte0(display_draw_line_y1));
-            dataArray.push(this.getByte1(display_draw_line_y1));
-            dataArray.push(this.getByte0(display_draw_line_x2));
-            dataArray.push(this.getByte1(display_draw_line_x2));
-            dataArray.push(this.getByte0(display_draw_line_y2));
-            dataArray.push(this.getByte1(display_draw_line_y2));
-            dataArray.push(display_draw_line_pixel);
-            dataArray.push(display_draw_line_line);
-
-            // CRC16
-            this.addCRC16(dataArray, indexStart, dataLength);
-
+            let dataArray = this.reserveDisplayDrawLine(target, x1, y1, x2, y2, pixel, line);
             this.bufferTransfer.push(dataArray);
-            
             this.log("Transfer_To_Device / DisplayDrawLine", dataArray);
         }
 
@@ -1043,47 +795,17 @@ class byrobot_base extends BaseModule
         if( (handler.e(this.DataType.DISPLAY_DRAW_RECT_WIDTH)   == true) ||
             (handler.e(this.DataType.DISPLAY_DRAW_RECT_HEIGHT)  == true) )
         {
-            let dataArray = [];
+            let target      = handler.e(this.DataType.TARGET)                        ? handler.read(this.DataType.TARGET)                         : 0xFF;
+            let x           = handler.e(this.DataType.DISPLAY_DRAW_RECT_X)           ? handler.read(this.DataType.DISPLAY_DRAW_RECT_X)            : 0;
+            let y           = handler.e(this.DataType.DISPLAY_DRAW_RECT_Y)           ? handler.read(this.DataType.DISPLAY_DRAW_RECT_Y)            : 0;
+            let width       = handler.e(this.DataType.DISPLAY_DRAW_RECT_WIDTH)       ? handler.read(this.DataType.DISPLAY_DRAW_RECT_WIDTH)        : 0;
+            let height      = handler.e(this.DataType.DISPLAY_DRAW_RECT_HEIGHT)      ? handler.read(this.DataType.DISPLAY_DRAW_RECT_HEIGHT)       : 0;
+            let pixel       = handler.e(this.DataType.DISPLAY_DRAW_RECT_PIXEL)       ? handler.read(this.DataType.DISPLAY_DRAW_RECT_PIXEL)        : 0;
+            let flagfill    = handler.e(this.DataType.DISPLAY_DRAW_RECT_FLAGFILL)    ? handler.read(this.DataType.DISPLAY_DRAW_RECT_FLAGFILL)     : 0;
+            let line        = handler.e(this.DataType.DISPLAY_DRAW_RECT_LINE)        ? handler.read(this.DataType.DISPLAY_DRAW_RECT_LINE)         : 0;
 
-            // Start Code
-            this.addStartCode(dataArray);
-            
-            let target                      = handler.e(this.DataType.TARGET)                        ? handler.read(this.DataType.TARGET)                         : 0xFF;
-            let display_draw_rect_x         = handler.e(this.DataType.DISPLAY_DRAW_RECT_X)           ? handler.read(this.DataType.DISPLAY_DRAW_RECT_X)            : 0;
-            let display_draw_rect_y         = handler.e(this.DataType.DISPLAY_DRAW_RECT_Y)           ? handler.read(this.DataType.DISPLAY_DRAW_RECT_Y)            : 0;
-            let display_draw_rect_width     = handler.e(this.DataType.DISPLAY_DRAW_RECT_WIDTH)       ? handler.read(this.DataType.DISPLAY_DRAW_RECT_WIDTH)        : 0;
-            let display_draw_rect_height    = handler.e(this.DataType.DISPLAY_DRAW_RECT_HEIGHT)      ? handler.read(this.DataType.DISPLAY_DRAW_RECT_HEIGHT)       : 0;
-            let display_draw_rect_pixel     = handler.e(this.DataType.DISPLAY_DRAW_RECT_PIXEL)       ? handler.read(this.DataType.DISPLAY_DRAW_RECT_PIXEL)        : 0;
-            let display_draw_rect_flagfill  = handler.e(this.DataType.DISPLAY_DRAW_RECT_FLAGFILL)    ? handler.read(this.DataType.DISPLAY_DRAW_RECT_FLAGFILL)     : 0;
-            let display_draw_rect_line      = handler.e(this.DataType.DISPLAY_DRAW_RECT_LINE)        ? handler.read(this.DataType.DISPLAY_DRAW_RECT_LINE)         : 0;
-
-            let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-            let dataLength = 11;                    // 데이터의 길이
-
-            // Header
-            dataArray.push(0x84);                   // Data Type
-            dataArray.push(dataLength);             // Data Length
-            dataArray.push(0x82);                   // From (네이버 엔트리)
-            dataArray.push(target);                 // To
-
-            // Data
-            dataArray.push(this.getByte0(display_draw_rect_x));
-            dataArray.push(this.getByte1(display_draw_rect_x));
-            dataArray.push(this.getByte0(display_draw_rect_y));
-            dataArray.push(this.getByte1(display_draw_rect_y));
-            dataArray.push(this.getByte0(display_draw_rect_width));
-            dataArray.push(this.getByte1(display_draw_rect_width));
-            dataArray.push(this.getByte0(display_draw_rect_height));
-            dataArray.push(this.getByte1(display_draw_rect_height));
-            dataArray.push(display_draw_rect_pixel);
-            dataArray.push(display_draw_rect_flagfill);
-            dataArray.push(display_draw_rect_line);
-
-            // CRC16
-            this.addCRC16(dataArray, indexStart, dataLength);
-
+            let dataArray = this.reserveDisplayDrawRect(target, x, y, width, height, pixel, flagfill, line);
             this.bufferTransfer.push(dataArray);
-
             this.log("Transfer_To_Device / DisplayDrawRect", dataArray);
         }
 
@@ -1091,42 +813,15 @@ class byrobot_base extends BaseModule
         // 화면에 원 그리기
         if( handler.e(this.DataType.DISPLAY_DRAW_CIRCLE_RADIUS) == true )
         {
-            let dataArray = [];
+            let target   = handler.e(this.DataType.TARGET)                         ? handler.read(this.DataType.TARGET)                           : 0xFF;
+            let x        = handler.e(this.DataType.DISPLAY_DRAW_CIRCLE_X)          ? handler.read(this.DataType.DISPLAY_DRAW_CIRCLE_X)            : 0;
+            let y        = handler.e(this.DataType.DISPLAY_DRAW_CIRCLE_Y)          ? handler.read(this.DataType.DISPLAY_DRAW_CIRCLE_Y)            : 0;
+            let radius   = handler.e(this.DataType.DISPLAY_DRAW_CIRCLE_RADIUS)     ? handler.read(this.DataType.DISPLAY_DRAW_CIRCLE_RADIUS)       : 0;
+            let pixel    = handler.e(this.DataType.DISPLAY_DRAW_CIRCLE_PIXEL)      ? handler.read(this.DataType.DISPLAY_DRAW_CIRCLE_PIXEL)        : 0;
+            let flagfill = handler.e(this.DataType.DISPLAY_DRAW_CIRCLE_FLAGFILL)   ? handler.read(this.DataType.DISPLAY_DRAW_CIRCLE_FLAGFILL)     : 0;
 
-            // Start Code
-            this.addStartCode(dataArray);
-            
-            let target                       = handler.e(this.DataType.TARGET)                         ? handler.read(this.DataType.TARGET)                           : 0xFF;
-            let display_draw_circle_x        = handler.e(this.DataType.DISPLAY_DRAW_CIRCLE_X)          ? handler.read(this.DataType.DISPLAY_DRAW_CIRCLE_X)            : 0;
-            let display_draw_circle_y        = handler.e(this.DataType.DISPLAY_DRAW_CIRCLE_Y)          ? handler.read(this.DataType.DISPLAY_DRAW_CIRCLE_Y)            : 0;
-            let display_draw_circle_radius   = handler.e(this.DataType.DISPLAY_DRAW_CIRCLE_RADIUS)     ? handler.read(this.DataType.DISPLAY_DRAW_CIRCLE_RADIUS)       : 0;
-            let display_draw_circle_pixel    = handler.e(this.DataType.DISPLAY_DRAW_CIRCLE_PIXEL)      ? handler.read(this.DataType.DISPLAY_DRAW_CIRCLE_PIXEL)        : 0;
-            let display_draw_circle_flagfill = handler.e(this.DataType.DISPLAY_DRAW_CIRCLE_FLAGFILL)   ? handler.read(this.DataType.DISPLAY_DRAW_CIRCLE_FLAGFILL)     : 0;
-
-            let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-            let dataLength = 8;                     // 데이터의 길이
-
-            // Header
-            dataArray.push(0x85);                   // Data Type
-            dataArray.push(dataLength);             // Data Length
-            dataArray.push(0x82);                   // From (네이버 엔트리)
-            dataArray.push(target);                 // To
-
-            // Data
-            dataArray.push(this.getByte0(display_draw_circle_x));
-            dataArray.push(this.getByte1(display_draw_circle_x));
-            dataArray.push(this.getByte0(display_draw_circle_y));
-            dataArray.push(this.getByte1(display_draw_circle_y));
-            dataArray.push(this.getByte0(display_draw_circle_radius));
-            dataArray.push(this.getByte1(display_draw_circle_radius));
-            dataArray.push(display_draw_circle_pixel);
-            dataArray.push(display_draw_circle_flagfill);
-
-            // CRC16
-            this.addCRC16(dataArray, indexStart, dataLength);
-
+            let dataArray = this.reserveDisplayDrawCircle(target, x, y, radius, pixel, flagfill);
             this.bufferTransfer.push(dataArray);
-            
             this.log("Transfer_To_Device / DisplayDrawCircle", dataArray);
         }
 
@@ -1134,48 +829,15 @@ class byrobot_base extends BaseModule
         // 화면에 문자열 쓰기
         if( handler.e(this.DataType.DISPLAY_DRAW_STRING_STRING) == true )
         {
-            let dataArray = [];
-            let byteArray = [];
+            let target  = handler.e(this.DataType.TARGET)                       ? handler.read(this.DataType.TARGET)                         : 0xFF;
+            let x       = handler.e(this.DataType.DISPLAY_DRAW_STRING_X)        ? handler.read(this.DataType.DISPLAY_DRAW_STRING_X)          : 0;
+            let y       = handler.e(this.DataType.DISPLAY_DRAW_STRING_Y)        ? handler.read(this.DataType.DISPLAY_DRAW_STRING_Y)          : 0;
+            let font    = handler.e(this.DataType.DISPLAY_DRAW_STRING_FONT)     ? handler.read(this.DataType.DISPLAY_DRAW_STRING_FONT)       : 0;
+            let pixel   = handler.e(this.DataType.DISPLAY_DRAW_STRING_PIXEL)    ? handler.read(this.DataType.DISPLAY_DRAW_STRING_PIXEL)      : 0;
+            let string  = handler.e(this.DataType.DISPLAY_DRAW_STRING_STRING)   ? handler.read(this.DataType.DISPLAY_DRAW_STRING_STRING)     : 0;
 
-            // Start Code
-            this.addStartCode(dataArray);
-            
-            let target                       = handler.e(this.DataType.TARGET)                       ? handler.read(this.DataType.TARGET)                         : 0xFF;
-            let display_draw_string_x        = handler.e(this.DataType.DISPLAY_DRAW_STRING_X)        ? handler.read(this.DataType.DISPLAY_DRAW_STRING_X)          : 0;
-            let display_draw_string_y        = handler.e(this.DataType.DISPLAY_DRAW_STRING_Y)        ? handler.read(this.DataType.DISPLAY_DRAW_STRING_Y)          : 0;
-            let display_draw_string_font     = handler.e(this.DataType.DISPLAY_DRAW_STRING_FONT)     ? handler.read(this.DataType.DISPLAY_DRAW_STRING_FONT)       : 0;
-            let display_draw_string_pixel    = handler.e(this.DataType.DISPLAY_DRAW_STRING_PIXEL)    ? handler.read(this.DataType.DISPLAY_DRAW_STRING_PIXEL)      : 0;
-            let display_draw_string_string   = handler.e(this.DataType.DISPLAY_DRAW_STRING_STRING)   ? handler.read(this.DataType.DISPLAY_DRAW_STRING_STRING)     : 0;
-
-            byteArray = this.stringToAsciiByteArray(display_draw_string_string);
-
-            let indexStart = dataArray.length;         // 배열에서 데이터를 저장하기 시작하는 위치
-            let dataLength = 6 + byteArray.length;     // 데이터의 길이
-
-            // Header
-            dataArray.push(0x86);                   // Data Type
-            dataArray.push(dataLength);             // Data Length
-            dataArray.push(0x82);                   // From (네이버 엔트리)
-            dataArray.push(target);                 // To
-
-            // Data
-            dataArray.push(this.getByte0(display_draw_string_x));
-            dataArray.push(this.getByte1(display_draw_string_x));
-            dataArray.push(this.getByte0(display_draw_string_y));
-            dataArray.push(this.getByte1(display_draw_string_y));
-            dataArray.push(display_draw_string_font);
-            dataArray.push(display_draw_string_pixel);
-
-            for (let i = 0; i < byteArray.length; i++)
-            {
-                dataArray.push(byteArray[i]);
-            }
-
-            // CRC16
-            this.addCRC16(dataArray, indexStart, dataLength);
-
+            let dataArray = reserveDisplayDrawString(target, x, y, font, pixel, string);
             this.bufferTransfer.push(dataArray);
-
             this.log("Transfer_To_Device / DisplayDrawString", dataArray);
         }
 
@@ -1183,53 +845,17 @@ class byrobot_base extends BaseModule
         // 화면에 문자열 정렬하여 그리기
         if( handler.e(this.DataType.DISPLAY_DRAW_STRING_ALIGN_STRING) == true )
         {
-            let dataArray = [];
-            let byteArray = [];
+            let target  = handler.e(this.DataType.TARGET)                                ? handler.read(this.DataType.TARGET)                             : 0xFF;
+            let x_start = handler.e(this.DataType.DISPLAY_DRAW_STRING_ALIGN_X_START)     ? handler.read(this.DataType.DISPLAY_DRAW_STRING_ALIGN_X_START)  : 0;
+            let x_end   = handler.e(this.DataType.DISPLAY_DRAW_STRING_ALIGN_X_END)       ? handler.read(this.DataType.DISPLAY_DRAW_STRING_ALIGN_X_END)    : 0;
+            let y       = handler.e(this.DataType.DISPLAY_DRAW_STRING_ALIGN_Y)           ? handler.read(this.DataType.DISPLAY_DRAW_STRING_ALIGN_Y)        : 0;
+            let align   = handler.e(this.DataType.DISPLAY_DRAW_STRING_ALIGN_ALIGN)       ? handler.read(this.DataType.DISPLAY_DRAW_STRING_ALIGN_ALIGN)    : 0;
+            let font    = handler.e(this.DataType.DISPLAY_DRAW_STRING_ALIGN_FONT)        ? handler.read(this.DataType.DISPLAY_DRAW_STRING_ALIGN_FONT)     : 0;
+            let pixel   = handler.e(this.DataType.DISPLAY_DRAW_STRING_ALIGN_PIXEL)       ? handler.read(this.DataType.DISPLAY_DRAW_STRING_ALIGN_PIXEL)    : 0;
+            let string  = handler.e(this.DataType.DISPLAY_DRAW_STRING_ALIGN_STRING)      ? handler.read(this.DataType.DISPLAY_DRAW_STRING_ALIGN_STRING)   : 0;
 
-            // Start Code
-            this.addStartCode(dataArray);
-            
-            let target                              = handler.e(this.DataType.TARGET)                                ? handler.read(this.DataType.TARGET)                             : 0xFF;
-            let display_draw_string_align_x_start   = handler.e(this.DataType.DISPLAY_DRAW_STRING_ALIGN_X_START)     ? handler.read(this.DataType.DISPLAY_DRAW_STRING_ALIGN_X_START)  : 0;
-            let display_draw_string_align_x_end     = handler.e(this.DataType.DISPLAY_DRAW_STRING_ALIGN_X_END)       ? handler.read(this.DataType.DISPLAY_DRAW_STRING_ALIGN_X_END)    : 0;
-            let display_draw_string_align_y         = handler.e(this.DataType.DISPLAY_DRAW_STRING_ALIGN_Y)           ? handler.read(this.DataType.DISPLAY_DRAW_STRING_ALIGN_Y)        : 0;
-            let display_draw_string_align_align     = handler.e(this.DataType.DISPLAY_DRAW_STRING_ALIGN_ALIGN)       ? handler.read(this.DataType.DISPLAY_DRAW_STRING_ALIGN_ALIGN)    : 0;
-            let display_draw_string_align_font      = handler.e(this.DataType.DISPLAY_DRAW_STRING_ALIGN_FONT)        ? handler.read(this.DataType.DISPLAY_DRAW_STRING_ALIGN_FONT)     : 0;
-            let display_draw_string_align_pixel     = handler.e(this.DataType.DISPLAY_DRAW_STRING_ALIGN_PIXEL)       ? handler.read(this.DataType.DISPLAY_DRAW_STRING_ALIGN_PIXEL)    : 0;
-            let display_draw_string_align_string    = handler.e(this.DataType.DISPLAY_DRAW_STRING_ALIGN_STRING)      ? handler.read(this.DataType.DISPLAY_DRAW_STRING_ALIGN_STRING)   : 0;
-
-            byteArray = this.stringToAsciiByteArray(display_draw_string_align_string);
-
-            let indexStart = dataArray.length;         // 배열에서 데이터를 저장하기 시작하는 위치
-            let dataLength = 9 + byteArray.length;     // 데이터의 길이
-
-            // Header
-            dataArray.push(0x87);                   // Data Type
-            dataArray.push(dataLength);             // Data Length
-            dataArray.push(0x82);                   // From (네이버 엔트리)
-            dataArray.push(target);                 // To
-
-            // Data
-            dataArray.push(this.getByte0(display_draw_string_align_x_start));
-            dataArray.push(this.getByte1(display_draw_string_align_x_start));
-            dataArray.push(this.getByte0(display_draw_string_align_x_end));
-            dataArray.push(this.getByte1(display_draw_string_align_x_end));
-            dataArray.push(this.getByte0(display_draw_string_align_y));
-            dataArray.push(this.getByte1(display_draw_string_align_y));
-            dataArray.push(display_draw_string_align_align);
-            dataArray.push(display_draw_string_align_font);
-            dataArray.push(display_draw_string_align_pixel);
-
-            for (let i = 0; i < byteArray.length; i++)
-            {
-                dataArray.push(byteArray[i]);
-            }
-
-            // CRC16
-            this.addCRC16(dataArray, indexStart, dataLength);
-
+            let dataArray = reserveDisplayDrawStringAlign(target, x_start, x_end, y, align, font, pixel, string);
             this.bufferTransfer.push(dataArray);
-            
             this.log("Transfer_To_Device / DisplayDrawStringAlign", dataArray);
         }
 
@@ -1237,32 +863,9 @@ class byrobot_base extends BaseModule
         // Command
         if( handler.e(this.DataType.COMMAND_COMMAND) == true )
         {
-            let dataArray = [];
-
-            // Start Code
-            this.addStartCode(dataArray);
-            
             let target          = handler.e(this.DataType.TARGET)           ? handler.read(this.DataType.TARGET)            : 0xFF;
             let command_command = handler.e(this.DataType.COMMAND_COMMAND)  ? handler.read(this.DataType.COMMAND_COMMAND)   : 0;
             let command_option  = handler.e(this.DataType.COMMAND_OPTION)   ? handler.read(this.DataType.COMMAND_OPTION)    : 0;
-
-            let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-            let dataLength = 2;                     // 데이터의 길이
-
-            // Header
-            dataArray.push(0x11);                   // Data Type
-            dataArray.push(dataLength);             // Data Length
-            dataArray.push(0x82);                   // From (네이버 엔트리)
-            dataArray.push(target);                 // To
-
-            // Data Array
-            dataArray.push(command_command);
-            dataArray.push(command_option);
-
-            // CRC16
-            this.addCRC16(dataArray, indexStart, dataLength);
-
-            this.bufferTransfer.push(dataArray);
 
             switch( command_command )
             {
@@ -1277,6 +880,8 @@ class byrobot_base extends BaseModule
                 break;
             }
 
+            let dataArray = reserveCommand(target, command, option);
+            this.bufferTransfer.push(dataArray);
             this.log("Transfer_To_Device / Command" + command_command + ", option: " + command_option, dataArray);
         }
 
@@ -1287,44 +892,14 @@ class byrobot_base extends BaseModule
             (handler.e(this.DataType.CONTROL_QUAD8_YAW)       == true) ||
             (handler.e(this.DataType.CONTROL_QUAD8_THROTTLE)  == true) )
         {
-            let dataArray = [];
+            let target   = handler.e(this.DataType.TARGET)                 ? handler.read(this.DataType.TARGET)                  : 0x10;
+            let roll     = handler.e(this.DataType.CONTROL_QUAD8_ROLL)     ? handler.read(this.DataType.CONTROL_QUAD8_ROLL)      : this.controlRoll;
+            let pitch    = handler.e(this.DataType.CONTROL_QUAD8_PITCH)    ? handler.read(this.DataType.CONTROL_QUAD8_PITCH)     : this.controlPitch;
+            let yaw      = handler.e(this.DataType.CONTROL_QUAD8_YAW)      ? handler.read(this.DataType.CONTROL_QUAD8_YAW)       : this.controlYaw;
+            let throttle = handler.e(this.DataType.CONTROL_QUAD8_THROTTLE) ? handler.read(this.DataType.CONTROL_QUAD8_THROTTLE)  : this.controlThrottle;
 
-            // Start Code
-            this.addStartCode(dataArray);
-            
-            let target          = handler.e(this.DataType.TARGET)                 ? handler.read(this.DataType.TARGET)                  : 0x10;
-            let controlRoll     = handler.e(this.DataType.CONTROL_QUAD8_ROLL)     ? handler.read(this.DataType.CONTROL_QUAD8_ROLL)      : this.controlRoll;
-            let controlPitch    = handler.e(this.DataType.CONTROL_QUAD8_PITCH)    ? handler.read(this.DataType.CONTROL_QUAD8_PITCH)     : this.controlPitch;
-            let controlYaw      = handler.e(this.DataType.CONTROL_QUAD8_YAW)      ? handler.read(this.DataType.CONTROL_QUAD8_YAW)       : this.controlYaw;
-            let controlThrottle = handler.e(this.DataType.CONTROL_QUAD8_THROTTLE) ? handler.read(this.DataType.CONTROL_QUAD8_THROTTLE)  : this.controlThrottle;
-
-            let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-            let dataLength = 4;                     // 데이터의 길이
-
-            this.controlRoll        = controlRoll;
-            this.controlPitch       = controlPitch;
-            this.controlYaw         = controlYaw;
-            this.controlThrottle    = controlThrottle;
-
-            // Header
-            dataArray.push(0x10);                   // Data Type
-            dataArray.push(dataLength);             // Data Length
-            dataArray.push(0x82);                   // From (네이버 엔트리)
-            dataArray.push(target);                 // To
-
-            // Data Array
-            dataArray.push(controlRoll);
-            dataArray.push(controlPitch);
-            dataArray.push(controlYaw);
-            dataArray.push(controlThrottle);
-    
-            // CRC16
-            this.addCRC16(dataArray, indexStart, dataLength);
-
-            //this.log("handlerForEntry() / Control / roll: " + controlRoll + ", pitch: " + controlPitch + ", yaw: " + controlYaw + ", throttle: " + controlThrottle, dataArray);
-
+            let dataArray = reserveControlQuad8(target, roll, pitch, yaw, throttle);
             this.bufferTransfer.push(dataArray);
-            
             this.log("Transfer_To_Device / ControlQuad8", dataArray);
         }
 
@@ -1337,46 +912,16 @@ class byrobot_base extends BaseModule
             (handler.e(this.DataType.CONTROL_POSITION_HEADING)              == true) ||
             (handler.e(this.DataType.CONTROL_POSITION_ROTATIONAL_VELOCITY)  == true) )
         {
-            let dataArray = [];
+            let target              = handler.e(this.DataType.TARGET)                               ? handler.read(this.DataType.TARGET)                                : 0x10;
+            let y                   = handler.e(this.DataType.CONTROL_POSITION_X)                   ? handler.read(this.DataType.CONTROL_POSITION_X)           : 0;
+            let y                   = handler.e(this.DataType.CONTROL_POSITION_Y)                   ? handler.read(this.DataType.CONTROL_POSITION_Y)           : 0;
+            let z                   = handler.e(this.DataType.CONTROL_POSITION_Z)                   ? handler.read(this.DataType.CONTROL_POSITION_Z)           : 0;
+            let velocity            = handler.e(this.DataType.CONTROL_POSITION_VELOCITY)            ? handler.read(this.DataType.CONTROL_POSITION_VELOCITY)             : 0;
+            let heading             = handler.e(this.DataType.CONTROL_POSITION_HEADING)             ? handler.read(this.DataType.CONTROL_POSITION_HEADING)              : 0;
+            let rotationalVelocity  = handler.e(this.DataType.CONTROL_POSITION_ROTATIONAL_VELOCITY) ? handler.read(this.DataType.CONTROL_POSITION_ROTATIONAL_VELOCITY)  : 0;
 
-            // Start Code
-            this.addStartCode(dataArray);
-            
-            let target                      = handler.e(this.DataType.TARGET)                               ? handler.read(this.DataType.TARGET)                                : 0x10;
-            let controlPositionX            = handler.e(this.DataType.CONTROL_POSITION_X)                   ? handler.read(this.DataType.CONTROL_POSITION_X)           : 0;
-            let controlPositionY            = handler.e(this.DataType.CONTROL_POSITION_Y)                   ? handler.read(this.DataType.CONTROL_POSITION_Y)           : 0;
-            let controlPositionZ            = handler.e(this.DataType.CONTROL_POSITION_Z)                   ? handler.read(this.DataType.CONTROL_POSITION_Z)           : 0;
-            let controlVelocity             = handler.e(this.DataType.CONTROL_POSITION_VELOCITY)            ? handler.read(this.DataType.CONTROL_POSITION_VELOCITY)             : 0;
-            let controlHeading              = handler.e(this.DataType.CONTROL_POSITION_HEADING)             ? handler.read(this.DataType.CONTROL_POSITION_HEADING)              : 0;
-            let controlRotationalvelocity   = handler.e(this.DataType.CONTROL_POSITION_ROTATIONAL_VELOCITY) ? handler.read(this.DataType.CONTROL_POSITION_ROTATIONAL_VELOCITY)  : 0;
-
-            var floatArray = new Float32Array(4);
-            floatArray[0] = controlPositionX;
-            floatArray[1] = controlPositionY;
-            floatArray[2] = controlPositionZ;
-            floatArray[3] = controlVelocity;
-
-            let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-            let dataLength = 18;                     // 데이터의 길이
-
-            // Header
-            dataArray.push(0x10);                   // Data Type
-            dataArray.push(dataLength);             // Data Length
-            dataArray.push(0x82);                   // From (네이버 엔트리)
-            dataArray.push(target);                 // To
-
-            // Data Array
-            dataArray.concat(new Uint8Array(floatArray.buffer));
-            dataArray.push(this.getByte0(controlHeading));
-            dataArray.push(this.getByte1(controlHeading));
-            dataArray.push(this.getByte0(controlRotationalvelocity));
-            dataArray.push(this.getByte1(controlRotationalvelocity));
-    
-            // CRC16
-            this.addCRC16(dataArray, indexStart, dataLength);
-
+            let dataArray = reserveControlPosition(target, x, y, z, velocity, heading, rotationalVelocity);
             this.bufferTransfer.push(dataArray);
-            
             this.log("Transfer_To_Device / ControlPosition", dataArray);
         }
 
@@ -1384,36 +929,13 @@ class byrobot_base extends BaseModule
         // MotorSingle
         if( handler.e(this.DataType.MOTORSINGLE_TARGET) == true )
         {
-            let dataArray = [];
+            let target   = handler.e(this.DataType.TARGET)               ? handler.read(this.DataType.TARGET)                : 0x10;
+            let target   = handler.e(this.DataType.MOTORSINGLE_TARGET)   ? handler.read(this.DataType.MOTORSINGLE_TARGET)    : 0;
+            let rotation = handler.e(this.DataType.MOTORSINGLE_ROTATION) ? handler.read(this.DataType.MOTORSINGLE_ROTATION)  : 0;
+            let value    = handler.e(this.DataType.MOTORSINGLE_VALUE)    ? handler.read(this.DataType.MOTORSINGLE_VALUE)     : 0;
 
-            // Start Code
-            this.addStartCode(dataArray);
-            
-            let target              = handler.e(this.DataType.TARGET)               ? handler.read(this.DataType.TARGET)                : 0x10;
-            let motorSingleTarget   = handler.e(this.DataType.MOTORSINGLE_TARGET)   ? handler.read(this.DataType.MOTORSINGLE_TARGET)    : 0;
-            let motorSingleRotation = handler.e(this.DataType.MOTORSINGLE_ROTATION) ? handler.read(this.DataType.MOTORSINGLE_ROTATION)  : 0;
-            let motorSingleValue    = handler.e(this.DataType.MOTORSINGLE_VALUE)    ? handler.read(this.DataType.MOTORSINGLE_VALUE)     : 0;
-
-            let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-            let dataLength = 4;                     // 데이터의 길이
-
-            // Header
-            dataArray.push(0x61);                   // Data Type
-            dataArray.push(dataLength);             // Data Length
-            dataArray.push(0x82);                   // From (네이버 엔트리)
-            dataArray.push(target);                 // To
-
-            // Data Array
-            dataArray.push(motorSingleTarget);
-            dataArray.push(motorSingleRotation);
-            dataArray.push(this.getByte0(motorSingleValue));
-            dataArray.push(this.getByte1(motorSingleValue));
-
-            // CRC16
-            this.addCRC16(dataArray, indexStart, dataLength);
-
+            let dataArray = reserveMotorSingle(target, rotation, value);
             this.bufferTransfer.push(dataArray);
-            
             this.log("Transfer_To_Device / MotorSingle", dataArray);
         }
 
@@ -1421,37 +943,13 @@ class byrobot_base extends BaseModule
         // Buzzer
         if( handler.e(this.DataType.BUZZER_MODE) == true )
         {
-            let dataArray = [];
-
-            // Start Code
-            this.addStartCode(dataArray);
-            
             let target          = handler.e(this.DataType.TARGET)       ? handler.read(this.DataType.TARGET)        : 0x20;
             let buzzer_mode     = handler.e(this.DataType.BUZZER_MODE)  ? handler.read(this.DataType.BUZZER_MODE)   : 0;
             let buzzer_value    = handler.e(this.DataType.BUZZER_VALUE) ? handler.read(this.DataType.BUZZER_VALUE)  : 0;
             let buzzer_time     = handler.e(this.DataType.BUZZER_TIME)  ? handler.read(this.DataType.BUZZER_TIME)   : 0;
 
-            let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-            let dataLength = 5;                     // 데이터의 길이
-
-            // Header
-            dataArray.push(0x62);                   // Data Type
-            dataArray.push(dataLength);             // Data Length
-            dataArray.push(0x82);                   // From (네이버 엔트리)
-            dataArray.push(target);                 // To
-
-            // Data
-            dataArray.push(buzzer_mode);
-            dataArray.push(this.getByte0(buzzer_value));
-            dataArray.push(this.getByte1(buzzer_value));
-            dataArray.push(this.getByte0(buzzer_time));
-            dataArray.push(this.getByte1(buzzer_time));
-
-            // CRC16
-            this.addCRC16(dataArray, indexStart, dataLength);
-
+            let dataArray = reserveBuzzer(target, mode, time, value);
             this.bufferTransfer.push(dataArray);
-
             this.log("Transfer_To_Device / Buzzer / buzzer_mode: " + buzzer_mode + ", buzzer_value: " + buzzer_value + ", buzzer_time: " + buzzer_time, dataArray);
         }
 
@@ -1459,38 +957,13 @@ class byrobot_base extends BaseModule
         // Vibrator
         if( handler.e(this.DataType.VIBRATOR_ON) == true )
         {
-            let dataArray = [];
+            let target = handler.e(this.DataType.TARGET)           ? handler.read(this.DataType.TARGET)            : 0x20;
+            let mode   = handler.e(this.DataType.VIBRATOR_MODE)    ? handler.read(this.DataType.VIBRATOR_MODE)     : 0;
+            let on     = handler.e(this.DataType.VIBRATOR_ON)      ? handler.read(this.DataType.VIBRATOR_ON)       : 0;
+            let off    = handler.e(this.DataType.VIBRATOR_OFF)     ? handler.read(this.DataType.VIBRATOR_OFF)      : 0;
+            let total  = handler.e(this.DataType.VIBRATOR_TOTAL)   ? handler.read(this.DataType.VIBRATOR_TOTAL)    : 0;
 
-            // Start Code
-            this.addStartCode(dataArray);
-            
-            let target          = handler.e(this.DataType.TARGET)           ? handler.read(this.DataType.TARGET)            : 0x20;
-            let vibrator_mode   = handler.e(this.DataType.VIBRATOR_MODE)    ? handler.read(this.DataType.VIBRATOR_MODE)     : 0;
-            let vibrator_on     = handler.e(this.DataType.VIBRATOR_ON)      ? handler.read(this.DataType.VIBRATOR_ON)       : 0;
-            let vibrator_off    = handler.e(this.DataType.VIBRATOR_OFF)     ? handler.read(this.DataType.VIBRATOR_OFF)      : 0;
-            let vibrator_total  = handler.e(this.DataType.VIBRATOR_TOTAL)   ? handler.read(this.DataType.VIBRATOR_TOTAL)    : 0;
-
-            let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-            let dataLength = 7;                     // 데이터의 길이
-
-            // Header
-            dataArray.push(0x63);                   // Data Type
-            dataArray.push(dataLength);             // Data Length
-            dataArray.push(0x82);                   // From (네이버 엔트리)
-            dataArray.push(target);                 // To
-
-            // Data
-            dataArray.push(vibrator_mode);
-            dataArray.push(this.getByte0(vibrator_on));
-            dataArray.push(this.getByte1(vibrator_on));
-            dataArray.push(this.getByte0(vibrator_off));
-            dataArray.push(this.getByte1(vibrator_off));
-            dataArray.push(this.getByte0(vibrator_total));
-            dataArray.push(this.getByte1(vibrator_total));
-
-            // CRC16
-            this.addCRC16(dataArray, indexStart, dataLength);
-
+            let dataArray = reserveVibrator(target, on, off, total);
             this.bufferTransfer.push(dataArray);
 
             this.log("Transfer_To_Device / Vibrator", dataArray);
@@ -2123,8 +1596,8 @@ class byrobot_base extends BaseModule
                 {
                     switch( this.countReqeustDevice % 6 )
                     {
-                    case 0:    return this.ping(0x10);                     // 드론
-                    case 2:    return this.ping(0x20);                     // 조종기
+                    case 0:    return this.reservePing(0x10);                     // 드론
+                    case 2:    return this.reservePing(0x20);                     // 조종기
                     case 4:    return this.reserveRequest(0x10, 0x40);     // 드론
                     /*
                     case 6:    return this.reserveRequest(0x10, 0x42);     // 드론
@@ -2139,7 +1612,7 @@ class byrobot_base extends BaseModule
 
             default:
                 {
-                    return this.ping(this.targetDevice);
+                    return this.reservePing(this.targetDevice);
                 }
                 break;
             }
@@ -2163,7 +1636,7 @@ class byrobot_base extends BaseModule
                 {
                     switch( this.countReqeustDevice % 10 )
                     {
-                    case 0:     return this.ping(this.targetDevice);
+                    case 0:     return this.reservePing(this.targetDevice);
                     default:    break;
                     }
                 }
@@ -2211,7 +1684,7 @@ class byrobot_base extends BaseModule
     // #region Data Transfer Functions for Entry-HW internal code
 
     // Ping
-    ping(target)
+    reservePing(target)
     {
         let dataArray = [];
 
@@ -2240,7 +1713,7 @@ class byrobot_base extends BaseModule
         // CRC16
         this.addCRC16(dataArray, indexStart, dataLength);
 
-        //this.log("ping()", dataArray);
+        //this.log("reservePing()", dataArray);
         
         return dataArray;
     }
@@ -2274,6 +1747,709 @@ class byrobot_base extends BaseModule
         return dataArray;
     }
 
+
+    // Light Manual
+    reserveLightManual(target, flag, brightness)
+    {
+        let dataArray = [];
+
+        // Start Code
+        this.addStartCode(dataArray);
+
+        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
+        let dataLength = 3;                     // 데이터의 길이
+
+        // Header
+        dataArray.push(0x20);                   // Data Type
+        dataArray.push(dataLength);             // Data Length
+        dataArray.push(0x82);                   // From (네이버 엔트리)
+        dataArray.push(target);                 // To
+
+        // Data
+        dataArray.push(this.getByte0(flags));
+        dataArray.push(this.getByte1(flags));
+        dataArray.push(brightness);
+
+        // CRC16
+        this.addCRC16(dataArray, indexStart, dataLength);
+
+        //this.log("reserveLightManual()", dataArray);
+        
+        return dataArray;
+    }
+
+
+    // LightModeColor
+    reserveLightModeColor(target, mode, interval, r, g, b)
+    {
+        let dataArray = [];
+
+        // Start Code
+        this.addStartCode(dataArray);
+
+        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
+        let dataLength = 6;                     // 데이터의 길이
+
+        // Header
+        dataArray.push(0x21);                   // Data Type(LightModeColor)
+        dataArray.push(dataLength);             // Data Length
+        dataArray.push(0x82);                   // From (네이버 엔트리)
+        dataArray.push(target);                 // To
+
+        // Data
+        dataArray.push(mode);
+        dataArray.push(this.getByte0(interval));
+        dataArray.push(this.getByte1(interval));
+        dataArray.push(r);
+        dataArray.push(g);
+        dataArray.push(b);
+
+        // CRC16
+        this.addCRC16(dataArray, indexStart, dataLength);
+
+        //this.log("reserveLightModeColor()", dataArray);
+        
+        return dataArray;
+    }
+
+
+    // LightMode
+    reserveLightMode(target, mode, interval)
+    {
+        let dataArray = [];
+
+        // Start Code
+        this.addStartCode(dataArray);
+
+        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
+        let dataLength = 3;                     // 데이터의 길이
+
+        // Header
+        dataArray.push(0x21);                   // Data Type(LightMode)
+        dataArray.push(dataLength);             // Data Length
+        dataArray.push(0x82);                   // From (네이버 엔트리)
+        dataArray.push(target);                 // To
+
+        // Data
+        dataArray.push(lightMode_mode);
+        dataArray.push(this.getByte0(lightMode_interval));
+        dataArray.push(this.getByte1(lightMode_interval));
+
+        // CRC16
+        this.addCRC16(dataArray, indexStart, dataLength);
+
+        //this.log("reserveLightMode()", dataArray);
+        
+        return dataArray;
+    }
+
+
+    // LightEventColor
+    reserveLightEventColor(target, event, interval, repeat, r, g, b)
+    {
+        let dataArray = [];
+
+        // Start Code
+        this.addStartCode(dataArray);
+
+        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
+        let dataLength = 7;                     // 데이터의 길이
+
+        // Header
+        dataArray.push(0x22);                   // Data Type
+        dataArray.push(dataLength);             // Data Length
+        dataArray.push(0x82);                   // From (네이버 엔트리)
+        dataArray.push(target);                 // To
+
+        // Data Array
+        dataArray.push(event);
+        dataArray.push(this.getByte0(interval));
+        dataArray.push(this.getByte1(interval));
+        dataArray.push(repeat);
+        dataArray.push(r);
+        dataArray.push(g);
+        dataArray.push(b);
+
+        // CRC16
+        this.addCRC16(dataArray, indexStart, dataLength);
+
+        //this.log("reserveLightEventColor()", dataArray);
+        
+        return dataArray;
+    }
+
+
+    // LightEvent
+    reserveLightEvent(target, event, interval, repeat)
+    {
+        let dataArray = [];
+
+        // Start Code
+        this.addStartCode(dataArray);
+
+        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
+        let dataLength = 4;                     // 데이터의 길이
+
+        // Header
+        dataArray.push(0x22);                   // Data Type
+        dataArray.push(dataLength);             // Data Length
+        dataArray.push(0x82);                   // From (네이버 엔트리)
+        dataArray.push(target);                 // To
+
+        // Data Array
+        dataArray.push(event);
+        dataArray.push(this.getByte0(interval));
+        dataArray.push(this.getByte1(interval));
+        dataArray.push(repeat);
+
+        // CRC16
+        this.addCRC16(dataArray, indexStart, dataLength);
+
+        //this.log("reserveLightEvent()", dataArray);
+        
+        return dataArray;
+    }
+
+
+    // DisplayClearAll
+    reserveDisplayClearAll(target, pixel)
+    {
+        let dataArray = [];
+
+        // Start Code
+        this.addStartCode(dataArray);
+
+        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
+        let dataLength = 1;                     // 데이터의 길이
+
+        // Header
+        dataArray.push(0x80);                   // Data Type
+        dataArray.push(dataLength);             // Data Length
+        dataArray.push(0x82);                   // From (네이버 엔트리)
+        dataArray.push(target);                 // To
+
+        // Data
+        dataArray.push(pixel);
+
+        // CRC16
+        this.addCRC16(dataArray, indexStart, dataLength);
+
+        //this.log("reserveDisplayClearAll()", dataArray);
+        
+        return dataArray;
+    }
+
+
+    // DisplayClear
+    reserveDisplayClear(target, x, y, width, height, pixel)
+    {
+        let dataArray = [];
+
+        // Start Code
+        this.addStartCode(dataArray);
+
+        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
+        let dataLength = 9;                     // 데이터의 길이
+
+        // Header
+        dataArray.push(0x80);                   // Data Type
+        dataArray.push(dataLength);             // Data Length
+        dataArray.push(0x82);                   // From (네이버 엔트리)
+        dataArray.push(target);                 // To
+
+        // Data
+        dataArray.push(this.getByte0(x));
+        dataArray.push(this.getByte1(x));
+        dataArray.push(this.getByte0(y));
+        dataArray.push(this.getByte1(y));
+        dataArray.push(this.getByte0(width));
+        dataArray.push(this.getByte1(width));
+        dataArray.push(this.getByte0(height));
+        dataArray.push(this.getByte1(height));
+        dataArray.push(pixel);
+
+        // CRC16
+        this.addCRC16(dataArray, indexStart, dataLength);
+
+        //this.log("reserveDisplayClear()", dataArray);
+        
+        return dataArray;
+    }
+
+
+    // DisplayInvert
+    reserveDisplayInvert(target, x, y, width, height)
+    {
+        let dataArray = [];
+
+        // Start Code
+        this.addStartCode(dataArray);
+
+        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
+        let dataLength = 8;                     // 데이터의 길이
+
+        // Header
+        dataArray.push(0x81);                   // Data Type
+        dataArray.push(dataLength);             // Data Length
+        dataArray.push(0x82);                   // From (네이버 엔트리)
+        dataArray.push(target);                 // To
+
+        // Data
+        dataArray.push(this.getByte0(x));
+        dataArray.push(this.getByte1(x));
+        dataArray.push(this.getByte0(y));
+        dataArray.push(this.getByte1(y));
+        dataArray.push(this.getByte0(width));
+        dataArray.push(this.getByte1(width));
+        dataArray.push(this.getByte0(height));
+        dataArray.push(this.getByte1(height));
+
+        // CRC16
+        this.addCRC16(dataArray, indexStart, dataLength);
+
+        //this.log("reserveDisplayInvert()", dataArray);
+        
+        return dataArray;
+    }
+
+
+    // DisplayDrawPoint
+    reserveDisplayDrawPoint(target, x, y, pixel)
+    {
+        let dataArray = [];
+
+        // Start Code
+        this.addStartCode(dataArray);
+
+        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
+        let dataLength = 5;                     // 데이터의 길이
+
+        // Header
+        dataArray.push(0x82);                   // Data Type
+        dataArray.push(dataLength);             // Data Length
+        dataArray.push(0x82);                   // From (네이버 엔트리)
+        dataArray.push(target);                 // To
+
+        // Data
+        dataArray.push(this.getByte0(x));
+        dataArray.push(this.getByte1(x));
+        dataArray.push(this.getByte0(y));
+        dataArray.push(this.getByte1(y));
+        dataArray.push(pixel);
+
+        // CRC16
+        this.addCRC16(dataArray, indexStart, dataLength);
+
+        //this.log("reserveDisplayDrawPoint()", dataArray);
+        
+        return dataArray;
+    }
+
+
+    // DisplayDrawLine
+    reserveDisplayDrawLine(target, x1, y1, x2, y2, pixel, line)
+    {
+        let dataArray = [];
+
+        // Start Code
+        this.addStartCode(dataArray);
+
+        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
+        let dataLength = 10;                     // 데이터의 길이
+
+        // Header
+        dataArray.push(0x83);                   // Data Type
+        dataArray.push(dataLength);             // Data Length
+        dataArray.push(0x82);                   // From (네이버 엔트리)
+        dataArray.push(target);                 // To
+
+        // Data
+        dataArray.push(this.getByte0(x1));
+        dataArray.push(this.getByte1(x1));
+        dataArray.push(this.getByte0(y1));
+        dataArray.push(this.getByte1(y1));
+        dataArray.push(this.getByte0(x2));
+        dataArray.push(this.getByte1(x2));
+        dataArray.push(this.getByte0(y2));
+        dataArray.push(this.getByte1(y2));
+        dataArray.push(pixel);
+        dataArray.push(line);
+
+        // CRC16
+        this.addCRC16(dataArray, indexStart, dataLength);
+
+        //this.log("reserveDisplayDrawPoint()", dataArray);
+        
+        return dataArray;
+    }
+
+
+    // DisplayDrawRect
+    reserveDisplayDrawRect(target, x, y, width, height, pixel, flagfill, line)
+    {
+        let dataArray = [];
+
+        // Start Code
+        this.addStartCode(dataArray);
+
+        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
+        let dataLength = 11;                    // 데이터의 길이
+
+        // Header
+        dataArray.push(0x84);                   // Data Type
+        dataArray.push(dataLength);             // Data Length
+        dataArray.push(0x82);                   // From (네이버 엔트리)
+        dataArray.push(target);                 // To
+
+        // Data
+        dataArray.push(this.getByte0(x));
+        dataArray.push(this.getByte1(x));
+        dataArray.push(this.getByte0(y));
+        dataArray.push(this.getByte1(y));
+        dataArray.push(this.getByte0(width));
+        dataArray.push(this.getByte1(width));
+        dataArray.push(this.getByte0(height));
+        dataArray.push(this.getByte1(height));
+        dataArray.push(pixel);
+        dataArray.push(flagfill);
+        dataArray.push(line);
+
+        // CRC16
+        this.addCRC16(dataArray, indexStart, dataLength);
+
+        //this.log("reserveDisplayDrawRect()", dataArray);
+        
+        return dataArray;
+    }
+
+
+    // DisplayDrawCircle
+    reserveDisplayDrawCircle(target, x, y, radius, pixel, flagfill)
+    {
+        let dataArray = [];
+
+        // Start Code
+        this.addStartCode(dataArray);
+
+        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
+        let dataLength = 8;                     // 데이터의 길이
+
+        // Header
+        dataArray.push(0x85);                   // Data Type
+        dataArray.push(dataLength);             // Data Length
+        dataArray.push(0x82);                   // From (네이버 엔트리)
+        dataArray.push(target);                 // To
+
+        // Data
+        dataArray.push(this.getByte0(x));
+        dataArray.push(this.getByte1(x));
+        dataArray.push(this.getByte0(y));
+        dataArray.push(this.getByte1(y));
+        dataArray.push(this.getByte0(radius));
+        dataArray.push(this.getByte1(radius));
+        dataArray.push(pixel);
+        dataArray.push(flagfill);
+
+        // CRC16
+        this.addCRC16(dataArray, indexStart, dataLength);
+
+        //this.log("reserveDisplayDrawCircle()", dataArray);
+        
+        return dataArray;
+    }
+
+
+    // DisplayDrawString
+    reserveDisplayDrawString(target, x, y, font, pixel, string)
+    {
+        let dataArray = [];
+
+        // Start Code
+        this.addStartCode(dataArray);
+
+        byteArray = this.stringToAsciiByteArray(string);
+
+        let indexStart = dataArray.length;         // 배열에서 데이터를 저장하기 시작하는 위치
+        let dataLength = 6 + byteArray.length;     // 데이터의 길이
+
+        // Header
+        dataArray.push(0x86);                   // Data Type
+        dataArray.push(dataLength);             // Data Length
+        dataArray.push(0x82);                   // From (네이버 엔트리)
+        dataArray.push(target);                 // To
+
+        // Data
+        dataArray.push(this.getByte0(x));
+        dataArray.push(this.getByte1(x));
+        dataArray.push(this.getByte0(y));
+        dataArray.push(this.getByte1(y));
+        dataArray.push(font);
+        dataArray.push(pixel);
+
+        for (let i = 0; i < byteArray.length; i++)
+        {
+            dataArray.push(byteArray[i]);
+        }
+
+        // CRC16
+        this.addCRC16(dataArray, indexStart, dataLength);
+
+        //this.log("reserveDisplayDrawString()", dataArray);
+        
+        return dataArray;
+    }
+
+
+    // DisplayDrawString
+    reserveDisplayDrawStringAlign(target, x_start, x_end, y, align, font, pixel, string)
+    {
+        let dataArray = [];
+
+        // Start Code
+        this.addStartCode(dataArray);
+
+        byteArray = this.stringToAsciiByteArray(string);
+
+        let indexStart = dataArray.length;         // 배열에서 데이터를 저장하기 시작하는 위치
+        let dataLength = 9 + byteArray.length;     // 데이터의 길이
+
+        // Header
+        dataArray.push(0x87);                   // Data Type
+        dataArray.push(dataLength);             // Data Length
+        dataArray.push(0x82);                   // From (네이버 엔트리)
+        dataArray.push(target);                 // To
+
+        // Data
+        dataArray.push(this.getByte0(x_start));
+        dataArray.push(this.getByte1(x_start));
+        dataArray.push(this.getByte0(x_end));
+        dataArray.push(this.getByte1(x_end));
+        dataArray.push(this.getByte0(y));
+        dataArray.push(this.getByte1(y));
+        dataArray.push(align);
+        dataArray.push(font);
+        dataArray.push(pixel);
+
+        for (let i = 0; i < byteArray.length; i++)
+        {
+            dataArray.push(byteArray[i]);
+        }
+
+        // CRC16
+        this.addCRC16(dataArray, indexStart, dataLength);
+
+        //this.log("reserveDisplayDrawString()", dataArray);
+        
+        return dataArray;
+    }
+
+
+    // Command
+    reserveCommand(target, command, option)
+    {
+        let dataArray = [];
+
+        // Start Code
+        this.addStartCode(dataArray);
+
+        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
+        let dataLength = 2;                     // 데이터의 길이
+
+        // Header
+        dataArray.push(0x11);                   // Data Type
+        dataArray.push(dataLength);             // Data Length
+        dataArray.push(0x82);                   // From (네이버 엔트리)
+        dataArray.push(target);                 // To
+
+        // Data Array
+        dataArray.push(command);
+        dataArray.push(option);
+
+        // CRC16
+        this.addCRC16(dataArray, indexStart, dataLength);
+
+        //this.log("reserveCommand()", dataArray);
+        
+        return dataArray;
+    }
+
+
+    // ControlQuad8
+    reserveControlQuad8(target, roll, pitch, yaw, throttle)
+    {
+        let dataArray = [];
+
+        // Start Code
+        this.addStartCode(dataArray);
+
+        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
+        let dataLength = 4;                     // 데이터의 길이
+
+        this.controlRoll        = controlRoll;
+        this.controlPitch       = controlPitch;
+        this.controlYaw         = controlYaw;
+        this.controlThrottle    = controlThrottle;
+
+        // Header
+        dataArray.push(0x10);                   // Data Type
+        dataArray.push(dataLength);             // Data Length
+        dataArray.push(0x82);                   // From (네이버 엔트리)
+        dataArray.push(target);                 // To
+
+        // Data Array
+        dataArray.push(roll);
+        dataArray.push(pitch);
+        dataArray.push(yaw);
+        dataArray.push(throttle);
+
+        // CRC16
+        this.addCRC16(dataArray, indexStart, dataLength);
+
+        //this.log("reserveControlQuad8()", dataArray);
+        
+        return dataArray;
+    }
+
+
+    // ControlPosition
+    reserveControlPosition(target, x, y, z, velocity, heading, rotationalVelocity)
+    {
+        let dataArray = [];
+
+        // Start Code
+        this.addStartCode(dataArray);
+
+        var floatArray = new Float32Array(4);
+        floatArray[0] = controlPositionX;
+        floatArray[1] = controlPositionY;
+        floatArray[2] = controlPositionZ;
+        floatArray[3] = controlVelocity;
+
+        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
+        let dataLength = 18;                     // 데이터의 길이
+
+        // Header
+        dataArray.push(0x10);                   // Data Type
+        dataArray.push(dataLength);             // Data Length
+        dataArray.push(0x82);                   // From (네이버 엔트리)
+        dataArray.push(target);                 // To
+
+        // Data Array
+        dataArray.concat(new Uint8Array(floatArray.buffer));
+        dataArray.push(this.getByte0(controlHeading));
+        dataArray.push(this.getByte1(controlHeading));
+        dataArray.push(this.getByte0(controlRotationalvelocity));
+        dataArray.push(this.getByte1(controlRotationalvelocity));
+
+        // CRC16
+        this.addCRC16(dataArray, indexStart, dataLength);
+
+        //this.log("reserveControlPosition()", dataArray);
+        
+        return dataArray;
+    }
+
+
+    // MotorSingle
+    reserveMotorSingle(target, rotation, value)
+    {
+        let dataArray = [];
+
+        // Start Code
+        this.addStartCode(dataArray);
+
+        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
+        let dataLength = 4;                     // 데이터의 길이
+
+        // Header
+        dataArray.push(0x61);                   // Data Type
+        dataArray.push(dataLength);             // Data Length
+        dataArray.push(0x82);                   // From (네이버 엔트리)
+        dataArray.push(target);                 // To
+
+        // Data Array
+        dataArray.push(target);
+        dataArray.push(rotation);
+        dataArray.push(this.getByte0(value));
+        dataArray.push(this.getByte1(value));
+
+        // CRC16
+        this.addCRC16(dataArray, indexStart, dataLength);
+
+        //this.log("reserveMotorSingle()", dataArray);
+        
+        return dataArray;
+    }
+
+
+    // Buzzer
+    reserveBuzzer(target, mode, time, value)
+    {
+        let dataArray = [];
+
+        // Start Code
+        this.addStartCode(dataArray);
+
+        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
+        let dataLength = 5;                     // 데이터의 길이
+
+        // Header
+        dataArray.push(0x62);                   // Data Type
+        dataArray.push(dataLength);             // Data Length
+        dataArray.push(0x82);                   // From (네이버 엔트리)
+        dataArray.push(target);                 // To
+
+        // Data
+        dataArray.push(mode);
+        dataArray.push(this.getByte0(value));
+        dataArray.push(this.getByte1(value));
+        dataArray.push(this.getByte0(time));
+        dataArray.push(this.getByte1(time));
+
+        // CRC16
+        this.addCRC16(dataArray, indexStart, dataLength);
+
+        //this.log("reserveBuzzer()", dataArray);
+        
+        return dataArray;
+    }
+
+
+    // Vibrator
+    reserveVibrator(target, on, off, total)
+    {
+        let dataArray = [];
+
+        // Start Code
+        this.addStartCode(dataArray);
+
+        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
+        let dataLength = 7;                     // 데이터의 길이
+
+        // Header
+        dataArray.push(0x63);                   // Data Type
+        dataArray.push(dataLength);             // Data Length
+        dataArray.push(0x82);                   // From (네이버 엔트리)
+        dataArray.push(target);                 // To
+
+        // Data
+        dataArray.push(mode);
+        dataArray.push(this.getByte0(on));
+        dataArray.push(this.getByte1(on));
+        dataArray.push(this.getByte0(off));
+        dataArray.push(this.getByte1(off));
+        dataArray.push(this.getByte0(total));
+        dataArray.push(this.getByte1(total));
+
+        // CRC16
+        this.addCRC16(dataArray, indexStart, dataLength);
+
+        //this.log("reserveBuzzer()", dataArray);
+        
+        return dataArray;
+    }
+
+
     // #endregion Data Transfer Functions for Entry-HW internal code
 
 
@@ -2284,123 +2460,6 @@ class byrobot_base extends BaseModule
      ***************************************************************************************/
     // #region Functions for Binary Handling
 
-    extractInt8(dataArray, startIndex)
-    {
-        let value = this.extractUInt8(dataArray, startIndex);
-        if( (value & 0x80) != 0)
-        {
-            value = -(0x100 - value);
-        }
-        return value;
-    }
-
-
-    extractUInt8(dataArray, startIndex)
-    {
-        if( dataArray.length >= startIndex + 1 )
-        {
-            let value = dataArray[startIndex];
-            return value;
-        }
-        else
-        {
-            return 0;
-        }
-    }
-
-
-    extractInt16(dataArray, startIndex)
-    {
-        let value = this.extractUInt16(dataArray, startIndex);
-        if( (value & 0x8000) != 0)
-        {
-            value = -(0x10000 - value);
-        }
-        return value;
-    }
-
-
-    extractUInt16(dataArray, startIndex)
-    {
-        if( dataArray.length >= startIndex + 2 )
-        {
-            let value = ((dataArray[startIndex + 1]) << 8) + dataArray[startIndex];
-            return value;
-        }
-        else
-        {
-            return 0;
-        }
-    }
-
-
-    extractInt32(dataArray, startIndex)
-    {
-        let value = this.extractUInt32(dataArray, startIndex);
-        if( (value & 0x80000000) != 0)
-        {
-            value = -(0x100000000 - value);
-        }
-        return value;
-    }
-
-
-    extractUInt32(dataArray, startIndex)
-    {
-        if( dataArray.length >= startIndex + 4 )
-        {
-            let value = ((dataArray[startIndex + 3]) << 24) + ((dataArray[startIndex + 2]) << 16) + ((dataArray[startIndex + 1]) << 8) + dataArray[startIndex];
-            return value;
-        }
-        else
-        {
-            return 0;
-        }
-    }
-
-
-    extractFloat32(dataArray, startIndex)
-    {
-        if (dataArray.length >= startIndex + 4)
-        {
-            let buffer = new ArrayBuffer(4);
-            let float32View = new Float32Array(buffer, 0, 1);
-            let uint8View = new Uint8Array(buffer, 0, 4)
-            uint8View[0] = dataArray[startIndex];
-            uint8View[1] = dataArray[startIndex + 1];
-            uint8View[2] = dataArray[startIndex + 2];
-            uint8View[3] = dataArray[startIndex + 3];
-    
-            return float32View[0].toFixed(2);
-        }
-        else
-        {
-            return 0;
-        }
-    }
-
-
-    // 값 추출
-    getByte0(b)
-    {
-        return (b & 0xff);
-    }
-
-    getByte1(b)
-    {
-        return ((b >> 8) & 0xff);
-    }
-
-    getByte2(b)
-    {
-        return ((b >> 16) & 0xff);
-    }
-
-    getByte3(b)
-    {
-        return ((b >> 24) & 0xff);
-    }
-    // #endregion Functions for Binary Handling
 
 
 
