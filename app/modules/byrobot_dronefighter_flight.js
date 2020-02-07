@@ -1,9 +1,9 @@
 const _ = require('lodash');
-const byrobot_base = require('./byrobot_base');
+const byrobot_dronefighter_base = require('./byrobot_dronefighter_base');
 
 
 /***************************************************************************************
- *  BYROBOT Drone Fighter Drive
+ *  BYROBOT Drone Fighter Flight
  ***************************************************************************************/
 
 class byrobot_dronefighter_flight extends byrobot_dronefighter_base
@@ -15,9 +15,9 @@ class byrobot_dronefighter_flight extends byrobot_dronefighter_base
     {
         super();
 
-        this.targetDevice           = 0x10;
-        this.targetDeviceID         = '0F0301';
-        this.targetModeVehicle      = 0x10;
+        this.targetDevice       = 0x10;         // DeviceType::Drone
+        this.targetDeviceID     = '0F0301';     // BYROBOT DRONE FIGHTER Flight
+        this.targetModeVehicle  = 0x10;         // Mode::Vehicle::Flight
     }
 }
 

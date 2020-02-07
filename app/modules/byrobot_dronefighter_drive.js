@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const byrobot_base = require('./byrobot_base');
+const byrobot_dronefighter_base = require('./byrobot_dronefighter_base');
 
 
 /***************************************************************************************

@@ -8,6 +8,7 @@ const BaseModule = require('./baseModule');
 
 class byrobot_petrone_v2_base extends BaseModule
 {
+
     /***************************************************************************************
      *  클래스 내부에서 사용될 필드들을 이곳에서 선언합니다.
      ***************************************************************************************/
@@ -2672,6 +2673,7 @@ class byrobot_petrone_v2_base extends BaseModule
     }
 
     // #endregion Functions for log
+
 }
 
 module.exports = byrobot_petrone_v2_base;
