@@ -18,6 +18,8 @@ class byrobot_dronefighter_controller extends byrobot_dronefighter_base
         this.targetDevice           = 0x11;
         this.targetDeviceID         = '0F0101';
         this.targetModeVehicle      = undefined;
+        
+        this.log("BYROBOT_BASE - constructor()");
     }
 }
 

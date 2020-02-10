@@ -243,7 +243,7 @@ class byrobot_dronefighter_base extends BaseModule
             this.serialport = serialport;
         }
 
-        return this.ping(this.targetDevice);
+        return this.reservePing(this.targetDevice);
     }
 
 
@@ -1462,8 +1462,8 @@ class byrobot_dronefighter_base extends BaseModule
                 {
                     switch( this.countReqeustDevice % 6 )
                     {
-                    case 0:     return this.ping(0x10);                     // 드론
-                    case 2:     return this.ping(0x11);                     // 조종기
+                    case 0:     return this.reservePing(0x10);                     // 드론
+                    case 2:     return this.reservePing(0x11);                     // 조종기
                     case 4:     return this.reserveRequest(0x10, 0x40);     // 드론
                     default:    return this.reserveRequest(0x10, 0x41);     // 드론
                     }
@@ -1472,7 +1472,7 @@ class byrobot_dronefighter_base extends BaseModule
 
             default:
                 {
-                    return this.ping(this.targetDevice);
+                    return this.reservePing(this.targetDevice);
                 }
                 break;
             }
@@ -1486,8 +1486,8 @@ class byrobot_dronefighter_base extends BaseModule
                 {
                     switch( this.countReqeustDevice % 15 )
                     {
-                    case 3:     return this.ping(0x10);                     // 드론
-                    case 6:     return this.ping(0x11);                     // 조종기
+                    case 3:     return this.reservePing(0x10);                     // 드론
+                    case 6:     return this.reservePing(0x11);                     // 조종기
                     case 9:     return this.reserveRequest(0x10, 0x40);     // 드론
                     case 12:    return this.reserveRequest(0x10, 0x41);     // 드론
                     default:    break;
@@ -1499,7 +1499,7 @@ class byrobot_dronefighter_base extends BaseModule
                 {
                     switch( this.countReqeustDevice % 10 )
                     {
-                    case 0:     return this.ping(this.targetDevice);
+                    case 0:     return this.reservePing(this.targetDevice);
                     default:    break;
                     }
                 }
@@ -1547,7 +1547,7 @@ class byrobot_dronefighter_base extends BaseModule
     // #region Data Transfer Functions for Entry-HW internal code
 
     // Ping
-    ping(target)
+    reservePing(target)
     {
         let dataArray = [];
 
@@ -1572,7 +1572,7 @@ class byrobot_dronefighter_base extends BaseModule
         // CRC16
         this.addCRC16(dataArray, indexStart, dataLength);
 
-        //this.log("ping()", dataArray);
+        //this.log("reservePing()", dataArray);
         
         return dataArray;
     }

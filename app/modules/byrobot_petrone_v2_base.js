@@ -323,6 +323,8 @@ class byrobot_petrone_v2_base extends BaseModule
     init(handler, config)
     {
         super.init(handler, config);
+        
+        this.log("BYROBOT_PETRONE_V2_BASE - init()");
         //this.resetData();
     }
 
@@ -342,7 +344,7 @@ class byrobot_petrone_v2_base extends BaseModule
             this.serialport = serialport;
         }
 
-        return this.ping(this.targetDevice);
+        return this.reservePing(this.targetDevice);
     }
 
 
@@ -352,6 +354,7 @@ class byrobot_petrone_v2_base extends BaseModule
      */
     checkInitialData(data, config)
     {
+        this.log("BYROBOT_PETRONE_V2_BASE - checkInitialData()");
         return this.checkAck(data, config); 
     }
 
@@ -2195,8 +2198,8 @@ class byrobot_petrone_v2_base extends BaseModule
                 {
                     switch( this.countReqeustDevice % 14 )
                     {
-                    case 0:    return this.ping(0x30);                     // 페트론V2 드론
-                    case 2:    return this.ping(0x31);                     // 조종기
+                    case 0:    return this.reservePing(0x30);                     // 페트론V2 드론
+                    case 2:    return this.reservePing(0x31);                     // 조종기
                     case 4:    return this.reserveRequest(0x30, 0x40);     // 페트론V2 드론, 드론의 상태(State)
                     case 6:    return this.reserveRequest(0x30, 0x50);     // 페트론V2 드론, 드론의 자세(Attitude) 및 Accel, Gyro
                     case 8:    return this.reserveRequest(0x30, 0x51);     // 페트론V2 드론, Pressure Sensor
@@ -2209,7 +2212,7 @@ class byrobot_petrone_v2_base extends BaseModule
 
             default:
                 {
-                    return this.ping(this.targetDevice);
+                    return this.reservePing(this.targetDevice);
                 }
                 break;
             }
@@ -2233,7 +2236,7 @@ class byrobot_petrone_v2_base extends BaseModule
                 {
                     switch( this.countReqeustDevice % 10 )
                     {
-                    case 0:     return this.ping(this.targetDevice);
+                    case 0:     return this.reservePing(this.targetDevice);
                     default:    break;
                     }
                 }
@@ -2287,7 +2290,7 @@ class byrobot_petrone_v2_base extends BaseModule
     // #region Data Transfer Functions for Entry-HW internal code
 
     // Ping
-    ping(target)
+    reservePing(target)
     {
         let dataArray = [];
 
