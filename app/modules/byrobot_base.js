@@ -955,7 +955,7 @@ class byrobot_base extends BaseModule
             let value    = this.read(handler, this.DataType.BUZZER_VALUE);
             let time     = this.read(handler, this.DataType.BUZZER_TIME);
 
-            let dataArray = reserveBuzzer(target, mode, time, value);
+            let dataArray = reserveBuzzer(target, mode, value, time);
             this.bufferTransfer.push(dataArray);
             this.log("Transfer_To_Device / Buzzer / mode: " + mode + ", value: " + value + ", time: " + time, dataArray);
         }
@@ -981,35 +981,41 @@ class byrobot_base extends BaseModule
 
     // 전송 데이터 배열 생성
     // https://cryingnavi.github.io/javascript-typedarray/
-    createTransferBlock(dataType, dataLength, from, to, buf)
+    createTransferBlock(dataType, to, dataArray)
     {
-        let dataArray   = new ArrayBuffer(2 + 4 + dataLength + 2);
-        let view        = new DataView(dataArray);
+        let dataBlock   = new ArrayBuffer(2 + 4 + dataArray.length + 2);  // Start Code + Header + Data + CRC16
+        let view        = new DataView(dataBlock);
 
         // Start Code
         view.setUint8(0, 0x0A);
         view.setUint8(1, 0x55);
 
         // Header
-        view.setUint8(2, 0x01);           // Data Type (UpdateLookupTarget)
-        view.setUint8(3, dataLength);     // Data Length
-        view.setUint8(4, 0x82);           // From (네이버 엔트리)
-        view.setUint8(5, target);         // To
+        view.setUint8(2, dataType);         // Data Type
+        view.setUint8(3, dataArray.length); // Data Length
+        view.setUint8(4, 0x82);             // From (네이버 엔트리)
+        view.setUint8(5, to);               // To
+
+        // Body
+        for(let i=0; i<dataArray.length; i++)
+        {
+            view.setUint8((2 + 4 + i), dataArray[i]);
+        }
 
         // CRC16
         let crc16 = 0;
         {
             let indexStart  = 2;
-            let totalLength = 4 + dataLength;
+            let totalLength = 4 + dataArray.length; // 
 
             for(let i=0; i<totalLength; i++)
             {
-                crc16 = this.calcCRC16(dataArray[indexStart + i], crc16);
+                crc16 = this.calcCRC16(dataBlock[indexStart + i], crc16);
             }
         }
-        view.setUint16(2 + 4 + dataLength, crc16);
+        view.setUint16(2 + 4 + dataArray.length, crc16);
 
-        return dataArray;
+        return dataBlock;
     }
 
 
@@ -1521,760 +1527,344 @@ class byrobot_base extends BaseModule
     // Ping
     reservePing(target)
     {
-        let dataArray = [];
-
-        // Start Code
-        this.addStartCode(dataArray);
-        
-        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-        let dataLength = 8;                     // 데이터의 길이
-
-        // Header
-        dataArray.push(0x01);           // Data Type (UpdateLookupTarget)
-        dataArray.push(dataLength);     // Data Length
-        dataArray.push(0x82);           // From (네이버 엔트리)
-        dataArray.push(target);         // To
-
-        // Data
-        let buf  = new ArrayBuffer(dataLength);
-        let view = new DataView(buf);
+        let dataArray   = new ArrayBuffer(8);
+        let view        = new DataView(dataArray);
 
         view.setBigUint64(0, 0);
 
-        let dataArray = createTransferBlock(0x01, dataLength, 0x82, target, buf);
-        
-        return dataArray;
+        return createTransferBlock(0x01, target, dataArray);
     }
 
 
     // 데이터 요청
     reserveRequest(target, dataType)
     {
-        let dataArray = [];
+        let dataArray   = new ArrayBuffer(1);
+        let view        = new DataView(dataArray);
 
-        // Start Code
-        this.addStartCode(dataArray);
-        
-        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-        let dataLength = 1;                     // 데이터의 길이
+        view.setUint8(0, dataType);
 
-        // Header
-        dataArray.push(0x04);           // Data Type (Request)
-        dataArray.push(dataLength);     // Data Length
-        dataArray.push(0x82);           // From (네이버 엔트리)
-        dataArray.push(target);         // To
-
-        // Data Array
-        dataArray.push(dataType);       // Request DataType
-
-        // CRC16
-        this.addCRC16(dataArray, indexStart, dataLength);
-
-        //this.log("reserveRequest()", dataArray);
-        
-        return dataArray;
+        return createTransferBlock(0x04, target, dataArray);
     }
 
 
     // Light Manual
     reserveLightManual(target, flag, brightness)
     {
-        let dataArray = [];
+        let dataArray   = new ArrayBuffer(3);
+        let view        = new DataView(dataArray);
 
-        // Start Code
-        this.addStartCode(dataArray);
+        view.setUint16  (0, flag);
+        view.setUint8   (2, brightness);
 
-        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-        let dataLength = 3;                     // 데이터의 길이
-
-        // Header
-        dataArray.push(0x20);                   // Data Type
-        dataArray.push(dataLength);             // Data Length
-        dataArray.push(0x82);                   // From (네이버 엔트리)
-        dataArray.push(target);                 // To
-
-        // Data
-        dataArray.push(this.getByte0(flags));
-        dataArray.push(this.getByte1(flags));
-        dataArray.push(brightness);
-
-        // CRC16
-        this.addCRC16(dataArray, indexStart, dataLength);
-
-        //this.log("reserveLightManual()", dataArray);
-        
-        return dataArray;
+        return createTransferBlock(0x20, target, dataArray);
     }
 
 
     // LightModeColor
     reserveLightModeColor(target, mode, interval, r, g, b)
     {
-        let dataArray = [];
+        let dataArray   = new ArrayBuffer(6);
+        let view        = new DataView(dataArray);
 
-        // Start Code
-        this.addStartCode(dataArray);
+        view.setUint8   (0, mode);
+        view.setUint16  (1, interval);
+        view.setUint8   (3, r);
+        view.setUint8   (4, g);
+        view.setUint8   (5, b);
 
-        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-        let dataLength = 6;                     // 데이터의 길이
-
-        // Header
-        dataArray.push(0x21);                   // Data Type(LightModeColor)
-        dataArray.push(dataLength);             // Data Length
-        dataArray.push(0x82);                   // From (네이버 엔트리)
-        dataArray.push(target);                 // To
-
-        // Data
-        dataArray.push(mode);
-        dataArray.push(this.getByte0(interval));
-        dataArray.push(this.getByte1(interval));
-        dataArray.push(r);
-        dataArray.push(g);
-        dataArray.push(b);
-
-        // CRC16
-        this.addCRC16(dataArray, indexStart, dataLength);
-
-        //this.log("reserveLightModeColor()", dataArray);
-        
-        return dataArray;
+        return createTransferBlock(0x21, target, dataArray);
     }
 
 
     // LightMode
     reserveLightMode(target, mode, interval)
     {
-        let dataArray = [];
+        let dataArray   = new ArrayBuffer(3);
+        let view        = new DataView(dataArray);
 
-        // Start Code
-        this.addStartCode(dataArray);
+        view.setUint8   (0, mode);
+        view.setUint16  (1, interval);
 
-        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-        let dataLength = 3;                     // 데이터의 길이
-
-        // Header
-        dataArray.push(0x21);                   // Data Type(LightMode)
-        dataArray.push(dataLength);             // Data Length
-        dataArray.push(0x82);                   // From (네이버 엔트리)
-        dataArray.push(target);                 // To
-
-        // Data
-        dataArray.push(lightMode_mode);
-        dataArray.push(this.getByte0(lightMode_interval));
-        dataArray.push(this.getByte1(lightMode_interval));
-
-        // CRC16
-        this.addCRC16(dataArray, indexStart, dataLength);
-
-        //this.log("reserveLightMode()", dataArray);
-        
-        return dataArray;
+        return createTransferBlock(0x21, target, dataArray);
     }
 
 
     // LightEventColor
     reserveLightEventColor(target, event, interval, repeat, r, g, b)
     {
-        let dataArray = [];
+        let dataArray   = new ArrayBuffer(7);
+        let view        = new DataView(dataArray);
 
-        // Start Code
-        this.addStartCode(dataArray);
+        view.setUint8   (0, event);
+        view.setUint16  (1, interval);
+        view.setUint8   (3, repeat);
+        view.setUint8   (4, r);
+        view.setUint8   (5, g);
+        view.setUint8   (6, b);
 
-        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-        let dataLength = 7;                     // 데이터의 길이
-
-        // Header
-        dataArray.push(0x22);                   // Data Type
-        dataArray.push(dataLength);             // Data Length
-        dataArray.push(0x82);                   // From (네이버 엔트리)
-        dataArray.push(target);                 // To
-
-        // Data Array
-        dataArray.push(event);
-        dataArray.push(this.getByte0(interval));
-        dataArray.push(this.getByte1(interval));
-        dataArray.push(repeat);
-        dataArray.push(r);
-        dataArray.push(g);
-        dataArray.push(b);
-
-        // CRC16
-        this.addCRC16(dataArray, indexStart, dataLength);
-
-        //this.log("reserveLightEventColor()", dataArray);
-        
-        return dataArray;
+        return createTransferBlock(0x22, target, dataArray);
     }
 
 
     // LightEvent
     reserveLightEvent(target, event, interval, repeat)
     {
-        let dataArray = [];
+        let dataArray   = new ArrayBuffer(4);
+        let view        = new DataView(dataArray);
 
-        // Start Code
-        this.addStartCode(dataArray);
+        view.setUint8   (0, event);
+        view.setUint16  (1, interval);
+        view.setUint8   (3, repeat);
 
-        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-        let dataLength = 4;                     // 데이터의 길이
-
-        // Header
-        dataArray.push(0x22);                   // Data Type
-        dataArray.push(dataLength);             // Data Length
-        dataArray.push(0x82);                   // From (네이버 엔트리)
-        dataArray.push(target);                 // To
-
-        // Data Array
-        dataArray.push(event);
-        dataArray.push(this.getByte0(interval));
-        dataArray.push(this.getByte1(interval));
-        dataArray.push(repeat);
-
-        // CRC16
-        this.addCRC16(dataArray, indexStart, dataLength);
-
-        //this.log("reserveLightEvent()", dataArray);
-        
-        return dataArray;
+        return createTransferBlock(0x22, target, dataArray);
     }
 
 
     // DisplayClearAll
     reserveDisplayClearAll(target, pixel)
     {
-        let dataArray = [];
+        let dataArray   = new ArrayBuffer(1);
+        let view        = new DataView(dataArray);
 
-        // Start Code
-        this.addStartCode(dataArray);
+        view.setUint8   (0, pixel);
 
-        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-        let dataLength = 1;                     // 데이터의 길이
-
-        // Header
-        dataArray.push(0x80);                   // Data Type
-        dataArray.push(dataLength);             // Data Length
-        dataArray.push(0x82);                   // From (네이버 엔트리)
-        dataArray.push(target);                 // To
-
-        // Data
-        dataArray.push(pixel);
-
-        // CRC16
-        this.addCRC16(dataArray, indexStart, dataLength);
-
-        //this.log("reserveDisplayClearAll()", dataArray);
-        
-        return dataArray;
+        return createTransferBlock(0x80, target, dataArray);
     }
 
 
     // DisplayClear
     reserveDisplayClear(target, x, y, width, height, pixel)
     {
-        let dataArray = [];
+        let dataArray   = new ArrayBuffer(9);
+        let view        = new DataView(dataArray);
 
-        // Start Code
-        this.addStartCode(dataArray);
+        view.setInt16   (0, x);
+        view.setInt16   (2, y);
+        view.setInt16   (4, width);
+        view.setInt16   (6, height);
+        view.setUint8   (8, pixel);
 
-        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-        let dataLength = 9;                     // 데이터의 길이
-
-        // Header
-        dataArray.push(0x80);                   // Data Type
-        dataArray.push(dataLength);             // Data Length
-        dataArray.push(0x82);                   // From (네이버 엔트리)
-        dataArray.push(target);                 // To
-
-        // Data
-        dataArray.push(this.getByte0(x));
-        dataArray.push(this.getByte1(x));
-        dataArray.push(this.getByte0(y));
-        dataArray.push(this.getByte1(y));
-        dataArray.push(this.getByte0(width));
-        dataArray.push(this.getByte1(width));
-        dataArray.push(this.getByte0(height));
-        dataArray.push(this.getByte1(height));
-        dataArray.push(pixel);
-
-        // CRC16
-        this.addCRC16(dataArray, indexStart, dataLength);
-
-        //this.log("reserveDisplayClear()", dataArray);
-        
-        return dataArray;
+        return createTransferBlock(0x80, target, dataArray);
     }
 
 
     // DisplayInvert
     reserveDisplayInvert(target, x, y, width, height)
     {
-        let dataArray = [];
+        let dataArray   = new ArrayBuffer(8);
+        let view        = new DataView(dataArray);
 
-        // Start Code
-        this.addStartCode(dataArray);
+        view.setInt16   (0, x);
+        view.setInt16   (2, y);
+        view.setInt16   (4, width);
+        view.setInt16   (6, height);
 
-        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-        let dataLength = 8;                     // 데이터의 길이
-
-        // Header
-        dataArray.push(0x81);                   // Data Type
-        dataArray.push(dataLength);             // Data Length
-        dataArray.push(0x82);                   // From (네이버 엔트리)
-        dataArray.push(target);                 // To
-
-        // Data
-        dataArray.push(this.getByte0(x));
-        dataArray.push(this.getByte1(x));
-        dataArray.push(this.getByte0(y));
-        dataArray.push(this.getByte1(y));
-        dataArray.push(this.getByte0(width));
-        dataArray.push(this.getByte1(width));
-        dataArray.push(this.getByte0(height));
-        dataArray.push(this.getByte1(height));
-
-        // CRC16
-        this.addCRC16(dataArray, indexStart, dataLength);
-
-        //this.log("reserveDisplayInvert()", dataArray);
-        
-        return dataArray;
+        return createTransferBlock(0x81, target, dataArray);
     }
 
 
     // DisplayDrawPoint
     reserveDisplayDrawPoint(target, x, y, pixel)
     {
-        let dataArray = [];
+        let dataArray   = new ArrayBuffer(5);
+        let view        = new DataView(dataArray);
 
-        // Start Code
-        this.addStartCode(dataArray);
+        view.setInt16   (0, x);
+        view.setInt16   (2, y);
+        view.setUint8   (4, pixel);
 
-        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-        let dataLength = 5;                     // 데이터의 길이
-
-        // Header
-        dataArray.push(0x82);                   // Data Type
-        dataArray.push(dataLength);             // Data Length
-        dataArray.push(0x82);                   // From (네이버 엔트리)
-        dataArray.push(target);                 // To
-
-        // Data
-        dataArray.push(this.getByte0(x));
-        dataArray.push(this.getByte1(x));
-        dataArray.push(this.getByte0(y));
-        dataArray.push(this.getByte1(y));
-        dataArray.push(pixel);
-
-        // CRC16
-        this.addCRC16(dataArray, indexStart, dataLength);
-
-        //this.log("reserveDisplayDrawPoint()", dataArray);
-        
-        return dataArray;
+        return createTransferBlock(0x82, target, dataArray);
     }
 
 
     // DisplayDrawLine
     reserveDisplayDrawLine(target, x1, y1, x2, y2, pixel, line)
     {
-        let dataArray = [];
+        let dataArray   = new ArrayBuffer(10);
+        let view        = new DataView(dataArray);
 
-        // Start Code
-        this.addStartCode(dataArray);
+        view.setInt16   (0, x1);
+        view.setInt16   (2, y1);
+        view.setInt16   (4, x2);
+        view.setInt16   (6, y2);
+        view.setUint8   (8, pixel);
+        view.setUint8   (9, line);
 
-        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-        let dataLength = 10;                     // 데이터의 길이
-
-        // Header
-        dataArray.push(0x83);                   // Data Type
-        dataArray.push(dataLength);             // Data Length
-        dataArray.push(0x82);                   // From (네이버 엔트리)
-        dataArray.push(target);                 // To
-
-        // Data
-        dataArray.push(this.getByte0(x1));
-        dataArray.push(this.getByte1(x1));
-        dataArray.push(this.getByte0(y1));
-        dataArray.push(this.getByte1(y1));
-        dataArray.push(this.getByte0(x2));
-        dataArray.push(this.getByte1(x2));
-        dataArray.push(this.getByte0(y2));
-        dataArray.push(this.getByte1(y2));
-        dataArray.push(pixel);
-        dataArray.push(line);
-
-        // CRC16
-        this.addCRC16(dataArray, indexStart, dataLength);
-
-        //this.log("reserveDisplayDrawPoint()", dataArray);
-        
-        return dataArray;
+        return createTransferBlock(0x83, target, dataArray);
     }
 
 
     // DisplayDrawRect
-    reserveDisplayDrawRect(target, x, y, width, height, pixel, flagfill, line)
+    reserveDisplayDrawRect(target, x, y, width, height, pixel, flagFill, line)
     {
-        let dataArray = [];
+        let dataArray   = new ArrayBuffer(11);
+        let view        = new DataView(dataArray);
 
-        // Start Code
-        this.addStartCode(dataArray);
+        view.setInt16   (0, x);
+        view.setInt16   (2, y);
+        view.setInt16   (4, width);
+        view.setInt16   (6, height);
+        view.setUint8   (8, pixel);
+        view.setUint8   (9, flagFill);
+        view.setUint8   (10, line);
 
-        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-        let dataLength = 11;                    // 데이터의 길이
-
-        // Header
-        dataArray.push(0x84);                   // Data Type
-        dataArray.push(dataLength);             // Data Length
-        dataArray.push(0x82);                   // From (네이버 엔트리)
-        dataArray.push(target);                 // To
-
-        // Data
-        dataArray.push(this.getByte0(x));
-        dataArray.push(this.getByte1(x));
-        dataArray.push(this.getByte0(y));
-        dataArray.push(this.getByte1(y));
-        dataArray.push(this.getByte0(width));
-        dataArray.push(this.getByte1(width));
-        dataArray.push(this.getByte0(height));
-        dataArray.push(this.getByte1(height));
-        dataArray.push(pixel);
-        dataArray.push(flagfill);
-        dataArray.push(line);
-
-        // CRC16
-        this.addCRC16(dataArray, indexStart, dataLength);
-
-        //this.log("reserveDisplayDrawRect()", dataArray);
-        
-        return dataArray;
+        return createTransferBlock(0x84, target, dataArray);
     }
 
 
     // DisplayDrawCircle
-    reserveDisplayDrawCircle(target, x, y, radius, pixel, flagfill)
+    reserveDisplayDrawCircle(target, x, y, radius, pixel, flagFill)
     {
-        let dataArray = [];
+        let dataArray   = new ArrayBuffer(8);
+        let view        = new DataView(dataArray);
 
-        // Start Code
-        this.addStartCode(dataArray);
+        view.setInt16   (0, x);
+        view.setInt16   (2, y);
+        view.setInt16   (4, radius);
+        view.setUint8   (6, pixel);
+        view.setUint8   (7, flagFill);
 
-        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-        let dataLength = 8;                     // 데이터의 길이
-
-        // Header
-        dataArray.push(0x85);                   // Data Type
-        dataArray.push(dataLength);             // Data Length
-        dataArray.push(0x82);                   // From (네이버 엔트리)
-        dataArray.push(target);                 // To
-
-        // Data
-        dataArray.push(this.getByte0(x));
-        dataArray.push(this.getByte1(x));
-        dataArray.push(this.getByte0(y));
-        dataArray.push(this.getByte1(y));
-        dataArray.push(this.getByte0(radius));
-        dataArray.push(this.getByte1(radius));
-        dataArray.push(pixel);
-        dataArray.push(flagfill);
-
-        // CRC16
-        this.addCRC16(dataArray, indexStart, dataLength);
-
-        //this.log("reserveDisplayDrawCircle()", dataArray);
-        
-        return dataArray;
+        return createTransferBlock(0x85, target, dataArray);
     }
 
 
     // DisplayDrawString
     reserveDisplayDrawString(target, x, y, font, pixel, string)
     {
-        let dataArray = [];
+        let byteArrayString = this.stringToAsciiByteArray(string);
 
-        // Start Code
-        this.addStartCode(dataArray);
+        let dataArray   = new ArrayBuffer(6 + byteArrayString.length);
+        let view        = new DataView(dataArray);
 
-        byteArray = this.stringToAsciiByteArray(string);
+        view.setInt16   (0, x);
+        view.setInt16   (2, y);
+        view.setUint8   (4, font);
+        view.setUint8   (5, pixel);
 
-        let indexStart = dataArray.length;         // 배열에서 데이터를 저장하기 시작하는 위치
-        let dataLength = 6 + byteArray.length;     // 데이터의 길이
-
-        // Header
-        dataArray.push(0x86);                   // Data Type
-        dataArray.push(dataLength);             // Data Length
-        dataArray.push(0x82);                   // From (네이버 엔트리)
-        dataArray.push(target);                 // To
-
-        // Data
-        dataArray.push(this.getByte0(x));
-        dataArray.push(this.getByte1(x));
-        dataArray.push(this.getByte0(y));
-        dataArray.push(this.getByte1(y));
-        dataArray.push(font);
-        dataArray.push(pixel);
-
-        for (let i = 0; i < byteArray.length; i++)
+        for (let i = 0; i < byteArrayString.length; i++)
         {
-            dataArray.push(byteArray[i]);
+            view.setUint8((6 + i), byteArrayString[i]);
         }
 
-        // CRC16
-        this.addCRC16(dataArray, indexStart, dataLength);
-
-        //this.log("reserveDisplayDrawString()", dataArray);
-        
-        return dataArray;
+        return createTransferBlock(0x86, target, dataArray);
     }
 
 
     // DisplayDrawString
     reserveDisplayDrawStringAlign(target, x_start, x_end, y, align, font, pixel, string)
     {
-        let dataArray = [];
+        let byteArrayString = this.stringToAsciiByteArray(string);
 
-        // Start Code
-        this.addStartCode(dataArray);
+        let dataArray   = new ArrayBuffer(9 + byteArrayString.length);
+        let view        = new DataView(dataArray);
 
-        byteArray = this.stringToAsciiByteArray(string);
+        view.setInt16   (0, x_start);
+        view.setInt16   (2, x_end);
+        view.setInt16   (4, y);
+        view.setUint8   (6, align);
+        view.setUint8   (7, font);
+        view.setUint8   (8, pixel);
 
-        let indexStart = dataArray.length;         // 배열에서 데이터를 저장하기 시작하는 위치
-        let dataLength = 9 + byteArray.length;     // 데이터의 길이
-
-        // Header
-        dataArray.push(0x87);                   // Data Type
-        dataArray.push(dataLength);             // Data Length
-        dataArray.push(0x82);                   // From (네이버 엔트리)
-        dataArray.push(target);                 // To
-
-        // Data
-        dataArray.push(this.getByte0(x_start));
-        dataArray.push(this.getByte1(x_start));
-        dataArray.push(this.getByte0(x_end));
-        dataArray.push(this.getByte1(x_end));
-        dataArray.push(this.getByte0(y));
-        dataArray.push(this.getByte1(y));
-        dataArray.push(align);
-        dataArray.push(font);
-        dataArray.push(pixel);
-
-        for (let i = 0; i < byteArray.length; i++)
+        for (let i = 0; i < byteArrayString.length; i++)
         {
-            dataArray.push(byteArray[i]);
+            view.setUint8((9 + i), byteArrayString[i]);
         }
 
-        // CRC16
-        this.addCRC16(dataArray, indexStart, dataLength);
-
-        //this.log("reserveDisplayDrawString()", dataArray);
-        
-        return dataArray;
+        return createTransferBlock(0x87, target, dataArray);
     }
 
 
     // Command
     reserveCommand(target, command, option)
     {
-        let dataArray = [];
+        let dataArray   = new ArrayBuffer(2);
+        let view        = new DataView(dataArray);
 
-        // Start Code
-        this.addStartCode(dataArray);
+        view.setUint8   (0, command);
+        view.setUint8   (1, option);
 
-        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-        let dataLength = 2;                     // 데이터의 길이
-
-        // Header
-        dataArray.push(0x11);                   // Data Type
-        dataArray.push(dataLength);             // Data Length
-        dataArray.push(0x82);                   // From (네이버 엔트리)
-        dataArray.push(target);                 // To
-
-        // Data Array
-        dataArray.push(command);
-        dataArray.push(option);
-
-        // CRC16
-        this.addCRC16(dataArray, indexStart, dataLength);
-
-        //this.log("reserveCommand()", dataArray);
-        
-        return dataArray;
+        return createTransferBlock(0x11, target, dataArray);
     }
 
 
     // ControlQuad8
     reserveControlQuad8(target, roll, pitch, yaw, throttle)
     {
-        let dataArray = [];
+        let dataArray   = new ArrayBuffer(4);
+        let view        = new DataView(dataArray);
 
-        // Start Code
-        this.addStartCode(dataArray);
-
-        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-        let dataLength = 4;                     // 데이터의 길이
-
-        this.controlRoll        = controlRoll;
-        this.controlPitch       = controlPitch;
-        this.controlYaw         = controlYaw;
-        this.controlThrottle    = controlThrottle;
-
-        // Header
-        dataArray.push(0x10);                   // Data Type
-        dataArray.push(dataLength);             // Data Length
-        dataArray.push(0x82);                   // From (네이버 엔트리)
-        dataArray.push(target);                 // To
-
-        // Data Array
-        dataArray.push(roll);
-        dataArray.push(pitch);
-        dataArray.push(yaw);
-        dataArray.push(throttle);
-
-        // CRC16
-        this.addCRC16(dataArray, indexStart, dataLength);
-
-        //this.log("reserveControlQuad8()", dataArray);
+        view.setInt8   (0, roll);
+        view.setInt8   (1, pitch);
+        view.setInt8   (2, yaw);
+        view.setInt8   (3, throttle);
         
-        return dataArray;
+        this.controlRoll        = roll;
+        this.controlPitch       = pitch;
+        this.controlYaw         = yaw;
+        this.controlThrottle    = throttle;
+
+        return createTransferBlock(0x10, target, dataArray);
     }
 
 
     // ControlPosition
     reserveControlPosition(target, x, y, z, velocity, heading, rotationalVelocity)
     {
-        let dataArray = [];
+        let dataArray   = new ArrayBuffer(20);
+        let view        = new DataView(dataArray);
 
-        // Start Code
-        this.addStartCode(dataArray);
+        view.setFloat32 (0,  x);
+        view.setFloat32 (4,  y);
+        view.setFloat32 (8,  z);
+        view.setFloat32 (12, velocity);
+        view.setInt16   (16, heading);
+        view.setInt16   (18, rotationalVelocity);
 
-        var floatArray = new Float32Array(4);
-        floatArray[0] = controlPositionX;
-        floatArray[1] = controlPositionY;
-        floatArray[2] = controlPositionZ;
-        floatArray[3] = controlVelocity;
-
-        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-        let dataLength = 18;                     // 데이터의 길이
-
-        // Header
-        dataArray.push(0x10);                   // Data Type
-        dataArray.push(dataLength);             // Data Length
-        dataArray.push(0x82);                   // From (네이버 엔트리)
-        dataArray.push(target);                 // To
-
-        // Data Array
-        dataArray.concat(new Uint8Array(floatArray.buffer));
-        dataArray.push(this.getByte0(controlHeading));
-        dataArray.push(this.getByte1(controlHeading));
-        dataArray.push(this.getByte0(controlRotationalvelocity));
-        dataArray.push(this.getByte1(controlRotationalvelocity));
-
-        // CRC16
-        this.addCRC16(dataArray, indexStart, dataLength);
-
-        //this.log("reserveControlPosition()", dataArray);
-        
-        return dataArray;
+        return createTransferBlock(0x10, target, dataArray);
     }
 
 
     // MotorSingle
-    reserveMotorSingle(target, targetMotor, rotation, value)
+    reserveMotorSingle(target, motor, rotation, value)
     {
-        let dataArray = [];
+        let dataArray   = new ArrayBuffer(4);
+        let view        = new DataView(dataArray);
 
-        // Start Code
-        this.addStartCode(dataArray);
+        view.setUint8   (0, motor);
+        view.setUint8   (1, rotation);
+        view.setInt16   (2, value);
 
-        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-        let dataLength = 4;                     // 데이터의 길이
-
-        // Header
-        dataArray.push(0x61);                   // Data Type
-        dataArray.push(dataLength);             // Data Length
-        dataArray.push(0x82);                   // From (네이버 엔트리)
-        dataArray.push(target);                 // To
-
-        // Data Array
-        dataArray.push(target);
-        dataArray.push(rotation);
-        dataArray.push(this.getByte0(value));
-        dataArray.push(this.getByte1(value));
-
-        // CRC16
-        this.addCRC16(dataArray, indexStart, dataLength);
-
-        //this.log("reserveMotorSingle()", dataArray);
-        
-        return dataArray;
+        return createTransferBlock(0x61, target, dataArray);
     }
 
 
     // Buzzer
-    reserveBuzzer(target, mode, time, value)
+    reserveBuzzer(target, mode, value, time)
     {
-        let dataArray = [];
+        let dataArray   = new ArrayBuffer(5);
+        let view        = new DataView(dataArray);
 
-        // Start Code
-        this.addStartCode(dataArray);
+        view.setUint8   (0, mode);
+        view.setUint16  (1, value);
+        view.setUint16  (3, time);
 
-        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-        let dataLength = 5;                     // 데이터의 길이
-
-        // Header
-        dataArray.push(0x62);                   // Data Type
-        dataArray.push(dataLength);             // Data Length
-        dataArray.push(0x82);                   // From (네이버 엔트리)
-        dataArray.push(target);                 // To
-
-        // Data
-        dataArray.push(mode);
-        dataArray.push(this.getByte0(value));
-        dataArray.push(this.getByte1(value));
-        dataArray.push(this.getByte0(time));
-        dataArray.push(this.getByte1(time));
-
-        // CRC16
-        this.addCRC16(dataArray, indexStart, dataLength);
-
-        //this.log("reserveBuzzer()", dataArray);
-        
-        return dataArray;
+        return createTransferBlock(0x62, target, dataArray);
     }
 
 
     // Vibrator
     reserveVibrator(target, mode, on, off, total)
     {
-        let dataArray = [];
+        let dataArray   = new ArrayBuffer(7);
+        let view        = new DataView(dataArray);
 
-        // Start Code
-        this.addStartCode(dataArray);
+        view.setUint8   (0, mode);
+        view.setUint16  (1, on);
+        view.setUint16  (3, off);
+        view.setUint16  (5, total);
 
-        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-        let dataLength = 7;                     // 데이터의 길이
-
-        // Header
-        dataArray.push(0x63);                   // Data Type
-        dataArray.push(dataLength);             // Data Length
-        dataArray.push(0x82);                   // From (네이버 엔트리)
-        dataArray.push(target);                 // To
-
-        // Data
-        dataArray.push(mode);
-        dataArray.push(this.getByte0(on));
-        dataArray.push(this.getByte1(on));
-        dataArray.push(this.getByte0(off));
-        dataArray.push(this.getByte1(off));
-        dataArray.push(this.getByte0(total));
-        dataArray.push(this.getByte1(total));
-
-        // CRC16
-        this.addCRC16(dataArray, indexStart, dataLength);
-
-        //this.log("reserveBuzzer()", dataArray);
-        
-        return dataArray;
+        return createTransferBlock(0x63, target, dataArray);
     }
 
 
