@@ -35,7 +35,6 @@ module.exports = merge({
     },
     externals: [
         function(requestDirectoryPath, requestModuleName, callback) {
-        console.log(requestDirectoryPath, requestModuleName);
             if (commonjsDirectories.some((directory) => requestDirectoryPath === directory)) {
                 return callback(
                     null,

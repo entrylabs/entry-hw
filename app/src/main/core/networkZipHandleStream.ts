@@ -17,7 +17,8 @@ export default class NetworkZipHandleStream extends Stream.PassThrough {
         const fileWriteStreamPromises: Promise<void>[] = [];
 
         // eslint-disable-next-line new-cap
-        const tarParse: ParseStream = tar.Parse();
+        // @ts-ignore
+        const tarParse: ParseStream = new tar.Parse();
 
         tarParse.on('error', (e) => {
             throw e;

@@ -145,24 +145,21 @@ class MainRouter {
      * renderer 에 state 인자를 보낸다. 주로 ui 변경을 위해 사용된다.
      */
     sendState(state: string, ...args: any[]) {
-        if (!this.config) {
-            console.log('hardwareConfig is not found');
-            return;
-        }
-
         let resultState = state;
-        if (state === HardwareStatement.lost) {
-            if (this.config.reconnect) {
-                this.reconnect();
-            } else {
-                // 연결 잃은 후 재연결 속성 없으면 연결해제처리
-                resultState = HardwareStatement.disconnected;
-                this.close();
+        if (this.config) {
+            if (state === HardwareStatement.lost) {
+                if (this.config.reconnect) {
+                    this.reconnect();
+                } else {
+                    // 연결 잃은 후 재연결 속성 없으면 연결해제처리
+                    resultState = HardwareStatement.disconnected;
+                    this.close();
+                }
+            } else if (state === HardwareStatement.connected && this.config.moduleName) {
+                this.sendActionDataToServer(EntryMessageAction.init, {
+                    name: this.config.moduleName,
+                });
             }
-        } else if (state === HardwareStatement.connected && this.config.moduleName) {
-            this.sendActionDataToServer(EntryMessageAction.init, {
-                name: this.config.moduleName,
-            });
         }
 
         this.sendEventToMainWindow('state', resultState, ...args);
@@ -194,9 +191,7 @@ class MainRouter {
         try {
             this.config = config;
             if (this.scanner) {
-                this.hwModule = require(
-                    path.join(commonUtils.getExtraDirectoryPath('modules'), config.module),
-                ) as IHardwareModule;
+                this.hwModule = require(`../../modules/${config.module}`) as IHardwareModule;
                 this.sendState(HardwareStatement.scan);
                 this.scanner.stopScan();
                 const connector = await this.scanner.startScan(this.hwModule, this.config);

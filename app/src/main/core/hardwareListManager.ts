@@ -1,7 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 import { merge, unionWith } from 'lodash';
-import { lt, valid } from 'semver';
+import lt from 'semver/functions/lt';
+import valid from 'semver/functions/valid';
 import commonUtils from '../electron/commonUtils';
 import { AvailableTypes } from '../../common/constants';
 import getModuleList from './functions/getModuleList';
