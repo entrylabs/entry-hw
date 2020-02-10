@@ -7,6 +7,7 @@ import { HardwareAvailableTypeEnum, HardwarePageStateEnum } from '../../constant
 import { selectHardware } from '../../store/modules/connection';
 import styled from 'styled-components';
 import { requestHardwareModuleDownload } from '../../store/modules/hardware';
+import EmptyDeviceImage from '../../../../images/empty_module_image.png';
 
 const HardwareTypeDiv = styled.div`
     width: 170px;
@@ -62,7 +63,7 @@ const HardwareElement: React.FC<Preload & IDispatchProps & { hardware: any }> = 
 
     const getImageBaseSrc = useMemo(() => {
         if (isImageSrcNotFound) {
-            return '../images/empty_module_image.png';
+            return EmptyDeviceImage;
         }
 
         const imageBaseUrl =
@@ -98,7 +99,7 @@ const HardwareElement: React.FC<Preload & IDispatchProps & { hardware: any }> = 
 };
 
 interface IDispatchProps {
-    selectHardware: (hardware: IHardware) => void;
+    selectHardware: (hardware: IHardwareConfig) => void;
     changeCurrentState: (category: HardwarePageStateEnum) => void;
     requestHardwareModuleDownload: (moduleName: string) => void;
 }

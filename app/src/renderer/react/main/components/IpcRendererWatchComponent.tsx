@@ -19,6 +19,11 @@ class IpcRendererWatchComponent extends React.PureComponent<IProps> {
     constructor(props: Readonly<IProps>) {
         super(props);
 
+        ipcRenderer.removeAllListeners('console');
+        ipcRenderer.removeAllListeners('state');
+        ipcRenderer.removeAllListeners('portListScanned');
+        ipcRenderer.removeAllListeners('cloudMode');
+
         ipcRenderer.on('console', (event: Electron.Event, ...args: any[]) => {
             console.log(...args);
         });

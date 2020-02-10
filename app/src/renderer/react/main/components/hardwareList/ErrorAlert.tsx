@@ -1,6 +1,7 @@
 import React from 'react';
 import withPreload from '../../hoc/withPreload';
 import Styled from 'styled-components';
+import AlertImage from '../../../../images/alert.png';
 
 const ErrorAlertContainer = Styled.div`
     min-height: 118px;
@@ -31,30 +32,30 @@ const CommentMessage = Styled.div`
 `;
 
 const ErrorAlert = (props: Preload) => (
-        <ErrorAlertContainer>
-            <div>
-                <ErrorImage src="../images/alert.png"/>
-                <ErrorMessageSpanContainer>
-                    <MessageSpan>
-                        {props.translator.translate(
-                            'If unexpected problem occurs while operating,',
-                        )}
-                    </MessageSpan>
-                    <MessageSpan>
-                        {props.translator.translate(
-                            'contact the hardware company to resolve the problem.',
-                        )}
-                    </MessageSpan>
-                </ErrorMessageSpanContainer>
-            </div>
-            <CommentMessage>
-                {
-                    props.translator.translate(
-                        '* Entry Labs is not responsible for the extension program and hardware products on this site.',
-                    )
-                }
-            </CommentMessage>
-        </ErrorAlertContainer>
-    );
+    <ErrorAlertContainer>
+        <div>
+            <ErrorImage src={AlertImage}/>
+            <ErrorMessageSpanContainer>
+                <MessageSpan>
+                    {props.translator.translate(
+                        'If unexpected problem occurs while operating,',
+                    )}
+                </MessageSpan>
+                <MessageSpan>
+                    {props.translator.translate(
+                        'contact the hardware company to resolve the problem.',
+                    )}
+                </MessageSpan>
+            </ErrorMessageSpanContainer>
+        </div>
+        <CommentMessage>
+            {
+                props.translator.translate(
+                    '* Entry Labs is not responsible for the extension program and hardware products on this site.',
+                )
+            }
+        </CommentMessage>
+    </ErrorAlertContainer>
+);
 
 export default withPreload(ErrorAlert);

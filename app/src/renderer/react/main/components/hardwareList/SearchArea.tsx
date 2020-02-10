@@ -3,6 +3,8 @@ import Styled from 'styled-components';
 import { connect } from 'react-redux';
 import { IMapDispatchToProps, IMapStateToProps } from '../../store';
 import { changeHardwareSearchKeyword } from '../../store/modules/hardware';
+import SearchIcon from '../../../../images/search_icon.png';
+import SearchCloseIcon from '../../../../images/search_close.png';
 
 const SearchContainer = Styled.div`
     top: 15px;
@@ -98,7 +100,7 @@ const SearchArea: React.FC<IStateProps & IDispatchProps> = (props) => {
                 onChange={searchBarOnChange}
             />
             <SearchButton id="search_button" onClick={searchButtonOnClick}>
-                <img src="../images/search_icon.png" alt="검색"/>
+                <img src={SearchIcon} alt="검색"/>
             </SearchButton>
             {/* 스타일에 넣은 이유는 신규 생성시 전체 렌더가 일어나고 있어서이다. */}
             <SearchCloseButton
@@ -106,7 +108,7 @@ const SearchArea: React.FC<IStateProps & IDispatchProps> = (props) => {
                 onClick={closeButtonOnClick}
                 style={isShowCloseButton ? {} : { display: 'none' }}
             >
-                <img src="../images/search_close.png" alt="검색 닫기"/>
+                <img src={SearchCloseIcon} alt="검색 닫기"/>
             </SearchCloseButton>
         </SearchContainer>
     );

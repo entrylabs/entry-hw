@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 import { IMapStateToProps } from '../../store';
 import DriverButtonSetElement from './DriverButtonSetElement';
 import FirmwareButtonSetElement from './FirmwareButtonSetElement';
+import ComputerImage from '../../../../images/computer.png';
 
 const HardwarePanel = Styled.div`
     display: flex;
@@ -111,7 +112,7 @@ const HardwareConnectionContainer: React.FC<IStateProps & Preload> = (props) => 
                     }
                 </ReferenceDiv>
                 <ClientElement>
-                    <img src="../images/computer.png" alt={''}/>
+                    <img src={ComputerImage} alt={''}/>
                     {
                         driver &&
                         <div id="driverButtonSet">
@@ -138,7 +139,7 @@ const HardwareConnectionContainer: React.FC<IStateProps & Preload> = (props) => 
 };
 
 interface IStateProps {
-    selectedHardware?: IHardware;
+    selectedHardware?: IHardwareConfig;
 }
 
 const mapStateToProps: IMapStateToProps<IStateProps> = (state) => ({

@@ -1,0 +1,40 @@
+name: Build & Deploy
+
+on:
+  push:
+    branches:
+      - deploy/**
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2.0.0
+    - name: Setup Node version 10.x
+      uses: actions/setup-node@v1.1.0
+      with:
+        node-version: '10.x'
+    - name: Yarn install, webpacking
+      run: |
+        yarn install --ignore-scripts
+        yarn webpack:prod
+    - name: Execute build.sh
+      run: |
+        chmod +x ./scripts/build.sh
+        ./scripts/build.sh
+    - name: Execute deploy.sh
+      run: |
+        chmod +x ./scripts/deploy.sh
+        ./scripts/deploy.sh
+    - name: Define branch name
+      id: target_branch
+      shell: bash
+      run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF##*/})"
+    - name: Push Changes in build-base
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        force: true
+        directory: ./build-base
+        branch: dist/${{ steps.target_branch.outputs.branch }}

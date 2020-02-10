@@ -1,4 +1,4 @@
 {
   "updateCheckUrl":"https://playentry.org/api/checkVersion",
-  "moduleResourceUrl":"http://localhost:5200/modules"
+  "moduleResourceUrl":"http://traefik-service-modulize.entrydev.svc.ad1.io.navercorp.com/modules"
 }

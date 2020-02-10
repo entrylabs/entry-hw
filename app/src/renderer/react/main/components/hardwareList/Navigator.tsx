@@ -6,6 +6,13 @@ import { IMapDispatchToProps, IMapStateToProps } from '../../store';
 import { HardwarePageStateEnum } from '../../constants/constants';
 import { changeCurrentPageState } from '../../store/modules/common';
 
+import backButtonDimImage from '../../../../images/btn_back_dim.png';
+import backButtonOnImage from '../../../../images/btn_back_on.png';
+import backButtonOffImage from '../../../../images/btn_back_off.png';
+
+import refreshButtonOnImage from '../../../../images/btn_refresh_on.png';
+import refreshButtonOffImage from '../../../../images/btn_refresh_off.png';
+
 const NavigatorContainer = Styled.div`
     padding-top: 15px;
     width: 100px;
@@ -44,18 +51,18 @@ const Navigator: React.FC<IStateProps & IDispatchProps & Preload> = (props) => {
         <NavigatorContainer id="navigator">
             <NavigatorButton
                 id="back"
-                dimImage={'../images/btn_back_dim.png'}
-                enabledImage={'../images/btn_back_on.png'}
-                disabledImage={'../images/btn_back_off.png'}
+                dimImage={backButtonDimImage}
+                enabledImage={backButtonOnImage}
+                disabledImage={backButtonOffImage}
                 onClick={() => {
                     props.currentState !== HardwarePageStateEnum.list && onBackClicked();
                 }}
                 className={props.currentState !== HardwarePageStateEnum.list ? 'active' : ''}
             />
             <NavigatorButton
-                dimImage={'../images/btn_refresh_off.png'}
-                enabledImage={'../images/btn_refresh_on.png'}
-                disabledImage={'../images/btn_refresh_on.png'}
+                dimImage={refreshButtonOffImage}
+                enabledImage={refreshButtonOnImage}
+                disabledImage={refreshButtonOnImage}
                 onClick={onRefreshClicked}
             />
         </NavigatorContainer>

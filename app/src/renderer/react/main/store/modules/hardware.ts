@@ -7,7 +7,7 @@ import { CategoryTypeEnum } from '../../constants/constants';
 export interface IHardwareState {
     hardwareFilterKeyword: string;
     hardwareFilterCategory: CategoryTypeEnum;
-    hardwareList: IHardware[];
+    hardwareList: IHardwareConfig[];
 }
 
 // types
@@ -21,7 +21,7 @@ export const HARDWARE_LIST_RESET = 'hardware/HARDWARE_LIST_RESET';
 export const requestHardwareModuleDownload = makePayloadAction<string>(HARDWARE_MODULE_DOWNLOAD_REQUESTED);
 export const changeHardwareSearchKeyword = makePayloadAction<string>(HARDWARE_SEARCH_KEYWORD_CHANGED);
 export const changeHardwareCategory = makePayloadAction<CategoryTypeEnum>(CATEGORY_CHANGED);
-export const changeHardwareList = makePayloadAction<IHardware[]>(HARDWARE_LIST_CHANGED);
+export const changeHardwareList = makePayloadAction<IHardwareConfig[]>(HARDWARE_LIST_CHANGED);
 export const resetHardwareList = makeAction(HARDWARE_LIST_RESET);
 
 // reducer

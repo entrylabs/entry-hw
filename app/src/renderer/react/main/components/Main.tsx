@@ -22,7 +22,6 @@ const Main: React.FC<IStateProps & IDispatchProps> = (props) => {
         }
     }, [currentState]);
 
-    console.log(isNeedPortSelect && !isPortSelectCanceled);
     return (
         <>
             {currentState === HardwarePageStateEnum.list && (

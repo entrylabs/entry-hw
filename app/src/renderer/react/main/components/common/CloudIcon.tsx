@@ -3,13 +3,14 @@ import Styled from 'styled-components';
 import { connect } from 'react-redux';
 import { CloudModeTypesEnum } from '../../constants/constants';
 import { IMapStateToProps } from '../../store';
+import Cloud from '../../../../images/cloud.png';
 
 const CloudIconContainer = Styled.div`
     float: left;
     .cloud_icon {
         display: inline-block;
         background-size: contain;
-        background: url('../images/cloud.png') no-repeat;
+        background: url(${Cloud}) no-repeat;
         width: 22px;
         height: 14px;
     }
