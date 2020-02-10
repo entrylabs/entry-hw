@@ -7,7 +7,6 @@
     "category": "board",
     "platform": ["win32", "darwin"],
     "icon": "mechatro_nano.png",
-    "url": "http://cafe.naver.com/easybread",
     "module": "mechatro.js",
     "driver": [
         {
@@ -22,16 +21,19 @@
             "translate": "나노 호환 보드 드라이버"
         }
     ],
+    "url": "http://cafe.naver.com/easybread",
+    "email": "in_school@naver.com",
     "reconnect": true,
+    "firmware": "mechatro",
     "firmwareBaudRate": 57600,
-    "firmware": "mechatro_hc_05",
+
     "entry": {
         "protocol": "json"
     },
     "hardware": {
         "type": "serial",
         "control": "slave",
-        "duration": 32,
+        "duration": 35,
         "vendor": ["Arduino", "wch.cn", "FTDI"],
         "baudRate": 57600,
         "lostTimer": 1000,
