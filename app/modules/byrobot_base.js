@@ -18,6 +18,8 @@ class byrobot_base extends BaseModule
     {
         super();
 
+        this.log("BYROBOT_BASE - constructor()");
+
         this.createCRC16Array();
 
         this.serialport = null;
@@ -302,7 +304,7 @@ class byrobot_base extends BaseModule
             this.serialport = serialport;
         }
 
-        //this.log("BYROBOT_BASE - requestInitialData(0x" + this.targetDevice.toString(16).toUpperCase() + ")");
+        this.log("BYROBOT_BASE - requestInitialData(0x" + this.targetDevice.toString(16).toUpperCase() + ")");
         return this.reservePing(this.targetDevice);
     }
 
@@ -335,7 +337,8 @@ class byrobot_base extends BaseModule
     */
     requestLocalData()
     {
-        return this.transferForDevice();
+        this.log("BYROBOT BASE - requestLocalData()");
+        return this.transferToDevice();
     }
 
 
@@ -987,41 +990,48 @@ class byrobot_base extends BaseModule
     // https://cryingnavi.github.io/javascript-typedarray/
     createTransferBlock(dataType, to, dataBuffer)
     {
-        let dataBlock       = new ArrayBuffer(2 + 4 + dataBuffer.byteLength + 2);  // Start Code + Header + Data + CRC16
-        let view            = new DataView(dataBlock);
+        let dataBlock   = new ArrayBuffer(2 + 4 + dataBuffer.byteLength + 2);  // Start Code + Header + Data + CRC16
+        let view        = new DataView(dataBlock);
+        let dataArray   = new Uint8Array(dataBuffer);
 
         // Start Code
-        view.setUint8(0, 0x0A);
-        view.setUint8(1, 0x55);
+        {
+            view.setUint8(0, 0x0A);
+            view.setUint8(1, 0x55);
+        }
 
         // Header
-        view.setUint8(2, dataType);         // Data Type
-        view.setUint8(3, dataBuffer.byteLength); // Data Length
-        view.setUint8(4, 0x82);             // From (네이버 엔트리)
-        view.setUint8(5, to);               // To
+        {
+            view.setUint8(2, dataType);         // Data Type
+            view.setUint8(3, dataBuffer.byteLength); // Data Length
+            view.setUint8(4, 0x82);             // From (네이버 엔트리)
+            view.setUint8(5, to);               // To
+        }
 
         // Data
-        let dataArray = new Uint8Array(dataBuffer);
-        for(let i=0; i<dataArray.length; i++)
         {
-            view.setUint8((2 + 4 + i), dataArray[i]);
+            for(let i=0; i<dataArray.length; i++)
+            {
+                view.setUint8((2 + 4 + i), dataArray[i]);
+            }
         }
 
         // CRC16
-        let crc16 = 0;
         {
             let indexStart  = 2;
             let totalLength = 4 + dataArray.length; // 
+            let crc16       = 0;
 
             for(let i=0; i<totalLength; i++)
             {
                 crc16 = this.calcCRC16(view.getUint8(indexStart + i), crc16);
             }
+            view.setUint16((2 + 4 + dataArray.length), crc16);
         }
-        view.setUint16((2 + 4 + dataArray.length), crc16);
         
-        this.log("BYROBOT BASE - createTransferBlock() - ", new Uint8Array(dataBlock))
-        return new Uint8Array(dataBlock);
+        //this.log("BYROBOT BASE - createTransferBlock() - ", Array.from(new Uint8Array(dataBlock)))
+        return Array.from(new Uint8Array(dataBlock));
+        //return [].slice.call(new Uint8Array(dataBlock));
     }
 
 
@@ -1410,7 +1420,7 @@ class byrobot_base extends BaseModule
     // #region Data Transfer
 
     // 장치에 데이터 전송
-    transferForDevice()
+    transferToDevice()
     {
         let now = (new Date()).getTime();
 
@@ -1425,6 +1435,8 @@ class byrobot_base extends BaseModule
         {
             this.bufferTransfer = [];
         }
+
+        this.log("BYROBOT BASE - transferToDevice() - Length : " + this.bufferTransfer.length);
 
         this.countReqeustDevice++;
 
@@ -1501,7 +1513,7 @@ class byrobot_base extends BaseModule
         this.crc16Transfered = (arrayTransfer[arrayTransfer.length - 1] << 8) | (arrayTransfer[arrayTransfer.length - 2]);
     
         //this.log("Data Transfer - Repeat(" + this.bufferTransfer.length + ") : " + this.countTransferRepeat, this.bufferTransfer[0]);
-        //console.log("Data Transfer - Repeat: " + this.countTransferRepeat, this.bufferTransfer[0]);
+        this.log("BYROBOT BASE - transferToDevice - Repeat: " + this.countTransferRepeat, this.bufferTransfer[0]);
     
         // maxTransferRepeat 이상 전송했음에도 응답이 없는 경우엔 다음으로 넘어감
         if( this.countTransferRepeat >= this.maxTransferRepeat)
@@ -1510,7 +1522,7 @@ class byrobot_base extends BaseModule
             this.countTransferRepeat = 0;
         }
     
-        //this.log("Module.prototype.transferForDevice()", arrayTransfer);
+        //this.log("Module.prototype.transferToDevice()", arrayTransfer);
     
         return arrayTransfer;
     }
@@ -1915,6 +1927,8 @@ class byrobot_base extends BaseModule
     */
     createCRC16Array()
     {
+        this.log("BYROBOT_BASE - createCRC16Array()");
+
         this.crc16table =
         [
             0x0000, 0x1021, 0x2042, 0x3063, 0x4084, 0x50a5, 0x60c6, 0x70e7,
