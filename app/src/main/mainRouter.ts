@@ -190,6 +190,9 @@ class MainRouter {
     async startScan(config: IHardwareConfig) {
         try {
             this.config = config;
+            const { hardware } = config;
+            const { type = 'serial' } = hardware;
+            this.scanner = this.scannerManager.getScanner(type);
             if (this.scanner) {
                 this.hwModule = require(`../../modules/${config.module}`) as IHardwareModule;
                 this.sendState(HardwareStatement.scan);
@@ -251,15 +254,9 @@ class MainRouter {
 
             this.flashFirmware(this.config.firmware)
                 // @ts-ignore
-                .finally(async (firmware: IFirmwareInfo) => {
+                .finally(() => {
                     this.flasher.kill();
-                    if (!this.config) {
-                        return;
-                    }
-                    if (firmware && (firmware as ICopyTypeFirmware).afterDelay) {
-                        await new Promise((resolve) => setTimeout(resolve, (firmware as ICopyTypeFirmware).afterDelay));
-                    }
-                    await this.startScan(this.config);
+                    this.config && this.startScan(this.config);
                 });
 
             return;
@@ -411,8 +408,6 @@ class MainRouter {
     _registerIpcEvents() {
         ipcMain.on('startScan', async (e, config) => {
             try {
-                const { hardware: { type = '' } = {} } = config || {};
-                this.scanner = this.scannerManager.getScanner(type);
                 await this.startScan(config);
             } catch (e) {
                 rendererConsole.error('startScan err : ', e);
@@ -440,14 +435,9 @@ class MainRouter {
                         e.sender.send('requestFlash', err);
                     }
                 })
-                .then(async (firmware) => {
+                .then(() => {
                     this.flasher.kill();
-
-                    if (firmware && (firmware as ICopyTypeFirmware).afterDelay) {
-                        await new Promise((resolve) => setTimeout(resolve, (firmware as ICopyTypeFirmware).afterDelay));
-                    }
-
-                    this.config && (await this.startScan(this.config));
+                    this.config && (this.startScan(this.config));
                 });
         });
         ipcMain.on('executeDriver', (e, driverPath) => {

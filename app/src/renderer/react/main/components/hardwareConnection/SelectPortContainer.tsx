@@ -6,6 +6,7 @@ import { IMapDispatchToProps, IMapStateToProps } from '../../store';
 import { connect } from 'react-redux';
 import { changeCurrentPageState } from '../../store/modules/common';
 import { changePortList, selectPort } from '../../store/modules/connection';
+import CloseButton from '../../../../images/btn_close.png';
 
 const PortBoxContainer = Styled.div`
     background: rgba(0, 0, 0, 0.4);
@@ -56,7 +57,7 @@ const PortBoxCancelIcon = Styled.div`
     display: inline-block;
     background-repeat: no-repeat;
     background-position: center;
-    background-image: url(../images/btn_close.png);
+    background-image: url(${CloseButton});
 `;
 
 const PortBoxContent = Styled.div`

@@ -79,7 +79,10 @@ class Flasher {
             fileUtils.copyFile(
                 path.join(firmwareDirectory, `${firmware.name}.hex`),
                 path.join(destPath[0], `${firmware.name}.hex`),
-            ).then(() => {
+            ).then(async () => {
+                if (firmware.afterDelay) {
+                    await new Promise((resolve) => setTimeout(resolve, firmware.afterDelay));
+                }
                 resolve([]);
             }).catch((err) => {
                 resolve([err]);

@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import { IMapDispatchToProps, IMapStateToProps } from '../../../store';
 import { toggleLicenseView } from '../../../store/modules/common';
 import Styled from 'styled-components';
+import CloseButtonImage from '../../../../../images/btn_close.png';
 
 const ViewerContainer = Styled.div`
     background: rgba(0, 0, 0, 0.4);
@@ -50,7 +51,7 @@ const CancelIcon = Styled.div`
     display: inline-block;
     background-repeat: no-repeat;
     background-position: center;
-    background-image: url(../images/btn_close.png);
+    background-image: url(${CloseButtonImage});
 `;
 
 const ViewerContent = Styled.div`
