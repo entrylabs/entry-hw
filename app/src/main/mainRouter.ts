@@ -92,7 +92,7 @@ class MainRouter {
             const lastSerialPortCOMPort = connectorSerialPort && connectorSerialPort.path;
             this.firmwareTryCount = 0;
 
-            this.close({ saveSelectedPort: true }); // 서버 통신 중지, 시리얼포트 연결 해제
+            this.stopScan({ saveSelectedPort: true }); // 서버 통신 중지, 시리얼포트 연결 해제
 
             const flashFunction: () => Promise<IFirmwareInfo> = () => new Promise((resolve, reject) => {
                 setTimeout(() => {
@@ -250,7 +250,8 @@ class MainRouter {
             delete this.connector.executeFlash;
 
             this.flashFirmware(this.config.firmware)
-                .then(async (firmware: IFirmwareInfo) => {
+                // @ts-ignore
+                .finally(async (firmware: IFirmwareInfo) => {
                     this.flasher.kill();
                     if (!this.config) {
                         return;
