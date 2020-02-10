@@ -3,8 +3,8 @@ import path from 'path';
 import fs from 'fs-extra';
 import { AvailableTypes } from '../../../common/constants';
 import fileUtils from '../fileUtils';
-import commonUtils from '../../electron/commonUtils';
 import NetworkZipHandlerStream from '../networkZipHandleStream';
+import getExtraDirectoryPath from './getExtraDirectoryPath';
 
 const downloadModuleFunction = (moduleName: string) =>
     new Promise((resolve, reject) => {
@@ -20,7 +20,7 @@ const downloadModuleFunction = (moduleName: string) =>
         request.on('response', (response) => {
             response.on('error', reject);
             if (response.statusCode === 200) {
-                const moduleDirPath = commonUtils.getExtraDirectoryPath('modules');
+                const moduleDirPath = getExtraDirectoryPath('modules');
                 const zipStream = new NetworkZipHandlerStream(moduleDirPath);
                 zipStream.on('done', () => {
                     fs.readFile(
@@ -52,11 +52,11 @@ const downloadModuleFunction = (moduleName: string) =>
     });
 
 const moveFirmwareAndDriverDirectory = async () => {
-    const moduleDirPath = commonUtils.getExtraDirectoryPath('modules');
+    const moduleDirPath = getExtraDirectoryPath('modules');
     const srcDriverDirPath = path.join(moduleDirPath, 'drivers');
-    const destDriverDirPath = commonUtils.getExtraDirectoryPath('driver');
+    const destDriverDirPath = getExtraDirectoryPath('driver');
     const srcFirmwaresDirPath = path.join(moduleDirPath, 'firmwares');
-    const destFirmwareDirPath = commonUtils.getExtraDirectoryPath('firmware');
+    const destFirmwareDirPath = getExtraDirectoryPath('firmware');
 
     await Promise.all([
         new Promise(async (resolve) => {

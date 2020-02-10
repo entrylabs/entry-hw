@@ -3,6 +3,7 @@ import Delimiter from '@serialport/parser-delimiter';
 import SerialPort from 'serialport';
 import Stream from 'stream';
 import BaseConnector from '../baseConnector';
+import { HardwareStatement } from '../../../common/constants';
 
 SerialPort.Binding = require('@serialport/bindings');
 
@@ -287,7 +288,7 @@ class SerialConnector extends BaseConnector {
                 if (this.connected) {
                     if (!this.received) {
                         this.connected = false;
-                        this._sendState('lost');
+                        this._sendState(HardwareStatement.lost);
                     }
                     this.received = false;
                 }

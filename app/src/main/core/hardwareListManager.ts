@@ -3,9 +3,9 @@ import path from 'path';
 import { merge, unionWith } from 'lodash';
 import lt from 'semver/functions/lt';
 import valid from 'semver/functions/valid';
-import commonUtils from '../electron/commonUtils';
 import { AvailableTypes } from '../../common/constants';
 import getModuleList from './functions/getModuleList';
+import getExtraDirectoryPath from './functions/getExtraDirectoryPath';
 
 const nameSortComparator = (left: IHardwareConfig, right: IHardwareConfig) => {
     const lName = left.name.ko.trim();
@@ -33,7 +33,7 @@ const onlineModuleSchemaModifier = (schema: any) => {
 };
 
 export default class {
-    private moduleBasePath = commonUtils.getExtraDirectoryPath('modules');
+    private moduleBasePath = getExtraDirectoryPath('modules');
     private readonly router?: any;
     public allHardwareList: IHardwareConfig[] = [];
 

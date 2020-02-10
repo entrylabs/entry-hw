@@ -2,7 +2,7 @@ import { dialog } from 'electron';
 import { ChildProcess, exec } from 'child_process';
 import path from 'path';
 import fileUtils from '../fileUtils';
-import commonUtils from '../../electron/commonUtils';
+import getExtraDirectoryPath from '../functions/getExtraDirectoryPath';
 
 const platform = process.platform;
 
@@ -16,7 +16,7 @@ class Flasher {
     private flasherProcess?: ChildProcess;
 
     static get firmwareDirectoryPath() {
-        return commonUtils.getExtraDirectoryPath('firmware');
+        return getExtraDirectoryPath('firmware');
     }
 
     private _flashArduino(firmware: IFirmwareInfo, port: string, options: { baudRate?: string; MCUType?: string; }) {

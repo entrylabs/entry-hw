@@ -7,8 +7,8 @@ import IpcManager from './core/ipcMainManager';
 import HardwareListManager from './core/hardwareListManager';
 import DataHandler from './core/dataHandler';
 import downloadModule from './core/functions/downloadModule';
-import commonUtils from './electron/commonUtils';
 import { EntryMessageAction, EntryStatePayload, HardwareStatement } from '../common/constants';
+import getExtraDirectoryPath from './core/functions/getExtraDirectoryPath';
 
 interface IEntryServer {
     setRouter: (router: MainRouter) => void;
@@ -402,7 +402,7 @@ class MainRouter {
             return;
         }
 
-        const sourcePath = commonUtils.getExtraDirectoryPath('driver');
+        const sourcePath = getExtraDirectoryPath('driver');
 
         shell.openItem(path.resolve(sourcePath, driverPath));
     }
