@@ -281,6 +281,8 @@ class byrobot_base extends BaseModule
     init(handler, config)
     {
         super.init(handler, config);
+        
+        this.log("BYROBOT_BASE - init()");
         //this.resetData();
     }
 
@@ -300,6 +302,7 @@ class byrobot_base extends BaseModule
             this.serialport = serialport;
         }
 
+        //this.log("BYROBOT_BASE - requestInitialData(0x" + this.targetDevice.toString(16).toUpperCase() + ")");
         return this.reservePing(this.targetDevice);
     }
 
@@ -310,6 +313,7 @@ class byrobot_base extends BaseModule
      */
     checkInitialData(data, config)
     {
+        this.log("BYROBOT_BASE - checkInitialData()");
         return this.checkAck(data, config); 
     }
 
@@ -380,7 +384,7 @@ class byrobot_base extends BaseModule
     */
     reset()
     {
-        this.log("reset", "");
+        this.log("reset");
         this.resetData();
     }
 
@@ -922,7 +926,7 @@ class byrobot_base extends BaseModule
             handler.e(this.DataType.CONTROL_POSITION_HEADING)             ||
             handler.e(this.DataType.CONTROL_POSITION_ROTATIONAL_VELOCITY) )
         {
-            let y                   = this.read(handler, this.DataType.CONTROL_POSITION_X);
+            let x                   = this.read(handler, this.DataType.CONTROL_POSITION_X);
             let y                   = this.read(handler, this.DataType.CONTROL_POSITION_Y);
             let z                   = this.read(handler, this.DataType.CONTROL_POSITION_Z);
             let velocity            = this.read(handler, this.DataType.CONTROL_POSITION_VELOCITY);
@@ -981,10 +985,10 @@ class byrobot_base extends BaseModule
 
     // 전송 데이터 배열 생성
     // https://cryingnavi.github.io/javascript-typedarray/
-    createTransferBlock(dataType, to, dataArray)
+    createTransferBlock(dataType, to, dataBuffer)
     {
-        let dataBlock   = new ArrayBuffer(2 + 4 + dataArray.length + 2);  // Start Code + Header + Data + CRC16
-        let view        = new DataView(dataBlock);
+        let dataBlock       = new ArrayBuffer(2 + 4 + dataBuffer.byteLength + 2);  // Start Code + Header + Data + CRC16
+        let view            = new DataView(dataBlock);
 
         // Start Code
         view.setUint8(0, 0x0A);
@@ -992,11 +996,12 @@ class byrobot_base extends BaseModule
 
         // Header
         view.setUint8(2, dataType);         // Data Type
-        view.setUint8(3, dataArray.length); // Data Length
+        view.setUint8(3, dataBuffer.byteLength); // Data Length
         view.setUint8(4, 0x82);             // From (네이버 엔트리)
         view.setUint8(5, to);               // To
 
-        // Body
+        // Data
+        let dataArray = new Uint8Array(dataBuffer);
         for(let i=0; i<dataArray.length; i++)
         {
             view.setUint8((2 + 4 + i), dataArray[i]);
@@ -1010,29 +1015,23 @@ class byrobot_base extends BaseModule
 
             for(let i=0; i<totalLength; i++)
             {
-                crc16 = this.calcCRC16(dataBlock[indexStart + i], crc16);
+                crc16 = this.calcCRC16(view.getUint8(indexStart + i), crc16);
             }
         }
-        view.setUint16(2 + 4 + dataArray.length, crc16);
-
-        return dataBlock;
+        view.setUint16((2 + 4 + dataArray.length), crc16);
+        
+        this.log("BYROBOT BASE - createTransferBlock() - ", new Uint8Array(dataBlock))
+        return new Uint8Array(dataBlock);
     }
 
 
-    // CRC16을 계산해서 추가
-    calcCRC16(dataArray, indexStart, length)
+    // 값 추출
+    getByte(value, index)
     {
-        if( dataArray.length < indexStart + length )
-        {
-            return 0;
-        }
-        
-        // CRC16
-        let crc16 = 0;
-        let totalLength = length;
-        
-        return crc16;
+        return ((value >> (index << 3)) & 0xff);
     }
+
+
     // #endregion Data Transfer to Device from Entry
 
 
@@ -1259,6 +1258,7 @@ class byrobot_base extends BaseModule
             // 데이터 전송 완료 처리
             if( flagComplete )
             {
+                this.log("BYROBOT_BASE - Receiver CRC16 - C: " + this.crc16Calculated + ", R: " + this.crc16Received);
                 if( this.crc16Calculated == this.crc16Received )
                 {
                     this.handlerForDevice();
@@ -1530,9 +1530,10 @@ class byrobot_base extends BaseModule
         let dataArray   = new ArrayBuffer(8);
         let view        = new DataView(dataArray);
 
-        view.setBigUint64(0, 0);
+        view.setUint32(0, 11);
+        view.setUint32(4, 22);
 
-        return createTransferBlock(0x01, target, dataArray);
+        return this.createTransferBlock(0x01, target, dataArray);
     }
 
 
@@ -1544,7 +1545,7 @@ class byrobot_base extends BaseModule
 
         view.setUint8(0, dataType);
 
-        return createTransferBlock(0x04, target, dataArray);
+        return this.createTransferBlock(0x04, target, dataArray);
     }
 
 
@@ -1557,7 +1558,7 @@ class byrobot_base extends BaseModule
         view.setUint16  (0, flag);
         view.setUint8   (2, brightness);
 
-        return createTransferBlock(0x20, target, dataArray);
+        return this.createTransferBlock(0x20, target, dataArray);
     }
 
 
@@ -1573,7 +1574,7 @@ class byrobot_base extends BaseModule
         view.setUint8   (4, g);
         view.setUint8   (5, b);
 
-        return createTransferBlock(0x21, target, dataArray);
+        return this.createTransferBlock(0x21, target, dataArray);
     }
 
 
@@ -1586,7 +1587,7 @@ class byrobot_base extends BaseModule
         view.setUint8   (0, mode);
         view.setUint16  (1, interval);
 
-        return createTransferBlock(0x21, target, dataArray);
+        return this.createTransferBlock(0x21, target, dataArray);
     }
 
 
@@ -1603,7 +1604,7 @@ class byrobot_base extends BaseModule
         view.setUint8   (5, g);
         view.setUint8   (6, b);
 
-        return createTransferBlock(0x22, target, dataArray);
+        return this.createTransferBlock(0x22, target, dataArray);
     }
 
 
@@ -1617,7 +1618,7 @@ class byrobot_base extends BaseModule
         view.setUint16  (1, interval);
         view.setUint8   (3, repeat);
 
-        return createTransferBlock(0x22, target, dataArray);
+        return this.createTransferBlock(0x22, target, dataArray);
     }
 
 
@@ -1629,7 +1630,7 @@ class byrobot_base extends BaseModule
 
         view.setUint8   (0, pixel);
 
-        return createTransferBlock(0x80, target, dataArray);
+        return this.createTransferBlock(0x80, target, dataArray);
     }
 
 
@@ -1645,7 +1646,7 @@ class byrobot_base extends BaseModule
         view.setInt16   (6, height);
         view.setUint8   (8, pixel);
 
-        return createTransferBlock(0x80, target, dataArray);
+        return this.createTransferBlock(0x80, target, dataArray);
     }
 
 
@@ -1660,7 +1661,7 @@ class byrobot_base extends BaseModule
         view.setInt16   (4, width);
         view.setInt16   (6, height);
 
-        return createTransferBlock(0x81, target, dataArray);
+        return this.createTransferBlock(0x81, target, dataArray);
     }
 
 
@@ -1674,7 +1675,7 @@ class byrobot_base extends BaseModule
         view.setInt16   (2, y);
         view.setUint8   (4, pixel);
 
-        return createTransferBlock(0x82, target, dataArray);
+        return this.createTransferBlock(0x82, target, dataArray);
     }
 
 
@@ -1691,7 +1692,7 @@ class byrobot_base extends BaseModule
         view.setUint8   (8, pixel);
         view.setUint8   (9, line);
 
-        return createTransferBlock(0x83, target, dataArray);
+        return this.createTransferBlock(0x83, target, dataArray);
     }
 
 
@@ -1709,7 +1710,7 @@ class byrobot_base extends BaseModule
         view.setUint8   (9, flagFill);
         view.setUint8   (10, line);
 
-        return createTransferBlock(0x84, target, dataArray);
+        return this.createTransferBlock(0x84, target, dataArray);
     }
 
 
@@ -1725,7 +1726,7 @@ class byrobot_base extends BaseModule
         view.setUint8   (6, pixel);
         view.setUint8   (7, flagFill);
 
-        return createTransferBlock(0x85, target, dataArray);
+        return this.createTransferBlock(0x85, target, dataArray);
     }
 
 
@@ -1747,7 +1748,7 @@ class byrobot_base extends BaseModule
             view.setUint8((6 + i), byteArrayString[i]);
         }
 
-        return createTransferBlock(0x86, target, dataArray);
+        return this.createTransferBlock(0x86, target, dataArray);
     }
 
 
@@ -1771,7 +1772,7 @@ class byrobot_base extends BaseModule
             view.setUint8((9 + i), byteArrayString[i]);
         }
 
-        return createTransferBlock(0x87, target, dataArray);
+        return this.createTransferBlock(0x87, target, dataArray);
     }
 
 
@@ -1784,7 +1785,7 @@ class byrobot_base extends BaseModule
         view.setUint8   (0, command);
         view.setUint8   (1, option);
 
-        return createTransferBlock(0x11, target, dataArray);
+        return this.createTransferBlock(0x11, target, dataArray);
     }
 
 
@@ -1804,7 +1805,7 @@ class byrobot_base extends BaseModule
         this.controlYaw         = yaw;
         this.controlThrottle    = throttle;
 
-        return createTransferBlock(0x10, target, dataArray);
+        return this.createTransferBlock(0x10, target, dataArray);
     }
 
 
@@ -1821,7 +1822,7 @@ class byrobot_base extends BaseModule
         view.setInt16   (16, heading);
         view.setInt16   (18, rotationalVelocity);
 
-        return createTransferBlock(0x10, target, dataArray);
+        return this.createTransferBlock(0x10, target, dataArray);
     }
 
 
@@ -1835,7 +1836,7 @@ class byrobot_base extends BaseModule
         view.setUint8   (1, rotation);
         view.setInt16   (2, value);
 
-        return createTransferBlock(0x61, target, dataArray);
+        return this.createTransferBlock(0x61, target, dataArray);
     }
 
 
@@ -1849,7 +1850,7 @@ class byrobot_base extends BaseModule
         view.setUint16  (1, value);
         view.setUint16  (3, time);
 
-        return createTransferBlock(0x62, target, dataArray);
+        return this.createTransferBlock(0x62, target, dataArray);
     }
 
 
@@ -1864,7 +1865,7 @@ class byrobot_base extends BaseModule
         view.setUint16  (3, off);
         view.setUint16  (5, total);
 
-        return createTransferBlock(0x63, target, dataArray);
+        return this.createTransferBlock(0x63, target, dataArray);
     }
 
 
