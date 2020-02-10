@@ -304,7 +304,7 @@ class byrobot_base extends BaseModule
             this.serialport = serialport;
         }
 
-        this.log("BYROBOT_BASE - requestInitialData(0x" + this.targetDevice.toString(16).toUpperCase() + ")");
+        //this.log("BYROBOT_BASE - requestInitialData(0x" + this.targetDevice.toString(16).toUpperCase() + ")");
         return this.reservePing(this.targetDevice);
     }
 
@@ -325,6 +325,7 @@ class byrobot_base extends BaseModule
     */
     validateLocalData(data)
     {
+        this.log("BYROBOT_BASE - validateLocalData()");
         return true;
     }
 
@@ -347,6 +348,7 @@ class byrobot_base extends BaseModule
     */
     handleLocalData(data)
     {
+        this.log("BYROBOT BASE - handleLocalData()");
         this.receiverForDevice(data);
     }
 
@@ -356,6 +358,7 @@ class byrobot_base extends BaseModule
     */
     requestRemoteData(handler)
     {
+        this.log("BYROBOT_BASE - requestRemoteData()");
         this.transferToEntry(handler);
     }
 
@@ -365,15 +368,21 @@ class byrobot_base extends BaseModule
     */
     handleRemoteData(handler)
     {
+        this.log("BYROBOT_BASE - handleRemoteData()");
         this.handlerForEntry(handler);
     }
 
 
-    connect() {}
+    connect()
+    {
+        this.log("BYROBOT_BASE - connect()");
+    }
 
 
     disconnect(connect)
     {
+        this.log("BYROBOT_BASE - disconnect()");
+
         if (this.isConnect)
         {
             this.isConnect = false;
@@ -387,7 +396,7 @@ class byrobot_base extends BaseModule
     */
     reset()
     {
-        this.log("reset");
+        this.log("BYROBOT_BASE - reset()");
         this.resetData();
     }
 
@@ -1139,12 +1148,7 @@ class byrobot_base extends BaseModule
         }
 
         // 수신 받은 데이터를 버퍼에 추가
-        for(let i=0; i<data.length; i++)
-        {
-            this.receiveBuffer.push(data[i]);
-        }
-
-        //this.log("receiverForDevice()", this.receiveBuffer);
+        this.receiveBuffer.push(data);
 
         // 버퍼로부터 데이터를 읽어 하나의 완성된 데이터 블럭으로 변환
         while(this.receiveBuffer.length > 0)
@@ -1537,8 +1541,57 @@ class byrobot_base extends BaseModule
     // #region Data Transfer Functions for Device
 
     // Ping
+    //*
     reservePing(target)
     {
+        let dataArray = [];
+
+        // Start Code
+        dataArray.push(0x0A);           // Data Type (UpdateLookupTarget)
+        dataArray.push(0x55);           // Data Length
+        
+        let dataLength = 8;             // 데이터의 길이
+
+        // Header
+        dataArray.push(0x01);           // Data Type (UpdateLookupTarget)
+        dataArray.push(dataLength);     // Data Length
+        dataArray.push(0x82);           // From
+        dataArray.push(0x20);         // To
+
+        // Data Array
+        dataArray.push(0x00);           // systemTime
+        dataArray.push(0x00);
+        dataArray.push(0x00);
+        dataArray.push(0x00);
+        dataArray.push(0x00)
+        dataArray.push(0x00);
+        dataArray.push(0x00);
+        dataArray.push(0x00);
+
+        // CRC16
+        {
+            let indexStart  = 2;
+            let totalLength = 4 + 8; // 
+            let crc16       = 0;
+
+            for(let i=0; i<totalLength; i++)
+            {
+                crc16 = this.calcCRC16(dataArray[indexStart + i], crc16);
+            }
+            dataArray.push(this.getByte(crc16, 0));
+            dataArray.push(this.getByte(crc16, 1));
+        }
+
+        //this.log("reservePing()", dataArray);
+        
+        return dataArray;
+    }
+    // */
+
+    /*
+    reservePing(target)
+    {
+        /*
         let dataArray   = new ArrayBuffer(8);
         let view        = new DataView(dataArray);
 
@@ -1547,6 +1600,7 @@ class byrobot_base extends BaseModule
 
         return this.createTransferBlock(0x01, target, dataArray);
     }
+    // */
 
 
     // 데이터 요청

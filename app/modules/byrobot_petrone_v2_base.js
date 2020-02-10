@@ -344,6 +344,7 @@ class byrobot_petrone_v2_base extends BaseModule
             this.serialport = serialport;
         }
 
+        this.log("BYROBOT_PETRONE_V2_BASE - requestInitialData(0x" + this.targetDevice.toString(16).toUpperCase() + ")");
         return this.reservePing(this.targetDevice);
     }
 
@@ -385,6 +386,7 @@ class byrobot_petrone_v2_base extends BaseModule
     */
     handleLocalData(data)
     {
+        //this.log("BYROBOT_PETRONE_V2_BASE - handleLocalData()");
         this.receiverForDevice(data);
     }
 
@@ -1710,10 +1712,7 @@ class byrobot_petrone_v2_base extends BaseModule
         }
 
         // 수신 받은 데이터를 버퍼에 추가
-        for(let i=0; i<data.length; i++)
-        {
-            this.receiveBuffer.push(data[i]);
-        }
+        this.receiveBuffer.push(data);
 
         //this.log("receiverForDevice()", this.receiveBuffer);
 
