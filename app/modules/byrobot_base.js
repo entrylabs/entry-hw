@@ -465,7 +465,7 @@ class byrobot_base extends BaseModule
         this.to                             = 0;        // 수신 장치 타입
         this.indexSession                   = 0;        // 수신 받은 데이터의 세션
         this.indexReceiver                  = 0;        // 수신 받은 데이터의 세션 내 위치
-        this.dataBlock                      = [];       // 수신 받은 데이터 블럭
+        this.dataBlock                      = undefined;       // 수신 받은 데이터 블럭
         this.crc16Calculated                = 0;        // CRC16 계산 된 결과
         this.crc16Received                  = 0;        // CRC16 수신 받은 블럭
 
@@ -489,11 +489,14 @@ class byrobot_base extends BaseModule
      ***************************************************************************************/
     // #region Data Update
 
-    updateAck( dataArray )
+    updateAck()
     {
-        if ( dataArray != undefined && dataArray.length == 11 )
+        this.log("BYROBOT_BASE - updateAck - " + view.byteLength);
+
+        if ( this.dataBlock != undefined && this.dataBlock.length == 11 )
         {
-            let view = new DataView(dataArray);
+            let array = Uint8Array.from(this.dataBlock);
+            let view  = new DataView(array.buffer);
 
             this.ack._updated   = true;
             this.ack.systemTime = view.getBigUint64(0);
@@ -514,11 +517,14 @@ class byrobot_base extends BaseModule
     }
 
 
-    updateState( dataArray )
+    updateState()
     {
-        if ( dataArray != undefined && dataArray.length == 7 )
+        this.log("BYROBOT_BASE - updateState - " + view.byteLength);
+
+        if ( this.dataBlock != undefined && this.dataBlock.length == 7 )
         {
-            let view = new DataView(dataArray);
+            let array = Uint8Array.from(this.dataBlock);
+            let view  = new DataView(array.buffer);
 
             this.state._updated            = true;
             this.state.modeSystem          = view.getUint8(0);
@@ -547,11 +553,12 @@ class byrobot_base extends BaseModule
     }
 
 
-    updateButton( dataArray )
+    updateButton()
     {
-        if ( dataArray != undefined && dataArray.length == 3 )
+        if ( this.dataBlock != undefined && this.dataBlock.length == 3 )
         {
-            let view = new DataView(dataArray);
+            let array = Uint8Array.from(this.dataBlock);
+            let view  = new DataView(array.buffer);
 
             this.button._updated    = true;
             this.button.button      = view.getUint8(0);
@@ -570,11 +577,48 @@ class byrobot_base extends BaseModule
     }
 
 
-    updateInformationAssembledForEntry( dataArray )
+    updateJoystick()
     {
-        if ( dataArray != undefined && dataArray.length == 18 )
+        if ( this.dataBlock != undefined && this.dataBlock.length == 8 )
         {
-            let view = new DataView(dataArray);
+            let array = Uint8Array.from(this.dataBlock);
+            let view  = new DataView(array.buffer);
+
+            this.joystick._updated                   = true;
+            this.joystick.joystick_left_x            = view.getInt8(0);
+            this.joystick.joystick_left_y            = view.getInt8(1);
+            this.joystick.joystick_left_direction    = view.getUint8(2);
+            this.joystick.joystick_left_event        = view.getUint8(3);
+            this.joystick.joystick_right_x           = view.getInt8(4);
+            this.joystick.joystick_right_y           = view.getInt8(5);
+            this.joystick.joystick_right_direction   = view.getUint8(6);
+            this.joystick.joystick_right_event       = view.getUint8(7);
+
+            return true;
+        }
+        else
+        {
+            this.joystick._updated                   = false;
+            this.joystick.joystick_left_x            = 0;
+            this.joystick.joystick_left_y            = 0;
+            this.joystick.joystick_left_direction    = 0;
+            this.joystick.joystick_left_event        = 0;
+            this.joystick.joystick_right_x           = 0;
+            this.joystick.joystick_right_y           = 0;
+            this.joystick.joystick_right_direction   = 0;
+            this.joystick.joystick_right_event       = 0;
+
+            return false;
+        }
+    }
+
+
+    updateInformationAssembledForEntry( view )
+    {
+        if ( this.dataBlock != undefined && this.dataBlock.length == 18 )
+        {
+            let array = Uint8Array.from(this.dataBlock);
+            let view  = new DataView(array.buffer);
 
             this.informationAssembledForEntry._updated       = true;
             this.informationAssembledForEntry.angleRoll      = view.getInt16(0);
@@ -1011,10 +1055,10 @@ class byrobot_base extends BaseModule
 
         // Header
         {
-            view.setUint8(2, dataType);         // Data Type
-            view.setUint8(3, dataBuffer.byteLength); // Data Length
-            view.setUint8(4, 0x82);             // From (네이버 엔트리)
-            view.setUint8(5, to);               // To
+            view.setUint8(2, dataType);                 // Data Type
+            view.setUint8(3, dataBuffer.byteLength);    // Data Length
+            view.setUint8(4, 0x82);                     // From (네이버 엔트리)
+            view.setUint8(5, to);                       // To
         }
 
         // Data
@@ -1040,7 +1084,6 @@ class byrobot_base extends BaseModule
         
         //this.log("BYROBOT BASE - createTransferBlock() - ", Array.from(new Uint8Array(dataBlock)))
         return Array.from(new Uint8Array(dataBlock));
-        //return [].slice.call(new Uint8Array(dataBlock));
     }
 
 
@@ -1140,20 +1183,21 @@ class byrobot_base extends BaseModule
     // #region Data Receiver from Device
 
     // 장치로부터 받은 데이터 배열 처리
-    receiverForDevice(data)
+    receiverForDevice(dataArray)
     {
-        if( this.receiveBuffer == undefined )
+        //this.log("BYROBOT BASE - receiverForDevice() - " + data.length, data);
+
+        if( dataArray == undefined || dataArray.length == 0 )
         {
-            this.receiveBuffer = [];
+            return;
         }
 
-        // 수신 받은 데이터를 버퍼에 추가
-        this.receiveBuffer.push(data);
+        let i = 0;
 
         // 버퍼로부터 데이터를 읽어 하나의 완성된 데이터 블럭으로 변환
-        while(this.receiveBuffer.length > 0)
+        for(let i=0; i<dataArray.length; i++)
         {
-            let data            = this.receiveBuffer.shift();
+            let data            = dataArray[i];
             let flagContinue    = true;
             let flagSessionNext = false;
             let flagComplete    = false;
@@ -1234,7 +1278,7 @@ class byrobot_base extends BaseModule
                     this.dataBlock.push(data);
                     this.crc16Calculated = this.calcCRC16(data, this.crc16Calculated);
                     
-                    if( this.dataBlock.length == this.dataLength )
+                    if( this.indexReceiver == this.dataLength - 1 )
                     {
                         flagSessionNext = true;
                     }
@@ -1272,7 +1316,7 @@ class byrobot_base extends BaseModule
             // 데이터 전송 완료 처리
             if( flagComplete )
             {
-                this.log("BYROBOT_BASE - Receiver CRC16 - C: " + this.crc16Calculated + ", R: " + this.crc16Received);
+                //this.log("BYROBOT_BASE - Receiver CRC16 - C: " + this.crc16Calculated.toString(16).toUpperCase() + ", R: " + this.crc16Received.toString(16).toUpperCase());
                 if( this.crc16Calculated == this.crc16Received )
                 {
                     this.handlerForDevice();
@@ -1330,7 +1374,7 @@ class byrobot_base extends BaseModule
 
         default:
             {
-                this.log("Receive_From_Device / From: " + this.from + " / To: " + this.to + " / Type: " + this.dataType + " / ", this.dataBlock);
+                this.log("BYROBOT BASE - handlerForDevice() / From: " + this.from + " / To: " + this.to + " / Type: " + this.dataType + " / ", this.dataBlock);
             }
             break;
         }
@@ -1342,12 +1386,12 @@ class byrobot_base extends BaseModule
         {
         case 0x02:  // Ack
             {
-                if( this.updateAck(this.dataBlock) )
+                if( this.updateAck(this.viewDataBlock) )
                 {
                     // ping에 대한 ack는 로그 출력하지 않음
                     if( this.ack.dataType != 0x01 )
                     {
-                        console.log("Receive_From_Device - Ack / From: " + this.from + " / SystemTime: " + ack.systemTime + " / DataType: " + ack.dataType + " / Repeat: " + this.countTransferRepeat + " / Crc16Transfer: " + this.crc16Transfered + " / Crc16Get: " + ack.crc16);
+                        console.log("BYROBOT BASE - handlerForDevice() - Ack / From: " + this.from + " / SystemTime: " + ack.systemTime + " / DataType: " + ack.dataType + " / Repeat: " + this.countTransferRepeat + " / Crc16Transfer: " + this.crc16Transfered + " / Crc16Get: " + ack.crc16);
                     }
 
                     // 마지막으로 전송한 데이터에 대한 응답을 받았다면 
@@ -1373,7 +1417,7 @@ class byrobot_base extends BaseModule
                     this.bufferTransfer.shift();
                     this.countTransferRepeat = 0;
                     
-                    console.log("Receive_From_Device - Response / From: " + this.from + " / DataType: " + this.dataType);
+                    console.log("BYROBOT BASE - handlerForDevice() - Response / From: " + this.from + " / DataType: " + this.dataType);
                 }
             }
             break;
@@ -1384,28 +1428,34 @@ class byrobot_base extends BaseModule
         {
         case 0x40:  // State
             {
-                this.updateState(this.dataBlock);
+                this.log("BYROBOT_BASE - 0x40");
+
+                this.updateState();
             }
             break;
 
 
         case 0x70:  // Button
             {
-                this.updateButton(this.dataBlock);
+                this.log("BYROBOT_BASE - 0x70");
+
+                this.updateButton();
             }
             break;
 
 
         case 0x71:  // Joystick
             {
-                this.updateJoystick(this.dataBlock);
+                this.log("BYROBOT_BASE - 0x71");
+
+                this.updateJoystick();
             }
             break;
 
 
         case 0xA1:  // Information Assembled For Entry 자주 갱신되는 데이터 모음(엔트리)
             {
-                this.updateInformationAssembledForEntry(this.dataBlock);
+                this.updateInformationAssembledForEntry();
             }
             break;
 
@@ -1498,7 +1548,7 @@ class byrobot_base extends BaseModule
                 break;
             }
         }
-    
+
         // 예약된 데이터 전송 처리
         let arrayTransfer = this.bufferTransfer[0];             // 전송할 데이터 배열(첫 번째 데이터 블럭 전송)
         if( arrayTransfer[2] == 0x04 )
@@ -1511,21 +1561,18 @@ class byrobot_base extends BaseModule
         }
         this.countTransferRepeat++;
         this.timeTransfer = (new Date()).getTime();
-    
+
         this.crc16Transfered = (arrayTransfer[arrayTransfer.length - 1] << 8) | (arrayTransfer[arrayTransfer.length - 2]);
-    
-        //this.log("Data Transfer - Repeat(" + this.bufferTransfer.length + ") : " + this.countTransferRepeat, this.bufferTransfer[0]);
-        this.log("BYROBOT BASE - transferToDevice - Repeat: " + this.countTransferRepeat, this.bufferTransfer[0]);
-    
+
+        //this.log("BYROBOT BASE - transferToDevice - Repeat: " + this.countTransferRepeat, this.bufferTransfer[0]);
+
         // maxTransferRepeat 이상 전송했음에도 응답이 없는 경우엔 다음으로 넘어감
         if( this.countTransferRepeat >= this.maxTransferRepeat)
         {
             this.bufferTransfer.shift();
             this.countTransferRepeat = 0;
         }
-    
-        //this.log("Module.prototype.transferToDevice()", arrayTransfer);
-    
+
         return arrayTransfer;
     }
 
@@ -1538,55 +1585,6 @@ class byrobot_base extends BaseModule
      ***************************************************************************************/
     // #region Data Transfer Functions for Device
 
-    // Ping
-    /*
-    reservePing(target)
-    {
-        let dataArray = [];
-
-        // Start Code
-        dataArray.push(0x0A);           // Data Type (UpdateLookupTarget)
-        dataArray.push(0x55);           // Data Length
-        
-        let dataLength = 8;             // 데이터의 길이
-
-        // Header
-        dataArray.push(0x01);           // Data Type (UpdateLookupTarget)
-        dataArray.push(dataLength);     // Data Length
-        dataArray.push(0x82);           // From
-        dataArray.push(0x20);         // To
-
-        // Data Array
-        dataArray.push(0x00);           // systemTime
-        dataArray.push(0x00);
-        dataArray.push(0x00);
-        dataArray.push(0x00);
-        dataArray.push(0x00)
-        dataArray.push(0x00);
-        dataArray.push(0x00);
-        dataArray.push(0x00);
-
-        // CRC16
-        {
-            let indexStart  = 2;
-            let totalLength = 4 + 8; // 
-            let crc16       = 0;
-
-            for(let i=0; i<totalLength; i++)
-            {
-                crc16 = this.calcCRC16(dataArray[indexStart + i], crc16);
-            }
-            dataArray.push(this.getByte(crc16, 0));
-            dataArray.push(this.getByte(crc16, 1));
-        }
-
-        //this.log("reservePing()", dataArray);
-        
-        return dataArray;
-    }
-    // */
-
-    //*
     reservePing(target)
     {
         let dataArray   = new ArrayBuffer(8);
@@ -1597,7 +1595,6 @@ class byrobot_base extends BaseModule
 
         return this.createTransferBlock(0x01, target, dataArray);
     }
-    // */
 
 
     // 데이터 요청
