@@ -325,7 +325,7 @@ class byrobot_base extends BaseModule
     */
     validateLocalData(data)
     {
-        this.log("BYROBOT_BASE - validateLocalData()");
+        //this.log("BYROBOT_BASE - validateLocalData()");
         return true;
     }
 
@@ -338,7 +338,7 @@ class byrobot_base extends BaseModule
     */
     requestLocalData()
     {
-        this.log("BYROBOT BASE - requestLocalData()");
+        //this.log("BYROBOT BASE - requestLocalData()");
         return this.transferToDevice();
     }
 
@@ -348,7 +348,7 @@ class byrobot_base extends BaseModule
     */
     handleLocalData(data)
     {
-        this.log("BYROBOT BASE - handleLocalData()");
+        //this.log("BYROBOT BASE - handleLocalData()");
         this.receiverForDevice(data);
     }
 
@@ -358,7 +358,7 @@ class byrobot_base extends BaseModule
     */
     requestRemoteData(handler)
     {
-        this.log("BYROBOT_BASE - requestRemoteData()");
+        //this.log("BYROBOT_BASE - requestRemoteData()");
         this.transferToEntry(handler);
     }
 
@@ -368,7 +368,7 @@ class byrobot_base extends BaseModule
     */
     handleRemoteData(handler)
     {
-        this.log("BYROBOT_BASE - handleRemoteData()");
+        //this.log("BYROBOT_BASE - handleRemoteData()");
         this.handlerForEntry(handler);
     }
 
@@ -865,7 +865,7 @@ class byrobot_base extends BaseModule
             let pixel   = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_PIXEL);
             let string  = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_STRING);
 
-            let dataArray = reserveDisplayDrawString(target, x, y, font, pixel, string);
+            let dataArray = this.reserveDisplayDrawString(target, x, y, font, pixel, string);
             this.bufferTransfer.push(dataArray);
             this.log("Transfer_To_Device / DisplayDrawString", dataArray);
         }
@@ -882,7 +882,7 @@ class byrobot_base extends BaseModule
             let pixel   = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_ALIGN_PIXEL);
             let string  = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_ALIGN_STRING);
 
-            let dataArray = reserveDisplayDrawStringAlign(target, x_start, x_end, y, align, font, pixel, string);
+            let dataArray = this.reserveDisplayDrawStringAlign(target, x_start, x_end, y, align, font, pixel, string);
             this.bufferTransfer.push(dataArray);
             this.log("Transfer_To_Device / DisplayDrawStringAlign", dataArray);
         }
@@ -907,7 +907,7 @@ class byrobot_base extends BaseModule
                 break;
             }
 
-            let dataArray = reserveCommand(target, command, option);
+            let dataArray = this.reserveCommand(target, command, option);
             this.bufferTransfer.push(dataArray);
             this.log("Transfer_To_Device / Command" + command + ", option: " + option, dataArray);
         }
@@ -924,7 +924,7 @@ class byrobot_base extends BaseModule
             let yaw      = this.read(handler, this.DataType.CONTROL_QUAD8_YAW,      this.controlYaw);
             let throttle = this.read(handler, this.DataType.CONTROL_QUAD8_THROTTLE, this.controlThrottle);
 
-            let dataArray = reserveControlQuad8(target, roll, pitch, yaw, throttle);
+            let dataArray = this.reserveControlQuad8(target, roll, pitch, yaw, throttle);
             this.bufferTransfer.push(dataArray);
             this.log("Transfer_To_Device / ControlQuad8", dataArray);
         }
@@ -945,7 +945,7 @@ class byrobot_base extends BaseModule
             let heading             = this.read(handler, this.DataType.CONTROL_POSITION_HEADING);
             let rotationalVelocity  = this.read(handler, this.DataType.CONTROL_POSITION_ROTATIONAL_VELOCITY);
 
-            let dataArray = reserveControlPosition(target, x, y, z, velocity, heading, rotationalVelocity);
+            let dataArray = this.reserveControlPosition(target, x, y, z, velocity, heading, rotationalVelocity);
             this.bufferTransfer.push(dataArray);
             this.log("Transfer_To_Device / ControlPosition", dataArray);
         }
@@ -958,7 +958,7 @@ class byrobot_base extends BaseModule
             let rotation    = this.read(handler, this.DataType.MOTORSINGLE_ROTATION);
             let value       = this.read(handler, this.DataType.MOTORSINGLE_VALUE);
 
-            let dataArray = reserveMotorSingle(target, targetMotor, rotation, value);
+            let dataArray = this.reserveMotorSingle(target, targetMotor, rotation, value);
             this.bufferTransfer.push(dataArray);
             this.log("Transfer_To_Device / MotorSingle", dataArray);
         }
@@ -971,7 +971,7 @@ class byrobot_base extends BaseModule
             let value    = this.read(handler, this.DataType.BUZZER_VALUE);
             let time     = this.read(handler, this.DataType.BUZZER_TIME);
 
-            let dataArray = reserveBuzzer(target, mode, value, time);
+            let dataArray = this.reserveBuzzer(target, mode, value, time);
             this.bufferTransfer.push(dataArray);
             this.log("Transfer_To_Device / Buzzer / mode: " + mode + ", value: " + value + ", time: " + time, dataArray);
         }
@@ -985,7 +985,7 @@ class byrobot_base extends BaseModule
             let off    = this.read(handler, this.DataType.VIBRATOR_OFF);
             let total  = this.read(handler, this.DataType.VIBRATOR_TOTAL);
 
-            let dataArray = reserveVibrator(target, mode, on, off, total);
+            let dataArray = this.reserveVibrator(target, mode, on, off, total);
             this.bufferTransfer.push(dataArray);
 
             this.log("Transfer_To_Device / Vibrator", dataArray);
@@ -1440,8 +1440,6 @@ class byrobot_base extends BaseModule
             this.bufferTransfer = [];
         }
 
-        this.log("BYROBOT BASE - transferToDevice() - Length : " + this.bufferTransfer.length);
-
         this.countReqeustDevice++;
 
         if( this.bufferTransfer.length == 0 )
@@ -1541,7 +1539,7 @@ class byrobot_base extends BaseModule
     // #region Data Transfer Functions for Device
 
     // Ping
-    //*
+    /*
     reservePing(target)
     {
         let dataArray = [];
@@ -1588,10 +1586,9 @@ class byrobot_base extends BaseModule
     }
     // */
 
-    /*
+    //*
     reservePing(target)
     {
-        /*
         let dataArray   = new ArrayBuffer(8);
         let view        = new DataView(dataArray);
 
