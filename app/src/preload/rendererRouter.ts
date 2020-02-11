@@ -74,31 +74,16 @@ class RendererRouter {
         ipcRenderer.send('openAboutWindow');
     }
 
-    requestFlash(firmwareName: IFirmwareInfo) {
-        return new Promise((resolve, reject) => {
-            ipcRenderer.send('requestFlash', firmwareName);
-            ipcRenderer.once('requestFlash', (e, error) => {
-                if (error instanceof Error) {
-                    console.log(error.message);
-                    reject(error);
-                } else {
-                    resolve();
-                }
-            });
-        });
+    async requestFlash(firmwareName: IFirmwareInfo) {
+        await ipcRenderer.invoke('requestFlash', firmwareName);
     }
 
     openExternalUrl(url: string) {
         shell.openExternal(url);
     }
 
-    getOpenSourceContents() {
-        return new Promise((resolve) => {
-            ipcRenderer.send('getOpensourceText');
-            ipcRenderer.once('getOpensourceText', (e, text) => {
-                resolve(text);
-            });
-        });
+    async getOpenSourceContents() {
+        return await ipcRenderer.invoke('getOpenSourceText');
     }
 
     executeDriverFile(driverPath: string) {
@@ -108,9 +93,6 @@ class RendererRouter {
     async requestDownloadModule(moduleName: string) {
         await ipcRenderer.invoke('requestDownloadModule', moduleName);
     }
-    // requestDownloadModule(config: IHardwareConfig) {
-    //     ipcRenderer.send('requestHardwareModule', config);
-    // }
 
     reloadApplication() {
         ipcRenderer.send('reload');
@@ -134,7 +116,7 @@ class RendererRouter {
         this._hardwareList = routerHardwareList;
     }
 
-    checkProgramUpdate() {
+    async checkProgramUpdate() {
         const { appName } = this.sharedObject;
         const { translator, Modal } = window;
         const translate = (str: string) => translator.translate(str);
@@ -143,10 +125,8 @@ class RendererRouter {
         const modal = new Modal.default();
 
         if (appName === 'hardware' && navigator.onLine) {
-            ipcRenderer.send('checkUpdate');
-            ipcRenderer.once(
-                'checkUpdateResult',
-                (e, { hasNewVersion, version: latestVersion } = {}) => {
+            await ipcRenderer.invoke('checkUpdate')
+                .then(({ hasNewVersion, version: latestVersion }) => {
                     const lastDontCheckedVersion = localStorage.getItem('lastDontCheckedVersion');
                     if (
                         hasNewVersion &&
@@ -176,8 +156,7 @@ class RendererRouter {
                             }
                         });
                     }
-                },
-            );
+                });
         }
     }
 

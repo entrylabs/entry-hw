@@ -422,24 +422,6 @@ class MainRouter {
         ipcMain.on('close', () => {
             this.close();
         });
-        ipcMain.on('requestFlash', (e, firmwareName: IFirmwareInfo) => {
-            this.flashFirmware(firmwareName)
-                .then((firmware) => {
-                    if (!e.sender.isDestroyed()) {
-                        e.sender.send('requestFlash');
-                    }
-                    return firmware;
-                })
-                .catch((err) => {
-                    if (!e.sender.isDestroyed()) {
-                        e.sender.send('requestFlash', err);
-                    }
-                })
-                .then(() => {
-                    this.flasher.kill();
-                    this.config && (this.startScan(this.config));
-                });
-        });
         ipcMain.on('executeDriver', (e, driverPath) => {
             this.executeDriver(driverPath);
         });
@@ -455,6 +437,11 @@ class MainRouter {
         ipcMain.handle('requestDownloadModule', async (e, moduleName) => {
             await this.requestHardwareModule(moduleName);
         });
+        ipcMain.handle('requestFlash', async (e, firmwareName: IFirmwareInfo) => {
+            await this.flashFirmware(firmwareName);
+            this.flasher.kill();
+            this.config && this.startScan(this.config);
+        });
     }
 
     async requestHardwareModule(moduleName: string) {
@@ -468,12 +455,12 @@ class MainRouter {
         ipcMain.removeAllListeners('selectPort');
         ipcMain.removeAllListeners('stopScan');
         ipcMain.removeAllListeners('close');
-        ipcMain.removeAllListeners('requestFlash');
         ipcMain.removeAllListeners('executeDriver');
         ipcMain.removeAllListeners('getCurrentServerModeSync');
         ipcMain.removeAllListeners('getCurrentCloudModeSync');
         ipcMain.removeAllListeners('requestHardwareListSync');
         ipcMain.removeHandler('requestDownloadModule');
+        ipcMain.removeHandler('requestFlash');
     }
 }
 

@@ -97,55 +97,15 @@ if (!app.requestSingleInstanceLock()) {
         });
     });
 
-    ipcMain.handle('checkUpdate', async (e) => await checkUpdate());
-
-    ipcMain.on('checkUpdate', (e) => {
-        checkUpdate()
-            .then((data) => {
-                e.sender.send('checkUpdateResult', data);
-            })
-            .catch((e) => {
-                console.error(`checkUpdate error : ${e}`);
-            });
-    });
-
-    ipcMain.on('getOpensourceText', (e) => {
-        const opensourceFile = path.resolve(__dirname, 'OPENSOURCE.md');
-        fs.readFile(opensourceFile, 'utf8', (err, text) => {
-            e.sender.send('getOpensourceText', text);
-        });
-    });
-
-    ipcMain.handle('checkVersion', (e, lastCheckVersion) => {
-        const version = CommonUtils.getPaddedVersion(hardwareVersion);
-        const lastVersion = CommonUtils.getPaddedVersion(lastCheckVersion);
-
-        return lastVersion > version;
-    });
-
-    ipcMain.on('checkVersion', (e, lastCheckVersion) => {
-        const version = CommonUtils.getPaddedVersion(hardwareVersion);
-        const lastVersion = CommonUtils.getPaddedVersion(lastCheckVersion);
-
-        if (!e.sender.isDestroyed()) {
-            e.sender.send('checkVersionResult', lastVersion > version);
-        }
-    });
-
-    ipcMain.on('openAboutWindow', (event, arg) => {
+    ipcMain.on('openAboutWindow', () => {
         WindowManager.aboutWindow && WindowManager.aboutWindow.show();
     });
 
-    let requestLocalDataInterval = -1;
-    ipcMain.on('startRequestLocalData', (event, duration) => {
-        requestLocalDataInterval = setInterval(() => {
-            if (!event.sender.isDestroyed()) {
-                event.sender.send('sendingRequestLocalData');
-            }
-        }, duration);
-    });
-    ipcMain.on('stopRequestLocalData', () => {
-        clearInterval(requestLocalDataInterval);
+    ipcMain.handle('checkUpdate', async () => await checkUpdate());
+
+    ipcMain.handle('getOpenSourceText', async () => {
+        const openSourceFile = path.resolve(__dirname, 'OPENSOURCE.md');
+        return await fs.promises.readFile(openSourceFile, 'utf8');
     });
 }
 
