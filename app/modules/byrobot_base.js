@@ -175,15 +175,15 @@ class byrobot_base extends BaseModule
         // Joystick
         this.joystick = 
         {
-            _updated            : 1,
-            left_x              : 0,    // s8
-            left_y              : 0,    // s8
-            left_direction      : 0,    // u8
-            left_event          : 0,    // u8
-            right_x             : 0,    // s8
-            right_y             : 0,    // s8
-            right_direction     : 0,    // u8
-            right_event         : 0,    // u8
+            _updated                    : 1,
+            joystick_left_x             : 0,    // s8
+            joystick_left_y             : 0,    // s8
+            joystick_left_direction     : 0,    // u8
+            joystick_left_event         : 0,    // u8
+            joystick_right_x            : 0,    // s8
+            joystick_right_y            : 0,    // s8
+            joystick_right_direction    : 0,    // u8
+            joystick_right_event        : 0,    // u8
         };
 
 
@@ -191,37 +191,37 @@ class byrobot_base extends BaseModule
         this.button = 
         {
             _updated            : 1,
-            button              : 0,    // u16
-            event               : 0,    // u8
+            button_button       : 0,    // u16
+            button_event        : 0,    // u8
         };
 
 
         // State
         this.state = 
         {
-            _updated            : 1,
-            modeSystem          : 0,    // u8
-            modeFlight          : 0,    // u8
-            modeControlFlight   : 0,    // u8
-            modeMovement        : 0,    // u8
-            headless            : 0,    // u8
-            sensorOrientation   : 0,    // u8
-            battery             : 0,    // u8
+            _updated                : 1,
+            state_modeSystem        : 0,    // u8
+            state_modeFlight        : 0,    // u8
+            state_modeControlFlight : 0,    // u8
+            state_modeMovement      : 0,    // u8
+            state_headless          : 0,    // u8
+            state_sensorOrientation : 0,    // u8
+            state_battery           : 0,    // u8
         };
 
 
         // InformationAssembledForEntry
         this.informationAssembledForEntry =
         {
-            _updated            : 1,
-            angleRoll           : 0,    // s16
-            anglePitch          : 0,    // s16
-            angleYaw            : 0,    // s16
-            positionX           : 0,    // s16
-            positionY           : 0,    // s16
-            positionZ           : 0,    // s16
-            rangeHeight         : 0,    // s16
-            altitude            : 0,    // float
+            _updated                                    : 1,
+            informationAssembledForEntry_angleRoll      : 0,    // s16
+            informationAssembledForEntry_anglePitch     : 0,    // s16
+            informationAssembledForEntry_angleYaw       : 0,    // s16
+            informationAssembledForEntry_positionX      : 0,    // s16
+            informationAssembledForEntry_positionY      : 0,    // s16
+            informationAssembledForEntry_positionZ      : 0,    // s16
+            informationAssembledForEntry_rangeHeight    : 0,    // s16
+            informationAssembledForEntry_altitude       : 0,    // float
         };
 
 
@@ -454,6 +454,23 @@ class byrobot_base extends BaseModule
         this.ack.ack_crc16      = 0;
     }
 
+    getUint64(dataview, byteOffset, littleEndian)
+    {
+        // split 64-bit number into two 32-bit (4-byte) parts
+        const left =  dataview.getUint32(byteOffset, littleEndian);
+        const right = dataview.getUint32(byteOffset+4, littleEndian);
+
+        // combine the two 32-bit values
+        const combined = littleEndian? left + 2**32*right : 2**32*left + right;
+
+        if (!Number.isSafeInteger(combined))
+        {
+            console.warn(combined, 'exceeds MAX_SAFE_INTEGER. Precision may be lost');
+        }
+
+        return combined;
+    }
+
     updateAck()
     {
         this.log("BYROBOT_BASE - updateAck()");
@@ -464,9 +481,9 @@ class byrobot_base extends BaseModule
             let view  = new DataView(array.buffer);
 
             this.ack._updated       = true;
-            this.ack.ack_systemTime = view.getBigUint64(0);
+            this.ack.ack_systemTime = this.getUint64(view, 0, true);
             this.ack.ack_dataType   = view.getUint8(8);
-            this.ack.ack_crc16      = view.getUint16(9);
+            this.ack.ack_crc16      = view.getUint16(9, true);
 
             return true;
         }
@@ -477,14 +494,14 @@ class byrobot_base extends BaseModule
 
     clearState()
     {
-        this.state._updated            = false;
-        this.state.modeSystem          = 0;
-        this.state.modeFlight          = 0;
-        this.state.modeControlFlight   = 0;
-        this.state.modeMovement        = 0;
-        this.state.headless            = 0;
-        this.state.sensorOrientation   = 0;
-        this.state.battery             = 0;
+        this.state._updated                 = false;
+        this.state.state_modeSystem         = 0;
+        this.state.state_modeFlight         = 0;
+        this.state.state_modeControlFlight  = 0;
+        this.state.state_modeMovement       = 0;
+        this.state.state_headless           = 0;
+        this.state.state_sensorOrientation  = 0;
+        this.state.state_battery            = 0;
     }
 
     updateState()
@@ -496,14 +513,14 @@ class byrobot_base extends BaseModule
             let array = Uint8Array.from(this.dataBlock);
             let view  = new DataView(array.buffer);
 
-            this.state._updated            = true;
-            this.state.modeSystem          = view.getUint8(0);
-            this.state.modeFlight          = view.getUint8(1);
-            this.state.modeControlFlight   = view.getUint8(2);
-            this.state.modeMovement        = view.getUint8(3);
-            this.state.headless            = view.getUint8(4);
-            this.state.sensorOrientation   = view.getUint8(5);
-            this.state.battery             = view.getUint8(6);
+            this.state._updated                 = true;
+            this.state.state_modeSystem         = view.getUint8(0);
+            this.state.state_modeFlight         = view.getUint8(1);
+            this.state.state_modeControlFlight  = view.getUint8(2);
+            this.state.state_modeMovement       = view.getUint8(3);
+            this.state.state_headless           = view.getUint8(4);
+            this.state.state_sensorOrientation  = view.getUint8(5);
+            this.state.state_battery            = view.getUint8(6);
 
             return true;
         }
@@ -514,7 +531,7 @@ class byrobot_base extends BaseModule
 
     clearButton()
     {
-        this.button._updated    = false;
+        this.button._updated            = false;
         this.button.button_button      = 0;
         this.button.button_event       = 0;
     }
@@ -527,8 +544,8 @@ class byrobot_base extends BaseModule
             let array = Uint8Array.from(this.dataBlock);
             let view  = new DataView(array.buffer);
 
-            this.button._updated    = true;
-            this.button.button_button      = view.getUint8(0);
+            this.button._updated           = true;
+            this.button.button_button      = view.getUint16(0, true);
             this.button.button_event       = view.getUint8(2);
 
             return true;
@@ -577,15 +594,15 @@ class byrobot_base extends BaseModule
 
     clearInformationAssembledForEntry()
     {
-        this.informationAssembledForEntry._updated       = false;
-        this.informationAssembledForEntry.angleRoll      = 0;
-        this.informationAssembledForEntry.anglePitch     = 0;
-        this.informationAssembledForEntry.angleYaw       = 0;
-        this.informationAssembledForEntry.positionX      = 0;
-        this.informationAssembledForEntry.positionY      = 0;
-        this.informationAssembledForEntry.positionZ      = 0;
-        this.informationAssembledForEntry.rangeHeight    = 0;
-        this.informationAssembledForEntry.altitude       = 0;
+        this.informationAssembledForEntry._updated                                  = false;
+        this.informationAssembledForEntry.informationAssembledForEntry_angleRoll    = 0;
+        this.informationAssembledForEntry.informationAssembledForEntry_anglePitch   = 0;
+        this.informationAssembledForEntry.informationAssembledForEntry_angleYaw     = 0;
+        this.informationAssembledForEntry.informationAssembledForEntry_positionX    = 0;
+        this.informationAssembledForEntry.informationAssembledForEntry_positionY    = 0;
+        this.informationAssembledForEntry.informationAssembledForEntry_positionZ    = 0;
+        this.informationAssembledForEntry.informationAssembledForEntry_rangeHeight  = 0;
+        this.informationAssembledForEntry.informationAssembledForEntry_altitude     = 0;
     }
 
     updateInformationAssembledForEntry()
@@ -595,15 +612,15 @@ class byrobot_base extends BaseModule
             let array = Uint8Array.from(this.dataBlock);
             let view  = new DataView(array.buffer);
 
-            this.informationAssembledForEntry._updated       = true;
-            this.informationAssembledForEntry.angleRoll      = view.getInt16(0);
-            this.informationAssembledForEntry.anglePitch     = view.getInt16(2);
-            this.informationAssembledForEntry.angleYaw       = view.getInt16(4);
-            this.informationAssembledForEntry.positionX      = view.getInt16(6) / 100.0;
-            this.informationAssembledForEntry.positionY      = view.getInt16(8) / 100.0;
-            this.informationAssembledForEntry.positionZ      = view.getInt16(10) / 100.0;
-            this.informationAssembledForEntry.rangeHeight    = view.getInt16(12) / 100.0;
-            this.informationAssembledForEntry.altitude       = view.getFloat32(14);
+            this.informationAssembledForEntry._updated                                  = true;
+            this.informationAssembledForEntry.informationAssembledForEntry_angleRoll    = view.getInt16(0, true);
+            this.informationAssembledForEntry.informationAssembledForEntry_anglePitch   = view.getInt16(2, true);
+            this.informationAssembledForEntry.informationAssembledForEntry_angleYaw     = view.getInt16(4, true);
+            this.informationAssembledForEntry.informationAssembledForEntry_positionX    = view.getInt16(6, true) / 100.0;
+            this.informationAssembledForEntry.informationAssembledForEntry_positionY    = view.getInt16(8, true) / 100.0;
+            this.informationAssembledForEntry.informationAssembledForEntry_positionZ    = view.getInt16(10, true) / 100.0;
+            this.informationAssembledForEntry.informationAssembledForEntry_rangeHeight  = view.getInt16(12, true) / 100.0;
+            this.informationAssembledForEntry.informationAssembledForEntry_altitude     = view.getFloat32(14, true);
 
             return true;
         }
@@ -1042,7 +1059,7 @@ class byrobot_base extends BaseModule
             {
                 crc16 = this.calcCRC16(view.getUint8(indexStart + i), crc16);
             }
-            view.setUint16((2 + 4 + dataArray.length), crc16);
+            view.setUint16((2 + 4 + dataArray.length), crc16, true);
         }
         
         this.log("BYROBOT_BASE - createTransferBlock() - ", Array.from(new Uint8Array(dataBlock)))
@@ -1539,7 +1556,7 @@ class byrobot_base extends BaseModule
      ***************************************************************************************/
     // #region Data Transfer Functions for Device
 
-    //*
+    /*
     // Ping (데이터 배열 직접 생성)
     reservePing(target)
     {
@@ -1587,15 +1604,15 @@ class byrobot_base extends BaseModule
     }
     // */
 
-    /*
+    //*
     // Ping
     reservePing(target)
     {
         let dataArray   = new ArrayBuffer(8);
         let view        = new DataView(dataArray);
 
-        view.setUint32(0, 0);
-        view.setUint32(4, 0);
+        view.setUint32(0, 0, true);
+        view.setUint32(4, 0, true);
 
         this.log("BYROBOT_BASE - reservePing() - Target: 0x" + target.toString(16).toUpperCase());
         return this.createTransferBlock(0x01, target, dataArray);
@@ -1622,7 +1639,7 @@ class byrobot_base extends BaseModule
         let dataArray   = new ArrayBuffer(3);
         let view        = new DataView(dataArray);
 
-        view.setUint16  (0, flag);
+        view.setUint16  (0, flag, true);
         view.setUint8   (2, brightness);
 
         this.log("BYROBOT_BASE - reserveLightManual() - Target: 0x" + target.toString(16).toUpperCase());
@@ -1637,7 +1654,7 @@ class byrobot_base extends BaseModule
         let view        = new DataView(dataArray);
 
         view.setUint8   (0, mode);
-        view.setUint16  (1, interval);
+        view.setUint16  (1, interval, true);
         view.setUint8   (3, r);
         view.setUint8   (4, g);
         view.setUint8   (5, b);
@@ -1654,7 +1671,7 @@ class byrobot_base extends BaseModule
         let view        = new DataView(dataArray);
 
         view.setUint8   (0, mode);
-        view.setUint16  (1, interval);
+        view.setUint16  (1, interval, true);
 
         this.log("BYROBOT_BASE - reserveLightMode() - Target: 0x" + target.toString(16).toUpperCase());
         return this.createTransferBlock(0x21, target, dataArray);
@@ -1668,7 +1685,7 @@ class byrobot_base extends BaseModule
         let view        = new DataView(dataArray);
 
         view.setUint8   (0, event);
-        view.setUint16  (1, interval);
+        view.setUint16  (1, interval, true);
         view.setUint8   (3, repeat);
         view.setUint8   (4, r);
         view.setUint8   (5, g);
@@ -1686,7 +1703,7 @@ class byrobot_base extends BaseModule
         let view        = new DataView(dataArray);
 
         view.setUint8   (0, event);
-        view.setUint16  (1, interval);
+        view.setUint16  (1, interval, true);
         view.setUint8   (3, repeat);
 
         this.log("BYROBOT_BASE - reserveLightEvent() - Target: 0x" + target.toString(16).toUpperCase());
@@ -1713,10 +1730,10 @@ class byrobot_base extends BaseModule
         let dataArray   = new ArrayBuffer(9);
         let view        = new DataView(dataArray);
 
-        view.setInt16   (0, x);
-        view.setInt16   (2, y);
-        view.setInt16   (4, width);
-        view.setInt16   (6, height);
+        view.setInt16   (0, x, true);
+        view.setInt16   (2, y, true);
+        view.setInt16   (4, width, true);
+        view.setInt16   (6, height, true);
         view.setUint8   (8, pixel);
 
         this.log("BYROBOT_BASE - reserveDisplayClear() - Target: 0x" + target.toString(16).toUpperCase());
@@ -1730,10 +1747,10 @@ class byrobot_base extends BaseModule
         let dataArray   = new ArrayBuffer(8);
         let view        = new DataView(dataArray);
 
-        view.setInt16   (0, x);
-        view.setInt16   (2, y);
-        view.setInt16   (4, width);
-        view.setInt16   (6, height);
+        view.setInt16   (0, x, true);
+        view.setInt16   (2, y, true);
+        view.setInt16   (4, width, true);
+        view.setInt16   (6, height, true);
 
         this.log("BYROBOT_BASE - reserveDisplayInvert() - Target: 0x" + target.toString(16).toUpperCase());
         return this.createTransferBlock(0x81, target, dataArray);
@@ -1746,8 +1763,8 @@ class byrobot_base extends BaseModule
         let dataArray   = new ArrayBuffer(5);
         let view        = new DataView(dataArray);
 
-        view.setInt16   (0, x);
-        view.setInt16   (2, y);
+        view.setInt16   (0, x, true);
+        view.setInt16   (2, y, true);
         view.setUint8   (4, pixel);
 
         this.log("BYROBOT_BASE - reserveDisplayDrawPoint() - Target: 0x" + target.toString(16).toUpperCase());
@@ -1761,10 +1778,10 @@ class byrobot_base extends BaseModule
         let dataArray   = new ArrayBuffer(10);
         let view        = new DataView(dataArray);
 
-        view.setInt16   (0, x1);
-        view.setInt16   (2, y1);
-        view.setInt16   (4, x2);
-        view.setInt16   (6, y2);
+        view.setInt16   (0, x1, true);
+        view.setInt16   (2, y1, true);
+        view.setInt16   (4, x2, true);
+        view.setInt16   (6, y2, true);
         view.setUint8   (8, pixel);
         view.setUint8   (9, line);
 
@@ -1779,10 +1796,10 @@ class byrobot_base extends BaseModule
         let dataArray   = new ArrayBuffer(11);
         let view        = new DataView(dataArray);
 
-        view.setInt16   (0, x);
-        view.setInt16   (2, y);
-        view.setInt16   (4, width);
-        view.setInt16   (6, height);
+        view.setInt16   (0, x, true);
+        view.setInt16   (2, y, true);
+        view.setInt16   (4, width, true);
+        view.setInt16   (6, height, true);
         view.setUint8   (8, pixel);
         view.setUint8   (9, flagFill);
         view.setUint8   (10, line);
@@ -1798,9 +1815,9 @@ class byrobot_base extends BaseModule
         let dataArray   = new ArrayBuffer(8);
         let view        = new DataView(dataArray);
 
-        view.setInt16   (0, x);
-        view.setInt16   (2, y);
-        view.setInt16   (4, radius);
+        view.setInt16   (0, x, true);
+        view.setInt16   (2, y, true);
+        view.setInt16   (4, radius, true);
         view.setUint8   (6, pixel);
         view.setUint8   (7, flagFill);
 
@@ -1817,8 +1834,8 @@ class byrobot_base extends BaseModule
         let dataArray   = new ArrayBuffer(6 + byteArrayString.length);
         let view        = new DataView(dataArray);
 
-        view.setInt16   (0, x);
-        view.setInt16   (2, y);
+        view.setInt16   (0, x, true);
+        view.setInt16   (2, y, true);
         view.setUint8   (4, font);
         view.setUint8   (5, pixel);
 
@@ -1840,9 +1857,9 @@ class byrobot_base extends BaseModule
         let dataArray   = new ArrayBuffer(9 + byteArrayString.length);
         let view        = new DataView(dataArray);
 
-        view.setInt16   (0, x_start);
-        view.setInt16   (2, x_end);
-        view.setInt16   (4, y);
+        view.setInt16   (0, x_start, true);
+        view.setInt16   (2, x_end, true);
+        view.setInt16   (4, y, true);
         view.setUint8   (6, align);
         view.setUint8   (7, font);
         view.setUint8   (8, pixel);
@@ -1898,12 +1915,12 @@ class byrobot_base extends BaseModule
         let dataArray   = new ArrayBuffer(20);
         let view        = new DataView(dataArray);
 
-        view.setFloat32 (0,  x);
-        view.setFloat32 (4,  y);
-        view.setFloat32 (8,  z);
-        view.setFloat32 (12, velocity);
-        view.setInt16   (16, heading);
-        view.setInt16   (18, rotationalVelocity);
+        view.setFloat32 (0,  x, true);
+        view.setFloat32 (4,  y, true);
+        view.setFloat32 (8,  z, true);
+        view.setFloat32 (12, velocity, true);
+        view.setInt16   (16, heading, true);
+        view.setInt16   (18, rotationalVelocity, true);
 
         this.log("BYROBOT_BASE - reserveControlPosition() - Target: 0x" + target.toString(16).toUpperCase());
         return this.createTransferBlock(0x10, target, dataArray);
@@ -1932,8 +1949,8 @@ class byrobot_base extends BaseModule
         let view        = new DataView(dataArray);
 
         view.setUint8   (0, mode);
-        view.setUint16  (1, value);
-        view.setUint16  (3, time);
+        view.setUint16  (1, value, true);
+        view.setUint16  (3, time, true);
 
         this.log("BYROBOT_BASE - reserveBuzzer() - Target: 0x" + target.toString(16).toUpperCase());
         return this.createTransferBlock(0x62, target, dataArray);
@@ -1947,9 +1964,9 @@ class byrobot_base extends BaseModule
         let view        = new DataView(dataArray);
 
         view.setUint8   (0, mode);
-        view.setUint16  (1, on);
-        view.setUint16  (3, off);
-        view.setUint16  (5, total);
+        view.setUint16  (1, on, true);
+        view.setUint16  (3, off, true);
+        view.setUint16  (5, total, true);
 
         this.log("BYROBOT_BASE - reserveVibrator() - Target: 0x" + target.toString(16).toUpperCase());
         return this.createTransferBlock(0x63, target, dataArray);
