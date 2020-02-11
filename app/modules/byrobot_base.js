@@ -266,13 +266,13 @@ class byrobot_base extends BaseModule
     */
     requestInitialData(serialport)
     {
-        if (this.isConnect == false)
+        //if (this.isConnect == false)
         {
             this.isConnect = true;
             this.serialport = serialport;
         }
 
-        this.log("BYROBOT_BASE - requestInitialData(0x" + this.targetDevice.toString(16).toUpperCase() + ")");
+        //this.log("BYROBOT_BASE - requestInitialData(0x" + this.targetDevice.toString(16).toUpperCase() + ")");
         return this.reservePing(this.targetDevice);
     }
 
@@ -293,7 +293,7 @@ class byrobot_base extends BaseModule
     */
     validateLocalData(data)
     {
-        this.log("BYROBOT_BASE - validateLocalData()");
+        //this.log("BYROBOT_BASE - validateLocalData()");
         return true;
     }
 
@@ -306,7 +306,7 @@ class byrobot_base extends BaseModule
     */
     requestLocalData()
     {
-        this.log("BYROBOT BASE - requestLocalData()");
+        //this.log("BYROBOT BASE - requestLocalData()");
         return this.transferToDevice();
     }
 
@@ -316,7 +316,7 @@ class byrobot_base extends BaseModule
     */
     handleLocalData(data)
     {
-        this.log("BYROBOT BASE - handleLocalData()");
+        //this.log("BYROBOT BASE - handleLocalData()");
         this.receiverForDevice(data);
     }
 
@@ -1558,6 +1558,7 @@ class byrobot_base extends BaseModule
      ***************************************************************************************/
     // #region Data Transfer Functions for Device
 
+    // Ping
     reservePing(target)
     {
         let dataArray   = new ArrayBuffer(8);
@@ -1568,7 +1569,6 @@ class byrobot_base extends BaseModule
 
         return this.createTransferBlock(0x01, target, dataArray);
     }
-
 
     // 데이터 요청
     reserveRequest(target, dataType)
