@@ -1,5 +1,6 @@
 const path = require('path');
 const merge = require('webpack-merge');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const base = require('./webpack.base.config');
 
 const preloadDirectoryPath = path.join(__dirname, '..', 'app', 'src', 'preload');
@@ -18,5 +19,10 @@ module.exports = merge({
             }
             callback();
         },
+    ],
+    plugins: [
+        new CleanWebpackPlugin({
+            cleanOnceBeforeBuildPatterns: ['*.bundle.js', '*.map'],
+        }),
     ],
 }, base);

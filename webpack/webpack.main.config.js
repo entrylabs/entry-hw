@@ -1,6 +1,6 @@
 const path = require('path');
 const merge = require('webpack-merge');
-const { SourceMapDevToolPlugin } = require('webpack');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const base = require('./webpack.base.config');
 
 const mainDirectoryPath = path.join(__dirname, '..', 'app', 'src', 'main');
@@ -23,7 +23,7 @@ const commonjsModules = [
 module.exports = merge({
     target: 'electron-main',
     entry: path.join(mainDirectoryPath, 'mainRouter.ts'),
-    devtool: false,
+    devtool: 'cheap-module-source-map',
     node: {
         __dirname: false,
     },
@@ -49,6 +49,8 @@ module.exports = merge({
         },
     ],
     plugins: [
-        new SourceMapDevToolPlugin(),
+        new CleanWebpackPlugin({
+            cleanOnceBeforeBuildPatterns: ['*.bundle.js', '*.map'],
+        }),
     ],
 }, base);

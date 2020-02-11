@@ -1,5 +1,6 @@
 const path = require('path');
 const merge = require('webpack-merge');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const base = require('./webpack.base.config');
 
 const reactDirPath = path.resolve(__dirname, '..', 'app', 'src', 'renderer', 'react');
@@ -29,4 +30,7 @@ module.exports = merge({
             },
         ],
     },
+    plugins: [
+        new CleanWebpackPlugin(),
+    ],
 }, base);

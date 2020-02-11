@@ -5,7 +5,7 @@
     "author": "EntryLabs",
     "main": "app/index.js",
     "scripts": {
-        "start": "cross-env NODE_ENV=development electron ./app/index.js",
+        "start": "cross-env NODE_ENV=development electron -r source-map-support/register ./app/index.js",
         "debug": "npm run start --inspect",
         "test": "cross-env NODE_NO_WARNINGS=1 ts-node --files ./cli/connectionTest.ts",
         "create": "node ./cli/createJson.js",
@@ -61,6 +61,7 @@
         "react-redux": "^7.1.1",
         "react-transition-group": "^4.3.0",
         "redux": "^4.0.4",
+        "source-map-support": "^0.5.16",
         "styled-components": "^4.4.0",
         "ts-loader": "^6.2.0",
         "ts-node": "^8.6.2",
