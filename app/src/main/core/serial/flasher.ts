@@ -76,6 +76,7 @@ class Flasher {
             if (!destPath) {
                 return resolve(['경로 미선택']);
             }
+            // TODO 파일 없을 시 에러 처리
             fileUtils.copyFile(
                 path.join(firmwareDirectory, `${firmware.name}.hex`),
                 path.join(destPath[0], `${firmware.name}.hex`),

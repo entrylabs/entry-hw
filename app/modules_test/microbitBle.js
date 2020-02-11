@@ -1,8 +1,12 @@
-const BaseModule = require('../modules/baseModule');
+const BaseModule = require('./baseModule');
 
-class Test2 extends BaseModule {
+class MicrobitBle extends BaseModule {
     constructor() {
         super();
+        this._commandQueue = [
+            { key: 'accelerometerPeriod', value: 160 },
+            { key: 'magnetometerPeriod', value: 160 },
+        ];
         this.sensorStateMap = {};
         this.buttonService = {
             service: 'e95d9882-251d-470a-a062-fa1922dfa9a8',
@@ -119,11 +123,43 @@ class Test2 extends BaseModule {
      * @param value {*}
      */
     handleLocalData({ key, value }) {
-        this.sensorStateMap[key] = value;
+        console.log(key);
+        switch (key) {
+            case 'buttonAState':
+            case 'buttonBState':
+                this.sensorStateMap[key] = value.readUInt8();
+                break;
+            case 'magnetometerData':
+                this.sensorStateMap[key] = {
+                    x: value.readInt16LE(0),
+                    y: value.readInt16LE(2),
+                    z: value.readInt16LE(4),
+                };
+                break;
+            case 'accelerometerData':
+                this.sensorStateMap[key] = {
+                    x: value.readInt16LE(0) / 1000,
+                    y: value.readInt16LE(2) / 1000,
+                    z: value.readInt16LE(4) / 1000,
+                };
+                break;
+            case 'temperatureData':
+                this.sensorStateMap[key] = value.readInt8();
+        }
+        console.log('handleLocalData', this.sensorStateMap);
     }
 
     requestRemoteData(handler) {
+        console.log('requestRemoteData', this.sensorStateMap);
         handler.write('data', this.sensorStateMap);
+    }
+
+    handleRemoteData(handler) {
+        const value = handler.read('string');
+        this._commandQueue.push({
+            key: 'ledText',
+            value,
+        });
     }
 
     /**
@@ -136,14 +172,10 @@ class Test2 extends BaseModule {
      * @return {{key: string, value: string, callback: function=}}
      */
     requestLocalData(commandQueue) {
-        if (commandQueue.length < 1) {
-            commandQueue.push({
-                key: 'ledText',
-                value: 'hi',
-                callback: () => new Promise((resolve) => setTimeout(resolve, 1500)),
-            });
+        if (this._commandQueue.length) {
+            commandQueue.push(...this._commandQueue.splice(0));
         }
     }
 }
 
-module.exports = new Test2();
+module.exports = new MicrobitBle();
