@@ -19,7 +19,7 @@ class Flasher {
         return getExtraDirectoryPath('firmware');
     }
 
-    private _flashArduino(firmware: IFirmwareInfo, port: string, options: { baudRate?: string; MCUType?: string; }) {
+    private _flashArduino(firmware: IFirmwareInfo, port: string, options: { baudRate?: number; MCUType?: string; }) {
         return new Promise((resolve) => {
             const appPath = Flasher.firmwareDirectoryPath;
             const baudRate = options.baudRate || '115200';
@@ -74,7 +74,7 @@ class Flasher {
                 properties: ['openDirectory'],
             });
             if (!destPath) {
-                return resolve(['경로 미선택']);
+                return reject(['경로 미선택']);
             }
             // TODO 파일 없을 시 에러 처리
             fileUtils.copyFile(
@@ -86,12 +86,12 @@ class Flasher {
                 }
                 resolve([]);
             }).catch((err) => {
-                resolve([err]);
+                reject([err]);
             });
         });
     }
 
-    flash(firmware: IFirmwareInfo, port: string, options: { baudRate?: string; MCUType?: string; }) {
+    flash(firmware: IFirmwareInfo, port: string, options: { baudRate?: number; MCUType?: string; }) {
         if (typeof firmware === 'string') {
             return this._flashArduino(firmware, port, options);
         } else if ((firmware as ICopyTypeFirmware).type === 'copy') {
