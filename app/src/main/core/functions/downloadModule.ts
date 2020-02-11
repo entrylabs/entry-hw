@@ -67,7 +67,7 @@ const moveFirmwareAndDriverDirectory = async () => {
             resolve();
         }),
         new Promise(async (resolve) => {
-            if (fs.pathExistsSync(srcDriverDirPath)) {
+            if (fs.pathExistsSync(srcFirmwaresDirPath)) {
                 await fileUtils.moveFileOrDirectory(srcFirmwaresDirPath, destFirmwareDirPath);
                 await fileUtils.rmdir(srcFirmwaresDirPath);
             }
