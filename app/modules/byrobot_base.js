@@ -165,10 +165,10 @@ class byrobot_base extends BaseModule
         // Ack
         this.ack =
         {
-            _updated        : 1,
-            systemTime      : 0,    // u64
-            dataType        : 0,    // u8
-            crc16           : 0,    // u16
+            _updated            : 1,
+            ack_systemTime      : 0,    // u64
+            ack_dataType        : 0,    // u8
+            ack_crc16           : 0,    // u16
         };
 
 
@@ -306,7 +306,7 @@ class byrobot_base extends BaseModule
     */
     requestLocalData()
     {
-        //this.log("BYROBOT BASE - requestLocalData()");
+        //this.log("BYROBOT_BASE - requestLocalData()");
         return this.transferToDevice();
     }
 
@@ -316,7 +316,7 @@ class byrobot_base extends BaseModule
     */
     handleLocalData(data)
     {
-        //this.log("BYROBOT BASE - handleLocalData()");
+        //this.log("BYROBOT_BASE - handleLocalData()");
         this.receiverForDevice(data);
     }
 
@@ -448,10 +448,10 @@ class byrobot_base extends BaseModule
 
     clearAck()
     {
-        this.ack._updated   = false;
-        this.ack.systemTime = 0;
-        this.ack.dataType   = 0;
-        this.ack.crc16      = 0;
+        this.ack._updated       = false;
+        this.ack.ack_systemTime = 0;
+        this.ack.ack_dataType   = 0;
+        this.ack.ack_crc16      = 0;
     }
 
     updateAck()
@@ -463,10 +463,10 @@ class byrobot_base extends BaseModule
             let array = Uint8Array.from(this.dataBlock);
             let view  = new DataView(array.buffer);
 
-            this.ack._updated   = true;
-            this.ack.systemTime = view.getBigUint64(0);
-            this.ack.dataType   = view.getUint8(8);
-            this.ack.crc16      = view.getUint16(9);
+            this.ack._updated       = true;
+            this.ack.ack_systemTime = view.getBigUint64(0);
+            this.ack.ack_dataType   = view.getUint8(8);
+            this.ack.ack_crc16      = view.getUint16(9);
 
             return true;
         }
@@ -515,20 +515,21 @@ class byrobot_base extends BaseModule
     clearButton()
     {
         this.button._updated    = false;
-        this.button.button      = 0;
-        this.button.event       = 0;
+        this.button.button_button      = 0;
+        this.button.button_event       = 0;
     }
 
     updateButton()
     {
+        this.log("BYROBOT_BASE - updateButton() - length : " + this.dataBlock.length);
         if ( this.dataBlock != undefined && this.dataBlock.length == 3 )
         {
             let array = Uint8Array.from(this.dataBlock);
             let view  = new DataView(array.buffer);
 
             this.button._updated    = true;
-            this.button.button      = view.getUint8(0);
-            this.button.event       = view.getUint8(2);
+            this.button.button_button      = view.getUint8(0);
+            this.button.button_event       = view.getUint8(2);
 
             return true;
         }
@@ -687,7 +688,7 @@ class byrobot_base extends BaseModule
 
             let dataArray = this.reserveLightManual(target, flags, brightness);
             this.bufferTransfer.push(dataArray);
-            this.log("Transfer_To_Device / LightManual", dataArray);
+            this.log("BYROBOT_BASE - Transfer_To_Device - LightManual", dataArray);
         }
 
 
@@ -706,7 +707,7 @@ class byrobot_base extends BaseModule
             
             let dataArray = this.reserveLightModeColor(target, mode, interval, r, g, b);
             this.bufferTransfer.push(dataArray);
-            this.log("Transfer_To_Device / LightModeColor", dataArray);
+            this.log("BYROBOT_BASE - Transfer_To_Device - LightModeColor", dataArray);
         }
         // LightMode
         else if(    handler.e(this.DataType.LIGHT_MODE_MODE)      &&
@@ -717,7 +718,7 @@ class byrobot_base extends BaseModule
 
             let dataArray = this.reserveLightMode(target, mode, interval);
             this.bufferTransfer.push(dataArray);
-            this.log("Transfer_To_Device / LightMode", dataArray);
+            this.log("BYROBOT_BASE - Transfer_To_Device - LightMode", dataArray);
         }
         
 
@@ -738,7 +739,7 @@ class byrobot_base extends BaseModule
 
             let dataArray = this.reserveLightEventColor(target, event, interval, repeat, r, g, b);
             this.bufferTransfer.push(dataArray);
-            this.log("Transfer_To_Device / LightEventColor", dataArray);
+            this.log("BYROBOT_BASE - Transfer_To_Device - LightEventColor", dataArray);
         }
         // LightEvent
         else if(    handler.e(this.DataType.LIGHT_EVENT_EVENT)     &&
@@ -751,7 +752,7 @@ class byrobot_base extends BaseModule
 
             let dataArray = this.reserveLightEvent(target, event, interval, repeat);
             this.bufferTransfer.push(dataArray);
-            this.log("Transfer_To_Device / LightEvent", dataArray);
+            this.log("BYROBOT_BASE - Transfer_To_Device - LightEvent", dataArray);
         }
 
 
@@ -762,7 +763,7 @@ class byrobot_base extends BaseModule
 
             let dataArray = this.reserveDisplayClearAll(target, pixel);
             this.bufferTransfer.push(dataArray);
-            this.log("Transfer_To_Device / DisplayClearAll", dataArray);
+            this.log("BYROBOT_BASE - Transfer_To_Device - DisplayClearAll", dataArray);
         }
 
 
@@ -778,7 +779,7 @@ class byrobot_base extends BaseModule
 
             let dataArray = this.reserveDisplayClear(target, x, y, width, height, pixel);
             this.bufferTransfer.push(dataArray);
-            this.log("Transfer_To_Device / DisplayClear", dataArray);
+            this.log("BYROBOT_BASE - Transfer_To_Device - DisplayClear", dataArray);
         }
 
 
@@ -793,7 +794,7 @@ class byrobot_base extends BaseModule
 
             let dataArray = this.reserveDisplayInvert(target, x, y, width, height);
             this.bufferTransfer.push(dataArray);
-            this.log("Transfer_To_Device / DisplayInvert", dataArray);
+            this.log("BYROBOT_BASE - Transfer_To_Device - DisplayInvert", dataArray);
         }
 
 
@@ -808,7 +809,7 @@ class byrobot_base extends BaseModule
             
             let dataArray = this.reserveDisplayDrawPoint(target, x, y, pixel);
             this.bufferTransfer.push(dataArray);
-            this.log("Transfer_To_Device / DisplayDrawPoint", dataArray);
+            this.log("BYROBOT_BASE - Transfer_To_Device - DisplayDrawPoint", dataArray);
         }
 
 
@@ -827,7 +828,7 @@ class byrobot_base extends BaseModule
             
             let dataArray = this.reserveDisplayDrawLine(target, x1, y1, x2, y2, pixel, line);
             this.bufferTransfer.push(dataArray);
-            this.log("Transfer_To_Device / DisplayDrawLine", dataArray);
+            this.log("BYROBOT_BASE - Transfer_To_Device - DisplayDrawLine", dataArray);
         }
 
         
@@ -845,7 +846,7 @@ class byrobot_base extends BaseModule
 
             let dataArray = this.reserveDisplayDrawRect(target, x, y, width, height, pixel, flagfill, line);
             this.bufferTransfer.push(dataArray);
-            this.log("Transfer_To_Device / DisplayDrawRect", dataArray);
+            this.log("BYROBOT_BASE - Transfer_To_Device - DisplayDrawRect", dataArray);
         }
 
 
@@ -860,7 +861,7 @@ class byrobot_base extends BaseModule
 
             let dataArray = this.reserveDisplayDrawCircle(target, x, y, radius, pixel, flagfill);
             this.bufferTransfer.push(dataArray);
-            this.log("Transfer_To_Device / DisplayDrawCircle", dataArray);
+            this.log("BYROBOT_BASE - Transfer_To_Device - DisplayDrawCircle", dataArray);
         }
 
 
@@ -875,7 +876,7 @@ class byrobot_base extends BaseModule
 
             let dataArray = this.reserveDisplayDrawString(target, x, y, font, pixel, string);
             this.bufferTransfer.push(dataArray);
-            this.log("Transfer_To_Device / DisplayDrawString", dataArray);
+            this.log("BYROBOT_BASE - Transfer_To_Device - DisplayDrawString", dataArray);
         }
 
 
@@ -892,7 +893,7 @@ class byrobot_base extends BaseModule
 
             let dataArray = this.reserveDisplayDrawStringAlign(target, x_start, x_end, y, align, font, pixel, string);
             this.bufferTransfer.push(dataArray);
-            this.log("Transfer_To_Device / DisplayDrawStringAlign", dataArray);
+            this.log("BYROBOT_BASE - Transfer_To_Device - DisplayDrawStringAlign", dataArray);
         }
 
 
@@ -917,7 +918,7 @@ class byrobot_base extends BaseModule
 
             let dataArray = this.reserveCommand(target, command, option);
             this.bufferTransfer.push(dataArray);
-            this.log("Transfer_To_Device / Command" + command + ", option: " + option, dataArray);
+            this.log("BYROBOT_BASE - Transfer_To_Device - Command" + command + ", option: " + option, dataArray);
         }
 
 
@@ -934,7 +935,7 @@ class byrobot_base extends BaseModule
 
             let dataArray = this.reserveControlQuad8(target, roll, pitch, yaw, throttle);
             this.bufferTransfer.push(dataArray);
-            this.log("Transfer_To_Device / ControlQuad8", dataArray);
+            this.log("BYROBOT_BASE - Transfer_To_Device - ControlQuad8", dataArray);
         }
 
 
@@ -955,7 +956,7 @@ class byrobot_base extends BaseModule
 
             let dataArray = this.reserveControlPosition(target, x, y, z, velocity, heading, rotationalVelocity);
             this.bufferTransfer.push(dataArray);
-            this.log("Transfer_To_Device / ControlPosition", dataArray);
+            this.log("BYROBOT_BASE - Transfer_To_Device - ControlPosition", dataArray);
         }
 
 
@@ -968,7 +969,7 @@ class byrobot_base extends BaseModule
 
             let dataArray = this.reserveMotorSingle(target, targetMotor, rotation, value);
             this.bufferTransfer.push(dataArray);
-            this.log("Transfer_To_Device / MotorSingle", dataArray);
+            this.log("BYROBOT_BASE - Transfer_To_Device - MotorSingle", dataArray);
         }
 
 
@@ -981,7 +982,7 @@ class byrobot_base extends BaseModule
 
             let dataArray = this.reserveBuzzer(target, mode, value, time);
             this.bufferTransfer.push(dataArray);
-            this.log("Transfer_To_Device / Buzzer / mode: " + mode + ", value: " + value + ", time: " + time, dataArray);
+            this.log("BYROBOT_BASE - Transfer_To_Device - Buzzer - mode: " + mode + ", value: " + value + ", time: " + time, dataArray);
         }
 
 
@@ -996,7 +997,7 @@ class byrobot_base extends BaseModule
             let dataArray = this.reserveVibrator(target, mode, on, off, total);
             this.bufferTransfer.push(dataArray);
 
-            this.log("Transfer_To_Device / Vibrator", dataArray);
+            this.log("BYROBOT_BASE - Transfer_To_Device - Vibrator", dataArray);
         }
     }
 
@@ -1044,7 +1045,7 @@ class byrobot_base extends BaseModule
             view.setUint16((2 + 4 + dataArray.length), crc16);
         }
         
-        this.log("BYROBOT BASE - createTransferBlock() - ", Array.from(new Uint8Array(dataBlock)))
+        this.log("BYROBOT_BASE - createTransferBlock() - ", Array.from(new Uint8Array(dataBlock)))
         return Array.from(new Uint8Array(dataBlock));
     }
 
@@ -1147,7 +1148,7 @@ class byrobot_base extends BaseModule
     // 장치로부터 받은 데이터 배열 처리
     receiverForDevice(dataArray)
     {
-        this.log("BYROBOT BASE - receiverForDevice() - " + dataArray.length, dataArray);
+        this.log("BYROBOT_BASE - receiverForDevice() - " + dataArray.length, dataArray);
 
         if( dataArray == undefined || dataArray.length == 0 )
         {
@@ -1275,7 +1276,7 @@ class byrobot_base extends BaseModule
             // 데이터 전송 완료 처리
             if( flagComplete )
             {
-                this.log("BYROBOT_BASE - Receiver CRC16 - C: " + this.crc16Calculated.toString(16).toUpperCase() + ", R: " + this.crc16Received.toString(16).toUpperCase());
+                this.log("BYROBOT_BASE - Receiver - CRC16 - Calculated : " + this.crc16Calculated.toString(16).toUpperCase() + ", Received : " + this.crc16Received.toString(16).toUpperCase());
                 if( this.crc16Calculated == this.crc16Received )
                 {
                     this.handlerForDevice();
@@ -1333,7 +1334,7 @@ class byrobot_base extends BaseModule
 
         default:
             {
-                this.log("BYROBOT BASE - handlerForDevice() / From: " + this.from + " / To: " + this.to + " / Type: " + this.dataType + " / ", this.dataBlock);
+                this.log("BYROBOT_BASE - handlerForDevice() - From: " + this.from + " - To: " + this.to + " - Type: " + this.dataType + " - ", this.dataBlock);
             }
             break;
         }
@@ -1350,7 +1351,7 @@ class byrobot_base extends BaseModule
                     // ping에 대한 ack는 로그 출력하지 않음
                     //if( this.ack.dataType != 0x01 )
                     {
-                        console.log("BYROBOT BASE - handlerForDevice() - Ack / From: " + this.from + " / SystemTime: " + this.ack.systemTime + " / DataType: " + this.ack.dataType + " / Repeat: " + this.countTransferRepeat + " / Crc16Transfer: " + this.crc16Transfered + " / Crc16Get: " + this.ack.crc16);
+                        this.log("BYROBOT_BASE - handlerForDevice() - Ack - From: " + this.from + " - SystemTime: " + this.ack.ack_systemTime + " - DataType: " + this.ack.ack_dataType + " - Repeat: " + this.countTransferRepeat + " - CRC16 Transfer: " + this.crc16Transfered + " - CRF16 Ack: " + this.ack.ack_crc16);
                     }
 
                     // 마지막으로 전송한 데이터에 대한 응답을 받았다면 
@@ -1376,7 +1377,7 @@ class byrobot_base extends BaseModule
                     this.bufferTransfer.shift();
                     this.countTransferRepeat = 0;
                     
-                    console.log("BYROBOT BASE - handlerForDevice() - Response / From: " + this.from + " / DataType: " + this.dataType);
+                    this.log("BYROBOT_BASE - handlerForDevice() - Response - From: " + this.from + " - DataType: " + this.dataType);
                 }
             }
             break;
@@ -1387,8 +1388,7 @@ class byrobot_base extends BaseModule
         {
         case 0x40:  // State
             {
-                this.log("BYROBOT_BASE - 0x40");
-
+                this.log("BYROBOT_BASE - handlerForDevice() - Received - State - 0x40");
                 this.updateState();
             }
             break;
@@ -1396,8 +1396,7 @@ class byrobot_base extends BaseModule
 
         case 0x70:  // Button
             {
-                this.log("BYROBOT_BASE - 0x70");
-
+                this.log("BYROBOT_BASE - handlerForDevice() - Received - Button - 0x70");
                 this.updateButton();
             }
             break;
@@ -1405,8 +1404,7 @@ class byrobot_base extends BaseModule
 
         case 0x71:  // Joystick
             {
-                this.log("BYROBOT_BASE - 0x71");
-
+                this.log("BYROBOT_BASE - handlerForDevice() - Received - Joystick - 0x71");
                 this.updateJoystick();
             }
             break;
@@ -1414,6 +1412,7 @@ class byrobot_base extends BaseModule
 
         case 0xA1:  // Information Assembled For Entry 자주 갱신되는 데이터 모음(엔트리)
             {
+                this.log("BYROBOT_BASE - handlerForDevice() - Received - InformationAssembledForEntry - 0xA1");
                 this.updateInformationAssembledForEntry();
             }
             break;
@@ -1519,7 +1518,7 @@ class byrobot_base extends BaseModule
 
         this.crc16Transfered = (arrayTransfer[arrayTransfer.length - 1] << 8) | (arrayTransfer[arrayTransfer.length - 2]);
 
-        //this.log("BYROBOT BASE - transferToDevice - Repeat: " + this.countTransferRepeat, this.bufferTransfer[0]);
+        //this.log("BYROBOT_BASE - transferToDevice - Repeat: " + this.countTransferRepeat, this.bufferTransfer[0]);
 
         // maxTransferRepeat 이상 전송했음에도 응답이 없는 경우엔 다음으로 넘어감
         if( this.countTransferRepeat >= this.maxTransferRepeat)
@@ -1539,7 +1538,9 @@ class byrobot_base extends BaseModule
      *  Communciation - 장치 전송용 데이터 배열 생성
      ***************************************************************************************/
     // #region Data Transfer Functions for Device
+
     //*
+    // Ping (데이터 배열 직접 생성)
     reservePing(target)
     {
         let dataArray = [];
@@ -1580,7 +1581,7 @@ class byrobot_base extends BaseModule
             dataArray.push(this.getByte(crc16, 1));
         }
 
-        //this.log("reservePing()", dataArray);
+        //this.log("BYROBOT_BASE - reservePing()", dataArray);
         
         return dataArray;
     }
@@ -1596,9 +1597,11 @@ class byrobot_base extends BaseModule
         view.setUint32(0, 0);
         view.setUint32(4, 0);
 
+        this.log("BYROBOT_BASE - reservePing() - Target: 0x" + target.toString(16).toUpperCase());
         return this.createTransferBlock(0x01, target, dataArray);
     }
     // */
+
 
     // 데이터 요청
     reserveRequest(target, dataType)
@@ -1608,7 +1611,7 @@ class byrobot_base extends BaseModule
 
         view.setUint8(0, dataType);
 
-        this.log("BYROBOT BASE - reserveRequest() - ", dataType.toString(16).toUpperCase())
+        this.log("BYROBOT_BASE - reserveRequest() - Target: 0x" + target.toString(16).toUpperCase() + " - DataType: 0x", dataType.toString(16).toUpperCase());
         return this.createTransferBlock(0x04, target, dataArray);
     }
 
@@ -1622,6 +1625,7 @@ class byrobot_base extends BaseModule
         view.setUint16  (0, flag);
         view.setUint8   (2, brightness);
 
+        this.log("BYROBOT_BASE - reserveLightManual() - Target: 0x" + target.toString(16).toUpperCase());
         return this.createTransferBlock(0x20, target, dataArray);
     }
 
@@ -1638,6 +1642,7 @@ class byrobot_base extends BaseModule
         view.setUint8   (4, g);
         view.setUint8   (5, b);
 
+        this.log("BYROBOT_BASE - reserveLightModeColor() - Target: 0x" + target.toString(16).toUpperCase());
         return this.createTransferBlock(0x21, target, dataArray);
     }
 
@@ -1651,6 +1656,7 @@ class byrobot_base extends BaseModule
         view.setUint8   (0, mode);
         view.setUint16  (1, interval);
 
+        this.log("BYROBOT_BASE - reserveLightMode() - Target: 0x" + target.toString(16).toUpperCase());
         return this.createTransferBlock(0x21, target, dataArray);
     }
 
@@ -1668,6 +1674,7 @@ class byrobot_base extends BaseModule
         view.setUint8   (5, g);
         view.setUint8   (6, b);
 
+        this.log("BYROBOT_BASE - reserveLightEventColor() - Target: 0x" + target.toString(16).toUpperCase());
         return this.createTransferBlock(0x22, target, dataArray);
     }
 
@@ -1682,6 +1689,7 @@ class byrobot_base extends BaseModule
         view.setUint16  (1, interval);
         view.setUint8   (3, repeat);
 
+        this.log("BYROBOT_BASE - reserveLightEvent() - Target: 0x" + target.toString(16).toUpperCase());
         return this.createTransferBlock(0x22, target, dataArray);
     }
 
@@ -1694,6 +1702,7 @@ class byrobot_base extends BaseModule
 
         view.setUint8   (0, pixel);
 
+        this.log("BYROBOT_BASE - reserveDisplayClearAll() - Target: 0x" + target.toString(16).toUpperCase());
         return this.createTransferBlock(0x80, target, dataArray);
     }
 
@@ -1710,6 +1719,7 @@ class byrobot_base extends BaseModule
         view.setInt16   (6, height);
         view.setUint8   (8, pixel);
 
+        this.log("BYROBOT_BASE - reserveDisplayClear() - Target: 0x" + target.toString(16).toUpperCase());
         return this.createTransferBlock(0x80, target, dataArray);
     }
 
@@ -1725,6 +1735,7 @@ class byrobot_base extends BaseModule
         view.setInt16   (4, width);
         view.setInt16   (6, height);
 
+        this.log("BYROBOT_BASE - reserveDisplayInvert() - Target: 0x" + target.toString(16).toUpperCase());
         return this.createTransferBlock(0x81, target, dataArray);
     }
 
@@ -1739,6 +1750,7 @@ class byrobot_base extends BaseModule
         view.setInt16   (2, y);
         view.setUint8   (4, pixel);
 
+        this.log("BYROBOT_BASE - reserveDisplayDrawPoint() - Target: 0x" + target.toString(16).toUpperCase());
         return this.createTransferBlock(0x82, target, dataArray);
     }
 
@@ -1756,6 +1768,7 @@ class byrobot_base extends BaseModule
         view.setUint8   (8, pixel);
         view.setUint8   (9, line);
 
+        this.log("BYROBOT_BASE - reserveDisplayDrawLine() - Target: 0x" + target.toString(16).toUpperCase());
         return this.createTransferBlock(0x83, target, dataArray);
     }
 
@@ -1774,6 +1787,7 @@ class byrobot_base extends BaseModule
         view.setUint8   (9, flagFill);
         view.setUint8   (10, line);
 
+        this.log("BYROBOT_BASE - reserveDisplayDrawRect() - Target: 0x" + target.toString(16).toUpperCase());
         return this.createTransferBlock(0x84, target, dataArray);
     }
 
@@ -1790,6 +1804,7 @@ class byrobot_base extends BaseModule
         view.setUint8   (6, pixel);
         view.setUint8   (7, flagFill);
 
+        this.log("BYROBOT_BASE - reserveDisplayDrawCircle() - Target: 0x" + target.toString(16).toUpperCase());
         return this.createTransferBlock(0x85, target, dataArray);
     }
 
@@ -1812,6 +1827,7 @@ class byrobot_base extends BaseModule
             view.setUint8((6 + i), byteArrayString[i]);
         }
 
+        this.log("BYROBOT_BASE - reserveDisplayDrawString() - Target: 0x" + target.toString(16).toUpperCase());
         return this.createTransferBlock(0x86, target, dataArray);
     }
 
@@ -1836,6 +1852,7 @@ class byrobot_base extends BaseModule
             view.setUint8((9 + i), byteArrayString[i]);
         }
 
+        this.log("BYROBOT_BASE - reserveDisplayDrawStringAlign() - Target: 0x" + target.toString(16).toUpperCase());
         return this.createTransferBlock(0x87, target, dataArray);
     }
 
@@ -1849,6 +1866,7 @@ class byrobot_base extends BaseModule
         view.setUint8   (0, command);
         view.setUint8   (1, option);
 
+        this.log("BYROBOT_BASE - reserveCommand() - Target: 0x" + target.toString(16).toUpperCase());
         return this.createTransferBlock(0x11, target, dataArray);
     }
 
@@ -1869,6 +1887,7 @@ class byrobot_base extends BaseModule
         this.controlYaw         = yaw;
         this.controlThrottle    = throttle;
 
+        this.log("BYROBOT_BASE - reserveControlQuad8() - Target: 0x" + target.toString(16).toUpperCase());
         return this.createTransferBlock(0x10, target, dataArray);
     }
 
@@ -1886,6 +1905,7 @@ class byrobot_base extends BaseModule
         view.setInt16   (16, heading);
         view.setInt16   (18, rotationalVelocity);
 
+        this.log("BYROBOT_BASE - reserveControlPosition() - Target: 0x" + target.toString(16).toUpperCase());
         return this.createTransferBlock(0x10, target, dataArray);
     }
 
@@ -1900,6 +1920,7 @@ class byrobot_base extends BaseModule
         view.setUint8   (1, rotation);
         view.setInt16   (2, value);
 
+        this.log("BYROBOT_BASE - reserveMotorSingle() - Target: 0x" + target.toString(16).toUpperCase());
         return this.createTransferBlock(0x61, target, dataArray);
     }
 
@@ -1914,6 +1935,7 @@ class byrobot_base extends BaseModule
         view.setUint16  (1, value);
         view.setUint16  (3, time);
 
+        this.log("BYROBOT_BASE - reserveBuzzer() - Target: 0x" + target.toString(16).toUpperCase());
         return this.createTransferBlock(0x62, target, dataArray);
     }
 
@@ -1929,6 +1951,7 @@ class byrobot_base extends BaseModule
         view.setUint16  (3, off);
         view.setUint16  (5, total);
 
+        this.log("BYROBOT_BASE - reserveVibrator() - Target: 0x" + target.toString(16).toUpperCase());
         return this.createTransferBlock(0x63, target, dataArray);
     }
 
@@ -2039,7 +2062,7 @@ class byrobot_base extends BaseModule
      ***************************************************************************************/
     // #region Functions for log
 
-    log(message, data = 'undefined')
+    log(message, data = undefined)
     {
         // 로그를 출력하지 않으려면 아래 주석을 활성화 할 것
         //*
@@ -2049,8 +2072,8 @@ class byrobot_base extends BaseModule
         {
         case "object":
             {
-                strInfo = " / [ " + this.convertByteArrayToHexString(data) + " ]";
-                console.log(message + " / " + (typeof data) + strInfo);
+                strInfo = " - [ " + this.convertByteArrayToHexString(data) + " ]";
+                console.log(message + " - " + (typeof data) + strInfo);
             }
             break;
 
@@ -2060,7 +2083,6 @@ class byrobot_base extends BaseModule
             }
             break;
         }
-
         // */
     }
 
