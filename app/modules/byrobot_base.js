@@ -473,7 +473,7 @@ class byrobot_base extends BaseModule
 
     updateAck()
     {
-        this.log("BYROBOT_BASE - updateAck()");
+        //this.log("BYROBOT_BASE - updateAck()");
 
         if ( this.dataBlock != undefined && this.dataBlock.length == 11 )
         {
@@ -538,7 +538,8 @@ class byrobot_base extends BaseModule
 
     updateButton()
     {
-        this.log("BYROBOT_BASE - updateButton() - length : " + this.dataBlock.length);
+        //this.log("BYROBOT_BASE - updateButton() - length : " + this.dataBlock.length);
+
         if ( this.dataBlock != undefined && this.dataBlock.length == 3 )
         {
             let array = Uint8Array.from(this.dataBlock);
@@ -570,6 +571,8 @@ class byrobot_base extends BaseModule
 
     updateJoystick()
     {
+        //this.log("BYROBOT_BASE - updateJoystick() - length : " + this.dataBlock.length);
+
         if ( this.dataBlock != undefined && this.dataBlock.length == 8 )
         {
             let array = Uint8Array.from(this.dataBlock);
@@ -607,6 +610,8 @@ class byrobot_base extends BaseModule
 
     updateInformationAssembledForEntry()
     {
+        //this.log("BYROBOT_BASE - updateInformationAssembledForEntry() - length : " + this.dataBlock.length);
+
         if ( this.dataBlock != undefined && this.dataBlock.length == 18 )
         {
             let array = Uint8Array.from(this.dataBlock);
@@ -1062,7 +1067,7 @@ class byrobot_base extends BaseModule
             view.setUint16((2 + 4 + dataArray.length), crc16, true);
         }
         
-        this.log("BYROBOT_BASE - createTransferBlock() - ", Array.from(new Uint8Array(dataBlock)))
+        //this.log("BYROBOT_BASE - createTransferBlock() - ", Array.from(new Uint8Array(dataBlock)))
         return Array.from(new Uint8Array(dataBlock));
     }
 
@@ -1165,7 +1170,7 @@ class byrobot_base extends BaseModule
     // 장치로부터 받은 데이터 배열 처리
     receiverForDevice(dataArray)
     {
-        this.log("BYROBOT_BASE - receiverForDevice() - " + dataArray.length, dataArray);
+        //this.log("BYROBOT_BASE - receiverForDevice() - Length : " + dataArray.length, dataArray);
 
         if( dataArray == undefined || dataArray.length == 0 )
         {
@@ -1293,7 +1298,7 @@ class byrobot_base extends BaseModule
             // 데이터 전송 완료 처리
             if( flagComplete )
             {
-                this.log("BYROBOT_BASE - Receiver - CRC16 - Calculated : " + this.crc16Calculated.toString(16).toUpperCase() + ", Received : " + this.crc16Received.toString(16).toUpperCase());
+                //this.log("BYROBOT_BASE - Receiver - CRC16 - Calculated : " + this.crc16Calculated.toString(16).toUpperCase() + ", Received : " + this.crc16Received.toString(16).toUpperCase());
                 if( this.crc16Calculated == this.crc16Received )
                 {
                     this.handlerForDevice();
@@ -1351,7 +1356,7 @@ class byrobot_base extends BaseModule
 
         default:
             {
-                this.log("BYROBOT_BASE - handlerForDevice() - From: " + this.from + " - To: " + this.to + " - Type: " + this.dataType + " - ", this.dataBlock);
+                //this.log("BYROBOT_BASE - handlerForDevice() - From: " + this.from + " - To: " + this.to + " - Type: " + this.dataType + " - ", this.dataBlock);
             }
             break;
         }
@@ -1368,7 +1373,7 @@ class byrobot_base extends BaseModule
                     // ping에 대한 ack는 로그 출력하지 않음
                     //if( this.ack.dataType != 0x01 )
                     {
-                        this.log("BYROBOT_BASE - handlerForDevice() - Ack - From: " + this.from + " - SystemTime: " + this.ack.ack_systemTime + " - DataType: " + this.ack.ack_dataType + " - Repeat: " + this.countTransferRepeat + " - CRC16 Transfer: " + this.crc16Transfered + " - CRF16 Ack: " + this.ack.ack_crc16);
+                        //this.log("BYROBOT_BASE - handlerForDevice() - Ack - From: " + this.from + " - SystemTime: " + this.ack.ack_systemTime + " - DataType: " + this.ack.ack_dataType + " - Repeat: " + this.countTransferRepeat + " - CRC16 Transfer: " + this.crc16Transfered + " - CRF16 Ack: " + this.ack.ack_crc16);
                     }
 
                     // 마지막으로 전송한 데이터에 대한 응답을 받았다면 
@@ -1394,7 +1399,7 @@ class byrobot_base extends BaseModule
                     this.bufferTransfer.shift();
                     this.countTransferRepeat = 0;
                     
-                    this.log("BYROBOT_BASE - handlerForDevice() - Response - From: " + this.from + " - DataType: " + this.dataType);
+                    //this.log("BYROBOT_BASE - handlerForDevice() - Response - From: " + this.from + " - DataType: " + this.dataType);
                 }
             }
             break;
@@ -1405,7 +1410,7 @@ class byrobot_base extends BaseModule
         {
         case 0x40:  // State
             {
-                this.log("BYROBOT_BASE - handlerForDevice() - Received - State - 0x40");
+                //this.log("BYROBOT_BASE - handlerForDevice() - Received - State - 0x40");
                 this.updateState();
             }
             break;
@@ -1413,7 +1418,7 @@ class byrobot_base extends BaseModule
 
         case 0x70:  // Button
             {
-                this.log("BYROBOT_BASE - handlerForDevice() - Received - Button - 0x70");
+                //this.log("BYROBOT_BASE - handlerForDevice() - Received - Button - 0x70");
                 this.updateButton();
             }
             break;
@@ -1421,7 +1426,7 @@ class byrobot_base extends BaseModule
 
         case 0x71:  // Joystick
             {
-                this.log("BYROBOT_BASE - handlerForDevice() - Received - Joystick - 0x71");
+                //this.log("BYROBOT_BASE - handlerForDevice() - Received - Joystick - 0x71");
                 this.updateJoystick();
             }
             break;
@@ -1429,7 +1434,7 @@ class byrobot_base extends BaseModule
 
         case 0xA1:  // Information Assembled For Entry 자주 갱신되는 데이터 모음(엔트리)
             {
-                this.log("BYROBOT_BASE - handlerForDevice() - Received - InformationAssembledForEntry - 0xA1");
+                //this.log("BYROBOT_BASE - handlerForDevice() - Received - InformationAssembledForEntry - 0xA1");
                 this.updateInformationAssembledForEntry();
             }
             break;
@@ -1614,7 +1619,7 @@ class byrobot_base extends BaseModule
         view.setUint32(0, 0, true);
         view.setUint32(4, 0, true);
 
-        this.log("BYROBOT_BASE - reservePing() - Target: 0x" + target.toString(16).toUpperCase());
+        //this.log("BYROBOT_BASE - reservePing() - Target: 0x" + target.toString(16).toUpperCase());
         return this.createTransferBlock(0x01, target, dataArray);
     }
     // */
@@ -1628,7 +1633,7 @@ class byrobot_base extends BaseModule
 
         view.setUint8(0, dataType);
 
-        this.log("BYROBOT_BASE - reserveRequest() - Target: 0x" + target.toString(16).toUpperCase() + " - DataType: 0x", dataType.toString(16).toUpperCase());
+        //this.log("BYROBOT_BASE - reserveRequest() - Target: 0x" + target.toString(16).toUpperCase() + " - DataType: 0x", dataType.toString(16).toUpperCase());
         return this.createTransferBlock(0x04, target, dataArray);
     }
 
