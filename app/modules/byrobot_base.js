@@ -1044,7 +1044,7 @@ class byrobot_base extends BaseModule
             view.setUint16((2 + 4 + dataArray.length), crc16);
         }
         
-        //this.log("BYROBOT BASE - createTransferBlock() - ", Array.from(new Uint8Array(dataBlock)))
+        this.log("BYROBOT BASE - createTransferBlock() - ", Array.from(new Uint8Array(dataBlock)))
         return Array.from(new Uint8Array(dataBlock));
     }
 
@@ -1145,24 +1145,6 @@ class byrobot_base extends BaseModule
     // #region Data Receiver from Device
 
     // 장치로부터 받은 데이터 배열 처리
-
-    receiverForDevice(data)
-    {
-        if( this.receiveBuffer == undefined )
-        {
-            this.receiveBuffer = [];
-        }
-
-        // 수신 받은 데이터를 버퍼에 추가
-        this.receiveBuffer.push(data);
-
-        //this.log("receiverForDevice()", this.receiveBuffer);
-
-        // 버퍼로부터 데이터를 읽어 하나의 완성된 데이터 블럭으로 변환
-        while(this.receiveBuffer.length > 0)
-        {
-            let data            = this.receiveBuffer.shift();
-/*
     receiverForDevice(dataArray)
     {
         this.log("BYROBOT BASE - receiverForDevice() - " + dataArray.length, dataArray);
@@ -1178,7 +1160,7 @@ class byrobot_base extends BaseModule
         for(let i=0; i<dataArray.length; i++)
         {
             let data            = dataArray[i];
-    // */
+            
             let flagContinue    = true;
             let flagSessionNext = false;
             let flagComplete    = false;
@@ -1368,7 +1350,7 @@ class byrobot_base extends BaseModule
                     // ping에 대한 ack는 로그 출력하지 않음
                     //if( this.ack.dataType != 0x01 )
                     {
-                        console.log("BYROBOT BASE - handlerForDevice() - Ack / From: " + this.from + " / SystemTime: " + ack.systemTime + " / DataType: " + ack.dataType + " / Repeat: " + this.countTransferRepeat + " / Crc16Transfer: " + this.crc16Transfered + " / Crc16Get: " + ack.crc16);
+                        console.log("BYROBOT BASE - handlerForDevice() - Ack / From: " + this.from + " / SystemTime: " + this.ack.systemTime + " / DataType: " + this.ack.dataType + " / Repeat: " + this.countTransferRepeat + " / Crc16Transfer: " + this.crc16Transfered + " / Crc16Get: " + this.ack.crc16);
                     }
 
                     // 마지막으로 전송한 데이터에 대한 응답을 받았다면 
@@ -1557,18 +1539,66 @@ class byrobot_base extends BaseModule
      *  Communciation - 장치 전송용 데이터 배열 생성
      ***************************************************************************************/
     // #region Data Transfer Functions for Device
+    //*
+    reservePing(target)
+    {
+        let dataArray = [];
 
+        // Start Code
+        dataArray.push(0x0A);           // Data Type (UpdateLookupTarget)
+        dataArray.push(0x55);           // Data Length
+        
+        let dataLength = 8;             // 데이터의 길이
+
+        // Header
+        dataArray.push(0x01);           // Data Type (UpdateLookupTarget)
+        dataArray.push(dataLength);     // Data Length
+        dataArray.push(0x82);           // From
+        dataArray.push(target);           // To
+
+        // Data Array
+        dataArray.push(0x00);           // systemTime
+        dataArray.push(0x00);
+        dataArray.push(0x00);
+        dataArray.push(0x00);
+        dataArray.push(0x00)
+        dataArray.push(0x00);
+        dataArray.push(0x00);
+        dataArray.push(0x00);
+
+        // CRC16
+        {
+            let indexStart  = 2;
+            let totalLength = 4 + 8; // 
+            let crc16       = 0;
+
+            for(let i=0; i<totalLength; i++)
+            {
+                crc16 = this.calcCRC16(dataArray[indexStart + i], crc16);
+            }
+            dataArray.push(this.getByte(crc16, 0));
+            dataArray.push(this.getByte(crc16, 1));
+        }
+
+        //this.log("reservePing()", dataArray);
+        
+        return dataArray;
+    }
+    // */
+
+    /*
     // Ping
     reservePing(target)
     {
         let dataArray   = new ArrayBuffer(8);
         let view        = new DataView(dataArray);
 
-        view.setUint32(0, 11);
-        view.setUint32(4, 22);
+        view.setUint32(0, 0);
+        view.setUint32(4, 0);
 
         return this.createTransferBlock(0x01, target, dataArray);
     }
+    // */
 
     // 데이터 요청
     reserveRequest(target, dataType)
@@ -1578,6 +1608,7 @@ class byrobot_base extends BaseModule
 
         view.setUint8(0, dataType);
 
+        this.log("BYROBOT BASE - reserveRequest() - ", dataType.toString(16).toUpperCase())
         return this.createTransferBlock(0x04, target, dataArray);
     }
 
