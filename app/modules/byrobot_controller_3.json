@@ -1,8 +1,8 @@
 {
     "id": "0F0701",
     "name": {
-        "en": "BYROBOT Controller 3",
-        "ko": "바이로봇 조종기 3"
+        "en": "BYROBOT XTS-65 Controller",
+        "ko": "바이로봇 XTS-65 조종기"
     },
     "category": "robot",
     "platform": ["win32", "darwin"],

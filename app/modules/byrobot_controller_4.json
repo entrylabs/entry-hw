@@ -1,8 +1,8 @@
 {
     "id": "0F0801",
     "name": {
-        "en": "BYROBOT Controller 4",
-        "ko": "바이로봇 조종기 4"
+        "en": "BYROBOT E-DRONE Controller",
+        "ko": "바이로봇 E-DRONE 조종기"
     },
     "category": "robot",
     "platform": ["win32", "darwin"],
@@ -12,7 +12,7 @@
         "win32-ia32": "BYROBOT/petrone_v2_usb_driver_32.exe",
         "win32-x64": "BYROBOT/petrone_v2_usb_driver_64.exe"
     },
-    "url": "http://www.byrobot.co.kr",
+    "url": "http://dev.byrobot.co.kr/documents/kr/products/e_drone/",
     "email": "help@byrobot.co.kr",
     "reconnect" : true,
     "entry": {

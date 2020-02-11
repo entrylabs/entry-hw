@@ -1,8 +1,8 @@
 {
     "id": "0F0901",
     "name": {
-        "en": "BYROBOT Drone 3",
-        "ko": "바이로봇 드론 3"
+        "en": "BYROBOT XTS-65",
+        "ko": "바이로봇 XTS-65"
     },
     "category": "robot",
     "platform": ["win32", "darwin"],

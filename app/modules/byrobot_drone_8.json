@@ -1,8 +1,8 @@
 {
     "id": "0F0B01",
     "name": {
-        "en": "BYROBOT Drone 8",
-        "ko": "바이로봇 드론 8"
+        "en": "BYROBOT Coding Drone",
+        "ko": "바이로봇 코딩 드론"
     },
     "category": "robot",
     "platform": ["win32", "darwin"],
@@ -12,7 +12,7 @@
         "win32-ia32": "BYROBOT/petrone_v2_usb_driver_32.exe",
         "win32-x64": "BYROBOT/petrone_v2_usb_driver_64.exe"
     },
-    "url": "http://www.byrobot.co.kr",
+    "url": "http://dev.byrobot.co.kr/documents/kr/products/coding_drone/",
     "email": "help@byrobot.co.kr",
     "reconnect" : true,
     "entry": {
