@@ -22,8 +22,8 @@ class byrobot_base extends BaseModule
 
         this.createCRC16Array();
 
-        this.serialport = null;
-        this.isConnect = false;
+        this.serialport = undefined;
+        this.isConnect  = false;
 
 
         /***************************************************************************************
@@ -225,40 +225,8 @@ class byrobot_base extends BaseModule
         };
 
 
-        // -- Control -----------------------------------------------------------------
-        this.controlWheel           = 0;        // 
-        this.controlAccel           = 0;        // 
-        this.controlRoll            = 0;        // 
-        this.controlPitch           = 0;        // 
-        this.controlYaw             = 0;        // 
-        this.controlThrottle        = 0;        // 
-
-
-        // -- Hardware ----------------------------------------------------------------
-        this.bufferReceive          = [];       // 데이터 수신 버퍼
-        this.bufferTransfer         = [];       // 데이터 송신 버퍼
-
-        this.dataType               = 0;        // 수신 받은 데이터의 타입
-        this.dataLength             = 0;        // 수신 받은 데이터의 길이
-        this.from                   = 0;        // 송신 장치 타입
-        this.to                     = 0;        // 수신 장치 타입
-        this.indexSession           = 0;        // 수신 받는 데이터의 세션
-        this.indexReceiver          = 0;        // 수신 받는 데이터의 세션 내 위치
-        this.dataBlock              = [];       // 수신 받은 데이터 블럭
-        this.crc16Calculated        = 0;        // CRC16 계산 된 결과
-        this.crc16Received          = 0;        // CRC16 수신 받은 블럭
-        this.crc16Transfered        = 0;        // 전송한 데이터의 crc16
-        
-        this.maxTransferRepeat      = 3;        // 최대 반복 전송 횟수
-        this.countTransferRepeat    = 0;        // 반복 전송 횟수
-        this.dataTypeLastTransfered = 0;        // 마지막으로 전송한 데이터의 타입
-
-        this.timeReceive            = 0;        // 데이터를 전송 받은 시각
-        this.timeTransfer           = 0;        // 예약 데이터를 전송한 시각
-        this.timeTransferNext       = 0;        // 전송 가능한 다음 시간
-        this.timeTransferInterval   = 20;       // 최소 전송 시간 간격
-
-        this.countReqeustDevice     = 0;        // 장치에 데이터를 요청한 횟수 카운트
+        // 변수 초기화
+        this.clearVariable();
 
         this.targetDevice           = 0;            // 연결 대상 장치 DeviceType
         this.targetDeviceID         = undefined;    // 연결 대상 장치의 ID
@@ -285,7 +253,7 @@ class byrobot_base extends BaseModule
         super.init(handler, config);
         
         this.log("BYROBOT_BASE - init()");
-        //this.resetData();
+        this.resetData();
     }
 
 
@@ -298,13 +266,13 @@ class byrobot_base extends BaseModule
     */
     requestInitialData(serialport)
     {
-        if (!this.serialport)
+        if (this.isConnect == false)
         {
             this.isConnect = true;
             this.serialport = serialport;
         }
 
-        //this.log("BYROBOT_BASE - requestInitialData(0x" + this.targetDevice.toString(16).toUpperCase() + ")");
+        this.log("BYROBOT_BASE - requestInitialData(0x" + this.targetDevice.toString(16).toUpperCase() + ")");
         return this.reservePing(this.targetDevice);
     }
 
@@ -316,7 +284,7 @@ class byrobot_base extends BaseModule
     checkInitialData(data, config)
     {
         this.log("BYROBOT_BASE - checkInitialData()");
-        return this.checkAck(data, config); 
+        return this.checkInitialAck(data, config); 
     }
 
 
@@ -325,7 +293,7 @@ class byrobot_base extends BaseModule
     */
     validateLocalData(data)
     {
-        //this.log("BYROBOT_BASE - validateLocalData()");
+        this.log("BYROBOT_BASE - validateLocalData()");
         return true;
     }
 
@@ -338,7 +306,7 @@ class byrobot_base extends BaseModule
     */
     requestLocalData()
     {
-        //this.log("BYROBOT BASE - requestLocalData()");
+        this.log("BYROBOT BASE - requestLocalData()");
         return this.transferToDevice();
     }
 
@@ -348,7 +316,7 @@ class byrobot_base extends BaseModule
     */
     handleLocalData(data)
     {
-        //this.log("BYROBOT BASE - handleLocalData()");
+        this.log("BYROBOT BASE - handleLocalData()");
         this.receiverForDevice(data);
     }
 
@@ -383,11 +351,10 @@ class byrobot_base extends BaseModule
     {
         this.log("BYROBOT_BASE - disconnect()");
 
-        if (this.isConnect)
-        {
-            this.isConnect = false;
-            connect.close();
-        }
+        connect.close();
+
+        this.isConnect  = false;
+        this.serialport = undefined;
     }
 
 
@@ -400,7 +367,6 @@ class byrobot_base extends BaseModule
         this.resetData();
     }
 
-    
     // #endregion Base Functions for Entry
 
 
@@ -416,70 +382,61 @@ class byrobot_base extends BaseModule
         // Device -> Entry 
 
         // Ack
-        this.updateAck();
+        this.clearAck();
         
+        // State
+        this.clearState();
+
         // Joystick
-        let joystick                = this.joystick; 
+        this.clearJoystick();
 
         // Button
-        let button                  = this.button;
-        button._updated             = 0;
-        button.button               = 0;
-        button.event                = 0;
+        this.clearButton();
 
-        // State
-        let state                   = this.state;
-        state._updated              = 0;
-        state.modeSystem            = 0;
-        state.modeFlight            = 0;
-        state.modeControlFlight     = 0;
-        state.modeMovement          = 0;
-        state.headless              = 0;
-        state.sensorOrientation     = 0;
-        state.battery               = 0;
+        // InformationAssembledForEntry
+        this.clearInformationAssembledForEntry();
 
-        // Range
-        let informationAssembledForEntry            = this.informationAssembledForEntry;
-        informationAssembledForEntry.angleRoll      = 0;    // s16
-        informationAssembledForEntry.anglePitch     = 0;    // s16
-        informationAssembledForEntry.angleYaw       = 0;    // s16
-        informationAssembledForEntry.positionX      = 0;    // s16
-        informationAssembledForEntry.positionY      = 0;    // s16
-        informationAssembledForEntry.positionZ      = 0;    // s16
-        informationAssembledForEntry.rangeHeight    = 0;    // s16
-        informationAssembledForEntry.altitude       = 0;    // float
-
+        // 변수 초기화
+        this.clearVariable();
+    }
+    
+    clearVariable()
+    {
         // -- Control -----------------------------------------------------------------
-        this.controlRoll                    = 0;        // 
-        this.controlPitch                   = 0;        // 
-        this.controlYaw                     = 0;        // 
-        this.controlThrottle                = 0;        // 
+        this.controlWheel           = 0;        // 
+        this.controlAccel           = 0;        // 
+        this.controlRoll            = 0;        // 
+        this.controlPitch           = 0;        // 
+        this.controlYaw             = 0;        // 
+        this.controlThrottle        = 0;        // 
 
         // -- Hardware ----------------------------------------------------------------
-        this.bufferReceive                  = [];       // 데이터 수신 버퍼
-        this.bufferTransfer                 = [];       // 데이터 송신 버퍼
+        this.bufferReceive          = [];       // 데이터 수신 버퍼
+        this.bufferTransfer         = [];       // 데이터 송신 버퍼
 
-        this.dataType                       = 0;        // 수신 받은 데이터의 타입
-        this.dataLength                     = 0;        // 수신 받은 데이터의 길이
-        this.from                           = 0;        // 송신 장치 타입
-        this.to                             = 0;        // 수신 장치 타입
-        this.indexSession                   = 0;        // 수신 받은 데이터의 세션
-        this.indexReceiver                  = 0;        // 수신 받은 데이터의 세션 내 위치
-        this.dataBlock                      = undefined;       // 수신 받은 데이터 블럭
-        this.crc16Calculated                = 0;        // CRC16 계산 된 결과
-        this.crc16Received                  = 0;        // CRC16 수신 받은 블럭
+        this.dataType               = 0;        // 수신 받은 데이터의 타입
+        this.dataLength             = 0;        // 수신 받은 데이터의 길이
+        this.from                   = 0;        // 송신 장치 타입
+        this.to                     = 0;        // 수신 장치 타입
+        this.indexSession           = 0;        // 수신 받은 데이터의 세션
+        this.indexReceiver          = 0;        // 수신 받은 데이터의 세션 내 위치
+        this.dataBlock              = [];       // 수신 받은 데이터 블럭
+        this.crc16Calculated        = 0;        // CRC16 계산 결과
+        this.crc16Received          = 0;        // CRC16 수신값
+        this.crc16Transfered        = 0;        // 전송한 데이터의 crc16
 
-        this.maxTransferRepeat              = 3;        // 최대 반복 전송 횟수
-        this.countTransferRepeat            = 0;        // 반복 전송 횟수
-        this.dataTypeLastTransfered         = 0;        // 마지막으로 전송한 데이터의 타입
+        this.maxTransferRepeat      = 3;        // 최대 반복 전송 횟수
+        this.countTransferRepeat    = 0;        // 반복 전송 횟수
+        this.dataTypeLastTransfered = 0;        // 마지막으로 전송한 데이터의 타입
 
-        this.timeReceive                    = 0;        // 데이터를 전송 받은 시각
-        this.timeTransfer                   = 0;        // 예약 데이터를 전송한 시각
-        this.timeTransferNext               = 0;        // 전송 가능한 다음 시간
-        this.timeTransferInterval           = 20;       // 최소 전송 시간 간격
+        this.timeReceive            = 0;        // 데이터를 전송 받은 시각
+        this.timeTransfer           = 0;        // 예약 데이터를 전송한 시각
+        this.timeTransferNext       = 0;        // 전송 가능한 다음 시간
+        this.timeTransferInterval   = 30;       // 최소 전송 시간 간격
 
-        this.countReqeustDevice             = 0;        // 장치에 데이터를 요청한 횟수 카운트 
+        this.countReqeustDevice     = 0;        // 장치에 데이터를 요청한 횟수 카운트
     }
+
     // #endregion Data Reset
 
 
@@ -489,9 +446,17 @@ class byrobot_base extends BaseModule
      ***************************************************************************************/
     // #region Data Update
 
+    clearAck()
+    {
+        this.ack._updated   = false;
+        this.ack.systemTime = 0;
+        this.ack.dataType   = 0;
+        this.ack.crc16      = 0;
+    }
+
     updateAck()
     {
-        this.log("BYROBOT_BASE - updateAck - " + view.byteLength);
+        this.log("BYROBOT_BASE - updateAck()");
 
         if ( this.dataBlock != undefined && this.dataBlock.length == 11 )
         {
@@ -505,21 +470,26 @@ class byrobot_base extends BaseModule
 
             return true;
         }
-        else
-        {
-            this.ack._updated   = false;
-            this.ack.systemTime = 0;
-            this.ack.dataType   = 0;
-            this.ack.crc16      = 0;
 
-            return false;
-        }
+        return false;
     }
 
 
+    clearState()
+    {
+        this.state._updated            = false;
+        this.state.modeSystem          = 0;
+        this.state.modeFlight          = 0;
+        this.state.modeControlFlight   = 0;
+        this.state.modeMovement        = 0;
+        this.state.headless            = 0;
+        this.state.sensorOrientation   = 0;
+        this.state.battery             = 0;
+    }
+
     updateState()
     {
-        this.log("BYROBOT_BASE - updateState - " + view.byteLength);
+        this.log("BYROBOT_BASE - updateState()");
 
         if ( this.dataBlock != undefined && this.dataBlock.length == 7 )
         {
@@ -537,21 +507,17 @@ class byrobot_base extends BaseModule
 
             return true;
         }
-        else
-        {
-            this.state._updated            = false;
-            this.state.modeSystem          = 0;
-            this.state.modeFlight          = 0;
-            this.state.modeControlFlight   = 0;
-            this.state.modeMovement        = 0;
-            this.state.headless            = 0;
-            this.state.sensorOrientation   = 0;
-            this.state.battery             = 0;
-
-            return false;
-        }
+        
+        return false;
     }
 
+
+    clearButton()
+    {
+        this.button._updated    = false;
+        this.button.button      = 0;
+        this.button.event       = 0;
+    }
 
     updateButton()
     {
@@ -566,16 +532,23 @@ class byrobot_base extends BaseModule
 
             return true;
         }
-        else
-        {
-            this.button._updated    = false;
-            this.button.button      = 0;
-            this.button.event       = 0;
-
-            return false;
-        }
+        
+        return false;
     }
 
+
+    clearJoystick()
+    {
+        this.joystick._updated                   = false;
+        this.joystick.joystick_left_x            = 0;
+        this.joystick.joystick_left_y            = 0;
+        this.joystick.joystick_left_direction    = 0;
+        this.joystick.joystick_left_event        = 0;
+        this.joystick.joystick_right_x           = 0;
+        this.joystick.joystick_right_y           = 0;
+        this.joystick.joystick_right_direction   = 0;
+        this.joystick.joystick_right_event       = 0;
+    }
 
     updateJoystick()
     {
@@ -596,24 +569,25 @@ class byrobot_base extends BaseModule
 
             return true;
         }
-        else
-        {
-            this.joystick._updated                   = false;
-            this.joystick.joystick_left_x            = 0;
-            this.joystick.joystick_left_y            = 0;
-            this.joystick.joystick_left_direction    = 0;
-            this.joystick.joystick_left_event        = 0;
-            this.joystick.joystick_right_x           = 0;
-            this.joystick.joystick_right_y           = 0;
-            this.joystick.joystick_right_direction   = 0;
-            this.joystick.joystick_right_event       = 0;
 
-            return false;
-        }
+        return false;
     }
 
 
-    updateInformationAssembledForEntry( view )
+    clearInformationAssembledForEntry()
+    {
+        this.informationAssembledForEntry._updated       = false;
+        this.informationAssembledForEntry.angleRoll      = 0;
+        this.informationAssembledForEntry.anglePitch     = 0;
+        this.informationAssembledForEntry.angleYaw       = 0;
+        this.informationAssembledForEntry.positionX      = 0;
+        this.informationAssembledForEntry.positionY      = 0;
+        this.informationAssembledForEntry.positionZ      = 0;
+        this.informationAssembledForEntry.rangeHeight    = 0;
+        this.informationAssembledForEntry.altitude       = 0;
+    }
+
+    updateInformationAssembledForEntry()
     {
         if ( this.dataBlock != undefined && this.dataBlock.length == 18 )
         {
@@ -629,19 +603,11 @@ class byrobot_base extends BaseModule
             this.informationAssembledForEntry.positionZ      = view.getInt16(10) / 100.0;
             this.informationAssembledForEntry.rangeHeight    = view.getInt16(12) / 100.0;
             this.informationAssembledForEntry.altitude       = view.getFloat32(14);
+
+            return true;
         }
-        else
-        {
-            this.informationAssembledForEntry._updated       = false;
-            this.informationAssembledForEntry.angleRoll      = 0;
-            this.informationAssembledForEntry.anglePitch     = 0;
-            this.informationAssembledForEntry.angleYaw       = 0;
-            this.informationAssembledForEntry.positionX      = 0;
-            this.informationAssembledForEntry.positionY      = 0;
-            this.informationAssembledForEntry.positionZ      = 0;
-            this.informationAssembledForEntry.rangeHeight    = 0;
-            this.informationAssembledForEntry.altitude       = 0;
-        }
+        
+        return false;
     }
 
     // #endregion Data Update
@@ -653,7 +619,7 @@ class byrobot_base extends BaseModule
      ***************************************************************************************/
     // #region check Ack for first connection
 
-    checkAck(data, config)
+    checkInitialAck(data, config)
     {
         this.receiverForDevice(data);
 
@@ -662,8 +628,7 @@ class byrobot_base extends BaseModule
             return false;
         }
 
-        let ack = this.ack;
-        if( ack._updated )
+        if( this.ack._updated )
         {
             config.id = this.targetDeviceID;
             return true;
@@ -679,7 +644,6 @@ class byrobot_base extends BaseModule
      *  Communciation - Entry로부터 받은 데이터를 장치에 전송
      ***************************************************************************************/
     // #region Data Transfer to Device from Entry
-
 
     read(handler, dataType, defaultValue = 0)
     {
@@ -1034,8 +998,6 @@ class byrobot_base extends BaseModule
 
             this.log("Transfer_To_Device / Vibrator", dataArray);
         }
-
-        //this.log("handlerForEntry()", dataArray);
     }
 
 
@@ -1183,9 +1145,27 @@ class byrobot_base extends BaseModule
     // #region Data Receiver from Device
 
     // 장치로부터 받은 데이터 배열 처리
+
+    receiverForDevice(data)
+    {
+        if( this.receiveBuffer == undefined )
+        {
+            this.receiveBuffer = [];
+        }
+
+        // 수신 받은 데이터를 버퍼에 추가
+        this.receiveBuffer.push(data);
+
+        //this.log("receiverForDevice()", this.receiveBuffer);
+
+        // 버퍼로부터 데이터를 읽어 하나의 완성된 데이터 블럭으로 변환
+        while(this.receiveBuffer.length > 0)
+        {
+            let data            = this.receiveBuffer.shift();
+/*
     receiverForDevice(dataArray)
     {
-        //this.log("BYROBOT BASE - receiverForDevice() - " + data.length, data);
+        this.log("BYROBOT BASE - receiverForDevice() - " + dataArray.length, dataArray);
 
         if( dataArray == undefined || dataArray.length == 0 )
         {
@@ -1198,14 +1178,14 @@ class byrobot_base extends BaseModule
         for(let i=0; i<dataArray.length; i++)
         {
             let data            = dataArray[i];
+    // */
             let flagContinue    = true;
             let flagSessionNext = false;
             let flagComplete    = false;
             
             switch(this.indexSession)
             {
-            case 0:
-                // Start Code
+            case 0: // Start Code
                 {               
                     switch( this.indexReceiver )
                     {
@@ -1230,8 +1210,7 @@ class byrobot_base extends BaseModule
                 }
                 break;
 
-            case 1:
-                // Header
+            case 1: // Header
                 {
                     switch( this.indexReceiver )
                     {
@@ -1272,8 +1251,7 @@ class byrobot_base extends BaseModule
                 }
                 break;
 
-            case 2:
-                // Data
+            case 2: // Data
                 {
                     this.dataBlock.push(data);
                     this.crc16Calculated = this.calcCRC16(data, this.crc16Calculated);
@@ -1285,8 +1263,7 @@ class byrobot_base extends BaseModule
                 }
                 break;
 
-            case 3:
-                // CRC16
+            case 3: // CRC16
                 {
                     switch( this.indexReceiver )
                     {
@@ -1316,7 +1293,7 @@ class byrobot_base extends BaseModule
             // 데이터 전송 완료 처리
             if( flagComplete )
             {
-                //this.log("BYROBOT_BASE - Receiver CRC16 - C: " + this.crc16Calculated.toString(16).toUpperCase() + ", R: " + this.crc16Received.toString(16).toUpperCase());
+                this.log("BYROBOT_BASE - Receiver CRC16 - C: " + this.crc16Calculated.toString(16).toUpperCase() + ", R: " + this.crc16Received.toString(16).toUpperCase());
                 if( this.crc16Calculated == this.crc16Received )
                 {
                     this.handlerForDevice();
@@ -1386,10 +1363,10 @@ class byrobot_base extends BaseModule
         {
         case 0x02:  // Ack
             {
-                if( this.updateAck(this.viewDataBlock) )
+                if( this.updateAck() )
                 {
                     // ping에 대한 ack는 로그 출력하지 않음
-                    if( this.ack.dataType != 0x01 )
+                    //if( this.ack.dataType != 0x01 )
                     {
                         console.log("BYROBOT BASE - handlerForDevice() - Ack / From: " + this.from + " / SystemTime: " + ack.systemTime + " / DataType: " + ack.dataType + " / Repeat: " + this.countTransferRepeat + " / Crc16Transfer: " + this.crc16Transfered + " / Crc16Get: " + ack.crc16);
                     }
@@ -1464,6 +1441,8 @@ class byrobot_base extends BaseModule
             break;
         }
     }
+
+
     // #endregion Data Receiver for received data from Device
 
 
@@ -1501,15 +1480,9 @@ class byrobot_base extends BaseModule
                 {
                     switch( this.countReqeustDevice % 6 )
                     {
-                    case 0:    return this.reservePing(0x10);                     // 드론
-                    case 2:    return this.reservePing(0x20);                     // 조종기
+                    case 0:    return this.reservePing(0x10);              // 드론
+                    case 2:    return this.reservePing(0x20);              // 조종기
                     case 4:    return this.reserveRequest(0x10, 0x40);     // 드론
-                    /*
-                    case 6:    return this.reserveRequest(0x10, 0x42);     // 드론
-                    case 8:    return this.reserveRequest(0x10, 0x43);     // 드론
-                    case 10:   return this.reserveRequest(0x10, 0x44);     // 드론
-                    case 12:   return this.reserveRequest(0x10, 0x45);     // 드론
-                    // */
                     default:   return this.reserveRequest(0x10, 0xA1);     // 드론, 자주 갱신되는 데이터 모음(엔트리)
                     }
                 }
