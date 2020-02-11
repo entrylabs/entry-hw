@@ -154,10 +154,7 @@ class PingpongBase extends BaseModule {
             const packet_size = data.readInt16BE(7);
             const opcode = data[6];
 
-            if (
-                data.length === packet_size &&
-                (packet_size == 19 || packet_size == 20)
-            ) {
+            if (data.length >= packet_size && packet_size >= 19) {
                 if (opcode == 0xb8 && data[5] == 0xc8) {
                     var cubeid = data[3];
                     var sensor;
