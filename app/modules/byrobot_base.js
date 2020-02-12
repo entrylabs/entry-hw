@@ -7,7 +7,7 @@ const BaseModule = require('./baseModule');
  *  기본 클래스
  * 
  * - 송수신 데이터 정의 문서
- *   http://dev.byrobot.co.kr/documents/kr/products/e_drone/protocol/
+ *   http://dev.byrobot.co.kr/documents/kr/products/petrone_v2/protocol/
  * 
  * - 호환 제품군
  *   - XTS-65
@@ -394,7 +394,7 @@ class byrobot_base extends BaseModule
 
         // Ack
         this.clearAck();
-        
+
         // State
         this.clearState();
 
@@ -980,11 +980,11 @@ class byrobot_base extends BaseModule
         // MotorSingle
         if( handler.e(this.DataType.MOTORSINGLE_TARGET) )
         {
-            let targetMotor = this.read(handler, this.DataType.MOTORSINGLE_TARGET);
+            let motor       = this.read(handler, this.DataType.MOTORSINGLE_TARGET);
             let rotation    = this.read(handler, this.DataType.MOTORSINGLE_ROTATION);
             let value       = this.read(handler, this.DataType.MOTORSINGLE_VALUE);
 
-            let dataArray = this.reserveMotorSingle(target, targetMotor, rotation, value);
+            let dataArray = this.reserveMotorSingle(target, motor, rotation, value);
             this.bufferTransfer.push(dataArray);
             this.log("BYROBOT_BASE - Transfer_To_Device - MotorSingle", dataArray);
         }
@@ -1440,10 +1440,10 @@ class byrobot_base extends BaseModule
             {
             case 0x10:
                 {
-                    switch (this.countReqeustDevice % 3)
+                    switch( this.countReqeustDevice % 5 )
                     {
-                        case 1:     return this.reserveRequest(0x10, 0xA1);     // 드론, 자주 갱신되는 데이터 모음(엔트리)
-                        default:    break;
+                    case 1:     return this.reserveRequest(0x10, 0xA1);     // 드론, 자주 갱신되는 데이터 모음(엔트리)
+                    default:    break;
                     }
                 }
                 break;
