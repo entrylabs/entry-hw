@@ -3,7 +3,18 @@ const BaseModule = require('./baseModule');
 
 
 /***************************************************************************************
+ * 
  *  기본 클래스
+ * 
+ * - 송수신 데이터 정의 문서
+ *   http://dev.byrobot.co.kr/documents/kr/products/petrone_v2/protocol/
+ * 
+ * - 호환 제품군
+ *   - PETRONE V2
+ * 
+ * - 마지막 업데이트
+ *   - 2020.2.12
+ * 
  ***************************************************************************************/
 
 class byrobot_petrone_v2_base extends BaseModule
@@ -18,10 +29,12 @@ class byrobot_petrone_v2_base extends BaseModule
     {
         super();
 
+        this.log("BYROBOT_PETRONE_V2_BASE - constructor()");
+
         this.createCRC16Array();
 
-        this.serialport = null;
-        this.isConnect = false;
+        this.serialport = undefined;
+        this.isConnect  = false;
 
 
         /***************************************************************************************
@@ -99,18 +112,18 @@ class byrobot_petrone_v2_base extends BaseModule
             DISPLAY_DRAW_RECT_LINE      : 'display_draw_rect_line',
 
             // 화면에 원 그리기
-            DISPLAY_DRAW_CIRCLE_X        : 'display_draw_circle_x',
-            DISPLAY_DRAW_CIRCLE_Y        : 'display_draw_circle_y',
-            DISPLAY_DRAW_CIRCLE_RADIUS   : 'display_draw_circle_radius',
-            DISPLAY_DRAW_CIRCLE_PIXEL    : 'display_draw_circle_pixel',
-            DISPLAY_DRAW_CIRCLE_FLAGFILL : 'display_draw_circle_flagfill',
+            DISPLAY_DRAW_CIRCLE_X           : 'display_draw_circle_x',
+            DISPLAY_DRAW_CIRCLE_Y           : 'display_draw_circle_y',
+            DISPLAY_DRAW_CIRCLE_RADIUS      : 'display_draw_circle_radius',
+            DISPLAY_DRAW_CIRCLE_PIXEL       : 'display_draw_circle_pixel',
+            DISPLAY_DRAW_CIRCLE_FLAGFILL    : 'display_draw_circle_flagfill',
 
             // 화면에 문자열 쓰기
-            DISPLAY_DRAW_STRING_X       : 'display_draw_string_x',
-            DISPLAY_DRAW_STRING_Y       : 'display_draw_string_y',
-            DISPLAY_DRAW_STRING_FONT    : 'display_draw_string_font',
-            DISPLAY_DRAW_STRING_PIXEL   : 'display_draw_string_pixel',
-            DISPLAY_DRAW_STRING_STRING  : 'display_draw_string_string',
+            DISPLAY_DRAW_STRING_X           : 'display_draw_string_x',
+            DISPLAY_DRAW_STRING_Y           : 'display_draw_string_y',
+            DISPLAY_DRAW_STRING_FONT        : 'display_draw_string_font',
+            DISPLAY_DRAW_STRING_PIXEL       : 'display_draw_string_pixel',
+            DISPLAY_DRAW_STRING_STRING      : 'display_draw_string_string',
 
             // 화면에 문자열 정렬하여 그리기
             DISPLAY_DRAW_STRING_ALIGN_X_START   : 'display_draw_string_align_x_start',
@@ -122,38 +135,38 @@ class byrobot_petrone_v2_base extends BaseModule
             DISPLAY_DRAW_STRING_ALIGN_STRING    : 'display_draw_string_align_string',
 
             // Buzzer
-            BUZZER_MODE                 : 'buzzer_mode',
-            BUZZER_VALUE                : 'buzzer_value',
-            BUZZER_TIME                 : 'buzzer_time',
+            BUZZER_MODE             : 'buzzer_mode',
+            BUZZER_VALUE            : 'buzzer_value',
+            BUZZER_TIME             : 'buzzer_time',
 
             // Vibrator
-            VIBRATOR_MODE               : 'vibrator_mode',
-            VIBRATOR_ON                 : 'vibrator_on',
-            VIBRATOR_OFF                : 'vibrator_off',
-            VIBRATOR_TOTAL              : 'vibrator_total',
+            VIBRATOR_MODE           : 'vibrator_mode',
+            VIBRATOR_ON             : 'vibrator_on',
+            VIBRATOR_OFF            : 'vibrator_off',
+            VIBRATOR_TOTAL          : 'vibrator_total',
 
             // Control - Double
-            CONTROL_WHEEL               : 'control_wheel',
-            CONTROL_ACCEL               : 'control_accel',
+            CONTROL_WHEEL           : 'control_wheel',
+            CONTROL_ACCEL           : 'control_accel',
             
             // Control - Quad
-            CONTROL_ROLL                : 'control_roll',
-            CONTROL_PITCH               : 'control_pitch',
-            CONTROL_YAW                 : 'control_yaw',
-            CONTROL_THROTTLE            : 'control_throttle',
+            CONTROL_ROLL            : 'control_roll',
+            CONTROL_PITCH           : 'control_pitch',
+            CONTROL_YAW             : 'control_yaw',
+            CONTROL_THROTTLE        : 'control_throttle',
 
             // Command
-            COMMAND_COMMAND             : 'command_command',
-            COMMAND_OPTION              : 'command_option',
+            COMMAND_COMMAND         : 'command_command',
+            COMMAND_OPTION          : 'command_option',
 
             // Motor
-            MOTORSINGLE_TARGET          : 'motorsingle_target',
-            MOTORSINGLE_ROTATION        : 'motorsingle_rotation',     // direction -> rotation
-            MOTORSINGLE_VALUE           : 'motorsingle_value',
+            MOTORSINGLE_TARGET      : 'motorsingle_target',
+            MOTORSINGLE_ROTATION    : 'motorsingle_rotation',     // direction -> rotation
+            MOTORSINGLE_VALUE       : 'motorsingle_value',
 
             // IrMessage
-            IRMESSAGE_DIRECTION         : 'irmessage_direction',      // 수신 받은 방향 (추가)
-            IRMESSAGE_IRDATA            : 'irmessage_irdata',
+            IRMESSAGE_DIRECTION     : 'irmessage_direction',      // 수신 받은 방향 (추가)
+            IRMESSAGE_IRDATA        : 'irmessage_irdata',
         };
     
 
@@ -188,9 +201,9 @@ class byrobot_petrone_v2_base extends BaseModule
         // Button
         this.button = 
         {
-            _updated        : 1,
-            button_button   : 0,    // u16
-            button_event    : 0,    // u8
+            _updated            : 1,
+            button_button       : 0,    // u16
+            button_event        : 0,    // u8
         };
 
 
@@ -208,50 +221,24 @@ class byrobot_petrone_v2_base extends BaseModule
         };
 
 
-        // Imu
-        this.imu =
+        // InformationAssembledForEntry
+        this.informationAssembledForEntry =
         {
-            _updated        : 1,
-            imu_accX        : 0,
-            imu_accY        : 0,
-            imu_accZ        : 0,
-            imu_gyroRoll    : 0,
-            imu_gyroPitch   : 0,
-            imu_gyroYaw     : 0,
-            imu_angleRoll   : 0,
-            imu_anglePitch  : 0,
-            imu_angleYaw    : 0
-        };
-
-
-        // Pressure
-        this.pressure =
-        {
-            _updated                : 1,
-            pressure_temperature    : 0,
-            pressure_pressure       : 0
-        };
-
-
-        // Image Flow (Optical Flow)
-        this.imageflow =
-        {
-            _updated                : 1,
-            imageflow_positionX     : 0,
-            imageflow_positionY     : 0,
-        };
-
-
-        // Range
-        this.range =
-        {
-            _updated        : 1,
-            range_left      : 0,    // s16
-            range_front     : 0,    // s16
-            range_right     : 0,    // s16
-            range_rear      : 0,    // s16
-            range_top       : 0,    // s16
-            range_bottom    : 0,    // s16
+            _updated                                            : 1,
+            informationAssembledForEntry_accelX                 : 0,    // s16
+            informationAssembledForEntry_accelY                 : 0,    // s16
+            informationAssembledForEntry_accelZ                 : 0,    // s16
+            informationAssembledForEntry_gyroRoll               : 0,    // s16
+            informationAssembledForEntry_gyroPitch              : 0,    // s16
+            informationAssembledForEntry_gyroYaw                : 0,    // s16
+            informationAssembledForEntry_angleRoll              : 0,    // s16
+            informationAssembledForEntry_anglePitch             : 0,    // s16
+            informationAssembledForEntry_angleYaw               : 0,    // s16
+            informationAssembledForEntry_pressureTemperature    : 0,    // float
+            informationAssembledForEntry_pressureAltitude       : 0,    // float
+            informationAssembledForEntry_imageFlowPositionX     : 0,    // float
+            informationAssembledForEntry_imageFlowPositionY     : 0,    // float
+            informationAssembledForEntry_rangeGround            : 0,    // float
         };
 
 
@@ -264,40 +251,8 @@ class byrobot_petrone_v2_base extends BaseModule
         };
 
 
-        // -- Control -----------------------------------------------------------------
-        this.controlWheel           = 0;        // 
-        this.controlAccel           = 0;        // 
-        this.controlRoll            = 0;        // 
-        this.controlPitch           = 0;        // 
-        this.controlYaw             = 0;        // 
-        this.controlThrottle        = 0;        // 
-
-
-        // -- Hardware ----------------------------------------------------------------
-        this.bufferReceive          = [];       // 데이터 수신 버퍼
-        this.bufferTransfer         = [];       // 데이터 송신 버퍼
-
-        this.dataType               = 0;        // 수신 받은 데이터의 타입
-        this.dataLength             = 0;        // 수신 받은 데이터의 길이
-        this.from                   = 0;        // 송신 장치 타입
-        this.to                     = 0;        // 수신 장치 타입
-        this.indexSession           = 0;        // 수신 받는 데이터의 세션
-        this.indexReceiver          = 0;        // 수신 받는 데이터의 세션 내 위치
-        this.dataBlock              = [];       // 수신 받은 데이터 블럭
-        this.crc16Calculated        = 0;        // CRC16 계산 된 결과
-        this.crc16Received          = 0;        // CRC16 수신 받은 블럭
-        this.crc16Transfered        = 0;        // 전송한 데이터의 crc16
-        
-        this.maxTransferRepeat      = 3;        // 최대 반복 전송 횟수
-        this.countTransferRepeat    = 0;        // 반복 전송 횟수
-        this.dataTypeLastTransfered = 0;        // 마지막으로 전송한 데이터의 타입
-
-        this.timeReceive            = 0;        // 데이터를 전송 받은 시각
-        this.timeTransfer           = 0;        // 예약 데이터를 전송한 시각
-        this.timeTransferNext       = 0;        // 전송 가능한 다음 시간
-        this.timeTransferInterval   = 30;       // 최소 전송 시간 간격
-
-        this.countReqeustDevice     = 0;        // 장치에 데이터를 요청한 횟수 카운트
+        // 변수 초기화
+        this.clearVariable();
 
         this.targetDevice           = 0;            // 연결 대상 장치 DeviceType
         this.targetDeviceID         = undefined;    // 연결 대상 장치의 ID
@@ -325,7 +280,7 @@ class byrobot_petrone_v2_base extends BaseModule
         super.init(handler, config);
         
         this.log("BYROBOT_PETRONE_V2_BASE - init()");
-        //this.resetData();
+        this.resetData();
     }
 
 
@@ -338,13 +293,10 @@ class byrobot_petrone_v2_base extends BaseModule
     */
     requestInitialData(serialport)
     {
-        if (!this.serialport)
-        {
-            this.isConnect = true;
-            this.serialport = serialport;
-        }
+        this.isConnect = true;
+        this.serialport = serialport;
 
-        this.log("BYROBOT_PETRONE_V2_BASE - requestInitialData(0x" + this.targetDevice.toString(16).toUpperCase() + ")");
+        //this.log("BYROBOT_PETRONE_V2_BASE - requestInitialData(0x" + this.targetDevice.toString(16).toUpperCase() + ")");
         return this.reservePing(this.targetDevice);
     }
 
@@ -356,7 +308,7 @@ class byrobot_petrone_v2_base extends BaseModule
     checkInitialData(data, config)
     {
         this.log("BYROBOT_PETRONE_V2_BASE - checkInitialData()");
-        return this.checkAck(data, config); 
+        return this.checkInitialAck(data, config); 
     }
 
 
@@ -365,6 +317,7 @@ class byrobot_petrone_v2_base extends BaseModule
     */
     validateLocalData(data)
     {
+        //this.log("BYROBOT_PETRONE_V2_BASE - validateLocalData()");
         return true;
     }
 
@@ -377,7 +330,8 @@ class byrobot_petrone_v2_base extends BaseModule
     */
     requestLocalData()
     {
-        return this.transferForDevice();
+        //this.log("BYROBOT_PETRONE_V2_BASE - requestLocalData()");
+        return this.transferToDevice();
     }
 
 
@@ -396,6 +350,7 @@ class byrobot_petrone_v2_base extends BaseModule
     */
     requestRemoteData(handler)
     {
+        //this.log("BYROBOT_PETRONE_V2_BASE - requestRemoteData()");
         this.transferToEntry(handler);
     }
 
@@ -405,20 +360,25 @@ class byrobot_petrone_v2_base extends BaseModule
     */
     handleRemoteData(handler)
     {
+        //this.log("BYROBOT_PETRONE_V2_BASE - handleRemoteData()");
         this.handlerForEntry(handler);
     }
 
 
-    connect() {}
+    connect()
+    {
+        this.log("BYROBOT_PETRONE_V2_BASE - connect()");
+    }
 
 
     disconnect(connect)
     {
-        if (this.isConnect)
-        {
-            this.isConnect = false;
-            connect.close();
-        }
+        this.log("BYROBOT_PETRONE_V2_BASE - disconnect()");
+
+        connect.close();
+
+        this.isConnect  = false;
+        this.serialport = undefined;
     }
 
 
@@ -427,17 +387,16 @@ class byrobot_petrone_v2_base extends BaseModule
     */
     reset()
     {
-        this.log("reset", "");
+        this.log("BYROBOT_PETRONE_V2_BASE - reset()");
         this.resetData();
     }
 
-    
     // #endregion Base Functions for Entry
 
 
 
     /***************************************************************************************
-     *  초기화
+     *  데이터 리셋
      ***************************************************************************************/
     // #region Data Reset
 
@@ -447,116 +406,318 @@ class byrobot_petrone_v2_base extends BaseModule
         // Device -> Entry 
 
         // Ack
-        let ack                             = this.ack;
-        ack._updated                        = 0;
-        ack.ack_systemTime                  = 0;
-        ack.ack_dataType                    = 0;
-        ack.ack_crc16                       = 0;
+        this.clearAck();
         
+        // State
+        this.clearState();
+
         // Joystick
-        let joystick                        = this.joystick; 
-        joystick._updated                   = 0;
-        joystick.joystick_left_x            = 0;
-        joystick.joystick_left_y            = 0;
-        joystick.joystick_left_direction    = 0;
-        joystick.joystick_left_event        = 0;
-        joystick.joystick_right_x           = 0;
-        joystick.joystick_right_y           = 0;
-        joystick.joystick_right_direction   = 0;
-        joystick.joystick_right_event       = 0;
+        this.clearJoystick();
 
         // Button
-        let button                          = this.button;
-        button._updated                     = 0;
-        button.button_button                = 0;
-        button.button_event                 = 0;
+        this.clearButton();
 
-        // State
-        let state                           = this.state;
-        state._updated                      = 0;
-        state.state_modeVehicle             = 0;
-        state.state_modeSystem              = 0;
-        state.state_modeFlight              = 0;
-        state.state_modeDrive               = 0;
-        state.state_sensorOrientation       = 0;
-        state.state_coordinate              = 0;
-        state.state_battery                 = 0;
-
-        // Imu
-        let imu                             = this.imu;
-        imu._updated                        = 0;
-        imu.imu_accX                        = 0;
-        imu.imu_accY                        = 0;
-        imu.imu_accZ                        = 0;
-        imu.imu_gyroRoll                    = 0;
-        imu.imu_gyroPitch                   = 0;
-        imu.imu_gyroYaw                     = 0;
-        imu.imu_angleRoll                   = 0;
-        imu.imu_anglePitch                  = 0;
-        imu.imu_angleYaw                    = 0;
-        
-        // Pressure
-        let pressure                        = this.pressure;
-        pressure._updated                   = 0;
-        pressure.pressure_temperature       = 0;
-        pressure.pressure_pressure          = 0;
-
-        // Image Flow (Optical Flow)
-        let imageflow                       = this.imageflow;
-        imageflow._updated                  = 0;
-        imageflow.imageflow_positionX       = 0;
-        imageflow.imageflow_positionY       = 0;
-
-        // Range
-        let range                           = this.range;
-        range._updated                      = 0;
-        range.range_left                    = 0;
-        range.range_front                   = 0;
-        range.range_right                   = 0;
-        range.range_rear                    = 0;
-        range.range_top                     = 0;
-        range.range_bottom                  = 0;
+        // InformationAssembledForEntry
+        this.clearInformationAssembledForEntry();
 
         // IR Message
-        let irmessage                       = this.irmessage;
-        irmessage._updated                  = 0;
-        irmessage.irmessage_direction       = 0;
-        irmessage.irmessage_irdata          = 0;
+        this.clearIRMessage();
 
+        // 변수 초기화
+        this.clearVariable();
+    }
+    
+    clearVariable()
+    {
         // -- Control -----------------------------------------------------------------
-        this.controlWheel                   = 0;        // 
-        this.controlAccel                   = 0;        // 
-        this.controlRoll                    = 0;        // 
-        this.controlPitch                   = 0;        // 
-        this.controlYaw                     = 0;        // 
-        this.controlThrottle                = 0;        // 
+        this.controlWheel           = 0;        // 
+        this.controlAccel           = 0;        // 
+        this.controlRoll            = 0;        // 
+        this.controlPitch           = 0;        // 
+        this.controlYaw             = 0;        // 
+        this.controlThrottle        = 0;        // 
 
         // -- Hardware ----------------------------------------------------------------
-        this.bufferReceive                  = [];       // 데이터 수신 버퍼
-        this.bufferTransfer                 = [];       // 데이터 송신 버퍼
+        this.bufferReceive          = [];       // 데이터 수신 버퍼
+        this.bufferTransfer         = [];       // 데이터 송신 버퍼
 
-        this.dataType                       = 0;        // 수신 받은 데이터의 타입
-        this.dataLength                     = 0;        // 수신 받은 데이터의 길이
-        this.from                           = 0;        // 송신 장치 타입
-        this.to                             = 0;        // 수신 장치 타입
-        this.indexSession                   = 0;        // 수신 받은 데이터의 세션
-        this.indexReceiver                  = 0;        // 수신 받은 데이터의 세션 내 위치
-        this.dataBlock                      = [];       // 수신 받은 데이터 블럭
-        this.crc16Calculated                = 0;        // CRC16 계산 된 결과
-        this.crc16Received                  = 0;        // CRC16 수신 받은 블럭
+        this.dataType               = 0;        // 수신 받은 데이터의 타입
+        this.dataLength             = 0;        // 수신 받은 데이터의 길이
+        this.from                   = 0;        // 송신 장치 타입
+        this.to                     = 0;        // 수신 장치 타입
+        this.indexSession           = 0;        // 수신 받은 데이터의 세션
+        this.indexReceiver          = 0;        // 수신 받은 데이터의 세션 내 위치
+        this.dataBlock              = [];       // 수신 받은 데이터 블럭
+        this.crc16Calculated        = 0;        // CRC16 계산 결과
+        this.crc16Received          = 0;        // CRC16 수신값
+        this.crc16Transfered        = 0;        // 전송한 데이터의 crc16
 
-        this.maxTransferRepeat              = 3;        // 최대 반복 전송 횟수
-        this.countTransferRepeat            = 0;        // 반복 전송 횟수
-        this.dataTypeLastTransfered         = 0;        // 마지막으로 전송한 데이터의 타입
+        this.maxTransferRepeat      = 3;        // 최대 반복 전송 횟수
+        this.countTransferRepeat    = 0;        // 반복 전송 횟수
+        this.dataTypeLastTransfered = 0;        // 마지막으로 전송한 데이터의 타입
 
-        this.timeReceive                    = 0;        // 데이터를 전송 받은 시각
-        this.timeTransfer                   = 0;        // 예약 데이터를 전송한 시각
-        this.timeTransferNext               = 0;        // 전송 가능한 다음 시간
-        this.timeTransferInterval           = 30;       // 최소 전송 시간 간격
+        this.timeReceive            = 0;        // 데이터를 전송 받은 시각
+        this.timeTransfer           = 0;        // 예약 데이터를 전송한 시각
+        this.timeTransferNext       = 0;        // 전송 가능한 다음 시간
+        this.timeTransferInterval   = 20;       // 최소 전송 시간 간격
 
-        this.countReqeustDevice             = 0;        // 장치에 데이터를 요청한 횟수 카운트 
+        this.countReqeustDevice     = 0;        // 장치에 데이터를 요청한 횟수 카운트
     }
+
     // #endregion Data Reset
+
+
+
+    /***************************************************************************************
+     *  데이터 업데이트
+     ***************************************************************************************/
+    // #region Data Update
+
+    clearAck()
+    {
+        this.ack._updated       = false;
+        this.ack.ack_systemTime = 0;
+        this.ack.ack_dataType   = 0;
+        this.ack.ack_crc16      = 0;
+    }
+
+    updateAck()
+    {
+        //this.log("BYROBOT_PETRONE_V2_BASE - updateAck()");
+
+        if ( this.dataBlock != undefined && this.dataBlock.length == 11 )
+        {
+            let array = Uint8Array.from(this.dataBlock);
+            let view  = new DataView(array.buffer);
+
+            this.ack._updated       = true;
+            this.ack.ack_systemTime = this.getUint64(view, 0, true);
+            this.ack.ack_dataType   = view.getUint8(8);
+            this.ack.ack_crc16      = view.getUint16(9, true);
+
+            return true;
+        }
+
+        return false;
+    }
+
+
+    clearState()
+    {
+        this.state._updated                 = false;
+        this.state.state_modeVehicle        = 0;
+        this.state.state_modeSystem         = 0;
+        this.state.state_modeFlight         = 0;
+        this.state.state_modeDrive          = 0;
+        this.state.state_sensorOrientation  = 0;
+        this.state.state_coordinate         = 0;
+        this.state.state_battery            = 0;
+    }
+
+    updateState()
+    {
+        this.log("BYROBOT_PETRONE_V2_BASE - updateState()");
+
+        if ( this.dataBlock != undefined && this.dataBlock.length == 7 )
+        {
+            let array = Uint8Array.from(this.dataBlock);
+            let view  = new DataView(array.buffer);
+
+            this.state._updated                 = true;
+            this.state.state_modeVehicle        = view.getUint8(0);
+            this.state.state_modeSystem         = view.getUint8(1);
+            this.state.state_modeFlight         = view.getUint8(2);
+            this.state.state_modeDrive          = view.getUint8(3);
+            this.state.state_sensorOrientation  = view.getUint8(4);
+            this.state.state_coordinate         = view.getUint8(5);
+            this.state.state_battery            = view.getUint8(6);
+
+            // 비행 모드로 들어갔는데 설정이 비행 모드가 아닌경우 비행 모드로 변경
+            // 자동차 모드로 들어갔는데 설정이 자동차 모드가 아닌 경우 자동차 모드로 변경
+            if( this.targetModeVehicle != undefined )
+            {
+                switch( this.targetModeVehicle )
+                {
+                case 0x10:
+                    {
+                        if( this.state.state_modeVehicle != 0x10 &&
+                            this.state.state_modeVehicle != 0x11 &&
+                            this.state.state_modeVehicle != 0x12 )
+                        {
+                            this.reserveModeVehicle(0x10);
+                        }
+                    }
+                    break;
+
+                case 0x20:
+                    {
+                        if( this.state.state_modeVehicle != 0x20 &&
+                            this.state.state_modeVehicle != 0x21 )
+                        {
+                            this.reserveModeVehicle(0x20);
+                        }
+                    }
+                    break;
+
+                default:
+                    break;
+                }
+            }
+
+            return true;
+        }
+        
+        return false;
+    }
+
+
+    clearButton()
+    {
+        this.button._updated           = false;
+        this.button.button_button      = 0;
+        this.button.button_event       = 0;
+    }
+
+    updateButton()
+    {
+        //this.log("BYROBOT_PETRONE_V2_BASE - updateButton() - length : " + this.dataBlock.length);
+
+        if ( this.dataBlock != undefined && this.dataBlock.length == 3 )
+        {
+            let array = Uint8Array.from(this.dataBlock);
+            let view  = new DataView(array.buffer);
+
+            this.button._updated           = true;
+            this.button.button_button      = view.getUint16(0, true);
+            this.button.button_event       = view.getUint8(2);
+
+            return true;
+        }
+        
+        return false;
+    }
+
+
+    clearJoystick()
+    {
+        this.joystick._updated                   = false;
+        this.joystick.joystick_left_x            = 0;
+        this.joystick.joystick_left_y            = 0;
+        this.joystick.joystick_left_direction    = 0;
+        this.joystick.joystick_left_event        = 0;
+        this.joystick.joystick_right_x           = 0;
+        this.joystick.joystick_right_y           = 0;
+        this.joystick.joystick_right_direction   = 0;
+        this.joystick.joystick_right_event       = 0;
+    }
+
+    updateJoystick()
+    {
+        //this.log("BYROBOT_PETRONE_V2_BASE - updateJoystick() - length : " + this.dataBlock.length);
+
+        if ( this.dataBlock != undefined && this.dataBlock.length == 8 )
+        {
+            let array = Uint8Array.from(this.dataBlock);
+            let view  = new DataView(array.buffer);
+
+            this.joystick._updated                   = true;
+            this.joystick.joystick_left_x            = view.getInt8(0);
+            this.joystick.joystick_left_y            = view.getInt8(1);
+            this.joystick.joystick_left_direction    = view.getUint8(2);
+            this.joystick.joystick_left_event        = view.getUint8(3);
+            this.joystick.joystick_right_x           = view.getInt8(4);
+            this.joystick.joystick_right_y           = view.getInt8(5);
+            this.joystick.joystick_right_direction   = view.getUint8(6);
+            this.joystick.joystick_right_event       = view.getUint8(7);
+
+            return true;
+        }
+
+        return false;
+    }
+
+
+    clearInformationAssembledForEntry()
+    {
+        this.informationAssembledForEntry._updated                                            = false;
+        this.informationAssembledForEntry.informationAssembledForEntry_accelX                 = 0;
+        this.informationAssembledForEntry.informationAssembledForEntry_accelY                 = 0;
+        this.informationAssembledForEntry.informationAssembledForEntry_accelZ                 = 0;
+        this.informationAssembledForEntry.informationAssembledForEntry_gyroRoll               = 0;
+        this.informationAssembledForEntry.informationAssembledForEntry_gyroPitch              = 0;
+        this.informationAssembledForEntry.informationAssembledForEntry_gyroYaw                = 0;
+        this.informationAssembledForEntry.informationAssembledForEntry_angleRoll              = 0;
+        this.informationAssembledForEntry.informationAssembledForEntry_anglePitch             = 0;
+        this.informationAssembledForEntry.informationAssembledForEntry_angleYaw               = 0;
+        this.informationAssembledForEntry.informationAssembledForEntry_pressureTemperature    = 0;
+        this.informationAssembledForEntry.informationAssembledForEntry_pressureAltitude       = 0;
+        this.informationAssembledForEntry.informationAssembledForEntry_imageFlowPositionX     = 0;
+        this.informationAssembledForEntry.informationAssembledForEntry_imageFlowPositionY     = 0;
+        this.informationAssembledForEntry.informationAssembledForEntry_rangeGround            = 0;
+    }
+
+    updateInformationAssembledForEntry()
+    {
+        //this.log("BYROBOT_PETRONE_V2_BASE - updateInformationAssembledForEntry() - length : " + this.dataBlock.length);
+
+        if ( this.dataBlock != undefined && this.dataBlock.length == 38 )
+        {
+            let array = Uint8Array.from(this.dataBlock);
+            let view  = new DataView(array.buffer);
+   
+            let kAccel  = ( 9.8 / 2048 );       // 1g (중력가속도) = 9.8 m/s^2 로 만들기 위한 변환 상수
+            let kGyro   = ( 2000 / 32767 );     // 각 속도 (deg/s) 를 만들기 위한 변환 상수
+
+            this.informationAssembledForEntry._updated                                            = true;
+            this.informationAssembledForEntry.informationAssembledForEntry_accelX                 = (view.getInt16( 0, true) * kAccel).toFixed(2);
+            this.informationAssembledForEntry.informationAssembledForEntry_accelY                 = (view.getInt16( 2, true) * kAccel).toFixed(2);
+            this.informationAssembledForEntry.informationAssembledForEntry_accelZ                 = (view.getInt16( 4, true) * kAccel).toFixed(2);
+            this.informationAssembledForEntry.informationAssembledForEntry_gyroRoll               = (view.getInt16( 6, true) * kGyro).toFixed(2);
+            this.informationAssembledForEntry.informationAssembledForEntry_gyroPitch              = (view.getInt16( 8, true) * kGyro).toFixed(2);
+            this.informationAssembledForEntry.informationAssembledForEntry_gyroYaw                = (view.getInt16(10, true) * kGyro).toFixed(2);
+            this.informationAssembledForEntry.informationAssembledForEntry_angleRoll              = view.getInt16(12, true);
+            this.informationAssembledForEntry.informationAssembledForEntry_anglePitch             = view.getInt16(14, true);
+            this.informationAssembledForEntry.informationAssembledForEntry_angleYaw               = view.getInt16(16, true);
+            this.informationAssembledForEntry.informationAssembledForEntry_pressureTemperature    = view.getFloat32(18, true);
+            this.informationAssembledForEntry.informationAssembledForEntry_pressureAltitude       = view.getFloat32(22, true);
+            this.informationAssembledForEntry.informationAssembledForEntry_imageFlowPositionX     = view.getFloat32(26, true);
+            this.informationAssembledForEntry.informationAssembledForEntry_imageFlowPositionY     = view.getFloat32(30, true);
+            this.informationAssembledForEntry.informationAssembledForEntry_rangeGround            = view.getFloat32(34, true);
+
+            return true;
+        }
+        
+        return false;
+    }
+
+
+    clearIRMessage()
+    {
+        this.irmessage._updated             = false;
+        this.irmessage.irmessage_direction  = 0;
+        this.irmessage.irmessage_irdata     = 0;
+    }
+
+    updateIRMessage()
+    {
+        //this.log("BYROBOT_PETRONE_V2_BASE - updateIRMessage() - length : " + this.dataBlock.length);
+
+        if ( this.dataBlock != undefined && this.dataBlock.length == 5 )
+        {
+            let array = Uint8Array.from(this.dataBlock);
+            let view  = new DataView(array.buffer);
+
+            this.irmessage._updated             = true;
+            this.irmessage.irmessage_direction  = view.getUint8(0);
+            this.irmessage.irmessage_irdata     = view.getUint32(1, true);
+
+            return true;
+        }
+        
+        return false;
+    }
+
+    // #endregion Data Update
 
 
 
@@ -565,7 +726,7 @@ class byrobot_petrone_v2_base extends BaseModule
      ***************************************************************************************/
     // #region check Ack for first connection
 
-    checkAck(data, config)
+    checkInitialAck(data, config)
     {
         this.receiverForDevice(data);
 
@@ -574,8 +735,7 @@ class byrobot_petrone_v2_base extends BaseModule
             return false;
         }
 
-        let ack = this.ack;
-        if( ack._updated == true )
+        if( this.ack._updated )
         {
             config.id = this.targetDeviceID;
             return true;
@@ -583,6 +743,7 @@ class byrobot_petrone_v2_base extends BaseModule
 
         return false;
     }
+
     // #endregion check Ack for first connection
 
 
@@ -591,6 +752,11 @@ class byrobot_petrone_v2_base extends BaseModule
      *  Communciation - Entry로부터 받은 데이터를 장치에 전송
      ***************************************************************************************/
     // #region Data Transfer to Device from Entry
+
+    read(handler, dataType, defaultValue = 0)
+    {
+        return handler.e(dataType) ? handler.read(dataType) : defaultValue;
+    }
 
     /*
         Entry에서 받은 데이터 블럭 처리
@@ -613,648 +779,238 @@ class byrobot_petrone_v2_base extends BaseModule
         }
 
         // Buffer Clear
-        if( handler.e(this.DataType.BUFFER_CLEAR) == true )
+        if( handler.e(this.DataType.BUFFER_CLEAR) )
         {
             this.bufferTransfer = [];
         }
 
+        let target = this.read(handler, this.DataType.TARGET, 0xFF);
 
         // Light Manual
-        if( (handler.e(this.DataType.LIGHT_MANUAL_FLAGS)        == true) &&
-            (handler.e(this.DataType.LIGHT_MANUAL_BRIGHTNESS)   == true) )
+        if( handler.e(this.DataType.LIGHT_MANUAL_FLAGS)       &&
+            handler.e(this.DataType.LIGHT_MANUAL_BRIGHTNESS)  )
         {
-            let dataArray = [];
+            let flags       = this.read(handler, this.DataType.LIGHT_MANUAL_FLAGS);
+            let brightness  = this.read(handler, this.DataType.LIGHT_MANUAL_BRIGHTNESS);
 
-            // Start Code
-            this.addStartCode(dataArray);
-            
-            let target                  = handler.e(this.DataType.TARGET)                    ? handler.read(this.DataType.TARGET)                     : 0xFF;
-            let lightManual_flags       = handler.e(this.DataType.LIGHT_MANUAL_FLAGS)        ? handler.read(this.DataType.LIGHT_MANUAL_FLAGS)         : 0;
-            let lightManual_brightness  = handler.e(this.DataType.LIGHT_MANUAL_BRIGHTNESS)   ? handler.read(this.DataType.LIGHT_MANUAL_BRIGHTNESS)    : 0;
-
-            let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-            let dataLength = 2;                     // 데이터의 길이
-
-            // Header
-            dataArray.push(0x20);                   // Data Type
-            dataArray.push(dataLength);             // Data Length
-            dataArray.push(0x38);                   // From (네이버 엔트리)
-            dataArray.push(target);                 // To
-
-            // Data
-            dataArray.push(lightManual_flags);
-            dataArray.push(lightManual_brightness);
-
-            // CRC16
-            this.addCRC16(dataArray, indexStart, dataLength);
-
+            let dataArray = this.reserveLightManual(target, flags, brightness);
             this.bufferTransfer.push(dataArray);
-            
-            this.log("Transfer_To_Device / LightManual", dataArray);
+            this.log("BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - LightManual", dataArray);
         }
 
 
         // LightModeColor
-        if( (handler.e(this.DataType.LIGHT_MODE_MODE)       == true) &&
-            (handler.e(this.DataType.LIGHT_MODE_INTERVAL)   == true) &&
-            (handler.e(this.DataType.LIGHT_COLOR_R)         == true) &&
-            (handler.e(this.DataType.LIGHT_COLOR_G)         == true) &&
-            (handler.e(this.DataType.LIGHT_COLOR_B)         == true) )
+        if      (   handler.e(this.DataType.LIGHT_MODE_MODE)      &&
+                    handler.e(this.DataType.LIGHT_MODE_INTERVAL)  &&
+                    handler.e(this.DataType.LIGHT_COLOR_R)        &&
+                    handler.e(this.DataType.LIGHT_COLOR_G)        &&
+                    handler.e(this.DataType.LIGHT_COLOR_B)        )
         {
-            let dataArray = [];
-    
-            // Start Code
-            this.addStartCode(dataArray);
+            let mode        = this.read(handler, this.DataType.LIGHT_MODE_MODE);
+            let interval    = this.read(handler, this.DataType.LIGHT_MODE_INTERVAL);
+            let r           = this.read(handler, this.DataType.LIGHT_COLOR_R);
+            let g           = this.read(handler, this.DataType.LIGHT_COLOR_G);
+            let b           = this.read(handler, this.DataType.LIGHT_COLOR_B);
             
-            let target              = handler.e(this.DataType.TARGET)                ? handler.read(this.DataType.TARGET)               : 0xFF;
-            let lightMode_mode      = handler.e(this.DataType.LIGHT_MODE_MODE)       ? handler.read(this.DataType.LIGHT_MODE_MODE)      : 0;
-            let lightMode_interval  = handler.e(this.DataType.LIGHT_MODE_INTERVAL)   ? handler.read(this.DataType.LIGHT_MODE_INTERVAL)  : 0;
-            let lightColor_r        = handler.e(this.DataType.LIGHT_COLOR_R)         ? handler.read(this.DataType.LIGHT_COLOR_R)        : 0;
-            let lightColor_g        = handler.e(this.DataType.LIGHT_COLOR_G)         ? handler.read(this.DataType.LIGHT_COLOR_G)        : 0;
-            let lightColor_b        = handler.e(this.DataType.LIGHT_COLOR_B)         ? handler.read(this.DataType.LIGHT_COLOR_B)        : 0;
-            
-            let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-            let dataLength = 6;                     // 데이터의 길이
-    
-            // Header
-            dataArray.push(0x24);                   // Data Type(LightModeColor)
-            dataArray.push(dataLength);             // Data Length
-            dataArray.push(0x38);                   // From (네이버 엔트리)
-            dataArray.push(target);                 // To
-    
-            // Data
-            dataArray.push(lightMode_mode);
-            dataArray.push(this.getByte0(lightMode_interval));
-            dataArray.push(this.getByte1(lightMode_interval));
-            dataArray.push(lightColor_r);
-            dataArray.push(lightColor_g);
-            dataArray.push(lightColor_b);
-    
-            // CRC16
-            this.addCRC16(dataArray, indexStart, dataLength);
-    
-            // this.log("Light Mode");
-    
+            let dataArray = this.reserveLightModeColor(target, mode, interval, r, g, b);
             this.bufferTransfer.push(dataArray);
-            
-            this.log("Transfer_To_Device / LightModeColor", dataArray);
+            this.log("BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - LightModeColor", dataArray);
         }
         // LightMode
-        else if((handler.e(this.DataType.LIGHT_MODE_MODE)       == true) &&
-                (handler.e(this.DataType.LIGHT_MODE_INTERVAL)   == true) )
+        else if (   handler.e(this.DataType.LIGHT_MODE_MODE)      &&
+                    handler.e(this.DataType.LIGHT_MODE_INTERVAL)  )
         {
-            let dataArray = [];
+            let mode        = this.read(handler, this.DataType.LIGHT_MODE_MODE);
+            let interval    = this.read(handler, this.DataType.LIGHT_MODE_INTERVAL);
 
-            // Start Code
-            this.addStartCode(dataArray);
-            
-            let target                  = handler.e(this.DataType.TARGET)                    ? handler.read(this.DataType.TARGET)                 : 0xFF;
-            let lightMode_mode          = handler.e(this.DataType.LIGHT_MODE_MODE)           ? handler.read(this.DataType.LIGHT_MODE_MODE)        : 0;
-            let lightMode_interval      = handler.e(this.DataType.LIGHT_MODE_INTERVAL)       ? handler.read(this.DataType.LIGHT_MODE_INTERVAL)    : 0;
-
-            let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-            let dataLength = 3;                     // 데이터의 길이
-
-            // Header
-            dataArray.push(0x21);                   // Data Type(LightMode)
-            dataArray.push(dataLength);             // Data Length
-            dataArray.push(0x38);                   // From (네이버 엔트리)
-            dataArray.push(target);                 // To
-
-            // Data
-            dataArray.push(lightMode_mode);
-            dataArray.push(this.getByte0(lightMode_interval));
-            dataArray.push(this.getByte1(lightMode_interval));
-
-            // CRC16
-            this.addCRC16(dataArray, indexStart, dataLength);
-
+            let dataArray = this.reserveLightMode(target, mode, interval);
             this.bufferTransfer.push(dataArray);
-            
-            this.log("Transfer_To_Device / LightMode", dataArray);
+            this.log("BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - LightMode", dataArray);
         }
         
 
         // LightEventColor
-        if( (handler.e(this.DataType.LIGHT_EVENT_EVENT)     == true) &&
-            (handler.e(this.DataType.LIGHT_EVENT_INTERVAL)  == true) &&
-            (handler.e(this.DataType.LIGHT_EVENT_REPEAT)    == true) &&
-            (handler.e(this.DataType.LIGHT_COLOR_R)         == true) &&
-            (handler.e(this.DataType.LIGHT_COLOR_G)         == true) &&
-            (handler.e(this.DataType.LIGHT_COLOR_B)         == true) )
+        if      (   handler.e(this.DataType.LIGHT_EVENT_EVENT)     &&
+                    handler.e(this.DataType.LIGHT_EVENT_INTERVAL)  &&
+                    handler.e(this.DataType.LIGHT_EVENT_REPEAT)    &&
+                    handler.e(this.DataType.LIGHT_COLOR_R)         &&
+                    handler.e(this.DataType.LIGHT_COLOR_G)         &&
+                    handler.e(this.DataType.LIGHT_COLOR_B)         )
         {
-            let dataArray = [];
+            let event       = this.read(handler, this.DataType.LIGHT_EVENT_EVENT);
+            let interval    = this.read(handler, this.DataType.LIGHT_EVENT_INTERVAL);
+            let repeat      = this.read(handler, this.DataType.LIGHT_EVENT_REPEAT);
+            let r           = this.read(handler, this.DataType.LIGHT_COLOR_R);
+            let g           = this.read(handler, this.DataType.LIGHT_COLOR_G);
+            let b           = this.read(handler, this.DataType.LIGHT_COLOR_B);
 
-            // Start Code
-            this.addStartCode(dataArray);
-            
-            let target              = handler.e(this.DataType.TARGET)                ? handler.read(this.DataType.TARGET)               : 0xFF;
-            let lightEvent_event    = handler.e(this.DataType.LIGHT_EVENT_EVENT)     ? handler.read(this.DataType.LIGHT_EVENT_EVENT)    : 0;
-            let lightEvent_interval = handler.e(this.DataType.LIGHT_EVENT_INTERVAL)  ? handler.read(this.DataType.LIGHT_EVENT_INTERVAL) : 0;
-            let lightEvent_repeat   = handler.e(this.DataType.LIGHT_EVENT_REPEAT)    ? handler.read(this.DataType.LIGHT_EVENT_REPEAT)   : 0;
-            let lightColor_r        = handler.e(this.DataType.LIGHT_COLOR_R)         ? handler.read(this.DataType.LIGHT_COLOR_R)        : 0;
-            let lightColor_g        = handler.e(this.DataType.LIGHT_COLOR_G)         ? handler.read(this.DataType.LIGHT_COLOR_G)        : 0;
-            let lightColor_b        = handler.e(this.DataType.LIGHT_COLOR_B)         ? handler.read(this.DataType.LIGHT_COLOR_B)        : 0;
-
-            let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-            let dataLength = 7;                     // 데이터의 길이
-
-            // Header
-            dataArray.push(0x2D);                   // Data Type
-            dataArray.push(dataLength);             // Data Length
-            dataArray.push(0x38);                   // From (네이버 엔트리)
-            dataArray.push(target);                 // To
-
-            // Data Array
-            dataArray.push(lightEvent_event);
-            dataArray.push(this.getByte0(lightMode_interval));
-            dataArray.push(this.getByte1(lightMode_interval));
-            dataArray.push(lightEvent_repeat);
-            dataArray.push(lightColor_r);
-            dataArray.push(lightColor_g);
-            dataArray.push(lightColor_b);
-
-            // CRC16
-            this.addCRC16(dataArray, indexStart, dataLength);
-
+            let dataArray = this.reserveLightEventColor(target, event, interval, repeat, r, g, b);
             this.bufferTransfer.push(dataArray);
-            
-            this.log("Transfer_To_Device / LightEventColor", dataArray);
+            this.log("BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - LightEventColor", dataArray);
         }
         // LightEvent
-        else if((handler.e(this.DataType.LIGHT_EVENT_EVENT)     == true) &&
-                (handler.e(this.DataType.LIGHT_EVENT_INTERVAL)  == true) &&
-                (handler.e(this.DataType.LIGHT_EVENT_REPEAT)    == true) )
+        else if (   handler.e(this.DataType.LIGHT_EVENT_EVENT)     &&
+                    handler.e(this.DataType.LIGHT_EVENT_INTERVAL)  &&
+                    handler.e(this.DataType.LIGHT_EVENT_REPEAT)    )
         {
-            let dataArray = [];
+            let event       = this.read(handler, this.DataType.LIGHT_EVENT_EVENT);
+            let interval    = this.read(handler, this.DataType.LIGHT_EVENT_INTERVAL);
+            let repeat      = this.read(handler, this.DataType.LIGHT_EVENT_REPEAT);
 
-            // Start Code
-            this.addStartCode(dataArray);
-            
-            let target              = handler.e(this.DataType.TARGET)                ? handler.read(this.DataType.TARGET)               : 0xFF;
-            let lightEvent_event    = handler.e(this.DataType.LIGHT_EVENT_EVENT)     ? handler.read(this.DataType.LIGHT_EVENT_EVENT)    : 0;
-            let lightEvent_interval = handler.e(this.DataType.LIGHT_EVENT_INTERVAL)  ? handler.read(this.DataType.LIGHT_EVENT_INTERVAL) : 0;
-            let lightEvent_repeat   = handler.e(this.DataType.LIGHT_EVENT_REPEAT)    ? handler.read(this.DataType.LIGHT_EVENT_REPEAT)   : 0;
-
-            let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-            let dataLength = 4;                     // 데이터의 길이
-
-            // Header
-            dataArray.push(0x2A);                   // Data Type
-            dataArray.push(dataLength);             // Data Length
-            dataArray.push(0x38);                   // From (네이버 엔트리)
-            dataArray.push(target);                 // To
-
-            // Data Array
-            dataArray.push(lightEvent_event);
-            dataArray.push(this.getByte0(lightMode_interval));
-            dataArray.push(this.getByte1(lightMode_interval));
-            dataArray.push(lightEvent_repeat);
-
-            // CRC16
-            this.addCRC16(dataArray, indexStart, dataLength);
-
+            let dataArray = this.reserveLightEvent(target, event, interval, repeat);
             this.bufferTransfer.push(dataArray);
-            
-            this.log("Transfer_To_Device / LightEvent", dataArray);
+            this.log("BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - LightEvent", dataArray);
         }
 
 
         // 화면 전체 지우기
-        if( handler.e(this.DataType.DISPLAY_CLEAR_ALL_PIXEL) == true )
+        if( handler.e(this.DataType.DISPLAY_CLEAR_ALL_PIXEL) )
         {
-            let dataArray = [];
+            let pixel   = this.read(handler, this.DataType.DISPLAY_CLEAR_ALL_PIXEL);
 
-            // Start Code
-            this.addStartCode(dataArray);
-            
-            let target                   = handler.e(this.DataType.TARGET)                    ? handler.read(this.DataType.TARGET)                     : 0xFF;
-            let display_clear_all_pixel  = handler.e(this.DataType.DISPLAY_CLEAR_ALL_PIXEL)   ? handler.read(this.DataType.DISPLAY_CLEAR_ALL_PIXEL)    : 0;
-
-            let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-            let dataLength = 1;                     // 데이터의 길이
-
-            // Header
-            dataArray.push(0xB0);                   // Data Type
-            dataArray.push(dataLength);             // Data Length
-            dataArray.push(0x38);                   // From (네이버 엔트리)
-            dataArray.push(target);                 // To
-
-            // Data
-            dataArray.push(display_clear_all_pixel);
-
-            // CRC16
-            this.addCRC16(dataArray, indexStart, dataLength);
-
+            let dataArray = this.reserveDisplayClearAll(target, pixel);
             this.bufferTransfer.push(dataArray);
-            
-            this.log("Transfer_To_Device / DisplayClearAll", dataArray);
+            this.log("BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - DisplayClearAll", dataArray);
         }
 
 
         // 선택 영역 지우기
-        if( (handler.e(this.DataType.DISPLAY_CLEAR_WIDTH)   == true) ||
-            (handler.e(this.DataType.DISPLAY_CLEAR_HEIGHT)  == true) )
+        if( handler.e(this.DataType.DISPLAY_CLEAR_WIDTH)  ||
+            handler.e(this.DataType.DISPLAY_CLEAR_HEIGHT) )
         {
-            let dataArray = [];
+            let x       = this.read(handler, this.DataType.DISPLAY_CLEAR_X);
+            let y       = this.read(handler, this.DataType.DISPLAY_CLEAR_Y);
+            let width   = this.read(handler, this.DataType.DISPLAY_CLEAR_WIDTH);
+            let height  = this.read(handler, this.DataType.DISPLAY_CLEAR_HEIGHT);
+            let pixel   = this.read(handler, this.DataType.DISPLAY_CLEAR_PIXEL);
 
-            // Start Code
-            this.addStartCode(dataArray);
-            
-            let target                  = handler.e(this.DataType.TARGET)               ? handler.read(this.DataType.TARGET)               : 0xFF;
-            let display_clear_x         = handler.e(this.DataType.DISPLAY_CLEAR_X)      ? handler.read(this.DataType.DISPLAY_CLEAR_X)      : 0;
-            let display_clear_y         = handler.e(this.DataType.DISPLAY_CLEAR_Y)      ? handler.read(this.DataType.DISPLAY_CLEAR_Y)      : 0;
-            let display_clear_width     = handler.e(this.DataType.DISPLAY_CLEAR_WIDTH)  ? handler.read(this.DataType.DISPLAY_CLEAR_WIDTH)  : 0;
-            let display_clear_height    = handler.e(this.DataType.DISPLAY_CLEAR_HEIGHT) ? handler.read(this.DataType.DISPLAY_CLEAR_HEIGHT) : 0;
-            let display_clear_pixel     = handler.e(this.DataType.DISPLAY_CLEAR_PIXEL)  ? handler.read(this.DataType.DISPLAY_CLEAR_PIXEL)  : 0;
-
-            let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-            let dataLength = 9;                     // 데이터의 길이
-
-            // Header
-            dataArray.push(0xB0);                   // Data Type
-            dataArray.push(dataLength);             // Data Length
-            dataArray.push(0x38);                   // From (네이버 엔트리)
-            dataArray.push(target);                 // To
-
-            // Data
-            dataArray.push(this.getByte0(display_clear_x));
-            dataArray.push(this.getByte1(display_clear_x));
-            dataArray.push(this.getByte0(display_clear_y));
-            dataArray.push(this.getByte1(display_clear_y));
-            dataArray.push(this.getByte0(display_clear_width));
-            dataArray.push(this.getByte1(display_clear_width));
-            dataArray.push(this.getByte0(display_clear_height));
-            dataArray.push(this.getByte1(display_clear_height));
-            dataArray.push(display_clear_pixel);
-
-            // CRC16
-            this.addCRC16(dataArray, indexStart, dataLength);
-
+            let dataArray = this.reserveDisplayClear(target, x, y, width, height, pixel);
             this.bufferTransfer.push(dataArray);
-            
-            this.log("Transfer_To_Device / DisplayClear", dataArray);
+            this.log("BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - DisplayClear", dataArray);
         }
 
 
         // 선택 영역 반전
-        if( (handler.e(this.DataType.DISPLAY_INVERT_WIDTH)  == true) ||
-            (handler.e(this.DataType.DISPLAY_INVERT_HEIGHT) == true) )
+        if( handler.e(this.DataType.DISPLAY_INVERT_WIDTH)  ||
+            handler.e(this.DataType.DISPLAY_INVERT_HEIGHT) )
         {
-            let dataArray = [];
+            let x       = this.read(handler, this.DataType.DISPLAY_INVERT_X);
+            let y       = this.read(handler, this.DataType.DISPLAY_INVERT_Y);
+            let width   = this.read(handler, this.DataType.DISPLAY_INVERT_WIDTH);
+            let height  = this.read(handler, this.DataType.DISPLAY_INVERT_HEIGHT);
 
-            // Start Code
-            this.addStartCode(dataArray);
-            
-            let target                  = handler.e(this.DataType.TARGET)                   ? handler.read(this.DataType.TARGET)                : 0xFF;
-            let display_invert_x        = handler.e(this.DataType.DISPLAY_INVERT_X)         ? handler.read(this.DataType.DISPLAY_INVERT_X)      : 0;
-            let display_invert_y        = handler.e(this.DataType.DISPLAY_INVERT_Y)         ? handler.read(this.DataType.DISPLAY_INVERT_Y)      : 0;
-            let display_invert_width    = handler.e(this.DataType.DISPLAY_INVERT_WIDTH)     ? handler.read(this.DataType.DISPLAY_INVERT_WIDTH)  : 0;
-            let display_invert_height   = handler.e(this.DataType.DISPLAY_INVERT_HEIGHT)    ? handler.read(this.DataType.DISPLAY_INVERT_HEIGHT) : 0;
-
-            let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-            let dataLength = 8;                     // 데이터의 길이
-
-            // Header
-            dataArray.push(0xB1);                   // Data Type
-            dataArray.push(dataLength);             // Data Length
-            dataArray.push(0x38);                   // From (네이버 엔트리)
-            dataArray.push(target);                 // To
-
-            // Data
-            dataArray.push(this.getByte0(display_invert_x));
-            dataArray.push(this.getByte1(display_invert_x));
-            dataArray.push(this.getByte0(display_invert_y));
-            dataArray.push(this.getByte1(display_invert_y));
-            dataArray.push(this.getByte0(display_invert_width));
-            dataArray.push(this.getByte1(display_invert_width));
-            dataArray.push(this.getByte0(display_invert_height));
-            dataArray.push(this.getByte1(display_invert_height));
-
-            // CRC16
-            this.addCRC16(dataArray, indexStart, dataLength);
-
+            let dataArray = this.reserveDisplayInvert(target, x, y, width, height);
             this.bufferTransfer.push(dataArray);
-            
-            this.log("Transfer_To_Device / DisplayInvert", dataArray);
+            this.log("BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - DisplayInvert", dataArray);
         }
 
 
         // 화면에 점 찍기
-        if( (handler.e(this.DataType.DISPLAY_DRAW_POINT_X)      == true) ||
-            (handler.e(this.DataType.DISPLAY_DRAW_POINT_Y)      == true) ||
-            (handler.e(this.DataType.DISPLAY_DRAW_POINT_PIXEL)  == true) )
+        if( handler.e(this.DataType.DISPLAY_DRAW_POINT_X)      ||
+            handler.e(this.DataType.DISPLAY_DRAW_POINT_Y)      ||
+            handler.e(this.DataType.DISPLAY_DRAW_POINT_PIXEL)  )
         {
-            let dataArray = [];
-
-            // Start Code
-            this.addStartCode(dataArray);
+            let x       = this.read(handler, this.DataType.DISPLAY_DRAW_POINT_X);
+            let y       = this.read(handler, this.DataType.DISPLAY_DRAW_POINT_Y);
+            let pixel   = this.read(handler, this.DataType.DISPLAY_DRAW_POINT_PIXEL);
             
-            let target                      = handler.e(this.DataType.TARGET)                   ? handler.read(this.DataType.TARGET)                    : 0xFF;
-            let display_draw_point_x        = handler.e(this.DataType.DISPLAY_DRAW_POINT_X)     ? handler.read(this.DataType.DISPLAY_DRAW_POINT_X)      : 0;
-            let display_draw_point_y        = handler.e(this.DataType.DISPLAY_DRAW_POINT_Y)     ? handler.read(this.DataType.DISPLAY_DRAW_POINT_Y)      : 0;
-            let display_draw_point_pixel    = handler.e(this.DataType.DISPLAY_DRAW_POINT_PIXEL) ? handler.read(this.DataType.DISPLAY_DRAW_POINT_PIXEL)  : 0;
-            
-            let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-            let dataLength = 5;                     // 데이터의 길이
-
-            // Header
-            dataArray.push(0xB2);                   // Data Type
-            dataArray.push(dataLength);             // Data Length
-            dataArray.push(0x38);                   // From (네이버 엔트리)
-            dataArray.push(target);                 // To
-
-            // Data
-            dataArray.push(this.getByte0(display_draw_point_x));
-            dataArray.push(this.getByte1(display_draw_point_x));
-            dataArray.push(this.getByte0(display_draw_point_y));
-            dataArray.push(this.getByte1(display_draw_point_y));
-            dataArray.push(display_draw_point_pixel);
-
-            // CRC16
-            this.addCRC16(dataArray, indexStart, dataLength);
-
+            let dataArray = this.reserveDisplayDrawPoint(target, x, y, pixel);
             this.bufferTransfer.push(dataArray);
-            
-            this.log("Transfer_To_Device / DisplayDrawPoint", dataArray);
+            this.log("BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - DisplayDrawPoint", dataArray);
         }
 
 
         // 화면에 선 그리기
-        if( (handler.e(this.DataType.DISPLAY_DRAW_LINE_X1) == true) ||
-            (handler.e(this.DataType.DISPLAY_DRAW_LINE_Y1) == true) ||
-            (handler.e(this.DataType.DISPLAY_DRAW_LINE_X2) == true) ||
-            (handler.e(this.DataType.DISPLAY_DRAW_LINE_Y2) == true) )
+        if( handler.e(this.DataType.DISPLAY_DRAW_LINE_X1)  ||
+            handler.e(this.DataType.DISPLAY_DRAW_LINE_Y1)  ||
+            handler.e(this.DataType.DISPLAY_DRAW_LINE_X2)  ||
+            handler.e(this.DataType.DISPLAY_DRAW_LINE_Y2)  )
         {
-            let dataArray = [];
-
-            // Start Code
-            this.addStartCode(dataArray);
+            let x1      = this.read(handler, this.DataType.DISPLAY_DRAW_LINE_X1);
+            let y1      = this.read(handler, this.DataType.DISPLAY_DRAW_LINE_Y1);
+            let x2      = this.read(handler, this.DataType.DISPLAY_DRAW_LINE_X2);
+            let y2      = this.read(handler, this.DataType.DISPLAY_DRAW_LINE_Y2);
+            let pixel   = this.read(handler, this.DataType.DISPLAY_DRAW_LINE_PIXEL);
+            let line    = this.read(handler, this.DataType.DISPLAY_DRAW_LINE_LINE);
             
-            let target                      = handler.e(this.DataType.TARGET)                    ? handler.read(this.DataType.TARGET)                     : 0xFF;
-            let display_draw_line_x1        = handler.e(this.DataType.DISPLAY_DRAW_LINE_X1)      ? handler.read(this.DataType.DISPLAY_DRAW_LINE_X1)       : 0;
-            let display_draw_line_y1        = handler.e(this.DataType.DISPLAY_DRAW_LINE_Y1)      ? handler.read(this.DataType.DISPLAY_DRAW_LINE_Y1)       : 0;
-            let display_draw_line_x2        = handler.e(this.DataType.DISPLAY_DRAW_LINE_X2)      ? handler.read(this.DataType.DISPLAY_DRAW_LINE_X2)       : 0;
-            let display_draw_line_y2        = handler.e(this.DataType.DISPLAY_DRAW_LINE_Y2)      ? handler.read(this.DataType.DISPLAY_DRAW_LINE_Y2)       : 0;
-            let display_draw_line_pixel     = handler.e(this.DataType.DISPLAY_DRAW_LINE_PIXEL)   ? handler.read(this.DataType.DISPLAY_DRAW_LINE_PIXEL)    : 0;
-            let display_draw_line_line      = handler.e(this.DataType.DISPLAY_DRAW_LINE_LINE)    ? handler.read(this.DataType.DISPLAY_DRAW_LINE_LINE)     : 0;
-            
-            let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-            let dataLength = 10;                     // 데이터의 길이
-
-            // Header
-            dataArray.push(0xB3);                   // Data Type
-            dataArray.push(dataLength);             // Data Length
-            dataArray.push(0x38);                   // From (네이버 엔트리)
-            dataArray.push(target);                 // To
-
-            // Data
-            dataArray.push(this.getByte0(display_draw_line_x1));
-            dataArray.push(this.getByte1(display_draw_line_x1));
-            dataArray.push(this.getByte0(display_draw_line_y1));
-            dataArray.push(this.getByte1(display_draw_line_y1));
-            dataArray.push(this.getByte0(display_draw_line_x2));
-            dataArray.push(this.getByte1(display_draw_line_x2));
-            dataArray.push(this.getByte0(display_draw_line_y2));
-            dataArray.push(this.getByte1(display_draw_line_y2));
-            dataArray.push(display_draw_line_pixel);
-            dataArray.push(display_draw_line_line);
-
-            // CRC16
-            this.addCRC16(dataArray, indexStart, dataLength);
-
+            let dataArray = this.reserveDisplayDrawLine(target, x1, y1, x2, y2, pixel, line);
             this.bufferTransfer.push(dataArray);
-            
-            this.log("Transfer_To_Device / DisplayDrawLine", dataArray);
+            this.log("BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - DisplayDrawLine", dataArray);
         }
 
         
         // 화면에 사각형 그리기
-        if( (handler.e(this.DataType.DISPLAY_DRAW_RECT_WIDTH)   == true) ||
-            (handler.e(this.DataType.DISPLAY_DRAW_RECT_HEIGHT)  == true) )
+        if( handler.e(this.DataType.DISPLAY_DRAW_RECT_WIDTH)   ||
+            handler.e(this.DataType.DISPLAY_DRAW_RECT_HEIGHT)  )
         {
-            let dataArray = [];
+            let x           = this.read(handler, this.DataType.DISPLAY_DRAW_RECT_X);
+            let y           = this.read(handler, this.DataType.DISPLAY_DRAW_RECT_Y);
+            let width       = this.read(handler, this.DataType.DISPLAY_DRAW_RECT_WIDTH);
+            let height      = this.read(handler, this.DataType.DISPLAY_DRAW_RECT_HEIGHT);
+            let pixel       = this.read(handler, this.DataType.DISPLAY_DRAW_RECT_PIXEL);
+            let flagfill    = this.read(handler, this.DataType.DISPLAY_DRAW_RECT_FLAGFILL);
+            let line        = this.read(handler, this.DataType.DISPLAY_DRAW_RECT_LINE);
 
-            // Start Code
-            this.addStartCode(dataArray);
-            
-            let target                      = handler.e(this.DataType.TARGET)                        ? handler.read(this.DataType.TARGET)                         : 0xFF;
-            let display_draw_rect_x         = handler.e(this.DataType.DISPLAY_DRAW_RECT_X)           ? handler.read(this.DataType.DISPLAY_DRAW_RECT_X)            : 0;
-            let display_draw_rect_y         = handler.e(this.DataType.DISPLAY_DRAW_RECT_Y)           ? handler.read(this.DataType.DISPLAY_DRAW_RECT_Y)            : 0;
-            let display_draw_rect_width     = handler.e(this.DataType.DISPLAY_DRAW_RECT_WIDTH)       ? handler.read(this.DataType.DISPLAY_DRAW_RECT_WIDTH)        : 0;
-            let display_draw_rect_height    = handler.e(this.DataType.DISPLAY_DRAW_RECT_HEIGHT)      ? handler.read(this.DataType.DISPLAY_DRAW_RECT_HEIGHT)       : 0;
-            let display_draw_rect_pixel     = handler.e(this.DataType.DISPLAY_DRAW_RECT_PIXEL)       ? handler.read(this.DataType.DISPLAY_DRAW_RECT_PIXEL)        : 0;
-            let display_draw_rect_flagfill  = handler.e(this.DataType.DISPLAY_DRAW_RECT_FLAGFILL)    ? handler.read(this.DataType.DISPLAY_DRAW_RECT_FLAGFILL)     : 0;
-            let display_draw_rect_line      = handler.e(this.DataType.DISPLAY_DRAW_RECT_LINE)        ? handler.read(this.DataType.DISPLAY_DRAW_RECT_LINE)         : 0;
-
-            let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-            let dataLength = 11;                    // 데이터의 길이
-
-            // Header
-            dataArray.push(0xB4);                   // Data Type
-            dataArray.push(dataLength);             // Data Length
-            dataArray.push(0x38);                   // From (네이버 엔트리)
-            dataArray.push(target);                 // To
-
-            // Data
-            dataArray.push(this.getByte0(display_draw_rect_x));
-            dataArray.push(this.getByte1(display_draw_rect_x));
-            dataArray.push(this.getByte0(display_draw_rect_y));
-            dataArray.push(this.getByte1(display_draw_rect_y));
-            dataArray.push(this.getByte0(display_draw_rect_width));
-            dataArray.push(this.getByte1(display_draw_rect_width));
-            dataArray.push(this.getByte0(display_draw_rect_height));
-            dataArray.push(this.getByte1(display_draw_rect_height));
-            dataArray.push(display_draw_rect_pixel);
-            dataArray.push(display_draw_rect_flagfill);
-            dataArray.push(display_draw_rect_line);
-
-            // CRC16
-            this.addCRC16(dataArray, indexStart, dataLength);
-
+            let dataArray = this.reserveDisplayDrawRect(target, x, y, width, height, pixel, flagfill, line);
             this.bufferTransfer.push(dataArray);
-
-            this.log("Transfer_To_Device / DisplayDrawRect", dataArray);
+            this.log("BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - DisplayDrawRect", dataArray);
         }
 
 
         // 화면에 원 그리기
-        if( handler.e(this.DataType.DISPLAY_DRAW_CIRCLE_RADIUS) == true )
+        if( handler.e(this.DataType.DISPLAY_DRAW_CIRCLE_RADIUS) )
         {
-            let dataArray = [];
+            let x        = this.read(handler, this.DataType.DISPLAY_DRAW_CIRCLE_X);
+            let y        = this.read(handler, this.DataType.DISPLAY_DRAW_CIRCLE_Y);
+            let radius   = this.read(handler, this.DataType.DISPLAY_DRAW_CIRCLE_RADIUS);
+            let pixel    = this.read(handler, this.DataType.DISPLAY_DRAW_CIRCLE_PIXEL);
+            let flagfill = this.read(handler, this.DataType.DISPLAY_DRAW_CIRCLE_FLAGFILL);
 
-            // Start Code
-            this.addStartCode(dataArray);
-            
-            let target                       = handler.e(this.DataType.TARGET)                         ? handler.read(this.DataType.TARGET)                           : 0xFF;
-            let display_draw_circle_x        = handler.e(this.DataType.DISPLAY_DRAW_CIRCLE_X)          ? handler.read(this.DataType.DISPLAY_DRAW_CIRCLE_X)            : 0;
-            let display_draw_circle_y        = handler.e(this.DataType.DISPLAY_DRAW_CIRCLE_Y)          ? handler.read(this.DataType.DISPLAY_DRAW_CIRCLE_Y)            : 0;
-            let display_draw_circle_radius   = handler.e(this.DataType.DISPLAY_DRAW_CIRCLE_RADIUS)     ? handler.read(this.DataType.DISPLAY_DRAW_CIRCLE_RADIUS)       : 0;
-            let display_draw_circle_pixel    = handler.e(this.DataType.DISPLAY_DRAW_CIRCLE_PIXEL)      ? handler.read(this.DataType.DISPLAY_DRAW_CIRCLE_PIXEL)        : 0;
-            let display_draw_circle_flagfill = handler.e(this.DataType.DISPLAY_DRAW_CIRCLE_FLAGFILL)   ? handler.read(this.DataType.DISPLAY_DRAW_CIRCLE_FLAGFILL)     : 0;
-
-            let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-            let dataLength = 8;                     // 데이터의 길이
-
-            // Header
-            dataArray.push(0xB5);                   // Data Type
-            dataArray.push(dataLength);             // Data Length
-            dataArray.push(0x38);                   // From (네이버 엔트리)
-            dataArray.push(target);                 // To
-
-            // Data
-            dataArray.push(this.getByte0(display_draw_circle_x));
-            dataArray.push(this.getByte1(display_draw_circle_x));
-            dataArray.push(this.getByte0(display_draw_circle_y));
-            dataArray.push(this.getByte1(display_draw_circle_y));
-            dataArray.push(this.getByte0(display_draw_circle_radius));
-            dataArray.push(this.getByte1(display_draw_circle_radius));
-            dataArray.push(display_draw_circle_pixel);
-            dataArray.push(display_draw_circle_flagfill);
-
-            // CRC16
-            this.addCRC16(dataArray, indexStart, dataLength);
-
+            let dataArray = this.reserveDisplayDrawCircle(target, x, y, radius, pixel, flagfill);
             this.bufferTransfer.push(dataArray);
-            
-            this.log("Transfer_To_Device / DisplayDrawCircle", dataArray);
+            this.log("BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - DisplayDrawCircle", dataArray);
         }
 
 
         // 화면에 문자열 쓰기
-        if( handler.e(this.DataType.DISPLAY_DRAW_STRING_STRING) == true )
+        if( handler.e(this.DataType.DISPLAY_DRAW_STRING_STRING) )
         {
-            let dataArray = [];
-            let byteArray = [];
+            let x       = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_X);
+            let y       = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_Y);
+            let font    = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_FONT);
+            let pixel   = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_PIXEL);
+            let string  = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_STRING);
 
-            // Start Code
-            this.addStartCode(dataArray);
-            
-            let target                       = handler.e(this.DataType.TARGET)                       ? handler.read(this.DataType.TARGET)                         : 0xFF;
-            let display_draw_string_x        = handler.e(this.DataType.DISPLAY_DRAW_STRING_X)        ? handler.read(this.DataType.DISPLAY_DRAW_STRING_X)          : 0;
-            let display_draw_string_y        = handler.e(this.DataType.DISPLAY_DRAW_STRING_Y)        ? handler.read(this.DataType.DISPLAY_DRAW_STRING_Y)          : 0;
-            let display_draw_string_font     = handler.e(this.DataType.DISPLAY_DRAW_STRING_FONT)     ? handler.read(this.DataType.DISPLAY_DRAW_STRING_FONT)       : 0;
-            let display_draw_string_pixel    = handler.e(this.DataType.DISPLAY_DRAW_STRING_PIXEL)    ? handler.read(this.DataType.DISPLAY_DRAW_STRING_PIXEL)      : 0;
-            let display_draw_string_string   = handler.e(this.DataType.DISPLAY_DRAW_STRING_STRING)   ? handler.read(this.DataType.DISPLAY_DRAW_STRING_STRING)     : 0;
-
-            byteArray = this.stringToAsciiByteArray(display_draw_string_string);
-
-            let indexStart = dataArray.length;         // 배열에서 데이터를 저장하기 시작하는 위치
-            let dataLength = 6 + byteArray.length;     // 데이터의 길이
-
-            // Header
-            dataArray.push(0xB6);                   // Data Type
-            dataArray.push(dataLength);             // Data Length
-            dataArray.push(0x38);                   // From (네이버 엔트리)
-            dataArray.push(target);                 // To
-
-            // Data
-            dataArray.push(this.getByte0(display_draw_string_x));
-            dataArray.push(this.getByte1(display_draw_string_x));
-            dataArray.push(this.getByte0(display_draw_string_y));
-            dataArray.push(this.getByte1(display_draw_string_y));
-            dataArray.push(display_draw_string_font);
-            dataArray.push(display_draw_string_pixel);
-
-            for (let i = 0; i < byteArray.length; i++)
-            {
-                dataArray.push(byteArray[i]);
-            }
-
-            // CRC16
-            this.addCRC16(dataArray, indexStart, dataLength);
-
+            let dataArray = this.reserveDisplayDrawString(target, x, y, font, pixel, string);
             this.bufferTransfer.push(dataArray);
-
-            this.log("Transfer_To_Device / DisplayDrawString", dataArray);
+            this.log("BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - DisplayDrawString", dataArray);
         }
 
 
         // 화면에 문자열 정렬하여 그리기
-        if( handler.e(this.DataType.DISPLAY_DRAW_STRING_ALIGN_STRING) == true )
+        if( handler.e(this.DataType.DISPLAY_DRAW_STRING_ALIGN_STRING) )
         {
-            let dataArray = [];
-            let byteArray = [];
+            let x_start = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_ALIGN_X_START);
+            let x_end   = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_ALIGN_X_END);
+            let y       = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_ALIGN_Y);
+            let align   = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_ALIGN_ALIGN);
+            let font    = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_ALIGN_FONT);
+            let pixel   = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_ALIGN_PIXEL);
+            let string  = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_ALIGN_STRING);
 
-            // Start Code
-            this.addStartCode(dataArray);
-            
-            let target                              = handler.e(this.DataType.TARGET)                                ? handler.read(this.DataType.TARGET)                             : 0xFF;
-            let display_draw_string_align_x_start   = handler.e(this.DataType.DISPLAY_DRAW_STRING_ALIGN_X_START)     ? handler.read(this.DataType.DISPLAY_DRAW_STRING_ALIGN_X_START)  : 0;
-            let display_draw_string_align_x_end     = handler.e(this.DataType.DISPLAY_DRAW_STRING_ALIGN_X_END)       ? handler.read(this.DataType.DISPLAY_DRAW_STRING_ALIGN_X_END)    : 0;
-            let display_draw_string_align_y         = handler.e(this.DataType.DISPLAY_DRAW_STRING_ALIGN_Y)           ? handler.read(this.DataType.DISPLAY_DRAW_STRING_ALIGN_Y)        : 0;
-            let display_draw_string_align_align     = handler.e(this.DataType.DISPLAY_DRAW_STRING_ALIGN_ALIGN)       ? handler.read(this.DataType.DISPLAY_DRAW_STRING_ALIGN_ALIGN)    : 0;
-            let display_draw_string_align_font      = handler.e(this.DataType.DISPLAY_DRAW_STRING_ALIGN_FONT)        ? handler.read(this.DataType.DISPLAY_DRAW_STRING_ALIGN_FONT)     : 0;
-            let display_draw_string_align_pixel     = handler.e(this.DataType.DISPLAY_DRAW_STRING_ALIGN_PIXEL)       ? handler.read(this.DataType.DISPLAY_DRAW_STRING_ALIGN_PIXEL)    : 0;
-            let display_draw_string_align_string    = handler.e(this.DataType.DISPLAY_DRAW_STRING_ALIGN_STRING)      ? handler.read(this.DataType.DISPLAY_DRAW_STRING_ALIGN_STRING)   : 0;
-
-            byteArray = this.stringToAsciiByteArray(display_draw_string_align_string);
-
-            let indexStart = dataArray.length;         // 배열에서 데이터를 저장하기 시작하는 위치
-            let dataLength = 9 + byteArray.length;     // 데이터의 길이
-
-            // Header
-            dataArray.push(0xB7);                   // Data Type
-            dataArray.push(dataLength);             // Data Length
-            dataArray.push(0x38);                   // From (네이버 엔트리)
-            dataArray.push(target);                 // To
-
-            // Data
-            dataArray.push(this.getByte0(display_draw_string_align_x_start));
-            dataArray.push(this.getByte1(display_draw_string_align_x_start));
-            dataArray.push(this.getByte0(display_draw_string_align_x_end));
-            dataArray.push(this.getByte1(display_draw_string_align_x_end));
-            dataArray.push(this.getByte0(display_draw_string_align_y));
-            dataArray.push(this.getByte1(display_draw_string_align_y));
-            dataArray.push(display_draw_string_align_align);
-            dataArray.push(display_draw_string_align_font);
-            dataArray.push(display_draw_string_align_pixel);
-
-            for (let i = 0; i < byteArray.length; i++)
-            {
-                dataArray.push(byteArray[i]);
-            }
-
-            // CRC16
-            this.addCRC16(dataArray, indexStart, dataLength);
-
+            let dataArray = this.reserveDisplayDrawStringAlign(target, x_start, x_end, y, align, font, pixel, string);
             this.bufferTransfer.push(dataArray);
-            
-            this.log("Transfer_To_Device / DisplayDrawStringAlign", dataArray);
+            this.log("BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - DisplayDrawStringAlign", dataArray);
         }
 
 
         // Command
-        if( handler.e(this.DataType.COMMAND_COMMAND) == true )
+        if( handler.e(this.DataType.COMMAND_COMMAND) )
         {
-            let dataArray = [];
+            let command = this.read(handler, this.DataType.COMMAND_COMMAND);
+            let option  = this.read(handler, this.DataType.COMMAND_OPTION);
 
-            // Start Code
-            this.addStartCode(dataArray);
-            
-            let target          = handler.e(this.DataType.TARGET)           ? handler.read(this.DataType.TARGET)            : 0xFF;
-            let command_command = handler.e(this.DataType.COMMAND_COMMAND)  ? handler.read(this.DataType.COMMAND_COMMAND)   : 0;
-            let command_option  = handler.e(this.DataType.COMMAND_OPTION)   ? handler.read(this.DataType.COMMAND_OPTION)    : 0;
-
-            let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-            let dataLength = 2;                     // 데이터의 길이
-
-            // Header
-            dataArray.push(0x11);                   // Data Type
-            dataArray.push(dataLength);             // Data Length
-            dataArray.push(0x38);                   // From (네이버 엔트리)
-            dataArray.push(target);                 // To
-
-            // Data Array
-            dataArray.push(command_command);
-            dataArray.push(command_option);
-
-            // CRC16
-            this.addCRC16(dataArray, indexStart, dataLength);
-
-            this.bufferTransfer.push(dataArray);
-
-            switch( command_command )
+            switch( command )
             {
             case 0x24:  // CommandType::Stop
                 {
@@ -1268,289 +1024,96 @@ class byrobot_petrone_v2_base extends BaseModule
                     this.controlAccel       = 0;
                 }
                 break;
-
-            default:
-                break;
             }
 
-            this.log("Transfer_To_Device / Command" + command_command + ", option: " + command_option, dataArray);
+            let dataArray = this.reserveCommand(target, command, option);
+            this.bufferTransfer.push(dataArray);
+            this.log("BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - Command" + command + ", option: " + option, dataArray);
         }
 
 
         // Control
-        if( (handler.e(this.DataType.CONTROL_ROLL)      == true) ||
-            (handler.e(this.DataType.CONTROL_PITCH)     == true) ||
-            (handler.e(this.DataType.CONTROL_YAW)       == true) ||
-            (handler.e(this.DataType.CONTROL_THROTTLE)  == true) )
+        if( handler.e(this.DataType.CONTROL_ROLL)     ||
+            handler.e(this.DataType.CONTROL_PITCH)    ||
+            handler.e(this.DataType.CONTROL_YAW)      ||
+            handler.e(this.DataType.CONTROL_THROTTLE) )
         {
-            let dataArray = [];
+            this.controlRoll     = this.read(handler, this.DataType.CONTROL_ROLL,     this.controlRoll);
+            this.controlPitch    = this.read(handler, this.DataType.CONTROL_PITCH,    this.controlPitch);
+            this.controlYaw      = this.read(handler, this.DataType.CONTROL_YAW,      this.controlYaw);
+            this.controlThrottle = this.read(handler, this.DataType.CONTROL_THROTTLE, this.controlThrottle);
 
-            // Start Code
-            this.addStartCode(dataArray);
-            
-            let target          = handler.e(this.DataType.TARGET)           ? handler.read(this.DataType.TARGET)            : 0x30;
-            let controlRoll     = handler.e(this.DataType.CONTROL_ROLL)     ? handler.read(this.DataType.CONTROL_ROLL)      : this.controlRoll;
-            let controlPitch    = handler.e(this.DataType.CONTROL_PITCH)    ? handler.read(this.DataType.CONTROL_PITCH)     : this.controlPitch;
-            let controlYaw      = handler.e(this.DataType.CONTROL_YAW)      ? handler.read(this.DataType.CONTROL_YAW)       : this.controlYaw;
-            let controlThrottle = handler.e(this.DataType.CONTROL_THROTTLE) ? handler.read(this.DataType.CONTROL_THROTTLE)  : this.controlThrottle;
-
-            let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-            let dataLength = 4;                     // 데이터의 길이
-
-            this.controlRoll        = controlRoll;
-            this.controlPitch       = controlPitch;
-            this.controlYaw         = controlYaw;
-            this.controlThrottle    = controlThrottle;
-
-            // Header
-            dataArray.push(0x10);                   // Data Type
-            dataArray.push(dataLength);             // Data Length
-            dataArray.push(0x38);                   // From (네이버 엔트리)
-            dataArray.push(target);                 // To
-
-            // Data Array
-            dataArray.push(controlRoll);
-            dataArray.push(controlPitch);
-            dataArray.push(controlYaw);
-            dataArray.push(controlThrottle);
-    
-            // CRC16
-            this.addCRC16(dataArray, indexStart, dataLength);
-
-            //this.log("handlerForEntry() / Control / roll: " + controlRoll + ", pitch: " + controlPitch + ", yaw: " + controlYaw + ", throttle: " + controlThrottle, dataArray);
-
+            let dataArray = this.reserveControlQuad8(target, this.controlRoll, this.controlPitch, this.controlYaw, this.controlThrottle);
             this.bufferTransfer.push(dataArray);
-            
-            this.log("Transfer_To_Device / ControlQuad8", dataArray);
+            this.log("BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - ControlQuad8", dataArray);
         }
 
 
         // Control Wheel, Accel
-        if( (handler.e(this.DataType.CONTROL_WHEEL) == true) ||
-            (handler.e(this.DataType.CONTROL_ACCEL) == true) )
+        if( handler.e(this.DataType.CONTROL_WHEEL) ||
+            handler.e(this.DataType.CONTROL_ACCEL) )
         {
-            let dataArray = [];
+            this.controlWheel = this.read(handler, this.DataType.CONTROL_WHEEL, this.controlWheel;
+            this.controlAccel = this.read(handler, this.DataType.CONTROL_ACCEL, this.controlAccel);
 
-            // Start Code
-            this.addStartCode(dataArray);
-            
-            let target          = handler.e(this.DataType.TARGET)           ? handler.read(this.DataType.TARGET)        : 0x30;
-            let controlWheel    = handler.e(this.DataType.CONTROL_WHEEL)    ? handler.read(this.DataType.CONTROL_WHEEL) : this.controlWheel;
-            let controlAccel    = handler.e(this.DataType.CONTROL_ACCEL)    ? handler.read(this.DataType.CONTROL_ACCEL) : this.controlAccel;
-
-            let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-            let dataLength = 2;                     // 데이터의 길이
-
-            this.controlWheel = controlWheel;
-            this.controlAccel = controlAccel;
-
-            // Header
-            dataArray.push(0x10);                   // Data Type
-            dataArray.push(dataLength);             // Data Length
-            dataArray.push(0x38);                   // From (네이버 엔트리)
-            dataArray.push(target);                 // To
-
-            // Data Array
-            dataArray.push(this.controlWheel);
-            dataArray.push(this.controlAccel);
-
-            // CRC16
-            this.addCRC16(dataArray, indexStart, dataLength);
-
+            let dataArray = this.reserveControlDouble8(target, this.controlWheel, this.controlAccel);
             this.bufferTransfer.push(dataArray);
-            
-            this.log("Transfer_To_Device / ControlDouble8", dataArray);
+            this.log("BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - reserveControlDouble8", dataArray);
         }
 
 
         // MotorSingle
-        if( handler.e(this.DataType.MOTORSINGLE_TARGET) == true )
+        if( handler.e(this.DataType.MOTORSINGLE_TARGET) )
         {
-            let dataArray = [];
+            let targetMotor = this.read(handler, this.DataType.MOTORSINGLE_TARGET);
+            let rotation    = this.read(handler, this.DataType.MOTORSINGLE_ROTATION);
+            let value       = this.read(handler, this.DataType.MOTORSINGLE_VALUE);
 
-            // Start Code
-            this.addStartCode(dataArray);
-            
-            let target              = handler.e(this.DataType.TARGET)               ? handler.read(this.DataType.TARGET)                : 0x30;
-            let motorSingleTarget   = handler.e(this.DataType.MOTORSINGLE_TARGET)   ? handler.read(this.DataType.MOTORSINGLE_TARGET)    : 0;
-            let motorSingleRotation = handler.e(this.DataType.MOTORSINGLE_ROTATION) ? handler.read(this.DataType.MOTORSINGLE_ROTATION)  : 0;
-            let motorSingleValue    = handler.e(this.DataType.MOTORSINGLE_VALUE)    ? handler.read(this.DataType.MOTORSINGLE_VALUE)     : 0;
-
-            let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-            let dataLength = 4;                     // 데이터의 길이
-
-            // Header
-            dataArray.push(0x81);                   // Data Type
-            dataArray.push(dataLength);             // Data Length
-            dataArray.push(0x38);                   // From (네이버 엔트리)
-            dataArray.push(target);                 // To
-
-            // Data Array
-            dataArray.push(motorSingleTarget);
-            dataArray.push(motorSingleRotation);
-            dataArray.push(this.getByte0(motorSingleValue));
-            dataArray.push(this.getByte1(motorSingleValue));
-
-            // CRC16
-            this.addCRC16(dataArray, indexStart, dataLength);
-
+            let dataArray = this.reserveMotorSingle(target, targetMotor, rotation, value);
             this.bufferTransfer.push(dataArray);
-            
-            this.log("Transfer_To_Device / MotorSingle", dataArray);
+            this.log("BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - MotorSingle", dataArray);
         }
 
 
         // Buzzer
-        if( handler.e(this.DataType.BUZZER_MODE) == true )
+        if( handler.e(this.DataType.BUZZER_MODE) )
         {
-            let dataArray = [];
+            let mode     = this.read(handler, this.DataType.BUZZER_MODE);
+            let value    = this.read(handler, this.DataType.BUZZER_VALUE);
+            let time     = this.read(handler, this.DataType.BUZZER_TIME);
 
-            // Start Code
-            this.addStartCode(dataArray);
-            
-            let target          = handler.e(this.DataType.TARGET)       ? handler.read(this.DataType.TARGET)        : 0x31;
-            let buzzer_mode     = handler.e(this.DataType.BUZZER_MODE)  ? handler.read(this.DataType.BUZZER_MODE)   : 0;
-            let buzzer_value    = handler.e(this.DataType.BUZZER_VALUE) ? handler.read(this.DataType.BUZZER_VALUE)  : 0;
-            let buzzer_time     = handler.e(this.DataType.BUZZER_TIME)  ? handler.read(this.DataType.BUZZER_TIME)   : 0;
-
-            let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-            let dataLength = 5;                     // 데이터의 길이
-
-            // Header
-            dataArray.push(0x83);                   // Data Type
-            dataArray.push(dataLength);             // Data Length
-            dataArray.push(0x38);                   // From (네이버 엔트리)
-            dataArray.push(target);                 // To
-
-            // Data
-            dataArray.push(buzzer_mode);
-            dataArray.push(this.getByte0(buzzer_value));
-            dataArray.push(this.getByte1(buzzer_value));
-            dataArray.push(this.getByte0(buzzer_time));
-            dataArray.push(this.getByte1(buzzer_time));
-
-            // CRC16
-            this.addCRC16(dataArray, indexStart, dataLength);
-
+            let dataArray = this.reserveBuzzer(target, mode, value, time);
             this.bufferTransfer.push(dataArray);
-
-            this.log("Transfer_To_Device / Buzzer / buzzer_mode: " + buzzer_mode + ", buzzer_value: " + buzzer_value + ", buzzer_time: " + buzzer_time, dataArray);
+            this.log("BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - Buzzer - mode: " + mode + ", value: " + value + ", time: " + time, dataArray);
         }
 
 
         // Vibrator
-        if( handler.e(this.DataType.VIBRATOR_ON) == true )
+        if( handler.e(this.DataType.VIBRATOR_ON) )
         {
-            let dataArray = [];
+            let mode   = this.read(handler, this.DataType.VIBRATOR_MODE);
+            let on     = this.read(handler, this.DataType.VIBRATOR_ON);
+            let off    = this.read(handler, this.DataType.VIBRATOR_OFF);
+            let total  = this.read(handler, this.DataType.VIBRATOR_TOTAL);
 
-            // Start Code
-            this.addStartCode(dataArray);
-            
-            let target          = handler.e(this.DataType.TARGET)           ? handler.read(this.DataType.TARGET)            : 0x31;
-            let vibrator_mode   = handler.e(this.DataType.VIBRATOR_MODE)    ? handler.read(this.DataType.VIBRATOR_MODE)     : 0;
-            let vibrator_on     = handler.e(this.DataType.VIBRATOR_ON)      ? handler.read(this.DataType.VIBRATOR_ON)       : 0;
-            let vibrator_off    = handler.e(this.DataType.VIBRATOR_OFF)     ? handler.read(this.DataType.VIBRATOR_OFF)      : 0;
-            let vibrator_total  = handler.e(this.DataType.VIBRATOR_TOTAL)   ? handler.read(this.DataType.VIBRATOR_TOTAL)    : 0;
-
-            let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-            let dataLength = 7;                     // 데이터의 길이
-
-            // Header
-            dataArray.push(0x84);                   // Data Type
-            dataArray.push(dataLength);             // Data Length
-            dataArray.push(0x38);                   // From (네이버 엔트리)
-            dataArray.push(target);                 // To
-
-            // Data
-            dataArray.push(vibrator_mode);
-            dataArray.push(this.getByte0(vibrator_on));
-            dataArray.push(this.getByte1(vibrator_on));
-            dataArray.push(this.getByte0(vibrator_off));
-            dataArray.push(this.getByte1(vibrator_off));
-            dataArray.push(this.getByte0(vibrator_total));
-            dataArray.push(this.getByte1(vibrator_total));
-
-            // CRC16
-            this.addCRC16(dataArray, indexStart, dataLength);
-
+            let dataArray = this.reserveVibrator(target, mode, on, off, total);
             this.bufferTransfer.push(dataArray);
-
-            this.log("Transfer_To_Device / Vibrator", dataArray);
+            this.log("BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - Vibrator", dataArray);
         }
 
 
         // IrMessage
-        if( handler.e(this.DataType.IRMESSAGE_IRDATA) == true )
+        if( handler.e(this.DataType.IRMESSAGE_IRDATA) )
         {
-            let dataArray = [];
+            let direction = this.read(handler, this.DataType.IRMESSAGE_DIRECTION);
+            let irdata    = this.read(handler, this.DataType.IRMESSAGE_IRDATA);
 
-            // Start Code
-            this.addStartCode(dataArray);
-            
-            let target              = handler.e(this.DataType.TARGET)               ? handler.read(this.DataType.TARGET)                : 0x30;
-            let irmessage_direction = handler.e(this.DataType.IRMESSAGE_DIRECTION)  ? handler.read(this.DataType.IRMESSAGE_DIRECTION)   : 0;
-            let irmessage_irdata    = handler.e(this.DataType.IRMESSAGE_IRDATA)     ? handler.read(this.DataType.IRMESSAGE_IRDATA)      : 0;
-
-            let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-            let dataLength = 5;                     // 데이터의 길이
-
-            // Header
-            dataArray.push(0x82);                   // Data Type
-            dataArray.push(dataLength);             // Data Length
-            dataArray.push(0x38);                   // From (네이버 엔트리)
-            dataArray.push(target);                 // To
-
-            // Data
-            dataArray.push(irmessage_direction);
-            dataArray.push(this.getByte0(irmessage_irdata));
-            dataArray.push(this.getByte1(irmessage_irdata));
-            dataArray.push(this.getByte2(irmessage_irdata));
-            dataArray.push(this.getByte3(irmessage_irdata));
-
-            // CRC16
-            this.addCRC16(dataArray, indexStart, dataLength);
-
+            let dataArray = this.reserveIRMessage(target, direction, irdata);
             this.bufferTransfer.push(dataArray);
-
-            this.log("Transfer_To_Device / IR Message", dataArray);
+            this.log("BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - reserveIRMessage", dataArray);
         }
-
-        //this.log("handlerForEntry()", dataArray);
     }
 
-
-    // 시작 코드 추가
-    addStartCode(dataArray)
-    {
-        if( dataArray == undefined )
-        {
-            dataArray = [];
-        }
-
-        // Start Code
-        dataArray.push(0x0A);
-        dataArray.push(0x55);
-    }
-
-
-    // CRC16을 계산해서 추가
-    addCRC16(dataArray, indexStart, dataLength)
-    {
-        if( dataArray.length < indexStart + 4 + dataLength )
-        {
-            return;
-        }
-        
-        // CRC16
-        let crc16 = 0;
-        let totalLength = 4 + dataLength;
-        for(let i=0; i<totalLength; i++)
-        {
-            crc16 = this.calcCRC16(dataArray[indexStart + i], crc16);
-        }
-        dataArray.push((crc16 & 0xff));
-        dataArray.push(((crc16 >> 8) & 0xff));
-    }
     // #endregion Data Transfer to Device from Entry
 
 
@@ -1565,121 +1128,66 @@ class byrobot_petrone_v2_base extends BaseModule
     {
         // Joystick
         {
-            let joystick = this.joystick;
-            if( joystick._updated == true )
+            if( this.joystick._updated )
             {
-                for(let key in joystick)
+                for(let key in this.joystick)
                 {
-                    handler.write(key, joystick[key]);
+                    handler.write(key, this.joystick[key]);
                 }
 
-                joystick._updated = false;
-                //this.log("transferToEntry() / joystick", "");
+                this.joystick._updated = false;
             }
         }
 
         // Button
         {
-            let button = this.button;
-            if( button._updated == true )
+            if( this.button._updated )
             {
-                for(let key in button)
+                for(let key in this.button)
                 {
-                    handler.write(key, button[key]);
+                    handler.write(key, this.button[key]);
                 }
 
-                button._updated = false;
-                //this.log("transferToEntry() / button", "");
+                this.button._updated = false;
             }
         }
 
         // State
         {
-            let state = this.state;
-            if( state._updated == true )
+            if( this.state._updated )
             {
-                for(let key in state)
+                for(let key in this.state)
                 {
-                    handler.write(key, state[key]);
+                    handler.write(key, this.state[key]);
                 }
 
-                state._updated = false;
-                //this.log("transferToEntry() / state", "");
+                this.state._updated = false;
             }
         }
-
-        // Imu
+    
+        // InformationAssembledForEntry
         {
-            let imu = this.imu;
-            if( imu._updated == true )
+            if( this.informationAssembledForEntry._updated )
             {
-                for(let key in imu)
+                for(let key in this.informationAssembledForEntry)
                 {
-                    handler.write(key, imu[key]);
+                    handler.write(key, this.informationAssembledForEntry[key]);
                 }
-
-                imu._updated = false;
-                //this.log("transferToEntry() / imu", "");
-            }
-        }
-
-        // Pressure
-        {
-            let pressure = this.pressure;
-            if( pressure._updated == true )
-            {
-                for(let key in pressure)
-                {
-                    handler.write(key, pressure[key]);
-                }
-
-                pressure._updated = false;
-                //this.log("transferToEntry() / pressure", "");
-            }
-        }
-
-        // Image Flow (Optical Flow)
-        {
-            let imageflow = this.imageflow;
-            if( imageflow._updated == true )
-            {
-                for(let key in imageflow)
-                {
-                    handler.write(key, imageflow[key]);
-                }
-
-                imageflow._updated = false;
-                //this.log("transferToEntry() / imageflow", "");
-            }
-        }
-
-        // Range
-        {
-            let range = this.range;
-            if( range._updated == true )
-            {
-                for(let key in range)
-                {
-                    handler.write(key, range[key]);
-                }
-
-                range._updated = false;
-                //this.log("transferToEntry() / range", "");
+    
+                this.informationAssembledForEntry._updated = false;
             }
         }
 
         // IR Message
         {
-            let irmessage = this.irmessage;
-            if( irmessage._updated == true )
+            if( this.irmessage._updated )
             {
-                for(let key in irmessage)
+                for(let key in this.irmessage)
                 {
-                    handler.write(key, irmessage[key]);
+                    handler.write(key, this.irmessage[key]);
                 }
 
-                irmessage._updated = false;
-                //this.log("transferToEntry() / irmessage", "");
+                this.irmessage._updated = false;
             }
         }
 
@@ -1704,30 +1212,29 @@ class byrobot_petrone_v2_base extends BaseModule
     // #region Data Receiver from Device
 
     // 장치로부터 받은 데이터 배열 처리
-    receiverForDevice(data)
+    receiverForDevice(dataArray)
     {
-        if( this.receiveBuffer == undefined )
+        //this.log("BYROBOT_PETRONE_V2_BASE - receiverForDevice() - Length : " + dataArray.length, dataArray);
+
+        if( dataArray == undefined || dataArray.length == 0 )
         {
-            this.receiveBuffer = [];
+            return;
         }
 
-        // 수신 받은 데이터를 버퍼에 추가
-        this.receiveBuffer.push(data);
-
-        //this.log("receiverForDevice()", this.receiveBuffer);
+        let i = 0;
 
         // 버퍼로부터 데이터를 읽어 하나의 완성된 데이터 블럭으로 변환
-        while(this.receiveBuffer.length > 0)
+        for(let i=0; i<dataArray.length; i++)
         {
-            let data            = this.receiveBuffer.shift();
+            let data            = dataArray[i];
+            
             let flagContinue    = true;
             let flagSessionNext = false;
             let flagComplete    = false;
             
             switch(this.indexSession)
             {
-            case 0:
-                // Start Code
+            case 0: // Start Code
                 {               
                     switch( this.indexReceiver )
                     {
@@ -1752,8 +1259,7 @@ class byrobot_petrone_v2_base extends BaseModule
                 }
                 break;
 
-            case 1:
-                // Header
+            case 1: // Header
                 {
                     switch( this.indexReceiver )
                     {
@@ -1794,21 +1300,19 @@ class byrobot_petrone_v2_base extends BaseModule
                 }
                 break;
 
-            case 2:
-                // Data
+            case 2: // Data
                 {
                     this.dataBlock.push(data);
                     this.crc16Calculated = this.calcCRC16(data, this.crc16Calculated);
                     
-                    if( this.dataBlock.length == this.dataLength )
+                    if( this.indexReceiver == this.dataLength - 1 )
                     {
                         flagSessionNext = true;
                     }
                 }
                 break;
 
-            case 3:
-                // CRC16
+            case 3: // CRC16
                 {
                     switch( this.indexReceiver )
                     {
@@ -1836,8 +1340,9 @@ class byrobot_petrone_v2_base extends BaseModule
             }
 
             // 데이터 전송 완료 처리
-            if( flagComplete == true )
+            if( flagComplete )
             {
+                //this.log("BYROBOT_PETRONE_V2_BASE - Receiver - CRC16 - Calculated : " + this.crc16Calculated.toString(16).toUpperCase() + ", Received : " + this.crc16Received.toString(16).toUpperCase());
                 if( this.crc16Calculated == this.crc16Received )
                 {
                     this.handlerForDevice();
@@ -1847,9 +1352,9 @@ class byrobot_petrone_v2_base extends BaseModule
             }
 
             // 데이터 처리 결과에 따라 인덱스 변수 처리
-            if( flagContinue == true )
+            if( flagContinue )
             {
-                if( flagSessionNext == true )
+                if( flagSessionNext )
                 {
                     this.indexSession++;
                     this.indexReceiver = 0;             
@@ -1879,55 +1384,47 @@ class byrobot_petrone_v2_base extends BaseModule
     // 장치로부터 받은 데이터 블럭 처리
     handlerForDevice()
     {
-        // skip 할 대상만 case로 등록
+        /*
+        // log 출력을  skip 할 대상만 case로 등록
         switch( this.dataType )
         {
         case 0x02:  break;      // Ack
         case 0x40:  break;      // State (0x40)
-        case 0x50:  break;      // Imu
-        case 0x51:  break;      // Pressure
-        case 0x53:  break;      // Range
-        case 0x54:  break;      // Image Flow (Optical Flow)
         case 0x71:  break;      // Joystick
         case 0xD1:  break;      // Information Assembled For Entry 자주 갱신되는 데이터 모음(엔트리)
 
         default:
             {
-                this.log("Receive_From_Device / From: " + this.from + " / To: " + this.to + " / Type: " + this.dataType + " / ", this.dataBlock);
+                //this.log("BYROBOT_PETRONE_V2_BASE - handlerForDevice() - From: " + this.from + " - To: " + this.to + " - Type: " + this.dataType + " - ", this.dataBlock);
             }
             break;
         }
+        // */
 
         this.timeReceive = (new Date()).getTime();
-
 
         // 상대측에 정상적으로 데이터를 전달했는지 확인
         switch( this.dataType )
         {
         case 0x02:  // Ack
-            if( this.dataBlock.length == 7 )
             {
-                // Device -> Entry 
-                let ack             = this.ack;
-                ack._updated        = true;
-                ack.ack_systemTime  = this.extractUInt32(this.dataBlock, 0);
-                ack.ack_dataType    = this.extractUInt8(this.dataBlock, 4);
-                ack.ack_crc16       = this.extractUInt16(this.dataBlock, 5);
-
-                // ping에 대한 ack는 로그 출력하지 않음
-                if( ack.ack_dataType != 0x01 )
+                if( this.updateAck() )
                 {
-                    console.log("Receive_From_Device - Ack / From: " + this.from + " / SystemTime: " + ack.ack_systemTime + " / DataType: " + ack.ack_dataType + " / Repeat: " + this.countTransferRepeat + " / Crc16Transfer: " + this.crc16Transfered + " / Crc16Get: " + ack.ack_crc16);
-                }
+                    // ping에 대한 ack는 로그 출력하지 않음
+                    //if( this.ack.dataType != 0x01 )
+                    {
+                        //this.log("BYROBOT_PETRONE_V2_BASE - handlerForDevice() - Ack - From: " + this.from + " - SystemTime: " + this.ack.ack_systemTime + " - DataType: " + this.ack.ack_dataType + " - Repeat: " + this.countTransferRepeat + " - CRC16 Transfer: " + this.crc16Transfered + " - CRF16 Ack: " + this.ack.ack_crc16);
+                    }
 
-                // 마지막으로 전송한 데이터에 대한 응답을 받았다면 
-                if( this.bufferTransfer != undefined &&
-                    this.bufferTransfer.length > 0 &&
-                    this.dataTypeLastTransfered == ack.ack_dataType &&
-                    this.crc16Transfered == ack.ack_crc16 )
-                {
-                    this.bufferTransfer.shift();
-                    this.countTransferRepeat = 0;
+                    // 마지막으로 전송한 데이터에 대한 응답을 받았다면 
+                    if( this.bufferTransfer         != undefined                &&
+                        this.bufferTransfer.length  > 0                         &&
+                        this.dataTypeLastTransfered == this.ack.ack_dataType    &&
+                        this.crc16Transfered        == this.ack.ack_crc16       )
+                    {
+                        this.bufferTransfer.shift();
+                        this.countTransferRepeat = 0;
+                    }
                 }
             }
             break;
@@ -1935,223 +1432,58 @@ class byrobot_petrone_v2_base extends BaseModule
         default:
             {
                 // 마지막으로 요청한 데이터를 받았다면 
-                if( this.bufferTransfer != undefined &&
-                    this.bufferTransfer.length > 0 &&
+                if( this.bufferTransfer         != undefined     &&
+                    this.bufferTransfer.length  > 0              &&
                     this.dataTypeLastTransfered == this.dataType )
                 {
                     this.bufferTransfer.shift();
                     this.countTransferRepeat = 0;
                     
-                    console.log("Receive_From_Device - Response / From: " + this.from + " / DataType: " + this.dataType);
+                    //this.log("BYROBOT_PETRONE_V2_BASE - handlerForDevice() - Response - From: " + this.from + " - DataType: " + this.dataType);
                 }
             }
             break;
         }
 
-
+        // 데이터 업데이트
         switch( this.dataType )
         {
         case 0x40:  // State
-            if( this.dataBlock.length == 7 )
             {
-                // Device -> Entry 
-                let state                       = this.state;
-                state._updated                  = true;
-                state.state_modeVehicle         = this.extractUInt8(this.dataBlock, 0);
-                state.state_modeSystem          = this.extractUInt8(this.dataBlock, 1);
-                state.state_modeFlight          = this.extractUInt8(this.dataBlock, 2);
-                state.state_modeDrive           = this.extractUInt8(this.dataBlock, 3);
-                state.state_sensorOrientation   = this.extractUInt8(this.dataBlock, 4);
-                state.state_coordinate          = this.extractUInt8(this.dataBlock, 5);
-                state.state_battery             = this.extractUInt8(this.dataBlock, 6);
-
-                // 비행 모드로 들어갔는데 설정이 비행 모드가 아닌경우 비행 모드로 변경
-                // 자동차 모드로 들어갔는데 설정이 자동차 모드가 아닌 경우 자동차 모드로 변경
-                if( this.targetModeVehicle != undefined )
-                {
-                    switch( this.targetModeVehicle )
-                    {
-                    case 0x10:
-                        {
-                            if( state.state_modeVehicle != 0x10 &&
-                                state.state_modeVehicle != 0x11 &&
-                                state.state_modeVehicle != 0x12 )
-                            {
-                                this.reserveModeVehicle(0x10);
-                            }
-                        }
-                        break;
-
-                    case 0x20:
-                        {
-                            if( state.state_modeVehicle != 0x20 &&
-                                state.state_modeVehicle != 0x21 )
-                            {
-                                this.reserveModeVehicle(0x20);
-                            }
-                        }
-                        break;
-
-                    default:
-                        break;
-                    }
-                }
-    
-                //console.log("Receive_From_Device - state: " + state.state_modeVehicle);
-            }
-            break;
-
-
-        case 0x50:  // Imu
-            if( this.dataBlock.length == 18 )
-            {
-                // Device -> Entry 
-                let imu                     = this.imu;
-                let kAccel                  = ( 9.8 / 2048 );       // 1g (중력가속도) = 9.8 m/s^2 로 만들기 위한 변환 상수
-                let kGyro                   = ( 2000 / 32767 );     // 각 속도 (deg/s) 를 만들기 위한 변환 상수
-                imu._updated                = true;
-                imu.imu_accX                = (this.extractInt16(this.dataBlock, 0) * kAccel).toFixed(2);
-                imu.imu_accY                = (this.extractInt16(this.dataBlock, 2) * kAccel).toFixed(2);
-                imu.imu_accZ                = (this.extractInt16(this.dataBlock, 4) * kAccel).toFixed(2);
-                imu.imu_gyroRoll            = (this.extractInt16(this.dataBlock, 6) * kGyro).toFixed(2);
-                imu.imu_gyroPitch           = (this.extractInt16(this.dataBlock, 8) * kGyro).toFixed(2);
-                imu.imu_gyroYaw             = (this.extractInt16(this.dataBlock, 10) * kGyro).toFixed(2);
-                imu.imu_angleRoll           = this.extractInt16(this.dataBlock, 12);
-                imu.imu_anglePitch          = this.extractInt16(this.dataBlock, 14);
-                imu.imu_angleYaw            = this.extractInt16(this.dataBlock, 16);
-    
-                //console.log("Receive_From_Device - imu: " + imu.imu_angleRoll + ", " + imu.imu_anglePitch + ", " + imu.imu_angleYaw);
-            }
-            break;
-
-
-        case 0x51:  // Pressure
-            if( this.dataBlock.length == 8 )
-            {
-                // Device -> Entry 
-                let pressure                    = this.pressure;
-                pressure._updated               = true;
-                pressure.pressure_temperature   = this.extractFloat32(this.dataBlock, 0);
-                pressure.pressure_pressure      = this.extractFloat32(this.dataBlock, 4);
-    
-                //console.log("Receive_From_Device - pressure: " + pressure.pressure_temperature + ", " + pressure.pressure_pressure);
-            }
-            break;
-
-
-        case 0x53:  // Range
-            if( this.dataBlock.length == 24 )
-            {
-                // Device -> Entry 
-                let range               = this.range;
-                range._updated          = true;
-                range.range_left        = this.extractFloat32(this.dataBlock, 0);
-                range.range_front       = this.extractFloat32(this.dataBlock, 4);
-                range.range_right       = this.extractFloat32(this.dataBlock, 8);
-                range.range_rear        = this.extractFloat32(this.dataBlock, 12);
-                range.range_top         = this.extractFloat32(this.dataBlock, 16);
-                range.range_bottom      = this.extractFloat32(this.dataBlock, 20);
-    
-                //console.log("Receive_From_Device - range: " + range.range_left + ", " + range.range_front + ", " + range.range_right + ", " + range.range_rear + ", " + range.range_top + ", " + range.range_bottom);
-            }
-            break;
-
-
-        case 0x54:  // Image Flow (Optical Flow)
-            if( this.dataBlock.length == 8 )
-            {
-                // Device -> Entry 
-                let imageflow                   = this.imageflow;
-                imageflow._updated              = true;
-                imageflow.imageflow_positionX   = this.extractFloat32(this.dataBlock, 0);
-                imageflow.imageflow_positionY   = this.extractFloat32(this.dataBlock, 4);
-    
-                //console.log("Receive_From_Device - imageflow: " + imageflow.imageflow_positionX + ", " + imageflow.imageflow_positionY);
+                //this.log("BYROBOT_PETRONE_V2_BASE - handlerForDevice() - Received - State - 0x40");
+                this.updateState();
             }
             break;
 
 
         case 0x70:  // Button
-            if( this.dataBlock.length == 3 )
             {
-                // Device -> Entry 
-                let button              = this.button;
-                button._updated         = true;
-                button.button_button    = this.extractUInt16(this.dataBlock, 0);
-                button.button_event     = this.extractUInt8(this.dataBlock, 2);
-
-                //console.log("Receive_From_Device - Button: " + button.button_button + ", " + button.button_event);
+                //this.log("BYROBOT_PETRONE_V2_BASE - handlerForDevice() - Received - Button - 0x70");
+                this.updateButton();
             }
             break;
 
 
         case 0x71:  // Joystick
-            if( this.dataBlock.length == 8 )
             {
-                // Device -> Entry 
-                let joystick                        = this.joystick;
-                joystick._updated                   = true;
-                joystick.joystick_left_x            = this.extractInt8(this.dataBlock,  0);
-                joystick.joystick_left_y            = this.extractInt8(this.dataBlock,  1);
-                joystick.joystick_left_direction    = this.extractUInt8(this.dataBlock, 2);
-                joystick.joystick_left_event        = this.extractUInt8(this.dataBlock, 3);
-                joystick.joystick_right_x           = this.extractInt8(this.dataBlock,  4);
-                joystick.joystick_right_y           = this.extractInt8(this.dataBlock,  5);
-                joystick.joystick_right_direction   = this.extractUInt8(this.dataBlock, 6);
-                joystick.joystick_right_event       = this.extractUInt8(this.dataBlock, 7);
-
-                //console.log("Receive_From_Device - Joystick: " + joystick.joystick_left_x + ", " + joystick.joystick_left_y + ", " + joystick.joystick_right_x + ", " + joystick.joystick_right_y);
+                //this.log("BYROBOT_PETRONE_V2_BASE - handlerForDevice() - Received - Joystick - 0x71");
+                this.updateJoystick();
             }
             break;
 
 
         case 0x82:  // IR Message
-            if( this.dataBlock.length == 5 )
             {
-                // Device -> Entry 
-                let irmessage                   = this.irmessage;
-                irmessage._updated              = true;
-                irmessage.irmessage_direction   = this.extractUInt8(this.dataBlock, 0);
-                irmessage.irmessage_irdata      = this.extractUInt32(this.dataBlock, 1);    // javascript int 범위 제한(2017.08.23)
-    
-                console.log("Receive_From_Device - IR Message: " + irmessage.irmessage_direction + ", " + irmessage.irmessage_irdata);
+                //this.log("BYROBOT_PETRONE_V2_BASE - handlerForDevice() - Received - IRMessage - 0x82");
+                this.updateIRMessage();
             }
             break;
 
 
         case 0xD1:  // Information Assembled For Entry 자주 갱신되는 데이터 모음(엔트리)
-            if( this.dataBlock.length == 38 )
             {
-                // Device -> Entry 
-                let imu                         = this.imu;
-                let kAccel                      = ( 9.8 / 2048 );       // 1g (중력가속도) = 9.8 m/s^2 로 만들기 위한 변환 상수
-                let kGyro                       = ( 2000 / 32767 );     // 각 속도 (deg/s) 를 만들기 위한 변환 상수
-                imu._updated                    = true;
-                imu.imu_accX                    = (this.extractInt16(this.dataBlock, 0) * kAccel).toFixed(2);
-                imu.imu_accY                    = (this.extractInt16(this.dataBlock, 2) * kAccel).toFixed(2);
-                imu.imu_accZ                    = (this.extractInt16(this.dataBlock, 4) * kAccel).toFixed(2);
-                imu.imu_gyroRoll                = (this.extractInt16(this.dataBlock, 6) * kGyro).toFixed(2);
-                imu.imu_gyroPitch               = (this.extractInt16(this.dataBlock, 8) * kGyro).toFixed(2);
-                imu.imu_gyroYaw                 = (this.extractInt16(this.dataBlock, 10) * kGyro).toFixed(2);
-                imu.imu_angleRoll               = this.extractInt16(this.dataBlock, 12);
-                imu.imu_anglePitch              = this.extractInt16(this.dataBlock, 14);
-                imu.imu_angleYaw                = this.extractInt16(this.dataBlock, 16);
-    
-                let pressure                    = this.pressure;
-                pressure._updated               = true;
-                pressure.pressure_temperature   = this.extractFloat32(this.dataBlock, 18);
-                pressure.pressure_pressure      = this.extractFloat32(this.dataBlock, 22);
-    
-                let imageflow                   = this.imageflow;
-                imageflow._updated              = true;
-                imageflow.imageflow_positionX   = this.extractFloat32(this.dataBlock, 26);
-                imageflow.imageflow_positionY   = this.extractFloat32(this.dataBlock, 30);
-    
-                let range                       = this.range;
-                range._updated                  = true;
-                range.range_bottom              = this.extractFloat32(this.dataBlock, 34);
-    
-                //console.log("Receive_From_Device - Information Assembled For Entry: " + this.dataBlock.length + ", " + this.dataBlock);
+                //this.log("BYROBOT_PETRONE_V2_BASE - handlerForDevice() - Received - InformationAssembledForEntry - 0xA1");
+                this.updateInformationAssembledForEntry();
             }
             break;
 
@@ -2160,6 +1492,7 @@ class byrobot_petrone_v2_base extends BaseModule
             break;
         }
     }
+
     // #endregion Data Receiver for received data from Device
 
 
@@ -2170,7 +1503,7 @@ class byrobot_petrone_v2_base extends BaseModule
     // #region Data Transfer
 
     // 장치에 데이터 전송
-    transferForDevice()
+    transferToDevice()
     {
         let now = (new Date()).getTime();
 
@@ -2195,16 +1528,12 @@ class byrobot_petrone_v2_base extends BaseModule
             {
             case 0x30:
                 {
-                    switch( this.countReqeustDevice % 14 )
+                    switch( this.countReqeustDevice % 6 )
                     {
-                    case 0:    return this.reservePing(0x30);                     // 페트론V2 드론
-                    case 2:    return this.reservePing(0x31);                     // 조종기
-                    case 4:    return this.reserveRequest(0x30, 0x40);     // 페트론V2 드론, 드론의 상태(State)
-                    case 6:    return this.reserveRequest(0x30, 0x50);     // 페트론V2 드론, 드론의 자세(Attitude) 및 Accel, Gyro
-                    case 8:    return this.reserveRequest(0x30, 0x51);     // 페트론V2 드론, Pressure Sensor
-                    case 10:   return this.reserveRequest(0x30, 0x53);     // 페트론V2 드론, Range Sensor
-                    case 12:   return this.reserveRequest(0x30, 0x54);     // 페트론V2 드론, Image Flow (Optical Flow) Sensor
-                    default:   return this.reserveRequest(0x30, 0xD1);     // 페트론V2 드론, 자주 갱신되는 데이터 모음(엔트리)
+                    case 0:    return this.reservePing(0x30);              // 드론
+                    case 2:    return this.reservePing(0x31);              // 조종기
+                    case 4:    return this.reserveRequest(0x30, 0x40);     // 드론, 드론의 상태(State)
+                    default:   return this.reserveRequest(0x30, 0xD1);     // 드론, 자주 갱신되는 데이터 모음(엔트리)
                     }
                 }
                 break;
@@ -2242,7 +1571,7 @@ class byrobot_petrone_v2_base extends BaseModule
                 break;
             }
         }
-    
+
         // 예약된 데이터 전송 처리
         let arrayTransfer = this.bufferTransfer[0];             // 전송할 데이터 배열(첫 번째 데이터 블럭 전송)
         if( arrayTransfer[2] == 0x04 )
@@ -2255,27 +1584,18 @@ class byrobot_petrone_v2_base extends BaseModule
         }
         this.countTransferRepeat++;
         this.timeTransfer = (new Date()).getTime();
-    
+
         this.crc16Transfered = (arrayTransfer[arrayTransfer.length - 1] << 8) | (arrayTransfer[arrayTransfer.length - 2]);
-    
-        //this.log("Data Transfer - Repeat(" + this.bufferTransfer.length + ") : " + this.countTransferRepeat, this.bufferTransfer[0]);
-        //console.log("Data Transfer - Repeat: " + this.countTransferRepeat, this.bufferTransfer[0]);
-    
-        // 조종기에 데이터를 전송한 경우 바로 다음 데이터로 넘어감
-        if( arrayTransfer[5] == 0x31 )
-        {
-            this.bufferTransfer.shift();
-            this.countTransferRepeat = 0;
-        }
+
+        //this.log("BYROBOT_PETRONE_V2_BASE - transferToDevice - Repeat: " + this.countTransferRepeat, this.bufferTransfer[0]);
+
         // maxTransferRepeat 이상 전송했음에도 응답이 없는 경우엔 다음으로 넘어감
-        else if( this.countTransferRepeat >= this.maxTransferRepeat)
+        if( this.countTransferRepeat >= this.maxTransferRepeat)
         {
             this.bufferTransfer.shift();
             this.countTransferRepeat = 0;
         }
-    
-        //this.log("Module.prototype.transferForDevice()", arrayTransfer);
-    
+
         return arrayTransfer;
     }
 
@@ -2284,229 +1604,462 @@ class byrobot_petrone_v2_base extends BaseModule
 
 
     /***************************************************************************************
-     *  Communciation - Entry-HW 내부 코드용 데이터 전송 명령
+     *  Communciation - 장치 전송용 데이터 배열 생성
      ***************************************************************************************/
-    // #region Data Transfer Functions for Entry-HW internal code
+    // #region Data Transfer Functions for Device
 
     // Ping
     reservePing(target)
     {
-        let dataArray = [];
+        let dataArray   = new ArrayBuffer(8);
+        let view        = new DataView(dataArray);
 
-        // Start Code
-        this.addStartCode(dataArray);
-        
-        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-        let dataLength = 8;                     // 데이터의 길이
+        view.setUint32(0, 0, true);
+        view.setUint32(4, 0, true);
 
-        // Header
-        dataArray.push(0x01);           // Data Type (UpdateLookupTarget)
-        dataArray.push(dataLength);     // Data Length
-        dataArray.push(0x38);           // From (네이버 엔트리)
-        dataArray.push(target);         // To
-
-        // Data Array
-        dataArray.push(0x00);           // systemTime
-        dataArray.push(0x00);
-        dataArray.push(0x00);
-        dataArray.push(0x00);
-        dataArray.push(0x00);           // u32 -> u64
-        dataArray.push(0x00);
-        dataArray.push(0x00);
-        dataArray.push(0x00);
-
-        // CRC16
-        this.addCRC16(dataArray, indexStart, dataLength);
-
-        //this.log("ping()", dataArray);
-        
-        return dataArray;
+        //this.log("BYROBOT_PETRONE_V2_BASE - reservePing() - Target: 0x" + target.toString(16).toUpperCase());
+        return this.createTransferBlock(0x01, target, dataArray);
     }
 
 
     // 데이터 요청
     reserveRequest(target, dataType)
     {
-        let dataArray = [];
+        let dataArray   = new ArrayBuffer(1);
+        let view        = new DataView(dataArray);
 
-        // Start Code
-        this.addStartCode(dataArray);
-        
-        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-        let dataLength = 1;                     // 데이터의 길이
+        view.setUint8(0, dataType);
 
-        // Header
-        dataArray.push(0x04);           // Data Type (Request)
-        dataArray.push(dataLength);     // Data Length
-        dataArray.push(0x38);           // From (네이버 엔트리)
-        dataArray.push(target);         // To
+        //this.log("BYROBOT_PETRONE_V2_BASE - reserveRequest() - Target: 0x" + target.toString(16).toUpperCase() + " - DataType: 0x", dataType.toString(16).toUpperCase());
+        return this.createTransferBlock(0x04, target, dataArray);
+    }
 
-        // Data Array
-        dataArray.push(dataType);       // Request DataType
 
-        // CRC16
-        this.addCRC16(dataArray, indexStart, dataLength);
+    // Command
+    reserveCommand(target, command, option)
+    {
+        let dataArray   = new ArrayBuffer(2);
+        let view        = new DataView(dataArray);
 
-        //this.log("reserveRequest()", dataArray);
-        
-        return dataArray;
+        view.setUint8   (0, command);
+        view.setUint8   (1, option);
+
+        //this.log("BYROBOT_PETRONE_V2_BASE - reserveCommand() - Target: 0x" + target.toString(16).toUpperCase());
+        return this.createTransferBlock(0x11, target, dataArray);
     }
 
 
     // 모드 변경
-    reserveModeVehicle(modeVehicle)
+    reserveModeVehicle(target, modeVehicle)
     {
-        let dataArray = [];
+        return this.reserveCommand(target, 0x10, modeVehicle);
+    }
+
+
+    // Light Manual
+    reserveLightManual(target, flag, brightness)
+    {
+        let dataArray   = new ArrayBuffer(2);
+        let view        = new DataView(dataArray);
+
+        view.setUint8   (0, flag);
+        view.setUint8   (1, brightness);
+
+        this.log("BYROBOT_PETRONE_V2_BASE - reserveLightManual() - Target: 0x" + target.toString(16).toUpperCase());
+        return this.createTransferBlock(0x20, target, dataArray);
+    }
+
+
+    // LightModeColor
+    reserveLightModeColor(target, mode, interval, r, g, b)
+    {
+        let dataArray   = new ArrayBuffer(6);
+        let view        = new DataView(dataArray);
+
+        view.setUint8   (0, mode);
+        view.setUint16  (1, interval, true);
+        view.setUint8   (3, r);
+        view.setUint8   (4, g);
+        view.setUint8   (5, b);
+
+        this.log("BYROBOT_PETRONE_V2_BASE - reserveLightModeColor() - Target: 0x" + target.toString(16).toUpperCase());
+        return this.createTransferBlock(0x24, target, dataArray);
+    }
+
+
+    // LightMode
+    reserveLightMode(target, mode, interval)
+    {
+        let dataArray   = new ArrayBuffer(3);
+        let view        = new DataView(dataArray);
+
+        view.setUint8   (0, mode);
+        view.setUint16  (1, interval, true);
+
+        this.log("BYROBOT_PETRONE_V2_BASE - reserveLightMode() - Target: 0x" + target.toString(16).toUpperCase());
+        return this.createTransferBlock(0x21, target, dataArray);
+    }
+
+
+    // LightEventColor
+    reserveLightEventColor(target, event, interval, repeat, r, g, b)
+    {
+        let dataArray   = new ArrayBuffer(7);
+        let view        = new DataView(dataArray);
+
+        view.setUint8   (0, event);
+        view.setUint16  (1, interval, true);
+        view.setUint8   (3, repeat);
+        view.setUint8   (4, r);
+        view.setUint8   (5, g);
+        view.setUint8   (6, b);
+
+        this.log("BYROBOT_PETRONE_V2_BASE - reserveLightEventColor() - Target: 0x" + target.toString(16).toUpperCase());
+        return this.createTransferBlock(0x2D, target, dataArray);
+    }
+
+
+    // LightEvent
+    reserveLightEvent(target, event, interval, repeat)
+    {
+        let dataArray   = new ArrayBuffer(4);
+        let view        = new DataView(dataArray);
+
+        view.setUint8   (0, event);
+        view.setUint16  (1, interval, true);
+        view.setUint8   (3, repeat);
+
+        this.log("BYROBOT_PETRONE_V2_BASE - reserveLightEvent() - Target: 0x" + target.toString(16).toUpperCase());
+        return this.createTransferBlock(0x2A, target, dataArray);
+    }
+
+
+    // DisplayClearAll
+    reserveDisplayClearAll(target, pixel)
+    {
+        let dataArray   = new ArrayBuffer(1);
+        let view        = new DataView(dataArray);
+
+        view.setUint8   (0, pixel);
+
+        this.log("BYROBOT_PETRONE_V2_BASE - reserveDisplayClearAll() - Target: 0x" + target.toString(16).toUpperCase());
+        return this.createTransferBlock(0xB0, target, dataArray);
+    }
+
+
+    // DisplayClear
+    reserveDisplayClear(target, x, y, width, height, pixel)
+    {
+        let dataArray   = new ArrayBuffer(9);
+        let view        = new DataView(dataArray);
+
+        view.setInt16   (0, x, true);
+        view.setInt16   (2, y, true);
+        view.setInt16   (4, width, true);
+        view.setInt16   (6, height, true);
+        view.setUint8   (8, pixel);
+
+        //this.log("BYROBOT_PETRONE_V2_BASE - reserveDisplayClear() - Target: 0x" + target.toString(16).toUpperCase());
+        return this.createTransferBlock(0xB0, target, dataArray);
+    }
+
+
+    // DisplayInvert
+    reserveDisplayInvert(target, x, y, width, height)
+    {
+        let dataArray   = new ArrayBuffer(8);
+        let view        = new DataView(dataArray);
+
+        view.setInt16   (0, x, true);
+        view.setInt16   (2, y, true);
+        view.setInt16   (4, width, true);
+        view.setInt16   (6, height, true);
+
+        //this.log("BYROBOT_PETRONE_V2_BASE - reserveDisplayInvert() - Target: 0x" + target.toString(16).toUpperCase());
+        return this.createTransferBlock(0xB1, target, dataArray);
+    }
+
+
+    // DisplayDrawPoint
+    reserveDisplayDrawPoint(target, x, y, pixel)
+    {
+        let dataArray   = new ArrayBuffer(5);
+        let view        = new DataView(dataArray);
+
+        view.setInt16   (0, x, true);
+        view.setInt16   (2, y, true);
+        view.setUint8   (4, pixel);
+
+        //this.log("BYROBOT_PETRONE_V2_BASE - reserveDisplayDrawPoint() - Target: 0x" + target.toString(16).toUpperCase());
+        return this.createTransferBlock(0xB2, target, dataArray);
+    }
+
+
+    // DisplayDrawLine
+    reserveDisplayDrawLine(target, x1, y1, x2, y2, pixel, line)
+    {
+        let dataArray   = new ArrayBuffer(10);
+        let view        = new DataView(dataArray);
+
+        view.setInt16   (0, x1, true);
+        view.setInt16   (2, y1, true);
+        view.setInt16   (4, x2, true);
+        view.setInt16   (6, y2, true);
+        view.setUint8   (8, pixel);
+        view.setUint8   (9, line);
+
+        //this.log("BYROBOT_PETRONE_V2_BASE - reserveDisplayDrawLine() - Target: 0x" + target.toString(16).toUpperCase());
+        return this.createTransferBlock(0xB3, target, dataArray);
+    }
+
+
+    // DisplayDrawRect
+    reserveDisplayDrawRect(target, x, y, width, height, pixel, flagFill, line)
+    {
+        let dataArray   = new ArrayBuffer(11);
+        let view        = new DataView(dataArray);
+
+        view.setInt16   (0, x, true);
+        view.setInt16   (2, y, true);
+        view.setInt16   (4, width, true);
+        view.setInt16   (6, height, true);
+        view.setUint8   (8, pixel);
+        view.setUint8   (9, flagFill);
+        view.setUint8   (10, line);
+
+        //this.log("BYROBOT_PETRONE_V2_BASE - reserveDisplayDrawRect() - Target: 0x" + target.toString(16).toUpperCase());
+        return this.createTransferBlock(0xB4, target, dataArray);
+    }
+
+
+    // DisplayDrawCircle
+    reserveDisplayDrawCircle(target, x, y, radius, pixel, flagFill)
+    {
+        let dataArray   = new ArrayBuffer(8);
+        let view        = new DataView(dataArray);
+
+        view.setInt16   (0, x, true);
+        view.setInt16   (2, y, true);
+        view.setInt16   (4, radius, true);
+        view.setUint8   (6, pixel);
+        view.setUint8   (7, flagFill);
+
+        //this.log("BYROBOT_PETRONE_V2_BASE - reserveDisplayDrawCircle() - Target: 0x" + target.toString(16).toUpperCase());
+        return this.createTransferBlock(0xB5, target, dataArray);
+    }
+
+
+    // DisplayDrawString
+    reserveDisplayDrawString(target, x, y, font, pixel, string)
+    {
+        let byteArrayString = this.stringToAsciiByteArray(string);
+
+        let dataArray   = new ArrayBuffer(6 + byteArrayString.length);
+        let view        = new DataView(dataArray);
+
+        view.setInt16   (0, x, true);
+        view.setInt16   (2, y, true);
+        view.setUint8   (4, font);
+        view.setUint8   (5, pixel);
+
+        for (let i = 0; i < byteArrayString.length; i++)
+        {
+            view.setUint8((6 + i), byteArrayString[i]);
+        }
+
+        //this.log("BYROBOT_PETRONE_V2_BASE - reserveDisplayDrawString() - Target: 0x" + target.toString(16).toUpperCase());
+        return this.createTransferBlock(0xB6, target, dataArray);
+    }
+
+
+    // DisplayDrawString
+    reserveDisplayDrawStringAlign(target, x_start, x_end, y, align, font, pixel, string)
+    {
+        let byteArrayString = this.stringToAsciiByteArray(string);
+
+        let dataArray   = new ArrayBuffer(9 + byteArrayString.length);
+        let view        = new DataView(dataArray);
+
+        view.setInt16   (0, x_start, true);
+        view.setInt16   (2, x_end, true);
+        view.setInt16   (4, y, true);
+        view.setUint8   (6, align);
+        view.setUint8   (7, font);
+        view.setUint8   (8, pixel);
+
+        for (let i = 0; i < byteArrayString.length; i++)
+        {
+            view.setUint8((9 + i), byteArrayString[i]);
+        }
+
+        //this.log("BYROBOT_PETRONE_V2_BASE - reserveDisplayDrawStringAlign() - Target: 0x" + target.toString(16).toUpperCase());
+        return this.createTransferBlock(0xB7, target, dataArray);
+    }
+
+
+    // ControlQuad8
+    reserveControlQuad8(target, roll, pitch, yaw, throttle)
+    {
+        let dataArray   = new ArrayBuffer(4);
+        let view        = new DataView(dataArray);
+
+        view.setInt8   (0, roll);
+        view.setInt8   (1, pitch);
+        view.setInt8   (2, yaw);
+        view.setInt8   (3, throttle);
+
+        //this.log("BYROBOT_PETRONE_V2_BASE - reserveControlQuad8() - Target: 0x" + target.toString(16).toUpperCase());
+        return this.createTransferBlock(0x10, target, dataArray);
+    }
+
+
+    // reserveControlDouble8
+    reserveControlDouble8(target, accel, wheel)
+    {
+        let dataArray   = new ArrayBuffer(2);
+        let view        = new DataView(dataArray);
+
+        view.setInt8   (0, accel);
+        view.setInt8   (1, wheel);
+
+        //this.log("BYROBOT_PETRONE_V2_BASE - reserveControlDouble8() - Target: 0x" + target.toString(16).toUpperCase());
+        return this.createTransferBlock(0x10, target, dataArray);
+    }
+
+
+    // MotorSingle
+    reserveMotorSingle(target, motor, rotation, value)
+    {
+        let dataArray   = new ArrayBuffer(4);
+        let view        = new DataView(dataArray);
+
+        view.setUint8   (0, motor);
+        view.setUint8   (1, rotation);
+        view.setInt16   (2, value);
+
+        //this.log("BYROBOT_PETRONE_V2_BASE - reserveMotorSingle() - Target: 0x" + target.toString(16).toUpperCase());
+        return this.createTransferBlock(0x81, target, dataArray);
+    }
+
+
+    // Buzzer
+    reserveBuzzer(target, mode, value, time)
+    {
+        let dataArray   = new ArrayBuffer(5);
+        let view        = new DataView(dataArray);
+
+        view.setUint8   (0, mode);
+        view.setUint16  (1, value, true);
+        view.setUint16  (3, time, true);
+
+        //this.log("BYROBOT_PETRONE_V2_BASE - reserveBuzzer() - Target: 0x" + target.toString(16).toUpperCase());
+        return this.createTransferBlock(0x83, target, dataArray);
+    }
+
+
+    // Vibrator
+    reserveVibrator(target, mode, on, off, total)
+    {
+        let dataArray   = new ArrayBuffer(7);
+        let view        = new DataView(dataArray);
+
+        view.setUint8   (0, mode);
+        view.setUint16  (1, on, true);
+        view.setUint16  (3, off, true);
+        view.setUint16  (5, total, true);
+
+        //this.log("BYROBOT_PETRONE_V2_BASE - reserveVibrator() - Target: 0x" + target.toString(16).toUpperCase());
+        return this.createTransferBlock(0x84, target, dataArray);
+    }
+
+
+    // IRMessage
+    reserveIRMessage(target, direction, data)
+    {
+        let dataArray   = new ArrayBuffer(5);
+        let view        = new DataView(dataArray);
+
+        view.setUint8   (0, direction);
+        view.setUint32  (1, data, true);
+
+        //this.log("BYROBOT_PETRONE_V2_BASE - reserveIRMessage() - Target: 0x" + target.toString(16).toUpperCase());
+        return this.createTransferBlock(0x82, target, dataArray);
+    }
+
+
+    // 전송 데이터 배열 생성
+    // https://cryingnavi.github.io/javascript-typedarray/
+    createTransferBlock(dataType, to, dataBuffer)
+    {
+        let dataBlock   = new ArrayBuffer(2 + 4 + dataBuffer.byteLength + 2);  // Start Code + Header + Data + CRC16
+        let view        = new DataView(dataBlock);
+        let dataArray   = new Uint8Array(dataBuffer);
 
         // Start Code
-        this.addStartCode(dataArray);
-        
-        let indexStart = dataArray.length;      // 배열에서 데이터를 저장하기 시작하는 위치
-        let dataLength = 2;                     // 데이터의 길이
+        {
+            view.setUint8(0, 0x0A);
+            view.setUint8(1, 0x55);
+        }
 
         // Header
-        dataArray.push(0x11);           // Data Type
-        dataArray.push(dataLength);     // Data Length
-        dataArray.push(0x38);           // From (네이버 엔트리)
-        dataArray.push(0x30);           // To
+        {
+            view.setUint8(2, dataType);                 // Data Type
+            view.setUint8(3, dataBuffer.byteLength);    // Data Length
+            view.setUint8(4, 0x38);                     // From (네이버 엔트리)
+            view.setUint8(5, to);                       // To
+        }
 
-        // Data Array
-        dataArray.push(0x10);           // CommandType
-        dataArray.push(modeVehicle);    // Option
+        // Data
+        {
+            for(let i=0; i<dataArray.length; i++)
+            {
+                view.setUint8((2 + 4 + i), dataArray[i]);
+            }
+        }
 
         // CRC16
-        this.addCRC16(dataArray, indexStart, dataLength);
+        {
+            let indexStart  = 2;
+            let totalLength = 4 + dataArray.length; // 
+            let crc16       = 0;
+
+            for(let i=0; i<totalLength; i++)
+            {
+                crc16 = this.calcCRC16(view.getUint8(indexStart + i), crc16);
+            }
+            view.setUint16((2 + 4 + dataArray.length), crc16, true);
+        }
         
-        return dataArray;
-    }
-
-    // #endregion Data Transfer Functions for Entry-HW internal code
-
-
-
-    /***************************************************************************************
-     *  자바스크립트 바이너리 핸들링
-     *  http://mohwa.github.io/blog/javascript/2015/08/31/binary-inJS/
-     ***************************************************************************************/
-    // #region Functions for Binary Handling
-
-    extractInt8(dataArray, startIndex)
-    {
-        let value = this.extractUInt8(dataArray, startIndex);
-        if( (value & 0x80) != 0)
-        {
-            value = -(0x100 - value);
-        }
-        return value;
-    }
-
-
-    extractUInt8(dataArray, startIndex)
-    {
-        if( dataArray.length >= startIndex + 1 )
-        {
-            let value = dataArray[startIndex];
-            return value;
-        }
-        else
-        {
-            return 0;
-        }
-    }
-
-
-    extractInt16(dataArray, startIndex)
-    {
-        let value = this.extractUInt16(dataArray, startIndex);
-        if( (value & 0x8000) != 0)
-        {
-            value = -(0x10000 - value);
-        }
-        return value;
-    }
-
-
-    extractUInt16(dataArray, startIndex)
-    {
-        if( dataArray.length >= startIndex + 2 )
-        {
-            let value = ((dataArray[startIndex + 1]) << 8) + dataArray[startIndex];
-            return value;
-        }
-        else
-        {
-            return 0;
-        }
-    }
-
-
-    extractInt32(dataArray, startIndex)
-    {
-        let value = this.extractUInt32(dataArray, startIndex);
-        if( (value & 0x80000000) != 0)
-        {
-            value = -(0x100000000 - value);
-        }
-        return value;
-    }
-
-
-    extractUInt32(dataArray, startIndex)
-    {
-        if( dataArray.length >= startIndex + 4 )
-        {
-            let value = ((dataArray[startIndex + 3]) << 24) + ((dataArray[startIndex + 2]) << 16) + ((dataArray[startIndex + 1]) << 8) + dataArray[startIndex];
-            return value;
-        }
-        else
-        {
-            return 0;
-        }
-    }
-
-
-    extractFloat32(dataArray, startIndex)
-    {
-        if (dataArray.length >= startIndex + 4)
-        {
-            let buffer = new ArrayBuffer(4);
-            let float32View = new Float32Array(buffer, 0, 1);
-            let uint8View = new Uint8Array(buffer, 0, 4)
-            uint8View[0] = dataArray[startIndex];
-            uint8View[1] = dataArray[startIndex + 1];
-            uint8View[2] = dataArray[startIndex + 2];
-            uint8View[3] = dataArray[startIndex + 3];
-    
-            return float32View[0].toFixed(2);
-        }
-        else
-        {
-            return 0;
-        }
+        //this.log("BYROBOT_PETRONE_V2_BASE - createTransferBlock() - ", Array.from(new Uint8Array(dataBlock)))
+        return Array.from(new Uint8Array(dataBlock));
     }
 
 
     // 값 추출
-    getByte0(b)
+    getByte(value, index)
     {
-        return (b & 0xff);
+        return ((value >> (index << 3)) & 0xff);
     }
 
-    getByte1(b)
+
+    getUint64(dataview, byteOffset, littleEndian)
     {
-        return ((b >> 8) & 0xff);
+        // split 64-bit number into two 32-bit (4-byte) parts
+        const left =  dataview.getUint32(byteOffset, littleEndian);
+        const right = dataview.getUint32(byteOffset + 4, littleEndian);
+
+        // combine the two 32-bit values
+        const combined = littleEndian ? left + 2**32*right : 2**32*left + right;
+
+        if (!Number.isSafeInteger(combined))
+        {
+            console.warn(combined, 'exceeds MAX_SAFE_INTEGER. Precision may be lost');
+        }
+
+        return combined;
     }
 
-    getByte2(b)
-    {
-        return ((b >> 16) & 0xff);
-    }
-
-    getByte3(b)
-    {
-        return ((b >> 24) & 0xff);
-    }
-    // #endregion Functions for Binary Handling
+    // #endregion Data Transfer Functions for Device
 
 
 
@@ -2543,6 +2096,8 @@ class byrobot_petrone_v2_base extends BaseModule
     */
     createCRC16Array()
     {
+        this.log("BYROBOT_PETRONE_V2_BASE - createCRC16Array()");
+
         this.crc16table =
         [
             0x0000, 0x1021, 0x2042, 0x3063, 0x4084, 0x50a5, 0x60c6, 0x70e7,
@@ -2601,7 +2156,7 @@ class byrobot_petrone_v2_base extends BaseModule
      ***************************************************************************************/
     // #region Functions for log
 
-    log(message, data = 'undefined')
+    log(message, data = undefined)
     {
         // 로그를 출력하지 않으려면 아래 주석을 활성화 할 것
         //*
@@ -2611,8 +2166,8 @@ class byrobot_petrone_v2_base extends BaseModule
         {
         case "object":
             {
-                strInfo = " / [ " + this.convertByteArrayToHexString(data) + " ]";
-                console.log(message + " / " + (typeof data) + strInfo);
+                strInfo = " - [ " + this.convertByteArrayToHexString(data) + " ]";
+                console.log(message + " - " + (typeof data) + strInfo);
             }
             break;
 
@@ -2622,7 +2177,6 @@ class byrobot_petrone_v2_base extends BaseModule
             }
             break;
         }
-
         // */
     }
 
