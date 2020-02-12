@@ -16,7 +16,7 @@ const BaseModule = require('./baseModule');
  *   - Coding Drone
  * 
  * - 마지막 업데이트
- *   - 2020.2.11
+ *   - 2020.2.12
  * 
  ***************************************************************************************/
 
@@ -138,15 +138,15 @@ class byrobot_base extends BaseModule
             DISPLAY_DRAW_STRING_ALIGN_STRING    : 'display_draw_string_align_string',
 
             // Buzzer
-            BUZZER_MODE     : 'buzzer_mode',
-            BUZZER_VALUE    : 'buzzer_value',
-            BUZZER_TIME     : 'buzzer_time',
+            BUZZER_MODE             : 'buzzer_mode',
+            BUZZER_VALUE            : 'buzzer_value',
+            BUZZER_TIME             : 'buzzer_time',
 
             // Vibrator
-            VIBRATOR_MODE   : 'vibrator_mode',
-            VIBRATOR_ON     : 'vibrator_on',
-            VIBRATOR_OFF    : 'vibrator_off',
-            VIBRATOR_TOTAL  : 'vibrator_total',
+            VIBRATOR_MODE           : 'vibrator_mode',
+            VIBRATOR_ON             : 'vibrator_on',
+            VIBRATOR_OFF            : 'vibrator_off',
+            VIBRATOR_TOTAL          : 'vibrator_total',
 
             // Control::Quad8
             CONTROL_QUAD8_ROLL      : 'control_quad8_roll',
@@ -280,11 +280,8 @@ class byrobot_base extends BaseModule
     */
     requestInitialData(serialport)
     {
-        //if (this.isConnect == false)
-        {
-            this.isConnect = true;
-            this.serialport = serialport;
-        }
+        this.isConnect = true;
+        this.serialport = serialport;
 
         //this.log("BYROBOT_BASE - requestInitialData(0x" + this.targetDevice.toString(16).toUpperCase() + ")");
         return this.reservePing(this.targetDevice);
@@ -468,23 +465,6 @@ class byrobot_base extends BaseModule
         this.ack.ack_crc16      = 0;
     }
 
-    getUint64(dataview, byteOffset, littleEndian)
-    {
-        // split 64-bit number into two 32-bit (4-byte) parts
-        const left =  dataview.getUint32(byteOffset, littleEndian);
-        const right = dataview.getUint32(byteOffset + 4, littleEndian);
-
-        // combine the two 32-bit values
-        const combined = littleEndian ? left + 2**32*right : 2**32*left + right;
-
-        if (!Number.isSafeInteger(combined))
-        {
-            console.warn(combined, 'exceeds MAX_SAFE_INTEGER. Precision may be lost');
-        }
-
-        return combined;
-    }
-
     updateAck()
     {
         //this.log("BYROBOT_BASE - updateAck()");
@@ -545,7 +525,7 @@ class byrobot_base extends BaseModule
 
     clearButton()
     {
-        this.button._updated            = false;
+        this.button._updated           = false;
         this.button.button_button      = 0;
         this.button.button_event       = 0;
     }
@@ -965,12 +945,12 @@ class byrobot_base extends BaseModule
             handler.e(this.DataType.CONTROL_QUAD8_YAW)      ||
             handler.e(this.DataType.CONTROL_QUAD8_THROTTLE) )
         {
-            let roll     = this.read(handler, this.DataType.CONTROL_QUAD8_ROLL,     this.controlRoll);
-            let pitch    = this.read(handler, this.DataType.CONTROL_QUAD8_PITCH,    this.controlPitch);
-            let yaw      = this.read(handler, this.DataType.CONTROL_QUAD8_YAW,      this.controlYaw);
-            let throttle = this.read(handler, this.DataType.CONTROL_QUAD8_THROTTLE, this.controlThrottle);
+            this.controlRoll     = this.read(handler, this.DataType.CONTROL_QUAD8_ROLL,     this.controlRoll);
+            this.controlPitch    = this.read(handler, this.DataType.CONTROL_QUAD8_PITCH,    this.controlPitch);
+            this.controlYaw      = this.read(handler, this.DataType.CONTROL_QUAD8_YAW,      this.controlYaw);
+            this.controlThrottle = this.read(handler, this.DataType.CONTROL_QUAD8_THROTTLE, this.controlThrottle);
 
-            let dataArray = this.reserveControlQuad8(target, roll, pitch, yaw, throttle);
+            let dataArray = this.reserveControlQuad8(target, this.controlRoll, this.controlPitch, this.controlYaw, this.controlThrottle);
             this.bufferTransfer.push(dataArray);
             this.log("BYROBOT_BASE - Transfer_To_Device - ControlQuad8", dataArray);
         }
@@ -1036,62 +1016,6 @@ class byrobot_base extends BaseModule
             this.log("BYROBOT_BASE - Transfer_To_Device - Vibrator", dataArray);
         }
     }
-
-
-    // 전송 데이터 배열 생성
-    // https://cryingnavi.github.io/javascript-typedarray/
-    createTransferBlock(dataType, to, dataBuffer)
-    {
-        let dataBlock   = new ArrayBuffer(2 + 4 + dataBuffer.byteLength + 2);  // Start Code + Header + Data + CRC16
-        let view        = new DataView(dataBlock);
-        let dataArray   = new Uint8Array(dataBuffer);
-
-        // Start Code
-        {
-            view.setUint8(0, 0x0A);
-            view.setUint8(1, 0x55);
-        }
-
-        // Header
-        {
-            view.setUint8(2, dataType);                 // Data Type
-            view.setUint8(3, dataBuffer.byteLength);    // Data Length
-            view.setUint8(4, 0x82);                     // From (네이버 엔트리)
-            view.setUint8(5, to);                       // To
-        }
-
-        // Data
-        {
-            for(let i=0; i<dataArray.length; i++)
-            {
-                view.setUint8((2 + 4 + i), dataArray[i]);
-            }
-        }
-
-        // CRC16
-        {
-            let indexStart  = 2;
-            let totalLength = 4 + dataArray.length; // 
-            let crc16       = 0;
-
-            for(let i=0; i<totalLength; i++)
-            {
-                crc16 = this.calcCRC16(view.getUint8(indexStart + i), crc16);
-            }
-            view.setUint16((2 + 4 + dataArray.length), crc16, true);
-        }
-        
-        //this.log("BYROBOT_BASE - createTransferBlock() - ", Array.from(new Uint8Array(dataBlock)))
-        return Array.from(new Uint8Array(dataBlock));
-    }
-
-
-    // 값 추출
-    getByte(value, index)
-    {
-        return ((value >> (index << 3)) & 0xff);
-    }
-
 
     // #endregion Data Transfer to Device from Entry
 
@@ -1350,8 +1274,8 @@ class byrobot_base extends BaseModule
     // 장치로부터 받은 데이터 블럭 처리
     handlerForDevice()
     {
-        // log 출력을  skip 할 대상만 case로 등록
         /*
+        // log 출력을  skip 할 대상만 case로 등록
         switch( this.dataType )
         {
         case 0x02:  break;      // Ack
@@ -1389,10 +1313,10 @@ class byrobot_base extends BaseModule
                     }
 
                     // 마지막으로 전송한 데이터에 대한 응답을 받았다면 
-                    if( this.bufferTransfer         != undefined         &&
-                        this.bufferTransfer.length  > 0                  &&
-                        this.dataTypeLastTransfered == this.ack.dataType &&
-                        this.crc16Transfered        == this.ack.crc16    )
+                    if( this.bufferTransfer         != undefined                &&
+                        this.bufferTransfer.length  > 0                         &&
+                        this.dataTypeLastTransfered == this.ack.ack_dataType    &&
+                        this.crc16Transfered        == this.ack.ack_crc16       )
                     {
                         this.bufferTransfer.shift();
                         this.countTransferRepeat = 0;
@@ -1572,55 +1496,6 @@ class byrobot_base extends BaseModule
      ***************************************************************************************/
     // #region Data Transfer Functions for Device
 
-    /*
-    // Ping (데이터 배열 직접 생성)
-    reservePing(target)
-    {
-        let dataArray = [];
-
-        // Start Code
-        dataArray.push(0x0A);           // Data Type (UpdateLookupTarget)
-        dataArray.push(0x55);           // Data Length
-        
-        let dataLength = 8;             // 데이터의 길이
-
-        // Header
-        dataArray.push(0x01);           // Data Type (UpdateLookupTarget)
-        dataArray.push(dataLength);     // Data Length
-        dataArray.push(0x82);           // From
-        dataArray.push(target);           // To
-
-        // Data Array
-        dataArray.push(0x00);           // systemTime
-        dataArray.push(0x00);
-        dataArray.push(0x00);
-        dataArray.push(0x00);
-        dataArray.push(0x00)
-        dataArray.push(0x00);
-        dataArray.push(0x00);
-        dataArray.push(0x00);
-
-        // CRC16
-        {
-            let indexStart  = 2;
-            let totalLength = 4 + 8; // 
-            let crc16       = 0;
-
-            for(let i=0; i<totalLength; i++)
-            {
-                crc16 = this.calcCRC16(dataArray[indexStart + i], crc16);
-            }
-            dataArray.push(this.getByte(crc16, 0));
-            dataArray.push(this.getByte(crc16, 1));
-        }
-
-        //this.log("BYROBOT_BASE - reservePing()", dataArray);
-        
-        return dataArray;
-    }
-    // */
-
-    //*
     // Ping
     reservePing(target)
     {
@@ -1633,7 +1508,6 @@ class byrobot_base extends BaseModule
         //this.log("BYROBOT_BASE - reservePing() - Target: 0x" + target.toString(16).toUpperCase());
         return this.createTransferBlock(0x01, target, dataArray);
     }
-    // */
 
 
     // 데이터 요청
@@ -1646,6 +1520,20 @@ class byrobot_base extends BaseModule
 
         //this.log("BYROBOT_BASE - reserveRequest() - Target: 0x" + target.toString(16).toUpperCase() + " - DataType: 0x", dataType.toString(16).toUpperCase());
         return this.createTransferBlock(0x04, target, dataArray);
+    }
+
+
+    // Command
+    reserveCommand(target, command, option)
+    {
+        let dataArray   = new ArrayBuffer(2);
+        let view        = new DataView(dataArray);
+
+        view.setUint8   (0, command);
+        view.setUint8   (1, option);
+
+        //this.log("BYROBOT_BASE - reserveCommand() - Target: 0x" + target.toString(16).toUpperCase());
+        return this.createTransferBlock(0x11, target, dataArray);
     }
 
 
@@ -1890,20 +1778,6 @@ class byrobot_base extends BaseModule
     }
 
 
-    // Command
-    reserveCommand(target, command, option)
-    {
-        let dataArray   = new ArrayBuffer(2);
-        let view        = new DataView(dataArray);
-
-        view.setUint8   (0, command);
-        view.setUint8   (1, option);
-
-        //this.log("BYROBOT_BASE - reserveCommand() - Target: 0x" + target.toString(16).toUpperCase());
-        return this.createTransferBlock(0x11, target, dataArray);
-    }
-
-
     // ControlQuad8
     reserveControlQuad8(target, roll, pitch, yaw, throttle)
     {
@@ -1914,11 +1788,6 @@ class byrobot_base extends BaseModule
         view.setInt8   (1, pitch);
         view.setInt8   (2, yaw);
         view.setInt8   (3, throttle);
-        
-        this.controlRoll        = roll;
-        this.controlPitch       = pitch;
-        this.controlYaw         = yaw;
-        this.controlThrottle    = throttle;
 
         //this.log("BYROBOT_BASE - reserveControlQuad8() - Target: 0x" + target.toString(16).toUpperCase());
         return this.createTransferBlock(0x10, target, dataArray);
@@ -1989,16 +1858,79 @@ class byrobot_base extends BaseModule
     }
 
 
+    // 전송 데이터 배열 생성
+    // https://cryingnavi.github.io/javascript-typedarray/
+    createTransferBlock(dataType, to, dataBuffer)
+    {
+        let dataBlock   = new ArrayBuffer(2 + 4 + dataBuffer.byteLength + 2);  // Start Code + Header + Data + CRC16
+        let view        = new DataView(dataBlock);
+        let dataArray   = new Uint8Array(dataBuffer);
+
+        // Start Code
+        {
+            view.setUint8(0, 0x0A);
+            view.setUint8(1, 0x55);
+        }
+
+        // Header
+        {
+            view.setUint8(2, dataType);                 // Data Type
+            view.setUint8(3, dataBuffer.byteLength);    // Data Length
+            view.setUint8(4, 0x82);                     // From (네이버 엔트리)
+            view.setUint8(5, to);                       // To
+        }
+
+        // Data
+        {
+            for(let i=0; i<dataArray.length; i++)
+            {
+                view.setUint8((2 + 4 + i), dataArray[i]);
+            }
+        }
+
+        // CRC16
+        {
+            let indexStart  = 2;
+            let totalLength = 4 + dataArray.length; // 
+            let crc16       = 0;
+
+            for(let i=0; i<totalLength; i++)
+            {
+                crc16 = this.calcCRC16(view.getUint8(indexStart + i), crc16);
+            }
+            view.setUint16((2 + 4 + dataArray.length), crc16, true);
+        }
+        
+        //this.log("BYROBOT_BASE - createTransferBlock() - ", Array.from(new Uint8Array(dataBlock)))
+        return Array.from(new Uint8Array(dataBlock));
+    }
+
+
+    // 값 추출
+    getByte(value, index)
+    {
+        return ((value >> (index << 3)) & 0xff);
+    }
+
+
+    getUint64(dataview, byteOffset, littleEndian)
+    {
+        // split 64-bit number into two 32-bit (4-byte) parts
+        const left =  dataview.getUint32(byteOffset, littleEndian);
+        const right = dataview.getUint32(byteOffset + 4, littleEndian);
+
+        // combine the two 32-bit values
+        const combined = littleEndian ? left + 2**32*right : 2**32*left + right;
+
+        if (!Number.isSafeInteger(combined))
+        {
+            console.warn(combined, 'exceeds MAX_SAFE_INTEGER. Precision may be lost');
+        }
+
+        return combined;
+    }
+
     // #endregion Data Transfer Functions for Device
-
-
-
-    /***************************************************************************************
-     *  자바스크립트 바이너리 핸들링
-     *  http://mohwa.github.io/blog/javascript/2015/08/31/binary-inJS/
-     ***************************************************************************************/
-    // #region Functions for Binary Handling
-
 
 
 
