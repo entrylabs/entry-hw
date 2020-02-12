@@ -24,7 +24,7 @@
 		"control": "slave",
 		"vendor": ["ROBOTIS","FTDI"],
 		"pnpId": "6001",
-		"duration": 350,
+		"duration": 50,
 		"baudRate": 57600
 	}
 }

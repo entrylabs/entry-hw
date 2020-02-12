@@ -102,6 +102,7 @@ Module.prototype.requestInitialData = function() {
     this.humidity = [];
     this.touchSensor = [];
     this.irSensor = [];
+    this.irSensorInner = [];
     this.lightSensor = [];
     this.detectedSound = 0;
     this.detectringSound = 0;
@@ -157,7 +158,10 @@ Module.prototype.requestRemoteData = function(handler) {
         handler.write('LIGHT' + i, this.lightSensor[i]); // 조도 센서
         handler.write('COLOR' + i, this.colorSensor[i]); // 칼라 센서
         handler.write('HUMIDTY' + i, this.humidity[i]); // 습도 센서
-        handler.write('TEMPERATURE' + i, this.temperature[i]); // 온도 센서
+        handler.write('TEMPERATURE' + i, this.temperature[i]); // 온도 센서        
+    }
+    for(var i = 0; i < 3; i++){
+        handler.write('IRINNER' + i, this.irSensorInner[i]); // 적외선 센서 내장
     }
     handler.write('DETECTEDSOUNDE', this.detectedSound); // 최종 소리 감지 횟수
     handler.write('DETECTINGSOUNDE1', this.detectringSound); // 실시간 소리 감지 횟수
@@ -532,7 +536,14 @@ Module.prototype.handleLocalData = function (data) { // data: Native Buffer
                                     jx++;
                                 }
                                 jx = 0;
-                                for (var ix = 22; ix < 25; ix = ix + 2) { // 적외선 센서
+                                for (var ix = 12; ix < 17; ix = ix + 2) { // 적외선 센서(내장)
+                                    if (this.receiveBuffer[ix - 5] != undefined) {
+                                        this.irSensorInner[jx] = this.receiveBuffer[ix - 5] | this.receiveBuffer[ix - 5 + 1] << 8;
+                                    }
+                                    jx++;
+                                }
+                                jx = 0;
+                                for (var ix = 22; ix < 25; ix = ix + 2) { // 적외선 센서(포트)
                                     if (this.receiveBuffer[ix - 5] != undefined) {
                                         this.irSensor[jx] = this.receiveBuffer[ix - 5] | this.receiveBuffer[ix - 5 + 1] << 8;
                                     }
