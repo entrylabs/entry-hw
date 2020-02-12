@@ -407,7 +407,7 @@ class byrobot_petrone_v2_base extends BaseModule
 
         // Ack
         this.clearAck();
-        
+
         // State
         this.clearState();
 
@@ -1024,6 +1024,9 @@ class byrobot_petrone_v2_base extends BaseModule
                     this.controlAccel       = 0;
                 }
                 break;
+
+            default:
+                break;
             }
 
             let dataArray = this.reserveCommand(target, command, option);
@@ -1065,11 +1068,11 @@ class byrobot_petrone_v2_base extends BaseModule
         // MotorSingle
         if( handler.e(this.DataType.MOTORSINGLE_TARGET) )
         {
-            let targetMotor = this.read(handler, this.DataType.MOTORSINGLE_TARGET);
+            let motor       = this.read(handler, this.DataType.MOTORSINGLE_TARGET);
             let rotation    = this.read(handler, this.DataType.MOTORSINGLE_ROTATION);
             let value       = this.read(handler, this.DataType.MOTORSINGLE_VALUE);
 
-            let dataArray = this.reserveMotorSingle(target, targetMotor, rotation, value);
+            let dataArray = this.reserveMotorSingle(target, motor, rotation, value);
             this.bufferTransfer.push(dataArray);
             this.log("BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - MotorSingle", dataArray);
         }
@@ -1552,10 +1555,10 @@ class byrobot_petrone_v2_base extends BaseModule
             {
             case 0x30:
                 {
-                    switch (this.countReqeustDevice % 3)
+                    switch( this.countReqeustDevice % 5 )
                     {
-                        case 1:     return this.reserveRequest(0x30, 0xD1);     // 페트론V2 드론, 자주 갱신되는 데이터 모음(엔트리)
-                        default:    break;
+                    case 1:     return this.reserveRequest(0x30, 0xD1);     // 드론, 자주 갱신되는 데이터 모음(엔트리)
+                    default:    break;
                     }
                 }
                 break;
@@ -1919,8 +1922,8 @@ class byrobot_petrone_v2_base extends BaseModule
         let dataArray   = new ArrayBuffer(2);
         let view        = new DataView(dataArray);
 
-        view.setInt8   (0, accel);
-        view.setInt8   (1, wheel);
+        view.setInt8   (0, wheel);
+        view.setInt8   (1, accel);
 
         //this.log("BYROBOT_PETRONE_V2_BASE - reserveControlDouble8() - Target: 0x" + target.toString(16).toUpperCase());
         return this.createTransferBlock(0x10, target, dataArray);
