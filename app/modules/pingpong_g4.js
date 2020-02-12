@@ -1,6 +1,6 @@
 const PingpongBase = require('./pingpong_base');
 
-class pingpong_g4 extends PingpongBase {
+class PingpongG4 extends PingpongBase {
     constructor() {
         super(4);
 
@@ -66,4 +66,4 @@ class pingpong_g4 extends PingpongBase {
     }
 }
 
-module.exports = new pingpong_g4();
+module.exports = new PingpongG4();

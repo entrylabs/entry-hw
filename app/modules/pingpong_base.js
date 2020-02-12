@@ -1,7 +1,7 @@
 const BaseModule = require('./baseModule');
 
 class PingpongBase extends BaseModule {
-    constructor(cube_cnt) {
+    constructor(cubeCnt) {
         super();
 
         this.readValue = {};
@@ -14,9 +14,9 @@ class PingpongBase extends BaseModule {
         this.isConnected = false;
         this.useNotification = false;
 
-        this.cubeCount = cube_cnt || 2;
+        this.cubeCount = cubeCnt || 2;
 
-        console.log('PINGPONG construct : G' + this.cubeCount);
+        console.log('PINGPONG construct : G%d', this.cubeCount);
     }
 
     makePackets(method) {
@@ -25,7 +25,7 @@ class PingpongBase extends BaseModule {
         // CUBE_ID[0:3] / ASSIGNED_ID[4:5] / OPCODE[6] / SIZE[7:8] / OPT[9..11]
         // virtual
 
-        var result = null;
+        let result = null;
         if (method === 'connect') {
             result = Buffer.from('dddd00000000da000b0000', 'hex');
             //result[2] = this.groupId;
@@ -100,11 +100,13 @@ class PingpongBase extends BaseModule {
     }
 
     dbgHexstr(data) {
-        var output = '';
-        data.map(function(item) {
-            var number = item.toString(16);
-            if (number.length < 2) number = '0' + number;
-            output += number + ',';
+        let output = '';
+        data.map(item => {
+            let number = item.toString(16);
+            if (number.length < 2) {
+                number = `0${number}`;
+            }
+            output += `${number},`;
         });
         return output;
     }
@@ -129,7 +131,7 @@ class PingpongBase extends BaseModule {
         if (this.send_cmd) {
             if (this.send_cmd.id > this.cmd_seq) {
                 this.cmd_seq = this.send_cmd.id;
-                var sendBuffer = Buffer.from(this.send_cmd.data);
+                const sendBuffer = Buffer.from(this.send_cmd.data);
                 this.sp.write(sendBuffer);
                 //console.log('D:send PACKET: %s ', this.dbgHexstr(sendBuffer));
             } else if (this.send_cmd.id == -1) {
@@ -151,25 +153,25 @@ class PingpongBase extends BaseModule {
         }
 
         if (data.length >= 9) {
-            const packet_size = data.readInt16BE(7);
+            const packetSize = data.readInt16BE(7);
             const opcode = data[6];
 
-            if (data.length >= packet_size && packet_size >= 19) {
+            if (data.length >= packetSize && packetSize >= 19) {
                 if (opcode == 0xb8 && data[5] == 0xc8) {
-                    var cubeid = data[3];
-                    var sensor;
-
-                    if (cubeid >= this.cubeCount) return;
-                    sensor = this._sensorData[cubeid];
+                    const cubeid = data[3];
+                    if (cubeid >= this.cubeCount) {
+                        return;
+                    }
+                    const sensor = this._sensorData[cubeid];
 
                     sensor.MOVE_X = data.readInt8(12);
                     sensor.MOVE_Y = data.readInt8(13);
                     sensor.MOVE_Z = data.readInt8(14);
 
-                    var xx = Math.max(Math.min(data.readInt8(15), 90), -90);
-                    var yy = Math.max(Math.min(data.readInt8(16), 90), -90);
+                    const xx = Math.max(Math.min(data.readInt8(15), 90), -90);
+                    let yy = Math.max(Math.min(data.readInt8(16), 90), -90);
                     yy *= -1;
-                    var zz = Math.max(Math.min(data.readInt8(17), 90), -90);
+                    const zz = Math.max(Math.min(data.readInt8(17), 90), -90);
                     sensor.TILT_X = xx;
                     sensor.TILT_Y = yy;
                     sensor.TILT_Z = zz;
@@ -179,7 +181,7 @@ class PingpongBase extends BaseModule {
                     sensor.PROXIMITY = data.readUInt8(18);
 
                     // 기존 FW 70 버전 = data length 19 bytes (ANALOG IN 미지원)
-                    if (packet_size > 19) {
+                    if (packetSize > 19) {
                         sensor.AIN = data.readUInt8(19);
                     } else {
                         sensor.AIN = 0;
@@ -204,23 +206,20 @@ class PingpongBase extends BaseModule {
     // 엔트리로 전달할 데이터
     requestRemoteData(handler) {
         //console.log('P:request RD: ');
-        var self = this;
-        Object.keys(this.readValue).forEach(function(key) {
+        const self = this;
+        Object.keys(this.readValue).forEach(key => {
             if (self.readValue[key] !== undefined) {
                 handler.write(key, self.readValue[key]);
             }
         });
 
         //XXX: entryjs의 monitorTemplate 사용하려면 트리상단에 PORT 정보 보내야함
-        for (var cubeid = 0; cubeid < this.cubeCount; cubeid++) {
-            var sdata = this._sensorData[cubeid];
-            Object.keys(sdata).forEach(function(key) {
+        for (let cubeid = 0; cubeid < this.cubeCount; cubeid++) {
+            const sdata = this._sensorData[cubeid];
+            Object.keys(sdata).forEach(key => {
                 if (sdata[key] !== undefined) {
                     //console.log(" --handler.write (%s) = %j ", key, self._sensorData[key]);
-                    handler.write(
-                        'c' + cubeid.toString() + '_' + key,
-                        sdata[key],
-                    );
+                    handler.write(`c${cubeid.toString()}_${key}`, sdata[key]);
                 }
             });
         }
