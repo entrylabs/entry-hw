@@ -9,10 +9,20 @@ function Module()
         BUZZER: 3,
         SERVO: 4,
         TONE: 5,
+        TEMP: 6,
+        USONIC: 7,
         TIMER: 8,
+        RD_BT: 9,
+        WRT_BT: 10,
+        RGBLED: 11,
         MOTOR: 12,
+        RGBLEDSHOW: 13,
+        PWM: 32,
+        USONIC_SET: 33,
+        I2C_SET: 34,
+        LCD_SET: 40,
 
-    };
+    }
 
     this.actionTypes = 
 	{
@@ -28,12 +38,13 @@ function Module()
         SHORT: 3,
         STRING : 4,
         SHORTSHORT: 5
-    };
+    }
 
     this.digitalPortTimeList = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
     this.sensorData = 
 	{
+        USONIC: 0,
         DIGITAL: 
 		{
             '0': 0,
@@ -69,8 +80,26 @@ function Module()
             '7': 0,
             '8': 0,
         },
+        TEMP: 0,
         TIMER: 0,
-		SERVO: 0,  
+		SERVO: 0,
+        RD_BT: 0,
+        COLOR_SEN: 
+		{
+            '0': 0,
+            '1': 0,
+            '2': 0,
+        },
+        GYRO_SEN: 
+		{
+            '0': 0,
+            '1': 0,
+            '2': 0,
+            '3': 0,
+            '4': 0,
+            '5': 0,
+        }
+        
     }
 
     this.defaultOutput = {};
@@ -82,7 +111,7 @@ function Module()
     this.lastTime = 0;
     this.lastSendTime = 0;
     this.isDraing = false;
-};
+}
 
 var sensorIdx = 0;
 
@@ -199,6 +228,14 @@ Module.prototype.handleLocalData = function(data)    // 하드웨어에서 보�
                 type = 101;
                 break;
             }
+            case 0x12: { // 컬러센서
+                type = 102;
+                break;
+            }
+            case 0x13: { // 자이로센서
+                type = 103;
+                break;
+            }
 
             default: {
                 value = 0;
@@ -259,9 +296,37 @@ Module.prototype.handleLocalData = function(data)    // 하드웨어에서 보�
                 self.sensorData.ANALOG[7] = readData[6];
                 break;
             }
+            case 102: {       ///  컬러
+                self.sensorData.COLOR_SEN[0] = readData[1];
+                self.sensorData.COLOR_SEN[1] = readData[2];
+                self.sensorData.COLOR_SEN[2] = readData[3];
+                break;
+            }
+            case 103: {       ///  자이로
+                self.sensorData.GYRO_SEN[0] = new Buffer(readData.subarray(1, 5)).readFloatLE();
+                self.sensorData.GYRO_SEN[1] = new Buffer(readData.subarray(5, 9)).readFloatLE();
+                self.sensorData.GYRO_SEN[2] = new Buffer(readData.subarray(9, 13)).readFloatLE();
+                self.sensorData.GYRO_SEN[3] = new Buffer(readData.subarray(13, 17)).readFloatLE();
+                self.sensorData.GYRO_SEN[4] = new Buffer(readData.subarray(17, 21)).readFloatLE();
+                self.sensorData.GYRO_SEN[5] = new Buffer(readData.subarray(21, 25)).readFloatLE();
+
+
+                //    value = new Buffer(readData.subarray(6, 10)).readFloatLE();
+                //    value = Math.round(value * 100) / 100;    
+                //    self.sensorData.TEMP = value;
+                    break;
+                }
             case self.sensorTypes.ANALOG: {
                 self.sensorData.ANALOG[((port >> 4) & 0x0f) - 1] = value;
                 self.sensorData.ANALOG[(port & 0x0f) - 1] = value2;
+                break;
+            }
+            case self.sensorTypes.TEMP: {
+                self.sensorData.TEMP = value;
+                break;
+            }			
+            case self.sensorTypes.USONIC: {
+                self.sensorData.USONIC = value/10;			
                 break;
             }
             case self.sensorTypes.SERVO: {
@@ -270,6 +335,10 @@ Module.prototype.handleLocalData = function(data)    // 하드웨어에서 보�
             }			
             case self.sensorTypes.TIMER: {
                 self.sensorData.TIMER = value;
+                break;
+            }
+            case self.sensorTypes.RD_BT: {
+                self.sensorData.RD_BT = value;
                 break;
             }
             default: {
@@ -435,10 +504,22 @@ Module.prototype.makeSensorReadBuffer = function(device, port, data)   // 센서
     var buffer;
     var dummy = new Buffer([10]);
 	
-    if(device == this.sensorTypes.SERVO) 
+    if(device == this.sensorTypes.USONIC) 
+	{
+        buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.GET, device, port[0], port[1], 10]);	
+	}
+    else if(device == this.sensorTypes.TEMP) 
+	{
+        buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port[0], port[1], 10]);			
+    } 
+    else if(device == this.sensorTypes.SERVO) 
 	{
         buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port[0], port[1], 10]);	
     } 	
+	else if(device == this.sensorTypes.RD_BT) 
+	{
+        buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.GET, device, port, 10]);	
+    } 
 	else if(!data) 
 	{
         buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.GET, device, port, 10]);	
@@ -505,6 +586,11 @@ Module.prototype.makeOutputBuffer = function(device, port, data)    /// 출력 �
 				buffer = new Buffer([255, 85, 7, sensorIdx, this.actionTypes.SET, device]);
 				buffer = Buffer.concat([buffer, value, time, dummy]);
 				break;
+        
+        case this.sensorTypes.PWM:           // 아날로그 출력 제어
+                buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.SET, device, port, data]);
+				buffer = Buffer.concat([buffer, dummy]);
+                break;
 
         case this.sensorTypes.LCD_SET:          // LCD 제어
                 if(port == 3){     // 프린트
