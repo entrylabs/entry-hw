@@ -120,8 +120,8 @@ Module.prototype.init = function(handler, config) {  /// 초기설정
 };
 
 // Serial Port ���� ���� ����
-Module.prototype.setSerialPort = function (sp) {   /// 시리얼포트 정보를 가지고오기
-    let self = this;
+Module.prototype.setSerialPort = function(sp) {   /// 시리얼포트 정보를 가지고오기
+    const self = this;
     this.sp = sp;
 };
 
@@ -144,23 +144,23 @@ Module.prototype.checkInitialData = function(data, config) {   /// 초기 수신
     // return isValidData;
 };
 
-Module.prototype.afterConnect = function(that, cb) {  ///cb 은 화면의 이벤트를 보내는 로직입니다. 여기서는 connected 라는 신호를 보내 강제로 연결됨 화면으로 넘어갑니다.
+//cb 은 화면의 이벤트를 보내는 로직입니다. 여기서는 connected 라는 신호를 보내 강제로 연결됨 화면으로 넘어갑니다.
+Module.prototype.afterConnect = function(that, cb) {  
     that.connected = true;
-    if (cb) cb('connected');
+    if (cb) {
+        cb('connected');
+    }
 };
 
 // 1. Hardware���� ������ ��� �������� Vaildation
-Module.prototype.validateLocalData = function(data) {
-    return true;
-};
+Module.prototype.validateLocalData = function(data) { return true; };
 
 // 2. getDataByBuffer
 Module.prototype.getDataByBuffer = function(buffer) {  // 해당 코드 내에서만 쓰는 함수입니다.
     let datas = [];
     let lastIndex = 0;
 	
-    buffer.forEach(function (value, idx) 
-	{
+    buffer.forEach(function (value, idx) {
         if (value == 0x0d && buffer[idx + 1] == 0x0a) {
             datas.push(buffer.subarray(lastIndex, idx));
             lastIndex = idx + 2;
