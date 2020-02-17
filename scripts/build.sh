@@ -15,6 +15,7 @@ rsync -rR app/firmwares build-base;
 rsync -rR app/modules build-base;
 rsync -rR app/server build-base;
 rsync -rR app/src/main/mainRouter.build.js build-base;
+rsync -rR app/src/main/nativeNodeRequire.js build-base;
 rsync -rR app/src/preload/lang build-base;
 rsync -rR app/src/preload/preload.bundle.js build-base;
 rsync -rR app/src/renderer/modal build-base;

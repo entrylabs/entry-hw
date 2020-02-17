@@ -18,6 +18,7 @@ const commonjsDirectories = [
 const commonjsModules = [
     '@serialport/',
     'node-hid',
+    './nativeNodeRequire.js',
 ];
 
 module.exports = merge({
@@ -38,7 +39,7 @@ module.exports = merge({
             if (commonjsDirectories.some((directory) => requestDirectoryPath === directory)) {
                 return callback(
                     null,
-                    `commonjs ${requestModuleName.replace('./', `./../../${path.basename(requestDirectoryPath)}/`)}`,
+                    `commonjs ${requestModuleName.replace('./', `../../${path.basename(requestDirectoryPath)}/`)}`,
                 );
             }
 

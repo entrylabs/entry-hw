@@ -10,6 +10,8 @@ import downloadModule from './core/functions/downloadModule';
 import { EntryMessageAction, EntryStatePayload, HardwareStatement } from '../common/constants';
 import getExtraDirectoryPath from './core/functions/getExtraDirectoryPath';
 
+const nativeNodeRequire = require('./nativeNodeRequire.js');
+
 interface IEntryServer {
     setRouter: (router: MainRouter) => void;
     open: () => void;
@@ -194,7 +196,7 @@ class MainRouter {
             const { type = 'serial' } = hardware;
             this.scanner = this.scannerManager.getScanner(type);
             if (this.scanner) {
-                this.hwModule = require(`../../modules/${config.module}`) as IHardwareModule;
+                this.hwModule = nativeNodeRequire(`../../modules/${config.module}`) as IHardwareModule;
                 this.sendState(HardwareStatement.scan);
                 this.scanner.stopScan();
                 const connector = await this.scanner.startScan(this.hwModule, this.config);
