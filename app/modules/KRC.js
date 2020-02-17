@@ -162,7 +162,7 @@ Module.prototype.getDataByBuffer = function(buffer) {  // 해당 코드 내에�
 	
     buffer.forEach (function(value, idx) {
         if (value == 0x0d && buffer[idx + 1] == 0x0a) {
-            datas.push(buffer.subarray(lastIndex, idx));
+            datas.push(buffer.subarray (lastIndex, idx));
             lastIndex = idx + 2;
         }
     });
@@ -181,14 +181,16 @@ Module.prototype.handleLocalData = function(data) {   // 하드웨어에서 보�
     
     
     datas.forEach (function (data) {
-        if (data.length <= 4 || data[0] !== 255 || data[1] !== 85) return;                
+        if (data.length <= 4 || data[0] !== 255 || data[1] !== 85) {
+            return;                
+        }
 		const readData = data.subarray(2, data.length);
 		
         let value;
         let value2;
         let type = readData[readData.length - 1];    /// 
         const port = readData[readData.length - 2];
-        switch(readData[0]) {
+        switch (readData[0]) {
             case self.sensorValueSize.FLOAT: {  //2
                 value = new Buffer(readData.subarray(1, 5)).readFloatLE();
                 value = Math.round(value * 100) / 100;                    
@@ -206,7 +208,7 @@ Module.prototype.handleLocalData = function(data) {   // 하드웨어에서 보�
             }
             case self.sensorValueSize.SHORTSHORT: {  //5
                 value = new Buffer(readData.subarray(1, 3)).readInt16LE();
-                value2 =new Buffer(readData.subarray(3, 5)).readInt16LE();
+                value2 = new Buffer(readData.subarray(3, 5)).readInt16LE();
                 break;
             }
             case 0x10: { // 기본 패킷 수신인 경우 (디지털 데이터  + 아날로그 4개 A1~A4)
@@ -234,7 +236,7 @@ Module.prototype.handleLocalData = function(data) {   // 하드웨어에서 보�
 
 
 	
-        switch(type) {
+        switch (type) {
             case 100: {
                 self.sensorData.DIGITAL[1] = (readData[1]) & 0x01;	
                 self.sensorData.DIGITAL[2] = (readData[1] >> 1) & 0x01;	
