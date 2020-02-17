@@ -22,7 +22,7 @@ function Module()
         I2C_SET: 34,
         LCD_SET: 40,
 
-    }
+    };
 
     this.actionTypes = 
 	{
@@ -37,8 +37,8 @@ function Module()
         FLOAT: 2,
         SHORT: 3,
         STRING : 4,
-        SHORTSHORT: 5
-    }
+        SHORTSHORT: 5,
+    };
 
     this.digitalPortTimeList = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
@@ -98,9 +98,9 @@ function Module()
             '3': 0,
             '4': 0,
             '5': 0,
-        }
+        },
         
-    }
+    };
 
     this.defaultOutput = {};
 
@@ -491,7 +491,7 @@ Module.prototype.isRecentData = function(port, type, data)
  //   isRecent = true;   참 들어가면 통신 데이터 무조건 안 보냄.
 
     return isRecent;
-}
+};
 
 
 /*
