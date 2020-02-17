@@ -160,7 +160,7 @@ Module.prototype.getDataByBuffer = function(buffer) {  // 해당 코드 내에�
     const datas = [];
     let lastIndex = 0;
 	
-    buffer.forEach(function(value, idx) {
+    buffer.forEach (function(value, idx) {
         if (value == 0x0d && buffer[idx + 1] == 0x0a) {
             datas.push(buffer.subarray(lastIndex, idx));
             lastIndex = idx + 2;
@@ -180,14 +180,14 @@ Module.prototype.handleLocalData = function(data) {   // 하드웨어에서 보�
 //	let count = 0;
     
     
-    datas.forEach(function (data) {
-        if(data.length <= 4 || data[0] !== 255 || data[1] !== 85) return;                
-		let readData = data.subarray(2, data.length);
+    datas.forEach (function (data) {
+        if (data.length <= 4 || data[0] !== 255 || data[1] !== 85) return;                
+		const readData = data.subarray(2, data.length);
 		
         let value;
         let value2;
         let type = readData[readData.length - 1];    /// 
-        let port = readData[readData.length - 2];
+        const port = readData[readData.length - 2];
         switch(readData[0]) {
             case self.sensorValueSize.FLOAT: {  //2
                 value = new Buffer(readData.subarray(1, 5)).readFloatLE();
