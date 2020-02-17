@@ -12,10 +12,21 @@ type ISharedObject = {
     moduleCheckApi: string;
 }
 
+type IFileConfig = {
+    moduleResourceUrl: string;
+    updateCheckUrl: string;
+}
+
+type IInternalConfig = {
+    appName: 'hardware',
+    hardwareVersion: string,
+    roomIds: string[],
+}
+
 declare namespace NodeJS {
     // noinspection JSUnusedGlobalSymbols
     interface Global {
-        sharedObject: any;
+        sharedObject: IFileConfig & IInternalConfig;
         $: any;
     }
 }

@@ -66,8 +66,7 @@ const HardwareElement: React.FC<Preload & IDispatchProps & { hardware: any }> = 
             return EmptyDeviceImage;
         }
 
-        const imageBaseUrl =
-            rendererRouter.sharedObject?.moduleResourceUrl || 'https://playentry.org/';
+        const imageBaseUrl = rendererRouter.sharedObject.moduleResourceUrl;
 
         switch (availableType) {
             case HardwareAvailableTypeEnum.needUpdate:

@@ -10,7 +10,7 @@ const fs = require('fs');
  */
 const defaultConfigSchema = {
     updateCheckUrl: 'https://playentry.org/api/checkVersion',
-    moduleResourceUrl: 'https://playentry.org/api/hardware',
+    moduleResourceUrl: 'https://playentry.org/modules',
 };
 
 /**

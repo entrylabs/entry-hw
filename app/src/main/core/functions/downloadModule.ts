@@ -9,13 +9,12 @@ import getExtraDirectoryPath from './getExtraDirectoryPath';
 const downloadModuleFunction = (moduleName: string) =>
     new Promise((resolve, reject) => {
         if (!moduleName) {
-            reject();
+            reject('must be present moduleName');
             return;
         }
 
         const { moduleResourceUrl } = global.sharedObject;
 
-        //TODO 개발간 임시
         const request = net.request(`${moduleResourceUrl}/${moduleName}/files/module`);
         request.on('response', (response) => {
             response.on('error', reject);
