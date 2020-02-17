@@ -157,10 +157,10 @@ Module.prototype.validateLocalData = function(data) { return true; };
 
 // 2. getDataByBuffer
 Module.prototype.getDataByBuffer = function(buffer) {  // 해당 코드 내에서만 쓰는 함수입니다.
-    let datas = [];
+    const datas = [];
     let lastIndex = 0;
 	
-    buffer.forEach(function (value, idx) {
+    buffer.forEach(function(value, idx) {
         if (value == 0x0d && buffer[idx + 1] == 0x0a) {
             datas.push(buffer.subarray(lastIndex, idx));
             lastIndex = idx + 2;
@@ -175,13 +175,12 @@ ff 55 idx size data a
 */
 // 3. Hardware���� ������ ������ ����
 Module.prototype.handleLocalData = function(data) {   // 하드웨어에서 보내준 정보를 가공합니다. 여기선 하드웨어에서 정보를 읽어서 처리하지 않습니다.
-    let self = this;
-    let datas = this.getDataByBuffer(data);
-	let count = 0;
+    const self = this;
+    const datas = this.getDataByBuffer(data);
+//	let count = 0;
     
     
-    datas.forEach(function (data) 
-	{
+    datas.forEach(function (data) {
         if(data.length <= 4 || data[0] !== 255 || data[1] !== 85) return;                
 		let readData = data.subarray(2, data.length);
 		
