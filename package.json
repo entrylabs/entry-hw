@@ -20,10 +20,6 @@
         "setting": "npm run rebuild && npm run webpack:dev"
     },
     "devDependencies": {
-        "@babel/core": "^7.8.3",
-        "@babel/plugin-proposal-class-properties": "^7.8.3",
-        "@babel/plugin-proposal-private-methods": "^7.8.3",
-        "@babel/preset-env": "^7.8.3",
         "@types/fs-extra": "^8.0.1",
         "@types/inquirer": "^6.5.0",
         "@types/lodash": "^4.14.149",
@@ -41,9 +37,6 @@
         "@typescript-eslint/eslint-plugin": "^2.11.0",
         "@typescript-eslint/parser": "^2.11.0",
         "babel-eslint": "^10.0.3",
-        "babel-loader": "^8.0.6",
-        "babel-plugin-styled-components": "^1.10.6",
-        "babel-polyfill": "^6.26.0",
         "clean-webpack-plugin": "^3.0.0",
         "cross-env": "^5.1.3",
         "electron": "^7.1.3",
