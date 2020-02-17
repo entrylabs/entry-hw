@@ -163,10 +163,10 @@ class byrobot_dronefighter_base extends BaseModule
         // InformationAssembledForEntry
         this.informationAssembledForEntry =
         {
-            _updated                                            : 1,
-            informationAssembledForEntry_angleRoll              : 0,    // s16
-            informationAssembledForEntry_anglePitch             : 0,    // s16
-            informationAssembledForEntry_angleYaw               : 0,    // s16
+            _updated                                    : 1,
+            informationAssembledForEntry_angleRoll      : 0,    // s16
+            informationAssembledForEntry_anglePitch     : 0,    // s16
+            informationAssembledForEntry_angleYaw       : 0,    // s16
         };
 
 
@@ -584,9 +584,6 @@ class byrobot_dronefighter_base extends BaseModule
         {
             let array = Uint8Array.from(this.dataBlock);
             let view  = new DataView(array.buffer);
-   
-            let kAccel  = ( 9.8 / 2048 );       // 1g (중력가속도) = 9.8 m/s^2 로 만들기 위한 변환 상수
-            let kGyro   = ( 2000 / 32767 );     // 각 속도 (deg/s) 를 만들기 위한 변환 상수
 
             this.informationAssembledForEntry._updated                                  = true;
             this.informationAssembledForEntry.informationAssembledForEntry_angleRoll    = view.getInt16(0, true);
@@ -1619,6 +1616,25 @@ class byrobot_dronefighter_base extends BaseModule
         return combined;
     }
 
+
+    // 문자열을 ASCII 바이트 배열로 변환
+    // https://stackoverflow.com/questions/6226189/how-to-convert-a-string-to-bytearray
+    stringToAsciiByteArray(str)
+    {
+        let bytes = [];
+        for(let i=0; i<str.length; i++)
+        {
+            let charCode = str.charCodeAt(i);
+            if( charCode > 0xFF )  // char > 1 byte since charCodeAt returns the UTF-16 value
+            {
+                // throw new Error('Character ' + String.fromCharCode(charCode) + ' can\'t be represented by a US-ASCII byte.');
+                continue;
+            }
+            bytes.push(charCode);
+        }
+        return bytes;
+    }
+
     // #endregion Data Transfer Functions for Device
 
 
@@ -1707,6 +1723,7 @@ class byrobot_dronefighter_base extends BaseModule
 
         return crcNext;
     }
+
     // #endregion CRC16
 
 
@@ -1767,25 +1784,6 @@ class byrobot_dronefighter_base extends BaseModule
         }
         
         return strHexArray;
-    }
-
-
-    // 입력받은 문자열 처리
-    // https://stackoverflow.com/questions/6226189/how-to-convert-a-string-to-bytearray
-    stringToAsciiByteArray(str)
-    {
-        let bytes = [];
-        for(let i=0; i<str.length; i++)
-        {
-            let charCode = str.charCodeAt(i);
-            if( charCode > 0xFF )  // char > 1 byte since charCodeAt returns the UTF-16 value
-            {
-                // throw new Error('Character ' + String.fromCharCode(charCode) + ' can\'t be represented by a US-ASCII byte.');
-                continue;
-            }
-            bytes.push(charCode);
-        }
-        return bytes;
     }
 
     // #endregion Functions for log
