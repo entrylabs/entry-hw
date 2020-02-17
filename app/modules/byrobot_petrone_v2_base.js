@@ -1056,7 +1056,7 @@ class byrobot_petrone_v2_base extends BaseModule
         if( handler.e(this.DataType.CONTROL_WHEEL) ||
             handler.e(this.DataType.CONTROL_ACCEL) )
         {
-            this.controlWheel = this.read(handler, this.DataType.CONTROL_WHEEL, this.controlWheel;
+            this.controlWheel = this.read(handler, this.DataType.CONTROL_WHEEL, this.controlWheel);
             this.controlAccel = this.read(handler, this.DataType.CONTROL_ACCEL, this.controlAccel);
 
             let dataArray = this.reserveControlDouble8(target, this.controlWheel, this.controlAccel);
