@@ -442,17 +442,14 @@ Module.prototype.handleRemoteData = function(handler)    /// 엔트리에서 전
 };
 
 // 6. Hardware�� ���� ������ ����
-Module.prototype.requestLocalData = function() // 하드웨어에 명령을 전송합니다.
-{
+Module.prototype.requestLocalData = function() { // 하드웨어에 명령을 전송합니다.
     var self = this;
 	
      if (!this.isDraing && this.sendBuffers.length > 0) {
         this.isDraing = true;
-        this.sp.write(this.sendBuffers.shift(), function () 
-		{
+        this.sp.write(this.sendBuffers.shift(), function () {
             if (self.sp) {
-                self.sp.drain(function () 
-				{
+                self.sp.drain(function () {
                     self.isDraing = false;
                 });
             }
@@ -462,12 +459,12 @@ Module.prototype.requestLocalData = function() // 하드웨어에 명령을 전�
     return null;
 };
 
-Module.prototype.isRecentData = function(port, type, data) 
-{
+Module.prototype.isRecentData = function(port, type, data) {
     var isRecent = false;
 	
     if (port in this.recentCheckData) {
-        if (type != this.sensorTypes.TONE && this.recentCheckData[port].type === type && this.recentCheckData[port].data === data) {   // 톤 명령이 아니고 타입과 데이터가 같고 같은 자료형 이면 
+        if (type != this.sensorTypes.TONE && this.recentCheckData[port].type === 
+            type && this.recentCheckData[port].data === data) {   // 톤 명령이 아니고 타입과 데이터가 같고 같은 자료형 이면 
             isRecent = true;
         }
     }
@@ -482,23 +479,22 @@ ff 55 len idx action device port  slot  data a
 0  1  2   3   4      5      6     7     8
 */
 
-Module.prototype.makeSensorReadBuffer = function(device, port, data)   // 센서값 리드하 패킷
-{
+Module.prototype.makeSensorReadBuffer = function(device, port, data) {  // 센서값 리드하 패킷
     var buffer;
     var dummy = new Buffer([10]);
 	
     if (device == this.sensorTypes.USONIC) {
         buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.GET, device, port[0], port[1], 10]);	
-	} else if(device == this.sensorTypes.TEMP) {
+	} else if (device == this.sensorTypes.TEMP) {
         buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port[0], port[1], 10]);			
-    } else if(device == this.sensorTypes.SERVO) {
+    } else if (device == this.sensorTypes.SERVO) {
         buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port[0], port[1], 10]);	
-    } else if(device == this.sensorTypes.RD_BT) {
+    } else if (device == this.sensorTypes.RD_BT) {
         buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.GET, device, port, 10]);	
     } else if (!data) {
         buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.GET, device, port, 10]);	
     } else {
-        value = new Buffer(2);
+        var value = new Buffer(2);
         value.writeInt16LE(data);
         buffer = new Buffer([255, 85, 7, sensorIdx, this.actionTypes.GET, device, port, 10]);
         buffer = Buffer.concat([buffer, value, dummy]);
@@ -513,8 +509,7 @@ Module.prototype.makeSensorReadBuffer = function(device, port, data)   // 센서
 };
 
 //0xff 0x55 0x6 0x0 0x1 0xa 0x9 0x0 0x0 0xa
-Module.prototype.makeOutputBuffer = function(device, port, data)    /// 출력 설정
-{
+Module.prototype.makeOutputBuffer = function(device, port, data) {   /// 출력 설정
     var buffer;
     var value = new Buffer(2);
     var dummy = new Buffer([10]);
@@ -522,24 +517,28 @@ Module.prototype.makeOutputBuffer = function(device, port, data)    /// 출력 �
     switch(device) 
 	{
         case this.sensorTypes.MOTOR:   // 모터제어
-				buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.SET, device, port, data[0], data[1]]);
+                buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.SET, 
+                device, port, data[0], data[1]]);
 				buffer = Buffer.concat([buffer, dummy]);
 				break;        
 				
         case this.sensorTypes.SERVO:    // 서보모터제어
-				buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.SET, device, port, data[0], data[1]]);
+                buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.SET, 
+                device, port, data[0], data[1]]);
 				buffer = Buffer.concat([buffer, dummy]);
 				break;        
 				
 		case this.sensorTypes.DIGITAL:   //디지털 출력 제어
 				value.writeInt16LE(data);
-				buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.SET, device, port,data]);
+                buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.SET, 
+                device, port,data]);
 				buffer = Buffer.concat([buffer, dummy]);
 				break;
 
 		case this.sensorTypes.BUZZER:   // 스피커 제어
 //				value.writeInt16LE(data); //writeFloatLE//!@#$
-				buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.SET, device, port, data]);
+                buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.SET, 
+                device, port, data]);
 				buffer = Buffer.concat([buffer, dummy]);
 				break;
 			
@@ -553,24 +552,29 @@ Module.prototype.makeOutputBuffer = function(device, port, data)    /// 출력 �
 					value.writeInt16LE(0);
 					time.writeInt16LE(0);
 				}
-				buffer = new Buffer([255, 85, 7, sensorIdx, this.actionTypes.SET, device]);
+                buffer = new Buffer([255, 85, 7, sensorIdx, 
+                this.actionTypes.SET, device]);
 				buffer = Buffer.concat([buffer, value, time, dummy]);
 				break;
         
         case this.sensorTypes.PWM:           // 아날로그 출력 제어
-                buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.SET, device, port, data]);
+                buffer = new Buffer([255, 85, 5, sensorIdx, 
+                this.actionTypes.SET, device, port, data]);
 				buffer = Buffer.concat([buffer, dummy]);
                 break;
 
         case this.sensorTypes.LCD_SET:          // LCD 제어
                 if (port == 3){     // 프린트
 
-                    buffer = new Buffer([255, 85, 16, sensorIdx, this.actionTypes.SET, device, port,data.line,data.column,data.text0,data.text1,data.text2,
-                        data.text3,data.text4,data.text5,data.text6,data.text7,data.text8,data.text9]);
+                    buffer = new Buffer([255, 85, 16, sensorIdx, this.actionTypes.SET, 
+                    device, port,data.line,data.column,data.text0,data.text1,data.text2,
+                    data.text3,data.text4,data.text5,data.text6,
+                    data.text7,data.text8,data.text9]);
                     buffer = Buffer.concat([buffer,dummy]);
 
                 } else {
-                    buffer = new Buffer([255, 85, 7, sensorIdx, this.actionTypes.SET, device, port, data[0], data[1],data[2]]);
+                    buffer = new Buffer([255, 85, 7, sensorIdx, this.actionTypes.SET, 
+                    device, port, data[0], data[1],data[2]]);
                     buffer = Buffer.concat([buffer, dummy]);
                 }
                 break;
@@ -578,10 +582,8 @@ Module.prototype.makeOutputBuffer = function(device, port, data)    /// 출력 �
     return buffer;
 };
 
-Module.prototype.disconnect = function(connect) 
-{
+Module.prototype.disconnect = function(connect) {
     var self = this;
-	
     connect.close();
     if (self.sp) {
         delete self.sp;
@@ -589,8 +591,7 @@ Module.prototype.disconnect = function(connect)
 };
 
 // ���� Connect ����� �� ����
-Module.prototype.reset = function() 
-{
+Module.prototype.reset = function() {
     this.lastTime = 0;
     this.lastSendTime = 0;
 };
