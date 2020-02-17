@@ -12,7 +12,7 @@ function Module()
         TIMER: 8,
         MOTOR: 12,
 
-    }
+    };
 
     this.actionTypes = 
 	{
@@ -28,7 +28,7 @@ function Module()
         SHORT: 3,
         STRING : 4,
         SHORTSHORT: 5
-    }
+    };
 
     this.digitalPortTimeList = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
@@ -82,7 +82,7 @@ function Module()
     this.lastTime = 0;
     this.lastSendTime = 0;
     this.isDraing = false;
-}
+};
 
 var sensorIdx = 0;
 
