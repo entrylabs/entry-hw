@@ -16,7 +16,7 @@ class byrobot_drone_3 extends byrobot_base
         super();
 
         this.targetDevice   = 0x10;
-        this.targetDeviceID = '0F0901';
+        this.targetDeviceID = '0F0A01';
     }
 }
 

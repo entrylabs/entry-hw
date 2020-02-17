@@ -16,7 +16,7 @@ class byrobot_controller_3 extends byrobot_base
         super();
 
         this.targetDevice   = 0x20;
-        this.targetDeviceID = '0F0701';
+        this.targetDeviceID = '0F0B01';
     }
 }
 
