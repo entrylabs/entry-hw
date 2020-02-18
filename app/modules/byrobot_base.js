@@ -1,3 +1,5 @@
+/* eslint-disable brace-style */
+/* eslint-disable max-len */
 const _ = require('lodash');
 const BaseModule = require('./baseModule');
 
@@ -216,8 +218,25 @@ class byrobot_base extends BaseModule {
             state_modeControlFlight : 0,    // u8
             state_modeMovement      : 0,    // u8
             state_headless          : 0,    // u8
+            state_controlSpeed      : 0,    // u8
             state_sensorOrientation : 0,    // u8
             state_battery           : 0,    // u8
+        };
+
+
+        // Motion
+        this.motion = 
+        {
+            _updated            : 1,
+            motion_accelX       : 0,    // u8
+            motion_accelY       : 0,    // u8
+            motion_accelZ       : 0,    // u8
+            motion_gyroRoll     : 0,    // u8
+            motion_gyroPitch    : 0,    // u8
+            motion_gyroYaw      : 0,    // u8
+            motion_angleRoll    : 0,    // u8
+            motion_anglePitch   : 0,    // u8
+            motion_angleYaw     : 0,    // u8
         };
 
 
@@ -389,6 +408,9 @@ class byrobot_base extends BaseModule {
         // Button
         this.clearButton();
 
+        // Motion
+        this.clearMotion();
+
         // InformationAssembledForEntry
         this.clearInformationAssembledForEntry();
 
@@ -474,14 +496,15 @@ class byrobot_base extends BaseModule {
         this.state.state_modeControlFlight  = 0;
         this.state.state_modeMovement       = 0;
         this.state.state_headless           = 0;
+        this.state.state_controlSpeed       = 0;
         this.state.state_sensorOrientation  = 0;
         this.state.state_battery            = 0;
     }
 
     updateState() {
-        this.log('BYROBOT_BASE - updateState()');
+        //this.log('BYROBOT_BASE - updateState() - length : ' + this.dataBlock.length);
 
-        if (this.dataBlock != undefined && this.dataBlock.length == 7) {
+        if (this.dataBlock != undefined && this.dataBlock.length == 8) {
             const array = Uint8Array.from(this.dataBlock);
             const view  = new DataView(array.buffer);
 
@@ -491,8 +514,9 @@ class byrobot_base extends BaseModule {
             this.state.state_modeControlFlight  = view.getUint8(2);
             this.state.state_modeMovement       = view.getUint8(3);
             this.state.state_headless           = view.getUint8(4);
-            this.state.state_sensorOrientation  = view.getUint8(5);
-            this.state.state_battery            = view.getUint8(6);
+            this.state.state_controlSpeed       = view.getUint8(5);
+            this.state.state_sensorOrientation  = view.getUint8(6);
+            this.state.state_battery            = view.getUint8(7);
 
             return true;
         }
@@ -508,7 +532,7 @@ class byrobot_base extends BaseModule {
     }
 
     updateButton() {
-        //this.log("BYROBOT_BASE - updateButton() - length : " + this.dataBlock.length);
+        //this.log('BYROBOT_BASE - updateButton() - length : ' + this.dataBlock.length);
 
         if (this.dataBlock != undefined && this.dataBlock.length == 3) {
             const array = Uint8Array.from(this.dataBlock);
@@ -557,6 +581,62 @@ class byrobot_base extends BaseModule {
             return true;
         }
 
+        return false;
+    }
+
+
+    clearMotion() {
+        this.motion._updated            = false;
+        this.motion.motion_accelX       = 0;
+        this.motion.motion_accelY       = 0;
+        this.motion.motion_accelZ       = 0;
+        this.motion.motion_gyroRoll     = 0;
+        this.motion.motion_gyroPitch    = 0;
+        this.motion.motion_gyroYaw      = 0;
+        this.motion.motion_angleRoll    = 0;
+        this.motion.motion_anglePitch   = 0;
+        this.motion.motion_angleYaw     = 0;
+    }
+
+    updateMotion() {
+        this.log("BYROBOT_BASE - updateMotion() - length : " + this.dataBlock.length);
+
+        if (this.dataBlock != undefined && this.dataBlock.length == 18) {
+            const array = Uint8Array.from(this.dataBlock);
+            const view  = new DataView(array.buffer);
+
+            //*
+            this.motion._updated            = true;
+            this.motion.motion_accelX       = view.getInt16(0, true);
+            this.motion.motion_accelY       = view.getInt16(2, true);
+            this.motion.motion_accelZ       = view.getInt16(4, true);
+            this.motion.motion_gyroRoll     = view.getInt16(6, true);
+            this.motion.motion_gyroPitch    = view.getInt16(8, true);
+            this.motion.motion_gyroYaw      = view.getInt16(10, true);
+            this.motion.motion_angleRoll    = view.getInt16(12, true);
+            this.motion.motion_anglePitch   = view.getInt16(14, true);
+            this.motion.motion_angleYaw     = view.getInt16(16, true);
+            // */
+
+            /*
+            const kAccel  = (9.8f / 2048);          // 1g (중력가속도) = 9.8 m/s^2 로 만들기 위한 변환 상수
+            const kGyro   = (2000.0f / 32767);      // 각 속도 (deg/s) 를 만들기 위한 변환 상수
+
+            this.motion._updated            = true;
+            this.motion.motion_accelX       = (view.getInt16(0, true) * kAccel).toFixed(2);
+            this.motion.motion_accelY       = (view.getInt16(2, true) * kAccel).toFixed(2);
+            this.motion.motion_accelZ       = (view.getInt16(4, true) * kAccel).toFixed(2);
+            this.motion.motion_gyroRoll     = (view.getInt16(6, true) * kGyro).toFixed(2);
+            this.motion.motion_gyroPitch    = (view.getInt16(8, true) * kGyro).toFixed(2);
+            this.motion.motion_gyroYaw      = (view.getInt16(10, true) * kGyro).toFixed(2);
+            this.motion.motion_angleRoll    = view.getInt16(12, true);
+            this.motion.motion_anglePitch   = view.getInt16(14, true);
+            this.motion.motion_angleYaw     = view.getInt16(16, true);
+            // */
+
+            return true;
+        }
+        
         return false;
     }
 
@@ -629,8 +709,7 @@ class byrobot_base extends BaseModule {
      ***************************************************************************************/
     // #region Data Transfer to Device from Entry
 
-    read(handler, dataType, defaultValue = 0)
-    {
+    read(handler, dataType, defaultValue = 0) {
         return handler.e(dataType) ? handler.read(dataType) : defaultValue;
     }
 
@@ -1003,6 +1082,17 @@ class byrobot_base extends BaseModule {
             }
         }
     
+        // Motion
+        {
+            if (this.motion._updated) {
+                for (const key in this.motion) {
+                    handler.write(key, this.motion[key]);
+                }
+    
+                this.motion._updated = false;
+            }
+        }
+    
         // InformationAssembledForEntry
         {
             if (this.informationAssembledForEntry._updated) {
@@ -1273,6 +1363,13 @@ class byrobot_base extends BaseModule {
             break;
 
 
+        case 0x44:  // Motion
+            {
+                //this.log("BYROBOT_BASE - handlerForDevice() - Received - Motion - 0x44");
+                this.updateMotion();
+            }
+            break;
+
         case 0xA1:  // Information Assembled For Entry 자주 갱신되는 데이터 모음(엔트리)
             {
                 //this.log("BYROBOT_BASE - handlerForDevice() - Received - InformationAssembledForEntry - 0xA1");
@@ -1316,10 +1413,11 @@ class byrobot_base extends BaseModule {
             switch (this.targetDevice) {
             case 0x10:
                 {
-                    switch (this.countReqeustDevice % 6) {
+                    switch (this.countReqeustDevice % 10) {
                     case 0:    return this.reservePing(0x10);              // 드론
                     case 2:    return this.reservePing(0x20);              // 조종기
                     case 4:    return this.reserveRequest(0x10, 0x40);     // 드론
+                    case 6:    return this.reserveRequest(0x10, 0x44);     // 드론
                     default:   return this.reserveRequest(0x10, 0xA1);     // 드론, 자주 갱신되는 데이터 모음(엔트리)
                     }
                 }
@@ -1336,8 +1434,10 @@ class byrobot_base extends BaseModule {
             switch (this.targetDevice) {
             case 0x10:
                 {
-                    switch (this.countReqeustDevice % 5) {
-                    case 1:     return this.reserveRequest(0x10, 0xA1);     // 드론, 자주 갱신되는 데이터 모음(엔트리)
+                    switch (this.countReqeustDevice % 16) {
+                    case 0:     return this.reserveRequest(0x10, 0x40);     // 드론
+                    case 4:     return this.reserveRequest(0x10, 0x44);     // 드론, 자주 갱신되는 데이터 모음(엔트리)
+                    case 8:     return this.reserveRequest(0x10, 0xA1);     // 드론, 자주 갱신되는 데이터 모음(엔트리)
                     default:    break;
                     }
                 }
@@ -1768,7 +1868,7 @@ class byrobot_base extends BaseModule {
         return Array.from(new Uint8Array(dataBlock));
     }
 
-    
+
     fit(min, value, max) {
         return Math.max(Math.min(value, max), min);
     }
@@ -1786,7 +1886,7 @@ class byrobot_base extends BaseModule {
         const right = dataview.getUint32(byteOffset + 4, littleEndian);
 
         // combine the two 32-bit values
-        const combined = littleEndian ? left + 2 ** 32 * right : 2 ** 32 * left + right;
+        const combined = (littleEndian) ? (left + 2 ** 32 * right) : (2 ** 32 * left + right);
 
         if (!Number.isSafeInteger(combined)) {
             console.warn(combined, 'exceeds MAX_SAFE_INTEGER. Precision may be lost');
