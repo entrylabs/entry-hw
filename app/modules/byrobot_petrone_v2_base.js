@@ -17,19 +17,16 @@ const BaseModule = require('./baseModule');
  * 
  ***************************************************************************************/
 
-class byrobot_petrone_v2_base extends BaseModule
-{
-
+class byrobot_petrone_v2_base extends BaseModule {
     /***************************************************************************************
      *  클래스 내부에서 사용될 필드들을 이곳에서 선언합니다.
      ***************************************************************************************/
     // #region Constructor
 
-    constructor()
-    {
+    constructor() {
         super();
 
-        this.log("BYROBOT_PETRONE_V2_BASE - constructor()");
+        this.log('BYROBOT_PETRONE_V2_BASE - constructor()');
 
         this.createCRC16Array();
 
@@ -275,11 +272,10 @@ class byrobot_petrone_v2_base extends BaseModule
         handler 는 워크스페이스와 통신하 데이터를 json 화 하는 오브젝트입니다. (datahandler/json 참고)
         config 은 module.json 오브젝트입니다.
     */
-    init(handler, config)
-    {
+    init(handler, config) {
         super.init(handler, config);
         
-        this.log("BYROBOT_PETRONE_V2_BASE - init()");
+        this.log('BYROBOT_PETRONE_V2_BASE - init()');
         this.resetData();
     }
 
@@ -291,8 +287,7 @@ class byrobot_petrone_v2_base extends BaseModule
         requestInitialData 를 사용한 경우 checkInitialData 가 필수입니다.
         이 두 함수가 정의되어있어야 로직이 동작합니다. 필요없으면 작성하지 않아도 됩니다.
     */
-    requestInitialData(serialport)
-    {
+    requestInitialData(serialport) {
         this.isConnect = true;
         this.serialport = serialport;
 
@@ -305,9 +300,8 @@ class byrobot_petrone_v2_base extends BaseModule
         초기 수신데이터 체크(필수)
         연결 후 초기에 수신받아서 정상연결인지를 확인해야하는 경우 사용합니다.
      */
-    checkInitialData(data, config)
-    {
-        this.log("BYROBOT_PETRONE_V2_BASE - checkInitialData()");
+    checkInitialData(data, config) {
+        this.log('BYROBOT_PETRONE_V2_BASE - checkInitialData()');
         return this.checkInitialAck(data, config); 
     }
 
@@ -315,8 +309,7 @@ class byrobot_petrone_v2_base extends BaseModule
     /*
         주기적으로 하드웨어에서 받은 데이터의 검증이 필요한 경우 사용합니다.
     */
-    validateLocalData(data)
-    {
+    validateLocalData(data) {
         //this.log("BYROBOT_PETRONE_V2_BASE - validateLocalData()");
         return true;
     }
@@ -328,8 +321,7 @@ class byrobot_petrone_v2_base extends BaseModule
         하드웨어 기기에 전달할 데이터를 반환합니다.
         slave 모드인 경우 duration 속성 간격으로 지속적으로 기기에 요청을 보냅니다.
     */
-    requestLocalData()
-    {
+    requestLocalData() {
         //this.log("BYROBOT_PETRONE_V2_BASE - requestLocalData()");
         return this.transferToDevice();
     }
@@ -338,8 +330,7 @@ class byrobot_petrone_v2_base extends BaseModule
     /*
         하드웨어에서 온 데이터 처리
     */
-    handleLocalData(data)
-    {
+    handleLocalData(data) {
         //this.log("BYROBOT_PETRONE_V2_BASE - handleLocalData()");
         this.receiverForDevice(data);
     }
@@ -348,8 +339,7 @@ class byrobot_petrone_v2_base extends BaseModule
     /*
         엔트리로 전달할 데이터
     */
-    requestRemoteData(handler)
-    {
+    requestRemoteData(handler) {
         //this.log("BYROBOT_PETRONE_V2_BASE - requestRemoteData()");
         this.transferToEntry(handler);
     }
@@ -358,22 +348,19 @@ class byrobot_petrone_v2_base extends BaseModule
     /*
         엔트리에서 받은 데이터에 대한 처리
     */
-    handleRemoteData(handler)
-    {
+    handleRemoteData(handler) {
         //this.log("BYROBOT_PETRONE_V2_BASE - handleRemoteData()");
         this.handlerForEntry(handler);
     }
 
 
-    connect()
-    {
-        this.log("BYROBOT_PETRONE_V2_BASE - connect()");
+    connect() {
+        this.log('BYROBOT_PETRONE_V2_BASE - connect()');
     }
 
 
-    disconnect(connect)
-    {
-        this.log("BYROBOT_PETRONE_V2_BASE - disconnect()");
+    disconnect(connect) {
+        this.log('BYROBOT_PETRONE_V2_BASE - disconnect()');
 
         connect.close();
 
@@ -385,9 +372,8 @@ class byrobot_petrone_v2_base extends BaseModule
     /*
         Web Socket 종료후 처리
     */
-    reset()
-    {
-        this.log("BYROBOT_PETRONE_V2_BASE - reset()");
+    reset() {
+        this.log('BYROBOT_PETRONE_V2_BASE - reset()');
         this.resetData();
     }
 
@@ -400,8 +386,7 @@ class byrobot_petrone_v2_base extends BaseModule
      ***************************************************************************************/
     // #region Data Reset
 
-    resetData()
-    {
+    resetData() {
         // -- JSON Objects ----------------------------------------------------------------
         // Device -> Entry 
 
@@ -427,8 +412,7 @@ class byrobot_petrone_v2_base extends BaseModule
         this.clearVariable();
     }
     
-    clearVariable()
-    {
+    clearVariable() {
         // -- Control -----------------------------------------------------------------
         this.controlWheel           = 0;        // 
         this.controlAccel           = 0;        // 
@@ -473,22 +457,19 @@ class byrobot_petrone_v2_base extends BaseModule
      ***************************************************************************************/
     // #region Data Update
 
-    clearAck()
-    {
+    clearAck() {
         this.ack._updated       = false;
         this.ack.ack_systemTime = 0;
         this.ack.ack_dataType   = 0;
         this.ack.ack_crc16      = 0;
     }
 
-    updateAck()
-    {
+    updateAck() {
         //this.log("BYROBOT_PETRONE_V2_BASE - updateAck()");
 
-        if ( this.dataBlock != undefined && this.dataBlock.length == 11 )
-        {
-            let array = Uint8Array.from(this.dataBlock);
-            let view  = new DataView(array.buffer);
+        if (this.dataBlock != undefined && this.dataBlock.length == 11) {
+            const array = Uint8Array.from(this.dataBlock);
+            const view  = new DataView(array.buffer);
 
             this.ack._updated       = true;
             this.ack.ack_systemTime = this.getUint64(view, 0, true);
@@ -502,8 +483,7 @@ class byrobot_petrone_v2_base extends BaseModule
     }
 
 
-    clearState()
-    {
+    clearState() {
         this.state._updated                 = false;
         this.state.state_modeVehicle        = 0;
         this.state.state_modeSystem         = 0;
@@ -514,14 +494,12 @@ class byrobot_petrone_v2_base extends BaseModule
         this.state.state_battery            = 0;
     }
 
-    updateState()
-    {
-        this.log("BYROBOT_PETRONE_V2_BASE - updateState()");
+    updateState() {
+        this.log('BYROBOT_PETRONE_V2_BASE - updateState()');
 
-        if ( this.dataBlock != undefined && this.dataBlock.length == 7 )
-        {
-            let array = Uint8Array.from(this.dataBlock);
-            let view  = new DataView(array.buffer);
+        if (this.dataBlock != undefined && this.dataBlock.length == 7) {
+            const array = Uint8Array.from(this.dataBlock);
+            const view  = new DataView(array.buffer);
 
             this.state._updated                 = true;
             this.state.state_modeVehicle        = view.getUint8(0);
@@ -534,16 +512,13 @@ class byrobot_petrone_v2_base extends BaseModule
 
             // 비행 모드로 들어갔는데 설정이 비행 모드가 아닌경우 비행 모드로 변경
             // 자동차 모드로 들어갔는데 설정이 자동차 모드가 아닌 경우 자동차 모드로 변경
-            if( this.targetModeVehicle != undefined )
-            {
-                switch( this.targetModeVehicle )
-                {
+            if (this.targetModeVehicle != undefined) {
+                switch (this.targetModeVehicle) {
                 case 0x10:
                     {
-                        if( this.state.state_modeVehicle != 0x10 &&
+                        if (this.state.state_modeVehicle != 0x10 &&
                             this.state.state_modeVehicle != 0x11 &&
-                            this.state.state_modeVehicle != 0x12 )
-                        {
+                            this.state.state_modeVehicle != 0x12) {
                             this.reserveModeVehicle(0x10);
                         }
                     }
@@ -551,9 +526,8 @@ class byrobot_petrone_v2_base extends BaseModule
 
                 case 0x20:
                     {
-                        if( this.state.state_modeVehicle != 0x20 &&
-                            this.state.state_modeVehicle != 0x21 )
-                        {
+                        if (this.state.state_modeVehicle != 0x20 &&
+                            this.state.state_modeVehicle != 0x21) {
                             this.reserveModeVehicle(0x20);
                         }
                     }
@@ -571,21 +545,18 @@ class byrobot_petrone_v2_base extends BaseModule
     }
 
 
-    clearButton()
-    {
+    clearButton() {
         this.button._updated           = false;
         this.button.button_button      = 0;
         this.button.button_event       = 0;
     }
 
-    updateButton()
-    {
+    updateButton() {
         //this.log("BYROBOT_PETRONE_V2_BASE - updateButton() - length : " + this.dataBlock.length);
 
-        if ( this.dataBlock != undefined && this.dataBlock.length == 3 )
-        {
-            let array = Uint8Array.from(this.dataBlock);
-            let view  = new DataView(array.buffer);
+        if (this.dataBlock != undefined && this.dataBlock.length == 3) {
+            const array = Uint8Array.from(this.dataBlock);
+            const view  = new DataView(array.buffer);
 
             this.button._updated           = true;
             this.button.button_button      = view.getUint16(0, true);
@@ -598,8 +569,7 @@ class byrobot_petrone_v2_base extends BaseModule
     }
 
 
-    clearJoystick()
-    {
+    clearJoystick() {
         this.joystick._updated                   = false;
         this.joystick.joystick_left_x            = 0;
         this.joystick.joystick_left_y            = 0;
@@ -611,14 +581,12 @@ class byrobot_petrone_v2_base extends BaseModule
         this.joystick.joystick_right_event       = 0;
     }
 
-    updateJoystick()
-    {
+    updateJoystick() {
         //this.log("BYROBOT_PETRONE_V2_BASE - updateJoystick() - length : " + this.dataBlock.length);
 
-        if ( this.dataBlock != undefined && this.dataBlock.length == 8 )
-        {
-            let array = Uint8Array.from(this.dataBlock);
-            let view  = new DataView(array.buffer);
+        if (this.dataBlock != undefined && this.dataBlock.length == 8) {
+            const array = Uint8Array.from(this.dataBlock);
+            const view  = new DataView(array.buffer);
 
             this.joystick._updated                   = true;
             this.joystick.joystick_left_x            = view.getInt8(0);
@@ -637,8 +605,7 @@ class byrobot_petrone_v2_base extends BaseModule
     }
 
 
-    clearInformationAssembledForEntry()
-    {
+    clearInformationAssembledForEntry() {
         this.informationAssembledForEntry._updated                                            = false;
         this.informationAssembledForEntry.informationAssembledForEntry_accelX                 = 0;
         this.informationAssembledForEntry.informationAssembledForEntry_accelY                 = 0;
@@ -656,24 +623,22 @@ class byrobot_petrone_v2_base extends BaseModule
         this.informationAssembledForEntry.informationAssembledForEntry_rangeGround            = 0;
     }
 
-    updateInformationAssembledForEntry()
-    {
+    updateInformationAssembledForEntry() {
         //this.log("BYROBOT_PETRONE_V2_BASE - updateInformationAssembledForEntry() - length : " + this.dataBlock.length);
 
-        if ( this.dataBlock != undefined && this.dataBlock.length == 38 )
-        {
-            let array = Uint8Array.from(this.dataBlock);
-            let view  = new DataView(array.buffer);
+        if (this.dataBlock != undefined && this.dataBlock.length == 38) {
+            const array = Uint8Array.from(this.dataBlock);
+            const view  = new DataView(array.buffer);
    
-            let kAccel  = ( 9.8 / 2048 );       // 1g (중력가속도) = 9.8 m/s^2 로 만들기 위한 변환 상수
-            let kGyro   = ( 2000 / 32767 );     // 각 속도 (deg/s) 를 만들기 위한 변환 상수
+            const kAccel  = (9.8 / 2048);       // 1g (중력가속도) = 9.8 m/s^2 로 만들기 위한 변환 상수
+            const kGyro   = (2000 / 32767);     // 각 속도 (deg/s) 를 만들기 위한 변환 상수
 
             this.informationAssembledForEntry._updated                                            = true;
-            this.informationAssembledForEntry.informationAssembledForEntry_accelX                 = (view.getInt16( 0, true) * kAccel).toFixed(2);
-            this.informationAssembledForEntry.informationAssembledForEntry_accelY                 = (view.getInt16( 2, true) * kAccel).toFixed(2);
-            this.informationAssembledForEntry.informationAssembledForEntry_accelZ                 = (view.getInt16( 4, true) * kAccel).toFixed(2);
-            this.informationAssembledForEntry.informationAssembledForEntry_gyroRoll               = (view.getInt16( 6, true) * kGyro).toFixed(2);
-            this.informationAssembledForEntry.informationAssembledForEntry_gyroPitch              = (view.getInt16( 8, true) * kGyro).toFixed(2);
+            this.informationAssembledForEntry.informationAssembledForEntry_accelX                 = (view.getInt16(0, true) * kAccel).toFixed(2);
+            this.informationAssembledForEntry.informationAssembledForEntry_accelY                 = (view.getInt16(2, true) * kAccel).toFixed(2);
+            this.informationAssembledForEntry.informationAssembledForEntry_accelZ                 = (view.getInt16(4, true) * kAccel).toFixed(2);
+            this.informationAssembledForEntry.informationAssembledForEntry_gyroRoll               = (view.getInt16(6, true) * kGyro).toFixed(2);
+            this.informationAssembledForEntry.informationAssembledForEntry_gyroPitch              = (view.getInt16(8, true) * kGyro).toFixed(2);
             this.informationAssembledForEntry.informationAssembledForEntry_gyroYaw                = (view.getInt16(10, true) * kGyro).toFixed(2);
             this.informationAssembledForEntry.informationAssembledForEntry_angleRoll              = view.getInt16(12, true);
             this.informationAssembledForEntry.informationAssembledForEntry_anglePitch             = view.getInt16(14, true);
@@ -691,21 +656,18 @@ class byrobot_petrone_v2_base extends BaseModule
     }
 
 
-    clearIRMessage()
-    {
+    clearIRMessage() {
         this.irmessage._updated             = false;
         this.irmessage.irmessage_direction  = 0;
         this.irmessage.irmessage_irdata     = 0;
     }
 
-    updateIRMessage()
-    {
+    updateIRMessage() {
         //this.log("BYROBOT_PETRONE_V2_BASE - updateIRMessage() - length : " + this.dataBlock.length);
 
-        if ( this.dataBlock != undefined && this.dataBlock.length == 5 )
-        {
-            let array = Uint8Array.from(this.dataBlock);
-            let view  = new DataView(array.buffer);
+        if (this.dataBlock != undefined && this.dataBlock.length == 5) {
+            const array = Uint8Array.from(this.dataBlock);
+            const view  = new DataView(array.buffer);
 
             this.irmessage._updated             = true;
             this.irmessage.irmessage_direction  = view.getUint8(0);
@@ -726,17 +688,14 @@ class byrobot_petrone_v2_base extends BaseModule
      ***************************************************************************************/
     // #region check Ack for first connection
 
-    checkInitialAck(data, config)
-    {
+    checkInitialAck(data, config) {
         this.receiverForDevice(data);
 
-        if( this.targetDeviceID == undefined )
-        {
+        if (this.targetDeviceID == undefined) {
             return false;
         }
 
-        if( this.ack._updated )
-        {
+        if (this.ack._updated) {
             config.id = this.targetDeviceID;
             return true;
         }
@@ -753,8 +712,7 @@ class byrobot_petrone_v2_base extends BaseModule
      ***************************************************************************************/
     // #region Data Transfer to Device from Entry
 
-    read(handler, dataType, defaultValue = 0)
-    {
+    read(handler, dataType, defaultValue = 0) {
         return handler.e(dataType) ? handler.read(dataType) : defaultValue;
     }
 
@@ -771,247 +729,228 @@ class byrobot_petrone_v2_base extends BaseModule
             위와 같은 절차로 데이터를 전송해야 1회만 전송 됨.
             Entry.hw.update를 호출하면 등록된 값 전체를 한 번에 즉시 전송하는 것으로 보임
     */
-    handlerForEntry(handler)
-    {
-        if( this.bufferTransfer == undefined )
-        {
+    handlerForEntry(handler) {
+        if (this.bufferTransfer == undefined) {
             this.bufferTransfer = [];
         }
 
         // Buffer Clear
-        if( handler.e(this.DataType.BUFFER_CLEAR) )
-        {
+        if (handler.e(this.DataType.BUFFER_CLEAR)) {
             this.bufferTransfer = [];
         }
 
-        let target = this.read(handler, this.DataType.TARGET, 0xFF);
+        const target = this.read(handler, this.DataType.TARGET, 0xFF);
 
         // Light Manual
-        if( handler.e(this.DataType.LIGHT_MANUAL_FLAGS)       &&
-            handler.e(this.DataType.LIGHT_MANUAL_BRIGHTNESS)  )
-        {
-            let flags       = this.read(handler, this.DataType.LIGHT_MANUAL_FLAGS);
-            let brightness  = this.read(handler, this.DataType.LIGHT_MANUAL_BRIGHTNESS);
+        if (handler.e(this.DataType.LIGHT_MANUAL_FLAGS)       &&
+            handler.e(this.DataType.LIGHT_MANUAL_BRIGHTNESS)) {
+            const flags       = this.read(handler, this.DataType.LIGHT_MANUAL_FLAGS);
+            const brightness  = this.read(handler, this.DataType.LIGHT_MANUAL_BRIGHTNESS);
 
-            let dataArray = this.reserveLightManual(target, flags, brightness);
+            const dataArray = this.reserveLightManual(target, flags, brightness);
             this.bufferTransfer.push(dataArray);
-            this.log("BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - LightManual", dataArray);
+            this.log('BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - LightManual', dataArray);
         }
 
 
         // LightModeColor
-        if      (   handler.e(this.DataType.LIGHT_MODE_MODE)      &&
+        if      (handler.e(this.DataType.LIGHT_MODE_MODE)      &&
                     handler.e(this.DataType.LIGHT_MODE_INTERVAL)  &&
                     handler.e(this.DataType.LIGHT_COLOR_R)        &&
                     handler.e(this.DataType.LIGHT_COLOR_G)        &&
-                    handler.e(this.DataType.LIGHT_COLOR_B)        )
-        {
-            let mode        = this.read(handler, this.DataType.LIGHT_MODE_MODE);
-            let interval    = this.read(handler, this.DataType.LIGHT_MODE_INTERVAL);
-            let r           = this.read(handler, this.DataType.LIGHT_COLOR_R);
-            let g           = this.read(handler, this.DataType.LIGHT_COLOR_G);
-            let b           = this.read(handler, this.DataType.LIGHT_COLOR_B);
+                    handler.e(this.DataType.LIGHT_COLOR_B)) {
+            const mode        = this.read(handler, this.DataType.LIGHT_MODE_MODE);
+            const interval    = this.read(handler, this.DataType.LIGHT_MODE_INTERVAL);
+            const r           = this.read(handler, this.DataType.LIGHT_COLOR_R);
+            const g           = this.read(handler, this.DataType.LIGHT_COLOR_G);
+            const b           = this.read(handler, this.DataType.LIGHT_COLOR_B);
             
-            let dataArray = this.reserveLightModeColor(target, mode, interval, r, g, b);
+            const dataArray = this.reserveLightModeColor(target, mode, interval, r, g, b);
             this.bufferTransfer.push(dataArray);
-            this.log("BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - LightModeColor", dataArray);
+            this.log('BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - LightModeColor', dataArray);
         }
         // LightMode
-        else if (   handler.e(this.DataType.LIGHT_MODE_MODE)      &&
-                    handler.e(this.DataType.LIGHT_MODE_INTERVAL)  )
-        {
-            let mode        = this.read(handler, this.DataType.LIGHT_MODE_MODE);
-            let interval    = this.read(handler, this.DataType.LIGHT_MODE_INTERVAL);
+        else if (handler.e(this.DataType.LIGHT_MODE_MODE)      &&
+                    handler.e(this.DataType.LIGHT_MODE_INTERVAL)) {
+            const mode        = this.read(handler, this.DataType.LIGHT_MODE_MODE);
+            const interval    = this.read(handler, this.DataType.LIGHT_MODE_INTERVAL);
 
-            let dataArray = this.reserveLightMode(target, mode, interval);
+            const dataArray = this.reserveLightMode(target, mode, interval);
             this.bufferTransfer.push(dataArray);
-            this.log("BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - LightMode", dataArray);
+            this.log('BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - LightMode', dataArray);
         }
         
 
         // LightEventColor
-        if      (   handler.e(this.DataType.LIGHT_EVENT_EVENT)     &&
+        if      (handler.e(this.DataType.LIGHT_EVENT_EVENT)     &&
                     handler.e(this.DataType.LIGHT_EVENT_INTERVAL)  &&
                     handler.e(this.DataType.LIGHT_EVENT_REPEAT)    &&
                     handler.e(this.DataType.LIGHT_COLOR_R)         &&
                     handler.e(this.DataType.LIGHT_COLOR_G)         &&
-                    handler.e(this.DataType.LIGHT_COLOR_B)         )
-        {
-            let event       = this.read(handler, this.DataType.LIGHT_EVENT_EVENT);
-            let interval    = this.read(handler, this.DataType.LIGHT_EVENT_INTERVAL);
-            let repeat      = this.read(handler, this.DataType.LIGHT_EVENT_REPEAT);
-            let r           = this.read(handler, this.DataType.LIGHT_COLOR_R);
-            let g           = this.read(handler, this.DataType.LIGHT_COLOR_G);
-            let b           = this.read(handler, this.DataType.LIGHT_COLOR_B);
+                    handler.e(this.DataType.LIGHT_COLOR_B)) {
+            const event       = this.read(handler, this.DataType.LIGHT_EVENT_EVENT);
+            const interval    = this.read(handler, this.DataType.LIGHT_EVENT_INTERVAL);
+            const repeat      = this.read(handler, this.DataType.LIGHT_EVENT_REPEAT);
+            const r           = this.read(handler, this.DataType.LIGHT_COLOR_R);
+            const g           = this.read(handler, this.DataType.LIGHT_COLOR_G);
+            const b           = this.read(handler, this.DataType.LIGHT_COLOR_B);
 
-            let dataArray = this.reserveLightEventColor(target, event, interval, repeat, r, g, b);
+            const dataArray = this.reserveLightEventColor(target, event, interval, repeat, r, g, b);
             this.bufferTransfer.push(dataArray);
-            this.log("BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - LightEventColor", dataArray);
+            this.log('BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - LightEventColor', dataArray);
         }
         // LightEvent
-        else if (   handler.e(this.DataType.LIGHT_EVENT_EVENT)     &&
+        else if (handler.e(this.DataType.LIGHT_EVENT_EVENT)     &&
                     handler.e(this.DataType.LIGHT_EVENT_INTERVAL)  &&
-                    handler.e(this.DataType.LIGHT_EVENT_REPEAT)    )
-        {
-            let event       = this.read(handler, this.DataType.LIGHT_EVENT_EVENT);
-            let interval    = this.read(handler, this.DataType.LIGHT_EVENT_INTERVAL);
-            let repeat      = this.read(handler, this.DataType.LIGHT_EVENT_REPEAT);
+                    handler.e(this.DataType.LIGHT_EVENT_REPEAT)) {
+            const event       = this.read(handler, this.DataType.LIGHT_EVENT_EVENT);
+            const interval    = this.read(handler, this.DataType.LIGHT_EVENT_INTERVAL);
+            const repeat      = this.read(handler, this.DataType.LIGHT_EVENT_REPEAT);
 
-            let dataArray = this.reserveLightEvent(target, event, interval, repeat);
+            const dataArray = this.reserveLightEvent(target, event, interval, repeat);
             this.bufferTransfer.push(dataArray);
-            this.log("BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - LightEvent", dataArray);
+            this.log('BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - LightEvent', dataArray);
         }
 
 
         // 화면 전체 지우기
-        if( handler.e(this.DataType.DISPLAY_CLEAR_ALL_PIXEL) )
-        {
-            let pixel   = this.read(handler, this.DataType.DISPLAY_CLEAR_ALL_PIXEL);
+        if (handler.e(this.DataType.DISPLAY_CLEAR_ALL_PIXEL)) {
+            const pixel   = this.read(handler, this.DataType.DISPLAY_CLEAR_ALL_PIXEL);
 
-            let dataArray = this.reserveDisplayClearAll(target, pixel);
+            const dataArray = this.reserveDisplayClearAll(target, pixel);
             this.bufferTransfer.push(dataArray);
-            this.log("BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - DisplayClearAll", dataArray);
+            this.log('BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - DisplayClearAll', dataArray);
         }
 
 
         // 선택 영역 지우기
-        if( handler.e(this.DataType.DISPLAY_CLEAR_WIDTH)  ||
-            handler.e(this.DataType.DISPLAY_CLEAR_HEIGHT) )
-        {
-            let x       = this.read(handler, this.DataType.DISPLAY_CLEAR_X);
-            let y       = this.read(handler, this.DataType.DISPLAY_CLEAR_Y);
-            let width   = this.read(handler, this.DataType.DISPLAY_CLEAR_WIDTH);
-            let height  = this.read(handler, this.DataType.DISPLAY_CLEAR_HEIGHT);
-            let pixel   = this.read(handler, this.DataType.DISPLAY_CLEAR_PIXEL);
+        if (handler.e(this.DataType.DISPLAY_CLEAR_WIDTH)  ||
+            handler.e(this.DataType.DISPLAY_CLEAR_HEIGHT)) {
+            const x       = this.read(handler, this.DataType.DISPLAY_CLEAR_X);
+            const y       = this.read(handler, this.DataType.DISPLAY_CLEAR_Y);
+            const width   = this.read(handler, this.DataType.DISPLAY_CLEAR_WIDTH);
+            const height  = this.read(handler, this.DataType.DISPLAY_CLEAR_HEIGHT);
+            const pixel   = this.read(handler, this.DataType.DISPLAY_CLEAR_PIXEL);
 
-            let dataArray = this.reserveDisplayClear(target, x, y, width, height, pixel);
+            const dataArray = this.reserveDisplayClear(target, x, y, width, height, pixel);
             this.bufferTransfer.push(dataArray);
-            this.log("BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - DisplayClear", dataArray);
+            this.log('BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - DisplayClear', dataArray);
         }
 
 
         // 선택 영역 반전
-        if( handler.e(this.DataType.DISPLAY_INVERT_WIDTH)  ||
-            handler.e(this.DataType.DISPLAY_INVERT_HEIGHT) )
-        {
-            let x       = this.read(handler, this.DataType.DISPLAY_INVERT_X);
-            let y       = this.read(handler, this.DataType.DISPLAY_INVERT_Y);
-            let width   = this.read(handler, this.DataType.DISPLAY_INVERT_WIDTH);
-            let height  = this.read(handler, this.DataType.DISPLAY_INVERT_HEIGHT);
+        if (handler.e(this.DataType.DISPLAY_INVERT_WIDTH)  ||
+            handler.e(this.DataType.DISPLAY_INVERT_HEIGHT)) {
+            const x       = this.read(handler, this.DataType.DISPLAY_INVERT_X);
+            const y       = this.read(handler, this.DataType.DISPLAY_INVERT_Y);
+            const width   = this.read(handler, this.DataType.DISPLAY_INVERT_WIDTH);
+            const height  = this.read(handler, this.DataType.DISPLAY_INVERT_HEIGHT);
 
-            let dataArray = this.reserveDisplayInvert(target, x, y, width, height);
+            const dataArray = this.reserveDisplayInvert(target, x, y, width, height);
             this.bufferTransfer.push(dataArray);
-            this.log("BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - DisplayInvert", dataArray);
+            this.log('BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - DisplayInvert', dataArray);
         }
 
 
         // 화면에 점 찍기
-        if( handler.e(this.DataType.DISPLAY_DRAW_POINT_X)      ||
+        if (handler.e(this.DataType.DISPLAY_DRAW_POINT_X)      ||
             handler.e(this.DataType.DISPLAY_DRAW_POINT_Y)      ||
-            handler.e(this.DataType.DISPLAY_DRAW_POINT_PIXEL)  )
-        {
-            let x       = this.read(handler, this.DataType.DISPLAY_DRAW_POINT_X);
-            let y       = this.read(handler, this.DataType.DISPLAY_DRAW_POINT_Y);
-            let pixel   = this.read(handler, this.DataType.DISPLAY_DRAW_POINT_PIXEL);
+            handler.e(this.DataType.DISPLAY_DRAW_POINT_PIXEL)) {
+            const x       = this.read(handler, this.DataType.DISPLAY_DRAW_POINT_X);
+            const y       = this.read(handler, this.DataType.DISPLAY_DRAW_POINT_Y);
+            const pixel   = this.read(handler, this.DataType.DISPLAY_DRAW_POINT_PIXEL);
             
-            let dataArray = this.reserveDisplayDrawPoint(target, x, y, pixel);
+            const dataArray = this.reserveDisplayDrawPoint(target, x, y, pixel);
             this.bufferTransfer.push(dataArray);
-            this.log("BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - DisplayDrawPoint", dataArray);
+            this.log('BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - DisplayDrawPoint', dataArray);
         }
 
 
         // 화면에 선 그리기
-        if( handler.e(this.DataType.DISPLAY_DRAW_LINE_X1)  ||
+        if (handler.e(this.DataType.DISPLAY_DRAW_LINE_X1)  ||
             handler.e(this.DataType.DISPLAY_DRAW_LINE_Y1)  ||
             handler.e(this.DataType.DISPLAY_DRAW_LINE_X2)  ||
-            handler.e(this.DataType.DISPLAY_DRAW_LINE_Y2)  )
-        {
-            let x1      = this.read(handler, this.DataType.DISPLAY_DRAW_LINE_X1);
-            let y1      = this.read(handler, this.DataType.DISPLAY_DRAW_LINE_Y1);
-            let x2      = this.read(handler, this.DataType.DISPLAY_DRAW_LINE_X2);
-            let y2      = this.read(handler, this.DataType.DISPLAY_DRAW_LINE_Y2);
-            let pixel   = this.read(handler, this.DataType.DISPLAY_DRAW_LINE_PIXEL);
-            let line    = this.read(handler, this.DataType.DISPLAY_DRAW_LINE_LINE);
+            handler.e(this.DataType.DISPLAY_DRAW_LINE_Y2)) {
+            const x1      = this.read(handler, this.DataType.DISPLAY_DRAW_LINE_X1);
+            const y1      = this.read(handler, this.DataType.DISPLAY_DRAW_LINE_Y1);
+            const x2      = this.read(handler, this.DataType.DISPLAY_DRAW_LINE_X2);
+            const y2      = this.read(handler, this.DataType.DISPLAY_DRAW_LINE_Y2);
+            const pixel   = this.read(handler, this.DataType.DISPLAY_DRAW_LINE_PIXEL);
+            const line    = this.read(handler, this.DataType.DISPLAY_DRAW_LINE_LINE);
             
-            let dataArray = this.reserveDisplayDrawLine(target, x1, y1, x2, y2, pixel, line);
+            const dataArray = this.reserveDisplayDrawLine(target, x1, y1, x2, y2, pixel, line);
             this.bufferTransfer.push(dataArray);
-            this.log("BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - DisplayDrawLine", dataArray);
+            this.log('BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - DisplayDrawLine', dataArray);
         }
 
         
         // 화면에 사각형 그리기
-        if( handler.e(this.DataType.DISPLAY_DRAW_RECT_WIDTH)   ||
-            handler.e(this.DataType.DISPLAY_DRAW_RECT_HEIGHT)  )
-        {
-            let x           = this.read(handler, this.DataType.DISPLAY_DRAW_RECT_X);
-            let y           = this.read(handler, this.DataType.DISPLAY_DRAW_RECT_Y);
-            let width       = this.read(handler, this.DataType.DISPLAY_DRAW_RECT_WIDTH);
-            let height      = this.read(handler, this.DataType.DISPLAY_DRAW_RECT_HEIGHT);
-            let pixel       = this.read(handler, this.DataType.DISPLAY_DRAW_RECT_PIXEL);
-            let flagfill    = this.read(handler, this.DataType.DISPLAY_DRAW_RECT_FLAGFILL);
-            let line        = this.read(handler, this.DataType.DISPLAY_DRAW_RECT_LINE);
+        if (handler.e(this.DataType.DISPLAY_DRAW_RECT_WIDTH)   ||
+            handler.e(this.DataType.DISPLAY_DRAW_RECT_HEIGHT)) {
+            const x           = this.read(handler, this.DataType.DISPLAY_DRAW_RECT_X);
+            const y           = this.read(handler, this.DataType.DISPLAY_DRAW_RECT_Y);
+            const width       = this.read(handler, this.DataType.DISPLAY_DRAW_RECT_WIDTH);
+            const height      = this.read(handler, this.DataType.DISPLAY_DRAW_RECT_HEIGHT);
+            const pixel       = this.read(handler, this.DataType.DISPLAY_DRAW_RECT_PIXEL);
+            const flagfill    = this.read(handler, this.DataType.DISPLAY_DRAW_RECT_FLAGFILL);
+            const line        = this.read(handler, this.DataType.DISPLAY_DRAW_RECT_LINE);
 
-            let dataArray = this.reserveDisplayDrawRect(target, x, y, width, height, pixel, flagfill, line);
+            const dataArray = this.reserveDisplayDrawRect(target, x, y, width, height, pixel, flagfill, line);
             this.bufferTransfer.push(dataArray);
-            this.log("BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - DisplayDrawRect", dataArray);
+            this.log('BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - DisplayDrawRect', dataArray);
         }
 
 
         // 화면에 원 그리기
-        if( handler.e(this.DataType.DISPLAY_DRAW_CIRCLE_RADIUS) )
-        {
-            let x        = this.read(handler, this.DataType.DISPLAY_DRAW_CIRCLE_X);
-            let y        = this.read(handler, this.DataType.DISPLAY_DRAW_CIRCLE_Y);
-            let radius   = this.read(handler, this.DataType.DISPLAY_DRAW_CIRCLE_RADIUS);
-            let pixel    = this.read(handler, this.DataType.DISPLAY_DRAW_CIRCLE_PIXEL);
-            let flagfill = this.read(handler, this.DataType.DISPLAY_DRAW_CIRCLE_FLAGFILL);
+        if (handler.e(this.DataType.DISPLAY_DRAW_CIRCLE_RADIUS)) {
+            const x        = this.read(handler, this.DataType.DISPLAY_DRAW_CIRCLE_X);
+            const y        = this.read(handler, this.DataType.DISPLAY_DRAW_CIRCLE_Y);
+            const radius   = this.read(handler, this.DataType.DISPLAY_DRAW_CIRCLE_RADIUS);
+            const pixel    = this.read(handler, this.DataType.DISPLAY_DRAW_CIRCLE_PIXEL);
+            const flagfill = this.read(handler, this.DataType.DISPLAY_DRAW_CIRCLE_FLAGFILL);
 
-            let dataArray = this.reserveDisplayDrawCircle(target, x, y, radius, pixel, flagfill);
+            const dataArray = this.reserveDisplayDrawCircle(target, x, y, radius, pixel, flagfill);
             this.bufferTransfer.push(dataArray);
-            this.log("BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - DisplayDrawCircle", dataArray);
+            this.log('BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - DisplayDrawCircle', dataArray);
         }
 
 
         // 화면에 문자열 쓰기
-        if( handler.e(this.DataType.DISPLAY_DRAW_STRING_STRING) )
-        {
-            let x       = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_X);
-            let y       = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_Y);
-            let font    = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_FONT);
-            let pixel   = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_PIXEL);
-            let string  = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_STRING);
+        if (handler.e(this.DataType.DISPLAY_DRAW_STRING_STRING)) {
+            const x       = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_X);
+            const y       = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_Y);
+            const font    = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_FONT);
+            const pixel   = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_PIXEL);
+            const string  = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_STRING);
 
-            let dataArray = this.reserveDisplayDrawString(target, x, y, font, pixel, string);
+            const dataArray = this.reserveDisplayDrawString(target, x, y, font, pixel, string);
             this.bufferTransfer.push(dataArray);
-            this.log("BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - DisplayDrawString", dataArray);
+            this.log('BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - DisplayDrawString', dataArray);
         }
 
 
         // 화면에 문자열 정렬하여 그리기
-        if( handler.e(this.DataType.DISPLAY_DRAW_STRING_ALIGN_STRING) )
-        {
-            let x_start = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_ALIGN_X_START);
-            let x_end   = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_ALIGN_X_END);
-            let y       = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_ALIGN_Y);
-            let align   = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_ALIGN_ALIGN);
-            let font    = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_ALIGN_FONT);
-            let pixel   = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_ALIGN_PIXEL);
-            let string  = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_ALIGN_STRING);
+        if (handler.e(this.DataType.DISPLAY_DRAW_STRING_ALIGN_STRING)) {
+            const x_start = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_ALIGN_X_START);
+            const x_end   = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_ALIGN_X_END);
+            const y       = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_ALIGN_Y);
+            const align   = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_ALIGN_ALIGN);
+            const font    = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_ALIGN_FONT);
+            const pixel   = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_ALIGN_PIXEL);
+            const string  = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_ALIGN_STRING);
 
-            let dataArray = this.reserveDisplayDrawStringAlign(target, x_start, x_end, y, align, font, pixel, string);
+            const dataArray = this.reserveDisplayDrawStringAlign(target, x_start, x_end, y, align, font, pixel, string);
             this.bufferTransfer.push(dataArray);
-            this.log("BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - DisplayDrawStringAlign", dataArray);
+            this.log('BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - DisplayDrawStringAlign', dataArray);
         }
 
 
         // Command
-        if( handler.e(this.DataType.COMMAND_COMMAND) )
-        {
-            let command = this.read(handler, this.DataType.COMMAND_COMMAND);
-            let option  = this.read(handler, this.DataType.COMMAND_OPTION);
+        if (handler.e(this.DataType.COMMAND_COMMAND)) {
+            const command = this.read(handler, this.DataType.COMMAND_COMMAND);
+            const option  = this.read(handler, this.DataType.COMMAND_OPTION);
 
-            switch( command )
-            {
+            switch (command) {
             case 0x24:  // CommandType::Stop
                 {
                     // 정지 명령 시 조종 입력 값 초기화
@@ -1029,91 +968,85 @@ class byrobot_petrone_v2_base extends BaseModule
                 break;
             }
 
-            let dataArray = this.reserveCommand(target, command, option);
+            const dataArray = this.reserveCommand(target, command, option);
             this.bufferTransfer.push(dataArray);
-            this.log("BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - Command" + command + ", option: " + option, dataArray);
+            this.log(`BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - Command${command}, option: ${option}`, dataArray);
         }
 
 
         // Control
-        if( handler.e(this.DataType.CONTROL_ROLL)     ||
+        if (handler.e(this.DataType.CONTROL_ROLL)     ||
             handler.e(this.DataType.CONTROL_PITCH)    ||
             handler.e(this.DataType.CONTROL_YAW)      ||
-            handler.e(this.DataType.CONTROL_THROTTLE) )
-        {
+            handler.e(this.DataType.CONTROL_THROTTLE)) {
             this.controlRoll     = this.read(handler, this.DataType.CONTROL_ROLL,     this.controlRoll);
             this.controlPitch    = this.read(handler, this.DataType.CONTROL_PITCH,    this.controlPitch);
             this.controlYaw      = this.read(handler, this.DataType.CONTROL_YAW,      this.controlYaw);
             this.controlThrottle = this.read(handler, this.DataType.CONTROL_THROTTLE, this.controlThrottle);
 
-            let dataArray = this.reserveControlQuad8(target, this.controlRoll, this.controlPitch, this.controlYaw, this.controlThrottle);
+            const dataArray = this.reserveControlQuad8(target, this.controlRoll, this.controlPitch, this.controlYaw, this.controlThrottle);
             this.bufferTransfer.push(dataArray);
-            this.log("BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - ControlQuad8", dataArray);
+            this.log('BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - ControlQuad8', dataArray);
         }
 
 
         // Control Wheel, Accel
-        if( handler.e(this.DataType.CONTROL_WHEEL) ||
-            handler.e(this.DataType.CONTROL_ACCEL) )
-        {
+        if (handler.e(this.DataType.CONTROL_WHEEL) ||
+            handler.e(this.DataType.CONTROL_ACCEL)) {
             this.controlWheel = this.read(handler, this.DataType.CONTROL_WHEEL, this.controlWheel);
             this.controlAccel = this.read(handler, this.DataType.CONTROL_ACCEL, this.controlAccel);
 
-            let dataArray = this.reserveControlDouble8(target, this.controlWheel, this.controlAccel);
+            const dataArray = this.reserveControlDouble8(target, this.controlWheel, this.controlAccel);
             this.bufferTransfer.push(dataArray);
-            this.log("BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - reserveControlDouble8", dataArray);
+            this.log('BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - reserveControlDouble8', dataArray);
         }
 
 
         // MotorSingle
-        if( handler.e(this.DataType.MOTORSINGLE_TARGET) )
-        {
-            let motor       = this.read(handler, this.DataType.MOTORSINGLE_TARGET);
-            let rotation    = this.read(handler, this.DataType.MOTORSINGLE_ROTATION);
-            let value       = this.read(handler, this.DataType.MOTORSINGLE_VALUE);
+        if (handler.e(this.DataType.MOTORSINGLE_TARGET)) {
+            const motor       = this.read(handler, this.DataType.MOTORSINGLE_TARGET);
+            const rotation    = this.read(handler, this.DataType.MOTORSINGLE_ROTATION);
+            const value       = this.read(handler, this.DataType.MOTORSINGLE_VALUE);
 
-            let dataArray = this.reserveMotorSingle(target, motor, rotation, value);
+            const dataArray = this.reserveMotorSingle(target, motor, rotation, value);
             this.bufferTransfer.push(dataArray);
-            this.log("BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - MotorSingle", dataArray);
+            this.log('BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - MotorSingle', dataArray);
         }
 
 
         // Buzzer
-        if( handler.e(this.DataType.BUZZER_MODE) )
-        {
-            let mode     = this.read(handler, this.DataType.BUZZER_MODE);
-            let value    = this.read(handler, this.DataType.BUZZER_VALUE);
-            let time     = this.read(handler, this.DataType.BUZZER_TIME);
+        if (handler.e(this.DataType.BUZZER_MODE)) {
+            const mode     = this.read(handler, this.DataType.BUZZER_MODE);
+            const value    = this.read(handler, this.DataType.BUZZER_VALUE);
+            const time     = this.read(handler, this.DataType.BUZZER_TIME);
 
-            let dataArray = this.reserveBuzzer(target, mode, value, time);
+            const dataArray = this.reserveBuzzer(target, mode, value, time);
             this.bufferTransfer.push(dataArray);
-            this.log("BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - Buzzer - mode: " + mode + ", value: " + value + ", time: " + time, dataArray);
+            this.log(`BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - Buzzer - mode: ${mode}, value: ${value}, time: ${time}`, dataArray);
         }
 
 
         // Vibrator
-        if( handler.e(this.DataType.VIBRATOR_ON) )
-        {
-            let mode   = this.read(handler, this.DataType.VIBRATOR_MODE);
-            let on     = this.read(handler, this.DataType.VIBRATOR_ON);
-            let off    = this.read(handler, this.DataType.VIBRATOR_OFF);
-            let total  = this.read(handler, this.DataType.VIBRATOR_TOTAL);
+        if (handler.e(this.DataType.VIBRATOR_ON)) {
+            const mode   = this.read(handler, this.DataType.VIBRATOR_MODE);
+            const on     = this.read(handler, this.DataType.VIBRATOR_ON);
+            const off    = this.read(handler, this.DataType.VIBRATOR_OFF);
+            const total  = this.read(handler, this.DataType.VIBRATOR_TOTAL);
 
-            let dataArray = this.reserveVibrator(target, mode, on, off, total);
+            const dataArray = this.reserveVibrator(target, mode, on, off, total);
             this.bufferTransfer.push(dataArray);
-            this.log("BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - Vibrator", dataArray);
+            this.log('BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - Vibrator', dataArray);
         }
 
 
         // IrMessage
-        if( handler.e(this.DataType.IRMESSAGE_IRDATA) )
-        {
-            let direction = this.read(handler, this.DataType.IRMESSAGE_DIRECTION);
-            let irdata    = this.read(handler, this.DataType.IRMESSAGE_IRDATA);
+        if (handler.e(this.DataType.IRMESSAGE_IRDATA)) {
+            const direction = this.read(handler, this.DataType.IRMESSAGE_DIRECTION);
+            const irdata    = this.read(handler, this.DataType.IRMESSAGE_IRDATA);
 
-            let dataArray = this.reserveIRMessage(target, direction, irdata);
+            const dataArray = this.reserveIRMessage(target, direction, irdata);
             this.bufferTransfer.push(dataArray);
-            this.log("BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - reserveIRMessage", dataArray);
+            this.log('BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - reserveIRMessage', dataArray);
         }
     }
 
@@ -1127,14 +1060,11 @@ class byrobot_petrone_v2_base extends BaseModule
     // #region Data Transfer to Entry from Device
 
     // Entry에 데이터 전송
-    transferToEntry(handler)
-    {
+    transferToEntry(handler) {
         // Joystick
         {
-            if( this.joystick._updated )
-            {
-                for(let key in this.joystick)
-                {
+            if (this.joystick._updated) {
+                for (const key in this.joystick) {
                     handler.write(key, this.joystick[key]);
                 }
 
@@ -1144,10 +1074,8 @@ class byrobot_petrone_v2_base extends BaseModule
 
         // Button
         {
-            if( this.button._updated )
-            {
-                for(let key in this.button)
-                {
+            if (this.button._updated) {
+                for (const key in this.button) {
                     handler.write(key, this.button[key]);
                 }
 
@@ -1157,10 +1085,8 @@ class byrobot_petrone_v2_base extends BaseModule
 
         // State
         {
-            if( this.state._updated )
-            {
-                for(let key in this.state)
-                {
+            if (this.state._updated) {
+                for (const key in this.state) {
                     handler.write(key, this.state[key]);
                 }
 
@@ -1170,10 +1096,8 @@ class byrobot_petrone_v2_base extends BaseModule
     
         // InformationAssembledForEntry
         {
-            if( this.informationAssembledForEntry._updated )
-            {
-                for(let key in this.informationAssembledForEntry)
-                {
+            if (this.informationAssembledForEntry._updated) {
+                for (const key in this.informationAssembledForEntry) {
                     handler.write(key, this.informationAssembledForEntry[key]);
                 }
     
@@ -1183,10 +1107,8 @@ class byrobot_petrone_v2_base extends BaseModule
 
         // IR Message
         {
-            if( this.irmessage._updated )
-            {
-                for(let key in this.irmessage)
-                {
+            if (this.irmessage._updated) {
+                for (const key in this.irmessage) {
                     handler.write(key, this.irmessage[key]);
                 }
 
@@ -1196,12 +1118,11 @@ class byrobot_petrone_v2_base extends BaseModule
 
         // Entry-hw information
         {
-            if( this.bufferTransfer == undefined )
-            {
+            if (this.bufferTransfer == undefined) {
                 this.bufferTransfer = [];
             }
 
-            handler.write("entryhw_countTransferReserved", this.bufferTransfer.length);
+            handler.write('entryhw_countTransferReserved', this.bufferTransfer.length);
         }
     }
     
@@ -1215,46 +1136,37 @@ class byrobot_petrone_v2_base extends BaseModule
     // #region Data Receiver from Device
 
     // 장치로부터 받은 데이터 배열 처리
-    receiverForDevice(dataArray)
-    {
+    receiverForDevice(dataArray) {
         //this.log("BYROBOT_PETRONE_V2_BASE - receiverForDevice() - Length : " + dataArray.length, dataArray);
 
-        if( dataArray == undefined || dataArray.length == 0 )
-        {
+        if (dataArray == undefined || dataArray.length == 0) {
             return;
         }
 
-        let i = 0;
+        const i = 0;
 
         // 버퍼로부터 데이터를 읽어 하나의 완성된 데이터 블럭으로 변환
-        for(let i=0; i<dataArray.length; i++)
-        {
-            let data            = dataArray[i];
+        for (let i = 0; i < dataArray.length; i++) {
+            const data            = dataArray[i];
             
             let flagContinue    = true;
             let flagSessionNext = false;
             let flagComplete    = false;
             
-            switch(this.indexSession)
-            {
+            switch (this.indexSession) {
             case 0: // Start Code
                 {               
-                    switch( this.indexReceiver )
-                    {
+                    switch (this.indexReceiver) {
                     case 0:
-                        if( data != 0x0A )
-                        {
+                        if (data != 0x0A) {
                             continue;
                         }
                         break;
                     
                     case 1:
-                        if( data != 0x55 )
-                        {
+                        if (data != 0x55) {
                             flagContinue = false;
-                        }
-                        else
-                        {
+                        } else {
                             flagSessionNext = true;
                         }
                         break;
@@ -1264,8 +1176,7 @@ class byrobot_petrone_v2_base extends BaseModule
 
             case 1: // Header
                 {
-                    switch( this.indexReceiver )
-                    {
+                    switch (this.indexReceiver) {
                     case 0:
                         {
                             this.dataType = data;
@@ -1292,8 +1203,7 @@ class byrobot_petrone_v2_base extends BaseModule
                             this.to = data;
                             this.crc16Calculated = this.calcCRC16(data, this.crc16Calculated);
                             this.dataBlock = [];        // 수신 받은 데이터 블럭
-                            if( this.dataLength == 0 )
-                            {
+                            if (this.dataLength == 0) {
                                 this.indexSession++;    // 데이터의 길이가 0인 경우 바로 CRC16으로 넘어가게 함
                             }
                             flagSessionNext = true;
@@ -1308,8 +1218,7 @@ class byrobot_petrone_v2_base extends BaseModule
                     this.dataBlock.push(data);
                     this.crc16Calculated = this.calcCRC16(data, this.crc16Calculated);
                     
-                    if( this.indexReceiver == this.dataLength - 1 )
-                    {
+                    if (this.indexReceiver == this.dataLength - 1) {
                         flagSessionNext = true;
                     }
                 }
@@ -1317,8 +1226,7 @@ class byrobot_petrone_v2_base extends BaseModule
 
             case 3: // CRC16
                 {
-                    switch( this.indexReceiver )
-                    {
+                    switch (this.indexReceiver) {
                     case 0:
                         {
                             this.crc16Received = data;
@@ -1343,11 +1251,9 @@ class byrobot_petrone_v2_base extends BaseModule
             }
 
             // 데이터 전송 완료 처리
-            if( flagComplete )
-            {
+            if (flagComplete) {
                 //this.log("BYROBOT_PETRONE_V2_BASE - Receiver - CRC16 - Calculated : " + this.crc16Calculated.toString(16).toUpperCase() + ", Received : " + this.crc16Received.toString(16).toUpperCase());
-                if( this.crc16Calculated == this.crc16Received )
-                {
+                if (this.crc16Calculated == this.crc16Received) {
                     this.handlerForDevice();
                 }
 
@@ -1355,20 +1261,14 @@ class byrobot_petrone_v2_base extends BaseModule
             }
 
             // 데이터 처리 결과에 따라 인덱스 변수 처리
-            if( flagContinue )
-            {
-                if( flagSessionNext )
-                {
+            if (flagContinue) {
+                if (flagSessionNext) {
                     this.indexSession++;
                     this.indexReceiver = 0;             
-                }
-                else
-                {
+                } else {
                     this.indexReceiver++;
                 }
-            }
-            else
-            {
+            } else {
                 this.indexSession       = 0;        // 수신 받는 데이터의 세션
                 this.indexReceiver      = 0;        // 수신 받는 데이터의 세션 내 위치
             }
@@ -1385,8 +1285,7 @@ class byrobot_petrone_v2_base extends BaseModule
     // #region Data Handler for received data from Device
 
     // 장치로부터 받은 데이터 블럭 처리
-    handlerForDevice()
-    {
+    handlerForDevice() {
         /*
         // log 출력을  skip 할 대상만 case로 등록
         switch( this.dataType )
@@ -1407,12 +1306,10 @@ class byrobot_petrone_v2_base extends BaseModule
         this.timeReceive = (new Date()).getTime();
 
         // 상대측에 정상적으로 데이터를 전달했는지 확인
-        switch( this.dataType )
-        {
+        switch (this.dataType) {
         case 0x02:  // Ack
             {
-                if( this.updateAck() )
-                {
+                if (this.updateAck()) {
                     // ping에 대한 ack는 로그 출력하지 않음
                     //if( this.ack.dataType != 0x01 )
                     {
@@ -1420,11 +1317,10 @@ class byrobot_petrone_v2_base extends BaseModule
                     }
 
                     // 마지막으로 전송한 데이터에 대한 응답을 받았다면 
-                    if( this.bufferTransfer         != undefined                &&
+                    if (this.bufferTransfer         != undefined                &&
                         this.bufferTransfer.length  > 0                         &&
                         this.dataTypeLastTransfered == this.ack.ack_dataType    &&
-                        this.crc16Transfered        == this.ack.ack_crc16       )
-                    {
+                        this.crc16Transfered        == this.ack.ack_crc16) {
                         this.bufferTransfer.shift();
                         this.countTransferRepeat = 0;
                     }
@@ -1435,10 +1331,9 @@ class byrobot_petrone_v2_base extends BaseModule
         default:
             {
                 // 마지막으로 요청한 데이터를 받았다면 
-                if( this.bufferTransfer         != undefined     &&
+                if (this.bufferTransfer         != undefined     &&
                     this.bufferTransfer.length  > 0              &&
-                    this.dataTypeLastTransfered == this.dataType )
-                {
+                    this.dataTypeLastTransfered == this.dataType) {
                     this.bufferTransfer.shift();
                     this.countTransferRepeat = 0;
                     
@@ -1449,8 +1344,7 @@ class byrobot_petrone_v2_base extends BaseModule
         }
 
         // 데이터 업데이트
-        switch( this.dataType )
-        {
+        switch (this.dataType) {
         case 0x40:  // State
             {
                 //this.log("BYROBOT_PETRONE_V2_BASE - handlerForDevice() - Received - State - 0x40");
@@ -1506,33 +1400,27 @@ class byrobot_petrone_v2_base extends BaseModule
     // #region Data Transfer
 
     // 장치에 데이터 전송
-    transferToDevice()
-    {
-        let now = (new Date()).getTime();
+    transferToDevice() {
+        const now = (new Date()).getTime();
 
-        if( now < this.timeTransferNext )
-        {
+        if (now < this.timeTransferNext) {
             return null;
         }
         
         this.timeTransferNext = now + this.timeTransferInterval;
 
-        if( this.bufferTransfer == undefined )
-        {
+        if (this.bufferTransfer == undefined) {
             this.bufferTransfer = [];
         }
 
         this.countReqeustDevice++;
 
-        if( this.bufferTransfer.length == 0 )
-        {
+        if (this.bufferTransfer.length == 0) {
             // 예약된 요청이 없는 경우 데이터 요청 등록(현재는 자세 데이터 요청)
-            switch( this.targetDevice )
-            {
+            switch (this.targetDevice) {
             case 0x30:
                 {
-                    switch( this.countReqeustDevice % 6 )
-                    {
+                    switch (this.countReqeustDevice % 6) {
                     case 0:    return this.reservePing(0x30);              // 드론
                     case 2:    return this.reservePing(0x31);              // 조종기
                     case 4:    return this.reserveRequest(0x30, 0x40);     // 드론, 드론의 상태(State)
@@ -1547,16 +1435,12 @@ class byrobot_petrone_v2_base extends BaseModule
                 }
                 break;
             }
-        }
-        else
-        {
+        } else {
             // 예약된 요청이 있는 경우
-            switch( this.targetDevice )
-            {
+            switch (this.targetDevice) {
             case 0x30:
                 {
-                    switch( this.countReqeustDevice % 5 )
-                    {
+                    switch (this.countReqeustDevice % 5) {
                     case 1:     return this.reserveRequest(0x30, 0xD1);     // 드론, 자주 갱신되는 데이터 모음(엔트리)
                     default:    break;
                     }
@@ -1565,8 +1449,7 @@ class byrobot_petrone_v2_base extends BaseModule
 
             default:
                 {
-                    switch( this.countReqeustDevice % 10 )
-                    {
+                    switch (this.countReqeustDevice % 10) {
                     case 0:     return this.reservePing(this.targetDevice);
                     default:    break;
                     }
@@ -1576,13 +1459,10 @@ class byrobot_petrone_v2_base extends BaseModule
         }
 
         // 예약된 데이터 전송 처리
-        let arrayTransfer = this.bufferTransfer[0];             // 전송할 데이터 배열(첫 번째 데이터 블럭 전송)
-        if( arrayTransfer[2] == 0x04 )
-        {
+        const arrayTransfer = this.bufferTransfer[0];             // 전송할 데이터 배열(첫 번째 데이터 블럭 전송)
+        if (arrayTransfer[2] == 0x04) {
             this.dataTypeLastTransfered = arrayTransfer[6];     // 요청한 데이터의 타입(Request인 경우)
-        }
-        else
-        {
+        } else {
             this.dataTypeLastTransfered = arrayTransfer[2];     // 전송한 데이터의 타입(이외의 모든 경우)
         }
         this.countTransferRepeat++;
@@ -1593,8 +1473,7 @@ class byrobot_petrone_v2_base extends BaseModule
         //this.log("BYROBOT_PETRONE_V2_BASE - transferToDevice - Repeat: " + this.countTransferRepeat, this.bufferTransfer[0]);
 
         // maxTransferRepeat 이상 전송했음에도 응답이 없는 경우엔 다음으로 넘어감
-        if( this.countTransferRepeat >= this.maxTransferRepeat)
-        {
+        if (this.countTransferRepeat >= this.maxTransferRepeat) {
             this.bufferTransfer.shift();
             this.countTransferRepeat = 0;
         }
@@ -1612,10 +1491,9 @@ class byrobot_petrone_v2_base extends BaseModule
     // #region Data Transfer Functions for Device
 
     // Ping
-    reservePing(target)
-    {
-        let dataArray   = new ArrayBuffer(8);
-        let view        = new DataView(dataArray);
+    reservePing(target) {
+        const dataArray   = new ArrayBuffer(8);
+        const view        = new DataView(dataArray);
 
         view.setUint32(0, 0, true);
         view.setUint32(4, 0, true);
@@ -1626,10 +1504,9 @@ class byrobot_petrone_v2_base extends BaseModule
 
 
     // 데이터 요청
-    reserveRequest(target, dataType)
-    {
-        let dataArray   = new ArrayBuffer(1);
-        let view        = new DataView(dataArray);
+    reserveRequest(target, dataType) {
+        const dataArray   = new ArrayBuffer(1);
+        const view        = new DataView(dataArray);
 
         view.setUint8(0, dataType);
 
@@ -1639,10 +1516,9 @@ class byrobot_petrone_v2_base extends BaseModule
 
 
     // Command
-    reserveCommand(target, command, option)
-    {
-        let dataArray   = new ArrayBuffer(2);
-        let view        = new DataView(dataArray);
+    reserveCommand(target, command, option) {
+        const dataArray   = new ArrayBuffer(2);
+        const view        = new DataView(dataArray);
 
         view.setUint8   (0, command);
         view.setUint8   (1, option);
@@ -1653,31 +1529,28 @@ class byrobot_petrone_v2_base extends BaseModule
 
 
     // 모드 변경
-    reserveModeVehicle(target, modeVehicle)
-    {
+    reserveModeVehicle(target, modeVehicle) {
         return this.reserveCommand(target, 0x10, modeVehicle);
     }
 
 
     // Light Manual
-    reserveLightManual(target, flag, brightness)
-    {
-        let dataArray   = new ArrayBuffer(2);
-        let view        = new DataView(dataArray);
+    reserveLightManual(target, flag, brightness) {
+        const dataArray   = new ArrayBuffer(2);
+        const view        = new DataView(dataArray);
 
         view.setUint8   (0, flag);
         view.setUint8   (1, brightness);
 
-        this.log("BYROBOT_PETRONE_V2_BASE - reserveLightManual() - Target: 0x" + target.toString(16).toUpperCase());
+        this.log(`BYROBOT_PETRONE_V2_BASE - reserveLightManual() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x20, target, dataArray);
     }
 
 
     // LightModeColor
-    reserveLightModeColor(target, mode, interval, r, g, b)
-    {
-        let dataArray   = new ArrayBuffer(6);
-        let view        = new DataView(dataArray);
+    reserveLightModeColor(target, mode, interval, r, g, b) {
+        const dataArray   = new ArrayBuffer(6);
+        const view        = new DataView(dataArray);
 
         view.setUint8   (0, mode);
         view.setUint16  (1, interval, true);
@@ -1685,30 +1558,28 @@ class byrobot_petrone_v2_base extends BaseModule
         view.setUint8   (4, g);
         view.setUint8   (5, b);
 
-        this.log("BYROBOT_PETRONE_V2_BASE - reserveLightModeColor() - Target: 0x" + target.toString(16).toUpperCase());
+        this.log(`BYROBOT_PETRONE_V2_BASE - reserveLightModeColor() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x24, target, dataArray);
     }
 
 
     // LightMode
-    reserveLightMode(target, mode, interval)
-    {
-        let dataArray   = new ArrayBuffer(3);
-        let view        = new DataView(dataArray);
+    reserveLightMode(target, mode, interval) {
+        const dataArray   = new ArrayBuffer(3);
+        const view        = new DataView(dataArray);
 
         view.setUint8   (0, mode);
         view.setUint16  (1, interval, true);
 
-        this.log("BYROBOT_PETRONE_V2_BASE - reserveLightMode() - Target: 0x" + target.toString(16).toUpperCase());
+        this.log(`BYROBOT_PETRONE_V2_BASE - reserveLightMode() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x21, target, dataArray);
     }
 
 
     // LightEventColor
-    reserveLightEventColor(target, event, interval, repeat, r, g, b)
-    {
-        let dataArray   = new ArrayBuffer(7);
-        let view        = new DataView(dataArray);
+    reserveLightEventColor(target, event, interval, repeat, r, g, b) {
+        const dataArray   = new ArrayBuffer(7);
+        const view        = new DataView(dataArray);
 
         view.setUint8   (0, event);
         view.setUint16  (1, interval, true);
@@ -1717,44 +1588,41 @@ class byrobot_petrone_v2_base extends BaseModule
         view.setUint8   (5, g);
         view.setUint8   (6, b);
 
-        this.log("BYROBOT_PETRONE_V2_BASE - reserveLightEventColor() - Target: 0x" + target.toString(16).toUpperCase());
+        this.log(`BYROBOT_PETRONE_V2_BASE - reserveLightEventColor() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x2D, target, dataArray);
     }
 
 
     // LightEvent
-    reserveLightEvent(target, event, interval, repeat)
-    {
-        let dataArray   = new ArrayBuffer(4);
-        let view        = new DataView(dataArray);
+    reserveLightEvent(target, event, interval, repeat) {
+        const dataArray   = new ArrayBuffer(4);
+        const view        = new DataView(dataArray);
 
         view.setUint8   (0, event);
         view.setUint16  (1, interval, true);
         view.setUint8   (3, repeat);
 
-        this.log("BYROBOT_PETRONE_V2_BASE - reserveLightEvent() - Target: 0x" + target.toString(16).toUpperCase());
+        this.log(`BYROBOT_PETRONE_V2_BASE - reserveLightEvent() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x2A, target, dataArray);
     }
 
 
     // DisplayClearAll
-    reserveDisplayClearAll(target, pixel)
-    {
-        let dataArray   = new ArrayBuffer(1);
-        let view        = new DataView(dataArray);
+    reserveDisplayClearAll(target, pixel) {
+        const dataArray   = new ArrayBuffer(1);
+        const view        = new DataView(dataArray);
 
         view.setUint8   (0, pixel);
 
-        this.log("BYROBOT_PETRONE_V2_BASE - reserveDisplayClearAll() - Target: 0x" + target.toString(16).toUpperCase());
+        this.log(`BYROBOT_PETRONE_V2_BASE - reserveDisplayClearAll() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0xB0, target, dataArray);
     }
 
 
     // DisplayClear
-    reserveDisplayClear(target, x, y, width, height, pixel)
-    {
-        let dataArray   = new ArrayBuffer(9);
-        let view        = new DataView(dataArray);
+    reserveDisplayClear(target, x, y, width, height, pixel) {
+        const dataArray   = new ArrayBuffer(9);
+        const view        = new DataView(dataArray);
 
         view.setInt16   (0, x, true);
         view.setInt16   (2, y, true);
@@ -1768,10 +1636,9 @@ class byrobot_petrone_v2_base extends BaseModule
 
 
     // DisplayInvert
-    reserveDisplayInvert(target, x, y, width, height)
-    {
-        let dataArray   = new ArrayBuffer(8);
-        let view        = new DataView(dataArray);
+    reserveDisplayInvert(target, x, y, width, height) {
+        const dataArray   = new ArrayBuffer(8);
+        const view        = new DataView(dataArray);
 
         view.setInt16   (0, x, true);
         view.setInt16   (2, y, true);
@@ -1784,10 +1651,9 @@ class byrobot_petrone_v2_base extends BaseModule
 
 
     // DisplayDrawPoint
-    reserveDisplayDrawPoint(target, x, y, pixel)
-    {
-        let dataArray   = new ArrayBuffer(5);
-        let view        = new DataView(dataArray);
+    reserveDisplayDrawPoint(target, x, y, pixel) {
+        const dataArray   = new ArrayBuffer(5);
+        const view        = new DataView(dataArray);
 
         view.setInt16   (0, x, true);
         view.setInt16   (2, y, true);
@@ -1799,10 +1665,9 @@ class byrobot_petrone_v2_base extends BaseModule
 
 
     // DisplayDrawLine
-    reserveDisplayDrawLine(target, x1, y1, x2, y2, pixel, line)
-    {
-        let dataArray   = new ArrayBuffer(10);
-        let view        = new DataView(dataArray);
+    reserveDisplayDrawLine(target, x1, y1, x2, y2, pixel, line) {
+        const dataArray   = new ArrayBuffer(10);
+        const view        = new DataView(dataArray);
 
         view.setInt16   (0, x1, true);
         view.setInt16   (2, y1, true);
@@ -1817,10 +1682,9 @@ class byrobot_petrone_v2_base extends BaseModule
 
 
     // DisplayDrawRect
-    reserveDisplayDrawRect(target, x, y, width, height, pixel, flagFill, line)
-    {
-        let dataArray   = new ArrayBuffer(11);
-        let view        = new DataView(dataArray);
+    reserveDisplayDrawRect(target, x, y, width, height, pixel, flagFill, line) {
+        const dataArray   = new ArrayBuffer(11);
+        const view        = new DataView(dataArray);
 
         view.setInt16   (0, x, true);
         view.setInt16   (2, y, true);
@@ -1836,10 +1700,9 @@ class byrobot_petrone_v2_base extends BaseModule
 
 
     // DisplayDrawCircle
-    reserveDisplayDrawCircle(target, x, y, radius, pixel, flagFill)
-    {
-        let dataArray   = new ArrayBuffer(8);
-        let view        = new DataView(dataArray);
+    reserveDisplayDrawCircle(target, x, y, radius, pixel, flagFill) {
+        const dataArray   = new ArrayBuffer(8);
+        const view        = new DataView(dataArray);
 
         view.setInt16   (0, x, true);
         view.setInt16   (2, y, true);
@@ -1853,20 +1716,18 @@ class byrobot_petrone_v2_base extends BaseModule
 
 
     // DisplayDrawString
-    reserveDisplayDrawString(target, x, y, font, pixel, string)
-    {
-        let byteArrayString = this.stringToAsciiByteArray(string);
+    reserveDisplayDrawString(target, x, y, font, pixel, string) {
+        const byteArrayString = this.stringToAsciiByteArray(string);
 
-        let dataArray   = new ArrayBuffer(6 + byteArrayString.length);
-        let view        = new DataView(dataArray);
+        const dataArray   = new ArrayBuffer(6 + byteArrayString.length);
+        const view        = new DataView(dataArray);
 
         view.setInt16   (0, x, true);
         view.setInt16   (2, y, true);
         view.setUint8   (4, font);
         view.setUint8   (5, pixel);
 
-        for (let i = 0; i < byteArrayString.length; i++)
-        {
+        for (let i = 0; i < byteArrayString.length; i++) {
             view.setUint8((6 + i), byteArrayString[i]);
         }
 
@@ -1876,12 +1737,11 @@ class byrobot_petrone_v2_base extends BaseModule
 
 
     // DisplayDrawString
-    reserveDisplayDrawStringAlign(target, x_start, x_end, y, align, font, pixel, string)
-    {
-        let byteArrayString = this.stringToAsciiByteArray(string);
+    reserveDisplayDrawStringAlign(target, x_start, x_end, y, align, font, pixel, string) {
+        const byteArrayString = this.stringToAsciiByteArray(string);
 
-        let dataArray   = new ArrayBuffer(9 + byteArrayString.length);
-        let view        = new DataView(dataArray);
+        const dataArray   = new ArrayBuffer(9 + byteArrayString.length);
+        const view        = new DataView(dataArray);
 
         view.setInt16   (0, x_start, true);
         view.setInt16   (2, x_end, true);
@@ -1890,8 +1750,7 @@ class byrobot_petrone_v2_base extends BaseModule
         view.setUint8   (7, font);
         view.setUint8   (8, pixel);
 
-        for (let i = 0; i < byteArrayString.length; i++)
-        {
+        for (let i = 0; i < byteArrayString.length; i++) {
             view.setUint8((9 + i), byteArrayString[i]);
         }
 
@@ -1901,10 +1760,9 @@ class byrobot_petrone_v2_base extends BaseModule
 
 
     // ControlQuad8
-    reserveControlQuad8(target, roll, pitch, yaw, throttle)
-    {
-        let dataArray   = new ArrayBuffer(4);
-        let view        = new DataView(dataArray);
+    reserveControlQuad8(target, roll, pitch, yaw, throttle) {
+        const dataArray   = new ArrayBuffer(4);
+        const view        = new DataView(dataArray);
 
         view.setInt8   (0, roll);
         view.setInt8   (1, pitch);
@@ -1917,10 +1775,9 @@ class byrobot_petrone_v2_base extends BaseModule
 
 
     // reserveControlDouble8
-    reserveControlDouble8(target, accel, wheel)
-    {
-        let dataArray   = new ArrayBuffer(2);
-        let view        = new DataView(dataArray);
+    reserveControlDouble8(target, accel, wheel) {
+        const dataArray   = new ArrayBuffer(2);
+        const view        = new DataView(dataArray);
 
         view.setInt8   (0, wheel);
         view.setInt8   (1, accel);
@@ -1931,10 +1788,9 @@ class byrobot_petrone_v2_base extends BaseModule
 
 
     // MotorSingle
-    reserveMotorSingle(target, motor, rotation, value)
-    {
-        let dataArray   = new ArrayBuffer(4);
-        let view        = new DataView(dataArray);
+    reserveMotorSingle(target, motor, rotation, value) {
+        const dataArray   = new ArrayBuffer(4);
+        const view        = new DataView(dataArray);
 
         view.setUint8   (0, motor);
         view.setUint8   (1, rotation);
@@ -1946,10 +1802,9 @@ class byrobot_petrone_v2_base extends BaseModule
 
 
     // Buzzer
-    reserveBuzzer(target, mode, value, time)
-    {
-        let dataArray   = new ArrayBuffer(5);
-        let view        = new DataView(dataArray);
+    reserveBuzzer(target, mode, value, time) {
+        const dataArray   = new ArrayBuffer(5);
+        const view        = new DataView(dataArray);
 
         view.setUint8   (0, mode);
         view.setUint16  (1, value, true);
@@ -1961,10 +1816,9 @@ class byrobot_petrone_v2_base extends BaseModule
 
 
     // Vibrator
-    reserveVibrator(target, mode, on, off, total)
-    {
-        let dataArray   = new ArrayBuffer(7);
-        let view        = new DataView(dataArray);
+    reserveVibrator(target, mode, on, off, total) {
+        const dataArray   = new ArrayBuffer(7);
+        const view        = new DataView(dataArray);
 
         view.setUint8   (0, mode);
         view.setUint16  (1, on, true);
@@ -1977,10 +1831,9 @@ class byrobot_petrone_v2_base extends BaseModule
 
 
     // IRMessage
-    reserveIRMessage(target, direction, data)
-    {
-        let dataArray   = new ArrayBuffer(5);
-        let view        = new DataView(dataArray);
+    reserveIRMessage(target, direction, data) {
+        const dataArray   = new ArrayBuffer(5);
+        const view        = new DataView(dataArray);
 
         view.setUint8   (0, direction);
         view.setUint32  (1, data, true);
@@ -1992,11 +1845,10 @@ class byrobot_petrone_v2_base extends BaseModule
 
     // 전송 데이터 배열 생성
     // https://cryingnavi.github.io/javascript-typedarray/
-    createTransferBlock(dataType, to, dataBuffer)
-    {
-        let dataBlock   = new ArrayBuffer(2 + 4 + dataBuffer.byteLength + 2);  // Start Code + Header + Data + CRC16
-        let view        = new DataView(dataBlock);
-        let dataArray   = new Uint8Array(dataBuffer);
+    createTransferBlock(dataType, to, dataBuffer) {
+        const dataBlock   = new ArrayBuffer(2 + 4 + dataBuffer.byteLength + 2);  // Start Code + Header + Data + CRC16
+        const view        = new DataView(dataBlock);
+        const dataArray   = new Uint8Array(dataBuffer);
 
         // Start Code
         {
@@ -2014,20 +1866,18 @@ class byrobot_petrone_v2_base extends BaseModule
 
         // Data
         {
-            for(let i=0; i<dataArray.length; i++)
-            {
+            for (let i = 0; i < dataArray.length; i++) {
                 view.setUint8((2 + 4 + i), dataArray[i]);
             }
         }
 
         // CRC16
         {
-            let indexStart  = 2;
-            let totalLength = 4 + dataArray.length; // 
+            const indexStart  = 2;
+            const totalLength = 4 + dataArray.length; // 
             let crc16       = 0;
 
-            for(let i=0; i<totalLength; i++)
-            {
+            for (let i = 0; i < totalLength; i++) {
                 crc16 = this.calcCRC16(view.getUint8(indexStart + i), crc16);
             }
             view.setUint16((2 + 4 + dataArray.length), crc16, true);
@@ -2039,23 +1889,20 @@ class byrobot_petrone_v2_base extends BaseModule
 
 
     // 값 추출
-    getByte(value, index)
-    {
+    getByte(value, index) {
         return ((value >> (index << 3)) & 0xff);
     }
 
 
-    getUint64(dataview, byteOffset, littleEndian)
-    {
+    getUint64(dataview, byteOffset, littleEndian) {
         // split 64-bit number into two 32-bit (4-byte) parts
         const left =  dataview.getUint32(byteOffset, littleEndian);
         const right = dataview.getUint32(byteOffset + 4, littleEndian);
 
         // combine the two 32-bit values
-        const combined = littleEndian ? left + 2**32*right : 2**32*left + right;
+        const combined = littleEndian ? left + 2 ** 32 * right : 2 ** 32 * left + right;
 
-        if (!Number.isSafeInteger(combined))
-        {
+        if (!Number.isSafeInteger(combined)) {
             console.warn(combined, 'exceeds MAX_SAFE_INTEGER. Precision may be lost');
         }
 
@@ -2065,13 +1912,11 @@ class byrobot_petrone_v2_base extends BaseModule
 
     // 문자열을 ASCII 바이트 배열로 변환
     // https://stackoverflow.com/questions/6226189/how-to-convert-a-string-to-bytearray
-    stringToAsciiByteArray(str)
-    {
-        let bytes = [];
-        for(let i=0; i<str.length; i++)
-        {
-            let charCode = str.charCodeAt(i);
-            if( charCode > 0xFF )  // char > 1 byte since charCodeAt returns the UTF-16 value
+    stringToAsciiByteArray(str) {
+        const bytes = [];
+        for (let i = 0; i < str.length; i++) {
+            const charCode = str.charCodeAt(i);
+            if (charCode > 0xFF)  // char > 1 byte since charCodeAt returns the UTF-16 value
             {
                 // throw new Error('Character ' + String.fromCharCode(charCode) + ' can\'t be represented by a US-ASCII byte.');
                 continue;
@@ -2116,9 +1961,8 @@ class byrobot_petrone_v2_base extends BaseModule
     * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
     * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     */
-    createCRC16Array()
-    {
-        this.log("BYROBOT_PETRONE_V2_BASE - createCRC16Array()");
+    createCRC16Array() {
+        this.log('BYROBOT_PETRONE_V2_BASE - createCRC16Array()');
 
         this.crc16table =
         [
@@ -2153,19 +1997,17 @@ class byrobot_petrone_v2_base extends BaseModule
             0xfd2e, 0xed0f, 0xdd6c, 0xcd4d, 0xbdaa, 0xad8b, 0x9de8, 0x8dc9,
             0x7c26, 0x6c07, 0x5c64, 0x4c45, 0x3ca2, 0x2c83, 0x1ce0, 0x0cc1,
             0xef1f, 0xff3e, 0xcf5d, 0xdf7c, 0xaf9b, 0xbfba, 0x8fd9, 0x9ff8,
-            0x6e17, 0x7e36, 0x4e55, 0x5e74, 0x2e93, 0x3eb2, 0x0ed1, 0x1ef0
+            0x6e17, 0x7e36, 0x4e55, 0x5e74, 0x2e93, 0x3eb2, 0x0ed1, 0x1ef0,
         ];
     }
 
-    calcCRC16(data, crc)
-    {
-        if( data > 255 )
-        {
+    calcCRC16(data, crc) {
+        if (data > 255) {
             throw new RangeError();
         }
 
-        let index   = ((crc>>8) ^ data) & 0x00FF;
-        let crcNext = ((crc<<8) & 0xFFFF) ^ this.crc16table[index];
+        const index   = ((crc >> 8) ^ data) & 0x00FF;
+        const crcNext = ((crc << 8) & 0xFFFF) ^ this.crc16table[index];
 
         return crcNext;
     }
@@ -2179,18 +2021,16 @@ class byrobot_petrone_v2_base extends BaseModule
      ***************************************************************************************/
     // #region Functions for log
 
-    log(message, data = undefined)
-    {
+    log(message, data = undefined) {
         // 로그를 출력하지 않으려면 아래 주석을 활성화 할 것
         //*
-        let strInfo = "";
+        let strInfo = '';
 
-        switch( typeof data )
-        {
-        case "object":
+        switch (typeof data) {
+        case 'object':
             {
-                strInfo = " - [ " + this.convertByteArrayToHexString(data) + " ]";
-                console.log(message + " - " + (typeof data) + strInfo);
+                strInfo = ` - [ ${this.convertByteArrayToHexString(data)} ]`;
+                console.log(`${message} - ${typeof data}${strInfo}`);
             }
             break;
 
@@ -2205,27 +2045,21 @@ class byrobot_petrone_v2_base extends BaseModule
 
 
     // 바이트 배열을 16진수 문자열로 변경 
-    convertByteArrayToHexString(data)
-    {
-        let strHexArray = "";
+    convertByteArrayToHexString(data) {
+        let strHexArray = '';
         let strHex;
 
-        if( typeof data == "object" && data.length > 1 )
-        {
-            for(let i=0; i<data.length; i++)
-            {
+        if (typeof data == 'object' && data.length > 1) {
+            for (let i = 0; i < data.length; i++) {
                 strHex = data[i].toString(16).toUpperCase();
-                strHexArray += " ";
-                if( strHex.length == 1 )
-                {
-                    strHexArray += "0";
+                strHexArray += ' ';
+                if (strHex.length == 1) {
+                    strHexArray += '0';
                 }
                 strHexArray += strHex;
             }
             strHexArray = strHexArray.substr(1, strHexArray.length - 1);
-        }
-        else
-        {
+        } else {
             strHexArray = data.toString();
         }
         
@@ -2233,7 +2067,6 @@ class byrobot_petrone_v2_base extends BaseModule
     }
 
     // #endregion Functions for log
-
 }
 
 
