@@ -22,13 +22,15 @@ const BaseModule = require('./baseModule');
  * 
  ***************************************************************************************/
 
-class byrobot_base extends BaseModule {
+class byrobot_base extends BaseModule
+{
     /***************************************************************************************
      *  클래스 내부에서 사용될 필드들을 이곳에서 선언합니다.
      ***************************************************************************************/
     // #region Constructor
 
-    constructor() {
+    constructor()
+    {
         super();
 
         this.log('BYROBOT_BASE - constructor()');
@@ -278,7 +280,8 @@ class byrobot_base extends BaseModule {
         handler 는 워크스페이스와 통신하 데이터를 json 화 하는 오브젝트입니다. (datahandler/json 참고)
         config 은 module.json 오브젝트입니다.
     */
-    init(handler, config) {
+    init(handler, config)
+    {
         super.init(handler, config);
         
         this.log('BYROBOT_BASE - init()');
@@ -293,7 +296,8 @@ class byrobot_base extends BaseModule {
         requestInitialData 를 사용한 경우 checkInitialData 가 필수입니다.
         이 두 함수가 정의되어있어야 로직이 동작합니다. 필요없으면 작성하지 않아도 됩니다.
     */
-    requestInitialData(serialport) {
+    requestInitialData(serialport)
+    {
         this.isConnect = true;
         this.serialport = serialport;
 
@@ -306,7 +310,8 @@ class byrobot_base extends BaseModule {
         초기 수신데이터 체크(필수)
         연결 후 초기에 수신받아서 정상연결인지를 확인해야하는 경우 사용합니다.
      */
-    checkInitialData(data, config) {
+    checkInitialData(data, config)
+    {
         this.log('BYROBOT_BASE - checkInitialData()');
         return this.checkInitialAck(data, config); 
     }
@@ -315,7 +320,8 @@ class byrobot_base extends BaseModule {
     /*
         주기적으로 하드웨어에서 받은 데이터의 검증이 필요한 경우 사용합니다.
     */
-    validateLocalData(data) {
+    validateLocalData(data)
+    {
         //this.log("BYROBOT_BASE - validateLocalData()");
         return true;
     }
@@ -327,7 +333,8 @@ class byrobot_base extends BaseModule {
         하드웨어 기기에 전달할 데이터를 반환합니다.
         slave 모드인 경우 duration 속성 간격으로 지속적으로 기기에 요청을 보냅니다.
     */
-    requestLocalData() {
+    requestLocalData()
+    {
         //this.log("BYROBOT_BASE - requestLocalData()");
         return this.transferToDevice();
     }
@@ -336,7 +343,8 @@ class byrobot_base extends BaseModule {
     /*
         하드웨어에서 온 데이터 처리
     */
-    handleLocalData(data) {
+    handleLocalData(data)
+    {
         //this.log("BYROBOT_BASE - handleLocalData()");
         this.receiverForDevice(data);
     }
@@ -345,7 +353,8 @@ class byrobot_base extends BaseModule {
     /*
         엔트리로 전달할 데이터
     */
-    requestRemoteData(handler) {
+    requestRemoteData(handler)
+    {
         //this.log("BYROBOT_BASE - requestRemoteData()");
         this.transferToEntry(handler);
     }
@@ -354,18 +363,21 @@ class byrobot_base extends BaseModule {
     /*
         엔트리에서 받은 데이터에 대한 처리
     */
-    handleRemoteData(handler) {
+    handleRemoteData(handler)
+    {
         //this.log("BYROBOT_BASE - handleRemoteData()");
         this.handlerForEntry(handler);
     }
 
 
-    connect() {
+    connect()
+    {
         this.log('BYROBOT_BASE - connect()');
     }
 
 
-    disconnect(connect) {
+    disconnect(connect)
+    {
         this.log('BYROBOT_BASE - disconnect()');
 
         connect.close();
@@ -378,7 +390,8 @@ class byrobot_base extends BaseModule {
     /*
         Web Socket 종료후 처리
     */
-    reset() {
+    reset()
+    {
         this.log('BYROBOT_BASE - reset()');
         this.resetData();
     }
@@ -392,7 +405,8 @@ class byrobot_base extends BaseModule {
      ***************************************************************************************/
     // #region Data Reset
 
-    resetData() {
+    resetData()
+    {
         // -- JSON Objects ----------------------------------------------------------------
         // Device -> Entry 
 
@@ -418,7 +432,8 @@ class byrobot_base extends BaseModule {
         this.clearVariable();
     }
     
-    clearVariable() {
+    clearVariable()
+    {
         // -- Control -----------------------------------------------------------------
         this.controlWheel           = 0;        // 
         this.controlAccel           = 0;        // 
@@ -463,17 +478,20 @@ class byrobot_base extends BaseModule {
      ***************************************************************************************/
     // #region Data Update
 
-    clearAck() {
+    clearAck()
+    {
         this.ack._updated       = false;
         this.ack.ack_systemTime = 0;
         this.ack.ack_dataType   = 0;
         this.ack.ack_crc16      = 0;
     }
 
-    updateAck() {
+    updateAck()
+    {
         //this.log("BYROBOT_BASE - updateAck()");
 
-        if (this.dataBlock != undefined && this.dataBlock.length == 11) {
+        if (this.dataBlock != undefined && this.dataBlock.length == 11)
+        {
             const array = Uint8Array.from(this.dataBlock);
             const view  = new DataView(array.buffer);
 
@@ -489,7 +507,8 @@ class byrobot_base extends BaseModule {
     }
 
 
-    clearState() {
+    clearState()
+    {
         this.state._updated                 = false;
         this.state.state_modeSystem         = 0;
         this.state.state_modeFlight         = 0;
@@ -501,10 +520,12 @@ class byrobot_base extends BaseModule {
         this.state.state_battery            = 0;
     }
 
-    updateState() {
+    updateState()
+    {
         //this.log(`BYROBOT_BASE - updateState() - length : ${this.dataBlock.length}`);
 
-        if (this.dataBlock != undefined && this.dataBlock.length == 8) {
+        if (this.dataBlock != undefined && this.dataBlock.length == 8)
+        {
             const array = Uint8Array.from(this.dataBlock);
             const view  = new DataView(array.buffer);
 
@@ -525,16 +546,19 @@ class byrobot_base extends BaseModule {
     }
 
 
-    clearButton() {
+    clearButton()
+    {
         this.button._updated           = false;
         this.button.button_button      = 0;
         this.button.button_event       = 0;
     }
 
-    updateButton() {
+    updateButton()
+    {
         //this.log(`BYROBOT_BASE - updateButton() - length : ${this.dataBlock.length}`);
 
-        if (this.dataBlock != undefined && this.dataBlock.length == 3) {
+        if (this.dataBlock != undefined && this.dataBlock.length == 3)
+        {
             const array = Uint8Array.from(this.dataBlock);
             const view  = new DataView(array.buffer);
 
@@ -549,7 +573,8 @@ class byrobot_base extends BaseModule {
     }
 
 
-    clearJoystick() {
+    clearJoystick()
+    {
         this.joystick._updated                   = false;
         this.joystick.joystick_left_x            = 0;
         this.joystick.joystick_left_y            = 0;
@@ -561,10 +586,12 @@ class byrobot_base extends BaseModule {
         this.joystick.joystick_right_event       = 0;
     }
 
-    updateJoystick() {
+    updateJoystick()
+    {
         //this.log(`BYROBOT_BASE - updateJoystick() - length : ${this.dataBlock.length}`);
 
-        if (this.dataBlock != undefined && this.dataBlock.length == 8) {
+        if (this.dataBlock != undefined && this.dataBlock.length == 8)
+        {
             const array = Uint8Array.from(this.dataBlock);
             const view  = new DataView(array.buffer);
 
@@ -585,7 +612,8 @@ class byrobot_base extends BaseModule {
     }
 
 
-    clearMotion() {
+    clearMotion()
+    {
         this.motion._updated            = false;
         this.motion.motion_accelX       = 0;
         this.motion.motion_accelY       = 0;
@@ -598,10 +626,12 @@ class byrobot_base extends BaseModule {
         this.motion.motion_angleYaw     = 0;
     }
 
-    updateMotion() {
+    updateMotion()
+    {
         this.log(`BYROBOT_BASE - updateMotion() - length : ${this.dataBlock.length}`);
 
-        if (this.dataBlock != undefined && this.dataBlock.length == 18) {
+        if (this.dataBlock != undefined && this.dataBlock.length == 18)
+        {
             const array = Uint8Array.from(this.dataBlock);
             const view  = new DataView(array.buffer);
 
@@ -641,7 +671,8 @@ class byrobot_base extends BaseModule {
     }
 
 
-    clearInformationAssembledForEntry() {
+    clearInformationAssembledForEntry()
+    {
         this.informationAssembledForEntry._updated                                  = false;
         this.informationAssembledForEntry.informationAssembledForEntry_angleRoll    = 0;
         this.informationAssembledForEntry.informationAssembledForEntry_anglePitch   = 0;
@@ -653,10 +684,12 @@ class byrobot_base extends BaseModule {
         this.informationAssembledForEntry.informationAssembledForEntry_altitude     = 0;
     }
 
-    updateInformationAssembledForEntry() {
+    updateInformationAssembledForEntry()
+    {
         //this.log(`BYROBOT_BASE - updateInformationAssembledForEntry() - length : ${this.dataBlock.length}`);
 
-        if (this.dataBlock != undefined && this.dataBlock.length == 18) {
+        if (this.dataBlock != undefined && this.dataBlock.length == 18)
+        {
             const array = Uint8Array.from(this.dataBlock);
             const view  = new DataView(array.buffer);
 
@@ -685,14 +718,17 @@ class byrobot_base extends BaseModule {
      ***************************************************************************************/
     // #region check Ack for first connection
 
-    checkInitialAck(data, config) {
+    checkInitialAck(data, config)
+    {
         this.receiverForDevice(data);
 
-        if (this.targetDeviceID == undefined) {
+        if (this.targetDeviceID == undefined)
+        {
             return false;
         }
 
-        if (this.ack._updated) {
+        if (this.ack._updated)
+        {
             config.id = this.targetDeviceID;
             return true;
         }
@@ -709,7 +745,8 @@ class byrobot_base extends BaseModule {
      ***************************************************************************************/
     // #region Data Transfer to Device from Entry
 
-    read(handler, dataType, defaultValue = 0) {
+    read(handler, dataType, defaultValue = 0)
+    {
         return handler.e(dataType) ? handler.read(dataType) : defaultValue;
     }
 
@@ -726,13 +763,16 @@ class byrobot_base extends BaseModule {
             위와 같은 절차로 데이터를 전송해야 1회만 전송 됨.
             Entry.hw.update를 호출하면 등록된 값 전체를 한 번에 즉시 전송하는 것으로 보임
     */
-    handlerForEntry(handler) {
-        if (this.bufferTransfer == undefined) {
+    handlerForEntry(handler)
+    {
+        if (this.bufferTransfer == undefined)
+        {
             this.bufferTransfer = [];
         }
 
         // Buffer Clear
-        if (handler.e(this.DataType.BUFFER_CLEAR)) {
+        if (handler.e(this.DataType.BUFFER_CLEAR))
+        {
             this.bufferTransfer = [];
         }
 
@@ -740,7 +780,8 @@ class byrobot_base extends BaseModule {
 
         // Light Manual
         if (handler.e(this.DataType.LIGHT_MANUAL_FLAGS)       &&
-            handler.e(this.DataType.LIGHT_MANUAL_BRIGHTNESS)) {
+            handler.e(this.DataType.LIGHT_MANUAL_BRIGHTNESS))
+        {
             const flags       = this.read(handler, this.DataType.LIGHT_MANUAL_FLAGS);
             const brightness  = this.read(handler, this.DataType.LIGHT_MANUAL_BRIGHTNESS);
 
@@ -751,11 +792,12 @@ class byrobot_base extends BaseModule {
 
 
         // LightModeColor
-        if      (handler.e(this.DataType.LIGHT_MODE_MODE)      &&
+        if         (handler.e(this.DataType.LIGHT_MODE_MODE)      &&
                     handler.e(this.DataType.LIGHT_MODE_INTERVAL)  &&
                     handler.e(this.DataType.LIGHT_COLOR_R)        &&
                     handler.e(this.DataType.LIGHT_COLOR_G)        &&
-                    handler.e(this.DataType.LIGHT_COLOR_B)) {
+                    handler.e(this.DataType.LIGHT_COLOR_B))
+        {
             const mode        = this.read(handler, this.DataType.LIGHT_MODE_MODE);
             const interval    = this.read(handler, this.DataType.LIGHT_MODE_INTERVAL);
             const r           = this.read(handler, this.DataType.LIGHT_COLOR_R);
@@ -767,8 +809,9 @@ class byrobot_base extends BaseModule {
             this.log('BYROBOT_BASE - Transfer_To_Device - LightModeColor', dataArray);
         }
         // LightMode
-        else if (handler.e(this.DataType.LIGHT_MODE_MODE)      &&
-                    handler.e(this.DataType.LIGHT_MODE_INTERVAL)) {
+        else if    (handler.e(this.DataType.LIGHT_MODE_MODE)      &&
+                    handler.e(this.DataType.LIGHT_MODE_INTERVAL))
+        {
             const mode        = this.read(handler, this.DataType.LIGHT_MODE_MODE);
             const interval    = this.read(handler, this.DataType.LIGHT_MODE_INTERVAL);
 
@@ -779,12 +822,13 @@ class byrobot_base extends BaseModule {
         
 
         // LightEventColor
-        if      (handler.e(this.DataType.LIGHT_EVENT_EVENT)     &&
+        if         (handler.e(this.DataType.LIGHT_EVENT_EVENT)     &&
                     handler.e(this.DataType.LIGHT_EVENT_INTERVAL)  &&
                     handler.e(this.DataType.LIGHT_EVENT_REPEAT)    &&
                     handler.e(this.DataType.LIGHT_COLOR_R)         &&
                     handler.e(this.DataType.LIGHT_COLOR_G)         &&
-                    handler.e(this.DataType.LIGHT_COLOR_B)) {
+                    handler.e(this.DataType.LIGHT_COLOR_B))
+        {
             const event       = this.read(handler, this.DataType.LIGHT_EVENT_EVENT);
             const interval    = this.read(handler, this.DataType.LIGHT_EVENT_INTERVAL);
             const repeat      = this.read(handler, this.DataType.LIGHT_EVENT_REPEAT);
@@ -797,9 +841,10 @@ class byrobot_base extends BaseModule {
             this.log('BYROBOT_BASE - Transfer_To_Device - LightEventColor', dataArray);
         }
         // LightEvent
-        else if (handler.e(this.DataType.LIGHT_EVENT_EVENT)     &&
+        else if    (handler.e(this.DataType.LIGHT_EVENT_EVENT)     &&
                     handler.e(this.DataType.LIGHT_EVENT_INTERVAL)  &&
-                    handler.e(this.DataType.LIGHT_EVENT_REPEAT)) {
+                    handler.e(this.DataType.LIGHT_EVENT_REPEAT))
+        {
             const event       = this.read(handler, this.DataType.LIGHT_EVENT_EVENT);
             const interval    = this.read(handler, this.DataType.LIGHT_EVENT_INTERVAL);
             const repeat      = this.read(handler, this.DataType.LIGHT_EVENT_REPEAT);
@@ -811,7 +856,8 @@ class byrobot_base extends BaseModule {
 
 
         // 화면 전체 지우기
-        if (handler.e(this.DataType.DISPLAY_CLEAR_ALL_PIXEL)) {
+        if (handler.e(this.DataType.DISPLAY_CLEAR_ALL_PIXEL))
+        {
             const pixel   = this.read(handler, this.DataType.DISPLAY_CLEAR_ALL_PIXEL);
 
             const dataArray = this.reserveDisplayClearAll(target, pixel);
@@ -822,7 +868,8 @@ class byrobot_base extends BaseModule {
 
         // 선택 영역 지우기
         if (handler.e(this.DataType.DISPLAY_CLEAR_WIDTH)  ||
-            handler.e(this.DataType.DISPLAY_CLEAR_HEIGHT)) {
+            handler.e(this.DataType.DISPLAY_CLEAR_HEIGHT))
+        {
             const x       = this.read(handler, this.DataType.DISPLAY_CLEAR_X);
             const y       = this.read(handler, this.DataType.DISPLAY_CLEAR_Y);
             const width   = this.read(handler, this.DataType.DISPLAY_CLEAR_WIDTH);
@@ -837,7 +884,8 @@ class byrobot_base extends BaseModule {
 
         // 선택 영역 반전
         if (handler.e(this.DataType.DISPLAY_INVERT_WIDTH)  ||
-            handler.e(this.DataType.DISPLAY_INVERT_HEIGHT)) {
+            handler.e(this.DataType.DISPLAY_INVERT_HEIGHT))
+        {
             const x       = this.read(handler, this.DataType.DISPLAY_INVERT_X);
             const y       = this.read(handler, this.DataType.DISPLAY_INVERT_Y);
             const width   = this.read(handler, this.DataType.DISPLAY_INVERT_WIDTH);
@@ -852,7 +900,8 @@ class byrobot_base extends BaseModule {
         // 화면에 점 찍기
         if (handler.e(this.DataType.DISPLAY_DRAW_POINT_X)      ||
             handler.e(this.DataType.DISPLAY_DRAW_POINT_Y)      ||
-            handler.e(this.DataType.DISPLAY_DRAW_POINT_PIXEL)) {
+            handler.e(this.DataType.DISPLAY_DRAW_POINT_PIXEL))
+        {
             const x       = this.read(handler, this.DataType.DISPLAY_DRAW_POINT_X);
             const y       = this.read(handler, this.DataType.DISPLAY_DRAW_POINT_Y);
             const pixel   = this.read(handler, this.DataType.DISPLAY_DRAW_POINT_PIXEL);
@@ -867,7 +916,8 @@ class byrobot_base extends BaseModule {
         if (handler.e(this.DataType.DISPLAY_DRAW_LINE_X1)  ||
             handler.e(this.DataType.DISPLAY_DRAW_LINE_Y1)  ||
             handler.e(this.DataType.DISPLAY_DRAW_LINE_X2)  ||
-            handler.e(this.DataType.DISPLAY_DRAW_LINE_Y2)) {
+            handler.e(this.DataType.DISPLAY_DRAW_LINE_Y2))
+        {
             const x1      = this.read(handler, this.DataType.DISPLAY_DRAW_LINE_X1);
             const y1      = this.read(handler, this.DataType.DISPLAY_DRAW_LINE_Y1);
             const x2      = this.read(handler, this.DataType.DISPLAY_DRAW_LINE_X2);
@@ -883,7 +933,8 @@ class byrobot_base extends BaseModule {
         
         // 화면에 사각형 그리기
         if (handler.e(this.DataType.DISPLAY_DRAW_RECT_WIDTH)   ||
-            handler.e(this.DataType.DISPLAY_DRAW_RECT_HEIGHT)) {
+            handler.e(this.DataType.DISPLAY_DRAW_RECT_HEIGHT))
+        {
             const x           = this.read(handler, this.DataType.DISPLAY_DRAW_RECT_X);
             const y           = this.read(handler, this.DataType.DISPLAY_DRAW_RECT_Y);
             const width       = this.read(handler, this.DataType.DISPLAY_DRAW_RECT_WIDTH);
@@ -899,7 +950,8 @@ class byrobot_base extends BaseModule {
 
 
         // 화면에 원 그리기
-        if (handler.e(this.DataType.DISPLAY_DRAW_CIRCLE_RADIUS)) {
+        if (handler.e(this.DataType.DISPLAY_DRAW_CIRCLE_RADIUS))
+        {
             const x        = this.read(handler, this.DataType.DISPLAY_DRAW_CIRCLE_X);
             const y        = this.read(handler, this.DataType.DISPLAY_DRAW_CIRCLE_Y);
             const radius   = this.read(handler, this.DataType.DISPLAY_DRAW_CIRCLE_RADIUS);
@@ -913,7 +965,8 @@ class byrobot_base extends BaseModule {
 
 
         // 화면에 문자열 쓰기
-        if (handler.e(this.DataType.DISPLAY_DRAW_STRING_STRING)) {
+        if (handler.e(this.DataType.DISPLAY_DRAW_STRING_STRING))
+        {
             const x       = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_X);
             const y       = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_Y);
             const font    = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_FONT);
@@ -927,7 +980,8 @@ class byrobot_base extends BaseModule {
 
 
         // 화면에 문자열 정렬하여 그리기
-        if (handler.e(this.DataType.DISPLAY_DRAW_STRING_ALIGN_STRING)) {
+        if (handler.e(this.DataType.DISPLAY_DRAW_STRING_ALIGN_STRING))
+        {
             const xStart  = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_ALIGN_X_START);
             const xEnd    = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_ALIGN_X_END);
             const y       = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_ALIGN_Y);
@@ -943,11 +997,13 @@ class byrobot_base extends BaseModule {
 
 
         // Command
-        if (handler.e(this.DataType.COMMAND_COMMAND)) {
+        if (handler.e(this.DataType.COMMAND_COMMAND))
+        {
             const command = this.read(handler, this.DataType.COMMAND_COMMAND);
             const option  = this.read(handler, this.DataType.COMMAND_OPTION);
 
-            switch (command) {
+            switch (command)
+            {
             case 0x01:  // CommandType::Stop
                 {
                     // 정지 명령 시 조종 입력 값 초기화
@@ -969,7 +1025,8 @@ class byrobot_base extends BaseModule {
         if (handler.e(this.DataType.CONTROL_QUAD8_ROLL)     ||
             handler.e(this.DataType.CONTROL_QUAD8_PITCH)    ||
             handler.e(this.DataType.CONTROL_QUAD8_YAW)      ||
-            handler.e(this.DataType.CONTROL_QUAD8_THROTTLE)) {
+            handler.e(this.DataType.CONTROL_QUAD8_THROTTLE))
+        {
             this.controlRoll     = this.read(handler, this.DataType.CONTROL_QUAD8_ROLL,     this.controlRoll);
             this.controlPitch    = this.read(handler, this.DataType.CONTROL_QUAD8_PITCH,    this.controlPitch);
             this.controlYaw      = this.read(handler, this.DataType.CONTROL_QUAD8_YAW,      this.controlYaw);
@@ -987,7 +1044,8 @@ class byrobot_base extends BaseModule {
             handler.e(this.DataType.CONTROL_POSITION_Z)                   ||
             handler.e(this.DataType.CONTROL_POSITION_VELOCITY)            ||
             handler.e(this.DataType.CONTROL_POSITION_HEADING)             ||
-            handler.e(this.DataType.CONTROL_POSITION_ROTATIONAL_VELOCITY)) {
+            handler.e(this.DataType.CONTROL_POSITION_ROTATIONAL_VELOCITY))
+        {
             const x                   = this.read(handler, this.DataType.CONTROL_POSITION_X);
             const y                   = this.read(handler, this.DataType.CONTROL_POSITION_Y);
             const z                   = this.read(handler, this.DataType.CONTROL_POSITION_Z);
@@ -1002,7 +1060,8 @@ class byrobot_base extends BaseModule {
 
 
         // MotorSingle
-        if (handler.e(this.DataType.MOTORSINGLE_TARGET)) {
+        if (handler.e(this.DataType.MOTORSINGLE_TARGET))
+        {
             const motor       = this.read(handler, this.DataType.MOTORSINGLE_TARGET);
             const rotation    = this.read(handler, this.DataType.MOTORSINGLE_ROTATION);
             const value       = this.read(handler, this.DataType.MOTORSINGLE_VALUE);
@@ -1014,7 +1073,8 @@ class byrobot_base extends BaseModule {
 
 
         // Buzzer
-        if (handler.e(this.DataType.BUZZER_MODE)) {
+        if (handler.e(this.DataType.BUZZER_MODE))
+        {
             const mode     = this.read(handler, this.DataType.BUZZER_MODE);
             const value    = this.read(handler, this.DataType.BUZZER_VALUE);
             const time     = this.read(handler, this.DataType.BUZZER_TIME);
@@ -1026,7 +1086,8 @@ class byrobot_base extends BaseModule {
 
 
         // Vibrator
-        if (handler.e(this.DataType.VIBRATOR_ON)) {
+        if (handler.e(this.DataType.VIBRATOR_ON))
+        {
             const mode   = this.read(handler, this.DataType.VIBRATOR_MODE);
             const on     = this.read(handler, this.DataType.VIBRATOR_ON);
             const off    = this.read(handler, this.DataType.VIBRATOR_OFF);
@@ -1048,11 +1109,14 @@ class byrobot_base extends BaseModule {
     // #region Data Transfer to Entry from Device
 
     // Entry에 데이터 전송
-    transferToEntry(handler) {
+    transferToEntry(handler)
+    {
         // Joystick
         {
-            if (this.joystick._updated) {
-                for (const key in this.joystick) {
+            if (this.joystick._updated)
+            {
+                for (const key in this.joystick)
+                {
                     handler.write(key, this.joystick[key]);
                 }
 
@@ -1062,8 +1126,10 @@ class byrobot_base extends BaseModule {
 
         // Button
         {
-            if (this.button._updated) {
-                for (const key in this.button) {
+            if (this.button._updated)
+            {
+                for (const key in this.button)
+                {
                     handler.write(key, this.button[key]);
                 }
 
@@ -1073,8 +1139,10 @@ class byrobot_base extends BaseModule {
 
         // State
         {
-            if (this.state._updated) {
-                for (const key in this.state) {
+            if (this.state._updated)
+            {
+                for (const key in this.state)
+                {
                     handler.write(key, this.state[key]);
                 }
 
@@ -1084,8 +1152,10 @@ class byrobot_base extends BaseModule {
     
         // Motion
         {
-            if (this.motion._updated) {
-                for (const key in this.motion) {
+            if (this.motion._updated)
+            {
+                for (const key in this.motion)
+                {
                     handler.write(key, this.motion[key]);
                 }
     
@@ -1095,8 +1165,10 @@ class byrobot_base extends BaseModule {
     
         // InformationAssembledForEntry
         {
-            if (this.informationAssembledForEntry._updated) {
-                for (const key in this.informationAssembledForEntry) {
+            if (this.informationAssembledForEntry._updated)
+            {
+                for (const key in this.informationAssembledForEntry)
+                {
                     handler.write(key, this.informationAssembledForEntry[key]);
                 }
     
@@ -1106,7 +1178,8 @@ class byrobot_base extends BaseModule {
 
         // Entry-hw information
         {
-            if (this.bufferTransfer == undefined) {
+            if (this.bufferTransfer == undefined)
+            {
                 this.bufferTransfer = [];
             }
 
@@ -1124,37 +1197,46 @@ class byrobot_base extends BaseModule {
     // #region Data Receiver from Device
 
     // 장치로부터 받은 데이터 배열 처리
-    receiverForDevice(dataArray) {
+    receiverForDevice(dataArray)
+    {
         //this.log(`BYROBOT_BASE - receiverForDevice() - Length : ${dataArray.length}`, dataArray);
 
-        if (dataArray == undefined || dataArray.length == 0) {
+        if (dataArray == undefined || dataArray.length == 0)
+        {
             return;
         }
 
         const i = 0;
 
         // 버퍼로부터 데이터를 읽어 하나의 완성된 데이터 블럭으로 변환
-        for (let i = 0; i < dataArray.length; i++) {
-            const data            = dataArray[i];
+        for (let i = 0; i < dataArray.length; i++)
+        {
+            const data          = dataArray[i];
             
             let flagContinue    = true;
             let flagSessionNext = false;
             let flagComplete    = false;
             
-            switch (this.indexSession) {
+            switch (this.indexSession)
+            {
             case 0: // Start Code
                 {               
-                    switch (this.indexReceiver) {
+                    switch (this.indexReceiver)
+                    {
                     case 0:
-                        if (data != 0x0A) {
+                        if (data != 0x0A)
+                        {
                             continue;
                         }
                         break;
                     
                     case 1:
-                        if (data != 0x55) {
+                        if (data != 0x55)
+                        {
                             flagContinue = false;
-                        } else {
+                        }
+                        else
+                        {
                             flagSessionNext = true;
                         }
                         break;
@@ -1164,7 +1246,8 @@ class byrobot_base extends BaseModule {
 
             case 1: // Header
                 {
-                    switch (this.indexReceiver) {
+                    switch (this.indexReceiver)
+                    {
                     case 0:
                         {
                             this.dataType = data;
@@ -1191,7 +1274,8 @@ class byrobot_base extends BaseModule {
                             this.to = data;
                             this.crc16Calculated = this.calcCRC16(data, this.crc16Calculated);
                             this.dataBlock = [];        // 수신 받은 데이터 블럭
-                            if (this.dataLength == 0) {
+                            if (this.dataLength == 0)
+                            {
                                 this.indexSession++;    // 데이터의 길이가 0인 경우 바로 CRC16으로 넘어가게 함
                             }
                             flagSessionNext = true;
@@ -1206,7 +1290,8 @@ class byrobot_base extends BaseModule {
                     this.dataBlock.push(data);
                     this.crc16Calculated = this.calcCRC16(data, this.crc16Calculated);
                     
-                    if (this.indexReceiver == this.dataLength - 1) {
+                    if (this.indexReceiver == this.dataLength - 1)
+                    {
                         flagSessionNext = true;
                     }
                 }
@@ -1214,7 +1299,8 @@ class byrobot_base extends BaseModule {
 
             case 3: // CRC16
                 {
-                    switch (this.indexReceiver) {
+                    switch (this.indexReceiver)
+                    {
                     case 0:
                         {
                             this.crc16Received = data;
@@ -1239,9 +1325,11 @@ class byrobot_base extends BaseModule {
             }
 
             // 데이터 전송 완료 처리
-            if (flagComplete) {
+            if (flagComplete)
+            {
                 //this.log(`BYROBOT_BASE - Receiver - CRC16 - Calculated : ${this.crc16Calculated.toString(16).toUpperCase()}, Received : ${this.crc16Received.toString(16).toUpperCase()}`);
-                if (this.crc16Calculated == this.crc16Received) {
+                if (this.crc16Calculated == this.crc16Received)
+                {
                     this.handlerForDevice();
                 }
 
@@ -1249,14 +1337,20 @@ class byrobot_base extends BaseModule {
             }
 
             // 데이터 처리 결과에 따라 인덱스 변수 처리
-            if (flagContinue) {
-                if (flagSessionNext) {
+            if (flagContinue)
+            {
+                if (flagSessionNext)
+                {
                     this.indexSession++;
                     this.indexReceiver = 0;             
-                } else {
+                }
+                else
+                {
                     this.indexReceiver++;
                 }
-            } else {
+            }
+            else
+            {
                 this.indexSession       = 0;        // 수신 받는 데이터의 세션
                 this.indexReceiver      = 0;        // 수신 받는 데이터의 세션 내 위치
             }
@@ -1273,7 +1367,8 @@ class byrobot_base extends BaseModule {
     // #region Data Handler for received data from Device
 
     // 장치로부터 받은 데이터 블럭 처리
-    handlerForDevice() {
+    handlerForDevice()
+    {
         /*
         // log 출력을  skip 할 대상만 case로 등록
         switch( this.dataType )
@@ -1300,10 +1395,12 @@ class byrobot_base extends BaseModule {
         this.timeReceive = (new Date()).getTime();
 
         // 상대측에 정상적으로 데이터를 전달했는지 확인
-        switch (this.dataType) {
+        switch (this.dataType)
+        {
         case 0x02:  // Ack
             {
-                if (this.updateAck()) {
+                if (this.updateAck())
+                {
                     // ping에 대한 ack는 로그 출력하지 않음
                     //if( this.ack.dataType != 0x01 )
                     {
@@ -1314,7 +1411,8 @@ class byrobot_base extends BaseModule {
                     if (this.bufferTransfer         != undefined                &&
                         this.bufferTransfer.length  > 0                         &&
                         this.dataTypeLastTransfered == this.ack.ack_dataType    &&
-                        this.crc16Transfered        == this.ack.ack_crc16) {
+                        this.crc16Transfered        == this.ack.ack_crc16)
+                    {
                         this.bufferTransfer.shift();
                         this.countTransferRepeat = 0;
                     }
@@ -1327,7 +1425,8 @@ class byrobot_base extends BaseModule {
                 // 마지막으로 요청한 데이터를 받았다면 
                 if (this.bufferTransfer         != undefined     &&
                     this.bufferTransfer.length  > 0              &&
-                    this.dataTypeLastTransfered == this.dataType) {
+                    this.dataTypeLastTransfered == this.dataType)
+                {
                     this.bufferTransfer.shift();
                     this.countTransferRepeat = 0;
                     
@@ -1338,7 +1437,8 @@ class byrobot_base extends BaseModule {
         }
 
         // 데이터 업데이트
-        switch (this.dataType) {
+        switch (this.dataType)
+        {
         case 0x40:  // State
             {
                 //this.log("BYROBOT_BASE - handlerForDevice() - Received - State - 0x40");
@@ -1393,27 +1493,33 @@ class byrobot_base extends BaseModule {
     // #region Data Transfer
 
     // 장치에 데이터 전송
-    transferToDevice() {
+    transferToDevice()
+    {
         const now = (new Date()).getTime();
 
-        if (now < this.timeTransferNext) {
+        if (now < this.timeTransferNext)
+        {
             return null;
         }
         
         this.timeTransferNext = now + this.timeTransferInterval;
 
-        if (this.bufferTransfer == undefined) {
+        if (this.bufferTransfer == undefined)
+        {
             this.bufferTransfer = [];
         }
 
         this.countReqeustDevice++;
 
-        if (this.bufferTransfer.length == 0) {
+        if (this.bufferTransfer.length == 0)
+        {
             // 예약된 요청이 없는 경우 데이터 요청 등록(현재는 자세 데이터 요청)
-            switch (this.targetDevice) {
+            switch (this.targetDevice)
+            {
             case 0x10:
                 {
-                    switch (this.countReqeustDevice % 10) {
+                    switch (this.countReqeustDevice % 10)
+                    {
                     case 0:    return this.reservePing(0x10);              // 드론
                     case 2:    return this.reservePing(0x20);              // 조종기
                     case 4:    return this.reserveRequest(0x10, 0x40);     // 드론
@@ -1429,12 +1535,16 @@ class byrobot_base extends BaseModule {
                 }
                 break;
             }
-        } else {
+        }
+        else
+        {
             // 예약된 요청이 있는 경우
-            switch (this.targetDevice) {
+            switch (this.targetDevice)
+            {
             case 0x10:
                 {
-                    switch (this.countReqeustDevice % 16) {
+                    switch (this.countReqeustDevice % 16)
+                    {
                     case 0:    return this.reserveRequest(0x10, 0x40);     // 드론
                     case 4:    return this.reserveRequest(0x10, 0x44);     // 드론, 자주 갱신되는 데이터 모음(엔트리)
                     case 8:    return this.reserveRequest(0x10, 0xA1);     // 드론, 자주 갱신되는 데이터 모음(엔트리)
@@ -1445,7 +1555,8 @@ class byrobot_base extends BaseModule {
 
             default:
                 {
-                    switch (this.countReqeustDevice % 10) {
+                    switch (this.countReqeustDevice % 10)
+                    {
                     case 0:     return this.reservePing(this.targetDevice);
                     default:    break;
                     }
@@ -1456,9 +1567,12 @@ class byrobot_base extends BaseModule {
 
         // 예약된 데이터 전송 처리
         const arrayTransfer = this.bufferTransfer[0];             // 전송할 데이터 배열(첫 번째 데이터 블럭 전송)
-        if (arrayTransfer[2] == 0x04) {
+        if (arrayTransfer[2] == 0x04)
+        {
             this.dataTypeLastTransfered = arrayTransfer[6];     // 요청한 데이터의 타입(Request인 경우)
-        } else {
+        }
+        else
+        {
             this.dataTypeLastTransfered = arrayTransfer[2];     // 전송한 데이터의 타입(이외의 모든 경우)
         }
         this.countTransferRepeat++;
@@ -1469,7 +1583,8 @@ class byrobot_base extends BaseModule {
         //this.log(`BYROBOT_BASE - transferToDevice - Repeat: ${this.countTransferRepeat}`, this.bufferTransfer[0]);
 
         // maxTransferRepeat 이상 전송했음에도 응답이 없는 경우엔 다음으로 넘어감
-        if (this.countTransferRepeat >= this.maxTransferRepeat) {
+        if (this.countTransferRepeat >= this.maxTransferRepeat)
+        {
             this.bufferTransfer.shift();
             this.countTransferRepeat = 0;
         }
@@ -1487,7 +1602,8 @@ class byrobot_base extends BaseModule {
     // #region Data Transfer Functions for Device
 
     // Ping
-    reservePing(target) {
+    reservePing(target)
+    {
         const dataArray   = new ArrayBuffer(8);
         const view        = new DataView(dataArray);
 
@@ -1500,7 +1616,8 @@ class byrobot_base extends BaseModule {
 
 
     // 데이터 요청
-    reserveRequest(target, dataType) {
+    reserveRequest(target, dataType)
+    {
         const dataArray   = new ArrayBuffer(1);
         const view        = new DataView(dataArray);
 
@@ -1512,7 +1629,8 @@ class byrobot_base extends BaseModule {
 
 
     // Command
-    reserveCommand(target, command, option) {
+    reserveCommand(target, command, option)
+    {
         const dataArray   = new ArrayBuffer(2);
         const view        = new DataView(dataArray);
 
@@ -1525,7 +1643,8 @@ class byrobot_base extends BaseModule {
 
 
     // Light Manual
-    reserveLightManual(target, flag, brightness) {
+    reserveLightManual(target, flag, brightness)
+    {
         const dataArray   = new ArrayBuffer(3);
         const view        = new DataView(dataArray);
 
@@ -1538,7 +1657,8 @@ class byrobot_base extends BaseModule {
 
 
     // LightModeColor
-    reserveLightModeColor(target, mode, interval, r, g, b) {
+    reserveLightModeColor(target, mode, interval, r, g, b)
+    {
         const dataArray   = new ArrayBuffer(6);
         const view        = new DataView(dataArray);
 
@@ -1554,7 +1674,8 @@ class byrobot_base extends BaseModule {
 
 
     // LightMode
-    reserveLightMode(target, mode, interval) {
+    reserveLightMode(target, mode, interval)
+    {
         const dataArray   = new ArrayBuffer(3);
         const view        = new DataView(dataArray);
 
@@ -1567,7 +1688,8 @@ class byrobot_base extends BaseModule {
 
 
     // LightEventColor
-    reserveLightEventColor(target, event, interval, repeat, r, g, b) {
+    reserveLightEventColor(target, event, interval, repeat, r, g, b)
+    {
         const dataArray   = new ArrayBuffer(7);
         const view        = new DataView(dataArray);
 
@@ -1584,7 +1706,8 @@ class byrobot_base extends BaseModule {
 
 
     // LightEvent
-    reserveLightEvent(target, event, interval, repeat) {
+    reserveLightEvent(target, event, interval, repeat)
+    {
         const dataArray   = new ArrayBuffer(4);
         const view        = new DataView(dataArray);
 
@@ -1598,7 +1721,8 @@ class byrobot_base extends BaseModule {
 
 
     // DisplayClearAll
-    reserveDisplayClearAll(target, pixel) {
+    reserveDisplayClearAll(target, pixel)
+    {
         const dataArray   = new ArrayBuffer(1);
         const view        = new DataView(dataArray);
 
@@ -1610,7 +1734,8 @@ class byrobot_base extends BaseModule {
 
 
     // DisplayClear
-    reserveDisplayClear(target, x, y, width, height, pixel) {
+    reserveDisplayClear(target, x, y, width, height, pixel)
+    {
         const dataArray   = new ArrayBuffer(9);
         const view        = new DataView(dataArray);
 
@@ -1626,7 +1751,8 @@ class byrobot_base extends BaseModule {
 
 
     // DisplayInvert
-    reserveDisplayInvert(target, x, y, width, height) {
+    reserveDisplayInvert(target, x, y, width, height)
+    {
         const dataArray   = new ArrayBuffer(8);
         const view        = new DataView(dataArray);
 
@@ -1641,7 +1767,8 @@ class byrobot_base extends BaseModule {
 
 
     // DisplayDrawPoint
-    reserveDisplayDrawPoint(target, x, y, pixel) {
+    reserveDisplayDrawPoint(target, x, y, pixel)
+    {
         const dataArray   = new ArrayBuffer(5);
         const view        = new DataView(dataArray);
 
@@ -1655,7 +1782,8 @@ class byrobot_base extends BaseModule {
 
 
     // DisplayDrawLine
-    reserveDisplayDrawLine(target, x1, y1, x2, y2, pixel, line) {
+    reserveDisplayDrawLine(target, x1, y1, x2, y2, pixel, line)
+    {
         const dataArray   = new ArrayBuffer(10);
         const view        = new DataView(dataArray);
 
@@ -1672,7 +1800,8 @@ class byrobot_base extends BaseModule {
 
 
     // DisplayDrawRect
-    reserveDisplayDrawRect(target, x, y, width, height, pixel, flagFill, line) {
+    reserveDisplayDrawRect(target, x, y, width, height, pixel, flagFill, line)
+    {
         const dataArray   = new ArrayBuffer(11);
         const view        = new DataView(dataArray);
 
@@ -1690,7 +1819,8 @@ class byrobot_base extends BaseModule {
 
 
     // DisplayDrawCircle
-    reserveDisplayDrawCircle(target, x, y, radius, pixel, flagFill) {
+    reserveDisplayDrawCircle(target, x, y, radius, pixel, flagFill)
+    {
         const dataArray   = new ArrayBuffer(8);
         const view        = new DataView(dataArray);
 
@@ -1706,7 +1836,8 @@ class byrobot_base extends BaseModule {
 
 
     // DisplayDrawString
-    reserveDisplayDrawString(target, x, y, font, pixel, string) {
+    reserveDisplayDrawString(target, x, y, font, pixel, string)
+    {
         const byteArrayString = this.stringToAsciiByteArray(string);
 
         const dataArray   = new ArrayBuffer(6 + byteArrayString.length);
@@ -1727,7 +1858,8 @@ class byrobot_base extends BaseModule {
 
 
     // DisplayDrawString
-    reserveDisplayDrawStringAlign(target, xStart, xEnd, y, align, font, pixel, string) {
+    reserveDisplayDrawStringAlign(target, xStart, xEnd, y, align, font, pixel, string)
+    {
         const byteArrayString = this.stringToAsciiByteArray(string);
 
         const dataArray   = new ArrayBuffer(9 + byteArrayString.length);
@@ -1750,7 +1882,8 @@ class byrobot_base extends BaseModule {
 
 
     // ControlQuad8
-    reserveControlQuad8(target, roll, pitch, yaw, throttle) {
+    reserveControlQuad8(target, roll, pitch, yaw, throttle)
+    {
         const dataArray   = new ArrayBuffer(4);
         const view        = new DataView(dataArray);
 
@@ -1765,7 +1898,8 @@ class byrobot_base extends BaseModule {
 
 
     // ControlPosition
-    reserveControlPosition(target, x, y, z, velocity, heading, rotationalVelocity) {
+    reserveControlPosition(target, x, y, z, velocity, heading, rotationalVelocity)
+    {
         const dataArray   = new ArrayBuffer(20);
         const view        = new DataView(dataArray);
 
@@ -1782,7 +1916,8 @@ class byrobot_base extends BaseModule {
 
 
     // MotorSingle
-    reserveMotorSingle(target, motor, rotation, value) {
+    reserveMotorSingle(target, motor, rotation, value)
+    {
         const dataArray   = new ArrayBuffer(4);
         const view        = new DataView(dataArray);
 
@@ -1796,7 +1931,8 @@ class byrobot_base extends BaseModule {
 
 
     // Buzzer
-    reserveBuzzer(target, mode, value, time) {
+    reserveBuzzer(target, mode, value, time)
+    {
         const dataArray   = new ArrayBuffer(5);
         const view        = new DataView(dataArray);
 
@@ -1810,7 +1946,8 @@ class byrobot_base extends BaseModule {
 
 
     // Vibrator
-    reserveVibrator(target, mode, on, off, total) {
+    reserveVibrator(target, mode, on, off, total)
+    {
         const dataArray   = new ArrayBuffer(7);
         const view        = new DataView(dataArray);
 
@@ -1826,7 +1963,8 @@ class byrobot_base extends BaseModule {
 
     // 전송 데이터 배열 생성
     // https://cryingnavi.github.io/javascript-typedarray/
-    createTransferBlock(dataType, to, dataBuffer) {
+    createTransferBlock(dataType, to, dataBuffer)
+    {
         const dataBlock   = new ArrayBuffer(2 + 4 + dataBuffer.byteLength + 2);  // Start Code + Header + Data + CRC16
         const view        = new DataView(dataBlock);
         const dataArray   = new Uint8Array(dataBuffer);
@@ -1847,7 +1985,8 @@ class byrobot_base extends BaseModule {
 
         // Data
         {
-            for (let i = 0; i < dataArray.length; i++) {
+            for (let i = 0; i < dataArray.length; i++)
+            {
                 view.setUint8((2 + 4 + i), dataArray[i]);
             }
         }
@@ -1858,7 +1997,8 @@ class byrobot_base extends BaseModule {
             const totalLength = 4 + dataArray.length; // 
             let crc16       = 0;
 
-            for (let i = 0; i < totalLength; i++) {
+            for (let i = 0; i < totalLength; i++)
+            {
                 crc16 = this.calcCRC16(view.getUint8(indexStart + i), crc16);
             }
             view.setUint16((2 + 4 + dataArray.length), crc16, true);
@@ -1869,18 +2009,21 @@ class byrobot_base extends BaseModule {
     }
 
 
-    fit(min, value, max) {
+    fit(min, value, max)
+    {
         return Math.max(Math.min(value, max), min);
     }
 
 
     // 값 추출
-    getByte(value, index) {
+    getByte(value, index)
+    {
         return ((value >> (index << 3)) & 0xff);
     }
 
 
-    getUint64(dataview, byteOffset, littleEndian) {
+    getUint64(dataview, byteOffset, littleEndian)
+    {
         // split 64-bit number into two 32-bit (4-byte) parts
         const left =  dataview.getUint32(byteOffset, littleEndian);
         const right = dataview.getUint32(byteOffset + 4, littleEndian);
@@ -1888,7 +2031,8 @@ class byrobot_base extends BaseModule {
         // combine the two 32-bit values
         const combined = (littleEndian) ? (left + 2 ** 32 * right) : (2 ** 32 * left + right);
 
-        if (!Number.isSafeInteger(combined)) {
+        if (!Number.isSafeInteger(combined))
+        {
             console.warn(combined, 'exceeds MAX_SAFE_INTEGER. Precision may be lost');
         }
 
@@ -1898,9 +2042,11 @@ class byrobot_base extends BaseModule {
 
     // 문자열을 ASCII 바이트 배열로 변환
     // https://stackoverflow.com/questions/6226189/how-to-convert-a-string-to-bytearray
-    stringToAsciiByteArray(str) {
+    stringToAsciiByteArray(str)
+    {
         const bytes = [];
-        for (let i = 0; i < str.length; i++) {
+        for (let i = 0; i < str.length; i++)
+        {
             const charCode = str.charCodeAt(i);
             if (charCode > 0xFF)  // char > 1 byte since charCodeAt returns the UTF-16 value
             {
@@ -1947,7 +2093,8 @@ class byrobot_base extends BaseModule {
     * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
     * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     */
-    createCRC16Array() {
+    createCRC16Array()
+    {
         this.log('BYROBOT_BASE - createCRC16Array()');
 
         this.crc16table =
@@ -1987,8 +2134,10 @@ class byrobot_base extends BaseModule {
         ];
     }
 
-    calcCRC16(data, crc) {
-        if (data > 255) {
+    calcCRC16(data, crc)
+    {
+        if (data > 255)
+        {
             throw new RangeError();
         }
 
@@ -2007,12 +2156,14 @@ class byrobot_base extends BaseModule {
      ***************************************************************************************/
     // #region Functions for log
 
-    log(message, data = undefined) {
+    log(message, data = undefined)
+    {
         // 로그를 출력하지 않으려면 아래 주석을 활성화 할 것
         //*
         let strInfo = '';
 
-        switch (typeof data) {
+        switch (typeof data)
+        {
         case 'object':
             {
                 strInfo = ` - [ ${this.convertByteArrayToHexString(data)} ]`;
@@ -2031,21 +2182,27 @@ class byrobot_base extends BaseModule {
 
 
     // 바이트 배열을 16진수 문자열로 변경 
-    convertByteArrayToHexString(data) {
+    convertByteArrayToHexString(data)
+    {
         let strHexArray = '';
         let strHex;
 
-        if (typeof data == 'object' && data.length > 1) {
-            for (let i = 0; i < data.length; i++) {
+        if (typeof data == 'object' && data.length > 1)
+        {
+            for (let i = 0; i < data.length; i++)
+            {
                 strHex = data[i].toString(16).toUpperCase();
                 strHexArray += ' ';
-                if (strHex.length == 1) {
+                if (strHex.length == 1)
+                {
                     strHexArray += '0';
                 }
                 strHexArray += strHex;
             }
             strHexArray = strHexArray.substr(1, strHexArray.length - 1);
-        } else {
+        }
+        else
+        {
             strHexArray = data.toString();
         }
         
