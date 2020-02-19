@@ -42,15 +42,15 @@ class RendererRouter {
         const initialServerMode =
             ipcRenderer.sendSync('getCurrentServerModeSync') || RunningModeTypes.server;
 
-        this._consoleWriteServerMode(initialServerMode);
+        this.consoleWriteServerMode(initialServerMode);
 
         ipcRenderer.removeAllListeners('hardwareListChanged');
         ipcRenderer.removeAllListeners('hardwareCloseConfirm');
         ipcRenderer.removeAllListeners('serverMode');
         ipcRenderer.on('hardwareListChanged', this.refreshHardwareModules.bind(this));
-        ipcRenderer.on('hardwareCloseConfirm', this._confirmHardwareClose.bind(this));
+        ipcRenderer.on('hardwareCloseConfirm', this.confirmHardwareClose.bind(this));
         ipcRenderer.on('serverMode', (event, mode) => {
-            this._consoleWriteServerMode(mode);
+            this.consoleWriteServerMode(mode);
         });
     }
 
@@ -98,24 +98,6 @@ class RendererRouter {
         ipcRenderer.send('reload');
     }
 
-    refreshHardwareModules() {
-        // configuration
-        const routerHardwareList = this._getHardwareListSync();
-        this.priorHardwareList.forEach((target, index) => {
-            const currentIndex = routerHardwareList.findIndex((item) => {
-                const itemName =
-                    item.name && item.name.ko ? item.name.ko : item.name;
-                return itemName === target;
-            });
-            if (currentIndex > -1) {
-                const temp = routerHardwareList[currentIndex];
-                routerHardwareList[currentIndex] = routerHardwareList[index];
-                routerHardwareList[index] = temp;
-            }
-        });
-        this._hardwareList = routerHardwareList;
-    }
-
     async checkProgramUpdate() {
         const { appName } = this.sharedObject;
         const { translator, Modal } = window;
@@ -160,11 +142,29 @@ class RendererRouter {
         }
     }
 
-    _getHardwareListSync(): IHardwareConfig[] {
+    private refreshHardwareModules() {
+        // configuration
+        const routerHardwareList = this.getHardwareListSync();
+        this.priorHardwareList.forEach((target, index) => {
+            const currentIndex = routerHardwareList.findIndex((item) => {
+                const itemName =
+                    item.name && item.name.ko ? item.name.ko : item.name;
+                return itemName === target;
+            });
+            if (currentIndex > -1) {
+                const temp = routerHardwareList[currentIndex];
+                routerHardwareList[currentIndex] = routerHardwareList[index];
+                routerHardwareList[index] = temp;
+            }
+        });
+        this._hardwareList = routerHardwareList;
+    }
+
+    private getHardwareListSync(): IHardwareConfig[] {
         return ipcRenderer.sendSync('requestHardwareListSync');
     }
 
-    _consoleWriteServerMode(mode: RunningModeTypes) {
+    private consoleWriteServerMode(mode: RunningModeTypes) {
         if (this.serverMode === mode) {
             return;
         }
@@ -180,7 +180,7 @@ class RendererRouter {
         this.serverMode = mode;
     }
 
-    _confirmHardwareClose() {
+    private confirmHardwareClose() {
         const { translator } = window;
         const translate = (str: string) => translator.translate(str);
         let isQuit = true;
