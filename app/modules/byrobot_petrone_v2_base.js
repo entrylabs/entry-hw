@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 const _ = require('lodash');
 const BaseModule = require('./baseModule');
 
@@ -629,7 +630,7 @@ class byrobot_petrone_v2_base extends BaseModule {
         if (this.dataBlock != undefined && this.dataBlock.length == 38) {
             const array = Uint8Array.from(this.dataBlock);
             const view  = new DataView(array.buffer);
-   
+
             const kAccel  = (9.8 / 2048);       // 1g (중력가속도) = 9.8 m/s^2 로 만들기 위한 변환 상수
             const kGyro   = (2000 / 32767);     // 각 속도 (deg/s) 를 만들기 위한 변환 상수
 

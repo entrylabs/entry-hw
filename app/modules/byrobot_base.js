@@ -297,7 +297,7 @@ class byrobot_base extends BaseModule {
         this.isConnect = true;
         this.serialport = serialport;
 
-        //this.log("BYROBOT_BASE - requestInitialData(0x" + this.targetDevice.toString(16).toUpperCase() + ")");
+        //this.log(`BYROBOT_BASE - requestInitialData(0x${this.targetDevice.toString(16).toUpperCase()})`);
         return this.reservePing(this.targetDevice);
     }
 
@@ -502,7 +502,7 @@ class byrobot_base extends BaseModule {
     }
 
     updateState() {
-        //this.log('BYROBOT_BASE - updateState() - length : ' + this.dataBlock.length);
+        //this.log(`BYROBOT_BASE - updateState() - length : ${this.dataBlock.length}`);
 
         if (this.dataBlock != undefined && this.dataBlock.length == 8) {
             const array = Uint8Array.from(this.dataBlock);
@@ -532,7 +532,7 @@ class byrobot_base extends BaseModule {
     }
 
     updateButton() {
-        //this.log('BYROBOT_BASE - updateButton() - length : ' + this.dataBlock.length);
+        //this.log(`BYROBOT_BASE - updateButton() - length : ${this.dataBlock.length}`);
 
         if (this.dataBlock != undefined && this.dataBlock.length == 3) {
             const array = Uint8Array.from(this.dataBlock);
@@ -562,7 +562,7 @@ class byrobot_base extends BaseModule {
     }
 
     updateJoystick() {
-        //this.log("BYROBOT_BASE - updateJoystick() - length : " + this.dataBlock.length);
+        //this.log(`BYROBOT_BASE - updateJoystick() - length : ${this.dataBlock.length}`);
 
         if (this.dataBlock != undefined && this.dataBlock.length == 8) {
             const array = Uint8Array.from(this.dataBlock);
@@ -599,7 +599,7 @@ class byrobot_base extends BaseModule {
     }
 
     updateMotion() {
-        this.log("BYROBOT_BASE - updateMotion() - length : " + this.dataBlock.length);
+        this.log(`BYROBOT_BASE - updateMotion() - length : ${this.dataBlock.length}`);
 
         if (this.dataBlock != undefined && this.dataBlock.length == 18) {
             const array = Uint8Array.from(this.dataBlock);
@@ -654,7 +654,7 @@ class byrobot_base extends BaseModule {
     }
 
     updateInformationAssembledForEntry() {
-        //this.log("BYROBOT_BASE - updateInformationAssembledForEntry() - length : " + this.dataBlock.length);
+        //this.log(`BYROBOT_BASE - updateInformationAssembledForEntry() - length : ${this.dataBlock.length}`);
 
         if (this.dataBlock != undefined && this.dataBlock.length == 18) {
             const array = Uint8Array.from(this.dataBlock);
@@ -928,15 +928,15 @@ class byrobot_base extends BaseModule {
 
         // 화면에 문자열 정렬하여 그리기
         if (handler.e(this.DataType.DISPLAY_DRAW_STRING_ALIGN_STRING)) {
-            const x_start = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_ALIGN_X_START);
-            const x_end   = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_ALIGN_X_END);
+            const xStart  = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_ALIGN_X_START);
+            const xEnd    = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_ALIGN_X_END);
             const y       = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_ALIGN_Y);
             const align   = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_ALIGN_ALIGN);
             const font    = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_ALIGN_FONT);
             const pixel   = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_ALIGN_PIXEL);
             const string  = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_ALIGN_STRING);
 
-            const dataArray = this.reserveDisplayDrawStringAlign(target, x_start, x_end, y, align, font, pixel, string);
+            const dataArray = this.reserveDisplayDrawStringAlign(target, xStart, xEnd, y, align, font, pixel, string);
             this.bufferTransfer.push(dataArray);
             this.log('BYROBOT_BASE - Transfer_To_Device - DisplayDrawStringAlign', dataArray);
         }
@@ -1125,7 +1125,7 @@ class byrobot_base extends BaseModule {
 
     // 장치로부터 받은 데이터 배열 처리
     receiverForDevice(dataArray) {
-        //this.log("BYROBOT_BASE - receiverForDevice() - Length : " + dataArray.length, dataArray);
+        //this.log(`BYROBOT_BASE - receiverForDevice() - Length : ${dataArray.length}`, dataArray);
 
         if (dataArray == undefined || dataArray.length == 0) {
             return;
@@ -1240,7 +1240,7 @@ class byrobot_base extends BaseModule {
 
             // 데이터 전송 완료 처리
             if (flagComplete) {
-                //this.log("BYROBOT_BASE - Receiver - CRC16 - Calculated : " + this.crc16Calculated.toString(16).toUpperCase() + ", Received : " + this.crc16Received.toString(16).toUpperCase());
+                //this.log(`BYROBOT_BASE - Receiver - CRC16 - Calculated : ${this.crc16Calculated.toString(16).toUpperCase()}, Received : ${this.crc16Received.toString(16).toUpperCase()}`);
                 if (this.crc16Calculated == this.crc16Received) {
                     this.handlerForDevice();
                 }
@@ -1466,7 +1466,7 @@ class byrobot_base extends BaseModule {
 
         this.crc16Transfered = (arrayTransfer[arrayTransfer.length - 1] << 8) | (arrayTransfer[arrayTransfer.length - 2]);
 
-        //this.log("BYROBOT_BASE - transferToDevice - Repeat: " + this.countTransferRepeat, this.bufferTransfer[0]);
+        //this.log(`BYROBOT_BASE - transferToDevice - Repeat: ${this.countTransferRepeat}`, this.bufferTransfer[0]);
 
         // maxTransferRepeat 이상 전송했음에도 응답이 없는 경우엔 다음으로 넘어감
         if (this.countTransferRepeat >= this.maxTransferRepeat) {
@@ -1494,7 +1494,7 @@ class byrobot_base extends BaseModule {
         view.setUint32(0, 0, true);
         view.setUint32(4, 0, true);
 
-        //this.log("BYROBOT_BASE - reservePing() - Target: 0x" + target.toString(16).toUpperCase());
+        //this.log(`BYROBOT_BASE - reservePing() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x01, target, dataArray);
     }
 
@@ -1506,7 +1506,7 @@ class byrobot_base extends BaseModule {
 
         view.setUint8(0, this.fit(0, dataType, 0xFF));
 
-        //this.log("BYROBOT_BASE - reserveRequest() - Target: 0x" + target.toString(16).toUpperCase() + " - DataType: 0x", dataType.toString(16).toUpperCase());
+        //this.log(`BYROBOT_BASE - reserveRequest() - Target: 0x${target.toString(16).toUpperCase()} - DataType: 0x`, dataType.toString(16).toUpperCase());
         return this.createTransferBlock(0x04, target, dataArray);
     }
 
@@ -1519,7 +1519,7 @@ class byrobot_base extends BaseModule {
         view.setUint8   (0, this.fit(0, command, 0xFF));
         view.setUint8   (1, this.fit(0, option, 0xFF));
 
-        //this.log("BYROBOT_BASE - reserveCommand() - Target: 0x" + target.toString(16).toUpperCase());
+        this.log(`BYROBOT_BASE - reserveCommand() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x11, target, dataArray);
     }
 
@@ -1620,7 +1620,7 @@ class byrobot_base extends BaseModule {
         view.setInt16   (6, this.fit(-4096, height, 4095), true);
         view.setUint8   (8, this.fit(0, pixel, 0xFF));
 
-        //this.log("BYROBOT_BASE - reserveDisplayClear() - Target: 0x" + target.toString(16).toUpperCase());
+        this.log(`BYROBOT_BASE - reserveDisplayClear() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x80, target, dataArray);
     }
 
@@ -1635,7 +1635,7 @@ class byrobot_base extends BaseModule {
         view.setInt16   (4, this.fit(-4096, width, 4095), true);
         view.setInt16   (6, this.fit(-4096, height, 4095), true);
 
-        //this.log("BYROBOT_BASE - reserveDisplayInvert() - Target: 0x" + target.toString(16).toUpperCase());
+        this.log(`BYROBOT_BASE - reserveDisplayInvert() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x81, target, dataArray);
     }
 
@@ -1649,7 +1649,7 @@ class byrobot_base extends BaseModule {
         view.setInt16   (2, this.fit(-4096, y, 4095), true);
         view.setUint8   (4, this.fit(0, pixel, 0xFF));
 
-        //this.log("BYROBOT_BASE - reserveDisplayDrawPoint() - Target: 0x" + target.toString(16).toUpperCase());
+        this.log(`BYROBOT_BASE - reserveDisplayDrawPoint() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x82, target, dataArray);
     }
 
@@ -1666,7 +1666,7 @@ class byrobot_base extends BaseModule {
         view.setUint8   (8, this.fit(0, pixel, 0xFF));
         view.setUint8   (9, this.fit(0, line, 0xFF));
 
-        //this.log("BYROBOT_BASE - reserveDisplayDrawLine() - Target: 0x" + target.toString(16).toUpperCase());
+        this.log(`BYROBOT_BASE - reserveDisplayDrawLine() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x83, target, dataArray);
     }
 
@@ -1684,7 +1684,7 @@ class byrobot_base extends BaseModule {
         view.setUint8   (9, this.fit(0, flagFill, 0xFF));
         view.setUint8   (10, this.fit(0, line, 0xFF));
 
-        //this.log("BYROBOT_BASE - reserveDisplayDrawRect() - Target: 0x" + target.toString(16).toUpperCase());
+        this.log(`BYROBOT_BASE - reserveDisplayDrawRect() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x84, target, dataArray);
     }
 
@@ -1700,7 +1700,7 @@ class byrobot_base extends BaseModule {
         view.setUint8   (6, this.fit(0, pixel, 0xFF));
         view.setUint8   (7, this.fit(0, flagFill, 0xFF));
 
-        //this.log("BYROBOT_BASE - reserveDisplayDrawCircle() - Target: 0x" + target.toString(16).toUpperCase());
+        this.log(`BYROBOT_BASE - reserveDisplayDrawCircle() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x85, target, dataArray);
     }
 
@@ -1721,20 +1721,20 @@ class byrobot_base extends BaseModule {
             view.setUint8((6 + i), byteArrayString[i]);
         }
 
-        //this.log("BYROBOT_BASE - reserveDisplayDrawString() - Target: 0x" + target.toString(16).toUpperCase());
+        this.log(`BYROBOT_BASE - reserveDisplayDrawString() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x86, target, dataArray);
     }
 
 
     // DisplayDrawString
-    reserveDisplayDrawStringAlign(target, x_start, x_end, y, align, font, pixel, string) {
+    reserveDisplayDrawStringAlign(target, xStart, xEnd, y, align, font, pixel, string) {
         const byteArrayString = this.stringToAsciiByteArray(string);
 
         const dataArray   = new ArrayBuffer(9 + byteArrayString.length);
         const view        = new DataView(dataArray);
 
-        view.setInt16   (0, this.fit(-4096, x_start, 4095), true);
-        view.setInt16   (2, this.fit(-4096, x_end, 4095), true);
+        view.setInt16   (0, this.fit(-4096, xStart, 4095), true);
+        view.setInt16   (2, this.fit(-4096, xEnd, 4095), true);
         view.setInt16   (4, this.fit(-4096, y, 4095), true);
         view.setUint8   (6, this.fit(0, align, 0xFF));
         view.setUint8   (7, this.fit(0, font, 0xFF));
@@ -1744,7 +1744,7 @@ class byrobot_base extends BaseModule {
             view.setUint8((9 + i), byteArrayString[i]);
         }
 
-        //this.log("BYROBOT_BASE - reserveDisplayDrawStringAlign() - Target: 0x" + target.toString(16).toUpperCase());
+        this.log(`BYROBOT_BASE - reserveDisplayDrawStringAlign() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x87, target, dataArray);
     }
 
@@ -1759,7 +1759,7 @@ class byrobot_base extends BaseModule {
         view.setInt8   (2, this.fit(-120, yaw, 120));
         view.setInt8   (3, this.fit(-120, throttle, 120));
 
-        //this.log("BYROBOT_BASE - reserveControlQuad8() - Target: 0x" + target.toString(16).toUpperCase());
+        this.log(`BYROBOT_BASE - reserveControlQuad8() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x10, target, dataArray);
     }
 
@@ -1776,7 +1776,7 @@ class byrobot_base extends BaseModule {
         view.setInt16   (16, this.fit(-3600, heading, 3600), true);
         view.setInt16   (18, this.fit(-3600, rotationalVelocity, 3600), true);
 
-        //this.log("BYROBOT_BASE - reserveControlPosition() - Target: 0x" + target.toString(16).toUpperCase());
+        this.log(`BYROBOT_BASE - reserveControlPosition() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x10, target, dataArray);
     }
 
@@ -1790,7 +1790,7 @@ class byrobot_base extends BaseModule {
         view.setUint8   (1, this.fit(0, rotation, 0xFF));
         view.setInt16   (2, this.fit(-4095, value, 4095));
 
-        //this.log("BYROBOT_BASE - reserveMotorSingle() - Target: 0x" + target.toString(16).toUpperCase());
+        this.log(`BYROBOT_BASE - reserveMotorSingle() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x61, target, dataArray);
     }
 
@@ -1804,7 +1804,7 @@ class byrobot_base extends BaseModule {
         view.setUint16  (1, this.fit(0, value, 0xFFFF), true);
         view.setUint16  (3, this.fit(0, time, 0xFFFF), true);
 
-        //this.log("BYROBOT_BASE - reserveBuzzer() - Target: 0x" + target.toString(16).toUpperCase());
+        this.log(`BYROBOT_BASE - reserveBuzzer() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x62, target, dataArray);
     }
 
@@ -1819,7 +1819,7 @@ class byrobot_base extends BaseModule {
         view.setUint16  (3, this.fit(0, off, 0xFFFF), true);
         view.setUint16  (5, this.fit(0, total, 0xFFFF), true);
 
-        //this.log("BYROBOT_BASE - reserveVibrator() - Target: 0x" + target.toString(16).toUpperCase());
+        this.log(`BYROBOT_BASE - reserveVibrator() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x63, target, dataArray);
     }
 
@@ -1904,7 +1904,7 @@ class byrobot_base extends BaseModule {
             const charCode = str.charCodeAt(i);
             if (charCode > 0xFF)  // char > 1 byte since charCodeAt returns the UTF-16 value
             {
-                // throw new Error('Character ' + String.fromCharCode(charCode) + ' can\'t be represented by a US-ASCII byte.');
+                //throw new Error(`Character ${String.fromCharCode(charCode)} can't be represented by a US-ASCII byte.`);
                 continue;
             }
             bytes.push(charCode);
