@@ -1,3 +1,4 @@
+/* eslint-disable brace-style */
 /* eslint-disable max-len */
 const _ = require('lodash');
 const BaseModule = require('./baseModule');
@@ -219,6 +220,22 @@ class byrobot_petrone_v2_base extends BaseModule {
         };
 
 
+        // Motion
+        this.motion = 
+        {
+            _updated            : 1,
+            motion_accelX       : 0,    // u8
+            motion_accelY       : 0,    // u8
+            motion_accelZ       : 0,    // u8
+            motion_gyroRoll     : 0,    // u8
+            motion_gyroPitch    : 0,    // u8
+            motion_gyroYaw      : 0,    // u8
+            motion_angleRoll    : 0,    // u8
+            motion_anglePitch   : 0,    // u8
+            motion_angleYaw     : 0,    // u8
+        };
+
+
         // InformationAssembledForEntry
         this.informationAssembledForEntry =
         {
@@ -403,6 +420,9 @@ class byrobot_petrone_v2_base extends BaseModule {
         // Button
         this.clearButton();
 
+        // Motion
+        this.clearMotion();
+
         // InformationAssembledForEntry
         this.clearInformationAssembledForEntry();
 
@@ -496,7 +516,7 @@ class byrobot_petrone_v2_base extends BaseModule {
     }
 
     updateState() {
-        this.log('BYROBOT_PETRONE_V2_BASE - updateState()');
+        //this.log(`BYROBOT_PETRONE_V2_BASE - updateState() - length : ${this.dataBlock.length}`);
 
         if (this.dataBlock != undefined && this.dataBlock.length == 7) {
             const array = Uint8Array.from(this.dataBlock);
@@ -602,6 +622,62 @@ class byrobot_petrone_v2_base extends BaseModule {
             return true;
         }
 
+        return false;
+    }
+
+
+    clearMotion() {
+        this.motion._updated            = false;
+        this.motion.motion_accelX       = 0;
+        this.motion.motion_accelY       = 0;
+        this.motion.motion_accelZ       = 0;
+        this.motion.motion_gyroRoll     = 0;
+        this.motion.motion_gyroPitch    = 0;
+        this.motion.motion_gyroYaw      = 0;
+        this.motion.motion_angleRoll    = 0;
+        this.motion.motion_anglePitch   = 0;
+        this.motion.motion_angleYaw     = 0;
+    }
+
+    updateMotion() {
+        this.log(`BYROBOT_PETRONE_V2_BASE - updateMotion() - length : ${this.dataBlock.length}`);
+
+        if (this.dataBlock != undefined && this.dataBlock.length == 18) {
+            const array = Uint8Array.from(this.dataBlock);
+            const view  = new DataView(array.buffer);
+
+            /*
+            this.motion._updated            = true;
+            this.motion.motion_accelX       = view.getInt16(0, true);
+            this.motion.motion_accelY       = view.getInt16(2, true);
+            this.motion.motion_accelZ       = view.getInt16(4, true);
+            this.motion.motion_gyroRoll     = view.getInt16(6, true);
+            this.motion.motion_gyroPitch    = view.getInt16(8, true);
+            this.motion.motion_gyroYaw      = view.getInt16(10, true);
+            this.motion.motion_angleRoll    = view.getInt16(12, true);
+            this.motion.motion_anglePitch   = view.getInt16(14, true);
+            this.motion.motion_angleYaw     = view.getInt16(16, true);
+            // */
+
+            //*
+            const kAccel  = (9.8f / 2048);          // 1g (중력가속도) = 9.8 m/s^2 로 만들기 위한 변환 상수
+            const kGyro   = (2000.0f / 32767);      // 각 속도 (deg/s) 를 만들기 위한 변환 상수
+
+            this.motion._updated            = true;
+            this.motion.motion_accelX       = (view.getInt16(0, true) * kAccel).toFixed(2);
+            this.motion.motion_accelY       = (view.getInt16(2, true) * kAccel).toFixed(2);
+            this.motion.motion_accelZ       = (view.getInt16(4, true) * kAccel).toFixed(2);
+            this.motion.motion_gyroRoll     = (view.getInt16(6, true) * kGyro).toFixed(2);
+            this.motion.motion_gyroPitch    = (view.getInt16(8, true) * kGyro).toFixed(2);
+            this.motion.motion_gyroYaw      = (view.getInt16(10, true) * kGyro).toFixed(2);
+            this.motion.motion_angleRoll    = view.getInt16(12, true);
+            this.motion.motion_anglePitch   = view.getInt16(14, true);
+            this.motion.motion_angleYaw     = view.getInt16(16, true);
+            // */
+
+            return true;
+        }
+        
         return false;
     }
 
@@ -932,15 +1008,15 @@ class byrobot_petrone_v2_base extends BaseModule {
 
         // 화면에 문자열 정렬하여 그리기
         if (handler.e(this.DataType.DISPLAY_DRAW_STRING_ALIGN_STRING)) {
-            const x_start = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_ALIGN_X_START);
-            const x_end   = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_ALIGN_X_END);
+            const xStart  = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_ALIGN_X_START);
+            const xEnd    = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_ALIGN_X_END);
             const y       = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_ALIGN_Y);
             const align   = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_ALIGN_ALIGN);
             const font    = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_ALIGN_FONT);
             const pixel   = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_ALIGN_PIXEL);
             const string  = this.read(handler, this.DataType.DISPLAY_DRAW_STRING_ALIGN_STRING);
 
-            const dataArray = this.reserveDisplayDrawStringAlign(target, x_start, x_end, y, align, font, pixel, string);
+            const dataArray = this.reserveDisplayDrawStringAlign(target, xStart, xEnd, y, align, font, pixel, string);
             this.bufferTransfer.push(dataArray);
             this.log('BYROBOT_PETRONE_V2_BASE - Transfer_To_Device - DisplayDrawStringAlign', dataArray);
         }
@@ -1095,6 +1171,17 @@ class byrobot_petrone_v2_base extends BaseModule {
             }
         }
     
+        // Motion
+        {
+            if (this.motion._updated) {
+                for (const key in this.motion) {
+                    handler.write(key, this.motion[key]);
+                }
+    
+                this.motion._updated = false;
+            }
+        }
+    
         // InformationAssembledForEntry
         {
             if (this.informationAssembledForEntry._updated) {
@@ -1138,7 +1225,7 @@ class byrobot_petrone_v2_base extends BaseModule {
 
     // 장치로부터 받은 데이터 배열 처리
     receiverForDevice(dataArray) {
-        //this.log("BYROBOT_PETRONE_V2_BASE - receiverForDevice() - Length : " + dataArray.length, dataArray);
+        //this.log(`BYROBOT_PETRONE_V2_BASE - receiverForDevice() - Length : ${dataArray.length}`, dataArray);
 
         if (dataArray == undefined || dataArray.length == 0) {
             return;
@@ -1253,7 +1340,7 @@ class byrobot_petrone_v2_base extends BaseModule {
 
             // 데이터 전송 완료 처리
             if (flagComplete) {
-                //this.log("BYROBOT_PETRONE_V2_BASE - Receiver - CRC16 - Calculated : " + this.crc16Calculated.toString(16).toUpperCase() + ", Received : " + this.crc16Received.toString(16).toUpperCase());
+                //this.log(`BYROBOT_PETRONE_V2_BASE - Receiver - CRC16 - Calculated : ${this.crc16Calculated.toString(16).toUpperCase()}, Received : ${this.crc16Received.toString(16).toUpperCase()}`);
                 if (this.crc16Calculated == this.crc16Received) {
                     this.handlerForDevice();
                 }
@@ -1370,6 +1457,14 @@ class byrobot_petrone_v2_base extends BaseModule {
             break;
 
 
+        case 0x50:  // Motion
+            {
+                //this.log("BYROBOT_PETRONE_V2_BASE - handlerForDevice() - Received - Motion - 0x50");
+                this.updateMotion();
+            }
+            break;
+
+
         case 0x82:  // IR Message
             {
                 //this.log("BYROBOT_PETRONE_V2_BASE - handlerForDevice() - Received - IRMessage - 0x82");
@@ -1421,10 +1516,11 @@ class byrobot_petrone_v2_base extends BaseModule {
             switch (this.targetDevice) {
             case 0x30:
                 {
-                    switch (this.countReqeustDevice % 6) {
+                    switch (this.countReqeustDevice % 10) {
                     case 0:    return this.reservePing(0x30);              // 드론
                     case 2:    return this.reservePing(0x31);              // 조종기
                     case 4:    return this.reserveRequest(0x30, 0x40);     // 드론, 드론의 상태(State)
+                    case 6:    return this.reserveRequest(0x30, 0x50);     // 드론, Motion
                     default:   return this.reserveRequest(0x30, 0xD1);     // 드론, 자주 갱신되는 데이터 모음(엔트리)
                     }
                 }
@@ -1441,8 +1537,10 @@ class byrobot_petrone_v2_base extends BaseModule {
             switch (this.targetDevice) {
             case 0x30:
                 {
-                    switch (this.countReqeustDevice % 5) {
-                    case 1:     return this.reserveRequest(0x30, 0xD1);     // 드론, 자주 갱신되는 데이터 모음(엔트리)
+                    switch (this.countReqeustDevice % 16) {
+                    case 0:    return this.reserveRequest(0x30, 0x40);     // 드론, 드론의 상태(State)
+                    case 4:    return this.reserveRequest(0x30, 0x50);     // 드론, Motion
+                    case 8:    return this.reserveRequest(0x30, 0xD1);     // 드론, 자주 갱신되는 데이터 모음(엔트리)
                     default:    break;
                     }
                 }
@@ -1471,7 +1569,7 @@ class byrobot_petrone_v2_base extends BaseModule {
 
         this.crc16Transfered = (arrayTransfer[arrayTransfer.length - 1] << 8) | (arrayTransfer[arrayTransfer.length - 2]);
 
-        //this.log("BYROBOT_PETRONE_V2_BASE - transferToDevice - Repeat: " + this.countTransferRepeat, this.bufferTransfer[0]);
+        //this.log(`BYROBOT_PETRONE_V2_BASE - transferToDevice - Repeat: ${this.countTransferRepeat}`, this.bufferTransfer[0]);
 
         // maxTransferRepeat 이상 전송했음에도 응답이 없는 경우엔 다음으로 넘어감
         if (this.countTransferRepeat >= this.maxTransferRepeat) {
@@ -1499,7 +1597,7 @@ class byrobot_petrone_v2_base extends BaseModule {
         view.setUint32(0, 0, true);
         view.setUint32(4, 0, true);
 
-        //this.log("BYROBOT_PETRONE_V2_BASE - reservePing() - Target: 0x" + target.toString(16).toUpperCase());
+        //this.log(`BYROBOT_PETRONE_V2_BASE - reservePing() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x01, target, dataArray);
     }
 
@@ -1509,9 +1607,9 @@ class byrobot_petrone_v2_base extends BaseModule {
         const dataArray   = new ArrayBuffer(1);
         const view        = new DataView(dataArray);
 
-        view.setUint8(0, dataType);
+        view.setUint8(0, this.fit(0, dataType, 0xFF));
 
-        //this.log("BYROBOT_PETRONE_V2_BASE - reserveRequest() - Target: 0x" + target.toString(16).toUpperCase() + " - DataType: 0x", dataType.toString(16).toUpperCase());
+        //this.log(`BYROBOT_PETRONE_V2_BASE - reserveRequest() - Target: 0x${target.toString(16).toUpperCase()} - DataType: 0x`, dataType.toString(16).toUpperCase());
         return this.createTransferBlock(0x04, target, dataArray);
     }
 
@@ -1521,10 +1619,10 @@ class byrobot_petrone_v2_base extends BaseModule {
         const dataArray   = new ArrayBuffer(2);
         const view        = new DataView(dataArray);
 
-        view.setUint8   (0, command);
-        view.setUint8   (1, option);
+        view.setUint8   (0, this.fit(0, command, 0xFF));
+        view.setUint8   (1, this.fit(0, option, 0xFF));
 
-        //this.log("BYROBOT_PETRONE_V2_BASE - reserveCommand() - Target: 0x" + target.toString(16).toUpperCase());
+        //this.log(`BYROBOT_PETRONE_V2_BASE - reserveCommand() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x11, target, dataArray);
     }
 
@@ -1540,8 +1638,8 @@ class byrobot_petrone_v2_base extends BaseModule {
         const dataArray   = new ArrayBuffer(2);
         const view        = new DataView(dataArray);
 
-        view.setUint8   (0, flag);
-        view.setUint8   (1, brightness);
+        view.setUint8   (0, this.fit(0, flag, 0xFF));
+        view.setUint8   (1, this.fit(0, brightness, 0xFF));
 
         this.log(`BYROBOT_PETRONE_V2_BASE - reserveLightManual() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x20, target, dataArray);
@@ -1553,11 +1651,11 @@ class byrobot_petrone_v2_base extends BaseModule {
         const dataArray   = new ArrayBuffer(6);
         const view        = new DataView(dataArray);
 
-        view.setUint8   (0, mode);
-        view.setUint16  (1, interval, true);
-        view.setUint8   (3, r);
-        view.setUint8   (4, g);
-        view.setUint8   (5, b);
+        view.setUint8   (0, this.fit(0, mode, 0xFF));
+        view.setUint16  (1, this.fit(0, interval, 0xFFFF), true);
+        view.setUint8   (3, this.fit(0, r, 0xFF));
+        view.setUint8   (4, this.fit(0, g, 0xFF));
+        view.setUint8   (5, this.fit(0, b, 0xFF));
 
         this.log(`BYROBOT_PETRONE_V2_BASE - reserveLightModeColor() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x24, target, dataArray);
@@ -1569,8 +1667,8 @@ class byrobot_petrone_v2_base extends BaseModule {
         const dataArray   = new ArrayBuffer(3);
         const view        = new DataView(dataArray);
 
-        view.setUint8   (0, mode);
-        view.setUint16  (1, interval, true);
+        view.setUint8   (0, this.fit(0, mode, 0xFF));
+        view.setUint16  (1, this.fit(0, interval, 0xFF), true);
 
         this.log(`BYROBOT_PETRONE_V2_BASE - reserveLightMode() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x21, target, dataArray);
@@ -1582,12 +1680,12 @@ class byrobot_petrone_v2_base extends BaseModule {
         const dataArray   = new ArrayBuffer(7);
         const view        = new DataView(dataArray);
 
-        view.setUint8   (0, event);
-        view.setUint16  (1, interval, true);
-        view.setUint8   (3, repeat);
-        view.setUint8   (4, r);
-        view.setUint8   (5, g);
-        view.setUint8   (6, b);
+        view.setUint8   (0, this.fit(0, event, 0xFF));
+        view.setUint16  (1, this.fit(0, interval, 0xFFFF), true);
+        view.setUint8   (3, this.fit(0, repeat, 0xFF));
+        view.setUint8   (4, this.fit(0, r, 0xFF));
+        view.setUint8   (5, this.fit(0, g, 0xFF));
+        view.setUint8   (6, this.fit(0, b, 0xFF));
 
         this.log(`BYROBOT_PETRONE_V2_BASE - reserveLightEventColor() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x2D, target, dataArray);
@@ -1599,9 +1697,9 @@ class byrobot_petrone_v2_base extends BaseModule {
         const dataArray   = new ArrayBuffer(4);
         const view        = new DataView(dataArray);
 
-        view.setUint8   (0, event);
-        view.setUint16  (1, interval, true);
-        view.setUint8   (3, repeat);
+        view.setUint8   (0, this.fit(0, event, 0xFF));
+        view.setUint16  (1, this.fit(0, interval, 0xFFFF), true);
+        view.setUint8   (3, this.fit(0, repeat, 0xFF));
 
         this.log(`BYROBOT_PETRONE_V2_BASE - reserveLightEvent() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x2A, target, dataArray);
@@ -1613,7 +1711,7 @@ class byrobot_petrone_v2_base extends BaseModule {
         const dataArray   = new ArrayBuffer(1);
         const view        = new DataView(dataArray);
 
-        view.setUint8   (0, pixel);
+        view.setUint8   (0, this.fit(0, pixel, 0xFF));
 
         this.log(`BYROBOT_PETRONE_V2_BASE - reserveDisplayClearAll() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0xB0, target, dataArray);
@@ -1625,13 +1723,13 @@ class byrobot_petrone_v2_base extends BaseModule {
         const dataArray   = new ArrayBuffer(9);
         const view        = new DataView(dataArray);
 
-        view.setInt16   (0, x, true);
-        view.setInt16   (2, y, true);
-        view.setInt16   (4, width, true);
-        view.setInt16   (6, height, true);
-        view.setUint8   (8, pixel);
+        view.setInt16   (0, this.fit(-4096, x, 4095), true);
+        view.setInt16   (2, this.fit(-4096, y, 4095), true);
+        view.setInt16   (4, this.fit(-4096, width, 4095), true);
+        view.setInt16   (6, this.fit(-4096, height, 4095), true);
+        view.setUint8   (8, this.fit(0, pixel, 0xFF));
 
-        //this.log("BYROBOT_PETRONE_V2_BASE - reserveDisplayClear() - Target: 0x" + target.toString(16).toUpperCase());
+        this.log(`BYROBOT_PETRONE_V2_BASE - reserveDisplayClear() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0xB0, target, dataArray);
     }
 
@@ -1641,12 +1739,12 @@ class byrobot_petrone_v2_base extends BaseModule {
         const dataArray   = new ArrayBuffer(8);
         const view        = new DataView(dataArray);
 
-        view.setInt16   (0, x, true);
-        view.setInt16   (2, y, true);
-        view.setInt16   (4, width, true);
-        view.setInt16   (6, height, true);
+        view.setInt16   (0, this.fit(-4096, x, 4095), true);
+        view.setInt16   (2, this.fit(-4096, y, 4095), true);
+        view.setInt16   (4, this.fit(-4096, width, 4095), true);
+        view.setInt16   (6, this.fit(-4096, height, 4095), true);
 
-        //this.log("BYROBOT_PETRONE_V2_BASE - reserveDisplayInvert() - Target: 0x" + target.toString(16).toUpperCase());
+        this.log(`BYROBOT_PETRONE_V2_BASE - reserveDisplayInvert() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0xB1, target, dataArray);
     }
 
@@ -1656,11 +1754,11 @@ class byrobot_petrone_v2_base extends BaseModule {
         const dataArray   = new ArrayBuffer(5);
         const view        = new DataView(dataArray);
 
-        view.setInt16   (0, x, true);
-        view.setInt16   (2, y, true);
-        view.setUint8   (4, pixel);
+        view.setInt16   (0, this.fit(-4096, x, 4095), true);
+        view.setInt16   (2, this.fit(-4096, y, 4095), true);
+        view.setUint8   (4, this.fit(0, pixel, 0xFF));
 
-        //this.log("BYROBOT_PETRONE_V2_BASE - reserveDisplayDrawPoint() - Target: 0x" + target.toString(16).toUpperCase());
+        this.log(`BYROBOT_PETRONE_V2_BASE - reserveDisplayDrawPoint() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0xB2, target, dataArray);
     }
 
@@ -1670,14 +1768,14 @@ class byrobot_petrone_v2_base extends BaseModule {
         const dataArray   = new ArrayBuffer(10);
         const view        = new DataView(dataArray);
 
-        view.setInt16   (0, x1, true);
-        view.setInt16   (2, y1, true);
-        view.setInt16   (4, x2, true);
-        view.setInt16   (6, y2, true);
-        view.setUint8   (8, pixel);
-        view.setUint8   (9, line);
+        view.setInt16   (0, this.fit(-4096, x1, 4095), true);
+        view.setInt16   (2, this.fit(-4096, y1, 4095), true);
+        view.setInt16   (4, this.fit(-4096, x2, 4095), true);
+        view.setInt16   (6, this.fit(-4096, y2, 4095), true);
+        view.setUint8   (8, this.fit(0, pixel, 0xFF));
+        view.setUint8   (9, this.fit(0, line, 0xFF));
 
-        //this.log("BYROBOT_PETRONE_V2_BASE - reserveDisplayDrawLine() - Target: 0x" + target.toString(16).toUpperCase());
+        this.log(`BYROBOT_PETRONE_V2_BASE - reserveDisplayDrawLine() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0xB3, target, dataArray);
     }
 
@@ -1687,15 +1785,15 @@ class byrobot_petrone_v2_base extends BaseModule {
         const dataArray   = new ArrayBuffer(11);
         const view        = new DataView(dataArray);
 
-        view.setInt16   (0, x, true);
-        view.setInt16   (2, y, true);
-        view.setInt16   (4, width, true);
-        view.setInt16   (6, height, true);
-        view.setUint8   (8, pixel);
-        view.setUint8   (9, flagFill);
-        view.setUint8   (10, line);
+        view.setInt16   (0, this.fit(-4096, x, 4095), true);
+        view.setInt16   (2, this.fit(-4096, y, 4095), true);
+        view.setInt16   (4, this.fit(1, width, 4095), true);
+        view.setInt16   (6, this.fit(1, height, 4095), true);
+        view.setUint8   (8, this.fit(0, pixel, 0xFF));
+        view.setUint8   (9, this.fit(0, flagFill, 0xFF));
+        view.setUint8   (10, this.fit(0, line, 0xFF));
 
-        //this.log("BYROBOT_PETRONE_V2_BASE - reserveDisplayDrawRect() - Target: 0x" + target.toString(16).toUpperCase());
+        this.log(`BYROBOT_PETRONE_V2_BASE - reserveDisplayDrawRect() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0xB4, target, dataArray);
     }
 
@@ -1705,13 +1803,13 @@ class byrobot_petrone_v2_base extends BaseModule {
         const dataArray   = new ArrayBuffer(8);
         const view        = new DataView(dataArray);
 
-        view.setInt16   (0, x, true);
-        view.setInt16   (2, y, true);
-        view.setInt16   (4, radius, true);
-        view.setUint8   (6, pixel);
-        view.setUint8   (7, flagFill);
+        view.setInt16   (0, this.fit(-4096, x, 4095), true);
+        view.setInt16   (2, this.fit(-4096, y, 4095), true);
+        view.setInt16   (4, this.fit(1, radius, 4095), true);
+        view.setUint8   (6, this.fit(0, pixel, 0xFF));
+        view.setUint8   (7, this.fit(0, flagFill, 0xFF));
 
-        //this.log("BYROBOT_PETRONE_V2_BASE - reserveDisplayDrawCircle() - Target: 0x" + target.toString(16).toUpperCase());
+        this.log(`BYROBOT_PETRONE_V2_BASE - reserveDisplayDrawCircle() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0xB5, target, dataArray);
     }
 
@@ -1723,39 +1821,39 @@ class byrobot_petrone_v2_base extends BaseModule {
         const dataArray   = new ArrayBuffer(6 + byteArrayString.length);
         const view        = new DataView(dataArray);
 
-        view.setInt16   (0, x, true);
-        view.setInt16   (2, y, true);
-        view.setUint8   (4, font);
-        view.setUint8   (5, pixel);
+        view.setInt16   (0, this.fit(-4096, x, 4095), true);
+        view.setInt16   (2, this.fit(-4096, y, 4095), true);
+        view.setUint8   (4, this.fit(0, font, 0xFF));
+        view.setUint8   (5, this.fit(0, pixel, 0xFF));
 
         for (let i = 0; i < byteArrayString.length; i++) {
             view.setUint8((6 + i), byteArrayString[i]);
         }
 
-        //this.log("BYROBOT_PETRONE_V2_BASE - reserveDisplayDrawString() - Target: 0x" + target.toString(16).toUpperCase());
+        this.log(`BYROBOT_PETRONE_V2_BASE - reserveDisplayDrawString() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0xB6, target, dataArray);
     }
 
 
     // DisplayDrawString
-    reserveDisplayDrawStringAlign(target, x_start, x_end, y, align, font, pixel, string) {
+    reserveDisplayDrawStringAlign(target, xStart, xEnd, y, align, font, pixel, string) {
         const byteArrayString = this.stringToAsciiByteArray(string);
 
         const dataArray   = new ArrayBuffer(9 + byteArrayString.length);
         const view        = new DataView(dataArray);
 
-        view.setInt16   (0, x_start, true);
-        view.setInt16   (2, x_end, true);
-        view.setInt16   (4, y, true);
-        view.setUint8   (6, align);
-        view.setUint8   (7, font);
-        view.setUint8   (8, pixel);
+        view.setInt16   (0, this.fit(-4096, xStart, 4095), true);
+        view.setInt16   (2, this.fit(-4096, xEnd, 4095), true);
+        view.setInt16   (4, this.fit(-4096, y, 4095), true);
+        view.setUint8   (6, this.fit(0, align, 0xFF));
+        view.setUint8   (7, this.fit(0, font, 0xFF));
+        view.setUint8   (8, this.fit(0, pixel, 0xFF));
 
         for (let i = 0; i < byteArrayString.length; i++) {
             view.setUint8((9 + i), byteArrayString[i]);
         }
 
-        //this.log("BYROBOT_PETRONE_V2_BASE - reserveDisplayDrawStringAlign() - Target: 0x" + target.toString(16).toUpperCase());
+        this.log(`BYROBOT_PETRONE_V2_BASE - reserveDisplayDrawStringAlign() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0xB7, target, dataArray);
     }
 
@@ -1765,12 +1863,12 @@ class byrobot_petrone_v2_base extends BaseModule {
         const dataArray   = new ArrayBuffer(4);
         const view        = new DataView(dataArray);
 
-        view.setInt8   (0, roll);
-        view.setInt8   (1, pitch);
-        view.setInt8   (2, yaw);
-        view.setInt8   (3, throttle);
+        view.setInt8   (0, this.fit(-120, roll, 120));
+        view.setInt8   (1, this.fit(-120, pitch, 120));
+        view.setInt8   (2, this.fit(-120, yaw, 120));
+        view.setInt8   (3, this.fit(-120, throttle, 120));
 
-        //this.log("BYROBOT_PETRONE_V2_BASE - reserveControlQuad8() - Target: 0x" + target.toString(16).toUpperCase());
+        this.log(`BYROBOT_PETRONE_V2_BASE - reserveControlQuad8() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x10, target, dataArray);
     }
 
@@ -1783,7 +1881,7 @@ class byrobot_petrone_v2_base extends BaseModule {
         view.setInt8   (0, wheel);
         view.setInt8   (1, accel);
 
-        //this.log("BYROBOT_PETRONE_V2_BASE - reserveControlDouble8() - Target: 0x" + target.toString(16).toUpperCase());
+        this.log(`BYROBOT_PETRONE_V2_BASE - reserveControlDouble8() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x10, target, dataArray);
     }
 
@@ -1793,11 +1891,11 @@ class byrobot_petrone_v2_base extends BaseModule {
         const dataArray   = new ArrayBuffer(4);
         const view        = new DataView(dataArray);
 
-        view.setUint8   (0, motor);
-        view.setUint8   (1, rotation);
-        view.setInt16   (2, value);
+        view.setUint8   (0, this.fit(0, motor, 0xFF));
+        view.setUint8   (1, this.fit(0, rotation, 0xFF));
+        view.setInt16   (2, this.fit(-4095, value, 4095));
 
-        //this.log("BYROBOT_PETRONE_V2_BASE - reserveMotorSingle() - Target: 0x" + target.toString(16).toUpperCase());
+        this.log(`BYROBOT_PETRONE_V2_BASE - reserveMotorSingle() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x81, target, dataArray);
     }
 
@@ -1807,11 +1905,11 @@ class byrobot_petrone_v2_base extends BaseModule {
         const dataArray   = new ArrayBuffer(5);
         const view        = new DataView(dataArray);
 
-        view.setUint8   (0, mode);
-        view.setUint16  (1, value, true);
-        view.setUint16  (3, time, true);
+        view.setUint8   (0, this.fit(0, mode, 0xFF));
+        view.setUint16  (1, this.fit(0, value, 0xFFFF), true);
+        view.setUint16  (3, this.fit(0, time, 0xFFFF), true);
 
-        //this.log("BYROBOT_PETRONE_V2_BASE - reserveBuzzer() - Target: 0x" + target.toString(16).toUpperCase());
+        this.log(`BYROBOT_PETRONE_V2_BASE - reserveBuzzer() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x83, target, dataArray);
     }
 
@@ -1826,7 +1924,7 @@ class byrobot_petrone_v2_base extends BaseModule {
         view.setUint16  (3, off, true);
         view.setUint16  (5, total, true);
 
-        //this.log("BYROBOT_PETRONE_V2_BASE - reserveVibrator() - Target: 0x" + target.toString(16).toUpperCase());
+        this.log(`BYROBOT_PETRONE_V2_BASE - reserveVibrator() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x84, target, dataArray);
     }
 
@@ -1839,7 +1937,7 @@ class byrobot_petrone_v2_base extends BaseModule {
         view.setUint8   (0, direction);
         view.setUint32  (1, data, true);
 
-        //this.log("BYROBOT_PETRONE_V2_BASE - reserveIRMessage() - Target: 0x" + target.toString(16).toUpperCase());
+        this.log(`BYROBOT_PETRONE_V2_BASE - reserveIRMessage() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x82, target, dataArray);
     }
 
@@ -1859,10 +1957,10 @@ class byrobot_petrone_v2_base extends BaseModule {
 
         // Header
         {
-            view.setUint8(2, dataType);                 // Data Type
-            view.setUint8(3, dataBuffer.byteLength);    // Data Length
-            view.setUint8(4, 0x38);                     // From (네이버 엔트리)
-            view.setUint8(5, to);                       // To
+            view.setUint8(2, this.fit(0, dataType, 0xFF));              // Data Type
+            view.setUint8(3, this.fit(0, dataBuffer.byteLength, 0xFF)); // Data Length
+            view.setUint8(4, 0x38);                                     // From (네이버 엔트리)
+            view.setUint8(5, this.fit(0, to, 0xFF));                    // To
         }
 
         // Data
@@ -1889,6 +1987,11 @@ class byrobot_petrone_v2_base extends BaseModule {
     }
 
 
+    fit(min, value, max) {
+        return Math.max(Math.min(value, max), min);
+    }
+
+
     // 값 추출
     getByte(value, index) {
         return ((value >> (index << 3)) & 0xff);
@@ -1901,7 +2004,7 @@ class byrobot_petrone_v2_base extends BaseModule {
         const right = dataview.getUint32(byteOffset + 4, littleEndian);
 
         // combine the two 32-bit values
-        const combined = littleEndian ? left + 2 ** 32 * right : 2 ** 32 * left + right;
+        const combined = (littleEndian) ? (left + 2 ** 32 * right) : (2 ** 32 * left + right);
 
         if (!Number.isSafeInteger(combined)) {
             console.warn(combined, 'exceeds MAX_SAFE_INTEGER. Precision may be lost');
@@ -1919,7 +2022,7 @@ class byrobot_petrone_v2_base extends BaseModule {
             const charCode = str.charCodeAt(i);
             if (charCode > 0xFF)  // char > 1 byte since charCodeAt returns the UTF-16 value
             {
-                // throw new Error('Character ' + String.fromCharCode(charCode) + ' can\'t be represented by a US-ASCII byte.');
+                //throw new Error(`Character ${String.fromCharCode(charCode)} can't be represented by a US-ASCII byte.`);
                 continue;
             }
             bytes.push(charCode);

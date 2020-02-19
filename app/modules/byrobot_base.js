@@ -1435,9 +1435,9 @@ class byrobot_base extends BaseModule {
             case 0x10:
                 {
                     switch (this.countReqeustDevice % 16) {
-                    case 0:     return this.reserveRequest(0x10, 0x40);     // 드론
-                    case 4:     return this.reserveRequest(0x10, 0x44);     // 드론, 자주 갱신되는 데이터 모음(엔트리)
-                    case 8:     return this.reserveRequest(0x10, 0xA1);     // 드론, 자주 갱신되는 데이터 모음(엔트리)
+                    case 0:    return this.reserveRequest(0x10, 0x40);     // 드론
+                    case 4:    return this.reserveRequest(0x10, 0x44);     // 드론, 자주 갱신되는 데이터 모음(엔트리)
+                    case 8:    return this.reserveRequest(0x10, 0xA1);     // 드론, 자주 갱신되는 데이터 모음(엔트리)
                     default:    break;
                     }
                 }
