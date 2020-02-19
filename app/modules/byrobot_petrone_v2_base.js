@@ -780,7 +780,7 @@ class byrobot_petrone_v2_base extends BaseModule
 
     updateIRMessage()
     {
-        //this.log("BASE - updateIRMessage() - length : " + this.dataBlock.length);
+        //this.log(`BASE - updateIRMessage() - length : ${this.dataBlock.length}`);
 
         if (this.dataBlock != undefined && this.dataBlock.length == 5)
         {

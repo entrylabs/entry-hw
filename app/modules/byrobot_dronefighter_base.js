@@ -30,7 +30,8 @@ class byrobot_dronefighter_base extends BaseModule
     {
         super();
 
-        this.log('BYROBOT_DRONE_FIGHTER_BASE - constructor()');
+        this.log('BYROBOT_DRONEFIGHTER_BASE');
+        this.log('BASE - constructor()');
 
         this.createCRC16Array();
 
@@ -96,7 +97,7 @@ class byrobot_dronefighter_base extends BaseModule
 
             // Motor
             MOTORSINGLE_TARGET      : 'motorsingle_target',
-            MOTORSINGLE_DIRECTION   : 'motorsingle_direction',
+            MOTORSINGLE_ROTATION    : 'motorsingle_rotation',     // direction -> rotation
             MOTORSINGLE_VALUE       : 'motorsingle_value',
 
             // IrMessage
@@ -161,13 +162,20 @@ class byrobot_dronefighter_base extends BaseModule
         };
 
 
-        // InformationAssembledForEntry
-        this.informationAssembledForEntry =
+        // Motion
+        this.motion = 
         {
-            _updated                                    : 1,
-            informationAssembledForEntry_angleRoll      : 0,    // s16
-            informationAssembledForEntry_anglePitch     : 0,    // s16
-            informationAssembledForEntry_angleYaw       : 0,    // s16
+            _updated            : 1,
+            motion_systemTime   : 0,    // u32
+            motion_accelX       : 0,    // u16
+            motion_accelY       : 0,    // u16
+            motion_accelZ       : 0,    // u16
+            motion_gyroRoll     : 0,    // u16
+            motion_gyroPitch    : 0,    // u16
+            motion_gyroYaw      : 0,    // u16
+            motion_angleRoll    : 0,    // u16
+            motion_anglePitch   : 0,    // u16
+            motion_angleYaw     : 0,    // u16
         };
 
 
@@ -207,7 +215,7 @@ class byrobot_dronefighter_base extends BaseModule
     {
         super.init(handler, config);
         
-        this.log('BYROBOT_DRONE_FIGHTER_BASE - init()');
+        this.log('BASE - init()');
         this.resetData();
     }
 
@@ -224,7 +232,7 @@ class byrobot_dronefighter_base extends BaseModule
         this.isConnect = true;
         this.serialport = serialport;
 
-        //this.log(`BYROBOT_DRONE_FIGHTER_BASE - requestInitialData(0x${this.targetDevice.toString(16).toUpperCase()})`);
+        //this.log(`BASE - requestInitialData(0x${this.targetDevice.toString(16).toUpperCase()})`);
         return this.reservePing(this.targetDevice);
     }
 
@@ -235,7 +243,7 @@ class byrobot_dronefighter_base extends BaseModule
      */
     checkInitialData(data, config)
     {
-        this.log('BYROBOT_DRONE_FIGHTER_BASE - checkInitialData()');
+        this.log('BASE - checkInitialData()');
         return this.checkInitialAck(data, config); 
     }
 
@@ -245,7 +253,7 @@ class byrobot_dronefighter_base extends BaseModule
     */
     validateLocalData(data)
     {
-        //this.log("BYROBOT_DRONE_FIGHTER_BASE - validateLocalData()");
+        //this.log("BASE - validateLocalData()");
         return true;
     }
 
@@ -258,7 +266,7 @@ class byrobot_dronefighter_base extends BaseModule
     */
     requestLocalData()
     {
-        //this.log("BYROBOT_DRONE_FIGHTER_BASE - requestLocalData()");
+        //this.log("BASE - requestLocalData()");
         return this.transferToDevice();
     }
 
@@ -268,7 +276,7 @@ class byrobot_dronefighter_base extends BaseModule
     */
     handleLocalData(data)
     {
-        //this.log("BYROBOT_DRONE_FIGHTER_BASE - handleLocalData()");
+        //this.log("BASE - handleLocalData()");
         this.receiverForDevice(data);
     }
 
@@ -278,7 +286,7 @@ class byrobot_dronefighter_base extends BaseModule
     */
     requestRemoteData(handler)
     {
-        //this.log("BYROBOT_DRONE_FIGHTER_BASE - requestRemoteData()");
+        //this.log("BASE - requestRemoteData()");
         this.transferToEntry(handler);
     }
 
@@ -288,20 +296,20 @@ class byrobot_dronefighter_base extends BaseModule
     */
     handleRemoteData(handler)
     {
-        //this.log("BYROBOT_DRONE_FIGHTER_BASE - handleRemoteData()");
+        //this.log("BASE - handleRemoteData()");
         this.handlerForEntry(handler);
     }
 
 
     connect()
     {
-        this.log('BYROBOT_DRONE_FIGHTER_BASE - connect()');
+        this.log('BASE - connect()');
     }
 
 
     disconnect(connect)
     {
-        this.log('BYROBOT_DRONE_FIGHTER_BASE - disconnect()');
+        this.log('BASE - disconnect()');
 
         connect.close();
 
@@ -315,7 +323,7 @@ class byrobot_dronefighter_base extends BaseModule
     */
     reset()
     {
-        this.log('BYROBOT_DRONE_FIGHTER_BASE - reset()');
+        this.log('BASE - reset()');
         this.resetData();
     }
 
@@ -345,8 +353,8 @@ class byrobot_dronefighter_base extends BaseModule
         // Button
         this.clearButton();
 
-        // InformationAssembledForEntry
-        this.clearInformationAssembledForEntry();
+        // Motion
+        this.clearMotion();
 
         // IR Message
         this.clearIRMessage();
@@ -411,7 +419,7 @@ class byrobot_dronefighter_base extends BaseModule
 
     updateAck()
     {
-        //this.log("BYROBOT_DRONE_FIGHTER_BASE - updateAck()");
+        //this.log("BASE - updateAck()");
 
         if (this.dataBlock != undefined && this.dataBlock.length == 11)
         {
@@ -444,7 +452,7 @@ class byrobot_dronefighter_base extends BaseModule
 
     updateState()
     {
-        this.log('BYROBOT_DRONE_FIGHTER_BASE - updateState()');
+        //this.log(`BASE - updateState() - length : ${this.dataBlock.length}`);
 
         if (this.dataBlock != undefined && this.dataBlock.length == 7)
         {
@@ -508,7 +516,7 @@ class byrobot_dronefighter_base extends BaseModule
 
     updateButton()
     {
-        //this.log(`BYROBOT_DRONE_FIGHTER_BASE - updateButton() - length : ${this.dataBlock.length}`);
+        //this.log(`BASE - updateButton() - length : ${this.dataBlock.length}`);
 
         if (this.dataBlock != undefined && this.dataBlock.length == 3)
         {
@@ -543,7 +551,7 @@ class byrobot_dronefighter_base extends BaseModule
 
     updateJoystick()
     {
-        //this.log(`BYROBOT_DRONE_FIGHTER_BASE - updateJoystick() - length : ${this.dataBlock.length}`);
+        //this.log(`BASE - updateJoystick() - length : ${this.dataBlock.length}`);
 
         if (this.dataBlock != undefined && this.dataBlock.length == 10)
         {
@@ -569,27 +577,60 @@ class byrobot_dronefighter_base extends BaseModule
     }
 
 
-    clearInformationAssembledForEntry()
+    clearMotion()
     {
-        this.informationAssembledForEntry._updated                                = false;
-        this.informationAssembledForEntry.informationAssembledForEntry_angleRoll  = 0;
-        this.informationAssembledForEntry.informationAssembledForEntry_anglePitch = 0;
-        this.informationAssembledForEntry.informationAssembledForEntry_angleYaw   = 0;
+        this.motion._updated            = false;
+        this.motion.motion_systemTime   = 0;
+        this.motion.motion_accelX       = 0;
+        this.motion.motion_accelY       = 0;
+        this.motion.motion_accelZ       = 0;
+        this.motion.motion_gyroRoll     = 0;
+        this.motion.motion_gyroPitch    = 0;
+        this.motion.motion_gyroYaw      = 0;
+        this.motion.motion_angleRoll    = 0;
+        this.motion.motion_anglePitch   = 0;
+        this.motion.motion_angleYaw     = 0;
     }
 
-    updateInformationAssembledForEntry()
+    updateMotion()
     {
-        //this.log(`BYROBOT_DRONE_FIGHTER_BASE - updateInformationAssembledForEntry() - length : ${this.dataBlock.length}`);
+        this.log(`BASE - updateMotion() - length : ${this.dataBlock.length}`);
 
-        if (this.dataBlock != undefined && this.dataBlock.length == 6)
+        if (this.dataBlock != undefined && this.dataBlock.length == 22)
         {
             const array = Uint8Array.from(this.dataBlock);
             const view  = new DataView(array.buffer);
 
-            this.informationAssembledForEntry._updated                                  = true;
-            this.informationAssembledForEntry.informationAssembledForEntry_angleRoll    = view.getInt16(0, true);
-            this.informationAssembledForEntry.informationAssembledForEntry_anglePitch   = view.getInt16(2, true);
-            this.informationAssembledForEntry.informationAssembledForEntry_angleYaw     = view.getInt16(4, true);
+            /*
+            this.motion._updated            = true;
+            this.motion.motion_systemTime   = view.getUint32(0, true);
+            this.motion.motion_accelX       = view.getInt16(4, true);
+            this.motion.motion_accelY       = view.getInt16(6, true);
+            this.motion.motion_accelZ       = view.getInt16(8, true);
+            this.motion.motion_gyroRoll     = view.getInt16(10, true);
+            this.motion.motion_gyroPitch    = view.getInt16(12, true);
+            this.motion.motion_gyroYaw      = view.getInt16(14, true);
+            this.motion.motion_angleRoll    = view.getInt16(16, true);
+            this.motion.motion_anglePitch   = view.getInt16(18, true);
+            this.motion.motion_angleYaw     = view.getInt16(20, true);
+            // */
+
+            //*
+            const kAccel  = (9.8 / 2048);          // 1g (중력가속도) = 9.8 m/s^2 로 만들기 위한 변환 상수
+            const kGyro   = (2000.0 / 32767);      // 각 속도 (deg/s) 를 만들기 위한 변환 상수
+
+            this.motion._updated            = true;
+            this.motion.motion_systemTime   = view.getUint32(0, true);
+            this.motion.motion_accelX       = (view.getInt16(4, true) * kAccel).toFixed(2);
+            this.motion.motion_accelY       = (view.getInt16(6, true) * kAccel).toFixed(2);
+            this.motion.motion_accelZ       = (view.getInt16(8, true) * kAccel).toFixed(2);
+            this.motion.motion_gyroRoll     = (view.getInt16(10, true) * kGyro).toFixed(2);
+            this.motion.motion_gyroPitch    = (view.getInt16(12, true) * kGyro).toFixed(2);
+            this.motion.motion_gyroYaw      = (view.getInt16(14, true) * kGyro).toFixed(2);
+            this.motion.motion_angleRoll    = view.getInt16(16, true);
+            this.motion.motion_anglePitch   = view.getInt16(18, true);
+            this.motion.motion_angleYaw     = view.getInt16(20, true);
+            // */
 
             return true;
         }
@@ -607,7 +648,7 @@ class byrobot_dronefighter_base extends BaseModule
 
     updateIRMessage()
     {
-        //this.log(`BYROBOT_DRONE_FIGHTER_BASE - updateIRMessage() - length : ${this.dataBlock.length}`);
+        //this.log(`BASE - updateIRMessage() - length : ${this.dataBlock.length}`);
 
         if (this.dataBlock != undefined && this.dataBlock.length == 5)
         {
@@ -702,7 +743,7 @@ class byrobot_dronefighter_base extends BaseModule
 
             const dataArray = this.reserveLightManual(target, flags, brightness);
             this.bufferTransfer.push(dataArray);
-            this.log('BYROBOT_DRONE_FIGHTER_BASE - Transfer_To_Device - LightManual', dataArray);
+            this.log('BASE - Transfer_To_Device - LightManual', dataArray);
         }
 
 
@@ -715,7 +756,7 @@ class byrobot_dronefighter_base extends BaseModule
 
             const dataArray = this.reserveLightMode(target, mode, interval);
             this.bufferTransfer.push(dataArray);
-            this.log('BYROBOT_DRONE_FIGHTER_BASE - Transfer_To_Device - LightMode', dataArray);
+            this.log('BASE - Transfer_To_Device - LightMode', dataArray);
         }
         
 
@@ -730,7 +771,7 @@ class byrobot_dronefighter_base extends BaseModule
 
             const dataArray = this.reserveLightEvent(target, event, interval, repeat);
             this.bufferTransfer.push(dataArray);
-            this.log('BYROBOT_DRONE_FIGHTER_BASE - Transfer_To_Device - LightEvent', dataArray);
+            this.log('BASE - Transfer_To_Device - LightEvent', dataArray);
         }
 
 
@@ -761,7 +802,7 @@ class byrobot_dronefighter_base extends BaseModule
 
             const dataArray = this.reserveCommand(target, command, option);
             this.bufferTransfer.push(dataArray);
-            this.log(`BYROBOT_DRONE_FIGHTER_BASE - Transfer_To_Device - Command${command}, option: ${option}`, dataArray);
+            this.log(`BASE - Transfer_To_Device - Command${command}, option: ${option}`, dataArray);
         }
 
 
@@ -778,7 +819,7 @@ class byrobot_dronefighter_base extends BaseModule
 
             const dataArray = this.reserveControlQuad8(target, this.controlRoll, this.controlPitch, this.controlYaw, this.controlThrottle);
             this.bufferTransfer.push(dataArray);
-            this.log('BYROBOT_DRONE_FIGHTER_BASE - Transfer_To_Device - ControlQuad8', dataArray);
+            this.log('BASE - Transfer_To_Device - ControlQuad8', dataArray);
         }
 
 
@@ -791,7 +832,7 @@ class byrobot_dronefighter_base extends BaseModule
 
             const dataArray = this.reserveControlDouble8(target, this.controlWheel, this.controlAccel);
             this.bufferTransfer.push(dataArray);
-            this.log('BYROBOT_DRONE_FIGHTER_BASE - Transfer_To_Device - reserveControlDouble8', dataArray);
+            this.log('BASE - Transfer_To_Device - reserveControlDouble8', dataArray);
         }
 
 
@@ -804,7 +845,7 @@ class byrobot_dronefighter_base extends BaseModule
 
             const dataArray = this.reserveMotorSingle(target, motor, rotation, value);
             this.bufferTransfer.push(dataArray);
-            this.log('BYROBOT_DRONE_FIGHTER_BASE - Transfer_To_Device - MotorSingle', dataArray);
+            this.log('BASE - Transfer_To_Device - MotorSingle', dataArray);
         }
 
 
@@ -817,7 +858,7 @@ class byrobot_dronefighter_base extends BaseModule
 
             const dataArray = this.reserveBuzzer(target, mode, value, time);
             this.bufferTransfer.push(dataArray);
-            this.log(`BYROBOT_DRONE_FIGHTER_BASE - Transfer_To_Device - Buzzer - mode: ${mode}, value: ${value}, time: ${time}`, dataArray);
+            this.log(`BASE - Transfer_To_Device - Buzzer - mode: ${mode}, value: ${value}, time: ${time}`, dataArray);
         }
 
 
@@ -831,7 +872,7 @@ class byrobot_dronefighter_base extends BaseModule
 
             const dataArray = this.reserveVibrator(target, mode, on, off, total);
             this.bufferTransfer.push(dataArray);
-            this.log('BYROBOT_DRONE_FIGHTER_BASE - Transfer_To_Device - Vibrator', dataArray);
+            this.log('BASE - Transfer_To_Device - Vibrator', dataArray);
         }
 
 
@@ -843,7 +884,7 @@ class byrobot_dronefighter_base extends BaseModule
 
             const dataArray = this.reserveIRMessage(target, direction, irdata);
             this.bufferTransfer.push(dataArray);
-            this.log('BYROBOT_DRONE_FIGHTER_BASE - Transfer_To_Device - reserveIRMessage', dataArray);
+            this.log('BASE - Transfer_To_Device - reserveIRMessage', dataArray);
         }
 
 
@@ -855,7 +896,7 @@ class byrobot_dronefighter_base extends BaseModule
 
             const dataArray = this.reserveUserInterface(target, uiCommand, uiFunction);
             this.bufferTransfer.push(dataArray);
-            this.log('BYROBOT_DRONE_FIGHTER_BASE - Transfer_To_Device - reserveUserInterface', dataArray);
+            this.log('BASE - Transfer_To_Device - reserveUserInterface', dataArray);
         }
     }
 
@@ -910,16 +951,16 @@ class byrobot_dronefighter_base extends BaseModule
             }
         }
     
-        // InformationAssembledForEntry
+        // Motion
         {
-            if (this.informationAssembledForEntry._updated)
+            if (this.motion._updated)
             {
-                for (const key in this.informationAssembledForEntry)
+                for (const key in this.motion)
                 {
-                    handler.write(key, this.informationAssembledForEntry[key]);
+                    handler.write(key, this.motion[key]);
                 }
     
-                this.informationAssembledForEntry._updated = false;
+                this.motion._updated = false;
             }
         }
 
@@ -959,7 +1000,7 @@ class byrobot_dronefighter_base extends BaseModule
     // 장치로부터 받은 데이터 배열 처리
     receiverForDevice(dataArray)
     {
-        //this.log(`BYROBOT_DRONE_FIGHTER_BASE - receiverForDevice() - Length : ${dataArray.length}`, dataArray);
+        //this.log(`BASE - receiverForDevice() - Length : ${dataArray.length}`, dataArray);
 
         if (dataArray == undefined || dataArray.length == 0)
         {
@@ -971,7 +1012,7 @@ class byrobot_dronefighter_base extends BaseModule
         // 버퍼로부터 데이터를 읽어 하나의 완성된 데이터 블럭으로 변환
         for (let i = 0; i < dataArray.length; i++)
         {
-            const data            = dataArray[i];
+            const data          = dataArray[i];
             
             let flagContinue    = true;
             let flagSessionNext = false;
@@ -1087,7 +1128,7 @@ class byrobot_dronefighter_base extends BaseModule
             // 데이터 전송 완료 처리
             if (flagComplete)
             {
-                //this.log(`BYROBOT_DRONE_FIGHTER_BASE - Receiver - CRC16 - Calculated : ${this.crc16Calculated.toString(16).toUpperCase()}, Received : ${this.crc16Received.toString(16).toUpperCase()}`);
+                //this.log(`BASE - Receiver - CRC16 - Calculated : ${this.crc16Calculated.toString(16).toUpperCase()}, Received : ${this.crc16Received.toString(16).toUpperCase()}`);
                 if (this.crc16Calculated == this.crc16Received)
                 {
                     this.handlerForDevice();
@@ -1130,8 +1171,8 @@ class byrobot_dronefighter_base extends BaseModule
     handlerForDevice()
     {
         /*
-        // skip 할 대상만 case로 등록
-        switch (this.dataType)
+        // log 출력을  skip 할 대상만 case로 등록
+        switch( this.dataType )
         {
         case 0x02:  break;      // Ack
         case 0x40:  break;      // State (0x40)
@@ -1140,7 +1181,7 @@ class byrobot_dronefighter_base extends BaseModule
 
         default:
             {
-                this.log(`BYROBOT_DRONE_FIGHTER_BASE - handlerForDevice() - From: ${this.from} - To: ${this.to} - Type: ${this.dataType} - `, this.dataBlock);
+                this.log(`BASE - handlerForDevice() - From: ${this.from} - To: ${this.to} - Type: ${this.dataType} - `, this.dataBlock);
             }
             break;
         }
@@ -1158,7 +1199,7 @@ class byrobot_dronefighter_base extends BaseModule
                     // ping에 대한 ack는 로그 출력하지 않음
                     //if( this.ack.dataType != 0x01 )
                     {
-                        //this.log(`BYROBOT_DRONE_FIGHTER_BASE - handlerForDevice() - Ack - From: ${this.from} - SystemTime: ${this.ack.ack_systemTime} - DataType: ${this.ack.ack_dataType} - Repeat: ${this.countTransferRepeat} - CRC16 Transfer: ${this.crc16Transfered} - CRF16 Ack: ${this.ack.ack_crc16}`);
+                        //this.log(`BASE - handlerForDevice() - Ack - From: ${this.from} - SystemTime: ${this.ack.ack_systemTime} - DataType: ${this.ack.ack_dataType} - Repeat: ${this.countTransferRepeat} - CRC16 Transfer: ${this.crc16Transfered} - CRF16 Ack: ${this.ack.ack_crc16}`);
                     }
 
                     // 마지막으로 전송한 데이터에 대한 응답을 받았다면 
@@ -1184,7 +1225,7 @@ class byrobot_dronefighter_base extends BaseModule
                     this.bufferTransfer.shift();
                     this.countTransferRepeat = 0;
                     
-                    this.log(`BYROBOT_DRONE_FIGHTER_BASE - handlerForDevice() - Response - From: ${this.from} - DataType: ${this.dataType}`);
+                    //this.log(`BASE - handlerForDevice() - Response - From: ${this.from} - DataType: ${this.dataType}`);
                 }
             }
             break;
@@ -1195,7 +1236,7 @@ class byrobot_dronefighter_base extends BaseModule
         {
         case 0x40:  // State
             {
-                //this.log("BYROBOT_DRONE_FIGHTER_BASE - handlerForDevice() - Received - State - 0x40");
+                //this.log("BASE - handlerForDevice() - Received - State - 0x40");
                 this.updateState();
             }
             break;
@@ -1203,7 +1244,7 @@ class byrobot_dronefighter_base extends BaseModule
 
         case 0x70:  // Button
             {
-                //this.log("BYROBOT_DRONE_FIGHTER_BASE - handlerForDevice() - Received - Button - 0x70");
+                //this.log("BASE - handlerForDevice() - Received - Button - 0x70");
                 this.updateButton();
             }
             break;
@@ -1211,15 +1252,23 @@ class byrobot_dronefighter_base extends BaseModule
 
         case 0x71:  // Joystick
             {
-                //this.log("BYROBOT_DRONE_FIGHTER_BASE - handlerForDevice() - Received - Joystick - 0x71");
+                //this.log("BASE - handlerForDevice() - Received - Joystick - 0x71");
                 this.updateJoystick();
+            }
+            break;
+
+
+        case 0x50:  // Motion
+            {
+                //this.log("BASE - handlerForDevice() - Received - Motion - 0x50");
+                this.updateMotion();
             }
             break;
 
 
         case 0x82:  // IR Message
             {
-                //this.log("BYROBOT_DRONE_FIGHTER_BASE - handlerForDevice() - Received - IRMessage - 0x82");
+                //this.log("BASE - handlerForDevice() - Received - IRMessage - 0x82");
                 this.updateIRMessage();
             }
             break;
@@ -1227,7 +1276,7 @@ class byrobot_dronefighter_base extends BaseModule
 
         case 0xD1:  // Information Assembled For Entry 자주 갱신되는 데이터 모음(엔트리)
             {
-                //this.log("BYROBOT_DRONE_FIGHTER_BASE - handlerForDevice() - Received - InformationAssembledForEntry - 0xA1");
+                //this.log("BASE - handlerForDevice() - Received - InformationAssembledForEntry - 0xA1");
                 this.updateInformationAssembledForEntry();
             }
             break;
@@ -1273,12 +1322,12 @@ class byrobot_dronefighter_base extends BaseModule
             {
             case 0x10:
                 {
-                    switch (this.countReqeustDevice % 6)
+                    switch (this.countReqeustDevice % 10)
                     {
                     case 0:    return this.reservePing(0x10);              // 드론
                     case 2:    return this.reservePing(0x11);              // 조종기
                     case 4:    return this.reserveRequest(0x10, 0x40);     // 드론, 드론의 상태(State)
-                    default:   return this.reserveRequest(0x10, 0xD1);     // 드론, 자주 갱신되는 데이터 모음(엔트리)
+                    default:   return this.reserveRequest(0x10, 0x50);     // 드론, Motion
                     }
                 }
                 break;
@@ -1297,9 +1346,10 @@ class byrobot_dronefighter_base extends BaseModule
             {
             case 0x10:
                 {
-                    switch (this.countReqeustDevice % 5)
+                    switch (this.countReqeustDevice % 8)
                     {
-                    case 1:     return this.reserveRequest(0x10, 0xD1);     // 드론, 자주 갱신되는 데이터 모음(엔트리)
+                    case 0:    return this.reserveRequest(0x10, 0x40);     // 드론, 드론의 상태(State)
+                    case 4:    return this.reserveRequest(0x10, 0x50);     // 드론, Motion
                     default:    break;
                     }
                 }
@@ -1332,7 +1382,7 @@ class byrobot_dronefighter_base extends BaseModule
 
         this.crc16Transfered = (arrayTransfer[arrayTransfer.length - 1] << 8) | (arrayTransfer[arrayTransfer.length - 2]);
 
-        //this.log(`BYROBOT_DRONE_FIGHTER_BASE - transferToDevice - Repeat: ${this.countTransferRepeat}`, this.bufferTransfer[0]);
+        //this.log(`BASE - transferToDevice - Repeat: ${this.countTransferRepeat}`, this.bufferTransfer[0]);
 
         // maxTransferRepeat 이상 전송했음에도 응답이 없는 경우엔 다음으로 넘어감
         if (this.countTransferRepeat >= this.maxTransferRepeat)
@@ -1361,7 +1411,7 @@ class byrobot_dronefighter_base extends BaseModule
 
         view.setUint32(0, 0, true);
 
-        //this.log(`BYROBOT_DRONE_FIGHTER_BASE - reservePing() - Target: 0x${target.toString(16).toUpperCase()}`);
+        //this.log(`BASE - reservePing() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x01, target, dataArray);
     }
 
@@ -1372,9 +1422,9 @@ class byrobot_dronefighter_base extends BaseModule
         const dataArray   = new ArrayBuffer(1);
         const view        = new DataView(dataArray);
 
-        view.setUint8(0, dataType);
+        view.setUint8(0, this.fit(0, dataType, 0xFF));
 
-        //this.log(`BYROBOT_DRONE_FIGHTER_BASE - reserveRequest() - Target: 0x${target.toString(16).toUpperCase()} - DataType: 0x`, dataType.toString(16).toUpperCase());
+        //this.log(`BASE - reserveRequest() - Target: 0x${target.toString(16).toUpperCase()} - DataType: 0x`, dataType.toString(16).toUpperCase());
         return this.createTransferBlock(0x04, target, dataArray);
     }
 
@@ -1385,10 +1435,10 @@ class byrobot_dronefighter_base extends BaseModule
         const dataArray   = new ArrayBuffer(2);
         const view        = new DataView(dataArray);
 
-        view.setUint8   (0, command);
-        view.setUint8   (1, option);
+        view.setUint8   (0, this.fit(0, command, 0xFF));
+        view.setUint8   (1, this.fit(0, option, 0xFF));
 
-        //this.log(`BYROBOT_DRONE_FIGHTER_BASE - reserveCommand() - Target: 0x${target.toString(16).toUpperCase()}`);
+        this.log(`BASE - reserveCommand() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x11, target, dataArray);
     }
 
@@ -1406,10 +1456,10 @@ class byrobot_dronefighter_base extends BaseModule
         const dataArray   = new ArrayBuffer(2);
         const view        = new DataView(dataArray);
 
-        view.setUint8   (0, flag);
-        view.setUint8   (1, brightness);
+        view.setUint8   (0, this.fit(0, flag, 0xFF));
+        view.setUint8   (1, this.fit(0, brightness, 0xFF));
 
-        this.log(`BYROBOT_DRONE_FIGHTER_BASE - reserveLightManual() - Target: 0x${target.toString(16).toUpperCase()}`);
+        this.log(`BASE - reserveLightManual() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x20, target, dataArray);
     }
 
@@ -1423,7 +1473,7 @@ class byrobot_dronefighter_base extends BaseModule
         view.setUint8   (0, mode);
         view.setUint8   (1, interval);
 
-        this.log(`BYROBOT_DRONE_FIGHTER_BASE - reserveLightMode() - Target: 0x${target.toString(16).toUpperCase()}`);
+        this.log(`BASE - reserveLightMode() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x21, target, dataArray);
     }
 
@@ -1438,7 +1488,7 @@ class byrobot_dronefighter_base extends BaseModule
         view.setUint8   (1, interval);
         view.setUint8   (2, repeat);
 
-        this.log(`BYROBOT_DRONE_FIGHTER_BASE - reserveLightEvent() - Target: 0x${target.toString(16).toUpperCase()}`);
+        this.log(`BASE - reserveLightEvent() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x2A, target, dataArray);
     }
 
@@ -1448,12 +1498,12 @@ class byrobot_dronefighter_base extends BaseModule
         const dataArray   = new ArrayBuffer(4);
         const view        = new DataView(dataArray);
 
-        view.setInt8   (0, roll);
-        view.setInt8   (1, pitch);
-        view.setInt8   (2, yaw);
-        view.setInt8   (3, throttle);
+        view.setInt8   (0, this.fit(-120, roll, 120));
+        view.setInt8   (1, this.fit(-120, pitch, 120));
+        view.setInt8   (2, this.fit(-120, yaw, 120));
+        view.setInt8   (3, this.fit(-120, throttle, 120));
 
-        this.log(`BYROBOT_DRONE_FIGHTER_BASE - reserveControlQuad8() - Target: 0x${target.toString(16).toUpperCase()}`);
+        this.log(`BASE - reserveControlQuad8() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x10, target, dataArray);
     }
 
@@ -1467,7 +1517,7 @@ class byrobot_dronefighter_base extends BaseModule
         view.setInt8   (0, wheel);
         view.setInt8   (1, accel);
 
-        this.log(`BYROBOT_DRONE_FIGHTER_BASE - reserveControlDouble8() - Target: 0x${target.toString(16).toUpperCase()}`);
+        this.log(`BASE - reserveControlDouble8() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x10, target, dataArray);
     }
 
@@ -1478,11 +1528,11 @@ class byrobot_dronefighter_base extends BaseModule
         const dataArray   = new ArrayBuffer(4);
         const view        = new DataView(dataArray);
 
-        view.setUint8   (0, motor);
-        view.setUint8   (1, rotation);
-        view.setInt16   (2, value);
+        view.setUint8   (0, this.fit(0, motor, 0xFF));
+        view.setUint8   (1, this.fit(0, rotation, 0xFF));
+        view.setInt16   (2, this.fit(-4095, value, 4095));
 
-        this.log(`BYROBOT_DRONE_FIGHTER_BASE - reserveMotorSingle() - Target: 0x${target.toString(16).toUpperCase()}`);
+        this.log(`BASE - reserveMotorSingle() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x81, target, dataArray);
     }
 
@@ -1493,11 +1543,11 @@ class byrobot_dronefighter_base extends BaseModule
         const dataArray   = new ArrayBuffer(5);
         const view        = new DataView(dataArray);
 
-        view.setUint8   (0, mode);
-        view.setUint16  (1, value, true);
-        view.setUint16  (3, time, true);
+        view.setUint8   (0, this.fit(0, mode, 0xFF));
+        view.setUint16  (1, this.fit(0, value, 0xFFFF), true);
+        view.setUint16  (3, this.fit(0, time, 0xFFFF), true);
 
-        this.log(`BYROBOT_DRONE_FIGHTER_BASE - reserveBuzzer() - Target: 0x${target.toString(16).toUpperCase()}`);
+        this.log(`BASE - reserveBuzzer() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x83, target, dataArray);
     }
 
@@ -1513,7 +1563,7 @@ class byrobot_dronefighter_base extends BaseModule
         view.setUint16  (3, off, true);
         view.setUint16  (5, total, true);
 
-        this.log(`BYROBOT_DRONE_FIGHTER_BASE - reserveVibrator() - Target: 0x${target.toString(16).toUpperCase()}`);
+        this.log(`BASE - reserveVibrator() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x84, target, dataArray);
     }
 
@@ -1526,7 +1576,7 @@ class byrobot_dronefighter_base extends BaseModule
 
         view.setUint32  (0, data, true);
 
-        this.log(`BYROBOT_DRONE_FIGHTER_BASE - reserveIRMessage() - Target: 0x${target.toString(16).toUpperCase()}`);
+        this.log(`BASE - reserveIRMessage() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x82, target, dataArray);
     }
 
@@ -1540,7 +1590,7 @@ class byrobot_dronefighter_base extends BaseModule
         view.setUint8   (0, uiCommand);
         view.setUint8   (1, uiFunction);
 
-        this.log(`BYROBOT_DRONE_FIGHTER_BASE - reserveUserInterface() - Target: 0x${target.toString(16).toUpperCase()}`);
+        this.log(`BASE - reserveUserInterface() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x46, target, dataArray);
     }
 
@@ -1561,10 +1611,10 @@ class byrobot_dronefighter_base extends BaseModule
 
         // Header
         {
-            view.setUint8(2, dataType);                 // Data Type
-            view.setUint8(3, dataBuffer.byteLength);    // Data Length
-            view.setUint8(4, 0x15);                     // From (네이버 엔트리)
-            view.setUint8(5, to);                       // To
+            view.setUint8(2, this.fit(0, dataType, 0xFF));              // Data Type
+            view.setUint8(3, this.fit(0, dataBuffer.byteLength, 0xFF)); // Data Length
+            view.setUint8(4, 0x15);                                     // From (네이버 엔트리)
+            view.setUint8(5, this.fit(0, to, 0xFF));                    // To
         }
 
         // Data
@@ -1588,8 +1638,14 @@ class byrobot_dronefighter_base extends BaseModule
             view.setUint16((2 + 4 + dataArray.length), crc16, true);
         }
         
-        //this.log("BYROBOT_DRONE_FIGHTER_BASE - createTransferBlock() - ", Array.from(new Uint8Array(dataBlock)))
+        //this.log("BASE - createTransferBlock() - ", Array.from(new Uint8Array(dataBlock)))
         return Array.from(new Uint8Array(dataBlock));
+    }
+
+
+    fit(min, value, max)
+    {
+        return Math.max(Math.min(value, max), min);
     }
 
 
@@ -1607,7 +1663,7 @@ class byrobot_dronefighter_base extends BaseModule
         const right = dataview.getUint32(byteOffset + 4, littleEndian);
 
         // combine the two 32-bit values
-        const combined = littleEndian ? left + 2 ** 32 * right : 2 ** 32 * left + right;
+        const combined = (littleEndian) ? (left + 2 ** 32 * right) : (2 ** 32 * left + right);
 
         if (!Number.isSafeInteger(combined))
         {
@@ -1673,7 +1729,7 @@ class byrobot_dronefighter_base extends BaseModule
     */
     createCRC16Array()
     {
-        this.log('BYROBOT_DRONE_FIGHTER_BASE - createCRC16Array()');
+        this.log('BASE - createCRC16Array()');
 
         this.crc16table =
         [
