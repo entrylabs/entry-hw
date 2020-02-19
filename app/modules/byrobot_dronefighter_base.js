@@ -1,3 +1,5 @@
+/* eslint-disable brace-style */
+/* eslint-disable max-len */
 const _ = require('lodash');
 const BaseModule = require('./baseModule');
 
@@ -19,7 +21,6 @@ const BaseModule = require('./baseModule');
 
 class byrobot_dronefighter_base extends BaseModule
 {
-
     /***************************************************************************************
      *  클래스 내부에서 사용될 필드들을 이곳에서 선언합니다.
      ***************************************************************************************/
@@ -29,7 +30,7 @@ class byrobot_dronefighter_base extends BaseModule
     {
         super();
 
-        this.log("BYROBOT_DRONE_FIGHTER_BASE - constructor()");
+        this.log('BYROBOT_DRONE_FIGHTER_BASE - constructor()');
 
         this.createCRC16Array();
 
@@ -206,7 +207,7 @@ class byrobot_dronefighter_base extends BaseModule
     {
         super.init(handler, config);
         
-        this.log("BYROBOT_DRONE_FIGHTER_BASE - init()");
+        this.log('BYROBOT_DRONE_FIGHTER_BASE - init()');
         this.resetData();
     }
 
@@ -223,7 +224,7 @@ class byrobot_dronefighter_base extends BaseModule
         this.isConnect = true;
         this.serialport = serialport;
 
-        //this.log("BYROBOT_DRONE_FIGHTER_BASE - requestInitialData(0x" + this.targetDevice.toString(16).toUpperCase() + ")");
+        //this.log(`BYROBOT_DRONE_FIGHTER_BASE - requestInitialData(0x${this.targetDevice.toString(16).toUpperCase()})`);
         return this.reservePing(this.targetDevice);
     }
 
@@ -234,7 +235,7 @@ class byrobot_dronefighter_base extends BaseModule
      */
     checkInitialData(data, config)
     {
-        this.log("BYROBOT_DRONE_FIGHTER_BASE - checkInitialData()");
+        this.log('BYROBOT_DRONE_FIGHTER_BASE - checkInitialData()');
         return this.checkInitialAck(data, config); 
     }
 
@@ -294,13 +295,13 @@ class byrobot_dronefighter_base extends BaseModule
 
     connect()
     {
-        this.log("BYROBOT_DRONE_FIGHTER_BASE - connect()");
+        this.log('BYROBOT_DRONE_FIGHTER_BASE - connect()');
     }
 
 
     disconnect(connect)
     {
-        this.log("BYROBOT_DRONE_FIGHTER_BASE - disconnect()");
+        this.log('BYROBOT_DRONE_FIGHTER_BASE - disconnect()');
 
         connect.close();
 
@@ -314,7 +315,7 @@ class byrobot_dronefighter_base extends BaseModule
     */
     reset()
     {
-        this.log("BYROBOT_DRONE_FIGHTER_BASE - reset()");
+        this.log('BYROBOT_DRONE_FIGHTER_BASE - reset()');
         this.resetData();
     }
 
@@ -412,10 +413,10 @@ class byrobot_dronefighter_base extends BaseModule
     {
         //this.log("BYROBOT_DRONE_FIGHTER_BASE - updateAck()");
 
-        if ( this.dataBlock != undefined && this.dataBlock.length == 11 )
+        if (this.dataBlock != undefined && this.dataBlock.length == 11)
         {
-            let array = Uint8Array.from(this.dataBlock);
-            let view  = new DataView(array.buffer);
+            const array = Uint8Array.from(this.dataBlock);
+            const view  = new DataView(array.buffer);
 
             this.ack._updated       = true;
             this.ack.ack_systemTime = this.getUint64(view, 0, true);
@@ -443,12 +444,12 @@ class byrobot_dronefighter_base extends BaseModule
 
     updateState()
     {
-        this.log("BYROBOT_DRONE_FIGHTER_BASE - updateState()");
+        this.log('BYROBOT_DRONE_FIGHTER_BASE - updateState()');
 
-        if ( this.dataBlock != undefined && this.dataBlock.length == 7 )
+        if (this.dataBlock != undefined && this.dataBlock.length == 7)
         {
-            let array = Uint8Array.from(this.dataBlock);
-            let view  = new DataView(array.buffer);
+            const array = Uint8Array.from(this.dataBlock);
+            const view  = new DataView(array.buffer);
 
             this.state._updated                 = true;
             this.state.state_modeVehicle        = view.getUint8(0);
@@ -461,15 +462,15 @@ class byrobot_dronefighter_base extends BaseModule
 
             // 비행 모드로 들어갔는데 설정이 비행 모드가 아닌경우 비행 모드로 변경
             // 자동차 모드로 들어갔는데 설정이 자동차 모드가 아닌 경우 자동차 모드로 변경
-            if( this.targetModeVehicle != undefined )
+            if (this.targetModeVehicle != undefined)
             {
-                switch( this.targetModeVehicle )
+                switch (this.targetModeVehicle)
                 {
                 case 0x10:
                     {
-                        if( this.state.state_modeVehicle != 0x10 &&
+                        if (this.state.state_modeVehicle != 0x10 &&
                             this.state.state_modeVehicle != 0x11 &&
-                            this.state.state_modeVehicle != 0x12 )
+                            this.state.state_modeVehicle != 0x12)
                         {
                             this.reserveModeVehicle(0x10);
                         }
@@ -478,8 +479,8 @@ class byrobot_dronefighter_base extends BaseModule
 
                 case 0x20:
                     {
-                        if( this.state.state_modeVehicle != 0x20 &&
-                            this.state.state_modeVehicle != 0x21 )
+                        if (this.state.state_modeVehicle != 0x20 &&
+                            this.state.state_modeVehicle != 0x21)
                         {
                             this.reserveModeVehicle(0x20);
                         }
@@ -507,12 +508,12 @@ class byrobot_dronefighter_base extends BaseModule
 
     updateButton()
     {
-        //this.log("BYROBOT_DRONE_FIGHTER_BASE - updateButton() - length : " + this.dataBlock.length);
+        //this.log(`BYROBOT_DRONE_FIGHTER_BASE - updateButton() - length : ${this.dataBlock.length}`);
 
-        if ( this.dataBlock != undefined && this.dataBlock.length == 3 )
+        if (this.dataBlock != undefined && this.dataBlock.length == 3)
         {
-            let array = Uint8Array.from(this.dataBlock);
-            let view  = new DataView(array.buffer);
+            const array = Uint8Array.from(this.dataBlock);
+            const view  = new DataView(array.buffer);
 
             this.button._updated           = true;
             this.button.button_button      = view.getUint16(0, true);
@@ -542,12 +543,12 @@ class byrobot_dronefighter_base extends BaseModule
 
     updateJoystick()
     {
-        //this.log("BYROBOT_DRONE_FIGHTER_BASE - updateJoystick() - length : " + this.dataBlock.length);
+        //this.log(`BYROBOT_DRONE_FIGHTER_BASE - updateJoystick() - length : ${this.dataBlock.length}`);
 
-        if ( this.dataBlock != undefined && this.dataBlock.length == 10 )
+        if (this.dataBlock != undefined && this.dataBlock.length == 10)
         {
-            let array = Uint8Array.from(this.dataBlock);
-            let view  = new DataView(array.buffer);
+            const array = Uint8Array.from(this.dataBlock);
+            const view  = new DataView(array.buffer);
 
             this.joystick._updated                   = true;
             this.joystick.joystick_left_x            = view.getInt8(0);
@@ -578,12 +579,12 @@ class byrobot_dronefighter_base extends BaseModule
 
     updateInformationAssembledForEntry()
     {
-        //this.log("BYROBOT_DRONE_FIGHTER_BASE - updateInformationAssembledForEntry() - length : " + this.dataBlock.length);
+        //this.log(`BYROBOT_DRONE_FIGHTER_BASE - updateInformationAssembledForEntry() - length : ${this.dataBlock.length}`);
 
-        if ( this.dataBlock != undefined && this.dataBlock.length == 6 )
+        if (this.dataBlock != undefined && this.dataBlock.length == 6)
         {
-            let array = Uint8Array.from(this.dataBlock);
-            let view  = new DataView(array.buffer);
+            const array = Uint8Array.from(this.dataBlock);
+            const view  = new DataView(array.buffer);
 
             this.informationAssembledForEntry._updated                                  = true;
             this.informationAssembledForEntry.informationAssembledForEntry_angleRoll    = view.getInt16(0, true);
@@ -606,12 +607,12 @@ class byrobot_dronefighter_base extends BaseModule
 
     updateIRMessage()
     {
-        //this.log("BYROBOT_DRONE_FIGHTER_BASE - updateIRMessage() - length : " + this.dataBlock.length);
+        //this.log(`BYROBOT_DRONE_FIGHTER_BASE - updateIRMessage() - length : ${this.dataBlock.length}`);
 
-        if ( this.dataBlock != undefined && this.dataBlock.length == 5 )
+        if (this.dataBlock != undefined && this.dataBlock.length == 5)
         {
-            let array = Uint8Array.from(this.dataBlock);
-            let view  = new DataView(array.buffer);
+            const array = Uint8Array.from(this.dataBlock);
+            const view  = new DataView(array.buffer);
 
             this.irmessage._updated             = true;
             this.irmessage.irmessage_direction  = view.getUint8(0);
@@ -636,12 +637,12 @@ class byrobot_dronefighter_base extends BaseModule
     {
         this.receiverForDevice(data);
 
-        if( this.targetDeviceID == undefined )
+        if (this.targetDeviceID == undefined)
         {
             return false;
         }
 
-        if( this.ack._updated )
+        if (this.ack._updated)
         {
             config.id = this.targetDeviceID;
             return true;
@@ -679,67 +680,67 @@ class byrobot_dronefighter_base extends BaseModule
     */
     handlerForEntry(handler)
     {
-        if( this.bufferTransfer == undefined )
+        if (this.bufferTransfer == undefined)
         {
             this.bufferTransfer = [];
         }
 
         // Buffer Clear
-        if( handler.e(this.DataType.BUFFER_CLEAR) )
+        if (handler.e(this.DataType.BUFFER_CLEAR))
         {
             this.bufferTransfer = [];
         }
 
-        let target = this.read(handler, this.DataType.TARGET, 0xFF);
+        const target = this.read(handler, this.DataType.TARGET, 0xFF);
 
         // Light Manual
-        if( handler.e(this.DataType.LIGHT_MANUAL_FLAGS)       &&
-            handler.e(this.DataType.LIGHT_MANUAL_BRIGHTNESS)  )
+        if (handler.e(this.DataType.LIGHT_MANUAL_FLAGS)       &&
+            handler.e(this.DataType.LIGHT_MANUAL_BRIGHTNESS))
         {
-            let flags       = this.read(handler, this.DataType.LIGHT_MANUAL_FLAGS);
-            let brightness  = this.read(handler, this.DataType.LIGHT_MANUAL_BRIGHTNESS);
+            const flags       = this.read(handler, this.DataType.LIGHT_MANUAL_FLAGS);
+            const brightness  = this.read(handler, this.DataType.LIGHT_MANUAL_BRIGHTNESS);
 
-            let dataArray = this.reserveLightManual(target, flags, brightness);
+            const dataArray = this.reserveLightManual(target, flags, brightness);
             this.bufferTransfer.push(dataArray);
-            this.log("BYROBOT_DRONE_FIGHTER_BASE - Transfer_To_Device - LightManual", dataArray);
+            this.log('BYROBOT_DRONE_FIGHTER_BASE - Transfer_To_Device - LightManual', dataArray);
         }
 
 
         // LightMode
-        if( handler.e(this.DataType.LIGHT_MODE_MODE)      &&
-            handler.e(this.DataType.LIGHT_MODE_INTERVAL)  )
+        if (handler.e(this.DataType.LIGHT_MODE_MODE)      &&
+            handler.e(this.DataType.LIGHT_MODE_INTERVAL))
         {
-            let mode        = this.read(handler, this.DataType.LIGHT_MODE_MODE);
-            let interval    = this.read(handler, this.DataType.LIGHT_MODE_INTERVAL);
+            const mode        = this.read(handler, this.DataType.LIGHT_MODE_MODE);
+            const interval    = this.read(handler, this.DataType.LIGHT_MODE_INTERVAL);
 
-            let dataArray = this.reserveLightMode(target, mode, interval);
+            const dataArray = this.reserveLightMode(target, mode, interval);
             this.bufferTransfer.push(dataArray);
-            this.log("BYROBOT_DRONE_FIGHTER_BASE - Transfer_To_Device - LightMode", dataArray);
+            this.log('BYROBOT_DRONE_FIGHTER_BASE - Transfer_To_Device - LightMode', dataArray);
         }
         
 
         // LightEvent
-        if( handler.e(this.DataType.LIGHT_EVENT_EVENT)     &&
+        if (handler.e(this.DataType.LIGHT_EVENT_EVENT)     &&
             handler.e(this.DataType.LIGHT_EVENT_INTERVAL)  &&
-            handler.e(this.DataType.LIGHT_EVENT_REPEAT)    )
+            handler.e(this.DataType.LIGHT_EVENT_REPEAT))
         {
-            let event       = this.read(handler, this.DataType.LIGHT_EVENT_EVENT);
-            let interval    = this.read(handler, this.DataType.LIGHT_EVENT_INTERVAL);
-            let repeat      = this.read(handler, this.DataType.LIGHT_EVENT_REPEAT);
+            const event       = this.read(handler, this.DataType.LIGHT_EVENT_EVENT);
+            const interval    = this.read(handler, this.DataType.LIGHT_EVENT_INTERVAL);
+            const repeat      = this.read(handler, this.DataType.LIGHT_EVENT_REPEAT);
 
-            let dataArray = this.reserveLightEvent(target, event, interval, repeat);
+            const dataArray = this.reserveLightEvent(target, event, interval, repeat);
             this.bufferTransfer.push(dataArray);
-            this.log("BYROBOT_DRONE_FIGHTER_BASE - Transfer_To_Device - LightEvent", dataArray);
+            this.log('BYROBOT_DRONE_FIGHTER_BASE - Transfer_To_Device - LightEvent', dataArray);
         }
 
 
         // Command
-        if( handler.e(this.DataType.COMMAND_COMMAND) )
+        if (handler.e(this.DataType.COMMAND_COMMAND))
         {
-            let command = this.read(handler, this.DataType.COMMAND_COMMAND);
-            let option  = this.read(handler, this.DataType.COMMAND_OPTION);
+            const command = this.read(handler, this.DataType.COMMAND_COMMAND);
+            const option  = this.read(handler, this.DataType.COMMAND_OPTION);
 
-            switch( command )
+            switch (command)
             {
             case 0x24:  // CommandType::Stop
                 {
@@ -758,103 +759,103 @@ class byrobot_dronefighter_base extends BaseModule
                 break;
             }
 
-            let dataArray = this.reserveCommand(target, command, option);
+            const dataArray = this.reserveCommand(target, command, option);
             this.bufferTransfer.push(dataArray);
-            this.log("BYROBOT_DRONE_FIGHTER_BASE - Transfer_To_Device - Command" + command + ", option: " + option, dataArray);
+            this.log(`BYROBOT_DRONE_FIGHTER_BASE - Transfer_To_Device - Command${command}, option: ${option}`, dataArray);
         }
 
 
         // Control
-        if( handler.e(this.DataType.CONTROL_ROLL)     ||
+        if (handler.e(this.DataType.CONTROL_ROLL)     ||
             handler.e(this.DataType.CONTROL_PITCH)    ||
             handler.e(this.DataType.CONTROL_YAW)      ||
-            handler.e(this.DataType.CONTROL_THROTTLE) )
+            handler.e(this.DataType.CONTROL_THROTTLE))
         {
             this.controlRoll     = this.read(handler, this.DataType.CONTROL_ROLL,     this.controlRoll);
             this.controlPitch    = this.read(handler, this.DataType.CONTROL_PITCH,    this.controlPitch);
             this.controlYaw      = this.read(handler, this.DataType.CONTROL_YAW,      this.controlYaw);
             this.controlThrottle = this.read(handler, this.DataType.CONTROL_THROTTLE, this.controlThrottle);
 
-            let dataArray = this.reserveControlQuad8(target, this.controlRoll, this.controlPitch, this.controlYaw, this.controlThrottle);
+            const dataArray = this.reserveControlQuad8(target, this.controlRoll, this.controlPitch, this.controlYaw, this.controlThrottle);
             this.bufferTransfer.push(dataArray);
-            this.log("BYROBOT_DRONE_FIGHTER_BASE - Transfer_To_Device - ControlQuad8", dataArray);
+            this.log('BYROBOT_DRONE_FIGHTER_BASE - Transfer_To_Device - ControlQuad8', dataArray);
         }
 
 
         // Control Wheel, Accel
-        if( handler.e(this.DataType.CONTROL_WHEEL) ||
-            handler.e(this.DataType.CONTROL_ACCEL) )
+        if (handler.e(this.DataType.CONTROL_WHEEL) ||
+            handler.e(this.DataType.CONTROL_ACCEL))
         {
             this.controlWheel = this.read(handler, this.DataType.CONTROL_WHEEL, this.controlWheel);
             this.controlAccel = this.read(handler, this.DataType.CONTROL_ACCEL, this.controlAccel);
 
-            let dataArray = this.reserveControlDouble8(target, this.controlWheel, this.controlAccel);
+            const dataArray = this.reserveControlDouble8(target, this.controlWheel, this.controlAccel);
             this.bufferTransfer.push(dataArray);
-            this.log("BYROBOT_DRONE_FIGHTER_BASE - Transfer_To_Device - reserveControlDouble8", dataArray);
+            this.log('BYROBOT_DRONE_FIGHTER_BASE - Transfer_To_Device - reserveControlDouble8', dataArray);
         }
 
 
         // MotorSingle
-        if( handler.e(this.DataType.MOTORSINGLE_TARGET) )
+        if (handler.e(this.DataType.MOTORSINGLE_TARGET))
         {
-            let motor       = this.read(handler, this.DataType.MOTORSINGLE_TARGET);
-            let rotation    = this.read(handler, this.DataType.MOTORSINGLE_ROTATION);
-            let value       = this.read(handler, this.DataType.MOTORSINGLE_VALUE);
+            const motor       = this.read(handler, this.DataType.MOTORSINGLE_TARGET);
+            const rotation    = this.read(handler, this.DataType.MOTORSINGLE_ROTATION);
+            const value       = this.read(handler, this.DataType.MOTORSINGLE_VALUE);
 
-            let dataArray = this.reserveMotorSingle(target, motor, rotation, value);
+            const dataArray = this.reserveMotorSingle(target, motor, rotation, value);
             this.bufferTransfer.push(dataArray);
-            this.log("BYROBOT_DRONE_FIGHTER_BASE - Transfer_To_Device - MotorSingle", dataArray);
+            this.log('BYROBOT_DRONE_FIGHTER_BASE - Transfer_To_Device - MotorSingle', dataArray);
         }
 
 
         // Buzzer
-        if( handler.e(this.DataType.BUZZER_MODE) )
+        if (handler.e(this.DataType.BUZZER_MODE))
         {
-            let mode     = this.read(handler, this.DataType.BUZZER_MODE);
-            let value    = this.read(handler, this.DataType.BUZZER_VALUE);
-            let time     = this.read(handler, this.DataType.BUZZER_TIME);
+            const mode     = this.read(handler, this.DataType.BUZZER_MODE);
+            const value    = this.read(handler, this.DataType.BUZZER_VALUE);
+            const time     = this.read(handler, this.DataType.BUZZER_TIME);
 
-            let dataArray = this.reserveBuzzer(target, mode, value, time);
+            const dataArray = this.reserveBuzzer(target, mode, value, time);
             this.bufferTransfer.push(dataArray);
-            this.log("BYROBOT_DRONE_FIGHTER_BASE - Transfer_To_Device - Buzzer - mode: " + mode + ", value: " + value + ", time: " + time, dataArray);
+            this.log(`BYROBOT_DRONE_FIGHTER_BASE - Transfer_To_Device - Buzzer - mode: ${mode}, value: ${value}, time: ${time}`, dataArray);
         }
 
 
         // Vibrator
-        if( handler.e(this.DataType.VIBRATOR_ON) )
+        if (handler.e(this.DataType.VIBRATOR_ON))
         {
-            let mode   = this.read(handler, this.DataType.VIBRATOR_MODE);
-            let on     = this.read(handler, this.DataType.VIBRATOR_ON);
-            let off    = this.read(handler, this.DataType.VIBRATOR_OFF);
-            let total  = this.read(handler, this.DataType.VIBRATOR_TOTAL);
+            const mode   = this.read(handler, this.DataType.VIBRATOR_MODE);
+            const on     = this.read(handler, this.DataType.VIBRATOR_ON);
+            const off    = this.read(handler, this.DataType.VIBRATOR_OFF);
+            const total  = this.read(handler, this.DataType.VIBRATOR_TOTAL);
 
-            let dataArray = this.reserveVibrator(target, mode, on, off, total);
+            const dataArray = this.reserveVibrator(target, mode, on, off, total);
             this.bufferTransfer.push(dataArray);
-            this.log("BYROBOT_DRONE_FIGHTER_BASE - Transfer_To_Device - Vibrator", dataArray);
+            this.log('BYROBOT_DRONE_FIGHTER_BASE - Transfer_To_Device - Vibrator', dataArray);
         }
 
 
         // IrMessage
-        if( handler.e(this.DataType.IRMESSAGE_IRDATA) )
+        if (handler.e(this.DataType.IRMESSAGE_IRDATA))
         {
-            let direction = this.read(handler, this.DataType.IRMESSAGE_DIRECTION);
-            let irdata    = this.read(handler, this.DataType.IRMESSAGE_IRDATA);
+            const direction = this.read(handler, this.DataType.IRMESSAGE_DIRECTION);
+            const irdata    = this.read(handler, this.DataType.IRMESSAGE_IRDATA);
 
-            let dataArray = this.reserveIRMessage(target, direction, irdata);
+            const dataArray = this.reserveIRMessage(target, direction, irdata);
             this.bufferTransfer.push(dataArray);
-            this.log("BYROBOT_DRONE_FIGHTER_BASE - Transfer_To_Device - reserveIRMessage", dataArray);
+            this.log('BYROBOT_DRONE_FIGHTER_BASE - Transfer_To_Device - reserveIRMessage', dataArray);
         }
 
 
         // UserInterface
-        if( handler.e(this.DataType.USERINTERFACE_COMMAND) == true )
+        if (handler.e(this.DataType.USERINTERFACE_COMMAND) == true)
         {
-            let uiCommand  = this.read(handler, this.DataType.USERINTERFACE_COMMAND);
-            let uiFunction = this.read(handler, this.DataType.USERINTERFACE_FUNCTION);
+            const uiCommand  = this.read(handler, this.DataType.USERINTERFACE_COMMAND);
+            const uiFunction = this.read(handler, this.DataType.USERINTERFACE_FUNCTION);
 
-            let dataArray = this.reserveUserInterface(target, uiCommand, uiFunction);
+            const dataArray = this.reserveUserInterface(target, uiCommand, uiFunction);
             this.bufferTransfer.push(dataArray);
-            this.log("BYROBOT_DRONE_FIGHTER_BASE - Transfer_To_Device - reserveUserInterface", dataArray);
+            this.log('BYROBOT_DRONE_FIGHTER_BASE - Transfer_To_Device - reserveUserInterface', dataArray);
         }
     }
 
@@ -872,9 +873,9 @@ class byrobot_dronefighter_base extends BaseModule
     {
         // Joystick
         {
-            if( this.joystick._updated )
+            if (this.joystick._updated)
             {
-                for(let key in this.joystick)
+                for (const key in this.joystick)
                 {
                     handler.write(key, this.joystick[key]);
                 }
@@ -885,9 +886,9 @@ class byrobot_dronefighter_base extends BaseModule
 
         // Button
         {
-            if( this.button._updated )
+            if (this.button._updated)
             {
-                for(let key in this.button)
+                for (const key in this.button)
                 {
                     handler.write(key, this.button[key]);
                 }
@@ -898,9 +899,9 @@ class byrobot_dronefighter_base extends BaseModule
 
         // State
         {
-            if( this.state._updated )
+            if (this.state._updated)
             {
-                for(let key in this.state)
+                for (const key in this.state)
                 {
                     handler.write(key, this.state[key]);
                 }
@@ -911,9 +912,9 @@ class byrobot_dronefighter_base extends BaseModule
     
         // InformationAssembledForEntry
         {
-            if( this.informationAssembledForEntry._updated )
+            if (this.informationAssembledForEntry._updated)
             {
-                for(let key in this.informationAssembledForEntry)
+                for (const key in this.informationAssembledForEntry)
                 {
                     handler.write(key, this.informationAssembledForEntry[key]);
                 }
@@ -924,9 +925,9 @@ class byrobot_dronefighter_base extends BaseModule
 
         // IR Message
         {
-            if( this.irmessage._updated )
+            if (this.irmessage._updated)
             {
-                for(let key in this.irmessage)
+                for (const key in this.irmessage)
                 {
                     handler.write(key, this.irmessage[key]);
                 }
@@ -937,12 +938,12 @@ class byrobot_dronefighter_base extends BaseModule
 
         // Entry-hw information
         {
-            if( this.bufferTransfer == undefined )
+            if (this.bufferTransfer == undefined)
             {
                 this.bufferTransfer = [];
             }
 
-            handler.write("entryhw_countTransferReserved", this.bufferTransfer.length);
+            handler.write('entryhw_countTransferReserved', this.bufferTransfer.length);
         }
     }
     
@@ -958,39 +959,39 @@ class byrobot_dronefighter_base extends BaseModule
     // 장치로부터 받은 데이터 배열 처리
     receiverForDevice(dataArray)
     {
-        //this.log("BYROBOT_DRONE_FIGHTER_BASE - receiverForDevice() - Length : " + dataArray.length, dataArray);
+        //this.log(`BYROBOT_DRONE_FIGHTER_BASE - receiverForDevice() - Length : ${dataArray.length}`, dataArray);
 
-        if( dataArray == undefined || dataArray.length == 0 )
+        if (dataArray == undefined || dataArray.length == 0)
         {
             return;
         }
 
-        let i = 0;
+        const i = 0;
 
         // 버퍼로부터 데이터를 읽어 하나의 완성된 데이터 블럭으로 변환
-        for(let i=0; i<dataArray.length; i++)
+        for (let i = 0; i < dataArray.length; i++)
         {
-            let data            = dataArray[i];
+            const data            = dataArray[i];
             
             let flagContinue    = true;
             let flagSessionNext = false;
             let flagComplete    = false;
             
-            switch(this.indexSession)
+            switch (this.indexSession)
             {
             case 0: // Start Code
                 {               
-                    switch( this.indexReceiver )
+                    switch (this.indexReceiver)
                     {
                     case 0:
-                        if( data != 0x0A )
+                        if (data != 0x0A)
                         {
                             continue;
                         }
                         break;
                     
                     case 1:
-                        if( data != 0x55 )
+                        if (data != 0x55)
                         {
                             flagContinue = false;
                         }
@@ -1005,7 +1006,7 @@ class byrobot_dronefighter_base extends BaseModule
 
             case 1: // Header
                 {
-                    switch( this.indexReceiver )
+                    switch (this.indexReceiver)
                     {
                     case 0:
                         {
@@ -1033,7 +1034,7 @@ class byrobot_dronefighter_base extends BaseModule
                             this.to = data;
                             this.crc16Calculated = this.calcCRC16(data, this.crc16Calculated);
                             this.dataBlock = [];        // 수신 받은 데이터 블럭
-                            if( this.dataLength == 0 )
+                            if (this.dataLength == 0)
                             {
                                 this.indexSession++;    // 데이터의 길이가 0인 경우 바로 CRC16으로 넘어가게 함
                             }
@@ -1049,7 +1050,7 @@ class byrobot_dronefighter_base extends BaseModule
                     this.dataBlock.push(data);
                     this.crc16Calculated = this.calcCRC16(data, this.crc16Calculated);
                     
-                    if( this.indexReceiver == this.dataLength - 1 )
+                    if (this.indexReceiver == this.dataLength - 1)
                     {
                         flagSessionNext = true;
                     }
@@ -1058,7 +1059,7 @@ class byrobot_dronefighter_base extends BaseModule
 
             case 3: // CRC16
                 {
-                    switch( this.indexReceiver )
+                    switch (this.indexReceiver)
                     {
                     case 0:
                         {
@@ -1084,10 +1085,10 @@ class byrobot_dronefighter_base extends BaseModule
             }
 
             // 데이터 전송 완료 처리
-            if( flagComplete )
+            if (flagComplete)
             {
-                //this.log("BYROBOT_DRONE_FIGHTER_BASE - Receiver - CRC16 - Calculated : " + this.crc16Calculated.toString(16).toUpperCase() + ", Received : " + this.crc16Received.toString(16).toUpperCase());
-                if( this.crc16Calculated == this.crc16Received )
+                //this.log(`BYROBOT_DRONE_FIGHTER_BASE - Receiver - CRC16 - Calculated : ${this.crc16Calculated.toString(16).toUpperCase()}, Received : ${this.crc16Received.toString(16).toUpperCase()}`);
+                if (this.crc16Calculated == this.crc16Received)
                 {
                     this.handlerForDevice();
                 }
@@ -1096,9 +1097,9 @@ class byrobot_dronefighter_base extends BaseModule
             }
 
             // 데이터 처리 결과에 따라 인덱스 변수 처리
-            if( flagContinue )
+            if (flagContinue)
             {
-                if( flagSessionNext )
+                if (flagSessionNext)
                 {
                     this.indexSession++;
                     this.indexReceiver = 0;             
@@ -1130,7 +1131,7 @@ class byrobot_dronefighter_base extends BaseModule
     {
         /*
         // skip 할 대상만 case로 등록
-        switch( this.dataType )
+        switch (this.dataType)
         {
         case 0x02:  break;      // Ack
         case 0x40:  break;      // State (0x40)
@@ -1139,7 +1140,7 @@ class byrobot_dronefighter_base extends BaseModule
 
         default:
             {
-                //this.log("BYROBOT_DRONE_FIGHTER_BASE - handlerForDevice() - From: " + this.from + " - To: " + this.to + " - Type: " + this.dataType + " - ", this.dataBlock);
+                this.log(`BYROBOT_DRONE_FIGHTER_BASE - handlerForDevice() - From: ${this.from} - To: ${this.to} - Type: ${this.dataType} - `, this.dataBlock);
             }
             break;
         }
@@ -1148,23 +1149,23 @@ class byrobot_dronefighter_base extends BaseModule
         this.timeReceive = (new Date()).getTime();
 
         // 상대측에 정상적으로 데이터를 전달했는지 확인
-        switch( this.dataType )
+        switch (this.dataType)
         {
         case 0x02:  // Ack
             {
-                if( this.updateAck() )
+                if (this.updateAck())
                 {
                     // ping에 대한 ack는 로그 출력하지 않음
                     //if( this.ack.dataType != 0x01 )
                     {
-                        //this.log("BYROBOT_DRONE_FIGHTER_BASE - handlerForDevice() - Ack - From: " + this.from + " - SystemTime: " + this.ack.ack_systemTime + " - DataType: " + this.ack.ack_dataType + " - Repeat: " + this.countTransferRepeat + " - CRC16 Transfer: " + this.crc16Transfered + " - CRF16 Ack: " + this.ack.ack_crc16);
+                        //this.log(`BYROBOT_DRONE_FIGHTER_BASE - handlerForDevice() - Ack - From: ${this.from} - SystemTime: ${this.ack.ack_systemTime} - DataType: ${this.ack.ack_dataType} - Repeat: ${this.countTransferRepeat} - CRC16 Transfer: ${this.crc16Transfered} - CRF16 Ack: ${this.ack.ack_crc16}`);
                     }
 
                     // 마지막으로 전송한 데이터에 대한 응답을 받았다면 
-                    if( this.bufferTransfer         != undefined                &&
+                    if (this.bufferTransfer         != undefined                &&
                         this.bufferTransfer.length  > 0                         &&
                         this.dataTypeLastTransfered == this.ack.ack_dataType    &&
-                        this.crc16Transfered        == this.ack.ack_crc16       )
+                        this.crc16Transfered        == this.ack.ack_crc16)
                     {
                         this.bufferTransfer.shift();
                         this.countTransferRepeat = 0;
@@ -1176,21 +1177,21 @@ class byrobot_dronefighter_base extends BaseModule
         default:
             {
                 // 마지막으로 요청한 데이터를 받았다면 
-                if( this.bufferTransfer         != undefined     &&
+                if (this.bufferTransfer         != undefined     &&
                     this.bufferTransfer.length  > 0              &&
-                    this.dataTypeLastTransfered == this.dataType )
+                    this.dataTypeLastTransfered == this.dataType)
                 {
                     this.bufferTransfer.shift();
                     this.countTransferRepeat = 0;
                     
-                    //this.log("BYROBOT_DRONE_FIGHTER_BASE - handlerForDevice() - Response - From: " + this.from + " - DataType: " + this.dataType);
+                    this.log(`BYROBOT_DRONE_FIGHTER_BASE - handlerForDevice() - Response - From: ${this.from} - DataType: ${this.dataType}`);
                 }
             }
             break;
         }
 
         // 데이터 업데이트
-        switch( this.dataType )
+        switch (this.dataType)
         {
         case 0x40:  // State
             {
@@ -1249,30 +1250,30 @@ class byrobot_dronefighter_base extends BaseModule
     // 장치에 데이터 전송
     transferToDevice()
     {
-        let now = (new Date()).getTime();
+        const now = (new Date()).getTime();
 
-        if( now < this.timeTransferNext )
+        if (now < this.timeTransferNext)
         {
             return null;
         }
         
         this.timeTransferNext = now + this.timeTransferInterval;
 
-        if( this.bufferTransfer == undefined )
+        if (this.bufferTransfer == undefined)
         {
             this.bufferTransfer = [];
         }
 
         this.countReqeustDevice++;
 
-        if( this.bufferTransfer.length == 0 )
+        if (this.bufferTransfer.length == 0)
         {
             // 예약된 요청이 없는 경우 데이터 요청 등록(현재는 자세 데이터 요청)
-            switch( this.targetDevice )
+            switch (this.targetDevice)
             {
             case 0x10:
                 {
-                    switch( this.countReqeustDevice % 6 )
+                    switch (this.countReqeustDevice % 6)
                     {
                     case 0:    return this.reservePing(0x10);              // 드론
                     case 2:    return this.reservePing(0x11);              // 조종기
@@ -1292,11 +1293,11 @@ class byrobot_dronefighter_base extends BaseModule
         else
         {
             // 예약된 요청이 있는 경우
-            switch( this.targetDevice )
+            switch (this.targetDevice)
             {
             case 0x10:
                 {
-                    switch( this.countReqeustDevice % 5 )
+                    switch (this.countReqeustDevice % 5)
                     {
                     case 1:     return this.reserveRequest(0x10, 0xD1);     // 드론, 자주 갱신되는 데이터 모음(엔트리)
                     default:    break;
@@ -1306,7 +1307,7 @@ class byrobot_dronefighter_base extends BaseModule
 
             default:
                 {
-                    switch( this.countReqeustDevice % 10 )
+                    switch (this.countReqeustDevice % 10)
                     {
                     case 0:     return this.reservePing(this.targetDevice);
                     default:    break;
@@ -1317,8 +1318,8 @@ class byrobot_dronefighter_base extends BaseModule
         }
 
         // 예약된 데이터 전송 처리
-        let arrayTransfer = this.bufferTransfer[0];             // 전송할 데이터 배열(첫 번째 데이터 블럭 전송)
-        if( arrayTransfer[2] == 0x04 )
+        const arrayTransfer = this.bufferTransfer[0];             // 전송할 데이터 배열(첫 번째 데이터 블럭 전송)
+        if (arrayTransfer[2] == 0x04)
         {
             this.dataTypeLastTransfered = arrayTransfer[6];     // 요청한 데이터의 타입(Request인 경우)
         }
@@ -1331,10 +1332,10 @@ class byrobot_dronefighter_base extends BaseModule
 
         this.crc16Transfered = (arrayTransfer[arrayTransfer.length - 1] << 8) | (arrayTransfer[arrayTransfer.length - 2]);
 
-        //this.log("BYROBOT_DRONE_FIGHTER_BASE - transferToDevice - Repeat: " + this.countTransferRepeat, this.bufferTransfer[0]);
+        //this.log(`BYROBOT_DRONE_FIGHTER_BASE - transferToDevice - Repeat: ${this.countTransferRepeat}`, this.bufferTransfer[0]);
 
         // maxTransferRepeat 이상 전송했음에도 응답이 없는 경우엔 다음으로 넘어감
-        if( this.countTransferRepeat >= this.maxTransferRepeat)
+        if (this.countTransferRepeat >= this.maxTransferRepeat)
         {
             this.bufferTransfer.shift();
             this.countTransferRepeat = 0;
@@ -1355,12 +1356,12 @@ class byrobot_dronefighter_base extends BaseModule
     // Ping
     reservePing(target)
     {
-        let dataArray   = new ArrayBuffer(4);
-        let view        = new DataView(dataArray);
+        const dataArray   = new ArrayBuffer(4);
+        const view        = new DataView(dataArray);
 
         view.setUint32(0, 0, true);
 
-        //this.log("BYROBOT_DRONE_FIGHTER_BASE - reservePing() - Target: 0x" + target.toString(16).toUpperCase());
+        //this.log(`BYROBOT_DRONE_FIGHTER_BASE - reservePing() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x01, target, dataArray);
     }
 
@@ -1368,12 +1369,12 @@ class byrobot_dronefighter_base extends BaseModule
     // 데이터 요청
     reserveRequest(target, dataType)
     {
-        let dataArray   = new ArrayBuffer(1);
-        let view        = new DataView(dataArray);
+        const dataArray   = new ArrayBuffer(1);
+        const view        = new DataView(dataArray);
 
         view.setUint8(0, dataType);
 
-        //this.log("BYROBOT_DRONE_FIGHTER_BASE - reserveRequest() - Target: 0x" + target.toString(16).toUpperCase() + " - DataType: 0x", dataType.toString(16).toUpperCase());
+        //this.log(`BYROBOT_DRONE_FIGHTER_BASE - reserveRequest() - Target: 0x${target.toString(16).toUpperCase()} - DataType: 0x`, dataType.toString(16).toUpperCase());
         return this.createTransferBlock(0x04, target, dataArray);
     }
 
@@ -1381,13 +1382,13 @@ class byrobot_dronefighter_base extends BaseModule
     // Command
     reserveCommand(target, command, option)
     {
-        let dataArray   = new ArrayBuffer(2);
-        let view        = new DataView(dataArray);
+        const dataArray   = new ArrayBuffer(2);
+        const view        = new DataView(dataArray);
 
         view.setUint8   (0, command);
         view.setUint8   (1, option);
 
-        //this.log("BYROBOT_DRONE_FIGHTER_BASE - reserveCommand() - Target: 0x" + target.toString(16).toUpperCase());
+        //this.log(`BYROBOT_DRONE_FIGHTER_BASE - reserveCommand() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x11, target, dataArray);
     }
 
@@ -1402,13 +1403,13 @@ class byrobot_dronefighter_base extends BaseModule
     // Light Manual
     reserveLightManual(target, flag, brightness)
     {
-        let dataArray   = new ArrayBuffer(2);
-        let view        = new DataView(dataArray);
+        const dataArray   = new ArrayBuffer(2);
+        const view        = new DataView(dataArray);
 
         view.setUint8   (0, flag);
         view.setUint8   (1, brightness);
 
-        this.log("BYROBOT_DRONE_FIGHTER_BASE - reserveLightManual() - Target: 0x" + target.toString(16).toUpperCase());
+        this.log(`BYROBOT_DRONE_FIGHTER_BASE - reserveLightManual() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x20, target, dataArray);
     }
 
@@ -1416,13 +1417,13 @@ class byrobot_dronefighter_base extends BaseModule
     // LightMode
     reserveLightMode(target, mode, interval)
     {
-        let dataArray   = new ArrayBuffer(2);
-        let view        = new DataView(dataArray);
+        const dataArray   = new ArrayBuffer(2);
+        const view        = new DataView(dataArray);
 
         view.setUint8   (0, mode);
         view.setUint8   (1, interval);
 
-        this.log("BYROBOT_DRONE_FIGHTER_BASE - reserveLightMode() - Target: 0x" + target.toString(16).toUpperCase());
+        this.log(`BYROBOT_DRONE_FIGHTER_BASE - reserveLightMode() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x21, target, dataArray);
     }
 
@@ -1430,29 +1431,29 @@ class byrobot_dronefighter_base extends BaseModule
     // LightEvent
     reserveLightEvent(target, event, interval, repeat)
     {
-        let dataArray   = new ArrayBuffer(3);
-        let view        = new DataView(dataArray);
+        const dataArray   = new ArrayBuffer(3);
+        const view        = new DataView(dataArray);
 
         view.setUint8   (0, event);
         view.setUint8   (1, interval);
         view.setUint8   (2, repeat);
 
-        this.log("BYROBOT_DRONE_FIGHTER_BASE - reserveLightEvent() - Target: 0x" + target.toString(16).toUpperCase());
+        this.log(`BYROBOT_DRONE_FIGHTER_BASE - reserveLightEvent() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x2A, target, dataArray);
     }
 
     // ControlQuad8
     reserveControlQuad8(target, roll, pitch, yaw, throttle)
     {
-        let dataArray   = new ArrayBuffer(4);
-        let view        = new DataView(dataArray);
+        const dataArray   = new ArrayBuffer(4);
+        const view        = new DataView(dataArray);
 
         view.setInt8   (0, roll);
         view.setInt8   (1, pitch);
         view.setInt8   (2, yaw);
         view.setInt8   (3, throttle);
 
-        //this.log("BYROBOT_DRONE_FIGHTER_BASE - reserveControlQuad8() - Target: 0x" + target.toString(16).toUpperCase());
+        this.log(`BYROBOT_DRONE_FIGHTER_BASE - reserveControlQuad8() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x10, target, dataArray);
     }
 
@@ -1460,13 +1461,13 @@ class byrobot_dronefighter_base extends BaseModule
     // reserveControlDouble8
     reserveControlDouble8(target, accel, wheel)
     {
-        let dataArray   = new ArrayBuffer(2);
-        let view        = new DataView(dataArray);
+        const dataArray   = new ArrayBuffer(2);
+        const view        = new DataView(dataArray);
 
         view.setInt8   (0, wheel);
         view.setInt8   (1, accel);
 
-        //this.log("BYROBOT_DRONE_FIGHTER_BASE - reserveControlDouble8() - Target: 0x" + target.toString(16).toUpperCase());
+        this.log(`BYROBOT_DRONE_FIGHTER_BASE - reserveControlDouble8() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x10, target, dataArray);
     }
 
@@ -1474,14 +1475,14 @@ class byrobot_dronefighter_base extends BaseModule
     // MotorSingle
     reserveMotorSingle(target, motor, rotation, value)
     {
-        let dataArray   = new ArrayBuffer(4);
-        let view        = new DataView(dataArray);
+        const dataArray   = new ArrayBuffer(4);
+        const view        = new DataView(dataArray);
 
         view.setUint8   (0, motor);
         view.setUint8   (1, rotation);
         view.setInt16   (2, value);
 
-        //this.log("BYROBOT_DRONE_FIGHTER_BASE - reserveMotorSingle() - Target: 0x" + target.toString(16).toUpperCase());
+        this.log(`BYROBOT_DRONE_FIGHTER_BASE - reserveMotorSingle() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x81, target, dataArray);
     }
 
@@ -1489,14 +1490,14 @@ class byrobot_dronefighter_base extends BaseModule
     // Buzzer
     reserveBuzzer(target, mode, value, time)
     {
-        let dataArray   = new ArrayBuffer(5);
-        let view        = new DataView(dataArray);
+        const dataArray   = new ArrayBuffer(5);
+        const view        = new DataView(dataArray);
 
         view.setUint8   (0, mode);
         view.setUint16  (1, value, true);
         view.setUint16  (3, time, true);
 
-        //this.log("BYROBOT_DRONE_FIGHTER_BASE - reserveBuzzer() - Target: 0x" + target.toString(16).toUpperCase());
+        this.log(`BYROBOT_DRONE_FIGHTER_BASE - reserveBuzzer() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x83, target, dataArray);
     }
 
@@ -1504,15 +1505,15 @@ class byrobot_dronefighter_base extends BaseModule
     // Vibrator
     reserveVibrator(target, mode, on, off, total)
     {
-        let dataArray   = new ArrayBuffer(7);
-        let view        = new DataView(dataArray);
+        const dataArray   = new ArrayBuffer(7);
+        const view        = new DataView(dataArray);
 
         view.setUint8   (0, mode);
         view.setUint16  (1, on, true);
         view.setUint16  (3, off, true);
         view.setUint16  (5, total, true);
 
-        //this.log("BYROBOT_DRONE_FIGHTER_BASE - reserveVibrator() - Target: 0x" + target.toString(16).toUpperCase());
+        this.log(`BYROBOT_DRONE_FIGHTER_BASE - reserveVibrator() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x84, target, dataArray);
     }
 
@@ -1520,12 +1521,12 @@ class byrobot_dronefighter_base extends BaseModule
     // IRMessage
     reserveIRMessage(target, direction, data)
     {
-        let dataArray   = new ArrayBuffer(4);
-        let view        = new DataView(dataArray);
+        const dataArray   = new ArrayBuffer(4);
+        const view        = new DataView(dataArray);
 
         view.setUint32  (0, data, true);
 
-        //this.log("BYROBOT_DRONE_FIGHTER_BASE - reserveIRMessage() - Target: 0x" + target.toString(16).toUpperCase());
+        this.log(`BYROBOT_DRONE_FIGHTER_BASE - reserveIRMessage() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x82, target, dataArray);
     }
 
@@ -1533,13 +1534,13 @@ class byrobot_dronefighter_base extends BaseModule
     // UserInterface
     reserveUserInterface(target, uiCommand, uiFunction)
     {
-        let dataArray   = new ArrayBuffer(2);
-        let view        = new DataView(dataArray);
+        const dataArray   = new ArrayBuffer(2);
+        const view        = new DataView(dataArray);
 
         view.setUint8   (0, uiCommand);
         view.setUint8   (1, uiFunction);
 
-        //this.log("BYROBOT_DRONE_FIGHTER_BASE - reserveUserInterface() - Target: 0x" + target.toString(16).toUpperCase());
+        this.log(`BYROBOT_DRONE_FIGHTER_BASE - reserveUserInterface() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x46, target, dataArray);
     }
 
@@ -1548,9 +1549,9 @@ class byrobot_dronefighter_base extends BaseModule
     // https://cryingnavi.github.io/javascript-typedarray/
     createTransferBlock(dataType, to, dataBuffer)
     {
-        let dataBlock   = new ArrayBuffer(2 + 4 + dataBuffer.byteLength + 2);  // Start Code + Header + Data + CRC16
-        let view        = new DataView(dataBlock);
-        let dataArray   = new Uint8Array(dataBuffer);
+        const dataBlock   = new ArrayBuffer(2 + 4 + dataBuffer.byteLength + 2);  // Start Code + Header + Data + CRC16
+        const view        = new DataView(dataBlock);
+        const dataArray   = new Uint8Array(dataBuffer);
 
         // Start Code
         {
@@ -1568,7 +1569,7 @@ class byrobot_dronefighter_base extends BaseModule
 
         // Data
         {
-            for(let i=0; i<dataArray.length; i++)
+            for (let i = 0; i < dataArray.length; i++)
             {
                 view.setUint8((2 + 4 + i), dataArray[i]);
             }
@@ -1576,11 +1577,11 @@ class byrobot_dronefighter_base extends BaseModule
 
         // CRC16
         {
-            let indexStart  = 2;
-            let totalLength = 4 + dataArray.length; // 
+            const indexStart  = 2;
+            const totalLength = 4 + dataArray.length; // 
             let crc16       = 0;
 
-            for(let i=0; i<totalLength; i++)
+            for (let i = 0; i < totalLength; i++)
             {
                 crc16 = this.calcCRC16(view.getUint8(indexStart + i), crc16);
             }
@@ -1606,7 +1607,7 @@ class byrobot_dronefighter_base extends BaseModule
         const right = dataview.getUint32(byteOffset + 4, littleEndian);
 
         // combine the two 32-bit values
-        const combined = littleEndian ? left + 2**32*right : 2**32*left + right;
+        const combined = littleEndian ? left + 2 ** 32 * right : 2 ** 32 * left + right;
 
         if (!Number.isSafeInteger(combined))
         {
@@ -1621,13 +1622,13 @@ class byrobot_dronefighter_base extends BaseModule
     // https://stackoverflow.com/questions/6226189/how-to-convert-a-string-to-bytearray
     stringToAsciiByteArray(str)
     {
-        let bytes = [];
-        for(let i=0; i<str.length; i++)
+        const bytes = [];
+        for (let i = 0; i < str.length; i++)
         {
-            let charCode = str.charCodeAt(i);
-            if( charCode > 0xFF )  // char > 1 byte since charCodeAt returns the UTF-16 value
+            const charCode = str.charCodeAt(i);
+            if (charCode > 0xFF)  // char > 1 byte since charCodeAt returns the UTF-16 value
             {
-                // throw new Error('Character ' + String.fromCharCode(charCode) + ' can\'t be represented by a US-ASCII byte.');
+                //throw new Error(`Character ${String.fromCharCode(charCode)} can't be represented by a US-ASCII byte.`);
                 continue;
             }
             bytes.push(charCode);
@@ -1672,7 +1673,7 @@ class byrobot_dronefighter_base extends BaseModule
     */
     createCRC16Array()
     {
-        this.log("BYROBOT_DRONE_FIGHTER_BASE - createCRC16Array()");
+        this.log('BYROBOT_DRONE_FIGHTER_BASE - createCRC16Array()');
 
         this.crc16table =
         [
@@ -1707,19 +1708,19 @@ class byrobot_dronefighter_base extends BaseModule
             0xfd2e, 0xed0f, 0xdd6c, 0xcd4d, 0xbdaa, 0xad8b, 0x9de8, 0x8dc9,
             0x7c26, 0x6c07, 0x5c64, 0x4c45, 0x3ca2, 0x2c83, 0x1ce0, 0x0cc1,
             0xef1f, 0xff3e, 0xcf5d, 0xdf7c, 0xaf9b, 0xbfba, 0x8fd9, 0x9ff8,
-            0x6e17, 0x7e36, 0x4e55, 0x5e74, 0x2e93, 0x3eb2, 0x0ed1, 0x1ef0
+            0x6e17, 0x7e36, 0x4e55, 0x5e74, 0x2e93, 0x3eb2, 0x0ed1, 0x1ef0,
         ];
     }
 
     calcCRC16(data, crc)
     {
-        if( data > 255 )
+        if (data > 255)
         {
             throw new RangeError();
         }
 
-        let index   = ((crc>>8) ^ data) & 0x00FF;
-        let crcNext = ((crc<<8) & 0xFFFF) ^ this.crc16table[index];
+        const index   = ((crc >> 8) ^ data) & 0x00FF;
+        const crcNext = ((crc << 8) & 0xFFFF) ^ this.crc16table[index];
 
         return crcNext;
     }
@@ -1737,14 +1738,14 @@ class byrobot_dronefighter_base extends BaseModule
     {
         // 로그를 출력하지 않으려면 아래 주석을 활성화 할 것
         //*
-        let strInfo = "";
+        let strInfo = '';
 
-        switch( typeof data )
+        switch (typeof data)
         {
-        case "object":
+        case 'object':
             {
-                strInfo = " - [ " + this.convertByteArrayToHexString(data) + " ]";
-                console.log(message + " - " + (typeof data) + strInfo);
+                strInfo = ` - [ ${this.convertByteArrayToHexString(data)} ]`;
+                console.log(`${message} - ${typeof data}${strInfo}`);
             }
             break;
 
@@ -1761,18 +1762,18 @@ class byrobot_dronefighter_base extends BaseModule
     // 바이트 배열을 16진수 문자열로 변경 
     convertByteArrayToHexString(data)
     {
-        let strHexArray = "";
+        let strHexArray = '';
         let strHex;
 
-        if( typeof data == "object" && data.length > 1 )
+        if (typeof data == 'object' && data.length > 1)
         {
-            for(let i=0; i<data.length; i++)
+            for (let i = 0; i < data.length; i++)
             {
                 strHex = data[i].toString(16).toUpperCase();
-                strHexArray += " ";
-                if( strHex.length == 1 )
+                strHexArray += ' ';
+                if (strHex.length == 1)
                 {
-                    strHexArray += "0";
+                    strHexArray += '0';
                 }
                 strHexArray += strHex;
             }
@@ -1787,7 +1788,6 @@ class byrobot_dronefighter_base extends BaseModule
     }
 
     // #endregion Functions for log
-
 }
 
 
