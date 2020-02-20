@@ -152,7 +152,7 @@ Module.prototype.requestRemoteData = function(handler) {
     }
     //실과형
     //console.log("###### value : " + this.detectedSound);
-    for (var i = 0; i < 1; i++) {        
+    for (var i = 0; i <= 1; i++) {        
         handler.write('TOUCH' + i, this.touchSensor[i]); // 접촉 센서
         handler.write('IR' + i, this.irSensor[i]); // 적외선 센서
         handler.write('LIGHT' + i, this.lightSensor[i]); // 조도 센서
@@ -532,6 +532,7 @@ Module.prototype.handleLocalData = function (data) { // data: Native Buffer
                                 for (var ix = 26; ix < 28; ix++) { // 터치 센서
                                     if (this.receiveBuffer[ix - 5] != undefined) {
                                         this.touchSensor[jx] = this.receiveBuffer[ix - 5];
+                                        // console.log("touchsensor port " + jx + " value : " + this.touchSensor[jx]);
                                     }
                                     jx++;
                                 }
