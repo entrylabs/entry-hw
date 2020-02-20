@@ -158,11 +158,12 @@ Module.prototype.validateLocalData = function(data) {
 };
 
 // 2. getDataByBuffer
+
 Module.prototype.getDataByBuffer = function(buffer) {  // 해당 코드 내에서만 쓰는 함수입니다.
     const datas = [];
     let lastIndex = 0;
 	
-    buffer.forEach(function(value, idx){
+    buffer.forEach(function(value,idx) {
         if (value == 0x0d && buffer[idx + 1] == 0x0a) {
             datas.push(buffer.subarray (lastIndex, idx));
             lastIndex = idx + 2;
@@ -360,7 +361,7 @@ Module.prototype.requestRemoteData = function(handler) {
 // 5. �������� ������ ������ ����
 Module.prototype.handleRemoteData = function(handler) {   
     /// 엔트리에서 전달된 데이터 처리(Entry.hw.sendQueue로 보낸 데이터)
-    let self = this;
+    const self = this;
     const getDatas = handler.read('GET');
     const setDatas = handler.read('SET') || this.defaultOutput;
     const time = handler.read('TIME');
@@ -398,7 +399,7 @@ Module.prototype.handleRemoteData = function(handler) {
 					{
                         type: key,
                         data: dataObj.data,
-                    }
+                    };
                     buffer = Buffer.concat([buffer, self.makeSensorReadBuffer(key, 
                         dataObj.port, dataObj.data)]);						
                 }
