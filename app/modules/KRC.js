@@ -163,7 +163,7 @@ Module.prototype.getDataByBuffer = function(buffer) {  // 해당 코드 내에�
     const datas = [];
     let lastIndex = 0;
 	
-    buffer.forEach(function  foo(value,idx) {
+    buffer.forEach(function bar(value,idx) {  //--
         if (value == 0x0d && buffer[idx + 1] == 0x0a) {
             datas.push(buffer.subarray (lastIndex, idx));
             lastIndex = idx + 2;
@@ -184,7 +184,7 @@ Module.prototype.handleLocalData = function(data) {
 //	let count = 0;
     
     
-    datas.forEach (function  foo(data) {  //--
+    datas.forEach (function  bar(data) {  //--
         if (data.length <= 4 || data[0] !== 255 || data[1] !== 85) {
             return;                
         }
@@ -351,7 +351,7 @@ Module.prototype.requestRemoteData = function(handler) {
     if (!self.sensorData) {
         return;
     }
-    Object.keys(this.sensorData).forEach(function foo(key) { //--
+    Object.keys(this.sensorData).forEach(function bar(key) { //--
         if (self.sensorData[key] != undefined) {
             handler.write(key, self.sensorData[key]);           
         }
@@ -380,13 +380,13 @@ Module.prototype.handleRemoteData = function(handler) {
                     self.digitalPortTimeList[dataObj.port] = dataObj.time;
                 }
             } else if (Array.isArray(dataObj.port)) {
-                isSend = dataObj.port.every(function foo(port) {  //--
+                isSend = dataObj.port.every(function bar(port) {  //--
                     const time = self.digitalPortTimeList[port];
                     return dataObj.time > time;
                 });
 
                 if (isSend) {
-                    dataObj.port.forEach(function foo(port) {   //--
+                    dataObj.port.forEach(function bar(port) {   //--
                         self.digitalPortTimeList[port] = dataObj.time;
                     });
                 }
@@ -409,7 +409,7 @@ Module.prototype.handleRemoteData = function(handler) {
 
     if (setDatas) {   // 출력
         const setKeys = Object.keys(setDatas);
-        setKeys.forEach(function foo(port) {  /// port에 해당하는 데이터를 분석하여 처리  //--
+        setKeys.forEach(function bar(port) {  /// port에 해당하는 데이터를 분석하여 처리  //--
             const data = setDatas[port];
             if (data) {
                 if (self.digitalPortTimeList[port] < data.time) { // 데이터 생성시간과 현 시간보다 이전 이면 
@@ -442,7 +442,7 @@ Module.prototype.requestLocalData = function() { // 하드웨어에 명령을 �
         this.isDraing = true;
         this.sp.write(this.sendBuffers.shift(), function() {
             if (self.sp) {
-                self.sp.drain(function foo() {   //--
+                self.sp.drain(function bar() {   //--
                     self.isDraing = false;
                 });
             }
