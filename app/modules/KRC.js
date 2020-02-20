@@ -347,7 +347,7 @@ Module.prototype.handleLocalData = function(data) {
 // 4. ������ ���� ������ ����
 Module.prototype.requestRemoteData = function(handler) { 
     /// 엔트리에 전달할 데이터. 이 코드에서는 하드웨어에서 어떤 정보도 전달하지 않습니다.
-    let self = this;
+    const self = this;
     if (!self.sensorData) {
         return;
     }
@@ -442,7 +442,7 @@ Module.prototype.requestLocalData = function() { // 하드웨어에 명령을 �
         this.isDraing = true;
         this.sp.write(this.sendBuffers.shift(), function() {
             if (self.sp) {
-                self.sp.drain(function() {
+                self.sp.drain(function*() {    //--
                     self.isDraing = false;
                 });
             }
