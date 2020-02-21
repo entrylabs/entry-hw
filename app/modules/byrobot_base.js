@@ -629,7 +629,7 @@ class byrobot_base extends BaseModule
 
     updateMotion()
     {
-        this.log(`BASE - updateMotion() - length : ${this.dataBlock.length}`);
+        //this.log(`BASE - updateMotion() - length : ${this.dataBlock.length}`);
 
         if (this.dataBlock != undefined && this.dataBlock.length == 18)
         {
@@ -701,7 +701,7 @@ class byrobot_base extends BaseModule
             this.informationAssembledForEntry.informationAssembledForEntry_positionX    = view.getInt16(6, true) / 100.0;
             this.informationAssembledForEntry.informationAssembledForEntry_positionY    = view.getInt16(8, true) / 100.0;
             this.informationAssembledForEntry.informationAssembledForEntry_positionZ    = view.getInt16(10, true) / 100.0;
-            this.informationAssembledForEntry.informationAssembledForEntry_rangeHeight  = view.getInt16(12, true) / 100.0;
+            this.informationAssembledForEntry.informationAssembledForEntry_rangeHeight  = view.getInt16(12, true) / 1000.0;
             this.informationAssembledForEntry.informationAssembledForEntry_altitude     = view.getFloat32(14, true);
 
             return true;
