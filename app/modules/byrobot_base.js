@@ -1021,7 +1021,7 @@ class byrobot_base extends BaseModule
 
             const dataArray = this.reserveCommand(target, command, option);
             this.bufferTransfer.push(dataArray);
-            this.log(`BASE - Transfer_To_Device - Command${command}, option: ${option}`, dataArray);
+            this.log(`BASE - Transfer_To_Device - Command: ${command}, option: ${option}`, dataArray);
         }
 
 
