@@ -72,6 +72,8 @@ class PingpongG1 extends BaseModule {
                 0x00,
                 0x0d,
             ]);
+        } else if (method === 'setColorLed') {
+            result = Buffer.from('ffff00070000ce000e0200000750', 'hex');
         } else if (method === 'getSensorData') {
             result = Buffer.from([
                 0xff,
@@ -302,6 +304,10 @@ class PingpongG1 extends BaseModule {
 
     connect() {
         console.log('P: connect: ');
+
+        setTimeout(() => {
+            this.sp.write(this.makePackets('setColorLed'), (err) => {});
+        }, 500);
 
         setTimeout(() => {
             this.sp.write(this.makePackets('getSensorData'), err => {
