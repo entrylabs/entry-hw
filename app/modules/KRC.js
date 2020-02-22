@@ -163,8 +163,8 @@ Module.prototype.getDataByBuffer = function(buffer) {  // 해당 코드 내에�
     const datas = [];
     let lastIndex = 0;
 	
-    buffer.forEach(function bar(value,idx) {  //--
-        if (value == 0x0d && buffer[idx + 1] == 0x0a) {
+    buffer.forEach(function (value,idx) {  if (value == 0x0d && //--
+         buffer[idx + 1] == 0x0a) {
             datas.push(buffer.subarray (lastIndex, idx));
             lastIndex = idx + 2;
         }
