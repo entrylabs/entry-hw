@@ -376,7 +376,7 @@ Module.prototype.handleRemoteData = function(handler) {
     if (getDatas) {			
         const keys = Object.keys(getDatas);
 			
-        keys.forEach(function(key) {
+        keys.forEach((key) => {            //--
             let isSend = false;
             const dataObj = getDatas[key];
             if (typeof dataObj.port === 'string' || typeof dataObj.port === 'number') {
@@ -448,7 +448,7 @@ Module.prototype.requestLocalData = function() { // 하드웨어에 명령을 �
         this.isDraing = true;
         this.sp.write(this.sendBuffers.shift(), () => {  //-
             if (self.sp) {
-               self.sp.drain( () => {   //--
+               self.sp.drain( function () {   //--
                     self.isDraing = false;
                });
             }
