@@ -446,9 +446,9 @@ Module.prototype.requestLocalData = function() { // 하드웨어에 명령을 �
 	
      if (!this.isDraing && this.sendBuffers.length > 0) {
         this.isDraing = true;
-        this.sp.write(this.sendBuffers.shift(), function() {
+        this.sp.write(this.sendBuffers.shift(), function() {  //-
             if (self.sp) {
-                self.sp.drain(function() {   //--
+                self.sp.drain(function drain() {   //--
                     self.isDraing = false;
                 });
             }
