@@ -386,13 +386,13 @@ Module.prototype.handleRemoteData = function(handler) {
                     self.digitalPortTimeList[dataObj.port] = dataObj.time;
                 }
             } else if (Array.isArray(dataObj.port)) {
-                isSend = dataObj.port.every(function bar(port) {  //--
+                isSend = dataObj.port.every(function forEach(port) {  //--
                     const time = self.digitalPortTimeList[port];
                     return dataObj.time > time;
                 });
 
                 if (isSend) {
-                    dataObj.port.forEach(function bar(port) {   //--
+                    dataObj.port.forEach(function forEach(port) {   //--
                         self.digitalPortTimeList[port] = dataObj.time;
                     });
                 }
@@ -415,7 +415,7 @@ Module.prototype.handleRemoteData = function(handler) {
 
     if (setDatas) {   // 출력
         const setKeys = Object.keys(setDatas);
-        setKeys.forEach (function(port) {  /// port에 해당하는 데이터를 분석하여 처리  //--
+        setKeys.forEach(function forEach(port) {  /// port에 해당하는 데이터를 분석하여 처리  //--
             const data = setDatas[port];
             if (data) {
                 if (self.digitalPortTimeList[port] < data.time) { // 데이터 생성시간과 현 시간보다 이전 이면 
