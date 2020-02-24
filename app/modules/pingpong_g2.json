@@ -1,13 +1,13 @@
 {
-    "id": "350101",
+    "id": "350201",
     "name": {
-        "en": "Pingpong G1",
-        "ko": "핑퐁 G1"
+        "en": "Pingpong G2",
+        "ko": "핑퐁 G2"
     },
     "category": "robot",
     "platform": ["win32", "darwin"],
-    "icon" : "pingpong_g1.png",
-    "module": "pingpong_g1.js",
+    "icon" : "pingpong_g2.png",
+    "module": "pingpong_g2.js",
     "url": "https://www.roborisen.com",
     "driver": [{
         "win32-ia32": "CP210x_VCP_Windows/CP210xVCPInstaller_x86.exe",
