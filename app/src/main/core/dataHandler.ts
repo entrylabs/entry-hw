@@ -4,6 +4,22 @@ class DataHandler {
     private deviceData: {[key: string]: any};
     private serverData: {[key: string]: any};
 
+    /**
+     * @deprecated
+     */
+    get receiveHandler() {
+        console.log('this property is deprecated. please use read(key: string)');
+        return this.serverData;
+    }
+
+    /**
+     * @deprecated
+     */
+    get sendHandler() {
+        console.log('this property is deprecated. please use write(key: string, value: any)');
+        return this.deviceData;
+    }
+
     constructor(hardwareId: string) {
         this.deviceData = assign({}, this._makeIDProperties(hardwareId));
         this.serverData = assign({}, this._makeIDProperties(hardwareId));
