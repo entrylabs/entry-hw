@@ -9,7 +9,7 @@ class DataHandler {
      */
     get receiveHandler() {
         console.log('this property is deprecated. please use read(key: string)');
-        return this.serverData;
+        return { data: this.serverData };
     }
 
     /**
