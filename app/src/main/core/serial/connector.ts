@@ -77,12 +77,12 @@ class SerialConnector extends BaseConnector {
 
             const { delimiter, byteDelimiter } = hardwareOptions;
             if (delimiter) {
-                this.serialPortParser = new Readline({ delimiter });
+                this.serialPortParser = serialPort.pipe(new Readline({ delimiter }));
             } else if (byteDelimiter) {
-                this.serialPortParser = new Delimiter({
+                this.serialPortParser = serialPort.pipe(new Delimiter({
                     delimiter: byteDelimiter,
                     includeDelimiter: true,
-                });
+                }));
             }
 
             serialPort.on('error', reject);
@@ -118,7 +118,7 @@ class SerialConnector extends BaseConnector {
             } = this.options;
             const hwModule = this.hwModule;
             const serialPortReadStream = this.serialPortParser
-                ? this.serialPort.pipe(this.serialPortParser)
+                ? this.serialPortParser
                 : this.serialPort;
 
             const runAsMaster = () => {
@@ -138,6 +138,7 @@ class SerialConnector extends BaseConnector {
                             this.connected = true;
                             resolve();
                         } else {
+                            console.log(data);
                             reject(new Error('Invalid hardware'));
                         }
                     }
@@ -241,11 +242,12 @@ class SerialConnector extends BaseConnector {
         }
 
         const serialPortReadStream = this.serialPortParser
-            ? this.serialPort.pipe(this.serialPortParser)
+            ? this.serialPortParser
             : this.serialPort;
 
         // 기기와의 데이터 통신 수립
         serialPortReadStream.on('data', (data) => {
+            console.log('serialPort', data);
             if (
                 !hwModule.validateLocalData ||
                 hwModule.validateLocalData(data)
@@ -345,9 +347,10 @@ class SerialConnector extends BaseConnector {
 
         if (this.serialPort) {
             this.serialPort.removeAllListeners();
-            if (this.serialPortParser) {
-                this.serialPortParser.removeAllListeners();
-            }
+        }
+
+        if (this.serialPortParser) {
+            this.serialPortParser.removeAllListeners();
         }
     }
 
