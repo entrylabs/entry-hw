@@ -132,7 +132,6 @@ class Microbit extends BaseModule {
 
     requestInitialData() {
         const aa = this.makeBuffer(functionKeys.CHECK_READY);
-        console.log('send to : ', aa);
         return aa;
     }
 
@@ -156,7 +155,6 @@ class Microbit extends BaseModule {
      */
     checkInitialData(data, config) {
         // data[1~4] 는 commandId 로, 체크하지 않는다.
-        console.log('checkInitialData : ', data);
         // return true;
         return (
             data[0] === functionKeys.CHECK_READY &&

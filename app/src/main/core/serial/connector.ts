@@ -247,7 +247,6 @@ class SerialConnector extends BaseConnector {
 
         // 기기와의 데이터 통신 수립
         serialPortReadStream.on('data', (data) => {
-            console.log('serialPort', data);
             if (
                 !hwModule.validateLocalData ||
                 hwModule.validateLocalData(data)
