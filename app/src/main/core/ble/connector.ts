@@ -1,5 +1,5 @@
 import BaseConnector from '../baseConnector';
-import _ipcManager from '../ipcMainManager';
+import IpcMainManager from '../ipcMainManager';
 
 type IBLECommandMessage = { key: string, value: string, callback?: () => void | Promise<void>; }
 
@@ -8,7 +8,7 @@ class BleConnector extends BaseConnector {
         return 100;
     }
 
-    private _ipcManager = new _ipcManager();
+    private ipcManager = new IpcMainManager();
     private _requestLocalDataInterval?: number;
     private _commandQueue: IBLECommandMessage[];
 
@@ -27,7 +27,7 @@ class BleConnector extends BaseConnector {
 
     async initialize() {
         const gattProfiles = this.hwModule.getProfiles && this.hwModule.getProfiles();
-        await this._ipcManager.invoke('connectBleDevice', gattProfiles);
+        await this.ipcManager.invoke('connectBleDevice', gattProfiles);
         //TODO 통신 수립을 위한 validation 이 필요한 경우 이곳에서 처리
 
         this.connected = true;
@@ -47,7 +47,7 @@ class BleConnector extends BaseConnector {
 
         //TODO 통신 수립 이후 지속적인 통신 및 이벤트리스닝 은 이쪽
 
-        this._ipcManager.handle('readBleDevice', (e, key, value) => {
+        this.ipcManager.handle('readBleDevice', (e, key, value) => {
             if (!this.connected) {
                 return;
             }
@@ -59,7 +59,7 @@ class BleConnector extends BaseConnector {
             router.setHandlerData();
             router.sendEncodedDataToServer();
         });
-        this._ipcManager.invoke('startBleDevice');
+        this.ipcManager.invoke('startBleDevice');
 
         this._requestLocalDataInterval = setInterval(() => {
             if (this.hwModule.requestLocalData) {
@@ -76,7 +76,7 @@ class BleConnector extends BaseConnector {
     async send(data: any) {
         if (this.connected) {
             try {
-                await this._ipcManager.invoke('writeBleDevice', data);
+                await this.ipcManager.invoke('writeBleDevice', data);
             } catch (e) {
                 console.error(e);
             }
@@ -91,8 +91,8 @@ class BleConnector extends BaseConnector {
         if (this.hwModule && this.hwModule.disconnect) {
             this.hwModule.disconnect(this);
         }
-        this._ipcManager.removeHandler('readBleDevice');
-        await this._ipcManager.invoke('disconnectBleDevice');
+        this.ipcManager.removeHandler('readBleDevice');
+        await this.ipcManager.invoke('disconnectBleDevice');
     }
 
     /**

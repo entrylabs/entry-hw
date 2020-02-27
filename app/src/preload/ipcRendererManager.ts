@@ -11,7 +11,7 @@ class IpcRendererManager {
         }
     }
 
-    handle(channel: string, callback: (event: IpcRendererEvent, ...args: any[]) => Promise<any> | void) {
+    handle<T = any>(channel: string, callback: (event: IpcRendererEvent, ...args: any[]) => Promise<T> | void) {
         ipcRenderer.on(channel, async (event, key, ...args) => {
             const result = await callback(event, ...args);
 

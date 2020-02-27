@@ -13,12 +13,18 @@ class IpcMainManager {
         IpcMainManager.instance = this;
     }
 
-    invoke(channel: string, ...args: any[]) {
+    invoke<T = void>(channel: string, ...args: any[]): Promise<T> {
+        if (!this.mainWindow || this.mainWindow.isDestroyed()) {
+            throw Error('ipcMain invoke failed. mainWindow is not exist');
+        }
+
         const key = `${channel}_${Date.now()}`;
         this.mainWindow && this.mainWindow.send(channel, key, ...args);
         return new Promise((resolve) => {
             ipcMain.handleOnce(key, (event, device) => {
                 resolve(device);
+                ipcMain.removeAllListeners(key);
+                ipcMain.removeHandler(key);
             });
         });
     }

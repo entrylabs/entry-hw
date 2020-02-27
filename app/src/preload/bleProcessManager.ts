@@ -1,4 +1,4 @@
-import IpcRendererManager from './ipcManager';
+import IpcRendererManager from './ipcRendererManager';
 
 class BleProcessManager {
     private ipcManager = new IpcRendererManager();
@@ -9,10 +9,6 @@ class BleProcessManager {
     private connected = false; // HW 모듈과 커뮤니케이션 준비가 되었는지 여부
 
     constructor() {
-        this._initialize();
-    }
-
-    private _initialize() {
         this.ipcManager.handle('scanBleDevice', async (event, options) => {
             try {
                 this.connectedDevice = await navigator.bluetooth.requestDevice(options);
@@ -107,7 +103,6 @@ class BleProcessManager {
             this.connected && this.ipcManager.invoke('readBleDevice', key, target.value);
         });
 
-        // noinspection JSCheckFunctionSignatures
         this._readEvents.push({ key, value: characteristic });
     }
 
