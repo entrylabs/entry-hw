@@ -41,11 +41,11 @@ export default class {
         this.router = router;
 
         // 두번 하는 이유는, 먼저 유저에게 로컬 모듈 목록을 보여주기 위함
-        this.updateHardwareList();
-        this.updateHardwareListWithOnline();
+        this.updateHardwareListFromFileSystem();
+        this.updateHardwareListFromOnline();
     }
 
-    async updateHardwareListWithOnline() {
+    async updateHardwareListFromOnline() {
         try {
             const moduleList = await getModuleList();
             if (!moduleList || moduleList.length === 0) {
@@ -58,31 +58,47 @@ export default class {
         }
     }
 
-    updateHardwareList(source: any[] = []) {
-        const availables = this._getAllHardwareModulesFromDisk();
-        const mergedList = unionWith(availables, source, (src, ori) => {
-            if (ori.id === src.id) {
-                if (!ori.version || lt(valid(ori.version) as string, valid(src.version) as string)) {
-                    // legacy 는 moduleName 이 없기 때문에 서버에 요청을 줄 인자가 없다.
-                    ori.moduleName = src.moduleName;
-                    ori.availableType = AvailableTypes.needUpdate;
-                    return ori;
+    updateHardwareListFromFileSystem() {
+        const moduleList = this.getAllHardwareModulesFromDisk();
+        this.updateHardwareList(moduleList);
+    }
+
+    updateHardwareList(source: IHardwareConfig[]) {
+        const mergedList = unionWith(this.allHardwareList, source,
+            (src, ori) => {
+                // 동일한 모듈이 존재한다면
+                if (ori.id === src.id) {
+                    // 기존 엘리먼트가 버전이 없거나, 버전이 신규로 들어올 엘리먼트보다 낮거나, 사용가능한 상태가 아니면
+                    // 신규 엘리먼트의 정보로 치환된다.
+                    if (!ori.version
+                        || lt(valid(ori.version) as string, valid(src.version) as string)
+                        || ori.availableType !== AvailableTypes.available
+                    ) {
+                        // ori = src;
+                        Object.assign(ori, src);
+                    }
+                    return true;
                 }
-                return src;
-            }
-        });
+                // 그렇지 않으면 신규 엘리먼트로서 추가된다.
+                return false;
+            });
 
         this.allHardwareList = mergedList
             .filter(platformFilter)
             .sort(nameSortComparator);
-        this._notifyHardwareListChanged();
+        this.notifyHardwareListChanged();
     }
 
-    private _getAllHardwareModulesFromDisk() {
+    notifyHardwareListChanged() {
+        this.router &&
+        this.router.sendEventToMainWindow('hardwareListChanged');
+    }
+
+    private getAllHardwareModulesFromDisk() {
         try {
-            return fs.readdirSync(this.moduleBasePath)
+            const moduleList = fs.readdirSync(this.moduleBasePath)
                 .filter((file) => !!file.match(/\.json$/))
-                .map((file) => {
+                .map<IHardwareConfig>((file) => {
                     const bufferData = fs.readFileSync(path.join(this.moduleBasePath, file));
                     const configJson = JSON.parse(bufferData.toString());
                     configJson.availableType = AvailableTypes.available;
@@ -90,74 +106,11 @@ export default class {
                 })
                 .filter(platformFilter)
                 .sort(nameSortComparator);
+
+            return moduleList || [];
         } catch (e) {
             console.error('error occurred while reading module json files', e);
         }
-    }
-
-    async _requestModuleList() {
-        try {
-            const moduleList = await getModuleList();
-            if (!moduleList || moduleList.length === 0) {
-                return;
-            }
-
-            this._updateHardwareList(moduleList);
-        } catch (e) {
-            console.error('error occurred while reading module json files', e);
-        }
-    }
-
-    _updateHardwareList(source: IHardwareConfig[]) {
-        const availables = this._getAllHardwareModulesFromDisk();
-        this.allHardwareList = [];
-        const mergedList = (availables || []).map((original) => {
-            const foundElem = source.find((srcElem, index) => {
-                if (this._isSameModule(original, srcElem)) {
-                    source.splice(index, 1);
-                    return true;
-                }
-                return false;
-            });
-
-            if (foundElem) {
-                // != 의 경우 일부러 그랬습니다. 문자열 / 숫자를 상관하지 않게 하기 위함
-                // noinspection EqualityComparisonWithCoercionJS
-                if (!original.version || original.version != foundElem.version) {
-                    original.availableType = AvailableTypes.needUpdate;
-                }
-            }
-            return original;
-        });
-
-        this.allHardwareList = mergedList
-            .concat(source || [])
-            .filter(platformFilter)
-            .sort(nameSortComparator);
-        this._notifyHardwareListChanged();
-    }
-
-    private _notifyHardwareListChanged() {
-        this.router &&
-        this.router.sendEventToMainWindow('hardwareListChanged');
-    }
-
-    /**
-     * 현재 모듈과 특정 외부 모듈이 동일한 모듈인지 판단한다.
-     * 함수가 따로 존재하는 이유는, 기존 모듈 데이터가 legacy 라서
-     * moduleName 프로퍼티가 없고 id 만 존재할 수 있기 때문이다.
-     * 이 함수는 moduleName 이 없으면 id 로 비교하고 있으면 moduleName 으로 비교한다.
-     * id 비교시엔 outdated 경고를 출력한다.
-     * @param original 기존에 가지고 있던 모듈데이터
-     * @param source 신규로 추가된 모듈데이터
-     * @private
-     */
-    _isSameModule(original: IHardwareConfig, source: IHardwareConfig) {
-        if (original.moduleName) {
-            return original.moduleName === source.moduleName;
-        } else {
-            console.warn(`${original.id} was outdated. please modulize`);
-            return original.id === source.id;
-        }
+        return [];
     }
 };

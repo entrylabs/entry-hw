@@ -19,6 +19,12 @@ interface IEntryServer {
     addRoomIdsOnSecondInstance: (roomId: string) => void;
     send: (data: any) => void;
 }
+
+type MainRouterOptions = {
+    // 모듈 다운로드 로직을 외부에서 주입가능하도록 수정할 수 있음. 없는 경우 내부로직을 사용
+    moduleDownloadHandler?: (moduleName: string) => Promise<IHardwareConfig>;
+}
+
 /**
  * scanner, server, connector 를 총괄하는 중앙 클래스.
  * 해당 클래스는 renderer 의 router 와 통신한다.
@@ -33,6 +39,7 @@ class MainRouter {
     public browser: BrowserWindow; // TODO private
     private scannerManager: ScannerManager;
     private readonly server: IEntryServer;
+    private readonly options?: MainRouterOptions;
     private hardwareListManager: HardwareListManager;
     private flasher: any;
 
@@ -47,16 +54,18 @@ class MainRouter {
 
     private firmwareTryCount = 0;
 
-    get roomIds() {
-        return global.sharedObject.roomIds || [];
-    }
+    constructor(mainWindow: BrowserWindow, entryServer: IEntryServer, options?: MainRouterOptions) {
+        if (!global.$) {
+            // 하드웨어 모듈 레거시 호환용.
+            // 이전 하드웨어 모듈들은 renderer Process 위에서 동작하였기 때문에 jquery 의 로직을 끌어쓰는 경우가 있었
+            global.$ = require('lodash');
+        }
 
-    constructor(mainWindow: BrowserWindow, entryServer: IEntryServer) {
-        global.$ = require('lodash');
         rendererConsole.initialize(mainWindow);
         this.ipcManager = new IpcManager(mainWindow.webContents);
         this.browser = mainWindow;
         this.server = entryServer;
+        this.options = options;
         this.hardwareListManager = new HardwareListManager(this);
         this.scannerManager = new ScannerManager(this);
         this.flasher = new Flasher();
@@ -221,7 +230,7 @@ class MainRouter {
         this.server.addRoomIdsOnSecondInstance(roomId);
     }
 
-    stopScan(option?: {saveSelectedPort: boolean}) {
+    stopScan(option?: { saveSelectedPort: boolean }) {
         const { saveSelectedPort = false } = option || {};
 
         this.server && this.server.disconnectHardware();
@@ -320,7 +329,7 @@ class MainRouter {
     }
 
     // 엔트리 측에서 데이터를 받아온 경우 전달
-    handleServerData({ data }: {data: any;}) {
+    handleServerData({ data }: { data: any; }) {
         if (!this.hwModule || !this.handler || !this.config) {
             console.warn('hardware is not connected but entry server data is received');
             return;
@@ -376,7 +385,7 @@ class MainRouter {
      *
      * @param option {Object=} true 인 경우, 포트선택했던 내역을 지우지 않는다.
      */
-    close(option?: {saveSelectedPort: boolean}) {
+    close(option?: { saveSelectedPort: boolean }) {
         const { saveSelectedPort = false } = option || {};
 
         if (this.server) {
@@ -447,9 +456,21 @@ class MainRouter {
     }
 
     async requestHardwareModule(moduleName: string) {
-        const moduleConfig = await downloadModule(moduleName);
+        const { moduleDownloadHandler } = this.options || {};
+
+        console.log(`${moduleName} hardware module download requested. ${
+            moduleDownloadHandler ? 'use external download handler' : ''
+        }`);
+
+        let moduleConfig: IHardwareConfig;
+        if (moduleDownloadHandler) {
+            moduleConfig = await moduleDownloadHandler(moduleName);
+        } else {
+            moduleConfig = await downloadModule(moduleName);
+        }
+
         this.hardwareListManager.updateHardwareList([moduleConfig]);
-        await this.hardwareListManager.updateHardwareListWithOnline();
+        await this.hardwareListManager.updateHardwareListFromOnline();
     }
 
     _resetIpcEvents() {

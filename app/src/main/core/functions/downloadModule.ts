@@ -6,7 +6,7 @@ import fileUtils from '../fileUtils';
 import NetworkZipHandlerStream from '../networkZipHandleStream';
 import getExtraDirectoryPath from './getExtraDirectoryPath';
 
-const downloadModuleFunction = (moduleName: string) =>
+const downloadModuleFunction: (moduleName: string) => Promise<IHardwareConfig> = (moduleName: string) =>
     new Promise((resolve, reject) => {
         if (!moduleName) {
             reject('must be present moduleName');

@@ -2,8 +2,6 @@ import { net } from 'electron';
 
 const getModuleListFunction: () => Promise<IHardwareConfig[]> = () => new Promise((resolve, reject) => {
     const { moduleResourceUrl } = global.sharedObject;
-
-    //TODO 개발간 임시
     const request = net.request(`${moduleResourceUrl}`);
     request.on('response', (response) => {
         let buffer = '';
