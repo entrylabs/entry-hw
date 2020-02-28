@@ -468,9 +468,7 @@ Module.prototype.isRecentData = function(port, type, data) {
             isRecent = true;
         }
     }
- //   isRecent = true;   참 들어가면 통신 데이터 무조건 안 보냄.
-
-    return isRecent;
+     return isRecent;
 };
 
 
