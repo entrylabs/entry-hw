@@ -7,8 +7,10 @@ import IpcManager from './core/ipcMainManager';
 import HardwareListManager from './core/hardwareListManager';
 import DataHandler from './core/dataHandler';
 import downloadModule from './core/functions/downloadModule';
-import { EntryMessageAction, EntryStatePayload, HardwareStatement } from '../common/constants';
+import { AvailableTypes, EntryMessageAction, EntryStatePayload, HardwareStatement } from '../common/constants';
 import getExtraDirectoryPath from './core/functions/getExtraDirectoryPath';
+import getModuleList from './core/functions/getModuleList';
+import { merge } from 'lodash';
 
 const nativeNodeRequire = require('./nativeNodeRequire.js');
 
@@ -23,7 +25,17 @@ interface IEntryServer {
 type MainRouterOptions = {
     // 모듈 다운로드 로직을 외부에서 주입가능하도록 수정할 수 있음. 없는 경우 내부로직을 사용
     moduleDownloadHandler?: (moduleName: string) => Promise<IHardwareConfig>;
+    moduleListRequestHandler?: () => Promise<IHardwareConfig[]>;
 }
+
+const onlineModuleSchemaModifier = (schema: any) => {
+    schema.name = schema.title;
+    schema.availableType = AvailableTypes.needDownload;
+
+    delete schema.title;
+    delete schema.files;
+    return merge(schema, schema.properties);
+};
 
 /**
  * scanner, server, connector 를 총괄하는 중앙 클래스.
@@ -470,7 +482,20 @@ class MainRouter {
         }
 
         this.hardwareListManager.updateHardwareList([moduleConfig]);
-        await this.hardwareListManager.updateHardwareListFromOnline();
+        await this.requestHardwareModuleList();
+    }
+
+    async requestHardwareModuleList() {
+        const { moduleListRequestHandler } = this.options || {};
+
+        let moduleList: IHardwareConfig[];
+        if (moduleListRequestHandler) {
+            moduleList = await moduleListRequestHandler();
+        } else {
+            moduleList = await getModuleList();
+        }
+
+        this.hardwareListManager.updateHardwareList(moduleList.map(onlineModuleSchemaModifier));
     }
 
     _resetIpcEvents() {

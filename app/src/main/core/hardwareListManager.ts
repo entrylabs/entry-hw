@@ -4,8 +4,8 @@ import { merge, unionWith } from 'lodash';
 import lt from 'semver/functions/lt';
 import valid from 'semver/functions/valid';
 import { AvailableTypes } from '../../common/constants';
-import getModuleList from './functions/getModuleList';
 import getExtraDirectoryPath from './functions/getExtraDirectoryPath';
+import MainRouter from '../mainRouter';
 
 const nameSortComparator = (left: IHardwareConfig, right: IHardwareConfig) => {
     const lName = left.name.ko.trim();
@@ -34,7 +34,7 @@ const onlineModuleSchemaModifier = (schema: any) => {
 
 export default class {
     private moduleBasePath = getExtraDirectoryPath('modules');
-    private readonly router?: any;
+    private readonly router?: MainRouter;
     public allHardwareList: IHardwareConfig[] = [];
 
     constructor(router: any) {
@@ -42,21 +42,18 @@ export default class {
 
         // 두번 하는 이유는, 먼저 유저에게 로컬 모듈 목록을 보여주기 위함
         this.updateHardwareListFromFileSystem();
-        this.updateHardwareListFromOnline();
-    }
-
-    async updateHardwareListFromOnline() {
         try {
-            const moduleList = await getModuleList();
-            if (!moduleList || moduleList.length === 0) {
-                return;
-            }
-
-            this.updateHardwareList(moduleList.map(onlineModuleSchemaModifier));
+            this.router?.requestHardwareModuleList();
         } catch (e) {
             console.log('online hardware list update failed');
         }
     }
+
+    // async updateHardwareListFromExternal() {
+    //     try {
+    //         await this.router?.requestHardwareModuleList();
+    //     }
+    // }
 
     updateHardwareListFromFileSystem() {
         const moduleList = this.getAllHardwareModulesFromDisk();
