@@ -23,7 +23,7 @@
         "control": "slave",
         "scanType": "data",
         "duration": 32,
-        "vendor": ["Microsoft", "By Robot Co., Ltd."],
+        "vendor": ["Microsoft", "BYROBOT Co.,Ltd.", "By Robot Co., Ltd."],
         "baudRate": 115200,
         "flowControl": "none"
     }
