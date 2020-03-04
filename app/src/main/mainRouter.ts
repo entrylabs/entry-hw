@@ -217,7 +217,8 @@ class MainRouter {
             const { type = 'serial' } = hardware;
             this.scanner = this.scannerManager.getScanner(type);
             if (this.scanner) {
-                this.hwModule = nativeNodeRequire(`../../modules/${config.module}`) as IHardwareModule;
+                const moduleFilePath = getExtraDirectoryPath('modules');
+                this.hwModule = nativeNodeRequire(path.join(moduleFilePath, config.module)) as IHardwareModule;
                 this.sendState(HardwareStatement.scan);
                 this.scanner.stopScan();
                 const connector = await this.scanner.startScan(this.hwModule, this.config);
