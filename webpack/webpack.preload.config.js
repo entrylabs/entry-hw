@@ -12,6 +12,9 @@ module.exports = merge({
         path: preloadDirectoryPath,
         filename: 'preload.bundle.js',
     },
+    node: {
+        __dirname: false,
+    },
     externals: [
         function(directory, moduleName, callback) {
             if (/\/lang$/.test(directory)) {
