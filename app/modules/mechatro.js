@@ -5,646 +5,543 @@
  * 키  값 : 모두 대문자, 단어사이 '_' 사용함                                   예) NAME_RULL
  *
  *********************************************************/
+const _ = require('lodash');
+const BaseModule = require('./baseModule');
 
-function Module() {
-    // this.setZero_flag = null
-    // 사용하는 포트 리스트
-    this.portList = [2,3,4,5,6,7,10,11,14,15,16,17,18,19,20,21,22,23,24,25];
+class mechatro extends BaseModule {
+    // 클래스 내부에서 사용될 필드들을 이곳에서 선언합니다.
+    constructor() {
+        super();
+        // 0일 때 requestLocalData()에서 초기화를 진행한다. 초기화 진행 후 값:2
+        // 엔트리에서 데이터 입력 있으면, 3으로 셋팅
+        // 정지, 데이터 없으면 3값에서 0으로 셋팅 후 HW 프로그램 초기화
+        this.entryStopFlag = 0 ;  
+        this.remainmode = 0;
 
-    this.contMode = new Array(26);
-    this.entryValue = new Array(26);
-    this.deviceValue = new Array(26);
+        this.dataFromEntry = {};
+        //형식
+        //this.dataFromEntry = {
+        //    portNo:{
+        //        mode : 0,
+        //        value: 0,
+        //        flag : 0,
+        //    },
+        //};
 
-    // 데이터의 변경 유무 및 전송 횟수 제한 변수
-    this.modeFlagToEntry = new Array(26);
-    this.valueFlagToEntry = new Array(26);
-    this.flagToDevice = new Array(26);
+        this.dataFromDevice = {};
 
-    this.entryState = {
-        CHECKER: 0,
-        STOP: 0,
-        RUN: 1,
-    };
+        //형식
+        //this.dataFromDevice = {
+        //    ULTRASONIC : 0,
+        //    '2' : 0,
+        //
+        //    '21': 0,
+        //};
+        
+        this.setMode = {
 
-    this.modeStatus = {
-        DIVICE_INPUT: true,
-        DIVICE_STANDBY: false,
-        ENTRY_STANDBY: true,
-    };
+            SET_GROUP_DEVICE: 0x80,
+            SET_INIT_DEVICE:  0x80,
+            SET_STANDBY_DEVICE:  0x81,
+            SET_BLUE_PW:      0x82,
+            SET_NO_TONE:      0x83,
+            SET_DIGITAL_OUT:  0x90,
 
-    this.remainPort = null;
-    this.remainData = 0;
+            SET_GROUP_MOTOR: 0xa0,
+            SET_MOTOR_SPEED: 0xa0,
+            SET_MOTOR_CURRENT: 0xb0,
 
-    this.portMode = {
-        SET_G_DEVICE: 0x80,
-        COM_ALIVE: 0x80,
-        COM_INIT_DEVICE: 0x81,
-        COM_STANDBY_DEVICE: 0x82,
-        COM_NO_TONE: 0x83,
-        COM_SET_BLUE_PW: 0x84,
-        ERR_SET_BLUE_PW: 0x85,
-        SET_DIGITAL_OUT: 0x90,
+            SET_GROUP_SERVO_PWM_TON: 0xc0,
+            SET_SERVO_POSITION: 0xc0,
+            SET_SERVO_SPEED: 0xc8,
+            SET_PWM: 0xd0,
+            SET_TONE: 0xd8,
 
-        SET_G_MOTOR: 0xa0,
-        SET_MOTOR_SPEED: 0xa0,
-        SET_MOTOR_CURRENT: 0xb0,
+            SET_GROUP_INPUT: 0xe0,
+            SET_ANALOG_IN: 0xe0,
+            SET_DIGITAL_IN: 0xe8,
+            SET_ULTRASONIC: 0xf0,
+        };
 
-        SET_G_SERVO_PWM_TON: 0xc0,
-        SET_SERVO_POSITION: 0xc0,
-        SET_SERVO_SPEED: 0xc8,
-        SET_PWM: 0xd0,
-        SET_TONE: 0xd8,
 
-        SET_G_INPUT: 0xe0,
-        SET_ANALOG_IN: 0xe0,
-        SET_DIGITAL_IN: 0xe8,
-        SET_ULTRASONIC: 0xf0,
+        this.getMode = {
+            COM_BLUETOOTH_PW_OK: 0x81,
+            COM_BLUETOOTH_PW_ERR: 0x82,
+            GET_DIGITAL_IN: 0x88,
+            GET_ANALOG_IN : 0x90,
+        };
 
-        GET_DIGITAL_IN: 0x90,
-        GET_ANALOG_IN: 0xa0,
-        GET_MOTOR_CURRENT: 0xb0,
-        GET_ULTRASONIC_8: 0xc0,
-        GET_ULTRASONIC_9: 0xd0,
-    };
-
-    this.portMapToDevice = {
-        DIGITAL: {
-            //IN/OUT, ULTRASONIC, TON
-            '2': 0,
+        this.portMapToDevice = {
+            DIGITAL: {
+                //IN/OUT, ULTRASONIC, TON
+                '2': 0,
+                '4': 1,
+                '5': 2,
+                '6': 3,
+                '7': 4,
+                '8': 5,
+                '9': 6,
+                '10': 7,
+            },
+            ANALOG: {
+                '14': 0,
+                '15': 1,
+                '16': 2,
+                '17': 3,
+                '18': 4,
+                '19': 5,
+                '20': 6,
+                '21': 7,
+            },
+            SERVO: {
+                '2': 0,
+                '5': 1,
+                '6': 2,
+                '10': 3,
+                '22': 0,
+                '23': 1,
+                '24': 2,
+                '25': 3,
+            },
+            PWM: {
+                '5': 0,
+                '6': 1,
+                '9': 2,
+                '10': 3,
+            },
+            MOTOR: {
+                '3': 0,
+                '11': 1,
+                '14': 0,
+                '15': 1,
+            },
+        };
+       
+        this.isDigitalIn = { // 1: DIGITAL_IN
+            '2': 1,
             '4': 1,
-            '5': 2,
-            '6': 3,
-            '7': 4,
-            '8': 5,
-            '9': 6,
-            '10': 7,
-        },
-        ANALOG: {
-            '14': 0,
-            '15': 1,
-            '16': 2,
-            '17': 3,
-            '18': 4,
-            '19': 5,
-            '20': 6,
-            '21': 7,
-        },
-        SERVO: {
-            '2': 0,
             '5': 1,
-            '6': 2,
-            '10': 3,
-            '22': 0,
-            '23': 1,
-            '24': 2,
-            '25': 3,
-        },
-        PWM: {
-            '5': 0,
             '6': 1,
-            '9': 2,
-            '10': 3,
-        },
-        MOTOR: {
-            '3': 0,
-            '11': 1,
-            '14': 0,
-            '15': 1,
-        },
-    };
+            '7': 1,
+            '10': 1,
+        };
 
-    this.portMapToEntry = {
-        DIGITAL: {
-            '0': 2,
-            '1': 4,
-            '2': 5,
-            '3': 6,
-            '4': 7,
-            '5': 8,
-            '6': 9,
-            '7': 10,
-        },
-        ANALOG: {
-            '0': 14,
-            '1': 15,
-            '2': 16,
-            '3': 17,
-            '4': 18,
-            '5': 19,
-            '6': 20,
-            '7': 21,
-        },
-    };
-}
-
-// 핸들러 초기값 설정 하드웨어 연결 시 초기값 설정
-Module.prototype.init = function(handler, config) {
-    //console.log("init");
-    this.entryState.CHECKER = this.entryState.STOP;
-    this.modeStatus.DIVICE_INPUT = true;
-    this.modeStatus.DIVICE_STANDBY = false;
-    this.modeStatus.ENTRY_STANDBY = true;
-    this.entryHW_setInput();
-    this.entryHW_initMotor();
-};
-
-// 연결 직후 Hardware 에 보내는 초기값 설정
-Module.prototype.requestInitialData = function() {
-    //console.log("requestInitialData");
-    return null;
-};
-
-// 초기 수신데이터 체크(필수)
-Module.prototype.checkInitialData = function(data, config) {
-    //console.log("checkInitialData");
-    return true;
-};
-
-// 하드웨어에서 들어오는 데이터의 validate
-Module.prototype.validateLocalData = function(data) {
-    //console.log("validateLocalData");
-    return true;
-};
-
-// Entry 에서 온 데이터 셋팅
-Module.prototype.handleRemoteData = function(handler) {
-    //console.log("dataFromEntry    ■");
-    if (handler.e('entryStop') == true) {
-        //console.log("Entry  stop      ■ ");
-        this.entryState.CHECKER = this.entryState.STOP;
-        this.modeStatus.DIVICE_INPUT = true;
-        this.modeStatus.ENTRY_STANDBY = true;
-        this.entryHW_setInput();
-        this.entryHW_initMotor();
-    } else if (this.entryState.CHECKER == this.entryState.STOP) {
-        //console.log("Start            ■");
-        this.entryState.CHECKER = this.entryState.RUN;
-        this.modeStatus.DIVICE_STANDBY = true;
-        this.entryHW_setStandBy();
+        this.portMapToEntry = {
+            DIGITAL: {
+                '0': 2,
+                '1': 4,
+                '2': 5,
+                '3': 6,
+                '4': 7,
+                '5': 10,
+            },
+            ANALOG: {
+                '2': 2,
+                '3': 4,
+                '4': 5,
+                '5': 6,
+                '6': 7,
+                '7': 10,
+                '8': 14,
+                '9': 15,
+                '10': 16,
+                '11': 17,
+                '12': 18,
+                '13': 19,
+                '14': 20,
+                '15': 21,
+            },
+        };
     }
-    this.dataFromEntry(handler);
-};
-
-// 하드웨어에 데이터 전송, 연결 프로그램이 구동 되면 상시 실행한다.
-Module.prototype.requestLocalData = function() {
-    var queryString = [];
-    if ( this.modeStatus.DIVICE_INPUT ) {
-        //console.log("                 ■--> DIVICE_INPUT");
-        queryString.push(this.portMode.COM_INIT_DEVICE);
-        queryString.push(this.portMode.COM_INIT_DEVICE);
-        this.modeStatus.DIVICE_INPUT = false;
+    
+    /*
+    최초에 커넥션이 이루어진 후의 초기 설정.
+    handler 는 워크스페이스와 통신하 데이터를 json 화 하는 오브젝트입니다. (datahandler/json 참고)
+    config 은 module.json 오브젝트입니다.
+    */
+    init(handler, config) {
+        this.handler = handler;
+        this.config = config;
     }
-    if ( this.modeStatus.DIVICE_STANDBY ) {
-        //console.log("                 ■--> DIVICE_STANDBY");
-        queryString.push(this.portMode.COM_STANDBY_DEVICE);
-        queryString.push(this.portMode.COM_STANDBY_DEVICE);
-        this.modeStatus.DIVICE_STANDBY = false;
+    
+    /*
+    연결 후 초기에 송신할 데이터가 필요한 경우 사용합니다.
+    requestInitialData 를 사용한 경우 checkInitialData 가 필수입니다.
+    이 두 함수가 정의되어있어야 로직이 동작합니다. 필요없으면 작성하지 않아도 됩니다.
+    고 했지만 없으면 연결이 안되어 null과 true 값을 리턴함
+    */
+    requestInitialData() {
+        //console.log("requestInitialData");
+        return null;
     }
-    if ( this.entryState.CHECKER == this.entryState.RUN ) {
-        //console.log("                 ■--> DIVICE_RUN_MODE");
-        this.dataToDevice(queryString);
+    
+    // 연결 후 초기에 수신받아서 정상연결인지를 확인해야하는 경우 사용합니다.
+    checkInitialData(data, config) {
+        //console.log("checkInitialData");
+        return true;
     }
-    if ( queryString.length > 0 ) return queryString;
-    else     return null;
-};
-
-// 하드웨어에서 수신한 데이터 처리, 연결 프로그램이 구동 되면 상시 실행한다.
-Module.prototype.handleLocalData = function(data) {
-    this.dataFormDevice(data);
-};
-
-// 서버로 데이터 전송, 연결 프로그램이 구동 되면 상시 실행한다.
-Module.prototype.requestRemoteData = function(handler) {
-    if (this.modeStatus.ENTRY_STANDBY) {
-        this.modeStatus.ENTRY_STANDBY = false;
-        this.Entry_setStandBy(handler);
-    }
-
-    this.dataToEntry(handler);
-};
-
-// Web Socket 종료후 처리
-Module.prototype.reset = function() {};
-
-//**********************************************************
-// Entry-HW 프로그램 셋팅 함수
-Module.prototype.entryHW_initValues = function() {
-    this.entryValue       = [ 0,0,0,100,0,0,0,0,0,0,0,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0 ];
-    this.deviceValue      = [ 0,0,0,  0,0,0,0,0,0,0,0,  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 ];
-    this.valueFlagToEntry = [ 2,2,2,  2,2,2,2,2,2,2,2,  2,2,2,2,2,2,2,2,2,2,2,2,2,2,2 ];
-    this.flagToDevice     = [ 2,2,2,  2,2,2,2,2,2,2,2,  2,2,2,2,2,2,2,2,2,2,2,2,2,2,2 ];
-};
-
-Module.prototype.entryHW_setDigitalMode = function(mode) {
-    for (var i = 2; i < 14; i++) {
-        if (i != 3 && i != 11) {
-            this.contMode[i] = mode;
-            this.modeFlagToEntry[i] = 2;
+    
+    // 주기적으로 하드웨어에서 받은 데이터의 검증이 필요한 경우 사용합니다.
+    //validateLocalData(data) {
+    //    return true;
+    //}
+    
+    /*
+    하드웨어 기기에 전달할 데이터를 반환합니다.
+    slave 모드인 경우 duration 속성 간격으로 지속적으로 기기에 요청을 보냅니다.
+    //형식
+    //this.dataFromEntry = {
+    //    portNo:{
+    //        mode : 0,
+    //        value: 0,
+    //        flag : 0,
+    //    },
+    //};
+    */
+    requestLocalData() {
+        //console.log( '     ■ -->> Device');
+        const queryString = [];
+        let query;
+        const portkeys = Object.keys(this.dataFromEntry);
+        let mode;
+        let value;
+        let modeGroup;
+        let idx;
+  
+        if (this.entryStopFlag < 2) {  // 엔트리 stop시 초기화 명령 2회 전송
+            this.entryStopFlag++;
+            queryString.push(this.setMode.SET_INIT_DEVICE);
+            return queryString;
         }
-    }
-};
 
-Module.prototype.entryHW_setAnalogMode = function(mode) {
-    for (var i = 14; i < 22; i++) {
-        this.contMode[i] = mode;
-        this.modeFlagToEntry[i] = 2;
-    }
-};
+        // handleRemoteData()에서 값이 들어오지 않으면,
+        // this.dataFromEntry={} 로 초기화시켜 정시 시 데이터 전송하지 않음.
+        portkeys.forEach((portNo) => {
+            //console.log( 'portkeys.forEach ');
+            if (this.dataFromEntry[portNo].flag < 2) {
+                mode = this.dataFromEntry[portNo].mode;
+                if (portNo == 3 || portNo == 11) {
+                    mode = this.setMode.SET_MOTOR_SPEED;  //모터는 모드를 직접 지정
+                }
+                modeGroup = mode & 0xe0;
 
-Module.prototype.entryHW_setInput = function() {
-    // console.log("entryHW_setInput()")
-    // 하드웨어 프로그램 인풋 모드로 초기화
-    this.entryHW_initValues();
-    this.entryHW_setDigitalMode(this.portMode.SET_DIGITAL_IN);
-    this.entryHW_setAnalogMode(this.portMode.SET_ANALOG_IN);
-};
+                value = this.dataFromEntry[portNo].value;
+                this.dataFromEntry[portNo].flag++;
 
-Module.prototype.entryHW_setStandBy = function() {
-    this.entryHW_initValues();
-    this.entryHW_setDigitalMode(this.portMode.COM_STANDBY_DEVICE);
-    this.entryHW_setAnalogMode(this.portMode.COM_STANDBY_DEVICE);
-};
-
-Module.prototype.entryHW_initMotor = function() {
-    //console.log("entryHW_initMotor()")
-    this.contMode[3] = this.portMode.SET_MOTOR_SPEED;
-    this.contMode[11] = this.portMode.SET_MOTOR_SPEED;
-    this.modeFlagToEntry[3] = 2;
-    this.modeFlagToEntry[11] = 2;
-    this.entryValue[3] = 100;
-    this.entryValue[11] = 100;
-};
-
-//***********************************************************
-// Entry-JS 셋팅 함수
-
-Module.prototype.Entry_setStandBy = function(handler) {
-    //console.log("Entry_setStandBy <--■")
-    var portNo;
-    for (var i = 0; i < this.portList.length; i++) {
-        portNo = this.portList[i];
-        handler.write('m' + portNo, this.portMode.COM_STANDBY_DEVICE);
-        //console.log("Entry_setStandBy <<-■    P[" + portNo + "] : M_V[" + this.portMode.COM_STANDBY_DEVICE + "]" );
-    }
-
-    handler.write('3', 0);
-    handler.write('11', 0);
-};
-//**********************************************************
-
-//***********************************************************
-// 데이터 처리 모듈
-Module.prototype.dataFromEntry = function(handler) {
-    let mode;
-    let value;
-    let portNo;
-    let mPortNo;
-
-    for (let i = 0; i < this.portList.length; i++) {
-        // 사용하는 포트 리스트에 대하여 없데이트를 한다.
-        //var str="";
-        portNo = this.portList[i];
-        mPortNo = 'm' + portNo;
-
-        // 모드 저장
-        if (handler.e(mPortNo) == true) {
-            // 포트에 대한 모드 변수가 있는지 확인한다.
-            mode = handler.read(mPortNo);
-            if (this.contMode[portNo] != mode) {
-                // 현재값과 다른 경우에 업데이트 한다.
-                this.contMode[portNo] = mode; // 모드값 저장
-                this.modeFlagToEntry[portNo] = 0; // 엔트리에 받은 값을 리턴하기 위한 flag 초기화
-                this.flagToDevice[portNo] = 0; // 디바이스에 업데이트를 하기 위한 flag 초기화
-                //console.log("dataFromEntry()  ->>■    ModeChange : P[" + portNo + "] M[" + this.contMode[portNo] + "]");
+                switch (modeGroup) {
+                    case this.setMode.SET_GROUP_DEVICE:
+                        switch (mode) {
+                            case this.setMode.SET_DIGITAL_OUT:
+                                idx = this.portMapToDevice.DIGITAL[portNo];
+                                query = mode + (value << 3) + idx;
+                                queryString.push(query);
+                                break;
+                            case this.setMode.SET_NO_TONE:
+                                query = mode;
+                                queryString.push(query);
+                                break;
+                            case this.setMode.SET_BLUE_PW:
+                                query = this.setMode.SET_BLUE_PW;
+                                queryString.push(query);
+    
+                                query = parseInt(value / 100,10);
+                                queryString.push(query);
+    
+                                query = value - parseInt(value / 100,10) * 100;
+                                queryString.push(query);
+                                break;
+                            }
+                        break;
+                    case this.setMode.SET_GROUP_MOTOR:
+                        switch (mode) {
+                            case this.setMode.SET_MOTOR_SPEED:
+                                //Data1
+                                idx = this.portMapToDevice.MOTOR[portNo];
+                                query = mode + ((value >> 6) & 0x02) + idx;
+                                queryString.push(query);
+                                //Data2
+                                query = value & 0x7f;
+                                queryString.push(query);
+                                break;
+                            case this.setMode.SET_MOTOR_CURRENT:
+                                idx = this.portMapToDevice.MOTOR[portNo];
+                                query = mode + idx;
+                                queryString.push(query);
+                                break;
+                            }
+                        break;
+                    case this.setMode.SET_GROUP_SERVO_PWM_TON:
+                        switch (mode) {
+                            case this.setMode.SET_SERVO_POSITION:
+                                //Data1
+                                idx = this.portMapToDevice.SERVO[portNo];
+                                query = mode + ((value >> 5) & 0x4) + idx;
+                                queryString.push(query);
+                                //Data2
+                                query = value & 0x7f;
+                                queryString.push(query);
+                                break;
+                            case this.setMode.SET_SERVO_SPEED:
+                                //Data1
+                                idx = this.portMapToDevice.SERVO[portNo];
+                                query = mode + ((value >> 5) & 0x4) + idx;
+                                queryString.push(query);
+                                //Data2
+                                query = value & 0x7f;
+                                queryString.push(query);
+                                break;
+                            case this.setMode.SET_PWM:
+                                //Data1
+                                idx = this.portMapToDevice.PWM[portNo];
+                                query = mode + idx;
+                                queryString.push(query);
+                                //Data2
+                                query = value & 0x7f;
+                                queryString.push(query);
+                                break;
+                            case this.setMode.SET_TONE:
+                                //Data1
+                                idx = this.portMapToDevice.DIGITAL[portNo];
+                                query = mode + idx;
+                                queryString.push(query);
+                                //Data2
+                                queryString.push(value);
+                                break;
+                            }
+                        break;
+                    case this.setMode.SET_GROUP_INPUT:
+                        switch (mode) {
+                            case this.setMode.SET_ANALOG_IN:
+                                idx = this.portMapToDevice.ANALOG[portNo];
+                                query = mode + idx;
+                                queryString.push(query);
+                                break;
+                            case this.setMode.SET_DIGITAL_IN:
+                                idx = this.portMapToDevice.DIGITAL[portNo];
+                                query = mode + idx;
+                                queryString.push(query);
+                                break;
+                            case this.setMode.SET_ULTRASONIC:
+                                //Data1
+                                idx = this.portMapToDevice.DIGITAL[portNo];
+                                value = this.portMapToDevice.DIGITAL[value];
+                                query = mode + idx;
+                                queryString.push(query);
+                                //console.log("Data1 = "+ query);
+                                //Data2
+                                queryString.push(value);
+                                //console.log("Data2 = "+ value);
+                                break;
+                            }
+                        break;
+                    }
             }
-            //console.log("dataFromEntry()  ->>■    ModeChange : P[" + portNo + "] M[" + this.contMode[portNo] + "]");
+        });
+    
+        if (queryString.length > 0) {
+            queryString.unshift(this.setMode.SET_STANDBY_DEVICE);
+            //console.log("    ■ --> Data to Device: " , queryString);
+            return queryString;
+        } else {
+            return null;
         }
-        // 값 저장
-        if (handler.e(portNo) == true) {
-            // 포트 번호가 있는지 확인한다.
-            value = handler.read(portNo);
-            if (this.entryValue[portNo] != value) {
-                // 현재값과 다른 경우에 업데이트 한다.
-                this.entryValue[portNo] = value; // 값 저장
-                this.valueFlagToEntry[portNo] = 0; // 엔트리에 받은 값을 리턴하기 위한 flag 초기화
-                this.flagToDevice[portNo] = 0; // 디바이스에 업데이트를 하기 위한 flag 초기화
-                //if ( portNo == 5 ){
-                //console.log("dataFromEntry()  ->>■    ValueChange : P[" + portNo + "] V[" + this.entryValue[portNo] + "]" + " M["+ this.contMode[portNo] + "]");
-                //}
-            }
-        }
-        //str = "Port No [" + portNo + "]  " + str;
-        //console.log(str);
     }
-};
-Module.prototype.dataToDevice = function(queryString) {
-    //console.log("                 ■--> dataToDevice()");
-    var query;
+    
+    // 하드웨어에서 온 데이터 처리, 하드웨어 연결되면 주기적인 실행.
+    handleLocalData(data) {
+       //console.log("                 ■ <<-- Device");
+        this.dataFromDevice = {};
+        let modeGroup;
+        let portkey;
+        let portNo;
+        let data2;
 
-    var idx;
-    var portNo;
-    var mode;
-    var modeGroup;
-    var value;
-    var contMode = this.contMode;
-    var entryValue = this.entryValue;
-    var flag = this.flagToDevice;
+        //console.log(data);
 
-    for (var i = 0; i < this.portList.length; i++) {
-        portNo = this.portList[i];
-        // Entry 에서 값이 업데이트 되었는지 검사 후 데이터 1회 전송
-        // dataFromEntry() 에서 flag=0 셋팅
-        if (flag[portNo] < 2) {
-            mode = contMode[portNo];
-            modeGroup = mode & 0xe0;
-            value = entryValue[portNo];
-            flag[portNo]++;
-            //console.log( "■ ---> No[" + portNo + "] M[" + mode+"] f[" + flag[portNo] + "] v" + value );
-            //console.log("pin" + portNo + " value changed : " + value);
+        if (this.remainmode) {
+            data2 = data[0];
+            if (this.remainmode > this.getMode.GET_DIGITAL_IN) {
+                modeGroup = this.getMode.GET_ANALOG_IN;
+            } else {
+                modeGroup = this.remainmode & 0xf8; // b1111 1000
+            }
 
             switch (modeGroup) {
-                case this.portMode.SET_G_DEVICE: {
-                    switch (mode) {
-                        case this.portMode.SET_DIGITAL_OUT: {
-                            idx = this.portMapToDevice.DIGITAL[portNo];
-                            query = mode + (value << 3) + idx;
-                            queryString.push(query);
-                            //console.log( "dataToDevice()      ■->> SET_DIGITAL_OUT : P[" + portNo + "(" + idx + ")] : V[" + query + "-" + value + "]");
-                            break;
-                        }
-                        case this.portMode.COM_NO_TONE: {
-                            query = mode;
-                            queryString.push(query);
-                            //console.log( "dataToDevice()      ■->> COM_NO_TONE");
-                            break;
-                        }
-                        case this.portMode.COM_SET_BLUE_PW: {
-                            //console.log("COM_SET_BLUE_PW : " + value);
-
-                            query = this.portMode.COM_SET_BLUE_PW;
-                            queryString.push(query);
-
-                            query = parseInt(value / 100);
-                            queryString.push(query);
-                            //console.log("PW 1: " + query);
-
-                            query = value - parseInt(value / 100) * 100;
-                            queryString.push(query);
-                            //console.log("PW 1: " + query);
-                            break;
+                case this.getMode.GET_DIGITAL_IN :
+                    // 디지털 값은 6bit로 한번에 들어온다.
+                    // 인풋 모드인 PortNO 만 업데이트 한다.
+                    for (portkey = 0 ; portkey < 6 ; portkey++) {
+                        portNo = this.portMapToEntry.DIGITAL[portkey];
+                        if (this.isDigitalIn[portNo]) {
+                            this.dataFromDevice[portNo] = (data2 >> portkey) & 0x01;
                         }
                     }
                     break;
+                case this.getMode.GET_ANALOG_IN:
+                    portkey = (this.remainmode >>> 3) & 0x0F;
+                    portNo = this.portMapToEntry.ANALOG[portkey];
+                    //b0011 1000 0000 = 0x380
+                    this.dataFromDevice[portNo] = ((this.remainmode << 7) & 0x380) | data[0];
+                    break;
                 }
-                case this.portMode.SET_G_MOTOR: {
-                    switch (mode) {
-                        case this.portMode.SET_MOTOR_SPEED: {
-                            //Data1
-                            idx = this.portMapToDevice.MOTOR[portNo];
-                            query = mode + ((value >> 6) & 0x02) + idx;
-                            queryString.push(query);
-                            //console.log("                 ■    Data1 = "+ query);
-                            //Data2
-                            query = value & 0x7f;
-                            queryString.push(query);
-                            //console.log("                 ■    Data2 = "+ query);
-                            //console.log("dataToDevice()      ■->> SET_G_MOTOR idx[" + idx + "] M["+ mode +"] V[" + value + "]" );
-                            break;
+            this.remainmode = 0;
+        }
+
+        data.forEach((value,idx) => {
+            if (value & 0x80) { // b1000 0000 DATA1 일 때 실행
+                if (value > this.getMode.GET_DIGITAL_IN) {
+                    modeGroup = this.getMode.GET_ANALOG_IN;
+                } else {
+                    modeGroup = value & 0xf8; // b1111 1000
+                }
+                
+                switch (modeGroup) {
+                    case this.getMode.GET_DIGITAL_IN :
+                        if (data[idx + 1] === undefined) {
+                            this.remainmode = value;
+                            //console.log( "     ■ <-- Rmode_D: ", value);
+                        } else {
+                            this.remainmode = 0;
+                            data2 = data[idx + 1];
+                            // 디지털 값은 6bit로 한번에 들어온다.
+                            // 인풋 모드인 PortNO 만 업데이트 한다.
+                            for (portkey = 0 ; portkey < 6 ; portkey++) {
+                                portNo = this.portMapToEntry.DIGITAL[portkey];
+                                if (this.isDigitalIn[portNo]) {
+                                    this.dataFromDevice[portNo] = (data2 >> portkey) & 0x01;
+                                }
+                            }
                         }
-                        case this.portMode.SET_MOTOR_CURRENT: {
-                            idx = this.portMapToDevice.MOTOR[portNo];
-                            query = mode + idx;
-                            queryString.push(query);
-                            //console.log("dataToDevice()      ■->> SET_G_MOTOR_C portNo[" + portNo + "("+ idx + ")] M["+ mode +"]" );
-                            break;
+                        break;
+                    case this.getMode.GET_ANALOG_IN:
+                        if (data[idx + 1] === undefined) {
+                            this.remainmode = value;
+                        } else {
+                            this.remainmode = 0;
+                            portkey = (value >>> 3) & 0x0F;
+                            portNo = this.portMapToEntry.ANALOG[portkey];
+                            //b0011 1000 0000 = 0x380
+                            this.dataFromDevice[portNo] = ((value << 7) & 0x380) | data[idx + 1];
                         }
+                        break;
+                    case this.getMode.COM_BLUETOOTH_PW_OK:
+                        this.dataFromDevice[2] = '0K';
+                        break;
+                    case this.getMode.COM_BLUETOOTH_PW_ERR:
+                        this.dataFromDevice[2] = 'FAIL';
+                        break;
                     }
-                    break;
-                }
-                case this.portMode.SET_G_SERVO_PWM_TON: {
-                    //console.log("dataToDevice()      ■->> SET_G_SERVO_PWM_TON ["+ mode +"]");
-                    switch (mode) {
-                        case this.portMode.SET_SERVO_POSITION: {
-                            //Data1
-                            idx = this.portMapToDevice.SERVO[portNo];
-                            query = mode + ((value >> 5) & 0x4) + idx;
-                            queryString.push(query);
-                            //console.log( "dataToDevice()      ■->> SERVO : P[" + portNo + "(" + idx + ")] : V[" + query + "-" + (value & 0x7F) + "]");
-                            //Data2
-                            query = value & 0x7f;
-                            queryString.push(query);
-
-                            break;
-                        }
-                        case this.portMode.SET_SERVO_SPEED: {
-                            //Data1
-                            idx = this.portMapToDevice.SERVO[portNo];
-                            query = mode + ((value >> 5) & 0x4) + idx;
-                            queryString.push(query);
-                            //console.log(" servo speed data1 : " + query);
-                            //Data2
-                            query = value & 0x7f;
-                            queryString.push(query);
-                            //console.log(" servo speed data2 : " + query);
-                            break;
-                        }
-                        case this.portMode.SET_PWM: {
-                            //Data1
-                            idx = this.portMapToDevice.PWM[portNo];
-                            query = mode + idx;
-                            queryString.push(query);
-                            //Data2
-                            query = value & 0x7f;
-                            queryString.push(query);
-                            break;
-                        }
-                        case this.portMode.SET_TONE: {
-                            //Data1
-                            idx = this.portMapToDevice.DIGITAL[portNo];
-                            query = mode + idx;
-                            queryString.push(query);
-                            //console.log("dataToDevice()      ■->> SET_G_SERVO_PWM_TON mode["+ mode +"]");
-                            //Data2
-                            queryString.push(value);
-                            //console.log("dataToDevice()      ■->> SET_G_SERVO_PWM_TON value["+ value +"]");
-                            break;
-                        }
-                    }
-                    break;
-                }
-                case this.portMode.SET_G_INPUT: {
-                    switch (mode) {
-                        case this.portMode.SET_ANALOG_IN: {
-                            idx = this.portMapToDevice.ANALOG[portNo];
-                            query = mode + idx;
-                            queryString.push(query);
-                            break;
-                        }
-
-                        case this.portMode.SET_DIGITAL_IN: {
-                            idx = this.portMapToDevice.DIGITAL[portNo];
-                            query = mode + idx;
-                            queryString.push(query);
-                            //console.log("dataToDevice()      ■->> SET_DIGITAL_IN : P[" + portNo + "(" + idx + ")] M["+ mode + "]");
-                            break;
-                        }
-
-                        case this.portMode.SET_ULTRASONIC: {
-                            //Data1
-                            idx = this.portMapToDevice.DIGITAL[portNo];
-                            value = this.portMapToDevice.DIGITAL[value];
-                            //console.log("dataToDevice()      ■->> mode[" + mode + "] trig_idx[" + idx + "] echo[" + value +"]");
-
-                            query = mode + idx;
-                            queryString.push(query);
-                            //console.log("Data1 = "+ query);
-                            //Data2
-                            queryString.push(value);
-                            //console.log("Data2 = "+ value);
-                            break;
-                        }
-                    }
-                    break;
-                }
-
-                default: {
-                    break;
-                }
             }
+        });
+    }
+
+    // 엔트리로 전달할 데이터, 하드웨어 연결되면 주기적인 실행.
+    requestRemoteData(handler) {
+        if (this.entryStopFlag === 3) {
+            this.entryStopFlag++;
+            //console.log("set 4 entryStopFlag ", this.entryStopFlag);
+            Object.keys(this.portMapToEntry.ANALOG).forEach((key) => {
+                this.dataFromDevice[this.portMapToEntry.ANALOG[key]] = 0;
+            });
         }
-    }
-};
-
-Module.prototype.dataFormDevice = function(data) {
-    let vFlag = this.valueFlagToEntry;
-    let portNo;
-    let idx;
-    let mode;
-
-    if (this.receiveBuffer == undefined) this.receiveBuffer = [];
-
-    for (let i = 0; i < data.length; i++) {
-        this.receiveBuffer.push(data[i]);
+        //console.log("dataFromDevice data: ", this.dataFromDevice );
+        Object.keys(this.dataFromDevice).forEach((key) => {  // key.length ===0 이면 실행 되지 않음.
+            handler.write(key, this.dataFromDevice[key]);
+        });
     }
 
-    //console.log("             ■ <<<---  Device" + this.remainPort );
-    while (this.receiveBuffer.length > 0) {
-        let data1 = this.receiveBuffer.shift();
-        //console.log( data1 );
+    // 엔트리에서 받은 데이터에 대한 처리
+    // 엔트리 실행 중지시에는 작동 안함
+    // 엔트리가 중지 되면 SetZero 에서 Entry.hw.update() 를 통해 값이 들어옴.
+    //형식
+    //this.dataFromEntry = {
+    //    portNo:{
+    //        mode : 0,
+    //        value: 0,
+    //        flag : 0,
+    //    },
+    //};
+    handleRemoteData(handler) {
+        //console.log("Entry -->> ■");
+        //let getDatas = handler.receiveHandler.data;
+        //console.log("handler : " , getDatas );
+        let portNo;
+        const setkeys = Object.keys(handler.receiveHandler.data);  // 엔트리가 정지하면 {} 입력 들어옴.
 
-        // Data 1
-        if (data1 & 0x80) {
-            mode = data1 & 0xf0; // b1111 0000
-            switch (mode) {
-                case this.portMode.GET_DIGITAL_IN: {
-                    idx = data1 & 0x07;
-                    portNo = this.portMapToEntry.DIGITAL[idx];
-                    this.deviceValue[portNo] = (data1 & 0x08) >> 3;
-                    //console.log("dataFormDevice()    ■<<- GET_DIGITAL_IN : P[" + portNo + "(" + idx + ")] D_V[" + this.deviceValue[portNo] + "]" );
-                    vFlag[portNo] = 0;
-                    this.remainPort = null;
-                    break;
+        if (setkeys.length) {
+            // 데이터가 들어오기 시작하면, 정지 시 데이터가 초기화가 될 수 있도록 this.entryStopFlag === 3으로 설정
+            // entryStopFlag < 2  requestLocalData()에서 entryStopFlag++ 및 하드웨어 초기화 데이터 송부
+            // entryStopFlag = 3 전송 데이터 안들어 올경우 변경으로 초기화 준비
+            if (this.entryStopFlag === 2) {
+                this.entryStopFlag++;
+                //console.log("set 3 entryStopFlag ", this.entryStopFlag);
+
+                // 필요한 포트만 인풋모드로 설정하기 위해 인풋모드를 모두 해제한다.
+                Object.keys(this.isDigitalIn).forEach((key) => {
+                    this.isDigitalIn[key] = 0;
+                });
+            }
+
+            setkeys.forEach((key) => {
+                // handler key 값에서 portNo 추출
+                if (key.startsWith('m')) {
+                    portNo = key.substring(1);
+                } else {
+                    portNo = key;
                 }
-                case this.portMode.GET_ANALOG_IN: {
-                    idx = data1 & 0x07;
-                    portNo = this.portMapToEntry.ANALOG[idx];
-                    this.remainPort = portNo;
-                    this.remainData = 0;
-                    break;
+                // 포트 넘버에 대한 key값이 undefined 시 값을 할당
+                if (!this.dataFromEntry[portNo]) {   
+                    //console.log("Entry -->> ■" ,this.dataFromEntry ); // key 없을 때 return : undefined
+                    this.dataFromEntry[portNo] = {
+                        flag : 0,
+                    };
                 }
-                case this.portMode.GET_MOTOR_CURRENT: {
-                    idx = data1 & 0x01;
-                    portNo = this.portMapToEntry.ANALOG[idx];
-                    this.remainPort = portNo;
-                    this.remainData = (data1 & 0x0e) << 6;
-                    //console.log("dataFormDevice()    ■<<- GET_DIGITAL_IN : P[" + portNo + "(" + idx + ")]" );
-                    break;
-                }
-                case this.portMode.GET_ULTRASONIC_8:
-                case this.portMode.GET_ULTRASONIC_9: {
-                    idx = data1 & 0x07;
-                    portNo = this.portMapToEntry.DIGITAL[idx];
-                    this.remainPort = portNo;
-                    this.remainData = (data1 << 4) & 0x180;
-                    //console.log("dataFormDevice()    ■<<- GET_ULTRA  port :" + portNo + " remainData : "+ this.remainData );
-                    break;
-                }
-                case this.portMode.COM_ALIVE: {
-                    switch (data1) {
-                        case this.portMode.COM_SET_BLUE_PW:
-                            this.deviceValue[2] = 'OK';
-                            //console.log("dataFormDevice()    ■<<- GET_DIGITAL_IN : P[" + portNo + "(" + idx + ")] D_V[" + this.deviceValue[portNo] + "]" );
-                            vFlag[2] = 0;
-                            this.remainPort = null;
-                            break;
-                        case this.portMode.ERR_SET_BLUE_PW:
-                            this.deviceValue[2] = 'FAIL';
-                            //console.log("dataFormDevice()    ■<<- GET_DIGITAL_IN : P[" + portNo + "(" + idx + ")] D_V[" + this.deviceValue[portNo] + "]" );
-                            vFlag[2] = 0;
-                            this.remainPort = null;
-                            break;
+                //value 값 없데이트
+                if (!key.startsWith('m')) {  
+                    if (!this.dataFromEntry[portNo].value) {
+                        this.dataFromEntry[portNo].value = 0;
                     }
-                    break;
+                    if (this.dataFromEntry[portNo].value != handler.read(key)) {
+                        this.dataFromEntry[portNo].value = handler.read(key);
+                        this.dataFromEntry[portNo].flag = 0;
+                    }
                 }
-                default: {
-                    this.remainPort = null;
-                    this.remainData = 0;
-                    break;
+                //mode 값 없데이트
+                if (key.startsWith('m')) {
+                    if (!this.dataFromEntry[portNo].mode) {
+                        this.dataFromEntry[portNo].mode = 0;
+                    }                    
+                    if (this.dataFromEntry[portNo].mode != handler.read(key)) {
+                        this.dataFromEntry[portNo].mode = handler.read(key);
+                        this.dataFromEntry[portNo].flag = 0;
+
+                        // 디지털 입력 업데이트 여부 확인을 위한 isDigitalIn 값 셋팅
+                        // 디지털 입력이 각 포트 idx 별 비트값을로 들어오기 때문에
+                        // 디바이스에서 들어온 데이를 해석할 때
+                        // portNo값이 디지털 포트인지 확인한다. 아날로그 portNo는 키값이 없으므로,
+                        // ( typeof this.isDigitalIn[portNo] === undefined ) 이다.
+                        if (typeof this.isDigitalIn[portNo] === 'number') {  
+                            this.isDigitalIn[portNo] =
+                            (this.dataFromEntry[portNo].mode == this.setMode.SET_DIGITAL_IN) ? 1 : 0 ;
+                        }
+                    }
                 }
-            }
-            //console.log("get 1st data remainPort" + this.remainPort);
-        } else if (this.remainPort) {
-            // Data 2
-            this.deviceValue[this.remainPort] = this.remainData | data1;
-            vFlag[this.remainPort] = 0;
-            //console.log("remainPort[" + this.remainPort +"] data2[" + this.deviceValue[this.remainPort] + "]");
-            this.remainPort = null;
+                //console.log("Entry -->> ■" ,this.dataFromEntry );
+            });
         }
+        // 데이터가 있었다가 없는 상태가 되는지 검사
+        // 엔트리 실행 정지되어 데이터가 없을 경우, 실행 되었으나 데이터 없을 경우 초기화를 한다.
+        // 프로그램 실행 초기값으로 entryStopFlag==0 이여야 한다. 3인 상태는 이전에 데이터가 있었음을 의미한다.
+        else if (this.entryStopFlag === 4) {
+            this.dataFromEntry = {};
+            this.entryStopFlag = 0;
+            //console.log("set 0 entryStopFlag ", this.entryStopFlag);
+            Object.keys(this.isDigitalIn).forEach((key) => {
+                this.isDigitalIn[key] = 1; // 인풋모드로 초기화
+            });
+        }
+        //console.log( this.dataFromEntry );
     }
-};
+}
 
-Module.prototype.dataToEntry = function(handler) {
-    //console.log("Entry <<<--- ■");
-
-    let portNo;
-    let mode;
-    let mFlag = this.modeFlagToEntry;
-    let vFlag = this.valueFlagToEntry;
-
-    for (let i = 0; i < this.portList.length; i++) {
-        portNo = this.portList[i];
-        mode = this.contMode[portNo];
-
-        if (mFlag[portNo] < 1) {
-            //console.log("dataToEntry()    <<-■    P[" + portNo + "] M[" + this.contMode[portNo] + "]" );
-            handler.write('m' + portNo, this.contMode[portNo]);
-            mFlag[portNo]++;
-        }
-
-        if (vFlag[portNo] < 1) {
-            switch (mode) {
-                case this.portMode.SET_ANALOG_IN:
-                case this.portMode.SET_DIGITAL_IN:
-                case this.portMode.SET_ULTRASONIC:
-                case this.portMode.COM_SET_BLUE_PW:
-                    handler.write(portNo, this.deviceValue[portNo]);
-                    //console.log("dataToEntry()    <<-■    P[" + portNo + "] D_V[" + this.deviceValue[portNo] + "]" );
-                    break;
-                case this.portMode.SET_MOTOR_CURRENT:
-                    handler.write(portNo, this.deviceValue[portNo] / 100);
-                    //console.log("dataToEntry()    <<-■    P[" + portNo + "] D_V[" + this.deviceValue[portNo] + "]" );
-                    break;
-                case this.portMode.SET_MOTOR_SPEED:
-                    handler.write('M' + portNo, this.entryValue[portNo] - 100);
-                    //console.log("dataToEntry()    <<-■    P[" + portNo + "] M_V[" + (this.entryValue[portNo]-100) + "]" );
-                    break;
-                default:
-                    handler.write(portNo, this.entryValue[portNo]);
-                //console.log("dataToEntry()    <<-■    P[" + portNo + "] E_V[" + this.entryValue[portNo] + "]" );
-            }
-            vFlag[portNo]++;
-        }
-    }
-};
-
-module.exports = new Module();
+module.exports = new mechatro();
