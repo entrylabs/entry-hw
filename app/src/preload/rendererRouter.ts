@@ -22,7 +22,7 @@ class RendererRouter {
         if (asarIndex > -1) {
             return path.join(app.getAppPath(), '..', 'modules');
         } else {
-            return path.resolve(app.getAppPath(), 'modules');
+            return path.join(__dirname, '..', '..', 'modules');
         }
     }
 
