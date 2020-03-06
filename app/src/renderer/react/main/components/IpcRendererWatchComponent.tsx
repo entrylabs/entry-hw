@@ -1,5 +1,6 @@
 import React from 'react';
-import { CloudModeTypesEnum, HardwareConnectionStatusEnum, HardwarePageStateEnum } from '../constants/constants';
+import { CloudModeTypesEnum, HardwarePageStateEnum } from '../constants/constants';
+import { HardwareStatement } from '../../../../common/constants';
 import {
     changeAlertMessage,
     changeCloudMode,
@@ -11,7 +12,7 @@ import { changePortList } from '../store/modules/connection';
 import { connect } from 'react-redux';
 import { IMapDispatchToProps, IMapStateToProps } from '../store';
 
-const { translator, ipcRenderer } = window;
+const { translator, ipcRenderer, rendererRouter } = window;
 
 type IProps = IStateProps & IDispatchProps;
 
@@ -28,15 +29,16 @@ class IpcRendererWatchComponent extends React.PureComponent<IProps> {
             console.log(...args);
         });
 
-        ipcRenderer.on('state', (event: Electron.Event, state: HardwareConnectionStatusEnum) => {
+        ipcRenderer.on('state', (event: Electron.Event, state: HardwareStatement) => {
             const applyTitle = (title: string) => {
                 props.changeStateTitle(translator.translate(title));
             };
             props.changeHardwareModuleState(state);
+            rendererRouter.currentState = state;
             console.log('state changed: ', state);
 
             switch (state) {
-                case HardwareConnectionStatusEnum.disconnected: {
+                case HardwareStatement.disconnected: {
                     if (props.currentPageState === HardwarePageStateEnum.list) {
                         applyTitle('Select hardware');
                     } else {
@@ -49,7 +51,7 @@ class IpcRendererWatchComponent extends React.PureComponent<IProps> {
                     }
                     break;
                 }
-                case HardwareConnectionStatusEnum.connected: {
+                case HardwareStatement.connected: {
                     applyTitle('hardware > connected');
                     props.changeAlertMessage({
                         message: translator.translate('Connected to hardware device.'),
@@ -57,15 +59,15 @@ class IpcRendererWatchComponent extends React.PureComponent<IProps> {
                     });
                     break;
                 }
-                case HardwareConnectionStatusEnum.scan:
-                case HardwareConnectionStatusEnum.lost: {
+                case HardwareStatement.scan:
+                case HardwareStatement.lost: {
                     applyTitle('hardware > connecting');
                     props.changeAlertMessage({
                         message: translator.translate('Connecting to hardware device.'),
                     });
                     break;
                 }
-                case HardwareConnectionStatusEnum.beforeConnect: {
+                case HardwareStatement.beforeConnect: {
                     applyTitle('hardware > connecting');
                     const beforeConnectMessage = `${
                         translator.translate('Connecting to hardware device.')
@@ -77,7 +79,7 @@ class IpcRendererWatchComponent extends React.PureComponent<IProps> {
                     });
                     break;
                 }
-                case HardwareConnectionStatusEnum.flash: {
+                case HardwareStatement.flash: {
                     props.changeAlertMessage({
                         message: translator.translate('Firmware Uploading...'),
                     });
@@ -99,7 +101,7 @@ class IpcRendererWatchComponent extends React.PureComponent<IProps> {
 
 interface IStateProps {
     currentPageState: HardwarePageStateEnum,
-    currentModuleState: HardwareConnectionStatusEnum,
+    currentModuleState: HardwareStatement,
 }
 
 const mapStateToProps: IMapStateToProps<IStateProps> = (state) => ({
@@ -112,7 +114,7 @@ interface IDispatchProps {
     changeCloudMode: (mode: CloudModeTypesEnum) => void;
     changePortList: (portList: ISerialPortScanData[]) => void;
     changeAlertMessage: (alertMessage: IAlertMessage) => void;
-    changeHardwareModuleState: (state: HardwareConnectionStatusEnum) => void;
+    changeHardwareModuleState: (state: HardwareStatement) => void;
 }
 
 const mapDispatchToProps: IMapDispatchToProps<IDispatchProps> = (dispatch) => ({

@@ -16,16 +16,6 @@ export enum HardwareModuleStatus {
     needDownload = 'needDownload',
 }
 
-export enum HardwareConnectionStatusEnum {
-    lost = 'lost',
-    disconnected = 'disconnected',
-    selectPort = 'select_port',
-    flash = 'flash',
-    beforeConnect = 'before_connect',
-    connected = 'connected',
-    scan = 'scan',
-}
-
 export enum CloudModeTypesEnum {
     singleServer,
     cloud,
