@@ -29,11 +29,15 @@ class ServerProcessManager {
     _getServerFilePath() {
         const asarIndex = app.getAppPath().indexOf(`${path.sep}app.asar`);
         if (asarIndex > -1) {
-            return path.join(app.getAppPath().substr(0, asarIndex), 'server.exe');
+            if (os.type().includes('Darwin')) {
+                return path.join(app.getAppPath().substr(0, asarIndex), 'server.txt');
+            } else {
+                return path.join(app.getAppPath().substr(0, asarIndex), 'server.exe');
+            }
         } else {
             const serverDirPath = [__dirname, '..', '..', '..', 'server'];
             if (os.type().includes('Darwin')) {
-                return path.resolve(...serverDirPath, 'mac', 'server.exe');
+                return path.resolve(...serverDirPath, 'mac', 'server.txt');
             } else {
                 return path.resolve(...serverDirPath, 'win', 'server.exe');
             }

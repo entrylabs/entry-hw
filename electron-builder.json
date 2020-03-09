@@ -27,8 +27,8 @@
         },
         "extraResources": [
             {
-                "from": "app/server/mac/server.exe",
-                "to": "server.exe"
+                "from": "app/server/mac/server.txt",
+                "to": "server.txt"
             }
         ]
     },
