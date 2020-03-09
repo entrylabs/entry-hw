@@ -12,7 +12,7 @@
     "driver": {
         "win32-ia32": "ftdi/dpinst-x86.exe",
         "win32-x64": "ftdi/dpinst-amd64.exe",
-        "darwin-x64": "FTDIUSBSerial/FTDIUSBSerial.pkg"
+        "darwin-x64": "https://entrylabs.github.io/docs/files/drivers/FTDIUSBSerial/FTDIUSBSerial.pkg"
     },
     "reconnect": true,
     "firmware": "rokoboard",
