@@ -8,6 +8,7 @@
     "platform": ["win32", "darwin"],
     "icon": "mechatro_uno_bt.png",
     "url": "http://cafe.naver.com/easybread",
+    "email": "in_school@naver.com",
     "select_com_port": true,
     "module": "mechatro.js",
     "driver": {

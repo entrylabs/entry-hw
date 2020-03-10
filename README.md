@@ -1,7 +1,6 @@
-[![Build status](https://ci.appveyor.com/api/projects/status/5qp10j3j20xyf7c0/branch/build?svg=true)](https://ci.appveyor.com/project/kimorkim/entry-hw/branch/build)
+![Entry Logo](app/src/renderer/images/about/logo.png)
 
-
-![Entry Logo](app/src/renderer/images/logo.png)
+[![Action Build Status](https://github.com/entrylabs/entry-hw/workflows/Build%20%26%20Deploy/badge.svg)](https://github.com/entrylabs/entry-hw/actions?query=workflow%3A"Build+%26+Deploy")
 ---
 
 ## What is Entry Hardware
@@ -15,6 +14,9 @@ Node.js 는 개발 전반을 위해 반드시 설치가 되어야하는 프레�
 > https://nodejs.org 
   
 #### Yarn(optional)
+
+> npm install --global yarn
+
 엔트리 하드웨어는 yarn 을 통해 의존성을 관리 중입니다. npm 을 사용해도 문제는 없습니다.
 
 #### Node-gyp

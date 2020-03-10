@@ -83,6 +83,10 @@ Module.prototype.requestLocalData = function() {
        console.log("2:",byteToSend);
     }
     queryString.push(byteToSend);
+   
+    //우선 2바이트만 보내는 것으로 변경
+    //byteToSend = 128;  
+   // queryString.push(byteToSend);
     
     //우선 2바이트만 보내는 것으로 변경
     //byteToSend = 128;  
