@@ -61,7 +61,9 @@
         "typescript": "^3.6.4",
         "webpack": "^4.41.2",
         "webpack-cli": "^3.3.9",
-        "webpack-merge": "^4.2.2"
+        "webpack-merge": "^4.2.2",
+        "winston": "^3.2.1",
+        "winston-daily-rotate-file": "^4.4.2"
     },
     "dependencies": {
         "cross-spawn": "^7.0.0",
