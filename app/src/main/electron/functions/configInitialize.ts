@@ -1,5 +1,5 @@
-import packageJson from '../../../../package.json';
-import getExtraDirectoryPath from '../../main/core/functions/getExtraDirectoryPath';
+import packageJson from '../../../../../package.json';
+import getExtraDirectoryPath from '../../core/functions/getExtraDirectoryPath';
 import { forEach, merge } from 'lodash';
 import path from 'path';
 import fs from 'fs';

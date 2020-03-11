@@ -11,7 +11,7 @@ import parseCommandLine from './functions/parseCommandLine';
 import configInit from './functions/configInitialize';
 import registerGlobalShortcut from './functions/registerGlobalShortcut';
 import checkUpdate from './functions/checkUpdate';
-import MainRouter from '../main/mainRouter.build';
+import MainRouter from '../mainRouter.build';
 
 global.$ = require('lodash');
 

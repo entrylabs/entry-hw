@@ -5,7 +5,7 @@ const base = require('./webpack.base.config');
 
 module.exports = merge({
     target: 'electron-main',
-    entry: path.join(__dirname, '..', 'app', 'src', 'electron', 'index.ts'),
+    entry: path.join(__dirname, '..', 'app', 'src', 'main', 'electron', 'index.ts'),
     devtool: 'cheap-module-source-map',
     node: {
         __dirname: false,
@@ -20,7 +20,7 @@ module.exports = merge({
             const moduleName = path.basename(requestModuleName);
 
             if (moduleName === 'mainRouter.build') {
-                return callback(null, `commonjs ${requestModuleName.replace('..', '.')}`);
+                return callback(null, `commonjs ${requestModuleName.replace('..', './main')}`);
             }
 
             if (requestModuleName.startsWith('.') || moduleName === 'index.ts') {
