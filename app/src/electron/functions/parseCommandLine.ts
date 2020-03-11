@@ -23,9 +23,9 @@ const properties = {
     ],
 };
 
-let result = {};
+let result: any = {};
 
-function parseFlags(key) {
+function parseFlags(key: string) {
     for (let i = 0; i < properties.flag.length; i++) {
         const [fullName, alias] = properties.flag[i];
         if (`--${fullName}` === key || `-${alias}` === key) {
@@ -35,7 +35,7 @@ function parseFlags(key) {
     }
 }
 
-function parsePair(key, value) {
+function parsePair(key: string, value: string) {
     if (!value) {
         return;
     }
@@ -49,7 +49,7 @@ function parsePair(key, value) {
     }
 }
 
-module.exports = (argv) => {
+export default (argv: string[]) => {
     result = {};
     for (let i = 0; i < argv.length; i++) {
         const [key, value] = argv[i].split('=');

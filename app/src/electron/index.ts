@@ -1,28 +1,26 @@
 'use strict';
 
-const { app, ipcMain, dialog, Menu } = require('electron');
-const path = require('path');
-const fs = require('fs');
+import { app, BrowserWindow, dialog, ipcMain, Menu } from 'electron';
+import path from 'path';
+import fs from 'fs';
+import EntryServer from './serverProcessManager';
+import WindowManager from './windowManager';
+import CommonUtils from './commonUtils';
+// functions
+import parseCommandLine from './functions/parseCommandLine';
+import configInit from './functions/configInitialize';
+import registerGlobalShortcut from './functions/registerGlobalShortcut';
+import checkUpdate from './functions/checkUpdate';
+import MainRouter from '../main/mainRouter.build';
+
 global.$ = require('lodash');
 
-// classes
-const MainRouter = require('./src/main/mainRouter.build');
-const EntryServer = require('./src/main/electron/serverProcessManager');
-const WindowManager = require('./src/main/electron/windowManager');
-const CommonUtils = require('./src/main/electron/commonUtils');
-
-// functions
-const parseCommandLine = require('./src/main/electron/functions/parseCommandLine');
-const configInit = require('./src/main/electron/functions/configInitialize');
-const registerGlobalShortcut = require('./src/main/electron/functions/registerGlobalShortcut');
-const checkUpdate = require('./src/main/electron/functions/checkUpdate');
-
-let mainWindow = null;
-let mainRouter = null;
-let entryServer = null;
+let mainWindow: BrowserWindow | undefined = undefined;
+let mainRouter: any = null;
+let entryServer: any = null;
 
 const argv = process.argv.slice(1);
-const commandLineOptions = parseCommandLine(argv);
+const commandLineOptions = parseCommandLine(argv) as any;
 const configuration = configInit(commandLineOptions.config);
 const { roomIds = [], hardwareVersion } = configuration;
 if (argv.indexOf('entryhw:')) {
@@ -69,7 +67,7 @@ if (!app.requestSingleInstanceLock()) {
         app.exit(0);
     });
 
-    app.commandLine.appendSwitch('enable-experimental-web-platform-features', true);
+    app.commandLine.appendSwitch('enable-experimental-web-platform-features', 'true');
     app.commandLine.appendSwitch('disable-renderer-backgrounding');
     app.commandLine.appendSwitch('enable-web-bluetooth');
     app.setAsDefaultProtocolClient('entryhw');
@@ -81,12 +79,14 @@ if (!app.requestSingleInstanceLock()) {
 
         registerGlobalShortcut();
         entryServer = new EntryServer();
+
+        // @ts-ignore
         mainRouter = new MainRouter(mainWindow, entryServer);
     });
 
     ipcMain.on('hardwareForceClose', () => {
         WindowManager.mainWindowCloseConfirmed = true;
-        mainWindow.close();
+        mainWindow?.close();
     });
 
     ipcMain.on('showMessageBox', (e, msg) => {
@@ -104,7 +104,7 @@ if (!app.requestSingleInstanceLock()) {
     ipcMain.handle('checkUpdate', async () => await checkUpdate());
 
     ipcMain.handle('getOpenSourceText', async () => {
-        const openSourceFile = path.resolve(__dirname, 'OPENSOURCE.md');
+        const openSourceFile = path.resolve(__dirname, '..', 'OPENSOURCE.md');
         return await fs.promises.readFile(openSourceFile, 'utf8');
     });
 }

@@ -1,6 +1,6 @@
-const { net } = require('electron');
+import { net } from 'electron';
 
-module.exports = () => new Promise((resolve, reject) => {
+export default () => new Promise((resolve, reject) => {
     const { updateCheckUrl, hardwareVersion } = global.sharedObject;
     const request = net.request({
         method: 'POST',
@@ -21,7 +21,7 @@ module.exports = () => new Promise((resolve, reject) => {
             buffer += chunk.toString();
         });
         response.on('end', () => {
-            let data = {};
+            let data: any = {};
             try {
                 data = JSON.parse(buffer);
                 data.currentVersion = hardwareVersion;

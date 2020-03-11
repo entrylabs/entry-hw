@@ -1,22 +1,19 @@
-const { app, BrowserWindow } = require('electron');
-const path = require('path');
+import { app, BrowserWindow } from 'electron';
+import path from 'path';
 
-const viewDirectoryPath = path.resolve(__dirname, '..', '..', 'views');
-module.exports = new class {
-    aboutWindow = undefined;
-    mainWindow = undefined;
-    mainRouter = undefined;
+const viewDirectoryPath = path.resolve(__dirname, 'views');
+export default new class {
+    /*
+    하드웨어 메인 윈도우는 하드웨어 연결중인 경우는 꺼지지 않도록 기획되었다.
+    그러므로 close native event 가 발생했을 때, 렌더러에 다시 물어본 후
+    해당 값을 세팅 한 뒤 다시 close 를 호출 하는 식으로 종료한다.
+     */
+    public mainWindowCloseConfirmed = false;
+    public aboutWindow ?: BrowserWindow = undefined;
+    public mainWindow?: BrowserWindow = undefined;
+    private mainRouter?: any = undefined;
 
-    constructor() {
-        /*
-        하드웨어 메인 윈도우는 하드웨어 연결중인 경우는 꺼지지 않도록 기획되었다.
-        그러므로 close native event 가 발생했을 때, 렌더러에 다시 물어본 후
-        해당 값을 세팅 한 뒤 다시 close 를 호출 하는 식으로 종료한다.
-         */
-        this.mainWindowCloseConfirmed = false;
-    }
-
-    createAboutWindow(parent) {
+    createAboutWindow(parent?: BrowserWindow) {
         this.aboutWindow = new BrowserWindow({
             parent,
             width: 380,
@@ -40,7 +37,7 @@ module.exports = new class {
         });
     }
 
-    createMainWindow({ debug }) {
+    createMainWindow({ debug }: { debug: boolean }) {
         const language = app.getLocale();
         const title = language === 'ko' ? '엔트리 하드웨어 v' : 'Entry Hardware v';
         const { hardwareVersion } = global.sharedObject;
@@ -68,12 +65,12 @@ module.exports = new class {
         this.mainWindow.on('close', (e) => {
             if (!this.mainWindowCloseConfirmed) {
                 e.preventDefault();
-                this.mainWindow.webContents.send('hardwareCloseConfirm');
+                this.mainWindow?.webContents.send('hardwareCloseConfirm');
             }
         });
 
         this.mainWindow.on('closed', () => {
-            this.mainWindow = null;
+            this.mainWindow = undefined;
         });
     }
 }();
