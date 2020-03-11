@@ -1,11 +1,15 @@
-const spawn = require('cross-spawn');
-const { app } = require('electron');
-const path = require('path');
-const fs = require('fs');
-const os = require('os');
+import spawn from 'cross-spawn';
+import { app } from 'electron';
+import path from 'path';
+import fs from 'fs';
+import os from 'os';
+import { ChildProcess } from 'child_process';
 
 class ServerProcessManager {
-    constructor(router) {
+    private readonly childProcess: ChildProcess;
+    private router: any;
+
+    constructor(router?: any) {
         try {
             // this.childProcess = new Server();
             const serverBinaryPath = this._getServerFilePath();
@@ -22,7 +26,7 @@ class ServerProcessManager {
         }
     }
 
-    setRouter(router) {
+    setRouter(router: any) {
         this.router = router;
     }
 
@@ -35,8 +39,9 @@ class ServerProcessManager {
                 return path.join(app.getAppPath().substr(0, asarIndex), 'server.exe');
             }
         } else {
-            const serverDirPath = [__dirname, '..', '..', '..', 'server'];
+            const serverDirPath = [__dirname, '..', 'server'];
             if (os.type().includes('Darwin')) {
+                console.log(path.join(...serverDirPath, 'mac', 'server.txt'));
                 return path.resolve(...serverDirPath, 'mac', 'server.txt');
             } else {
                 return path.resolve(...serverDirPath, 'win', 'server.exe');
@@ -54,7 +59,7 @@ class ServerProcessManager {
         this.childProcess && this.childProcess.kill();
     }
 
-    addRoomIdsOnSecondInstance(roomId) {
+    addRoomIdsOnSecondInstance(roomId: string) {
         // this.childProcess.addRoomId(roomId);
         this._sendToChild('addRoomId', roomId);
     }
@@ -64,7 +69,7 @@ class ServerProcessManager {
         this._sendToChild('disconnectHardware');
     }
 
-    send(data) {
+    send(data: any) {
         // this.childProcess.sendToClient(data);
         this._sendToChild('send', data);
     }
@@ -74,7 +79,7 @@ class ServerProcessManager {
      * @param message{Object?}
      * @private
      */
-    _sendToChild(methodName, message) {
+    _sendToChild(methodName: string, message?: any) {
         this._isProcessLive() && this.childProcess.send({
             key: methodName,
             value: message,
@@ -94,7 +99,7 @@ class ServerProcessManager {
         // this.childProcess.on('close', () => {
 
         // });
-        this.childProcess && this.childProcess.on('message', (message) => {
+        this.childProcess && this.childProcess.on('message', (message: { key: string; value: string; }) => {
             const { key, value } = message;
             switch (key) {
                 case 'cloudModeChanged': {
@@ -132,4 +137,4 @@ class ServerProcessManager {
     }
 }
 
-module.exports = ServerProcessManager;
+export default ServerProcessManager;

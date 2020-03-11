@@ -3,9 +3,9 @@
     "version": "1.9.4",
     "description": "엔트리 하드웨어 연결 프로그램",
     "author": "EntryLabs",
-    "main": "app/index.js",
+    "main": "./app/src/index.bundle.js",
     "scripts": {
-        "start": "cross-env NODE_ENV=development electron -r source-map-support/register ./app/index.js",
+        "start": "cross-env NODE_ENV=development electron -r source-map-support/register app/src/index.bundle.js",
         "debug": "npm run start --inspect",
         "test": "cross-env NODE_NO_WARNINGS=1 ts-node --files ./cli/connectionTest.ts",
         "create": "node ./cli/createJson.js",
@@ -20,6 +20,7 @@
         "setting": "npm run rebuild && npm run webpack:dev"
     },
     "devDependencies": {
+        "@types/cross-spawn": "^6.0.1",
         "@types/fs-extra": "^8.0.1",
         "@types/inquirer": "^6.5.0",
         "@types/lodash": "^4.14.149",
