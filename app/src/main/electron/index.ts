@@ -12,7 +12,9 @@ import configInit from './functions/configInitialize';
 import registerGlobalShortcut from './functions/registerGlobalShortcut';
 import checkUpdate from './functions/checkUpdate';
 import MainRouter from '../mainRouter.build';
+import createLogger from './functions/createLogger';
 
+const logger = createLogger('electron/index.ts');
 global.$ = require('lodash');
 
 let mainWindow: BrowserWindow | undefined = undefined;
@@ -22,7 +24,7 @@ let entryServer: any = null;
 const argv = process.argv.slice(1);
 const commandLineOptions = parseCommandLine(argv) as any;
 const configuration = configInit(commandLineOptions.config);
-const { roomIds = [], hardwareVersion } = configuration;
+const { roomIds = [] } = configuration;
 if (argv.indexOf('entryhw:')) {
     const data = CommonUtils.getArgsParseData(argv);
     if (data) {
@@ -31,9 +33,11 @@ if (argv.indexOf('entryhw:')) {
 }
 
 if (!app.requestSingleInstanceLock()) {
+    logger.verbose('App is already running');
     app.quit();
     process.exit(0);
 } else {
+    logger.info('Entry HW started.');
     app.on('window-all-closed', () => {
         app.quit();
     });
@@ -62,6 +66,7 @@ if (!app.requestSingleInstanceLock()) {
     });
 
     ipcMain.on('reload', () => {
+        logger.info('Entry HW reload.');
         entryServer.close();
         app.relaunch();
         app.exit(0);
@@ -117,7 +122,7 @@ process.on('uncaughtException', (error) => {
         detail: error.toString(),
         buttons: ['ignore', 'exit'],
     });
-    console.error(error.message, error.stack);
+    logger.error('Entry HW uncaughtException occurred', error.message, error.stack);
     if (whichButtonClicked === 1) {
         process.exit(-1);
     }
