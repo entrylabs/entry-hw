@@ -15,7 +15,6 @@ import MainRouter from '../mainRouter.build';
 import createLogger from './functions/createLogger';
 
 const logger = createLogger('electron/index.ts');
-global.$ = require('lodash');
 
 let mainWindow: BrowserWindow | undefined = undefined;
 let mainRouter: any = null;
