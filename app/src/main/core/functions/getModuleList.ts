@@ -1,10 +1,14 @@
 import { net } from 'electron';
+import createLogger from '../../electron/functions/createLogger';
+
+const logger = createLogger('GetModuleList');
 
 const getModuleListFunction: () => Promise<IHardwareConfig[]> = () => new Promise((resolve, reject) => {
     const { moduleResourceUrl } = global.sharedObject;
 
-    //TODO 개발간 임시
-    const request = net.request(`${moduleResourceUrl}`);
+    const request = net.request(moduleResourceUrl);
+    logger.info(`hardware list requested from ${moduleResourceUrl}`);
+
     request.on('response', (response) => {
         let buffer = '';
         response.on('error', reject);
@@ -15,6 +19,7 @@ const getModuleListFunction: () => Promise<IHardwareConfig[]> = () => new Promis
             let data = [];
             try {
                 data = JSON.parse(buffer);
+                logger.info('get hardware list from online is success');
             } catch (e) {
                 // nothing to do
             } finally {

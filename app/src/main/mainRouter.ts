@@ -9,8 +9,10 @@ import DataHandler from './core/dataHandler';
 import downloadModule from './core/functions/downloadModule';
 import { EntryMessageAction, EntryStatePayload, HardwareStatement } from '../common/constants';
 import getExtraDirectoryPath from './core/functions/getExtraDirectoryPath';
+import createLogger from './electron/functions/createLogger';
 
 const nativeNodeRequire = require('./nativeNodeRequire.js');
+const logger = createLogger('core/mainRouter.ts');
 
 interface IEntryServer {
     setRouter: (router: MainRouter) => void;
@@ -66,6 +68,7 @@ class MainRouter {
 
         this._resetIpcEvents();
         this._registerIpcEvents();
+        logger.verbose('mainRouter created');
     }
 
     /**

@@ -6,6 +6,9 @@ import valid from 'semver/functions/valid';
 import { AvailableTypes } from '../../common/constants';
 import getModuleList from './functions/getModuleList';
 import getExtraDirectoryPath from './functions/getExtraDirectoryPath';
+import createLogger from '../electron/functions/createLogger';
+
+const logger = createLogger('core/hardwareListManager.ts');
 
 const nameSortComparator = (left: IHardwareConfig, right: IHardwareConfig) => {
     const lName = left.name.ko.trim();
@@ -39,13 +42,14 @@ export default class {
 
     constructor(router: any) {
         this.router = router;
-
+        logger.verbose('hardwareListManager created');
         // 두번 하는 이유는, 먼저 유저에게 로컬 모듈 목록을 보여주기 위함
         this.updateHardwareList();
         this.updateHardwareListWithOnline();
     }
 
     async updateHardwareListWithOnline() {
+        logger.verbose('hardware List update from online..');
         try {
             const moduleList = await getModuleList();
             if (!moduleList || moduleList.length === 0) {
@@ -54,11 +58,12 @@ export default class {
 
             this.updateHardwareList(moduleList.map(onlineModuleSchemaModifier));
         } catch (e) {
-            console.log('online hardware list update failed');
+            logger.warn(`online hardware list update failed ${JSON.stringify(e)}`);
         }
     }
 
     updateHardwareList(source: any[] = []) {
+        logger.verbose('hardware List update from file system..');
         const availables = this._getAllHardwareModulesFromDisk();
         const mergedList = unionWith(availables, source, (src, ori) => {
             if (ori.id === src.id) {
@@ -71,6 +76,10 @@ export default class {
                 return src;
             }
         });
+
+        logger.info(`hardware list update from file system.\ncurrent hardware count: ${
+            this.allHardwareList?.length
+        }\nnew hardware counts: ${mergedList.length}`);
 
         this.allHardwareList = mergedList
             .filter(platformFilter)
