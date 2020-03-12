@@ -19,7 +19,7 @@ class Flasher {
         return getExtraDirectoryPath('firmware');
     }
 
-    private _flashArduino(firmware: IFirmwareInfo, port: string, options: { baudRate?: number; MCUType?: string; }) {
+    private _flashArduino(firmware: IFirmwareInfo, port: string, options: { baudRate?: number; MCUType?: string; }): Promise<any[]> {
         return new Promise((resolve) => {
             const appPath = Flasher.firmwareDirectoryPath;
             const baudRate = options.baudRate || '115200';
@@ -67,7 +67,7 @@ class Flasher {
         });
     }
 
-    private _flashCopy(firmware: ICopyTypeFirmware) {
+    private _flashCopy(firmware: ICopyTypeFirmware): Promise<any[]> {
         return new Promise((resolve, reject) => {
             const firmwareDirectory = Flasher.firmwareDirectoryPath;
             const destPath = dialog.showOpenDialogSync({
@@ -91,7 +91,7 @@ class Flasher {
         });
     }
 
-    flash(firmware: IFirmwareInfo, port: string, options: { baudRate?: number; MCUType?: string; }) {
+    flash(firmware: IFirmwareInfo, port: string, options: { baudRate?: number; MCUType?: string; }): Promise<any[]> {
         if (typeof firmware === 'string') {
             return this._flashArduino(firmware, port, options);
         } else if ((firmware as ICopyTypeFirmware).type === 'copy') {
