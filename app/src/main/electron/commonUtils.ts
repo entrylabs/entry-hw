@@ -25,11 +25,10 @@ class CommonUtils {
         return padded.join('.');
     }
 
-    getArgsParseData(argv: string[]) {
+    getArgsParseData(argv: string) {
         const regexRoom = /roomId:(.*)/;
         console.log('argv', argv);
 
-        //@ts-ignore
         const arrRoom = regexRoom.exec(argv) || ['', ''];
         let roomId = arrRoom[1];
 

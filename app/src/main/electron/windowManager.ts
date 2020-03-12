@@ -1,7 +1,9 @@
 import { app, BrowserWindow } from 'electron';
 import path from 'path';
+import createLogger from './functions/createLogger';
 
 const viewDirectoryPath = path.resolve(__dirname, 'views');
+const logger = createLogger('electron/windowManager.ts');
 export default new class {
     /*
     하드웨어 메인 윈도우는 하드웨어 연결중인 경우는 꺼지지 않도록 기획되었다.
@@ -11,9 +13,9 @@ export default new class {
     public mainWindowCloseConfirmed = false;
     public aboutWindow ?: BrowserWindow = undefined;
     public mainWindow?: BrowserWindow = undefined;
-    private mainRouter?: any = undefined;
 
     createAboutWindow(parent?: BrowserWindow) {
+        logger.verbose('about window created');
         this.aboutWindow = new BrowserWindow({
             parent,
             width: 380,
@@ -65,6 +67,7 @@ export default new class {
         this.mainWindow.on('close', (e) => {
             if (!this.mainWindowCloseConfirmed) {
                 e.preventDefault();
+                logger.verbose('EntryHW close rejected. confirm connection close');
                 this.mainWindow?.webContents.send('hardwareCloseConfirm');
             }
         });
@@ -72,5 +75,6 @@ export default new class {
         this.mainWindow.on('closed', () => {
             this.mainWindow = undefined;
         });
+        logger.verbose(`main window created. title: ${title + hardwareVersion}`);
     }
 }();

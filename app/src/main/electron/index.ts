@@ -25,9 +25,12 @@ const argv = process.argv.slice(1);
 const commandLineOptions = parseCommandLine(argv) as any;
 const configuration = configInit(commandLineOptions.config);
 const { roomIds = [] } = configuration;
-if (argv.indexOf('entryhw:')) {
-    const data = CommonUtils.getArgsParseData(argv);
+
+const roomIdIndex = argv.indexOf('entryhw:');
+if (roomIdIndex > -1) {
+    const data = CommonUtils.getArgsParseData(argv[roomIdIndex]);
     if (data) {
+        logger.info(`roomId ${data} detected`);
         roomIds.push(data);
     }
 }
@@ -44,22 +47,24 @@ if (!app.requestSingleInstanceLock()) {
 
     // 어플리케이션을 중복 실행했습니다. 주 어플리케이션 인스턴스를 활성화 합니다.
     app.on('second-instance', (event, argv, workingDirectory) => {
-        let parseData = {};
-        if (argv.indexOf('entryhw:')) {
-            parseData = CommonUtils.getArgsParseData(argv);
+        let parseData: string | undefined = undefined;
+        const roomIdIndex = argv.indexOf('entryhw:');
+        if (roomIdIndex > -1) {
+            parseData = CommonUtils.getArgsParseData(argv[roomIdIndex]);
         }
 
         if (mainWindow) {
+            logger.verbose('[second-instance] mainWindow restored');
             if (mainWindow.isMinimized()) {
                 mainWindow.restore();
             }
             mainWindow.focus();
 
-            if (mainWindow.webContents) {
+            if (mainWindow.webContents && parseData) {
                 if (roomIds.indexOf(parseData) === -1) {
+                    logger.info(`[second-instance] roomId ${parseData} pushed`);
                     roomIds.push(parseData);
                 }
-                mainWindow.webContents.send('customArgs', parseData);
                 mainRouter.addRoomId(parseData);
             }
         }
