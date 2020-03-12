@@ -1,4 +1,7 @@
 import { net } from 'electron';
+import createLogger from './createLogger';
+
+const logger = createLogger('CheckUpdate');
 
 export default () => new Promise((resolve, reject) => {
     const { updateCheckUrl, hardwareVersion } = global.sharedObject;
@@ -6,14 +9,20 @@ export default () => new Promise((resolve, reject) => {
         method: 'POST',
         url: updateCheckUrl,
     });
+    const params = {
+        category: 'hardware',
+        version: hardwareVersion,
+    };
 
     request.setHeader('content-type', 'application/json; charset=utf-8');
-    request.write(
-        JSON.stringify({
-            category: 'hardware',
-            version: hardwareVersion,
-        }),
-    );
+    request.write(JSON.stringify(params));
+
+    logger.info(`entry hw version check.. ${JSON.stringify({
+        url: updateCheckUrl,
+        method: 'POST',
+        contentType: 'application/json; charset=utf-8',
+        ...params,
+    })}`);
     request.on('response', (response) => {
         let buffer = '';
         response.on('error', reject);
@@ -25,6 +34,7 @@ export default () => new Promise((resolve, reject) => {
             try {
                 data = JSON.parse(buffer);
                 data.currentVersion = hardwareVersion;
+                logger.info(`result: ${JSON.stringify(data)}`);
             } catch (e) {
                 // nothing to do
             } finally {

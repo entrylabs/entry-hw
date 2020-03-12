@@ -1,9 +1,11 @@
 import packageJson from '../../../../../package.json';
 import getExtraDirectoryPath from '../../core/functions/getExtraDirectoryPath';
-import { forEach, merge } from 'lodash';
+import { forEach, merge, reduce, toPairs } from 'lodash';
 import path from 'path';
 import fs from 'fs';
+import createLogger from './createLogger';
 
+const logger = createLogger('ConfigInitialize');
 /**
  * 외부 config 파일이 존재하지 않는 경우의 기본값.
  * 아래 로직상 여기에 없는 키는 적용되지 않는다.
@@ -37,7 +39,7 @@ export default (configName = 'entry') => {
     const getMergedConfig = (target: any) => mergeExistProperties(defaultConfigSchema, target);
     const configFilePath = path.resolve(getExtraDirectoryPath('config'), `config.${configName}.json`);
 
-    console.log(`load ${configFilePath}...`);
+    logger.info(`load configuration ${configFilePath}...`);
 
     const fileData = fs.readFileSync(configFilePath);
     // @ts-ignore
@@ -45,10 +47,9 @@ export default (configName = 'entry') => {
 
     const mergedConfig = merge({}, internalConfig, externalConfig);
 
-    console.log('applied configuration');
-    forEach(mergedConfig, (value, key) => {
-        console.log(`${key}: ${value}`);
-    });
+    logger.info('configuration applied');
+    logger.verbose(reduce(toPairs(mergedConfig), (result, [key, value]) =>
+        `${result}\n${key}: ${value}`, 'configuration properties is..'));
 
     if (global !== undefined) {
         global.sharedObject = mergedConfig;

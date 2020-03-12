@@ -4,6 +4,9 @@ import path from 'path';
 import fs from 'fs';
 import os from 'os';
 import { ChildProcess } from 'child_process';
+import createLogger from './functions/createLogger';
+
+const logger = createLogger('electron/server');
 
 class ServerProcessManager {
     private readonly childProcess: ChildProcess;
@@ -13,13 +16,16 @@ class ServerProcessManager {
         try {
             // this.childProcess = new Server();
             const serverBinaryPath = this._getServerFilePath();
+            logger.info(`EntryServer try to spawn.. ${serverBinaryPath}`);
             fs.accessSync(serverBinaryPath);
             this.childProcess = spawn(serverBinaryPath, [], {
                 stdio: ['ignore', 'inherit', 'inherit', 'ipc'],
                 detached: true,
             });
+            logger.info('EntryServer spawned successfully');
             this.router = router;
         } catch (e) {
+            logger.error('Error occurred while spawn Server Process.', e);
             throw new Error(
                 'Error occurred while spawn Server Process. make sure it exists same dir path',
             );

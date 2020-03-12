@@ -16,6 +16,7 @@ const logger = createLogger({
     transports: [
         new transports.Console(),
     ],
+    exitOnError: false,
 });
 
 if (process.env.NODE_ENV !== 'production') {
@@ -27,6 +28,9 @@ if (process.env.NODE_ENV !== 'production') {
         zippedArchive: true,
         maxSize: '10m',
         maxFiles: '14d',
+        json: false, //Setting JSON as false
+        formatter: (options: any) =>
+            `${options.timestamp()}-${process.env.NODE_ENV}-message:${options.message ? options.message : ''}`,
     }));
 }
 
