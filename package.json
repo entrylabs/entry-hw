@@ -44,7 +44,7 @@
         "electron-builder": "^21.2.0",
         "electron-notarize": "^0.2.1",
         "electron-rebuild": "^1.8.8",
-        "eslint": "^6.7.2",
+        "eslint": "^6.8.0",
         "file-loader": "^5.0.2",
         "immer": "^4.0.2",
         "inquirer": "^7.0.3",
@@ -60,8 +60,8 @@
         "ts-loader": "^6.2.0",
         "ts-node": "^8.6.2",
         "typescript": "^3.6.4",
-        "webpack": "^4.41.2",
-        "webpack-cli": "^3.3.9",
+        "webpack": "^4.42.0",
+        "webpack-cli": "^3.3.11",
         "webpack-merge": "^4.2.2"
     },
     "dependencies": {
