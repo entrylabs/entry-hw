@@ -19,7 +19,7 @@ const logger = createLogger({
     exitOnError: false,
 });
 
-if (process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV === 'production') {
     logger.add(new DailyRotateFile({
         level: 'info',
         filename: 'entry-hw-%DATE%.log',
