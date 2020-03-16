@@ -211,6 +211,7 @@ class MainRouter {
                 this.scanner.stopScan();
                 const connector = await this.scanner.startScan(this.hwModule, this.config);
                 if (connector) {
+                    logger.info(`[Device Info] ${config.id} | ${config?.name?.ko || config?.name?.en || 'noname'}`);
                     this.connector = connector;
                     connector.setRouter(this);
                     this._connect(connector);
