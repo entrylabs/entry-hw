@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { merge, unionWith } from 'lodash';
+import { cloneDeep, merge, unionWith } from 'lodash';
 import lt from 'semver/functions/lt';
 import valid from 'semver/functions/valid';
 import { AvailableTypes } from '../../common/constants';
@@ -26,13 +26,14 @@ const nameSortComparator = (left: IHardwareConfig, right: IHardwareConfig) => {
 const platformFilter = (config: IHardwareConfig) =>
     config.platform && config.platform.indexOf(process.platform) > -1;
 
-const onlineModuleSchemaModifier = (schema: any) => {
-    schema.name = schema.title;
-    schema.availableType = AvailableTypes.needDownload;
+const onlineModuleSchemaModifier = (schema: IOnlineHardwareConfig): IHardwareConfig => {
+    const swapElement: Partial<IHardwareConfig> & IOnlineHardwareConfig = cloneDeep(schema);
+    swapElement.name = schema.title;
+    swapElement.availableType = AvailableTypes.needDownload;
 
-    delete schema.title;
-    delete schema.files;
-    return merge(schema, schema.properties);
+    delete swapElement.title;
+    delete swapElement.files;
+    return merge(swapElement, schema.properties) as IHardwareConfig;
 };
 
 export default class {
@@ -51,12 +52,19 @@ export default class {
     async updateHardwareListWithOnline() {
         logger.verbose('hardware List update from online..');
         try {
-            const moduleList = await getModuleList();
-            if (!moduleList || moduleList.length === 0) {
+            const onlineList = await getModuleList();
+            if (!onlineList || onlineList.length === 0) {
                 return;
             }
 
-            this.updateHardwareList(moduleList.map(onlineModuleSchemaModifier));
+            const moduleList = onlineList.map(onlineModuleSchemaModifier);
+
+            logger.info(`online hardware list received.\nlist: ${
+                moduleList.map((module) =>
+                    (`${module.id}|${module.name?.ko || module.name?.en || module.moduleName}`)).join(',')
+            }`);
+
+            this.updateHardwareList(moduleList);
         } catch (e) {
             logger.warn(`online hardware list update failed ${JSON.stringify(e)}`);
         }
@@ -102,48 +110,6 @@ export default class {
         } catch (e) {
             console.error('error occurred while reading module json files', e);
         }
-    }
-
-    async _requestModuleList() {
-        try {
-            const moduleList = await getModuleList();
-            if (!moduleList || moduleList.length === 0) {
-                return;
-            }
-
-            this._updateHardwareList(moduleList);
-        } catch (e) {
-            console.error('error occurred while reading module json files', e);
-        }
-    }
-
-    _updateHardwareList(source: IHardwareConfig[]) {
-        const availables = this._getAllHardwareModulesFromDisk();
-        this.allHardwareList = [];
-        const mergedList = (availables || []).map((original) => {
-            const foundElem = source.find((srcElem, index) => {
-                if (this._isSameModule(original, srcElem)) {
-                    source.splice(index, 1);
-                    return true;
-                }
-                return false;
-            });
-
-            if (foundElem) {
-                // != 의 경우 일부러 그랬습니다. 문자열 / 숫자를 상관하지 않게 하기 위함
-                // noinspection EqualityComparisonWithCoercionJS
-                if (!original.version || original.version != foundElem.version) {
-                    original.availableType = AvailableTypes.needUpdate;
-                }
-            }
-            return original;
-        });
-
-        this.allHardwareList = mergedList
-            .concat(source || [])
-            .filter(platformFilter)
-            .sort(nameSortComparator);
-        this._notifyHardwareListChanged();
     }
 
     private _notifyHardwareListChanged() {

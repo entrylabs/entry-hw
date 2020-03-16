@@ -3,7 +3,7 @@ import createLogger from '../../electron/functions/createLogger';
 
 const logger = createLogger('GetModuleList');
 
-const getModuleListFunction: () => Promise<IHardwareConfig[]> = () => new Promise((resolve, reject) => {
+const getModuleListFunction: () => Promise<IOnlineHardwareConfig[]> = () => new Promise((resolve, reject) => {
     const { moduleResourceUrl } = global.sharedObject;
 
     const request = net.request(moduleResourceUrl);
