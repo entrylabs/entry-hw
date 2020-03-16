@@ -141,12 +141,13 @@ class MainRouter {
      * startScan 의 결과는 기다리지 않는다.
      */
     reconnect() {
+        logger.info('try to hardware reconnection..');
         this.close();
 
         if (this.config) {
             this.startScan(this.config);
         } else {
-            console.warn('hardware try to reconnect but hardwareConfig is undefined');
+            logger.warn('hardware try to reconnect but hardwareConfig is undefined');
         }
     }
 
@@ -155,6 +156,7 @@ class MainRouter {
      */
     sendState(state: string, ...args: any[]) {
         let resultState = state;
+        logger.info(`hardware state changed ${state}`);
         if (this.config) {
             if (state === HardwareStatement.lost) {
                 if (this.config.reconnect) {
@@ -226,11 +228,13 @@ class MainRouter {
      * @param roomId
      */
     addRoomId(roomId: string) {
+        logger.info(`roomId: ${roomId} is added`);
         this.server.addRoomIdsOnSecondInstance(roomId);
     }
 
     stopScan(option?: { saveSelectedPort: boolean }) {
         const { saveSelectedPort = false } = option || {};
+        logger.info(`scan stopped. selectedPort will be ${saveSelectedPort ? 'saved' : 'undefined'}`);
 
         this.server && this.server.disconnectHardware();
         this.scanner && this.scanner.stopScan();
@@ -275,6 +279,7 @@ class MainRouter {
 
         // 엔트리측, 하드웨어측이 정상적으로 준비된 경우
         if (this.hwModule && this.server && this.config) {
+            logger.verbose('entryServer, connector connection');
             this.handler = new DataHandler(this.config.id);
             this._connectToServer();
             this.connector.connect(); // router 설정 후 실제 기기와의 통신 시작
@@ -306,6 +311,7 @@ class MainRouter {
     }
 
     handleServerSocketConnected() {
+        logger.info('server socket connected');
         const hwModule = this.hwModule;
         const config = this.config;
         const moduleConnected = this.connector && this.connector.serialPort;
@@ -321,6 +327,7 @@ class MainRouter {
     }
 
     handleServerSocketClosed() {
+        logger.info('server socket closed');
         const hwModule = this.hwModule;
         const moduleConnected = this.connector && this.connector.serialPort;
         if (moduleConnected && (hwModule && hwModule.reset)) {
@@ -331,7 +338,7 @@ class MainRouter {
     // 엔트리 측에서 데이터를 받아온 경우 전달
     handleServerData({ data }: { data: any; }) {
         if (!this.hwModule || !this.handler || !this.config) {
-            console.warn('hardware is not connected but entry server data is received');
+            logger.warn('hardware is not connected but entry server data is received');
             return;
         }
 
@@ -378,6 +385,7 @@ class MainRouter {
     }
 
     setConnector(connector: any) {
+        logger.verbose('mainRouter\'s connector is set');
         this.connector = connector;
     }
 
@@ -387,6 +395,7 @@ class MainRouter {
      */
     close(option?: { saveSelectedPort: boolean }) {
         const { saveSelectedPort = false } = option || {};
+        logger.info(`scan stopped. selectedPort will be ${saveSelectedPort ? 'saved' : 'undefined'}`);
 
         if (this.server) {
             this.server.disconnectHardware();

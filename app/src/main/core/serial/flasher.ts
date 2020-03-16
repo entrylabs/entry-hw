@@ -3,6 +3,9 @@ import { ChildProcess, exec } from 'child_process';
 import path from 'path';
 import fileUtils from '../fileUtils';
 import getExtraDirectoryPath from '../functions/getExtraDirectoryPath';
+import createLogger from '../../electron/functions/createLogger';
+
+const logger = createLogger('core/SerialFlasher.ts');
 
 const platform = process.platform;
 
@@ -55,6 +58,8 @@ class Flasher {
                 ' -carduino -D',
             ];
 
+            logger.info(`arduino board firmware requested.\nparameter is ${cmd.join('')}`);
+
             this.flasherProcess = exec(
                 cmd.join(''),
                 {
@@ -67,7 +72,7 @@ class Flasher {
         });
     }
 
-    private _flashCopy(firmware: ICopyTypeFirmware): Promise<any[]> {
+    private async _flashCopy(firmware: ICopyTypeFirmware): Promise<any[]> {
         return new Promise((resolve, reject) => {
             const firmwareDirectory = Flasher.firmwareDirectoryPath;
             const destPath = dialog.showOpenDialogSync({
@@ -76,11 +81,13 @@ class Flasher {
             if (!destPath) {
                 return reject(['경로 미선택']);
             }
+
+            const targetFirmwarePath = path.join(firmwareDirectory, `${firmware.name}.hex`);
+            const destFirmwarePath = path.join(destPath[0], `${firmware.name}.hex`);
             // TODO 파일 없을 시 에러 처리
-            fileUtils.copyFile(
-                path.join(firmwareDirectory, `${firmware.name}.hex`),
-                path.join(destPath[0], `${firmware.name}.hex`),
-            ).then(async () => {
+            logger.info('copy style firmware upload requested');
+            logger.info(`${firmwareDirectory} to ${destFirmwarePath}`);
+            fileUtils.copyFile(targetFirmwarePath, destFirmwarePath).then(async () => {
                 if (firmware.afterDelay) {
                     await new Promise((resolve) => setTimeout(resolve, firmware.afterDelay));
                 }
