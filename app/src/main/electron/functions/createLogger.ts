@@ -5,7 +5,7 @@ import path from 'path';
 
 const { combine, timestamp, printf } = format;
 
-const _logPath = path.join(app.getAppPath(), '..', 'logs');
+const _logPath = path.join(app.getPath('documents'), 'entry-hw-logs');
 
 const logger = createLogger({
     level: 'verbose',
