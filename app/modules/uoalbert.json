@@ -1,14 +1,14 @@
 {
-	"id": "020501",
+	"id": "020701",
 	"name": {
-		"en": "Albert School Version",
-		"ko": "알버트 스쿨 버전",
-		"jp": "アルバートスクール"
+		"en": "UO Albert",
+		"ko": "UO 알버트",
+		"jp": "UOアルバート"
 	},
 	"category": "robot",
 	"platform": ["win32", "darwin"],
-	"icon" : "albertschool.png",
-	"module": "albertschool.js",
+	"icon" : "uoalbert.png",
+	"module": "uoalbert.js",
 	"url": "http://albert.school",
 	"email": "sales@bluecomms.co.kr",
 	"driver": {
