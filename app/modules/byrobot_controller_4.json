@@ -1,18 +1,18 @@
 {
-    "id": "0F0601",
+    "id": "0F0901",
     "name": {
-        "en": "BYROBOT PETRONE V2 Flight",
-        "ko": "바이로봇 페트론 V2 드론"
+        "en": "BYROBOT E-DRONE Controller",
+        "ko": "바이로봇 E-DRONE 조종기"
     },
     "category": "robot",
     "platform": ["win32", "darwin"],
-    "icon" : "byrobot_petrone_v2_flight.png",
-    "module": "byrobot_petrone_v2_flight.js",
+    "icon" : "byrobot_controller_4.png",
+    "module": "byrobot_controller_4.js",
     "driver": {
         "win32-ia32": "BYROBOT/petrone_v2_usb_driver_32.exe",
         "win32-x64": "BYROBOT/petrone_v2_usb_driver_64.exe"
     },
-    "url": "http://www.byrobot.co.kr",
+    "url": "http://dev.byrobot.co.kr/documents/kr/products/e_drone/",
     "email": "help@byrobot.co.kr",
     "reconnect" : true,
     "entry": {
