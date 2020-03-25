@@ -1,5 +1,5 @@
 import { net } from 'electron';
-import createLogger from './createLogger';
+import createLogger from './createFileLogger';
 
 const logger = createLogger('CheckUpdate');
 

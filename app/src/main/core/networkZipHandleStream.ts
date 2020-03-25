@@ -2,7 +2,7 @@ import Stream from 'stream';
 import fs from 'fs-extra';
 import path from 'path';
 import tar, { ParseStream } from 'tar';
-import createLogger from '../electron/functions/createLogger';
+import createLogger from '../electron/functions/createFileLogger';
 
 const logger = createLogger('core/networkZipHandleStream.ts');
 

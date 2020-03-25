@@ -4,7 +4,7 @@ import SerialPort from 'serialport';
 import Stream from 'stream';
 import BaseConnector from '../baseConnector';
 import { HardwareStatement } from '../../../common/constants';
-import createLogger from '../../electron/functions/createLogger';
+import createLogger from '../../electron/functions/createFileLogger';
 
 const logger = createLogger('core/SerialConnector.ts');
 

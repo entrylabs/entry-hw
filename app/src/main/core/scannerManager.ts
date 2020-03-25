@@ -1,7 +1,7 @@
 import SerialScanner from './serial/scanner';
 import HidScanner from './hid/scanner';
 import BleScanner from './ble/scanner';
-import createLogger from '../electron/functions/createLogger';
+import createLogger from '../electron/functions/createFileLogger';
 
 const logger = createLogger('core/ScannerManager.ts');
 

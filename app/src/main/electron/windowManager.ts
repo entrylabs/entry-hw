@@ -1,6 +1,6 @@
 import { app, BrowserWindow } from 'electron';
 import path from 'path';
-import createLogger from './functions/createLogger';
+import createLogger from './functions/createFileLogger';
 
 const viewDirectoryPath = path.resolve(__dirname, 'views');
 const logger = createLogger('electron/windowManager.ts');

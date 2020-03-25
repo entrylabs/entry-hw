@@ -1,5 +1,5 @@
 import { net } from 'electron';
-import createLogger from '../../electron/functions/createLogger';
+import createLogger from '../../electron/functions/createFileLogger';
 
 const logger = createLogger('GetModuleList');
 

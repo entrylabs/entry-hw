@@ -1,4 +1,4 @@
-import createLogger from './createLogger';
+import createLogger from './createFileLogger';
 import { reduce, toPairs } from 'lodash';
 
 const logger = createLogger('ParseCommandLine');

@@ -4,7 +4,7 @@ import path from 'path';
 import fs from 'fs';
 import os from 'os';
 import { ChildProcess } from 'child_process';
-import createLogger from './functions/createLogger';
+import createLogger from './functions/createFileLogger';
 
 const logger = createLogger('electron/server');
 

@@ -14,6 +14,7 @@ type ISharedObject = {
 
 type IFileConfig = {
     moduleResourceUrl: string;
+    remoteLogUrl: string;
     updateCheckUrl: string;
 }
 

@@ -3,15 +3,16 @@ import getExtraDirectoryPath from '../../core/functions/getExtraDirectoryPath';
 import { forEach, merge, reduce, toPairs } from 'lodash';
 import path from 'path';
 import fs from 'fs';
-import createLogger from './createLogger';
+import createLogger from './createFileLogger';
 
 const logger = createLogger('ConfigInitialize');
 /**
  * 외부 config 파일이 존재하지 않는 경우의 기본값.
  * 아래 로직상 여기에 없는 키는 적용되지 않는다.
  */
-const defaultConfigSchema = {
+const defaultConfigSchema: IFileConfig = {
     updateCheckUrl: 'https://playentry.org/api/checkVersion',
+    remoteLogUrl: 'https://playentry.org/log',
     moduleResourceUrl: 'https://playentry.org/modules',
 };
 
@@ -25,7 +26,7 @@ const internalConfig = {
 };
 
 // target 에 있는 키만 병합한다.
-function mergeExistProperties(target: any, src: any) {
+function mergeExistProperties(target: any, src: any): IFileConfig & IInternalConfig {
     const result = target;
     forEach(src, (value, key) => {
         if (result[key] !== undefined) {
@@ -35,7 +36,7 @@ function mergeExistProperties(target: any, src: any) {
     return result;
 }
 
-export default (configName = 'entry') => {
+export default (configName = 'entry'): IFileConfig & IInternalConfig => {
     const getMergedConfig = (target: any) => mergeExistProperties(defaultConfigSchema, target);
     const configFilePath = path.resolve(getExtraDirectoryPath('config'), `config.${configName}.json`);
 
@@ -43,7 +44,7 @@ export default (configName = 'entry') => {
 
     const fileData = fs.readFileSync(configFilePath);
     // @ts-ignore
-    const externalConfig = getMergedConfig(JSON.parse(fileData));
+    const externalConfig = getMergedConfig(JSON.parse(fileData) as IFileConfig);
 
     const mergedConfig = merge({}, internalConfig, externalConfig);
 

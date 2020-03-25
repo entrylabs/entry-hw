@@ -6,7 +6,7 @@ import valid from 'semver/functions/valid';
 import { AvailableTypes } from '../../common/constants';
 import getModuleList from './functions/getModuleList';
 import getExtraDirectoryPath from './functions/getExtraDirectoryPath';
-import createLogger from '../electron/functions/createLogger';
+import createLogger from '../electron/functions/createFileLogger';
 
 const logger = createLogger('core/hardwareListManager.ts');
 

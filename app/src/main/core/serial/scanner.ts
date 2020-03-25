@@ -5,7 +5,7 @@ import electPort from './electPortFunction';
 import { CloudModeTypes } from '../../../common/constants';
 import BaseScanner from '../baseScanner';
 import SerialConnector from './connector';
-import createLogger from '../../electron/functions/createLogger';
+import createLogger from '../../electron/functions/createFileLogger';
 
 const logger = createLogger('core/SerialScanner.ts');
 

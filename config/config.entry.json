@@ -1,4 +1,5 @@
 {
   "updateCheckUrl":"https://playentry.org/api/checkVersion",
+  "remoteLogUrl": "http://localhost:4000/logtest",
   "moduleResourceUrl":"https://playentry.org/modules"
 }

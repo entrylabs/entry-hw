@@ -12,7 +12,8 @@ import configInit from './functions/configInitialize';
 import registerGlobalShortcut from './functions/registerGlobalShortcut';
 import checkUpdate from './functions/checkUpdate';
 import MainRouter from '../mainRouter.build';
-import createLogger from './functions/createLogger';
+import createLogger from './functions/createFileLogger';
+import { initialize as initializeRemoteLogger, sendStartLog } from './functions/createRemoteLogger';
 
 const logger = createLogger('electron/index.ts');
 
@@ -24,6 +25,7 @@ const argv = process.argv.slice(1);
 const commandLineOptions = parseCommandLine(argv) as any;
 const configuration = configInit(commandLineOptions.config);
 const { roomIds = [] } = configuration;
+initializeRemoteLogger({ url: configuration.remoteLogUrl });
 
 const roomIdIndex = argv.indexOf('entryhw:');
 if (roomIdIndex > -1) {
@@ -81,6 +83,7 @@ if (!app.requestSingleInstanceLock()) {
     app.commandLine.appendSwitch('enable-web-bluetooth');
     app.setAsDefaultProtocolClient('entryhw');
     app.once('ready', () => {
+        sendStartLog();
         Menu.setApplicationMenu(null);
         WindowManager.createMainWindow({ debug: commandLineOptions.debug });
         mainWindow = WindowManager.mainWindow;
