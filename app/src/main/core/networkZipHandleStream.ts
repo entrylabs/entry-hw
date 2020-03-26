@@ -2,6 +2,9 @@ import Stream from 'stream';
 import fs from 'fs-extra';
 import path from 'path';
 import tar, { ParseStream } from 'tar';
+import createLogger from '../electron/functions/createLogger';
+
+const logger = createLogger('core/networkZipHandleStream.ts');
 
 /**
  * 네트워크를 통해 들어온 압축파일을 받아 targetPath 에 바로 압축을 푸는 스트림이다.
@@ -12,6 +15,7 @@ import tar, { ParseStream } from 'tar';
 export default class NetworkZipHandleStream extends Stream.PassThrough {
     constructor(targetPath: string) {
         super();
+        logger.info(`online module zip extraction requested : ${targetPath}`);
 
         const fileList: string[] = [];
         const fileWriteStreamPromises: Promise<void>[] = [];
@@ -57,9 +61,11 @@ export default class NetworkZipHandleStream extends Stream.PassThrough {
         tarParse.on('close', () => {
             Promise.all(fileWriteStreamPromises)
                 .then(() => {
+                    logger.info('zip extraction done');
                     this.emit('done', fileList);
                 })
                 .catch((e) => {
+                    logger.error(`error occurred while zip extraction ${e.message}`);
                     this.emit('error', e);
                 });
         });

@@ -1,5 +1,5 @@
 class CommonUtils {
-    lpad(str, len) {
+    lpad(str: string, len: number) {
         const strLen = str.length;
         let result = str;
         if (strLen < len) {
@@ -10,13 +10,13 @@ class CommonUtils {
         return String(result);
     };
 
-    getPaddedVersion(version) {
+    getPaddedVersion(version: string) {
         if (!version) {
             return '';
         }
         const versionStr = String(version);
 
-        const padded = [];
+        const padded: string[] = [];
         const splitVersion = versionStr.split('.');
         splitVersion.forEach((item) => {
             padded.push(this.lpad(item, 4));
@@ -25,8 +25,10 @@ class CommonUtils {
         return padded.join('.');
     }
 
-    getArgsParseData(argv) {
+    getArgsParseData(argv: string) {
         const regexRoom = /roomId:(.*)/;
+        console.log('argv', argv);
+
         const arrRoom = regexRoom.exec(argv) || ['', ''];
         let roomId = arrRoom[1];
 
@@ -38,4 +40,4 @@ class CommonUtils {
     }
 }
 
-module.exports = new CommonUtils();
+export default new CommonUtils();

@@ -33,6 +33,27 @@ declare interface IHardwareModuleConfig {
     stream?: 'string';
 }
 
+declare interface IOnlineHardwareConfig {
+    moduleName: string;
+    version: string;
+    sha1: string;
+    type: string;
+    title: {
+        ko: string;
+        en: string;
+    };
+    properties: {
+        id: string;
+        category: string;
+        platform: string[];
+    };
+    files: {
+        image: string;
+        block: string;
+        module: string;
+    };
+}
+
 declare interface IHardwareConfig {
     version?: string;
     moduleName?: string;

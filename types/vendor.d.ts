@@ -1,3 +1,8 @@
+declare module 'winston-daily-rotate-file' {
+    const value: any;
+    export default value;
+}
+
 declare module '@serialport/parser-*' {
     const value: any;
     export = value;

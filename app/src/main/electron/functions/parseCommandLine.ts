@@ -1,3 +1,8 @@
+import createLogger from './createLogger';
+import { reduce, toPairs } from 'lodash';
+
+const logger = createLogger('ParseCommandLine');
+
 /**
  * 커맨드라인 값으로 허용할 형태
  * flag 의 경우는 이후 붙을 값 없이 해당 키가 존재하면 적용된다.
@@ -23,9 +28,9 @@ const properties = {
     ],
 };
 
-let result = {};
+let result: any = {};
 
-function parseFlags(key) {
+function parseFlags(key: string) {
     for (let i = 0; i < properties.flag.length; i++) {
         const [fullName, alias] = properties.flag[i];
         if (`--${fullName}` === key || `-${alias}` === key) {
@@ -35,7 +40,7 @@ function parseFlags(key) {
     }
 }
 
-function parsePair(key, value) {
+function parsePair(key: string, value: string) {
     if (!value) {
         return;
     }
@@ -49,7 +54,7 @@ function parsePair(key, value) {
     }
 }
 
-module.exports = (argv) => {
+export default (argv: string[]) => {
     result = {};
     for (let i = 0; i < argv.length; i++) {
         const [key, value] = argv[i].split('=');
@@ -57,5 +62,7 @@ module.exports = (argv) => {
         parsePair(key, value);
     }
 
+    logger.info(reduce(toPairs(result), (result, [key, value]) =>
+        `${result}\n${key}: ${value}`, 'parsed commandLine config is..'));
     return result;
 };

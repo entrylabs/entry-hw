@@ -1,6 +1,6 @@
-const { globalShortcut, webContents } = require('electron');
+import { globalShortcut, webContents } from 'electron';
 
-module.exports = () => {
+export default () => {
     let inspectorShortcut;
     if (process.platform === 'darwin') {
         inspectorShortcut = 'Command+Alt+i';

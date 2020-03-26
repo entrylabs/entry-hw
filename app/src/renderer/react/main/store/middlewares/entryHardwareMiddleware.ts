@@ -10,7 +10,8 @@ import {
 } from '../modules/hardware';
 import filterHardwareList from '../../functions/filterHardware';
 import { changeAlertMessage, CURRENT_PAGE_STATE_CHANGED } from '../modules/common';
-import { HardwareConnectionStatusEnum, HardwarePageStateEnum } from '../../constants/constants';
+import { HardwareStatement } from '../../../../../common/constants';
+import { HardwarePageStateEnum } from '../../constants/constants';
 import refreshPriorHardwareList from '../../functions/refreshPriorHardwareList';
 import {
     changePortList,
@@ -98,8 +99,8 @@ const entryHardwareMiddleware: Middleware = ({ getState }: { getState: () => ISt
 
             if (
                 action.payload.type !== 'copy' &&
-                moduleState !== HardwareConnectionStatusEnum.beforeConnect &&
-                moduleState !== HardwareConnectionStatusEnum.connected
+                moduleState !== HardwareStatement.beforeConnect &&
+                moduleState !== HardwareStatement.connected
             ) {
                 alert(translator.translate('Hardware Device Is Not Connected'));
             } else {
