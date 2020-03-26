@@ -10,6 +10,7 @@ import downloadModule from './core/functions/downloadModule';
 import { EntryMessageAction, EntryStatePayload, HardwareStatement } from '../common/constants';
 import getExtraDirectoryPath from './core/functions/getExtraDirectoryPath';
 import createLogger from './electron/functions/createFileLogger';
+import { sendHardwareSelectedLog } from './electron/functions/createRemoteLogger';
 
 const nativeNodeRequire = require('./nativeNodeRequire.js');
 const logger = createLogger('core/mainRouter.ts');
@@ -428,9 +429,10 @@ class MainRouter {
     }
 
     _registerIpcEvents() {
-        ipcMain.on('startScan', async (e, config) => {
+        ipcMain.on('startScan', async (e, config: IHardwareConfig) => {
             try {
                 logger.info(`scan started. hardware config: ${JSON.stringify(config)}`);
+                sendHardwareSelectedLog(config.id);
                 await this.startScan(config);
             } catch (e) {
                 logger.warn(`scan error : ${e.title}, ${e.message}`);

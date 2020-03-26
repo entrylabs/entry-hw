@@ -13,7 +13,11 @@ import registerGlobalShortcut from './functions/registerGlobalShortcut';
 import checkUpdate from './functions/checkUpdate';
 import MainRouter from '../mainRouter.build';
 import createLogger from './functions/createFileLogger';
-import { initialize as initializeRemoteLogger, sendStartLog } from './functions/createRemoteLogger';
+import {
+    initialize as initializeRemoteLogger,
+    sendStartLog,
+    sendUnexpectedErrorLog,
+} from './functions/createRemoteLogger';
 
 const logger = createLogger('electron/index.ts');
 
@@ -122,6 +126,7 @@ if (!app.requestSingleInstanceLock()) {
 }
 
 process.on('uncaughtException', (error) => {
+    sendUnexpectedErrorLog(error);
     const whichButtonClicked = dialog.showMessageBoxSync({
         type: 'error',
         title: 'Unexpected Error',
