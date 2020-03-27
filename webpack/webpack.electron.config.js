@@ -4,6 +4,7 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const base = require('./webpack.base.config');
 
 module.exports = merge({
+    dependencies: ['mainRouter'],
     target: 'electron-main',
     entry: path.join(__dirname, '..', 'app', 'src', 'main', 'electron', 'index.ts'),
     devtool: 'cheap-module-source-map',
@@ -15,7 +16,6 @@ module.exports = merge({
         filename: 'index.bundle.js',
     },
     externals: [
-        '../mainRouter.build',
         function(requestDirectoryPath, requestModuleName, callback) {
             // 상대경로로 표기된 모듈의 경우는 번들포함, 외에는 전부 commonjs 모듈
             const moduleName = path.basename(requestModuleName);
@@ -32,7 +32,7 @@ module.exports = merge({
     ],
     plugins: [
         new CleanWebpackPlugin({
-            cleanOnceBeforeBuildPatterns: ['*.bundle.js', '*.map'],
+            cleanOnceBeforeBuildPatterns: ['index.bundle.js', 'index.bundle.js.map'],
         }),
     ],
 }, base);

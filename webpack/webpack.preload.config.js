@@ -25,7 +25,7 @@ module.exports = merge({
     ],
     plugins: [
         new CleanWebpackPlugin({
-            cleanOnceBeforeBuildPatterns: ['*.bundle.js', '*.map'],
+            cleanOnceBeforeBuildPatterns: ['preload.bundle.js', 'preload.bundle.js.map'],
         }),
     ],
 }, base);
