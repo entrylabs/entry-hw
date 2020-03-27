@@ -15,6 +15,7 @@ module.exports = merge({
         filename: 'index.bundle.js',
     },
     externals: [
+        '../mainRouter.build',
         function(requestDirectoryPath, requestModuleName, callback) {
             // 상대경로로 표기된 모듈의 경우는 번들포함, 외에는 전부 commonjs 모듈
             const moduleName = path.basename(requestModuleName);
