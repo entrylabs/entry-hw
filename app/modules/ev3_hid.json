@@ -1,0 +1,24 @@
+{
+	"id": "120102",
+	"name": {
+		"en": "EV3 (유선)",
+		"ko": "EV3 (유선)"
+	},
+	"category": "robot",
+	"platform": [
+		"win32",
+		"darwin"
+	],
+	"icon": "ev3_hid.png",
+	"module": "ev3_hid.js",
+	"url": "http://www.lego.com/ko-kr/mindstorms/about-ev3",
+	"reconnect": true,
+	"select_com_port" : true,
+	"entry": {
+		"protocol": "json"
+	},
+	"hardware": {
+		"type": "hid",
+		"duration": 64
+	}
+}

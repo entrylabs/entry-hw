@@ -1,0 +1,29 @@
+{
+    "id": "FFFF05",
+    "name": {
+        "en": "Microbit BLE",
+        "ko": "마이크로빗 무선"
+    },
+    "category": "board",
+    "platform": [
+        "win32",
+        "darwin"
+    ],
+    "icon": "microbitBle.png",
+    "module": "microbitBle.js",
+    "firmware": {
+        "type": "copy",
+        "name": "microbit_ble",
+        "afterDelay": 3000
+    },
+    "reconnect": true,
+    "entry": {
+        "protocol": "json"
+    },
+    "hardware": {
+        "type": "ble",
+        "duration": 100
+    },
+    "moduleName": "microbitBle",
+    "version": "1.0.0"
+}
