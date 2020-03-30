@@ -42,7 +42,7 @@ class MainRouter {
     public selectedPort?: string;
     public currentCloudMode: number = 0;
     public currentServerRunningMode: number = 2;
-    private connector?: any;
+    private connector?: any; // TODO typing
     private config?: IHardwareConfig;
     private scanner?: any;
     private hwModule?: IHardwareModule;
