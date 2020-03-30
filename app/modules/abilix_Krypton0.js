@@ -1,10 +1,10 @@
-const _ = require('lodash');
+const _ = global.$;
 const BaseModule = require('./baseModule');
 
 class Abilix_Krypton0 extends BaseModule {
     constructor() {
 		super();
-		
+
         //this.counter = 0;
         this.isSendInitData = false;
         this.isSensorCheck = false;
@@ -16,11 +16,11 @@ class Abilix_Krypton0 extends BaseModule {
 		this.cmdcount = 0;
 		this.skipcount= 0;
 		this.waitingcmd = 0;
-		
+
         this.sp = null;
         this.sensors = [];
 		this.previous_wheel_status = null;
-		
+
 		// For log level.
 		this.loglevelType = {
 			INFO:			0x00,
@@ -28,9 +28,9 @@ class Abilix_Krypton0 extends BaseModule {
 			WARNING:		0x02,
 			ERROR:			0x04
 		};
-		
+
 		this.loglevel = this.loglevelType.ERROR;
-		
+
 		this.deviceTypes = {
 			NONE:			0x01,
 			BUTTON:			0x02,
@@ -50,7 +50,7 @@ class Abilix_Krypton0 extends BaseModule {
 			LMOTOR: 0,
 			RMOTOR: 0,
 		};
-	
+
 		this.SENSOR = {
 			BUTTON:			-1,
 			GRAY_INFRARED1:	-1,
@@ -59,7 +59,7 @@ class Abilix_Krypton0 extends BaseModule {
 			MICROPHONE:		-1,
 			LED:			-1,
 		};
-		
+
         this.PORT_INFO = {
             '1': {
                 type: this.deviceTypes.NONE,
@@ -78,7 +78,7 @@ class Abilix_Krypton0 extends BaseModule {
                 port_values: 0,
             },
         };
-		
+
 		this.SENSOR_MAP = {
             'A': {
                 type: this.deviceTypes.NONE,
@@ -97,21 +97,21 @@ class Abilix_Krypton0 extends BaseModule {
                 port_values: 0,
             },
         };
-		
+
 		this.audiofile = {
 		    audiodata: 'hello',
             APPLIED: true,
         };
-		
+
 		this.led = {
 			port: -1,
 			value: -1,
 			APPLIED: true,
 		};
-		
+
 		this.LAST_PORT_STATUS = null;
 	}
-	
+
 	/*************************************************************************
 	 * Name: checkLogLevel
 	 *
@@ -122,7 +122,7 @@ class Abilix_Krypton0 extends BaseModule {
 	checkLogLevel(level) {
 /*
 		var showlog = false;
-		
+
 		switch (level) {
 			case 'error' :
 				showlog = true;
@@ -142,12 +142,12 @@ class Abilix_Krypton0 extends BaseModule {
 			default :
 				break;
 		}
-		
+
 		return showlog;
 */
 		return false;
 	}
-	
+
 	/*************************************************************************
 	 * Name: writeDebug
 	 *
@@ -163,7 +163,7 @@ class Abilix_Krypton0 extends BaseModule {
 			console.log('[', level, '] : ', message);
 		}
 	}
-	
+
 	/*************************************************************************
 	 * Name: writeArrayData
 	 *
@@ -204,9 +204,9 @@ class Abilix_Krypton0 extends BaseModule {
 	 *************************************************************************/
 	getPortIndex(port) {
 		var port_index = 0x00;
-		
+
 		switch(port) {
-			case 1 : 
+			case 1 :
 				port_index = 0x04;
 				break;
 			case 2 :
@@ -221,10 +221,10 @@ class Abilix_Krypton0 extends BaseModule {
 			default :
 				break;
 		}
-		
+
 		return port_index;
 	}
-	
+
 	/*************************************************************************
 	 * Name: makeCmdHeaderBuffer
 	 *
@@ -237,7 +237,7 @@ class Abilix_Krypton0 extends BaseModule {
     makeCmdHeaderBuffer(cmdword1, cmdword2) {
 		const frameHeader = new Buffer([0xAA, 0x55, 0xFF, 0xFF, 0x72]);
         const cmdword = new Buffer([cmdword1, cmdword2, 0x00, 0x00, 0x00, 0x00]);
-		
+
 		if (cmdword1 == 0x0C) {
 			const cmdindex = new Buffer([0x00, 0x00, 0x00, 0x00]);
 			cmdindex[0] = this.cmdcount >> 24;
@@ -251,7 +251,7 @@ class Abilix_Krypton0 extends BaseModule {
 			return Buffer.concat([frameHeader, cmdword]);
 		}
 	}
-	
+
 	/*************************************************************************
 	 * Name: updatePacketSize
 	 *
@@ -266,11 +266,11 @@ class Abilix_Krypton0 extends BaseModule {
         buffer[2] = bufferLength >> 8;
 		buffer[3] = bufferLength;
     }
-	
+
 	/*************************************************************************
 	 * Name: makeCRCdata
 	 *
-	 * Description: 
+	 * Description:
 	 *
 	 * buffer - Command buffer data
 	 *
@@ -278,23 +278,23 @@ class Abilix_Krypton0 extends BaseModule {
 	 *************************************************************************/
 	makeCRCdata(buffer) {
 		var crcdata = 0x00;
-		
+
 		this.updatePacketSize(buffer);
-		
+
 		for (var index = 0; index < buffer.length; index++) {
 			crcdata += buffer[index];
 		}
-		
+
 		crcdata += 1;
 		var crcValue = new Buffer([crcdata]);
-		
+
 		var data = Buffer.concat([buffer, crcValue]);
 		this.updatePacketSize(data);
-		
+
 		this.writeArrayData('debug', data);
 		return data;
 	}
-	
+
  	/*************************************************************************
 	 * Name: sensorChecking
 	 *
@@ -311,7 +311,7 @@ class Abilix_Krypton0 extends BaseModule {
             }, 100);
         }
     }
-	
+
 	/*************************************************************************
 	 * Name: sendStartSound
 	 *
@@ -323,10 +323,10 @@ class Abilix_Krypton0 extends BaseModule {
 		this.writeDebug('info', 'sendSound : ' + snddata);
 		const cmdheaderbuf = this.makeCmdHeaderBuffer([0x0C], [0x12]);
 		var data = Buffer.concat([cmdheaderbuf, snddata]);
-		
+
 		return this.makeCRCdata(data);
 	}
-	
+
 	/*************************************************************************
 	 * Name: makeStartmorotcmd
 	 *
@@ -340,17 +340,17 @@ class Abilix_Krypton0 extends BaseModule {
 		var portdata = new Buffer([0x00, 0x00, 0x00, 0x00]);
 		var dirdata = new Buffer([0x00, 0x00, 0x00, 0x00]);
 		var spdata = new Buffer([0x00, 0x00, 0x00, 0x00]);
-		
+
 		if (port == 'B')
 			portdata[3] = 0x01;
-		
+
 		if (direction == 1)
 			dirdata[3] = 0x01;
-		
+
 		spdata[3] = speed;
-		
+
 		var startmotorcmd = Buffer.concat([cmdheader, portdata, dirdata, spdata]);
-		
+
 		return this.makeCRCdata(startmotorcmd);
 	}
 
@@ -360,16 +360,16 @@ class Abilix_Krypton0 extends BaseModule {
 	 * Description: Make command to turn off
 	 *
 	 * Returned Value :
-	 *************************************************************************/	
+	 *************************************************************************/
 	makeTurnoffcmd() {
 		this.writeDebug('info', 'makeMotorTurnoffcmd');
 		var cmdheader = this.makeCmdHeaderBuffer([0x0C], [0x05]);
 		var param = new Buffer([0x00, 0x00, 0x00, 0x00]);
 		var stopMotorcmd = Buffer.concat([cmdheader, param]);
-		
+
 		return this.makeCRCdata(stopMotorcmd);
 	}
-	
+
 	/*************************************************************************
 	 * Name: makeUltasonic_detect_obstacle
 	 *
@@ -381,10 +381,10 @@ class Abilix_Krypton0 extends BaseModule {
 		this.writeDebug('info', 'makeUltasonic_detect_obstacle : port = ' + port);
 		var cmdheader = this.makeCmdHeaderBuffer([0x0C], [0x06]);
 		var usoniccmd = Buffer.concat([cmdheader, port]);
-		
+
 		return this.makeCRCdata(usoniccmd);
 	}
-	
+
 	/*************************************************************************
 	 * Name: makeUltasonic_detect_distance
 	 *
@@ -396,10 +396,10 @@ class Abilix_Krypton0 extends BaseModule {
 		this.writeDebug('info', 'makeUltasonic_detect_distance : port = ' + port);
 		var cmdheader = this.makeCmdHeaderBuffer([0x0C], [0x07]);
 		var usoniccmd = Buffer.concat([cmdheader, port]);
-		
+
 		return this.makeCRCdata(usoniccmd);
 	}
-	
+
 	/*************************************************************************
 	 * Name: makeTouchdetectcmd
 	 *
@@ -411,10 +411,10 @@ class Abilix_Krypton0 extends BaseModule {
 		this.writeDebug('info', 'makeTouchdetectcmd : port = ' + port);
 		var cmdheader = this.makeCmdHeaderBuffer([0x0C], [0x08]);
 		var touchdetectcmd = Buffer.concat([cmdheader, port]);
-		
+
 		return this.makeCRCdata(touchdetectcmd);
 	}
-	
+
 	/*************************************************************************
 	 * Name: makeColorvaluecmd
 	 *
@@ -428,10 +428,10 @@ class Abilix_Krypton0 extends BaseModule {
 		var param1 = new Buffer([0x00, 0x00, 0x00, 0x00]);
 		var param2 = new Buffer([0x00, 0x00, 0x00, 0x00]);
 		var colorvaluecmd = Buffer.concat([cmdheader, param1, param2]);
-		
+
 		return this.makeCRCdata(colorvaluecmd);
 	}
-	
+
 	/*************************************************************************
 	 * Name: makePortonoffcmd
 	 *
@@ -445,27 +445,27 @@ class Abilix_Krypton0 extends BaseModule {
 			this.writeDebug('debug', 'makePortonoffcmd : skip command : ' + onoff + ' / ' + this.SENSOR.LED);
 			return null;
 		}
-			
+
 		this.writeDebug('debug', 'makePortonoffcmd : port = ' + port + ' onoff Value = ' + onoff.toString(10));
 		//var cmdheader = this.makeCmdHeaderBuffer([0xA4], [0x17]);
 		this.isSensorCheck = true;
 		var cmdheader = new Buffer([0xaa, 0x55, 0xFF, 0xFF, 0x72, 0xA4, 0x17, 0x00, 0x00, 0x00, 0x00]);
 		var param1 = new Buffer([0x00, 0x00]);
 		var pIndex = this.getPortIndex(port + 1);
-		
+
 		param1[0] = pIndex;
 		param1[1] = onoff;
-		
+
 		if (onoff == 0)
 			this.SENSOR.LED = 1;
 		else
 			this.SENSOR.LED = 0;
-		
+
 		var portonoffcmd = Buffer.concat([cmdheader, param1]);
-		
+
 		return this.makeCRCdata(portonoffcmd);
 	}
-	
+
 	/*************************************************************************
 	 * Name: makeDetectGrayvaluecmd
 	 *
@@ -477,10 +477,10 @@ class Abilix_Krypton0 extends BaseModule {
 		this.writeDebug('info', 'makeDetectGrayvaluecmd : port = ' + port);
 		var cmdheader = this.makeCmdHeaderBuffer([0x0C], [0x0A]);
 		var detectgrayvaluecmd = Buffer.concat([cmdheader, port]);
-		
+
 		return this.makeCRCdata(detectgrayvaluecmd);
 	}
-	
+
 	/*************************************************************************
 	 * Name: makeSmallmotorControlcmd
 	 *
@@ -496,70 +496,70 @@ class Abilix_Krypton0 extends BaseModule {
 		var param3 = new Buffer([0x00, 0x00, 0x00, 0x00]);
 		var param4 = new Buffer([0x00, 0x00, 0x00, 0x00]);
 		var data1;
-		
+
 		data1 = 0x80;
 		if (port_type)
 			data1 |= 0x40;
-		
+
 		data1 |= value_type << 2;
-		
+
 		if (ports & 0x01) {
 				if (value_type == 0) {
 					data1 |= 0x02; //0x01;
 					param4[0] = values1;
-				} 
-				else {	
+				}
+				else {
 					data1 |= 0x01; //0x02;
 					param2[0] = values1 >> 8;
 					param2[1] = values1;
 				}
 				param1[0] = data1;
 		}
-		
+
 		if (ports & 0x02) {
 				if (value_type == 0) {
 					data1 |= 0x02; //0x01;
 					param4[1] = values2;
-				} 
-				else {	
+				}
+				else {
 					data1 |= 0x01; //0x02;
 					param2[2] = values2 >> 8;
 					param2[3] = values2;
 				}
 				param1[1] = data1;
 		}
-		
+
 		if (ports & 0x04 ) {
 				if (value_type == 0) {
 					data1 |= 0x01;
 					param4[2] = values3;
-				} 
-				else {	
+				}
+				else {
 					data1 |= 0x02;
 					param3[0] = values3 >> 8;
 					param3[1] = values3;
 				}
 				param1[2] = data1;
 		}
-		
+
 		if (ports & 0x08) {
 				if (value_type == 0) {
 					data1 |= 0x01;
 					param4[3] = values4;
-				} 
-				else {	
+				}
+				else {
 					data1 |= 0x02;
 					param3[2] = values4 >> 8;
 					param3[3] = values4;
 				}
 				param1[3] = data1;
 		}
-		
+
 		var smallmotorctrlcmd = Buffer.concat([cmdheader, param1, param2, param3, param4]);
-		
+
 		return this.makeCRCdata(smallmotorctrlcmd);
 	}
-	
+
 	/*************************************************************************
 	 * Name: sendCheckSensorcmd
 	 *
@@ -575,7 +575,7 @@ class Abilix_Krypton0 extends BaseModule {
 			if (this.isLEDenabled == false && this.led.port != -1 && (this.waitingcmd > 10) ) {
 				this.writeDebug('debug', 'checkSensorStatus : send LED off cmd => port = ' + this.led.port);
 				this.sp.write(this.makePortonoffcmd(this.led.port, 0x01));
-							
+
 				this.SENSOR.LED = 0x00;
 				this.isLEDenabled = true;
 
@@ -583,28 +583,28 @@ class Abilix_Krypton0 extends BaseModule {
 			}
 			else {
 				var cmddata = new Buffer([0xaa, 0x55, 0x00, 0x08, 0x72, 0xa4, 0x16, 0x00, 0x00, 0x00, 0x00, 0x33]);
-		
+
 				this.sp.write(cmddata);
-				
+
 			}
 		}
 		else {
 			const count = 0;
 			this.writeDebug('info', 'sendCheckSensorcmd ==> skip (count = ' + this.skipcount + ')');
-			
+
 			this.skipcount++;
-			
+
 			if (this.skipcount > 2) {
 				this.isSensorCheck = false;
 				this.skipcount = 0;
 			}
 		}
 	}
-	
+
 	/*************************************************************************
 	 * Name: getDevicetype
 	 *
-	 * Description: 
+	 * Description:
 	 *
 	 * Returned Value :
 	 *************************************************************************/
@@ -618,12 +618,12 @@ class Abilix_Krypton0 extends BaseModule {
 			case 7 : return this.deviceTypes.LED;
 			case 8 : return this.deviceTypes.LMOTOR;
 			case 9 : return this.deviceTypes.RMOTOR;
-			default : 
+			default :
 				this.writeDebug('error', 'Unkown device type : 0x' + devicetype.toString(16));
 				return this.deviceTypes.NONE;
 		}
 	}
-	
+
 	/*************************************************************************
 	 * Name: checkSensorStatus
 	 *
@@ -636,10 +636,10 @@ class Abilix_Krypton0 extends BaseModule {
 			var values = 0;
 			var infra1 = false;
 			var index = 0;
-			
+
 			Object.keys(this.SENSOR_MAP).forEach((port) => {
 				//const sensor_info = this.SENSOR_MAP[port];
-				
+
 				values = params.readInt16BE((index) * 2 + 4);
 				//this.writeDebug('debug', 'checkSensorStatus : dev = ' + params[index] + '   values = 0x' + values.toString(16));
 
@@ -647,13 +647,13 @@ class Abilix_Krypton0 extends BaseModule {
 					this.SENSOR_MAP[port].type = this.getDevicetype(params[index]);
 				}
 				this.SENSOR_MAP[port].port_values = values;
-				
+
 				if (this.led.port != -1 && (port == (this.led.port + 1))) {
 					this.SENSOR_MAP[port].port_values = this.SENSOR.LED;
 				}
-				
+
 				switch(params[index]) {
-					case 1 : 
+					case 1 :
 						if ((values == 1) || (values > 0x0F00)) {
 							this.SENSOR_MAP[port].port_values = 1;
 							this.SENSOR.BUTTON = 1;
@@ -673,13 +673,13 @@ class Abilix_Krypton0 extends BaseModule {
 							this.SENSOR.GRAY_INFRARED2 = values;
 						}
 						break;
-					case 5 : 
+					case 5 :
 						this.SENSOR.LIGHT = values;
 						break;
-					case 6 : 
+					case 6 :
 						this.SENSOR.MICROPHONE = values;
 						break;
-					case 7 : 
+					case 7 :
 						this.led.port = index; //4 - index;
 						this.writeDebug('debug', 'checkSensorStatus : LED_DATA =' + this.SENSOR.LED + ' port = ' + this.led.port);
 						this.SENSOR_MAP[port].port_values = this.SENSOR.LED;
@@ -689,17 +689,17 @@ class Abilix_Krypton0 extends BaseModule {
 						//this.writeDebug('debug', 'not Connected');
 						break;
 				}
-				
+
 				index++;
 			});
-			
+
 			this.isSensorCheck = false;
 		}
 		else{
 			//this.writeDebug('error', 'Unknown command word2 = 0x' + cmdwd2.toString(16));
 		}
 	}
-	
+
 	/*************************************************************************
 	 * Name: init
 	 *
@@ -713,7 +713,7 @@ class Abilix_Krypton0 extends BaseModule {
 	init(handler, config) {
 		//this.writeDebug('info', 'init');
 	}
-	
+
 	/*************************************************************************
 	 * Name: requestInitialData
 	 *
@@ -729,7 +729,7 @@ class Abilix_Krypton0 extends BaseModule {
         if (!this.sp) {
             this.sp = sp;
         }
-		
+
         if (!this.isSendInitData) {
 			//this.writeDebug('info', 'requestInitialData');
 			this.isSendInitData = true;
@@ -741,11 +741,11 @@ class Abilix_Krypton0 extends BaseModule {
 
         return null;
 	}
-	
+
 	/*************************************************************************
 	 * Name: checkInitialData
 	 *
-	 * Description: Used when it is necessary to check 
+	 * Description: Used when it is necessary to check
 	 *              whether the connection is normal by receiving
      *          	it initially after connecting.
 	 *
@@ -755,7 +755,7 @@ class Abilix_Krypton0 extends BaseModule {
 		//this.writeDebug('info', 'checkInitialData');
         return true;
     }
-	
+
 	/*************************************************************************
 	 * Name: afterConnect
 	 *
@@ -775,30 +775,30 @@ class Abilix_Krypton0 extends BaseModule {
 	/*************************************************************************
 	 * Name: validateLocalData
 	 *
-	 * Description: Use when you need to verify data received 
+	 * Description: Use when you need to verify data received
 	 *              from hardware periodically.
 	 *
-	 * data - 
+	 * data -
 	 *
 	 * Returned Value :
-	 *************************************************************************/	
+	 *************************************************************************/
     validateLocalData(data) {
 		//this.writeDebug('info', 'validateLocalData');
         return true;
     }
-	
+
 	/*************************************************************************
 	 * Name: requestLocalData
 	 *
-	 * Description: Returns the data to pass to the hardware device. 
-	 *              In case of slave mode, requests are made to the device 
+	 * Description: Returns the data to pass to the hardware device.
+	 *              In case of slave mode, requests are made to the device
 	 *              continuously at intervals of the duration attribute.
 	 *
 	 * Returned Value :
-	 *************************************************************************/	
+	 *************************************************************************/
     requestLocalData() {
 		this.writeDebug('info', 'requestLocalData');
-		
+
 		var skipPortOutput = false;
 
         if (this.previous_wheel_status) {
@@ -810,7 +810,7 @@ class Abilix_Krypton0 extends BaseModule {
         if (!skipPortOutput) {
             this.previous_wheel_status = _.cloneDeep(this.motoring);
 			this.writeDebug('debug', 'requestLocalData : LMOTOR = ' +  this.motoring.LMOTOR);
-			
+
 			return this.makeSmallmotorControlcmd(0x03, 0x00, 0x00, this.motoring.LMOTOR, this.motoring.RMOTOR, 0, 0);
         }
 
@@ -819,7 +819,7 @@ class Abilix_Krypton0 extends BaseModule {
 			var snd_type = new Buffer(this.audiofile.audiodata);
 			var sndcmd = this.sendSound(snd_type);
 			this.audiofile.APPLIED = true;
-			
+
 			return sndcmd;
 		}
 
@@ -827,47 +827,47 @@ class Abilix_Krypton0 extends BaseModule {
 			this.led.APPLIED = true;
 			return this.makePortonoffcmd(this.led.port, this.led.value);
 		}
-		
+
 		return null;
     }
 
 	/*************************************************************************
 	 * Name: handleLocalData
 	 *
-	 * Description: Handle data from H/W device 
+	 * Description: Handle data from H/W device
 	 *
 	 * Returned Value :
-	 *************************************************************************/	
+	 *************************************************************************/
     handleLocalData(data) {
 		this.writeDebug('info', 'handleLocalData');
 		var received_data = data.slice();
-		
+
         if (received_data[0] == 0xAA && received_data[1] == 0x55) {
             const length = received_data.readInt16LE(2);
 			const type = received_data[4];
 			const cmdwd1 = received_data[5];
 			const cmdwd2 = received_data[6];
-			
+
 			//this.writeDebug('debug', 'type = 0x' + type.toString(16) + ' cmdwd1 = 0x' + cmdwd1.toString(16) + ' cmdwd2 = 0x' + cmdwd2.toString(16));
 			this.writeArrayData('debug', received_data);
-			
+
             if (length > 0 && type == 0x72 ) {
 				if (cmdwd1 == 0xA1) {
 					this.isSensing = false;
-					received_data = received_data.slice(11); 
+					received_data = received_data.slice(11);
 					const requestID = received_data[3];
 					const returnedDatafromHW = received_data.readInt32LE(4);
 
 					//this.writeDebug('debug', 'requestID :' + requestID + '    return_data : 0x' + returnedDatafromHW.toString(16));
 				}
 				else if (cmdwd1 == 0xB0) {
-					received_data = received_data.slice(11); 
+					received_data = received_data.slice(11);
 					const canConnection = received_data[0];
 					const fw_version = received_data.readInt32LE(1);
 					//this.writeDebug('debug', 'can connection : ' + canConnection.toString(16) + '   F/W version : 0x' + fw_version.toString(16));
 				}
 				else if (cmdwd1 == 0xF1) {
-					received_data = received_data.slice(11); 
+					received_data = received_data.slice(11);
 					this.checkSensorStatus(cmdwd2, received_data);
 				}
 				else {
@@ -875,23 +875,23 @@ class Abilix_Krypton0 extends BaseModule {
 				}
             }
         }
-		else 
+		else
 		{
 			this.writeDebug('error', 'unknown data from H/W');
 			this.writeArrayData('debug', received_data);
 		}
     }
-	
+
 	/*************************************************************************
 	 * Name: requestRemoteData
 	 *
-	 * Description: Send data to Entry 
+	 * Description: Send data to Entry
 	 *
 	 * Returned Value :
 	 *************************************************************************/
     requestRemoteData(handler) {
 		this.writeDebug('info', 'requestRemoteData');
-		
+
 		var sensory = this.SENSOR;
 		for(var key in sensory) {
 			handler.write(key, sensory[key]);
@@ -902,14 +902,14 @@ class Abilix_Krypton0 extends BaseModule {
                 handler.write(key, this.SENSOR_MAP[key]);
             }
         });
-		
+
 		return null;
     }
-    
+
 	/*************************************************************************
 	 * Name: handleRemoteData
 	 *
-	 * Description: Handle received data from Entry 
+	 * Description: Handle received data from Entry
 	 *
 	 * Returned Value :
 	 *************************************************************************/
@@ -928,7 +928,7 @@ class Abilix_Krypton0 extends BaseModule {
 		if(temp < -50) temp = -50;
 		else if(temp > 50) temp = 50;
 		this.motoring.RMOTOR = temp;
-		
+
 		// read internal audio
 		temp = handler.read('INTERSND');
 		if (temp != undefined && this.audiofile.audiodata != temp ) {
@@ -948,13 +948,13 @@ class Abilix_Krypton0 extends BaseModule {
 				}
 			}
         });
-		
+
     }
-	        
+
 	/*************************************************************************
 	 * Name: connect
 	 *
-	 * Description: 
+	 * Description:
 	 *
 	 * Returned Value :
 	 *************************************************************************/
@@ -967,7 +967,7 @@ class Abilix_Krypton0 extends BaseModule {
 			const sndbuf = this.sendSound(snd_type);
 			this.isSendStartSnd = true;
 			this.isSensorCheck = true;
-			
+
 		//	this.sp.write(sndbuf);
 		}
 	}
@@ -975,26 +975,26 @@ class Abilix_Krypton0 extends BaseModule {
 	/*************************************************************************
 	 * Name: disconnect
 	 *
-	 * Description: 
+	 * Description:
 	 *
 	 * Returned Value :
 	 *************************************************************************/
     disconnect(connect) {
 		var self = this;
-		
+
 		this.writeDebug('info', 'disconnect');
 		if (this.isConnect == true) {
 			//var snd_type = new Buffer('bye');
 			//var endsndbuf = this.sendSound(snd_type);
-			
+
 			clearInterval(this.sensing);
-			
+
 			//self.sp.write(endsndbuf,
 			//			(err) => {
 								/* nothing to do. disconnect command execute */
 			//				this.isSendStartSnd = false;
-			//				connect.close();							
-			//			}		
+			//				connect.close();
+			//			}
 			//);
 
 			connect.close();
@@ -1011,17 +1011,17 @@ class Abilix_Krypton0 extends BaseModule {
 			this.writeDebug('warning', 'device is not connected');
 		}
 	}
-	
+
 	/*************************************************************************
 	 * Name: reset
 	 *
-	 * Description: 
+	 * Description:
 	 *
 	 * Returned Value :
 	 *************************************************************************/
 	reset() {
 		//this.writeDebug('info', 'reset');
-	}	
+	}
 }
 
 module.exports = new Abilix_Krypton0();
