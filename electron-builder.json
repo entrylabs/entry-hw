@@ -25,11 +25,8 @@
                 }
             ]
         },
-        "extraResources": [
-            {
-                "from": "app/server/mac/server.txt",
-                "to": "server.txt"
-            }
+        "files": [
+            "app/server/mac/server.txt"
         ]
     },
     "dmg": {
@@ -52,15 +49,15 @@
     },
     "win": {
         "target": "dir",
-        "extraResources": [
-            {
-                "from": "app/server/win/server.exe",
-                "to": "server.exe"
-            }
+        "files": [
+            "app/server/win/server.exe"
         ]
     },
     "files": [
         "app/modules",
+        "app/firmwares",
+        "app/drivers",
+        "config",
         "app/src/index.bundle.js",
         "app/src/main/mainRouter.build.*",
         "app/src/main/nativeNodeRequire.js",
@@ -73,24 +70,8 @@
         "app/OPENSOURCE.md",
         "package.json"
     ],
-    "asar": true,
+    "asar": false,
     "compression": "maximum",
-    "extraResources": [
-        "config/**/*",
-        {
-            "from": "app/firmwares",
-            "to": "firmwares",
-            "filter": ["!examples"]
-        },
-        {
-            "from": "app/drivers",
-            "to": "drivers"
-        },
-        {
-            "from": "app/modules",
-            "to": "modules"
-        }
-    ],
     "appId": "org.playentry.entryhw",
     "productName": "Entry_HW",
     "afterSign": "scripts/notarize.js"

@@ -1,4 +1,4 @@
-import { ipcRenderer, remote, shell } from 'electron';
+import { app, ipcRenderer, remote, shell } from 'electron';
 import path from 'path';
 import { HardwareStatement, RunningModeTypes } from '../common/constants';
 
@@ -18,12 +18,9 @@ class RendererRouter {
 
     get baseModulePath() {
         const app = remote.app;
-        const asarIndex = app.getAppPath().indexOf(`${path.sep}app.asar`);
-        if (asarIndex > -1) {
-            return path.join(app.getAppPath(), '..', 'modules');
-        } else {
-            return path.join(__dirname, '..', '..', 'modules');
-        }
+        return process.env.NODE_ENV === 'production'
+            ? path.join(app.getAppPath(), 'app', 'modules')
+            : path.join(app.getAppPath(), '..', 'modules');
     }
 
     get priorHardwareList(): IHardwareConfig[] {
