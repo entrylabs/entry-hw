@@ -6,26 +6,30 @@ const { os } = window;
 
 const DriverButtonSetElement: React.FC<{ buttonSet: IDriverInfo } & Preload> = (props) => {
     const { buttonSet, translator, rendererRouter } = props;
-    const onButtonClicked = useCallback((path) => {
-        rendererRouter.executeDriverFile(path);
+    const onButtonClicked = useCallback((path: string) => {
+        if (path.startsWith('http')) {
+            rendererRouter.openExternalUrl(path);
+        } else {
+            rendererRouter.executeDriverFile(path);
+        }
     }, []);
 
     if (buttonSet instanceof Array) {
         return <>
             {
                 buttonSet.filter((button) => button[os]).map((button) => <HardwarePanelButton
-                        key={button[os]}
-                        onClick={() => {
-onButtonClicked(button[os]);
-}}
-                    >{translator.translate(button.translate)}</HardwarePanelButton>)
+                    key={button[os]}
+                    onClick={() => {
+                        onButtonClicked(button[os]);
+                    }}
+                >{translator.translate(button.translate)}</HardwarePanelButton>)
             }
         </>;
     } else if (buttonSet[os]) {
         return <HardwarePanelButton
             onClick={() => {
-onButtonClicked(buttonSet[os]);
-}}
+                onButtonClicked(buttonSet[os]);
+            }}
         >{translator.translate('Install Device Driver')}</HardwarePanelButton>;
     } else {
         return <></>;

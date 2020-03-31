@@ -1,11 +1,7 @@
 import { AnyAction } from 'redux';
 import produce from 'immer';
-import {
-    CategoryTypeEnum,
-    CloudModeTypesEnum,
-    HardwareConnectionStatusEnum,
-    HardwarePageStateEnum,
-} from '../../constants/constants';
+import { HardwareStatement } from '../../../../../common/constants';
+import { CategoryTypeEnum, CloudModeTypesEnum, HardwarePageStateEnum } from '../../constants/constants';
 import { makePayloadAction } from '../../functions/makeAction';
 
 const { translator, ipcRenderer } = window;
@@ -16,7 +12,7 @@ export interface ICommonState {
     alertMessage?: IAlertMessage
     currentPageState: HardwarePageStateEnum;
     categoryState: CategoryTypeEnum;
-    moduleState: HardwareConnectionStatusEnum;
+    moduleState: HardwareStatement;
     isLicenseShow: boolean;
     isCloudMode: CloudModeTypesEnum;
 }
@@ -40,14 +36,14 @@ export const changeCurrentPageState = makePayloadAction<HardwarePageStateEnum>(C
 export const changeCloudMode = makePayloadAction<CloudModeTypesEnum>(CLOUD_MODE_CHANGED);
 export const changeStateTitle = makePayloadAction<string>(STATE_TITLE_CHANGED);
 export const changeAlertMessage = makePayloadAction<IAlertMessage>(ALERT_MESSAGE_CHANGED);
-export const changeHardwareModuleState = makePayloadAction<HardwareConnectionStatusEnum>(MODULE_STATE_CHANGED);
+export const changeHardwareModuleState = makePayloadAction<HardwareStatement>(MODULE_STATE_CHANGED);
 
 // reducer
 const initialState: ICommonState = {
     stateTitle: translator.translate('Select hardware'),
     currentPageState: HardwarePageStateEnum.list,
     categoryState: CategoryTypeEnum.all,
-    moduleState: HardwareConnectionStatusEnum.disconnected,
+    moduleState: HardwareStatement.disconnected,
     isLicenseShow: false,
     isCloudMode: ipcRenderer.sendSync('getCurrentCloudModeSync'),
 };

@@ -4,6 +4,9 @@ import SerialPort from 'serialport';
 import Stream from 'stream';
 import BaseConnector from '../baseConnector';
 import { HardwareStatement } from '../../../common/constants';
+import createLogger from '../../electron/functions/createLogger';
+
+const logger = createLogger('core/SerialConnector.ts');
 
 SerialPort.Binding = require('@serialport/bindings');
 
@@ -16,6 +19,7 @@ class SerialConnector extends BaseConnector {
     static get DEFAULT_CONNECT_LOST_MILLS() {
         return 1000;
     }
+
     static get DEFAULT_SLAVE_DURATION() {
         return 1000;
     }
@@ -84,9 +88,11 @@ class SerialConnector extends BaseConnector {
                     includeDelimiter: true,
                 }));
             }
+            logger.info(`serialport try to open with ${delimiter || byteDelimiter || 'no parser'}`);
 
             serialPort.on('error', reject);
             serialPort.on('open', (error) => {
+                logger.info('serialport opened');
                 serialPort.removeAllListeners('open');
                 if (error) {
                     reject(error);
@@ -108,6 +114,7 @@ class SerialConnector extends BaseConnector {
     initialize() {
         return new Promise((resolve, reject) => {
             if (!this.serialPort) {
+                logger.error('serailport is not found but initialize() opened');
                 return reject(new Error('serialport is not found'));
             }
 
@@ -122,7 +129,9 @@ class SerialConnector extends BaseConnector {
                 : this.serialPort;
 
             const runAsMaster = () => {
+                logger.verbose('hardware handShake as Master mode');
                 serialPortReadStream.on('data', (data) => {
+                    logger.verbose(`handShake data ${data.toString()}`);
                     const result = hwModule.checkInitialData(data, this.options);
 
                     if (result === undefined) {
@@ -131,14 +140,16 @@ class SerialConnector extends BaseConnector {
                         serialPortReadStream.removeAllListeners('data');
                         this.flashFirmware && clearTimeout(this.flashFirmware);
 
+                        logger.verbose(`handShake: result is ${result}`);
                         if (result) {
                             if (hwModule.setSerialPort) {
                                 hwModule.setSerialPort(this.serialPort);
                             }
                             this.connected = true;
+                            logger.info('handShake:master completed');
                             resolve();
                         } else {
-                            console.log(data);
+                            logger.error('handShake: Invalid hardware');
                             reject(new Error('Invalid hardware'));
                         }
                     }
@@ -146,14 +157,20 @@ class SerialConnector extends BaseConnector {
             };
 
             const runAsSlave = () => {
+                logger.verbose('hardware handShake as Slave mode');
+
                 // 최소 한번은 requestInitialData 전송을 강제
+                const firstRequestData = hwModule.requestInitialData(this.serialPort);
                 this.send(hwModule.requestInitialData(this.serialPort));
+                logger.verbose(`[repeat..]handShake request data ${firstRequestData}`);
                 this.slaveInitRequestInterval = setInterval(() => {
-                    this.send(hwModule.requestInitialData(this.serialPort));
+                    const requestData = hwModule.requestInitialData(this.serialPort);
+                    this.send(requestData);
                 }, duration);
 
                 // control type is slave
                 serialPortReadStream.on('data', (data) => {
+                    logger.verbose(`handShake response data ${data}`);
                     const result = hwModule.checkInitialData(data, this.options);
 
                     if (result !== undefined) {
@@ -161,6 +178,7 @@ class SerialConnector extends BaseConnector {
                         this.flashFirmware && clearTimeout(this.flashFirmware);
                         this.slaveInitRequestInterval && clearInterval(this.slaveInitRequestInterval);
 
+                        logger.verbose(`handShake: result is ${result}`);
                         if (result) {
                             if (hwModule.setSerialPort) {
                                 hwModule.setSerialPort(this.serialPort);
@@ -169,8 +187,10 @@ class SerialConnector extends BaseConnector {
                                 this.send(hwModule.resetProperty());
                             }
                             this.connected = true;
+                            logger.info('handShake:slave completed');
                             resolve();
                         } else {
+                            logger.error('handShake: Invalid hardware');
                             reject(new Error('Invalid hardware'));
                         }
                     }
@@ -178,6 +198,7 @@ class SerialConnector extends BaseConnector {
             };
 
             if (firmwarecheck) {
+                logger.info('firmwarcheck property set. will flash firmware soon..');
                 this.flashFirmware = setTimeout(() => {
                     if (this.serialPort) {
                         this.serialPortParser?.removeAllListeners('data');
@@ -245,6 +266,9 @@ class SerialConnector extends BaseConnector {
             ? this.serialPortParser
             : this.serialPort;
 
+
+        logger.info('connected successfully. device start normal data exchange');
+
         // 기기와의 데이터 통신 수립
         serialPortReadStream.on('data', (data) => {
             if (
@@ -274,12 +298,14 @@ class SerialConnector extends BaseConnector {
         });
 
         serialPort.on('disconnect', () => {
+            logger.info('device serial disconnected');
             this.close();
             this._sendState('disconnected');
         });
 
         // 디바이스 연결 잃어버린 상태에 대한 관리를 모듈에 맡기거나, 직접 관리한다.
         if (hwModule.lostController) {
+            logger.info('device lostController set. no lostTimer use');
             hwModule.lostController(this, router.sendState.bind(router));
         } else {
             /*
@@ -312,6 +338,7 @@ class SerialConnector extends BaseConnector {
         }
 
         if (advertise) {
+            logger.info('advertise interval set');
             this.advertiseInterval = setInterval(() => {
                 router.sendEncodedDataToServer();
             }, advertise);
@@ -357,7 +384,7 @@ class SerialConnector extends BaseConnector {
         this._clear();
         if (this.serialPort && this.serialPort.isOpen) {
             this.serialPort.close((e) => {
-                console.log('serialport closed', e);
+                logger.info(`serialport closed, ${e?.name}`);
                 this.serialPort = undefined;
             });
         }
