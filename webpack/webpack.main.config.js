@@ -22,6 +22,7 @@ const commonjsModules = [
 ];
 
 module.exports = merge({
+    name: 'mainRouter',
     target: 'electron-main',
     entry: path.join(mainDirectoryPath, 'mainRouter.ts'),
     devtool: 'cheap-module-source-map',
@@ -51,7 +52,7 @@ module.exports = merge({
     ],
     plugins: [
         new CleanWebpackPlugin({
-            cleanOnceBeforeBuildPatterns: ['*.bundle.js', '*.map'],
+            cleanOnceBeforeBuildPatterns: ['mainRouter.build.js', 'mainRouter.build.js.map'],
         }),
     ],
 }, base);

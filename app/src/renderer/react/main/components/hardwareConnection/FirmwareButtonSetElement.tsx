@@ -3,7 +3,7 @@ import withPreload from '../../hoc/withPreload';
 import { connect } from 'react-redux';
 import { IMapDispatchToProps, IMapStateToProps } from '../../store';
 import { requestFirmwareInstall } from '../../store/modules/connection';
-import { HardwareConnectionStatusEnum } from '../../constants/constants';
+import { HardwareStatement } from '../../../../../common/constants';
 import HardwarePanelButton from '../common/HardwarePanelButton';
 
 interface IProps extends Preload, IDispatchProps, IStateProps {
@@ -23,9 +23,9 @@ const FirmwareButtonSetElement: React.FC<IProps> = (props) => {
         flash 요청이 들어오면 버튼을 가린다.
         버튼이 한번 가려지면 connected 될때까지 버튼이 돌아오지 않는다.
          */
-        if (moduleState === HardwareConnectionStatusEnum.flash) {
+        if (moduleState === HardwareStatement.flash) {
             showElement(false);
-        } else if (!isElementShow && moduleState === HardwareConnectionStatusEnum.connected) {
+        } else if (!isElementShow && moduleState === HardwareStatement.connected) {
             showElement(true);
         }
     }, [moduleState]);
@@ -55,7 +55,7 @@ onButtonClicked(buttonSet);
 };
 
 interface IStateProps {
-    moduleState: HardwareConnectionStatusEnum;
+    moduleState: HardwareStatement;
 }
 
 interface IDispatchProps {
