@@ -80,33 +80,33 @@ class Abilix_Krypton0 extends BaseModule {
         };
 
 		this.SENSOR_MAP = {
-            'A': {
+            '1': {
                 type: this.deviceTypes.NONE,
                 port_values: 0,
             },
-            'B': {
+            '2': {
                 type: this.deviceTypes.NONE,
                 port_values: 0,
             },
-            'C': {
+            '3': {
                 type: this.deviceTypes.NONE,
                 port_values: 0,
             },
-            'D': {
+            '4': {
                 type: this.deviceTypes.NONE,
                 port_values: 0,
             },
         };
 
 		this.audiofile = {
-		    audiodata: 'hello',
+		    audiodata: 'none',
             APPLIED: true,
         };
 
 		this.led = {
 			port: -1,
 			value: -1,
-			APPLIED: true,
+			APPLIED: true
 		};
 
 		this.LAST_PORT_STATUS = null;
@@ -171,12 +171,15 @@ class Abilix_Krypton0 extends BaseModule {
 	 *
 	 * Returned Value :
 	 *************************************************************************/
-	writeArrayData(level='info', buffer) {
+	writeArrayData(level='info', buffer, iscommand) {
 		if (this.checkLogLevel(level) == true) {
 			var messages = Array.from(buffer, function (byte) {
 									return ('0' + (byte & 0xff).toString(16)).slice(-2);
 								}).join(' ');
-			console.log('    [ data ] : '  + messages);
+			if (iscommand)
+				console.log('    [ command ] : '  + messages);
+			else
+				console.log('    [ event ] : '  + messages);
 		}
 	}
 
@@ -206,19 +209,24 @@ class Abilix_Krypton0 extends BaseModule {
 		var port_index = 0x00;
 
 		switch(port) {
-			case 1 :
+			case 1 : 
+			case '1' :
 				port_index = 0x04;
 				break;
 			case 2 :
+			case '2' :
 				port_index = 0x03;
 				break;
 			case 3 :
+			case '3' :
 				port_index = 0x02;
 				break;
 			case 4 :
+			case '4' :
 				port_index = 0x01;
 				break;
 			default :
+				this.writeDebug('error', 'getPortIndex : unknown port number = ' + port);
 				break;
 		}
 
@@ -291,7 +299,7 @@ class Abilix_Krypton0 extends BaseModule {
 		var data = Buffer.concat([buffer, crcValue]);
 		this.updatePacketSize(data);
 
-		this.writeArrayData('debug', data);
+		this.writeArrayData('debug', data, 1);
 		return data;
 	}
 
@@ -440,18 +448,12 @@ class Abilix_Krypton0 extends BaseModule {
 	 * Returned Value :
 	 *************************************************************************/
 	makePortonoffcmd(port, onoff) {
-		if ( (onoff == 0 && this.SENSOR.LED == 1 ) || (onoff == 1 && this.SENSOR.LED == 0)) {
-			this.writeDebug('debug', 'makePortonoffcmd : skip command');
-			this.writeDebug('debug', 'makePortonoffcmd : skip command : ' + onoff + ' / ' + this.SENSOR.LED);
-			return null;
-		}
-
+			
 		this.writeDebug('debug', 'makePortonoffcmd : port = ' + port + ' onoff Value = ' + onoff.toString(10));
-		//var cmdheader = this.makeCmdHeaderBuffer([0xA4], [0x17]);
 		this.isSensorCheck = true;
 		var cmdheader = new Buffer([0xaa, 0x55, 0xFF, 0xFF, 0x72, 0xA4, 0x17, 0x00, 0x00, 0x00, 0x00]);
 		var param1 = new Buffer([0x00, 0x00]);
-		var pIndex = this.getPortIndex(port + 1);
+		var pIndex = this.getPortIndex(port);
 
 		param1[0] = pIndex;
 		param1[1] = onoff;
@@ -569,13 +571,11 @@ class Abilix_Krypton0 extends BaseModule {
 	 *************************************************************************/
 	sendCheckSensorcmd() {
 		if (!this.isSensorCheck) {
-			this.writeDebug('info', 'sendCheckSensorcmd');
+			//this.writeDebug('info', 'sendCheckSensorcmd');
 			this.isSensorCheck = true;
-			this.waitingcmd ++;
-			if (this.isLEDenabled == false && this.led.port != -1 && (this.waitingcmd > 10) ) {
-				this.writeDebug('debug', 'checkSensorStatus : send LED off cmd => port = ' + this.led.port);
+			if (this.isLEDenabled == false && this.led.port != -1) {
+				//this.writeDebug('debug', 'checkSensorStatus : send LED off cmd => port = ' + this.led.port);
 				this.sp.write(this.makePortonoffcmd(this.led.port, 0x01));
-
 				this.SENSOR.LED = 0x00;
 				this.isLEDenabled = true;
 
@@ -584,13 +584,14 @@ class Abilix_Krypton0 extends BaseModule {
 			else {
 				var cmddata = new Buffer([0xaa, 0x55, 0x00, 0x08, 0x72, 0xa4, 0x16, 0x00, 0x00, 0x00, 0x00, 0x33]);
 
+				this.writeArrayData('debug', cmddata, 1);
 				this.sp.write(cmddata);
-
+				
 			}
 		}
 		else {
 			const count = 0;
-			this.writeDebug('info', 'sendCheckSensorcmd ==> skip (count = ' + this.skipcount + ')');
+			//this.writeDebug('info', 'sendCheckSensorcmd ==> skip (count = ' + this.skipcount + ')');
 
 			this.skipcount++;
 
@@ -638,58 +639,62 @@ class Abilix_Krypton0 extends BaseModule {
 			var index = 0;
 
 			Object.keys(this.SENSOR_MAP).forEach((port) => {
-				//const sensor_info = this.SENSOR_MAP[port];
-
 				values = params.readInt16BE((index) * 2 + 4);
 				//this.writeDebug('debug', 'checkSensorStatus : dev = ' + params[index] + '   values = 0x' + values.toString(16));
 
-				if (params[index] != 0x00) {
-					this.SENSOR_MAP[port].type = this.getDevicetype(params[index]);
-				}
+				this.SENSOR_MAP[port].type = this.getDevicetype(params[index]);
 				this.SENSOR_MAP[port].port_values = values;
-
-				if (this.led.port != -1 && (port == (this.led.port + 1))) {
-					this.SENSOR_MAP[port].port_values = this.SENSOR.LED;
-				}
-
-				switch(params[index]) {
-					case 1 :
-						if ((values == 1) || (values > 0x0F00)) {
-							this.SENSOR_MAP[port].port_values = 1;
-							this.SENSOR.BUTTON = 1;
+					
+					switch(params[index]) {
+						case 1 : 
+							if ((values == 1) || (values > 0x0F00)) {
+								this.SENSOR_MAP[port].port_values = 1;
+								this.SENSOR.BUTTON = 1;
+							}
+							else {
+								this.SENSOR.BUTTON = 0;
+								this.SENSOR_MAP[port].port_values = 0;
+							}
+							break;
+						case 2 :
+							if ( infra1 == false) {
+								this.SENSOR.GRAY_INFRARED1 = values;
+								infra1 = true;
+							}
+							else {
+								this.SENSOR.GRAY_INFRARED2 = values;
+							}
+							break;
+						case 5 : 
+							this.SENSOR.LIGHT = values;
+							break;
+						case 6 : 
+							this.SENSOR.MICROPHONE = values;
+							break;
+						case 7 : 
+							//this.led.port = index + 1; //4 - index;
+							//this.writeDebug('debug', 'checkSensorStatus : LED_DATA =' + this.SENSOR.LED + ' port = ' + this.led.port);
+							this.writeDebug('debug', 'checkSensorStatus : LED_DATA =' + values + ' port = ' + port);
+							this.SENSOR_MAP[port].port_values = values; //this.SENSOR.LED;
+							break;
+						case 0 :
+						default :
+							//this.writeDebug('debug', 'not Connected');
+							break;
+					}
+					
+					if (this.led.port == port)
+					{
+						// check command status
+						if ((this.led.value != this.SENSOR_MAP[port].port_values) && this.led.APPLIED == true)
+						{
+							if ((this.SENSOR_MAP[port].type == this.deviceTypes.LED) || this.SENSOR_MAP[port].type == 0)
+							{
+								this.writeDebug('debug', 'checkSensorStatus : LED_DATA =' + this.SENSOR_MAP[port].port_values + ' port = ' + this.led.port);
+								this.sp.write(this.makePortonoffcmd(this.led.port, this.led.value));
+							}
 						}
-						else {
-							this.SENSOR.BUTTON = 0;
-							this.SENSOR_MAP[port].port_values = 0;
-						}
-						//this.SENSOR.BUTTON = values;
-						break;
-					case 2 :
-						if ( infra1 == false) {
-							this.SENSOR.GRAY_INFRARED1 = values;
-							infra1 = true;
-						}
-						else {
-							this.SENSOR.GRAY_INFRARED2 = values;
-						}
-						break;
-					case 5 :
-						this.SENSOR.LIGHT = values;
-						break;
-					case 6 :
-						this.SENSOR.MICROPHONE = values;
-						break;
-					case 7 :
-						this.led.port = index; //4 - index;
-						this.writeDebug('debug', 'checkSensorStatus : LED_DATA =' + this.SENSOR.LED + ' port = ' + this.led.port);
-						this.SENSOR_MAP[port].port_values = this.SENSOR.LED;
-						break;
-					case 0 :
-					default :
-						//this.writeDebug('debug', 'not Connected');
-						break;
-				}
-
+					}
 				index++;
 			});
 
@@ -786,7 +791,29 @@ class Abilix_Krypton0 extends BaseModule {
 		//this.writeDebug('info', 'validateLocalData');
         return true;
     }
-
+	
+	checkAudiofile() {
+		if ((this.audiofile.audiodata == 'hello') || 
+			(this.audiofile.audiodata == 'bye') ||
+			(this.audiofile.audiodata == 'welcome') ||
+			(this.audiofile.audiodata == 'cheer') )
+			return true;
+		else
+			return false;
+	}
+	
+	getAudiofile(index) {
+		switch(index)
+		{
+			case 1 : return 'hello';
+			case 2 : return 'bye';
+			case 3 : return 'welcome';
+			case 4 : return 'cheer';
+		}
+		
+		return 'none';
+	}
+	
 	/*************************************************************************
 	 * Name: requestLocalData
 	 *
@@ -800,6 +827,7 @@ class Abilix_Krypton0 extends BaseModule {
 		this.writeDebug('info', 'requestLocalData');
 
 		var skipPortOutput = false;
+		var foundLED = false;
 
         if (this.previous_wheel_status) {
             if ((this.previous_wheel_status.LMOTOR == this.motoring.LMOTOR) &&
@@ -809,12 +837,53 @@ class Abilix_Krypton0 extends BaseModule {
 
         if (!skipPortOutput) {
             this.previous_wheel_status = _.cloneDeep(this.motoring);
-			this.writeDebug('debug', 'requestLocalData : LMOTOR = ' +  this.motoring.LMOTOR);
+			this.writeDebug('debug', 'requestLocalData : LMOTOR = ' +  this.motoring.LMOTOR + '   RMOTOR = ' + this.motoring.RMOTOR);
 
 			return this.makeSmallmotorControlcmd(0x03, 0x00, 0x00, this.motoring.LMOTOR, this.motoring.RMOTOR, 0, 0);
         }
 
-		if (this.audiofile.APPLIED == false)
+		if (this.led.port != 0 && this.led.port != -1) {
+			Object.keys(this.SENSOR_MAP).forEach((port) => {
+				if(this.SENSOR_MAP[port].type == this.deviceTypes.LED) {
+					foundLED = true;
+					if (this.led.port == port ) {
+						if(this.led.APPLIED != true || (this.SENSOR_MAP[port].port_values == 1 && this.led.value == 0)) {
+							this.writeDebug('debug', 'requestLocalData ===> port = ' + port);
+							this.led.port = port;
+							this.led.APPLIED = true;
+							return this.makePortonoffcmd(this.led.port, this.led.value);
+						}
+					}
+					else
+					{
+						this.writeDebug('debug', 'Port is different. So not applied ' + port + ' / ' + this.led.port);
+						//this.led.APPLIED = true;
+						//var cmddata = new Buffer([0xaa, 0x55, 0x00, 0x08, 0x72, 0xa4, 0x16, 0x00, 0x00, 0x00, 0x00, 0x33]);
+						
+						//return cmddata;
+					}
+				}
+			});
+			
+			if (foundLED == false) {
+				if (this.led.APPLIED == false) {
+					this.writeDebug('debug', 'requestLocalData ===> this.led.port = ' + this.led.port);
+					this.led.APPLIED = true;
+					return this.makePortonoffcmd(this.led.port, this.led.value);
+				}
+			}
+		} else {
+			if (this.led.port == -1) {
+				Object.keys(this.SENSOR_MAP).forEach((port) => {
+					if(this.SENSOR_MAP[port].type == this.deviceTypes.LED) {
+						this.led.port = 0;
+						return this.makePortonoffcmd(port, 1);
+					}
+				});
+			}
+		}
+		
+		if (this.audiofile.APPLIED == false && this.checkAudiofile() == true)
 		{
 			var snd_type = new Buffer(this.audiofile.audiodata);
 			var sndcmd = this.sendSound(snd_type);
@@ -822,10 +891,8 @@ class Abilix_Krypton0 extends BaseModule {
 
 			return sndcmd;
 		}
-
-		if (this.led.APPLIED == false && this.led.port != 0) {
-			this.led.APPLIED = true;
-			return this.makePortonoffcmd(this.led.port, this.led.value);
+		else{
+			//this.writeDebug('debug', 'requestLocalData : No sent ' +  this.audiofile.audiodata + ' app = ' + this.audiofile.APPLIED);
 		}
 
 		return null;
@@ -839,7 +906,7 @@ class Abilix_Krypton0 extends BaseModule {
 	 * Returned Value :
 	 *************************************************************************/
     handleLocalData(data) {
-		this.writeDebug('info', 'handleLocalData');
+		//this.writeDebug('info', 'handleLocalData');
 		var received_data = data.slice();
 
         if (received_data[0] == 0xAA && received_data[1] == 0x55) {
@@ -849,7 +916,7 @@ class Abilix_Krypton0 extends BaseModule {
 			const cmdwd2 = received_data[6];
 
 			//this.writeDebug('debug', 'type = 0x' + type.toString(16) + ' cmdwd1 = 0x' + cmdwd1.toString(16) + ' cmdwd2 = 0x' + cmdwd2.toString(16));
-			this.writeArrayData('debug', received_data);
+				this.writeArrayData('debug', received_data, 0);
 
             if (length > 0 && type == 0x72 ) {
 				if (cmdwd1 == 0xA1) {
@@ -877,8 +944,8 @@ class Abilix_Krypton0 extends BaseModule {
         }
 		else
 		{
-			this.writeDebug('error', 'unknown data from H/W');
-			this.writeArrayData('debug', received_data);
+			//this.writeDebug('error', 'unknown data from H/W');
+			//this.writeArrayData('debug', received_data);
 		}
     }
 
@@ -891,11 +958,6 @@ class Abilix_Krypton0 extends BaseModule {
 	 *************************************************************************/
     requestRemoteData(handler) {
 		this.writeDebug('info', 'requestRemoteData');
-
-		var sensory = this.SENSOR;
-		for(var key in sensory) {
-			handler.write(key, sensory[key]);
-		}
 
         Object.keys(this.SENSOR_MAP).forEach((key) => {
             if (this.SENSOR_MAP[key] !== undefined) {
@@ -914,7 +976,7 @@ class Abilix_Krypton0 extends BaseModule {
 	 * Returned Value :
 	 *************************************************************************/
     handleRemoteData(handler) {
-		this.writeDebug('info', 'handleRemoteData ==>');
+		//this.writeDebug('info', 'handleRemoteData ==>');
 		var temp;
 
 		// read motor control
@@ -929,28 +991,34 @@ class Abilix_Krypton0 extends BaseModule {
 		else if(temp > 50) temp = 50;
 		this.motoring.RMOTOR = temp;
 
-		// read internal audio
-		temp = handler.read('INTERSND');
-		if (temp != undefined && this.audiofile.audiodata != temp ) {
-			this.audiofile = {
-				audiodata : temp,
-				APPLIED : false,
-			};
-		}
-
+		// Read LED control
 		Object.keys(this.PORT_INFO).forEach((port) => {
             this.PORT_INFO[port] = handler.read(port);
 			if (this.PORT_INFO[port].type == this.deviceTypes.LED) {
-				if (this.led.value != this.PORT_INFO[port].port_values) {
-					this.led.port = port - 1;
+				if (this.led.APPLIED == true && (this.led.port != port || this.led.value != this.PORT_INFO[port].port_values))
+				{
+					this.writeDebug('debug', 'handleRemoteData : Port = ' + port + ' Received LED values  = ' + this.PORT_INFO[port].port_values);
+					this.led.port = port;
 					this.led.value = this.PORT_INFO[port].port_values;
 					this.led.APPLIED = false;
 				}
 			}
         });
+		
+		// read internal audio
 
+		if(handler.e('INTERSND')) {
+			temp = handler.read('INTERSND');
+			if (temp != 'none' && this.audiofile.APPLIED == true  && this.audiofile.audiodata != temp ) {
+				//this.writeDebug('debug', 'handleRemoteData : audiodata = ' + this.audiofile.audiodata + '     temp = ' + temp);
+				this.audiofile.audiodata = temp;
+				this.audiofile.APPLIED = false;
+			}
+			else
+				this.audiofile.audiodata = temp;
+		}
     }
-
+	        
 	/*************************************************************************
 	 * Name: connect
 	 *
@@ -962,14 +1030,11 @@ class Abilix_Krypton0 extends BaseModule {
 		//this.writeDebug('info', 'connect');
 		this.isConnect = true;
 
-		if (this.isSendStartSnd == false) {
-			var snd_type = new Buffer('hello');
-			const sndbuf = this.sendSound(snd_type);
+		this.audiofile.audiodata = 'none';
+		this.audiofile.APPLIED = true;
+		
 			this.isSendStartSnd = true;
-			this.isSensorCheck = true;
-
 		//	this.sp.write(sndbuf);
-		}
 	}
 
 	/*************************************************************************
