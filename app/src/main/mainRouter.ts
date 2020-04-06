@@ -218,7 +218,8 @@ class MainRouter {
                 }
             }
         } catch (e) {
-            console.error(e);
+            logger.error(`startScan Error, ${e.name} ${e.message}`);
+            this.sendState(HardwareStatement.scanFailed);
         }
     }
 
