@@ -510,13 +510,14 @@ Module.prototype.isRecentData = function(port, type, data) {
     let isRecent = false;
 	
     if (port in this.recentCheckData) {
-        if (type != this.sensorTypes.TONE && this.recentCheckData[port].type === type && this.recentCheckData[port].data === data) {   
+        if (type != this.sensorTypes.TONE && this.recentCheckData[port].type === type && 
+        this.recentCheckData[port].data === data) {   
                 // 톤 명령이 아니고 타입과 데이터가 같고 같은 자료형 이면 
                 //if (port > 20) {  LINE_EASY
                 if (type != this.sensorTypes.LINE_EASY && type != this.sensorTypes.LINE_EASY_MOTOR &&
                     type != this.sensorTypes.LINE_DELAY && type != this.sensorTypes.LINE_LINE &&
                     type != this.sensorTypes.LINE_TURN && type != this.sensorTypes.LINE_MOTOR &&
-                    type != this.sensorTypes.LINE_BMOTOR && type != this.sensorTypes.LINE_BWMOTOR ) {
+                    type != this.sensorTypes.LINE_BMOTOR && type != this.sensorTypes.LINE_BWMOTOR) {
                     isRecent = true;
                 }
         }
@@ -565,9 +566,9 @@ Module.prototype.makeSensorReadBuffer = function(device, port, data) {  // 센�
 //0xff 0x55 0x6 0x0 0x1 0xa 0x9 0x0 0x0 0xa
 Module.prototype.makeOutputBuffer = function(device, port, data) {   /// 출력 설정
     let buffer;
-    let value = new Buffer(2);
-    let dummy = new Buffer([10]);
-    let time = new Buffer(2);
+    const value = new Buffer(2);
+    const dummy = new Buffer([10]);
+    const time = new Buffer(2);
 		
     switch (device) {
         case this.sensorTypes.LINE_EASY:   // 쉬운주행
