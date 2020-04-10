@@ -263,7 +263,7 @@ class PingpongG1 extends BaseModule {
 
                 // 기존 FW 70 버전 = data length 19 bytes (ANALOG IN 미지원)
                 if (packetSize > 19) {
-                    sensor.AIN = data.readUInt8(19);
+                    sensor.AIN = data.readUInt8(19) * 4;
                 } else {
                     sensor.AIN = 0;
                 }
