@@ -52,6 +52,7 @@ function Module() {
         LINE_TIMER: 95,
         LINE_COLOR: 96,
         LINE_ABSH: 97,
+        LINE_BLACKFORWARDF: 98,
         LINE_REMOT: 100,
 
     };
@@ -650,6 +651,13 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {   /// 출력 
             buffer = Buffer.concat([buffer, dummy]);
             break;
 
+        case this.sensorTypes.LINE_BLACKFORWARDF:
+            value.writeInt16LE(data);
+            buffer = new Buffer([255, 85, 9, sensorIdx, this.actionTypes.SET, 
+            device, port, data.fsp, data.bsp, data.count, data.lsen, data.rsen]);
+            buffer = Buffer.concat([buffer, dummy]);
+            break;
+
         case this.sensorTypes.LINE_BUZZER:
         case this.sensorTypes.LINE_LINEDELAY:   // 라인딜레이 
             if ($.isPlainObject(data)) {
@@ -676,13 +684,7 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {   /// 출력 
             this.actionTypes.SET, device, port, data.count, data.outport]);
             buffer = Buffer.concat([buffer, value, time, dummy]);
             break;
-/*		case this.sensorTypes.BUZZER:   // 스피커 제어
-//			value.writeInt16LE(data); //writeFloatLE//!@#$
-            buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.SET, 
-            device, port, data]);
-			buffer = Buffer.concat([buffer, dummy]);
-			break;
-*/			
+			
         case this.sensorTypes.TONE:          // 스피커 제어 
 				if ($.isPlainObject(data)) {
 					value.writeInt16LE(data.value);
