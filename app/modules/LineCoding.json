@@ -8,7 +8,7 @@
     "platform": ["win32", "darwin"],
     "icon": "LineCoding.png",
     "module": "LineCoding.js",
-    "url": "http://www.ssmake.co.kr",
+    "url": "http://www.ssmaker.co.kr",
 	"email": "pillpill@daum.net",
     "video": " ",
     "driver": [{
