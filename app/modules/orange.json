@@ -4,7 +4,7 @@
 		"en": "Orange Board",
 		"ko": "오렌지 보드"
 	},
-	"platform": ["win32"],
+	"platform": ["win32", "darwin"],
 	"icon" : "orange.png",
 	"module": "orange.js",
 	"url": "http://kocoafab.cc",
