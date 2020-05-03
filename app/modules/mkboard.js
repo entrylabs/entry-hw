@@ -127,8 +127,7 @@ Module.prototype.checkInitialData = function(data, config) {
 };
 
 Module.prototype.afterConnect = function(that, cb) {
-    // console.log("5~~~~");    
-    that.connected = true;
+    // console.log("5~~~~");        
 
     //if(cb) {
     //    cb('connected~~~');
