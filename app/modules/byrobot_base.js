@@ -8,16 +8,17 @@ const BaseModule = require('./baseModule');
  *  기본 클래스
  *
  * - 송수신 데이터 정의 문서
- *   http://dev.byrobot.co.kr/documents/kr/products/petrone_v2/protocol/
+ *   http://dev.byrobot.co.kr/documents/kr/products/e_drone/protocol/
  *
  * - 호환 제품군
  *   - XTS-65
  *   - SkyKick V2
  *   - E-DRONE
  *   - Coding Drone
+ *   - Battle Drone
  *
  * - 마지막 업데이트
- *   - 2020.2.12
+ *   - 2020.5.4
  *
  ***************************************************************************************/
 
