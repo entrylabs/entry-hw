@@ -216,10 +216,7 @@ Module.prototype.isRecentData = function(port, type, data) {
         }
         
     } else if (port in this.recentCheckData && type != this.sensorTypes.TONE) {
-        if (
-            this.recentCheckData[port].type === type &&
-            this.recentCheckData[port].data === data
-        ) {
+        if (this.recentCheckData[port].type === type && this.recentCheckData[port].data === data) {
             isRecent = true;
         }
     }
@@ -234,7 +231,7 @@ Module.prototype.requestLocalData = function() {
         this.isDraing = true;
         this.sp.write(this.sendBuffers.shift(), () => {
             if (self.sp) {
-                self.sp.drain(function() {
+                self.sp.drain(() => {
                     self.isDraing = false;
                 });
             }
@@ -255,8 +252,8 @@ Module.prototype.handleLocalData = function(data) {
         if (data.length <= 4 || data[0] !== 255 || data[1] !== 85) {
             return;
         }
-        var readData = data.subarray(2, data.length);
-        var value;
+        let readData = data.subarray(2, data.length);
+        let value;
         switch (readData[0]) {
             case self.sensorValueSize.FLOAT: {
                 value = new Buffer(readData.subarray(1, 5)).readFloatLE();
@@ -311,7 +308,7 @@ ff 55 len idx action device port  slot  data a
 
 Module.prototype.makeSensorReadBuffer = function(device, port, data) {
     let buffer;
-    let dummy = new Buffer([10]);
+    const dummy = new Buffer([10]);
     if (device == this.sensorTypes.ULTRASONIC) {
         buffer = new Buffer([
             255,
@@ -336,7 +333,7 @@ Module.prototype.makeSensorReadBuffer = function(device, port, data) {
             10,
         ]);
     } else {
-        value = new Buffer(2);
+        let value = new Buffer(2);
         value.writeInt16LE(data);
         buffer = new Buffer([
             255,
