@@ -125,19 +125,19 @@ Module.prototype.handleRemoteData = function(handler) {
         const keys = Object.keys(getDatas);
         keys.forEach((key) => {
             let isSend = false;
-            let dataObj = getDatas[key];
+            const dataObj = getDatas[key];
             if (
                 typeof dataObj.port === 'string' ||
                 typeof dataObj.port === 'number'
             ) {
-                var time = self.digitalPortTimeList[dataObj.port];
+                const time = self.digitalPortTimeList[dataObj.port];
                 if (dataObj.time > time) {
                     isSend = true;
                     self.digitalPortTimeList[dataObj.port] = dataObj.time;
                 }
             } else if (Array.isArray(dataObj.port)) {
                 isSend = dataObj.port.every((port) => {
-                    var time = self.digitalPortTimeList[port];
+                    const time = self.digitalPortTimeList[port];
                     return dataObj.time > time;
                 });
 
@@ -156,11 +156,7 @@ Module.prototype.handleRemoteData = function(handler) {
                     };
                     buffer = Buffer.concat([
                         buffer,
-                        self.makeSensorReadBuffer(
-                            key,
-                            dataObj.port,
-                            dataObj.data
-                        ),
+                        self.makeSensorReadBuffer(key, dataObj.port, dataObj.data),
                     ]);
                 }
             }
@@ -199,21 +195,21 @@ Module.prototype.isRecentData = function(port, type, data) {
     const that = this;
     let isRecent = false;
 
-    if(type == this.sensorTypes.ULTRASONIC) {
-        var portString = port.toString();
-        var isGarbageClear = false;
-        Object.keys(this.recentCheckData).forEach(function (key) {
-            var recent = that.recentCheckData[key];
-            if(key === portString) {
+    if (type == this.sensorTypes.ULTRASONIC) {
+        const portString = port.toString();
+        let isGarbageClear = false;
+        Object.keys(this.recentCheckData).forEach((key) => {
+            const recent = that.recentCheckData[key];
+            if (key === portString) {
                 
             }
-            if(key !== portString && recent.type == that.sensorTypes.ULTRASONIC) {
+            if (key !== portString && recent.type == that.sensorTypes.ULTRASONIC) {
                 delete that.recentCheckData[key];
                 isGarbageClear = true;
             }
         });
 
-        if((port in this.recentCheckData && isGarbageClear) || !(port in this.recentCheckData)) {
+        if ((port in this.recentCheckData && isGarbageClear) || !(port in this.recentCheckData)) {
             isRecent = false;
         } else {
             isRecent = true;
