@@ -69,12 +69,12 @@ function Module() {
     this.isDraing = false;
 }
 
-var sensorIdx = 0;
+let sensorIdx = 0;
 
 Module.prototype.init = function(handler, config) {};
 
 Module.prototype.setSerialPort = function(sp) {
-    var self = this;
+    let self = this;
     this.sp = sp;
 };
 
@@ -104,11 +104,11 @@ Module.prototype.validateLocalData = function(data) {
 };
 
 Module.prototype.requestRemoteData = function(handler) {
-    var self = this;
+    let self = this;
     if (!self.sensorData) {
         return;
     }
-    Object.keys(this.sensorData).forEach(function(key) {
+    Object.keys(this.sensorData).forEach((key) => {
         if (self.sensorData[key] != undefined) {
             handler.write(key, self.sensorData[key]);
         }
@@ -116,11 +116,11 @@ Module.prototype.requestRemoteData = function(handler) {
 };
 
 Module.prototype.handleRemoteData = function(handler) {
-    var self = this;
-    var getDatas = handler.read('GET');
-    var setDatas = handler.read('SET') || this.defaultOutput;
-    var time = handler.read('TIME');
-    var buffer = new Buffer([]);
+    let self = this;
+    let getDatas = handler.read('GET');
+    let setDatas = handler.read('SET') || this.defaultOutput;
+    let time = handler.read('TIME');
+    let buffer = new Buffer([]);
 
     if (getDatas) {
         var keys = Object.keys(getDatas);
