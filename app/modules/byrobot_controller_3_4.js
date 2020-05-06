@@ -17,7 +17,7 @@ class byrobot_controller_3_4 extends byrobot_base
         this.log("BYROBOT_BATTLE_DRONE_CCONTROLLER - constructor()");
 
         this.targetDevice   = 0x20;
-        this.targetDeviceID = '0F0D01';
+        this.targetDeviceID = '0F0C01';
     }
 }
 
