@@ -14,8 +14,8 @@ class byrobot_drone_4 extends byrobot_base
     {
         super();
 
-        this.targetDevice   = 0x10;
-        this.targetDeviceID = '0F0801';
+        this.targetDevice     = 0x10;
+        this.targetDeviceID   = '0F0801';
         this.arrayRequestData = [0x40, 0x44]; // State, Motion
     }
 }

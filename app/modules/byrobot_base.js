@@ -646,7 +646,7 @@ class byrobot_base extends BaseModule
 
     updateMotion()
     {
-        //this.log(`BASE - updateMotion() - length : ${this.dataBlock.length}`);
+        this.log(`BASE - updateMotion() - length : ${this.dataBlock.length}`);
 
         if (this.dataBlock != undefined && this.dataBlock.length == 18)
         {
@@ -702,7 +702,7 @@ class byrobot_base extends BaseModule
 
     updateRange()
     {
-        //this.log(`BASE - updateRange() - length : ${this.dataBlock.length}`);
+        this.log(`BASE - updateRange() - length : ${this.dataBlock.length}`);
 
         if (this.dataBlock != undefined && this.dataBlock.length == 12)
         {
@@ -710,12 +710,12 @@ class byrobot_base extends BaseModule
             const view  = new DataView(array.buffer);
 
             this.range._updated        = true;
-            this.range.range_left      = view.getInt16(0, true);
-            this.range.range_front     = view.getInt16(2, true);
-            this.range.range_right     = view.getInt16(4, true);
-            this.range.range_rear      = view.getInt16(6, true);
-            this.range.range_top       = view.getInt16(8, true);
-            this.range.range_bottom    = view.getInt16(10, true);
+            this.range.range_left      = view.getInt16(0, true) / 1000.0;;
+            this.range.range_front     = view.getInt16(2, true) / 1000.0;;
+            this.range.range_right     = view.getInt16(4, true) / 1000.0;;
+            this.range.range_rear      = view.getInt16(6, true) / 1000.0;;
+            this.range.range_top       = view.getInt16(8, true) / 1000.0;;
+            this.range.range_bottom    = view.getInt16(10, true) / 1000.0;;
 
             return true;
         }
@@ -1541,11 +1541,11 @@ class byrobot_base extends BaseModule
 
 
         case 0x45:  // Range
-                {
-                    //this.log("BASE - handlerForDevice() - Received - Rangen - 0x45");
-                    this.updateRange();
-                }
-                break;
+            {
+                //this.log("BASE - handlerForDevice() - Received - Range - 0x45");
+                this.updateRange();
+            }
+            break;
 
 
         case 0xA1:  // Information Assembled For Entry 자주 갱신되는 데이터 모음(엔트리)
@@ -1598,10 +1598,10 @@ class byrobot_base extends BaseModule
             }
             else
             {
-                const index = (this.countReqeustDevice % ((this.arrayRequestData.length + 1) * 2)).toFixed(0);   // +1은 조종기에 ping, *2 는 자주 갱신되는 데이터 요청
+                const index = (this.countReqeustDevice % ((this.arrayRequestData.length + 1) * 2).toFixed(0));   // +1은 조종기에 ping, *2 는 자주 갱신되는 데이터 요청
                 const indexArray = (index / 2).toFixed(0);
 
-                if (index & 0x01 == 0)
+                if ((index & 0x01) == 0)
                 {
                     if (indexArray < this.arrayRequestData.length)
                     {
@@ -1631,10 +1631,10 @@ class byrobot_base extends BaseModule
             }
             else
             {
-                const index = (this.countReqeustDevice % ((this.arrayRequestData.length + 1) * 4)).toFixed(0);   // +1은 자주 갱신되는 데이터 요청, *4는 예약된 요청 데이터
+                const index = (this.countReqeustDevice % ((this.arrayRequestData.length + 1) * 4).toFixed(0));   // +1은 자주 갱신되는 데이터 요청, *4는 예약된 요청 데이터
                 const indexArray = (index / 4).toFixed(0);;
 
-                if (index & 0x03 == 0)
+                if ((index & 0x03) == 0)
                 {
                     if (indexArray < this.arrayRequestData.length)
                     {
