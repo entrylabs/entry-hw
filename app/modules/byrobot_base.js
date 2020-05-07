@@ -1518,59 +1518,64 @@ class byrobot_base extends BaseModule
         if (this.bufferTransfer.length == 0)
         {
             // 예약된 요청이 없는 경우 데이터 요청 등록(현재는 자세 데이터 요청)
-            switch (this.targetDevice)
+            if (this.arrayRequestData == null)
             {
-            case 0x10:
+                return this.reservePing(this.targetDevice);
+            }
+            else
+            {
+                const index = (this.countReqeustDevice % ((this.arrayRequestData.length + 1) * 2)).toFixed(0);   // +1은 조종기에 ping, *2 는 자주 갱신되는 데이터 요청
+                const indexArray = (index / 2).toFixed(0);
+
+                if (index & 0x01 == 0)
                 {
-                    switch (this.countReqeustDevice % 10)
+                    if (indexArray < this.arrayRequestData.length)
                     {
-                    case 0:    return this.reservePing(0x10);              // 드론
-                    case 2:    return this.reservePing(0x20);              // 조종기
-                    case 4:    return this.reserveRequest(0x10, 0x40);     // 드론
-                    case 6:    return this.reserveRequest(0x10, 0x44);     // 드론
-                    default:   return this.reserveRequest(0x10, 0xA1);     // 드론, 자주 갱신되는 데이터 모음(엔트리)
+                        return this.reserveRequest(this.targetDevice, this.arrayRequestData[indexArray]);    // 드론
+                    }
+                    else
+                    {
+                        return this.reservePing(0x20);  // 조종기
                     }
                 }
-                break;
-
-            default:
+                else
                 {
-                    return this.reservePing(this.targetDevice);
+                    return this.reserveRequest(this.targetDevice, 0xA1);     // 드론, 자주 갱신되는 데이터 모음(엔트리)
                 }
-                break;
             }
         }
         else
         {
             // 예약된 요청이 있는 경우
-            switch (this.targetDevice)
+            if (this.arrayRequestData == null)
             {
-            case 0x10:
+                switch (this.countReqeustDevice % 10)
                 {
-                    switch (this.countReqeustDevice % 16)
-                    {
-                    case 0:    return this.reserveRequest(0x10, 0x40);     // 드론
-                    case 4:    return this.reserveRequest(0x10, 0x44);     // 드론, 자주 갱신되는 데이터 모음(엔트리)
-                    case 8:    return this.reserveRequest(0x10, 0xA1);     // 드론, 자주 갱신되는 데이터 모음(엔트리)
-                    default:    break;
-                    }
+                case 0:     return this.reservePing(this.targetDevice);
+                default:    break;
                 }
-                break;
+            }
+            else
+            {
+                const index = (this.countReqeustDevice % ((this.arrayRequestData.length + 1) * 4)).toFixed(0);   // +1은 자주 갱신되는 데이터 요청, *4는 예약된 요청 데이터
+                const indexArray = (index / 4).toFixed(0);;
 
-            default:
+                if (index & 0x03 == 0)
                 {
-                    switch (this.countReqeustDevice % 10)
+                    if (indexArray < this.arrayRequestData.length)
                     {
-                    case 0:     return this.reservePing(this.targetDevice);
-                    default:    break;
+                        return this.reserveRequest(this.targetDevice, this.arrayRequestData[indexArray]);    // 드론
+                    }
+                    else
+                    {
+                        return this.reserveRequest(this.targetDevice, 0xA1);     // 드론, 자주 갱신되는 데이터 모음(엔트리)
                     }
                 }
-                break;
             }
         }
 
         // 예약된 데이터 전송 처리
-        const arrayTransfer = this.bufferTransfer[0];             // 전송할 데이터 배열(첫 번째 데이터 블럭 전송)
+        const arrayTransfer = this.bufferTransfer[0];           // 전송할 데이터 배열(첫 번째 데이터 블럭 전송)
         if (arrayTransfer[2] == 0x04)
         {
             this.dataTypeLastTransfered = arrayTransfer[6];     // 요청한 데이터의 타입(Request인 경우)
