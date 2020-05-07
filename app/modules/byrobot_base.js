@@ -243,6 +243,20 @@ class byrobot_base extends BaseModule
         };
 
 
+        // Range
+        this.range =
+        {
+            _updated        : 1,
+            range_left      : 0,    // u16
+            range_front     : 0,    // u16
+            range_right     : 0,    // u16
+            range_rear      : 0,    // u16
+            range_top       : 0,    // u16
+            range_bottom    : 0,    // u16
+        };
+
+
+
         // InformationAssembledForEntry
         this.informationAssembledForEntry =
         {
@@ -425,6 +439,9 @@ class byrobot_base extends BaseModule
 
         // Motion
         this.clearMotion();
+
+        // Range
+        this.clearRange();
 
         // InformationAssembledForEntry
         this.clearInformationAssembledForEntry();
@@ -664,6 +681,41 @@ class byrobot_base extends BaseModule
             this.motion.motion_anglePitch   = view.getInt16(14, true);
             this.motion.motion_angleYaw     = view.getInt16(16, true);
             // */
+
+            return true;
+        }
+
+        return false;
+    }
+
+
+    clearRange()
+    {
+        this.range._updated       = false;
+        this.range.range_left     = 0;
+        this.range.range_front    = 0;
+        this.range.range_right    = 0;
+        this.range.range_rear     = 0;
+        this.range.range_top      = 0;
+        this.range.range_bottom   = 0;
+    }
+
+    updateRange()
+    {
+        //this.log(`BASE - updateRange() - length : ${this.dataBlock.length}`);
+
+        if (this.dataBlock != undefined && this.dataBlock.length == 12)
+        {
+            const array = Uint8Array.from(this.dataBlock);
+            const view  = new DataView(array.buffer);
+
+            this.range._updated        = true;
+            this.range.range_left      = view.getInt16(0, true);
+            this.range.range_front     = view.getInt16(2, true);
+            this.range.range_right     = view.getInt16(4, true);
+            this.range.range_rear      = view.getInt16(6, true);
+            this.range.range_top       = view.getInt16(8, true);
+            this.range.range_bottom    = view.getInt16(10, true);
 
             return true;
         }
@@ -1167,6 +1219,19 @@ class byrobot_base extends BaseModule
             }
         }
 
+        // Range
+        {
+            if (this.range._updated)
+            {
+                for (const key in this.range)
+                {
+                    handler.write(key, this.range[key]);
+                }
+
+                this.range._updated = false;
+            }
+        }
+
         // InformationAssembledForEntry
         {
             if (this.informationAssembledForEntry._updated)
@@ -1473,6 +1538,15 @@ class byrobot_base extends BaseModule
                 this.updateMotion();
             }
             break;
+
+
+        case 0x45:  // Range
+                {
+                    //this.log("BASE - handlerForDevice() - Received - Rangen - 0x45");
+                    this.updateRange();
+                }
+                break;
+
 
         case 0xA1:  // Information Assembled For Entry 자주 갱신되는 데이터 모음(엔트리)
             {
