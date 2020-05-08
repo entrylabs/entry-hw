@@ -18,7 +18,7 @@ const BaseModule = require('./baseModule');
  *   - Battle Drone
  *
  * - 마지막 업데이트
- *   - 2020.5.4
+ *   - 2020.5.8
  *
  ***************************************************************************************/
 
@@ -256,6 +256,14 @@ class byrobot_base extends BaseModule
         };
 
 
+        // BattleIrMessage
+        this.battleIrMessage =
+        {
+            _updated            : 1,
+            battle_irMessage    : 0,    // u32
+        };
+
+
         // CardColor
         this.cardColor =
         {
@@ -460,6 +468,9 @@ class byrobot_base extends BaseModule
 
         // Range
         this.clearRange();
+
+        // BattleIrMessage
+        this.clearBattleIrMessage();
 
         // Range
         this.clearCardColor();
@@ -737,6 +748,31 @@ class byrobot_base extends BaseModule
             this.range.range_rear      = view.getInt16(6, true) / 1000.0;
             this.range.range_top       = view.getInt16(8, true) / 1000.0;
             this.range.range_bottom    = view.getInt16(10, true) / 1000.0;
+
+            return true;
+        }
+
+        return false;
+    }
+
+
+    clearBattleIrMessage()
+    {
+        this.battleIrMessage._updated   = false;
+        this.battleIrMessage.data       = 0;
+    }
+
+    updateBattleIrMessage()
+    {
+        this.log(`BASE - updateBattleIrMessage() - length : ${this.dataBlock.length}`);
+
+        if (this.dataBlock != undefined && this.dataBlock.length == 4)
+        {
+            const array = Uint8Array.from(this.dataBlock);
+            const view  = new DataView(array.buffer);
+
+            this.battleIrMessage._updated   = true;
+            this.battleIrMessage.data       = view.getUint32(0, true);
 
             return true;
         }
@@ -1298,6 +1334,19 @@ class byrobot_base extends BaseModule
             }
         }
 
+        // BattleIrMessage
+        {
+            if (this.battleIrMessage._updated)
+            {
+                for (const key in this.battleIrMessage)
+                {
+                    handler.write(key, this.battleIrMessage[key]);
+                }
+
+                this.battleIrMessage._updated = false;
+            }
+        }
+
         // CardColor
         {
             if (this.cardColor._updated)
@@ -1587,6 +1636,14 @@ class byrobot_base extends BaseModule
         // 데이터 업데이트
         switch (this.dataType)
         {
+        case 0x1F:  // Battle
+            {
+                //this.log("BASE - handlerForDevice() - Received - Battle - 0x1F");
+                this.updateBattleIrMessage();
+            }
+            break;
+
+
         case 0x40:  // State
             {
                 //this.log("BASE - handlerForDevice() - Received - State - 0x40");
