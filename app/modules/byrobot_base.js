@@ -60,6 +60,9 @@ class byrobot_base extends BaseModule
             // 전송 대상
             TARGET                      : 'target',
 
+            // BATTLE_IR_MESSAGE
+            BATTLE_IR_MESSAGE           : 'battle_ir_message',
+
             // Light Manaul
             LIGHT_MANUAL_FLAGS          : 'light_manual_flags',
             LIGHT_MANUAL_BRIGHTNESS     : 'light_manual_brightness',
@@ -932,6 +935,17 @@ class byrobot_base extends BaseModule
         }
 
         const target = this.read(handler, this.DataType.TARGET, 0xFF);
+
+        // BATTLE_IR_MESSAGE
+        if (handler.e(this.DataType.BATTLE_IR_MESSAGE))
+        {
+            const irMessage = this.read(handler, this.DataType.BATTLE_IR_MESSAGE);
+
+            const dataArray = this.reserveBattleIrMessage(target, irMessage);
+            this.bufferTransfer.push(dataArray);
+            this.log('BASE - Transfer_To_Device - BattleIrMessage', dataArray);
+        }
+
 
         // Light Manual
         if (handler.e(this.DataType.LIGHT_MANUAL_FLAGS)       &&
@@ -1880,6 +1894,19 @@ class byrobot_base extends BaseModule
 
         this.log(`BASE - reserveLightManual() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x20, target, dataArray);
+    }
+
+
+    // BattleIrMessage
+    reserveBattleIrMessage(target, irMessage)
+    {
+        const dataArray   = new ArrayBuffer(4);
+        const view        = new DataView(dataArray);
+
+        view.setUint32  (0, this.fit(0, irMessage, 0xFFFFFFFF), true);
+
+        this.log(`BASE - reserveBattleIrMessage() - Target: 0x${target.toString(16).toUpperCase()}`);
+        return this.createTransferBlock(0x1F, target, dataArray);
     }
 
 
