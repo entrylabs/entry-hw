@@ -79,6 +79,14 @@ class IpcRendererWatchComponent extends React.PureComponent<IProps> {
                     });
                     break;
                 }
+                case HardwareStatement.scanFailed: {
+                    applyTitle('hardware > connection failed');
+                    props.changeAlertMessage({
+                        message: translator.translate(
+                            'Connection failed. please restart application or reconnect manually.',
+                        ),
+                    });
+                }
                 case HardwareStatement.flash: {
                     props.changeAlertMessage({
                         message: translator.translate('Firmware Uploading...'),

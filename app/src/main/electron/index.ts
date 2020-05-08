@@ -47,9 +47,9 @@ if (!app.requestSingleInstanceLock()) {
     // 어플리케이션을 중복 실행했습니다. 주 어플리케이션 인스턴스를 활성화 합니다.
     app.on('second-instance', (event, argv, workingDirectory) => {
         let parseData: string | undefined = undefined;
-        const roomIdIndex = argv.indexOf('entryhw:');
-        if (roomIdIndex > -1) {
-            parseData = CommonUtils.getArgsParseData(argv[roomIdIndex]);
+        const entryHwCustomSchema = argv.find((arg) => arg.indexOf('entryhw:') > -1);
+        if (entryHwCustomSchema) {
+            parseData = CommonUtils.getArgsParseData(entryHwCustomSchema);
         }
 
         if (mainWindow) {

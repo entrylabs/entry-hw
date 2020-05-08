@@ -1,9 +1,17 @@
 import { net } from 'electron';
 import createLogger from './createLogger';
 
+type CheckUpdateResult = {
+    version: string;
+    padded_version: string;
+    hasNewVersion: boolean;
+    currentVersion: string;
+    _id: string;
+}
+
 const logger = createLogger('CheckUpdate');
 
-export default () => new Promise((resolve, reject) => {
+export default (): Promise<CheckUpdateResult> => new Promise((resolve, reject) => {
     const { updateCheckUrl, hardwareVersion } = global.sharedObject;
     const request = net.request({
         method: 'POST',
@@ -30,7 +38,7 @@ export default () => new Promise((resolve, reject) => {
             buffer += chunk.toString();
         });
         response.on('end', () => {
-            let data: any = {};
+            let data: Partial<CheckUpdateResult> = {};
             try {
                 data = JSON.parse(buffer);
                 data.currentVersion = hardwareVersion;
@@ -38,7 +46,7 @@ export default () => new Promise((resolve, reject) => {
             } catch (e) {
                 // nothing to do
             } finally {
-                resolve(data);
+                resolve(data as CheckUpdateResult);
             }
         });
     });

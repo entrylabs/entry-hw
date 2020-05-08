@@ -1,9 +1,8 @@
-const _ = require('lodash');
 const byrobot_base = require('./byrobot_base');
 
 
 /***************************************************************************************
- *  BYROBOT Coding Drone 
+ *  BYROBOT Coding Drone
  ***************************************************************************************/
 
 class byrobot_drone_8 extends byrobot_base

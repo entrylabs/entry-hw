@@ -1,9 +1,9 @@
 import packageJson from '../../../../../package.json';
-import getExtraDirectoryPath from '../../core/functions/getExtraDirectoryPath';
 import { forEach, merge, reduce, toPairs } from 'lodash';
 import path from 'path';
 import fs from 'fs';
 import createLogger from './createLogger';
+import directoryPaths from '../../../common/directoryPaths';
 
 const logger = createLogger('ConfigInitialize');
 /**
@@ -37,7 +37,7 @@ function mergeExistProperties(target: any, src: any) {
 
 export default (configName = 'entry') => {
     const getMergedConfig = (target: any) => mergeExistProperties(defaultConfigSchema, target);
-    const configFilePath = path.resolve(getExtraDirectoryPath('config'), `config.${configName}.json`);
+    const configFilePath = path.resolve(directoryPaths.config, `config.${configName}.json`);
 
     logger.info(`load configuration ${configFilePath}...`);
 

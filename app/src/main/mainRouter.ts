@@ -8,8 +8,8 @@ import HardwareListManager from './core/hardwareListManager';
 import DataHandler from './core/dataHandler';
 import downloadModule from './core/functions/downloadModule';
 import { EntryMessageAction, EntryStatePayload, HardwareStatement } from '../common/constants';
-import getExtraDirectoryPath from './core/functions/getExtraDirectoryPath';
 import createLogger from './electron/functions/createLogger';
+import directoryPaths from '../common/directoryPaths';
 
 const nativeNodeRequire = require('./nativeNodeRequire.js');
 const logger = createLogger('core/mainRouter.ts');
@@ -42,7 +42,7 @@ class MainRouter {
     public selectedPort?: string;
     public currentCloudMode: number = 0;
     public currentServerRunningMode: number = 2;
-    private connector?: any;
+    private connector?: any; // TODO typing
     private config?: IHardwareConfig;
     private scanner?: any;
     private hwModule?: IHardwareModule;
@@ -205,7 +205,7 @@ class MainRouter {
             const { type = 'serial' } = hardware;
             this.scanner = this.scannerManager.getScanner(type);
             if (this.scanner) {
-                const moduleFilePath = getExtraDirectoryPath('modules');
+                const moduleFilePath = directoryPaths.modules;
                 this.hwModule = nativeNodeRequire(path.join(moduleFilePath, config.module)) as IHardwareModule;
                 this.sendState(HardwareStatement.scan);
                 this.scanner.stopScan();
@@ -218,7 +218,8 @@ class MainRouter {
                 }
             }
         } catch (e) {
-            console.error(e);
+            logger.error(`startScan Error, ${e.name} ${e.message}`);
+            this.sendState(HardwareStatement.scanFailed);
         }
     }
 
@@ -411,18 +412,12 @@ class MainRouter {
         }
     };
 
-    /**
-     * 드라이버를 실행한다. 최초 실행시 app.asar 에 파일이 들어가있는 경우,
-     * 외부로 복사하여 외부 파일을 사용한다.
-     * @param driverPath
-     */
     executeDriver(driverPath: string) {
         if (!this.config) {
             return;
         }
 
-        const sourcePath = getExtraDirectoryPath('driver');
-        const driverFullPath = path.resolve(sourcePath, driverPath);
+        const driverFullPath = path.resolve(directoryPaths.driver, driverPath);
         logger.info(`execute driver requested. filePath : ${driverFullPath}`);
         shell.openItem(driverFullPath);
     }

@@ -1,25 +1,24 @@
 /* eslint-disable brace-style */
 /* eslint-disable max-len */
-const _ = require('lodash');
 const BaseModule = require('./baseModule');
 
 
 /***************************************************************************************
- * 
+ *
  *  기본 클래스
- * 
+ *
  * - 송수신 데이터 정의 문서
  *   http://dev.byrobot.co.kr/documents/kr/products/petrone_v2/protocol/
- * 
+ *
  * - 호환 제품군
  *   - XTS-65
  *   - SkyKick V2
  *   - E-DRONE
  *   - Coding Drone
- * 
+ *
  * - 마지막 업데이트
  *   - 2020.2.12
- * 
+ *
  ***************************************************************************************/
 
 class byrobot_base extends BaseModule
@@ -50,13 +49,13 @@ class byrobot_base extends BaseModule
             대상 장치로부터 수신 받는 데이터는 모두 _updated 변수를 최상단에 붙임.
             업데이트 된 경우 _updated를 1로 만들고 entry로 전송이 끝나면 다시 0으로 변경
         */
-        
+
         // Entry -> Device
         this.DataType =
         {
             // 전송 버퍼
             BUFFER_CLEAR                : 'buffer_clear',
-        
+
             // 전송 대상
             TARGET                      : 'target',
 
@@ -155,7 +154,7 @@ class byrobot_base extends BaseModule
             CONTROL_QUAD8_PITCH     : 'control_quad8_pitch',
             CONTROL_QUAD8_YAW       : 'control_quad8_yaw',
             CONTROL_QUAD8_THROTTLE  : 'control_quad8_throttle',
-            
+
             // Control::Position
             CONTROL_POSITION_X                   : 'control_position_x',
             CONTROL_POSITION_Y                   : 'control_position_y',
@@ -173,10 +172,10 @@ class byrobot_base extends BaseModule
             MOTORSINGLE_ROTATION    : 'motorsingle_rotation',     // direction -> rotation
             MOTORSINGLE_VALUE       : 'motorsingle_value',
         };
-    
+
 
         // -- JSON Objects ----------------------------------------------------------------
-        // Device -> Entry 
+        // Device -> Entry
 
         // Ack
         this.ack =
@@ -189,7 +188,7 @@ class byrobot_base extends BaseModule
 
 
         // Joystick
-        this.joystick = 
+        this.joystick =
         {
             _updated                    : 1,
             joystick_left_x             : 0,    // s8
@@ -204,7 +203,7 @@ class byrobot_base extends BaseModule
 
 
         // Button
-        this.button = 
+        this.button =
         {
             _updated            : 1,
             button_button       : 0,    // u16
@@ -213,7 +212,7 @@ class byrobot_base extends BaseModule
 
 
         // State
-        this.state = 
+        this.state =
         {
             _updated                : 1,
             state_modeSystem        : 0,    // u8
@@ -228,7 +227,7 @@ class byrobot_base extends BaseModule
 
 
         // Motion
-        this.motion = 
+        this.motion =
         {
             _updated            : 1,
             motion_accelX       : 0,    // u16
@@ -284,7 +283,7 @@ class byrobot_base extends BaseModule
     init(handler, config)
     {
         super.init(handler, config);
-        
+
         this.log('BASE - init()');
         this.resetData();
     }
@@ -314,7 +313,7 @@ class byrobot_base extends BaseModule
     checkInitialData(data, config)
     {
         this.log('BASE - checkInitialData()');
-        return this.checkInitialAck(data, config); 
+        return this.checkInitialAck(data, config);
     }
 
 
@@ -330,7 +329,7 @@ class byrobot_base extends BaseModule
 
     /*
         하드웨어에 전달할 데이터
-        
+
         하드웨어 기기에 전달할 데이터를 반환합니다.
         slave 모드인 경우 duration 속성 간격으로 지속적으로 기기에 요청을 보냅니다.
     */
@@ -409,7 +408,7 @@ class byrobot_base extends BaseModule
     resetData()
     {
         // -- JSON Objects ----------------------------------------------------------------
-        // Device -> Entry 
+        // Device -> Entry
 
         // Ack
         this.clearAck();
@@ -432,16 +431,16 @@ class byrobot_base extends BaseModule
         // 변수 초기화
         this.clearVariable();
     }
-    
+
     clearVariable()
     {
         // -- Control -----------------------------------------------------------------
-        this.controlWheel           = 0;        // 
-        this.controlAccel           = 0;        // 
-        this.controlRoll            = 0;        // 
-        this.controlPitch           = 0;        // 
-        this.controlYaw             = 0;        // 
-        this.controlThrottle        = 0;        // 
+        this.controlWheel           = 0;        //
+        this.controlAccel           = 0;        //
+        this.controlRoll            = 0;        //
+        this.controlPitch           = 0;        //
+        this.controlYaw             = 0;        //
+        this.controlThrottle        = 0;        //
 
         // -- Hardware ----------------------------------------------------------------
         this.bufferReceive          = [];       // 데이터 수신 버퍼
@@ -542,7 +541,7 @@ class byrobot_base extends BaseModule
 
             return true;
         }
-        
+
         return false;
     }
 
@@ -569,7 +568,7 @@ class byrobot_base extends BaseModule
 
             return true;
         }
-        
+
         return false;
     }
 
@@ -667,7 +666,7 @@ class byrobot_base extends BaseModule
 
             return true;
         }
-        
+
         return false;
     }
 
@@ -706,7 +705,7 @@ class byrobot_base extends BaseModule
 
             return true;
         }
-        
+
         return false;
     }
 
@@ -804,7 +803,7 @@ class byrobot_base extends BaseModule
             const r           = this.read(handler, this.DataType.LIGHT_COLOR_R);
             const g           = this.read(handler, this.DataType.LIGHT_COLOR_G);
             const b           = this.read(handler, this.DataType.LIGHT_COLOR_B);
-            
+
             const dataArray = this.reserveLightModeColor(target, mode, interval, r, g, b);
             this.bufferTransfer.push(dataArray);
             this.log('BASE - Transfer_To_Device - LightModeColor', dataArray);
@@ -820,7 +819,7 @@ class byrobot_base extends BaseModule
             this.bufferTransfer.push(dataArray);
             this.log('BASE - Transfer_To_Device - LightMode', dataArray);
         }
-        
+
 
         // LightEventColor
         if         (handler.e(this.DataType.LIGHT_EVENT_EVENT)     &&
@@ -906,7 +905,7 @@ class byrobot_base extends BaseModule
             const x       = this.read(handler, this.DataType.DISPLAY_DRAW_POINT_X);
             const y       = this.read(handler, this.DataType.DISPLAY_DRAW_POINT_Y);
             const pixel   = this.read(handler, this.DataType.DISPLAY_DRAW_POINT_PIXEL);
-            
+
             const dataArray = this.reserveDisplayDrawPoint(target, x, y, pixel);
             this.bufferTransfer.push(dataArray);
             this.log('BASE - Transfer_To_Device - DisplayDrawPoint', dataArray);
@@ -925,13 +924,13 @@ class byrobot_base extends BaseModule
             const y2      = this.read(handler, this.DataType.DISPLAY_DRAW_LINE_Y2);
             const pixel   = this.read(handler, this.DataType.DISPLAY_DRAW_LINE_PIXEL);
             const line    = this.read(handler, this.DataType.DISPLAY_DRAW_LINE_LINE);
-            
+
             const dataArray = this.reserveDisplayDrawLine(target, x1, y1, x2, y2, pixel, line);
             this.bufferTransfer.push(dataArray);
             this.log('BASE - Transfer_To_Device - DisplayDrawLine', dataArray);
         }
 
-        
+
         // 화면에 사각형 그리기
         if (handler.e(this.DataType.DISPLAY_DRAW_RECT_WIDTH)   ||
             handler.e(this.DataType.DISPLAY_DRAW_RECT_HEIGHT))
@@ -1153,7 +1152,7 @@ class byrobot_base extends BaseModule
                 this.state._updated = false;
             }
         }
-    
+
         // Motion
         {
             if (this.motion._updated)
@@ -1162,11 +1161,11 @@ class byrobot_base extends BaseModule
                 {
                     handler.write(key, this.motion[key]);
                 }
-    
+
                 this.motion._updated = false;
             }
         }
-    
+
         // InformationAssembledForEntry
         {
             if (this.informationAssembledForEntry._updated)
@@ -1175,7 +1174,7 @@ class byrobot_base extends BaseModule
                 {
                     handler.write(key, this.informationAssembledForEntry[key]);
                 }
-    
+
                 this.informationAssembledForEntry._updated = false;
             }
         }
@@ -1190,7 +1189,7 @@ class byrobot_base extends BaseModule
             handler.write('entryhw_countTransferReserved', this.bufferTransfer.length);
         }
     }
-    
+
     // #endregion Data Transfer to Entry from Device
 
 
@@ -1216,15 +1215,15 @@ class byrobot_base extends BaseModule
         for (let i = 0; i < dataArray.length; i++)
         {
             const data          = dataArray[i];
-            
+
             let flagContinue    = true;
             let flagSessionNext = false;
             let flagComplete    = false;
-            
+
             switch (this.indexSession)
             {
             case 0: // Start Code
-                {               
+                {
                     switch (this.indexReceiver)
                     {
                     case 0:
@@ -1233,7 +1232,7 @@ class byrobot_base extends BaseModule
                             continue;
                         }
                         break;
-                    
+
                     case 1:
                         if (data != 0x55)
                         {
@@ -1258,21 +1257,21 @@ class byrobot_base extends BaseModule
                             this.crc16Calculated = this.calcCRC16(data, 0);
                         }
                         break;
-                    
+
                     case 1:
                         {
                             this.dataLength = data;
                             this.crc16Calculated = this.calcCRC16(data, this.crc16Calculated);
                         }
                         break;
-                    
+
                     case 2:
                         {
                             this.from = data;
                             this.crc16Calculated = this.calcCRC16(data, this.crc16Calculated);
                         }
                         break;
-                    
+
                     case 3:
                         {
                             this.to = data;
@@ -1293,7 +1292,7 @@ class byrobot_base extends BaseModule
                 {
                     this.dataBlock.push(data);
                     this.crc16Calculated = this.calcCRC16(data, this.crc16Calculated);
-                    
+
                     if (this.indexReceiver == this.dataLength - 1)
                     {
                         flagSessionNext = true;
@@ -1310,7 +1309,7 @@ class byrobot_base extends BaseModule
                             this.crc16Received = data;
                         }
                         break;
-                    
+
                     case 1:
                         {
                             this.crc16Received = this.crc16Received + (data << 8);
@@ -1346,7 +1345,7 @@ class byrobot_base extends BaseModule
                 if (flagSessionNext)
                 {
                     this.indexSession++;
-                    this.indexReceiver = 0;             
+                    this.indexReceiver = 0;
                 }
                 else
                 {
@@ -1360,7 +1359,7 @@ class byrobot_base extends BaseModule
             }
         }
     }
-    
+
     // #endregion Data Receiver from Device
 
 
@@ -1379,14 +1378,14 @@ class byrobot_base extends BaseModule
         {
         case 0x02:  break;      // Ack
         case 0x40:  break;      // State (0x40)
-        case 0x41:  break;      // 
-        case 0x42:  break;      // 
-        case 0x43:  break;      // 
-        case 0x44:  break;      // 
-        case 0x45:  break;      // 
-        case 0x70:  break;      // 
-        case 0x71:  break;      // 
-        case 0xA1:  break;      // 
+        case 0x41:  break;      //
+        case 0x42:  break;      //
+        case 0x43:  break;      //
+        case 0x44:  break;      //
+        case 0x45:  break;      //
+        case 0x70:  break;      //
+        case 0x71:  break;      //
+        case 0xA1:  break;      //
 
         default:
             {
@@ -1411,7 +1410,7 @@ class byrobot_base extends BaseModule
                         //this.log(`BASE - handlerForDevice() - Ack - From: ${this.from} - SystemTime: ${this.ack.ack_systemTime} - DataType: ${this.ack.ack_dataType} - Repeat: ${this.countTransferRepeat} - CRC16 Transfer: ${this.crc16Transfered} - CRF16 Ack: ${this.ack.ack_crc16}`);
                     }
 
-                    // 마지막으로 전송한 데이터에 대한 응답을 받았다면 
+                    // 마지막으로 전송한 데이터에 대한 응답을 받았다면
                     if (this.bufferTransfer         != undefined                &&
                         this.bufferTransfer.length  > 0                         &&
                         this.dataTypeLastTransfered == this.ack.ack_dataType    &&
@@ -1426,14 +1425,14 @@ class byrobot_base extends BaseModule
 
         default:
             {
-                // 마지막으로 요청한 데이터를 받았다면 
+                // 마지막으로 요청한 데이터를 받았다면
                 if (this.bufferTransfer         != undefined     &&
                     this.bufferTransfer.length  > 0              &&
                     this.dataTypeLastTransfered == this.dataType)
                 {
                     this.bufferTransfer.shift();
                     this.countTransferRepeat = 0;
-                    
+
                     //this.log(`BASE - handlerForDevice() - Response - From: ${this.from} - DataType: ${this.dataType}`);
                 }
             }
@@ -1505,7 +1504,7 @@ class byrobot_base extends BaseModule
         {
             return null;
         }
-        
+
         this.timeTransferNext = now + this.timeTransferInterval;
 
         if (this.bufferTransfer == undefined)
@@ -1998,7 +1997,7 @@ class byrobot_base extends BaseModule
         // CRC16
         {
             const indexStart  = 2;
-            const totalLength = 4 + dataArray.length; // 
+            const totalLength = 4 + dataArray.length; //
             let crc16       = 0;
 
             for (let i = 0; i < totalLength; i++)
@@ -2007,7 +2006,7 @@ class byrobot_base extends BaseModule
             }
             view.setUint16((2 + 4 + dataArray.length), crc16, true);
         }
-        
+
         //this.log("BASE - createTransferBlock() - ", Array.from(new Uint8Array(dataBlock)))
         return Array.from(new Uint8Array(dataBlock));
     }
@@ -2185,7 +2184,7 @@ class byrobot_base extends BaseModule
     }
 
 
-    // 바이트 배열을 16진수 문자열로 변경 
+    // 바이트 배열을 16진수 문자열로 변경
     convertByteArrayToHexString(data)
     {
         let strHexArray = '';
@@ -2209,7 +2208,7 @@ class byrobot_base extends BaseModule
         {
             strHexArray = data.toString();
         }
-        
+
         return strHexArray;
     }
 
