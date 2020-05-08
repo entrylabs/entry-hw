@@ -256,6 +256,24 @@ class byrobot_base extends BaseModule
         };
 
 
+        // CardColor
+        this.cardColor =
+        {
+            _updated                    : 1,
+            cardColor_frontHue          : 0,    // u16
+            cardColor_frontSaturation   : 0,    // u16
+            cardColor_frontValue        : 0,    // u16
+            cardColor_frontLightness    : 0,    // u16
+            cardColor_rearHue           : 0,    // u16
+            cardColor_rearSaturation    : 0,    // u16
+            cardColor_rearValue         : 0,    // u16
+            cardColor_rearLightness     : 0,    // u16
+            cardColor_frontColor        : 0,    // u8
+            cardColor_rearColor         : 0,    // u8
+            cardColor_card              : 0,    // u8
+        };
+
+
 
         // InformationAssembledForEntry
         this.informationAssembledForEntry =
@@ -442,6 +460,9 @@ class byrobot_base extends BaseModule
 
         // Range
         this.clearRange();
+
+        // Range
+        this.clearCardColor();
 
         // InformationAssembledForEntry
         this.clearInformationAssembledForEntry();
@@ -710,13 +731,58 @@ class byrobot_base extends BaseModule
             const view  = new DataView(array.buffer);
 
             this.range._updated        = true;
-            this.range.range_left      = view.getInt16(0, true) / 1000.0;;
-            this.range.range_front     = view.getInt16(2, true) / 1000.0;;
-            this.range.range_right     = view.getInt16(4, true) / 1000.0;;
-            this.range.range_rear      = view.getInt16(6, true) / 1000.0;;
-            this.range.range_top       = view.getInt16(8, true) / 1000.0;;
-            this.range.range_bottom    = view.getInt16(10, true) / 1000.0;;
+            this.range.range_left      = view.getInt16(0, true) / 1000.0;
+            this.range.range_front     = view.getInt16(2, true) / 1000.0;
+            this.range.range_right     = view.getInt16(4, true) / 1000.0;
+            this.range.range_rear      = view.getInt16(6, true) / 1000.0;
+            this.range.range_top       = view.getInt16(8, true) / 1000.0;
+            this.range.range_bottom    = view.getInt16(10, true) / 1000.0;
 
+            return true;
+        }
+
+        return false;
+    }
+
+
+    clearCardColor()
+    {
+        this.cardColor._updated                     = false;
+        this.cardColor.cardColor_frontHue           = 0;
+        this.cardColor.cardColor_frontSaturation    = 0;
+        this.cardColor.cardColor_frontValue         = 0;
+        this.cardColor.cardColor_frontLightness     = 0;
+        this.cardColor.cardColor_rearHue            = 0;
+        this.cardColor.cardColor_rearSaturation     = 0;
+        this.cardColor.cardColor_rearValue          = 0;
+        this.cardColor.cardColor_rearLightness      = 0;
+        this.cardColor.cardColor_frontColor         = 0;
+        this.cardColor.cardColor_rearColor          = 0;
+        this.cardColor.cardColor_card               = 0;
+    }
+
+    updateCardColor()
+    {
+        this.log(`BASE - updateCardColor() - length : ${this.dataBlock.length}`);
+
+        if (this.dataBlock != undefined && this.dataBlock.length == 19)
+        {
+            const array = Uint8Array.from(this.dataBlock);
+            const view  = new DataView(array.buffer);
+
+            this.cardColor._updated                     = true;
+            this.cardColor.cardColor_frontHue           = view.getInt16(0, true);
+            this.cardColor.cardColor_frontSaturation    = view.getInt16(2, true);
+            this.cardColor.cardColor_frontValue         = view.getInt16(4, true);
+            this.cardColor.cardColor_frontLightness     = view.getInt16(6, true);
+            this.cardColor.cardColor_rearHue            = view.getInt16(8, true);
+            this.cardColor.cardColor_rearSaturation     = view.getInt16(10, true);
+            this.cardColor.cardColor_rearValue          = view.getInt16(12, true);
+            this.cardColor.cardColor_rearLightness      = view.getInt16(14, true);
+            this.cardColor.cardColor_frontColor         = view.getUint8(16, true);
+            this.cardColor.cardColor_rearColor          = view.getUint8(17, true);
+            this.cardColor.cardColor_card               = view.getUint8(18, true);
+            
             return true;
         }
 
@@ -1232,6 +1298,19 @@ class byrobot_base extends BaseModule
             }
         }
 
+        // CardColor
+        {
+            if (this.cardColor._updated)
+            {
+                for (const key in this.cardColor)
+                {
+                    handler.write(key, this.cardColor[key]);
+                }
+
+                this.cardColor._updated = false;
+            }
+        }
+
         // InformationAssembledForEntry
         {
             if (this.informationAssembledForEntry._updated)
@@ -1548,6 +1627,14 @@ class byrobot_base extends BaseModule
             break;
 
 
+        case 0x93:  // CardColor
+            {
+                //this.log("BASE - handlerForDevice() - Received - CardColor - 0x93");
+                this.updateCardColor();
+            }
+            break;
+
+
         case 0xA1:  // Information Assembled For Entry 자주 갱신되는 데이터 모음(엔트리)
             {
                 //this.log("BASE - handlerForDevice() - Received - InformationAssembledForEntry - 0xA1");
@@ -1598,7 +1685,7 @@ class byrobot_base extends BaseModule
             }
             else
             {
-                const index = (this.countReqeustDevice % ((this.arrayRequestData.length + 1) * 2).toFixed(0));   // +1은 조종기에 ping, *2 는 자주 갱신되는 데이터 요청
+                const index = (this.countReqeustDevice % ((this.arrayRequestData.length + 1) * 2));   // +1은 조종기에 ping, *2 는 자주 갱신되는 데이터 요청
                 const indexArray = (index / 2).toFixed(0);
 
                 if ((index & 0x01) == 0)
@@ -1631,7 +1718,7 @@ class byrobot_base extends BaseModule
             }
             else
             {
-                const index = (this.countReqeustDevice % ((this.arrayRequestData.length + 1) * 4).toFixed(0));   // +1은 자주 갱신되는 데이터 요청, *4는 예약된 요청 데이터
+                const index = (this.countReqeustDevice % ((this.arrayRequestData.length + 1) * 4));   // +1은 자주 갱신되는 데이터 요청, *4는 예약된 요청 데이터
                 const indexArray = (index / 4).toFixed(0);;
 
                 if ((index & 0x03) == 0)
