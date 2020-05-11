@@ -263,7 +263,7 @@ class byrobot_base extends BaseModule
         this.battleIrMessage =
         {
             _updated            : 1,
-            battle_irMessage    : 0,    // u32
+            battle_ir_message    : 0,    // u32
         };
 
 
@@ -761,8 +761,8 @@ class byrobot_base extends BaseModule
 
     clearBattleIrMessage()
     {
-        this.battleIrMessage._updated   = false;
-        this.battleIrMessage.data       = 0;
+        this.battleIrMessage._updated            = false;
+        this.battleIrMessage.battle_ir_message   = 0;
     }
 
     updateBattleIrMessage()
@@ -774,8 +774,8 @@ class byrobot_base extends BaseModule
             const array = Uint8Array.from(this.dataBlock);
             const view  = new DataView(array.buffer);
 
-            this.battleIrMessage._updated   = true;
-            this.battleIrMessage.data       = view.getUint32(0, true);
+            this.battleIrMessage._updated            = true;
+            this.battleIrMessage.battle_ir_message   = view.getUint32(0, true);
 
             return true;
         }
@@ -935,6 +935,7 @@ class byrobot_base extends BaseModule
         }
 
         const target = this.read(handler, this.DataType.TARGET, 0xFF);
+
 
         // BATTLE_IR_MESSAGE
         if (handler.e(this.DataType.BATTLE_IR_MESSAGE))
