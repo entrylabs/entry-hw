@@ -706,11 +706,13 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {   /// 출력 
 
         case this.sensorTypes.LCD_SET:          // LCD 제어
                 if (port == 3) {     // 프린트
-                    buffer = new Buffer([255, 85, 16, sensorIdx, this.actionTypes.SET, 
+                    buffer = new Buffer([255, 85, 26, sensorIdx, this.actionTypes.SET, 
                     device, port,data.line,data.column,data.text0,data.text1,data.text2,
-                    data.text3,data.text4,data.text5,data.text6,
-                    data.text7,data.text8,data.text9]);
+                    data.text3,data.text4,data.text5,data.text6,data.text7,data.text8,
+                    data.text9,data.text10,data.text11,data.text12,data.text13,data.text14,
+                    data.text15,data.text16,data.text17,data.text18,data.text19]);
                     buffer = Buffer.concat([buffer,dummy]);
+
                 } else {
                     buffer = new Buffer([255, 85, 7, sensorIdx, this.actionTypes.SET, 
                     device, port, data[0], data[1],data[2]]);
