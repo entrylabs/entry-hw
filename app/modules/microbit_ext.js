@@ -178,7 +178,6 @@ class Microbit extends BaseModule {
         const codeId = handler.read('codeId') || null;
         // 리퀘스트 목록이 마지막으로 확인한 버전과 다르기 때문에, 업데이트한다.
         // 업데이트는 중복되지 않는 id 의 커맨드만 뒤에 추가한다.
-
         this.commandQueue.push({
             type,
             payload,
@@ -389,6 +388,8 @@ class Microbit extends BaseModule {
             case functionKeys.GET_SENSOR:
             case functionKeys.GET_BUTTON:
             case functionKeys.RESET_SCREEN:
+            case functionKeys.SET_SERVO:
+            case functionKeys.SET_SERVO_PERIOD:
             case functionKeys.SET_CUSTOM_IMAGE: {
                 this.commandQueue.shift();
                 break;
