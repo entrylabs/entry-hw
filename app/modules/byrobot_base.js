@@ -2178,7 +2178,7 @@ class byrobot_base extends BaseModule
 
         view.setUint8   (0, this.fit(0, motor, 0xFF));
         view.setUint8   (1, this.fit(0, rotation, 0xFF));
-        view.setInt16   (2, this.fit(-4095, value, 4095));
+        view.setInt16   (2, this.fit(-4095, value, 4095), true);
 
         this.log(`BASE - reserveMotorSingle() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x61, target, dataArray);
