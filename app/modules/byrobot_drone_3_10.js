@@ -14,6 +14,8 @@ class byrobot_drone_3_10 extends byrobot_base
     {
         super();
 
+        this.log('BYROBOT_BATTLE_DRONE - constructor()');
+
         this.targetDevice     = 0x10;
         this.targetDeviceID   = '0F0D01';
         this.arrayRequestData = [0x40, 0x44]; // State, Motion
