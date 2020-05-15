@@ -1236,12 +1236,22 @@ class byrobot_base extends BaseModule
         if (handler.e(this.DataType.MOTORSINGLE_TARGET))
         {
             const motor       = this.read(handler, this.DataType.MOTORSINGLE_TARGET);
-            const rotation    = this.read(handler, this.DataType.MOTORSINGLE_ROTATION);
             const value       = this.read(handler, this.DataType.MOTORSINGLE_VALUE);
 
-            const dataArray = this.reserveMotorSingle(target, motor, rotation, value);
-            this.bufferTransfer.push(dataArray);
-            this.log('BASE - Transfer_To_Device - MotorSingle', dataArray);
+            if (handler.e(this.DataType.MOTORSINGLE_ROTATION))
+            {
+                const rotation    = this.read(handler, this.DataType.MOTORSINGLE_ROTATION);
+
+                const dataArray = this.reserveMotorSingleRV(target, motor, rotation, value);
+                this.bufferTransfer.push(dataArray);
+                this.log('BASE - Transfer_To_Device - MotorSingleRV', dataArray);
+            }
+            else
+            {
+                const dataArray = this.reserveMotorSingleV(target, motor, value);
+                this.bufferTransfer.push(dataArray);
+                this.log('BASE - Transfer_To_Device - MotorSingleV', dataArray);
+            }
         }
 
 
@@ -2170,8 +2180,8 @@ class byrobot_base extends BaseModule
     }
 
 
-    // MotorSingle
-    reserveMotorSingle(target, motor, rotation, value)
+    // MotorSingleRV
+    reserveMotorSingleRV(target, motor, rotation, value)
     {
         const dataArray   = new ArrayBuffer(4);
         const view        = new DataView(dataArray);
@@ -2180,7 +2190,21 @@ class byrobot_base extends BaseModule
         view.setUint8   (1, this.fit(0, rotation, 0xFF));
         view.setInt16   (2, this.fit(-4095, value, 4095), true);
 
-        this.log(`BASE - reserveMotorSingle() - Target: 0x${target.toString(16).toUpperCase()}`);
+        this.log(`BASE - reserveMotorSingleRV() - Target: 0x${target.toString(16).toUpperCase()}`);
+        return this.createTransferBlock(0x61, target, dataArray);
+    }
+
+
+    // MotorSingleV
+    reserveMotorSingleV(target, motor, value)
+    {
+        const dataArray   = new ArrayBuffer(3);
+        const view        = new DataView(dataArray);
+
+        view.setUint8   (0, this.fit(0, motor, 0xFF));
+        view.setInt16   (1, this.fit(-4095, value, 4095), true);
+
+        this.log(`BASE - reserveMotorSingleV() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x61, target, dataArray);
     }
 
