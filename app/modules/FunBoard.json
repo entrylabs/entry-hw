@@ -8,7 +8,7 @@
     "platform": ["win32", "darwin"],
     "icon": "FunBoard.png",
     "module": "FunBoard.js",
-    "url": "http://www.thinkfunedu.com",
+    "url": "http://thinkfuni.co.kr",
     "video": "https://goo.gl/okk8s9",
     "driver": {
         "win32-ia32": "CP210x_VCP_Windows/CP210xVCPInstaller_x86.exe",
