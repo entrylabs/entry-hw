@@ -1,9 +1,9 @@
 import fs from 'fs';
 import path from 'path';
-import { cloneDeep, merge, unionWith } from 'lodash';
+import {cloneDeep, merge, unionWith} from 'lodash';
 import lt from 'semver/functions/lt';
 import valid from 'semver/functions/valid';
-import { AvailableTypes } from '../../common/constants';
+import {AvailableTypes} from '../../common/constants';
 import getModuleList from './functions/getModuleList';
 import createLogger from '../electron/functions/createLogger';
 import directoryPaths from '../../common/directoryPaths';
@@ -109,6 +109,10 @@ export default class {
         } catch (e) {
             console.error('error occurred while reading module json files', e);
         }
+    }
+
+    getHardwareById(id: string) {
+        return this.allHardwareList.find((hardware) => hardware.id === id);
     }
 
     private _notifyHardwareListChanged() {

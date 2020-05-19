@@ -1,4 +1,4 @@
-import { BrowserWindow, ipcMain, shell } from 'electron';
+import {BrowserWindow, ipcMain, shell} from 'electron';
 import path from 'path';
 import ScannerManager from './core/scannerManager';
 import Flasher from './core/serial/flasher';
@@ -7,7 +7,7 @@ import IpcManager from './core/ipcMainManager';
 import HardwareListManager from './core/hardwareListManager';
 import DataHandler from './core/dataHandler';
 import downloadModule from './core/functions/downloadModule';
-import { EntryMessageAction, EntryStatePayload, HardwareStatement } from '../common/constants';
+import {EntryMessageAction, EntryStatePayload, HardwareStatement} from '../common/constants';
 import createLogger from './electron/functions/createLogger';
 import directoryPaths from '../common/directoryPaths';
 
@@ -420,6 +420,24 @@ class MainRouter {
         const driverFullPath = path.resolve(directoryPaths.driver, driverPath);
         logger.info(`execute driver requested. filePath : ${driverFullPath}`);
         shell.openItem(driverFullPath);
+    }
+
+    /**
+     * 특정 ID 의 하드웨어를 직접 선택한다.
+     * URL 커스텀 스키마의 파라미터에 의해 실행된다.
+     */
+    async selectHardware(id: string) {
+        try {
+            if (!id) {
+                return;
+            }
+            const config = this.hardwareListManager.getHardwareById(id);
+            if (config) {
+                this.browser.webContents.send('selectHardware', config);
+            }
+        } catch (e) {
+            rendererConsole.error('startScan err : ', e);
+        }
     }
 
     _registerIpcEvents() {
