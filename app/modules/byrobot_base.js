@@ -8,16 +8,17 @@ const BaseModule = require('./baseModule');
  *  기본 클래스
  *
  * - 송수신 데이터 정의 문서
- *   http://dev.byrobot.co.kr/documents/kr/products/petrone_v2/protocol/
+ *   http://dev.byrobot.co.kr/documents/kr/products/e_drone/protocol/
  *
  * - 호환 제품군
  *   - XTS-65
  *   - SkyKick V2
  *   - E-DRONE
  *   - Coding Drone
+ *   - Battle Drone
  *
  * - 마지막 업데이트
- *   - 2020.2.12
+ *   - 2020.5.8
  *
  ***************************************************************************************/
 
@@ -58,6 +59,9 @@ class byrobot_base extends BaseModule
 
             // 전송 대상
             TARGET                      : 'target',
+
+            // BATTLE_IR_MESSAGE
+            BATTLE_IR_MESSAGE           : 'battle_ir_message',
 
             // Light Manaul
             LIGHT_MANUAL_FLAGS          : 'light_manual_flags',
@@ -242,6 +246,46 @@ class byrobot_base extends BaseModule
         };
 
 
+        // Range
+        this.range =
+        {
+            _updated        : 1,
+            range_left      : 0,    // u16
+            range_front     : 0,    // u16
+            range_right     : 0,    // u16
+            range_rear      : 0,    // u16
+            range_top       : 0,    // u16
+            range_bottom    : 0,    // u16
+        };
+
+
+        // BattleIrMessage
+        this.battleIrMessage =
+        {
+            _updated            : 1,
+            battle_ir_message    : 0,    // u32
+        };
+
+
+        // CardColor
+        this.cardColor =
+        {
+            _updated                    : 1,
+            cardColor_frontHue          : 0,    // u16
+            cardColor_frontSaturation   : 0,    // u16
+            cardColor_frontValue        : 0,    // u16
+            cardColor_frontLightness    : 0,    // u16
+            cardColor_rearHue           : 0,    // u16
+            cardColor_rearSaturation    : 0,    // u16
+            cardColor_rearValue         : 0,    // u16
+            cardColor_rearLightness     : 0,    // u16
+            cardColor_frontColor        : 0,    // u8
+            cardColor_rearColor         : 0,    // u8
+            cardColor_card              : 0,    // u8
+        };
+
+
+
         // InformationAssembledForEntry
         this.informationAssembledForEntry =
         {
@@ -424,6 +468,15 @@ class byrobot_base extends BaseModule
 
         // Motion
         this.clearMotion();
+
+        // Range
+        this.clearRange();
+
+        // BattleIrMessage
+        this.clearBattleIrMessage();
+
+        // Range
+        this.clearCardColor();
 
         // InformationAssembledForEntry
         this.clearInformationAssembledForEntry();
@@ -628,7 +681,7 @@ class byrobot_base extends BaseModule
 
     updateMotion()
     {
-        //this.log(`BASE - updateMotion() - length : ${this.dataBlock.length}`);
+        this.log(`BASE - updateMotion() - length : ${this.dataBlock.length}`);
 
         if (this.dataBlock != undefined && this.dataBlock.length == 18)
         {
@@ -664,6 +717,111 @@ class byrobot_base extends BaseModule
             this.motion.motion_angleYaw     = view.getInt16(16, true);
             // */
 
+            return true;
+        }
+
+        return false;
+    }
+
+
+    clearRange()
+    {
+        this.range._updated       = false;
+        this.range.range_left     = 0;
+        this.range.range_front    = 0;
+        this.range.range_right    = 0;
+        this.range.range_rear     = 0;
+        this.range.range_top      = 0;
+        this.range.range_bottom   = 0;
+    }
+
+    updateRange()
+    {
+        this.log(`BASE - updateRange() - length : ${this.dataBlock.length}`);
+
+        if (this.dataBlock != undefined && this.dataBlock.length == 12)
+        {
+            const array = Uint8Array.from(this.dataBlock);
+            const view  = new DataView(array.buffer);
+
+            this.range._updated        = true;
+            this.range.range_left      = view.getInt16(0, true) / 1000.0;
+            this.range.range_front     = view.getInt16(2, true) / 1000.0;
+            this.range.range_right     = view.getInt16(4, true) / 1000.0;
+            this.range.range_rear      = view.getInt16(6, true) / 1000.0;
+            this.range.range_top       = view.getInt16(8, true) / 1000.0;
+            this.range.range_bottom    = view.getInt16(10, true) / 1000.0;
+
+            return true;
+        }
+
+        return false;
+    }
+
+
+    clearBattleIrMessage()
+    {
+        this.battleIrMessage._updated            = false;
+        this.battleIrMessage.battle_ir_message   = 0;
+    }
+
+    updateBattleIrMessage()
+    {
+        this.log(`BASE - updateBattleIrMessage() - length : ${this.dataBlock.length}`);
+
+        if (this.dataBlock != undefined && this.dataBlock.length == 4)
+        {
+            const array = Uint8Array.from(this.dataBlock);
+            const view  = new DataView(array.buffer);
+
+            this.battleIrMessage._updated            = true;
+            this.battleIrMessage.battle_ir_message   = view.getUint32(0, true);
+
+            return true;
+        }
+
+        return false;
+    }
+
+
+    clearCardColor()
+    {
+        this.cardColor._updated                     = false;
+        this.cardColor.cardColor_frontHue           = 0;
+        this.cardColor.cardColor_frontSaturation    = 0;
+        this.cardColor.cardColor_frontValue         = 0;
+        this.cardColor.cardColor_frontLightness     = 0;
+        this.cardColor.cardColor_rearHue            = 0;
+        this.cardColor.cardColor_rearSaturation     = 0;
+        this.cardColor.cardColor_rearValue          = 0;
+        this.cardColor.cardColor_rearLightness      = 0;
+        this.cardColor.cardColor_frontColor         = 0;
+        this.cardColor.cardColor_rearColor          = 0;
+        this.cardColor.cardColor_card               = 0;
+    }
+
+    updateCardColor()
+    {
+        this.log(`BASE - updateCardColor() - length : ${this.dataBlock.length}`);
+
+        if (this.dataBlock != undefined && this.dataBlock.length == 19)
+        {
+            const array = Uint8Array.from(this.dataBlock);
+            const view  = new DataView(array.buffer);
+
+            this.cardColor._updated                     = true;
+            this.cardColor.cardColor_frontHue           = view.getInt16(0, true);
+            this.cardColor.cardColor_frontSaturation    = view.getInt16(2, true);
+            this.cardColor.cardColor_frontValue         = view.getInt16(4, true);
+            this.cardColor.cardColor_frontLightness     = view.getInt16(6, true);
+            this.cardColor.cardColor_rearHue            = view.getInt16(8, true);
+            this.cardColor.cardColor_rearSaturation     = view.getInt16(10, true);
+            this.cardColor.cardColor_rearValue          = view.getInt16(12, true);
+            this.cardColor.cardColor_rearLightness      = view.getInt16(14, true);
+            this.cardColor.cardColor_frontColor         = view.getUint8(16, true);
+            this.cardColor.cardColor_rearColor          = view.getUint8(17, true);
+            this.cardColor.cardColor_card               = view.getUint8(18, true);
+            
             return true;
         }
 
@@ -777,6 +935,18 @@ class byrobot_base extends BaseModule
         }
 
         const target = this.read(handler, this.DataType.TARGET, 0xFF);
+
+
+        // BATTLE_IR_MESSAGE
+        if (handler.e(this.DataType.BATTLE_IR_MESSAGE))
+        {
+            const irMessage = this.read(handler, this.DataType.BATTLE_IR_MESSAGE);
+
+            const dataArray = this.reserveBattleIrMessage(target, irMessage);
+            this.bufferTransfer.push(dataArray);
+            this.log('BASE - Transfer_To_Device - BattleIrMessage', dataArray);
+        }
+
 
         // Light Manual
         if (handler.e(this.DataType.LIGHT_MANUAL_FLAGS)       &&
@@ -1066,12 +1236,22 @@ class byrobot_base extends BaseModule
         if (handler.e(this.DataType.MOTORSINGLE_TARGET))
         {
             const motor       = this.read(handler, this.DataType.MOTORSINGLE_TARGET);
-            const rotation    = this.read(handler, this.DataType.MOTORSINGLE_ROTATION);
             const value       = this.read(handler, this.DataType.MOTORSINGLE_VALUE);
 
-            const dataArray = this.reserveMotorSingle(target, motor, rotation, value);
-            this.bufferTransfer.push(dataArray);
-            this.log('BASE - Transfer_To_Device - MotorSingle', dataArray);
+            if (handler.e(this.DataType.MOTORSINGLE_ROTATION))
+            {
+                const rotation    = this.read(handler, this.DataType.MOTORSINGLE_ROTATION);
+
+                const dataArray = this.reserveMotorSingleRV(target, motor, rotation, value);
+                this.bufferTransfer.push(dataArray);
+                this.log('BASE - Transfer_To_Device - MotorSingleRV', dataArray);
+            }
+            else
+            {
+                const dataArray = this.reserveMotorSingleV(target, motor, value);
+                this.bufferTransfer.push(dataArray);
+                this.log('BASE - Transfer_To_Device - MotorSingleV', dataArray);
+            }
         }
 
 
@@ -1163,6 +1343,45 @@ class byrobot_base extends BaseModule
                 }
 
                 this.motion._updated = false;
+            }
+        }
+
+        // Range
+        {
+            if (this.range._updated)
+            {
+                for (const key in this.range)
+                {
+                    handler.write(key, this.range[key]);
+                }
+
+                this.range._updated = false;
+            }
+        }
+
+        // BattleIrMessage
+        {
+            if (this.battleIrMessage._updated)
+            {
+                for (const key in this.battleIrMessage)
+                {
+                    handler.write(key, this.battleIrMessage[key]);
+                }
+
+                this.battleIrMessage._updated = false;
+            }
+        }
+
+        // CardColor
+        {
+            if (this.cardColor._updated)
+            {
+                for (const key in this.cardColor)
+                {
+                    handler.write(key, this.cardColor[key]);
+                }
+
+                this.cardColor._updated = false;
             }
         }
 
@@ -1442,6 +1661,14 @@ class byrobot_base extends BaseModule
         // 데이터 업데이트
         switch (this.dataType)
         {
+        case 0x1F:  // Battle
+            {
+                //this.log("BASE - handlerForDevice() - Received - Battle - 0x1F");
+                this.updateBattleIrMessage();
+            }
+            break;
+
+
         case 0x40:  // State
             {
                 //this.log("BASE - handlerForDevice() - Received - State - 0x40");
@@ -1472,6 +1699,23 @@ class byrobot_base extends BaseModule
                 this.updateMotion();
             }
             break;
+
+
+        case 0x45:  // Range
+            {
+                //this.log("BASE - handlerForDevice() - Received - Range - 0x45");
+                this.updateRange();
+            }
+            break;
+
+
+        case 0x93:  // CardColor
+            {
+                //this.log("BASE - handlerForDevice() - Received - CardColor - 0x93");
+                this.updateCardColor();
+            }
+            break;
+
 
         case 0xA1:  // Information Assembled For Entry 자주 갱신되는 데이터 모음(엔트리)
             {
@@ -1517,59 +1761,64 @@ class byrobot_base extends BaseModule
         if (this.bufferTransfer.length == 0)
         {
             // 예약된 요청이 없는 경우 데이터 요청 등록(현재는 자세 데이터 요청)
-            switch (this.targetDevice)
+            if (this.arrayRequestData == null)
             {
-            case 0x10:
+                return this.reservePing(this.targetDevice);
+            }
+            else
+            {
+                const index = (this.countReqeustDevice % ((this.arrayRequestData.length + 1) * 2));   // +1은 조종기에 ping, *2 는 자주 갱신되는 데이터 요청
+                const indexArray = (index / 2).toFixed(0);
+
+                if ((index & 0x01) == 0)
                 {
-                    switch (this.countReqeustDevice % 10)
+                    if (indexArray < this.arrayRequestData.length)
                     {
-                    case 0:    return this.reservePing(0x10);              // 드론
-                    case 2:    return this.reservePing(0x20);              // 조종기
-                    case 4:    return this.reserveRequest(0x10, 0x40);     // 드론
-                    case 6:    return this.reserveRequest(0x10, 0x44);     // 드론
-                    default:   return this.reserveRequest(0x10, 0xA1);     // 드론, 자주 갱신되는 데이터 모음(엔트리)
+                        return this.reserveRequest(this.targetDevice, this.arrayRequestData[indexArray]);    // 드론
+                    }
+                    else
+                    {
+                        return this.reservePing(0x20);  // 조종기
                     }
                 }
-                break;
-
-            default:
+                else
                 {
-                    return this.reservePing(this.targetDevice);
+                    return this.reserveRequest(this.targetDevice, 0xA1);     // 드론, 자주 갱신되는 데이터 모음(엔트리)
                 }
-                break;
             }
         }
         else
         {
             // 예약된 요청이 있는 경우
-            switch (this.targetDevice)
+            if (this.arrayRequestData == null)
             {
-            case 0x10:
+                switch (this.countReqeustDevice % 10)
                 {
-                    switch (this.countReqeustDevice % 16)
-                    {
-                    case 0:    return this.reserveRequest(0x10, 0x40);     // 드론
-                    case 4:    return this.reserveRequest(0x10, 0x44);     // 드론, 자주 갱신되는 데이터 모음(엔트리)
-                    case 8:    return this.reserveRequest(0x10, 0xA1);     // 드론, 자주 갱신되는 데이터 모음(엔트리)
-                    default:    break;
-                    }
+                case 0:     return this.reservePing(this.targetDevice);
+                default:    break;
                 }
-                break;
+            }
+            else
+            {
+                const index = (this.countReqeustDevice % ((this.arrayRequestData.length + 1) * 4));   // +1은 자주 갱신되는 데이터 요청, *4는 예약된 요청 데이터
+                const indexArray = (index / 4).toFixed(0);;
 
-            default:
+                if ((index & 0x03) == 0)
                 {
-                    switch (this.countReqeustDevice % 10)
+                    if (indexArray < this.arrayRequestData.length)
                     {
-                    case 0:     return this.reservePing(this.targetDevice);
-                    default:    break;
+                        return this.reserveRequest(this.targetDevice, this.arrayRequestData[indexArray]);    // 드론
+                    }
+                    else
+                    {
+                        return this.reserveRequest(this.targetDevice, 0xA1);     // 드론, 자주 갱신되는 데이터 모음(엔트리)
                     }
                 }
-                break;
             }
         }
 
         // 예약된 데이터 전송 처리
-        const arrayTransfer = this.bufferTransfer[0];             // 전송할 데이터 배열(첫 번째 데이터 블럭 전송)
+        const arrayTransfer = this.bufferTransfer[0];           // 전송할 데이터 배열(첫 번째 데이터 블럭 전송)
         if (arrayTransfer[2] == 0x04)
         {
             this.dataTypeLastTransfered = arrayTransfer[6];     // 요청한 데이터의 타입(Request인 경우)
@@ -1656,6 +1905,19 @@ class byrobot_base extends BaseModule
 
         this.log(`BASE - reserveLightManual() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x20, target, dataArray);
+    }
+
+
+    // BattleIrMessage
+    reserveBattleIrMessage(target, irMessage)
+    {
+        const dataArray   = new ArrayBuffer(4);
+        const view        = new DataView(dataArray);
+
+        view.setUint32  (0, this.fit(0, irMessage, 0xFFFFFFFF), true);
+
+        this.log(`BASE - reserveBattleIrMessage() - Target: 0x${target.toString(16).toUpperCase()}`);
+        return this.createTransferBlock(0x1F, target, dataArray);
     }
 
 
@@ -1918,17 +2180,31 @@ class byrobot_base extends BaseModule
     }
 
 
-    // MotorSingle
-    reserveMotorSingle(target, motor, rotation, value)
+    // MotorSingleRV
+    reserveMotorSingleRV(target, motor, rotation, value)
     {
         const dataArray   = new ArrayBuffer(4);
         const view        = new DataView(dataArray);
 
         view.setUint8   (0, this.fit(0, motor, 0xFF));
         view.setUint8   (1, this.fit(0, rotation, 0xFF));
-        view.setInt16   (2, this.fit(-4095, value, 4095));
+        view.setInt16   (2, this.fit(-4095, value, 4095), true);
 
-        this.log(`BASE - reserveMotorSingle() - Target: 0x${target.toString(16).toUpperCase()}`);
+        this.log(`BASE - reserveMotorSingleRV() - Target: 0x${target.toString(16).toUpperCase()}`);
+        return this.createTransferBlock(0x61, target, dataArray);
+    }
+
+
+    // MotorSingleV
+    reserveMotorSingleV(target, motor, value)
+    {
+        const dataArray   = new ArrayBuffer(3);
+        const view        = new DataView(dataArray);
+
+        view.setUint8   (0, this.fit(0, motor, 0xFF));
+        view.setInt16   (1, this.fit(-4095, value, 4095), true);
+
+        this.log(`BASE - reserveMotorSingleV() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x61, target, dataArray);
     }
 
