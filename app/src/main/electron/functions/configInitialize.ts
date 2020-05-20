@@ -3,7 +3,7 @@ import { forEach, merge, reduce, toPairs } from 'lodash';
 import path from 'path';
 import fs from 'fs';
 import createLogger from './createLogger';
-import directoryPaths from '../../../common/directoryPaths';
+import directoryPaths from '../electronDirectoryPaths';
 
 const logger = createLogger('ConfigInitialize');
 /**

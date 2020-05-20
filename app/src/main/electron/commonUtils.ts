@@ -26,17 +26,23 @@ class CommonUtils {
     }
 
     getArgsParseData(argv: string) {
-        const regexRoom = /roomId:(.*)/;
         console.log('argv', argv);
 
-        const arrRoom = regexRoom.exec(argv) || ['', ''];
+        const arrRoom = /roomId:(.*)/.exec(argv) || ['', ''];
         let roomId = arrRoom[1];
 
         if (roomId === 'undefined') {
             roomId = '';
         }
 
-        return roomId.replace(/\//g, '');
+        const regexHardwareId = /openHardwareId:([^&]*)/.exec(argv) || ['', ''];
+        let openHardwareId = regexHardwareId[1];
+
+        if (openHardwareId === 'undefined') {
+            openHardwareId = '';
+        }
+
+        return { roomId: roomId.replace(/\//g, ''), openHardwareId };
     }
 }
 

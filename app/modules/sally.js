@@ -21,10 +21,15 @@ var Sally = {
 	MOTION_SPEED: 'motionSpeed',
 	MOTION_VALUE: 'motionValue',
 	MOTION_RADIUS: 'motionRadius',
-	CM_TO_PULSE: 550/6.0,
-	DEG_TO_PULSE: 1117,
-	DEG_TO_PULSE_PIVOT: 2255,
+	CM_TO_PULSE: 917 / 9.8426,
+	MOVE_FORWARD_CM: 10.0,
+	MOVE_FORWARD_CM_10000: 100000,
+	DEG_TO_PULSE_SPIN_RIGHT: 1126.5798,
+	DEG_TO_PULSE_SPIN_LEFT: 1127.0672,
+	DEG_TO_PULSE_PIVOT_RIGHT: 2271.8319,
+	DEG_TO_PULSE_PIVOT_LEFT: 2260.0924,
 	WHEEL_CENTER_DISTANCE: 1.945,
+	WHEEL_CENTER_DISTANCE_10000: 19450,
 	DEFAULT_SPEED: 40
 };
 
@@ -142,7 +147,9 @@ function Module() {
 		pivotRight: 0,
 		spinLeft: 0,
 		pivotLeft: 0,
-		offset: 0
+		offset: 0,
+		cmToPulse: Sally.CM_TO_PULSE,
+		cmOffset: 0
 	};
 	this.timerId = undefined;
 }
@@ -184,8 +191,8 @@ Module.prototype.calculateInnerSpeed = function(speed, radius) {
 	return speed * (radius - this.alignment.distance) / (radius + this.alignment.distance);
 };
 
-Module.prototype.calculateCirclePulse = function(deg, radius, offset) {
-	return Math.round(deg * (Sally.DEG_TO_PULSE + offset) * (radius + this.alignment.distance) / 360.0 / this.alignment.distance);
+Module.prototype.calculateCirclePulse = function(degToPulse, deg, radius, offset) {
+	return Math.round(deg * (degToPulse + offset) * (radius + this.alignment.distance) / 360.0 / this.alignment.distance);
 };
 
 Module.prototype.cancelTimeout = function() {
@@ -211,14 +218,17 @@ Module.prototype.parseAlignment = function(data) {
 	value = parseInt(str, 16);
 	if(value > 0x7f) value -= 0x100;
 	alignment.pivotLeft = value + 1;
-	str = data.slice(12, 14);
+	str = data.slice(12, 18);
 	value = parseInt(str, 16);
-	if(value > 0x7f) value -= 0x100;
-	alignment.offset = (value + 1) * 256;
-	str = data.slice(14, 16);
+	if(value > 0x7fffff) value -= 0x1000000;
+	alignment.cmOffset = value + 1;
+	var moveForwardCm = Sally.MOVE_FORWARD_CM + alignment.cmOffset / 10000.0;
+	if(moveForwardCm <= 0) moveForwardCm = Sally.MOVE_FORWARD_CM;
+	alignment.cmToPulse = Sally.CM_TO_PULSE * Sally.MOVE_FORWARD_CM / moveForwardCm;
+	str = data.slice(18, 24);
 	value = parseInt(str, 16);
-	if(value > 0x7f) value -= 0x100;
-	alignment.offset += value + 1;
+	if(value > 0x7fffff) value -= 0x1000000;
+	alignment.offset = value + 1;
 	alignment.distance = Sally.WHEEL_CENTER_DISTANCE + alignment.offset / 10000.0;
 	if(alignment.distance <= 0) alignment.distance = Sally.WHEEL_CENTER_DISTANCE;
 };
@@ -721,29 +731,29 @@ Module.prototype.requestLocalData = function() {
 					switch(motion.type) {
 						case 1: // MOTION_MOVE_FORWARD
 						case 2: // MOTION_MOVE_BACKWARD
-							wheel.pulse = Math.round(value * Sally.CM_TO_PULSE);
+							wheel.pulse = Math.round(value * alignment.cmToPulse);
 							break;
 						case 3: // MOTION_TURN_LEFT
-							wheel.pulse = Math.round(value * (Sally.DEG_TO_PULSE + alignment.spinLeft) / 360.0);
+							wheel.pulse = Math.round(value * (Sally.DEG_TO_PULSE_SPIN_LEFT + alignment.spinLeft) / 360.0);
 							break;
 						case 4: // MOTION_TURN_RIGHT
-							wheel.pulse = Math.round(value * (Sally.DEG_TO_PULSE + alignment.spinRight) / 360.0);
+							wheel.pulse = Math.round(value * (Sally.DEG_TO_PULSE_SPIN_RIGHT + alignment.spinRight) / 360.0);
 							break;
 						case 5: // MOTION_PIVOT_LEFT_FORWARD
 						case 6: // MOTION_PIVOT_LEFT_BACKWARD
-							wheel.pulse = Math.round(value * (Sally.DEG_TO_PULSE_PIVOT + alignment.pivotLeft) / 360.0);
+							wheel.pulse = Math.round(value * (Sally.DEG_TO_PULSE_PIVOT_LEFT + alignment.pivotLeft) / 360.0);
 							break;
 						case 7: // MOTION_PIVOT_RIGHT_FORWARD
 						case 8: // MOTION_PIVOT_RIGHT_BACKWARD
-							wheel.pulse = Math.round(value * (Sally.DEG_TO_PULSE_PIVOT + alignment.pivotRight) / 360.0);
+							wheel.pulse = Math.round(value * (Sally.DEG_TO_PULSE_PIVOT_RIGHT + alignment.pivotRight) / 360.0);
 							break;
 						case 9: // MOTION_CIRCLE_LEFT_FORWARD
 						case 10: // MOTION_CIRCLE_LEFT_BACKWARD
-							wheel.pulse = self.calculateCirclePulse(value, motoring.motionRadius, alignment.spinLeft);
+							wheel.pulse = self.calculateCirclePulse(Sally.DEG_TO_PULSE_SPIN_LEFT, value, motoring.motionRadius, alignment.spinLeft);
 							break;
 						case 11: // MOTION_CIRCLE_RIGHT_FORWARD
 						case 12: // MOTION_CIRCLE_RIGHT_BACKWARD
-							wheel.pulse = self.calculateCirclePulse(value, motoring.motionRadius, alignment.spinRight);
+							wheel.pulse = self.calculateCirclePulse(Sally.DEG_TO_PULSE_SPIN_RIGHT, value, motoring.motionRadius, alignment.spinRight);
 							break;
 						default:
 							motion.type = 0;
