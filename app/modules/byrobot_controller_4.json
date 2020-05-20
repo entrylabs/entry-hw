@@ -23,8 +23,10 @@
         "control": "slave",
         "scanType": "data",
         "duration": 20,
-        "vendor": ["BYROBOT", "Microsoft", "STMicroelectronics"],
-        "baudRate": 115200,
+        "vendor": {
+            "win32": ["Microsoft", "STMicroelectronics", "wch.cn", "Arduino", "BYROBOT"]
+        },
+        "baudRate": 57600,
         "flowControl": "none"
     }
 }
