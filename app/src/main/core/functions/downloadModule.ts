@@ -5,7 +5,7 @@ import { AvailableTypes } from '../../../common/constants';
 import fileUtils from '../fileUtils';
 import NetworkZipHandlerStream from '../networkZipHandleStream';
 import createLogger from '../../electron/functions/createLogger';
-import directoryPaths from '../../../common/directoryPaths';
+import directoryPaths from '../directoryPaths';
 
 const logger = createLogger('DownloadModule');
 
