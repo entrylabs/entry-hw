@@ -4,8 +4,8 @@ import os from 'os';
 
 // project's app directory path
 const rootAppPath = process.env.NODE_ENV === 'production'
-    ? path.join(app.getAppPath(), 'app')
-    : path.join(app.getAppPath(), '..');
+    ? path.join(__dirname, '..', '..', '..', 'app')
+    : path.join(__dirname, '..' ,'..');
 
 export default {
     driver: path.join(rootAppPath, 'drivers'),

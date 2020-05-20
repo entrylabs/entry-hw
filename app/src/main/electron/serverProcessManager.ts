@@ -2,7 +2,7 @@ import spawn from 'cross-spawn';
 import fs from 'fs';
 import { ChildProcess } from 'child_process';
 import createLogger from './functions/createLogger';
-import directoryPaths from '../../common/directoryPaths';
+import directoryPaths from './electronDirectoryPaths';
 
 const logger = createLogger('electron/server');
 

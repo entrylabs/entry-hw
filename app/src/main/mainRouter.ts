@@ -9,7 +9,7 @@ import DataHandler from './core/dataHandler';
 import downloadModule from './core/functions/downloadModule';
 import { EntryMessageAction, EntryStatePayload, HardwareStatement } from '../common/constants';
 import createLogger from './electron/functions/createLogger';
-import directoryPaths from '../common/directoryPaths';
+import directoryPaths from './core/directoryPaths';
 
 const nativeNodeRequire = require('./nativeNodeRequire.js');
 const logger = createLogger('core/mainRouter.ts');
