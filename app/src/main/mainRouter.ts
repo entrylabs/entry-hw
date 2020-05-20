@@ -1,4 +1,4 @@
-import {BrowserWindow, ipcMain, shell} from 'electron';
+import { BrowserWindow, ipcMain, shell } from 'electron';
 import path from 'path';
 import ScannerManager from './core/scannerManager';
 import Flasher from './core/serial/flasher';
@@ -7,7 +7,7 @@ import IpcManager from './core/ipcMainManager';
 import HardwareListManager from './core/hardwareListManager';
 import DataHandler from './core/dataHandler';
 import downloadModule from './core/functions/downloadModule';
-import {EntryMessageAction, EntryStatePayload, HardwareStatement} from '../common/constants';
+import { EntryMessageAction, EntryStatePayload, HardwareStatement } from '../common/constants';
 import createLogger from './electron/functions/createLogger';
 import directoryPaths from './core/directoryPaths';
 
