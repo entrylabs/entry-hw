@@ -3,7 +3,7 @@ import { ChildProcess, exec } from 'child_process';
 import path from 'path';
 import fileUtils from '../fileUtils';
 import createLogger from '../../electron/functions/createLogger';
-import directoryPaths from '../../../common/directoryPaths';
+import directoryPaths from '../directoryPaths';
 
 const logger = createLogger('core/SerialFlasher.ts');
 
