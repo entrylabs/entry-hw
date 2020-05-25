@@ -59,11 +59,12 @@ const downloadModuleFunction = (moduleName: string) =>
     });
 
 const moveFirmwareAndDriverDirectory = async () => {
-    const moduleDirPath = directoryPaths.modules;
+    const appDirPath = path.join(__dirname, '..', '..');
+    const moduleDirPath = path.join(appDirPath, 'modules');
     const srcDriverDirPath = path.join(moduleDirPath, 'drivers');
-    const destDriverDirPath = directoryPaths.driver;
+    const destDriverDirPath = path.join(appDirPath, 'drivers');
     const srcFirmwaresDirPath = path.join(moduleDirPath, 'firmwares');
-    const destFirmwareDirPath = directoryPaths.firmware;
+    const destFirmwareDirPath = path.join(appDirPath, 'firmwares');
 
     try {
         await Promise.all([
