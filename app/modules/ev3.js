@@ -1,6 +1,11 @@
-const _ = require('lodash');
+const _ = global.$;
 const BaseModule = require('./baseModule');
 
+/**
+ * ev3 의 명령 바이트 체계(ex. 버튼 LED 변경하기)
+ * 명령어 바이트수(2), 카운터(2), 응답필요여부(00=필요,80=필요없음), 헤더(00, 00), 명령어(n)...
+ * 0x | 08 00 | 02 04 | 80 | 00 00 | 82 1b 00
+ */
 class ev3 extends BaseModule {
     constructor() {
         super();
@@ -163,7 +168,7 @@ class ev3 extends BaseModule {
      * @returns {Buffer} little endian 2byte
      */
     getCounter() {
-        let counterBuf = new Buffer(2);
+        const counterBuf = new Buffer(2);
         counterBuf.writeInt16LE(this.counter);
         if (this.counter >= 32767) {
             this.counter = 0;
@@ -254,20 +259,20 @@ class ev3 extends BaseModule {
 
                     const type = data[index];
                     const mode = data[index + 1];
-                    let siValue = Number(
-                        (data.readFloatLE(index + 2) || 0).toFixed(1)
+                    const siValue = Number(
+                        (data.readFloatLE(index + 2) || 0).toFixed(1),
                     );
                     this.returnData[p] = {
-                        type: type,
-                        mode: mode,
-                        siValue: siValue,
+                        type,
+                        mode,
+                        siValue,
                     };
                 });
 
                 index = 4 * this.commandResponseSize;
                 Object.keys(this.BUTTON_MAP).forEach((button) => {
                     if (data[index] === 1) {
-                        console.log(button + ' button is pressed');
+                        console.log(`${button} button is pressed`);
                     }
 
                     this.returnData[button] = {
@@ -339,7 +344,7 @@ class ev3 extends BaseModule {
         if (this.CURRENT_STATUS_COLOR.APPLIED === false) {
             isSendData = true;
             const statusLedCommand = this.makeStatusColorCommandBuffer(
-                sendBody
+                sendBody,
             );
 
             if (!sendBody) {
@@ -377,7 +382,7 @@ class ev3 extends BaseModule {
             let frontBuffer;
             const portMap = this.PORT_MAP[port];
             let brake = 0;
-            let checkPortMap = this.CHECK_PORT_MAP[port];
+            const checkPortMap = this.CHECK_PORT_MAP[port];
             if (!checkPortMap || portMap.id !== checkPortMap.id) {
                 let portOut;
                 let power = Number(portMap.power);
@@ -495,7 +500,7 @@ class ev3 extends BaseModule {
             this.isSensing = true;
             const initBuf = this.makeInitBuffer(
                 [0],
-                [this.wholeResponseSize, 0]
+                [this.wholeResponseSize, 0],
             );
             const counter = initBuf.readInt16LE(2); // initBuf의 index(2) 부터 2byte 는 counter 에 해당
             this.SENSOR_COUNTER_LIST[counter] = true;
@@ -503,8 +508,8 @@ class ev3 extends BaseModule {
             let index = 0;
             Object.keys(this.SENSOR_MAP).forEach((p) => {
                 let mode = 0;
-                if (this.returnData[p] && this.returnData[p]['type']) {
-                    mode = this.SENSOR_MAP[p]['mode'] || 0;
+                if (this.returnData[p] && this.returnData[p].type) {
+                    mode = this.SENSOR_MAP[p].mode || 0;
                 }
                 const port = Number(p) - 1;
                 index = port * this.commandResponseSize;
@@ -559,7 +564,7 @@ class ev3 extends BaseModule {
             const totalLength = initBuf.length + sensorBody.length;
             const sendBuffer = Buffer.concat(
                 [initBuf, sensorBody],
-                totalLength
+                totalLength,
             );
             this.checkByteSize(sendBuffer);
             this.sp.write(sendBuffer);
@@ -577,7 +582,7 @@ class ev3 extends BaseModule {
             this.isSensorCheck = false;
             this.isConnect = false;
             this.CURRENT_STATUS_COLOR = {
-                COLOR: this.STATUS_COLOR_MAP['GREEN'],
+                COLOR: this.STATUS_COLOR_MAP.GREEN,
                 APPLIED: false,
             };
 
@@ -590,7 +595,7 @@ class ev3 extends BaseModule {
                     new Buffer('08005500800000821B01', 'hex'),
                     (err) => {
                         /* nothing to do. disconnect command execute */
-                    }
+                    },
                 );
                 this.sp.write(
                     new Buffer('070055008000000201', 'hex'),
@@ -600,7 +605,7 @@ class ev3 extends BaseModule {
                             console.log(err);
                         }
                         connect.close();
-                    }
+                    },
                 );
             } else {
                 connect.close();
