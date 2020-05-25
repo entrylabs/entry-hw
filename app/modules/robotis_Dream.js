@@ -151,7 +151,7 @@ Module.prototype.requestRemoteData = function(handler) {
         }
     }
     //실과형
-    //console.log("###### value : " + this.detectedSound);
+    // console.log("###### value : " + this.detectedSound);
     for (var i = 0; i <= 1; i++) {        
         handler.write('TOUCH' + i, this.touchSensor[i]); // 접촉 센서
         handler.write('IR' + i, this.irSensor[i]); // 적외선 센서
@@ -437,7 +437,7 @@ Module.prototype.packetChecker = function (data) {
     }
 };
 Module.prototype.handleLocalData = function (data) { // data: Native Buffer    
-    // console.log("data!!!! " + data.length + this.packetChecker(data));
+    //  console.log("data!!!! " + data.length + this.packetChecker(data));     
 
     var countData = 0;// 시작패킷 위치를 알기 위한 변수
 
@@ -470,7 +470,6 @@ Module.prototype.handleLocalData = function (data) { // data: Native Buffer
                 return;
         }
     }
-
     /*
     console.log("### kjs data : " + this.receiveBuffer);
     console.log("count before " + this.receiveBuffer.length);
@@ -517,12 +516,12 @@ Module.prototype.handleLocalData = function (data) { // data: Native Buffer
         this.receiveBuffer.push(data[i]);
     }*/
 
-    //console.log('<< 2 length : '+ this.receiveBuffer.length + " data " + this.receiveBuffer);
-    
+    //console.log('<< 2 length : '+ this.receiveBuffer.length + " data " + this.receiveBuffer);    
     if (this.receiveBuffer.length >= 10 + this.receiveLength) {
         isConnected = true;
 
-        while (this.receiveBuffer.length >= 10 + this.receiveLength) {
+        // console.log("this.receiveBuffer.length : " + this.receiveBuffer.length);
+        while (this.receiveBuffer.length >= 10 + this.receiveLength) {            
             if (this.receiveBuffer.shift() == 0xFF) {
                 if (this.receiveBuffer.shift() == 0xFF) {
                     if (this.receiveBuffer.shift() == 0xFD) {
@@ -563,11 +562,11 @@ Module.prototype.handleLocalData = function (data) { // data: Native Buffer
                                 }*/
                                 if (this.receiveBuffer[10 - 5] != undefined) { // 최종 감지된 소리
                                     this.detectedSound = this.receiveBuffer[10 - 5];
-                                    //console.log("detectedSound : " + this.detectedSound);
+                                    // console.log("detectedSound : " + this.detectedSound);
                                 }
                                 if (this.receiveBuffer[11 - 5] != undefined) { // 실시간 감지되는 소리
                                     this.detectringSound = this.receiveBuffer[11 - 5];
-                                    // console.log("detectedSound : " + this.detectringSound);
+                                    // console.log("detectringSound : " + this.detectringSound);
                                 }
                                 ///* // add by kjs
                                 jx = 0;
