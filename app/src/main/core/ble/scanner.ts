@@ -4,7 +4,7 @@ import IpcManager from '../ipcMainManager';
 import BaseScanner from '../baseScanner';
 import BleConnector from './connector';
 import MainRouter from '../../mainRouter';
-import { BrowserWindow } from 'electron';
+import {BrowserWindow} from 'electron';
 
 class BleScanner extends BaseScanner<BleConnector> {
     private isScanning = false;
@@ -127,10 +127,12 @@ class BleScanner extends BaseScanner<BleConnector> {
     }
 
     stopScan() {
-        this.browser.webContents.removeListener(
-            'select-bluetooth-device',
-            this.selectBluetoothDevice,
-        );
+        if (!this.browser.isDestroyed()) {
+            this.browser.webContents.removeListener(
+                'select-bluetooth-device',
+                this.selectBluetoothDevice,
+            );
+        }
 
         this.config = undefined;
         this.devices = [];
