@@ -6,7 +6,7 @@
     "main": "./app/src/index.bundle.js",
     "scripts": {
         "start": "cross-env NODE_ENV=development electron -r source-map-support/register app/src/index.bundle.js",
-        "debug": "npm run start --inspect",
+        "debug": "cross-env NODE_ENV=development electron -r source-map-support/register --inspect app/src/index.bundle.js",
         "test": "cross-env NODE_NO_WARNINGS=1 ts-node --files ./cli/connectionTest.ts",
         "script:create": "node ./cli/createJson.js",
         "script:resize": "node cli/imageResize.js",

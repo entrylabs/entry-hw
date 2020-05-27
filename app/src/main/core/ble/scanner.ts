@@ -4,7 +4,7 @@ import IpcManager from '../ipcMainManager';
 import BaseScanner from '../baseScanner';
 import BleConnector from './connector';
 import MainRouter from '../../mainRouter';
-import {BrowserWindow} from 'electron';
+import { BrowserWindow } from 'electron';
 import createLogger from '../../electron/functions/createLogger';
 
 const logger = createLogger('[BleScanner]');
@@ -36,7 +36,7 @@ class BleScanner extends BaseScanner<BleConnector> {
             callback('');
             return;
         }
-        const {hardware} = this.config;
+        const { hardware } = this.config;
         const selectedId = this.router.selectedPort;
         const result = deviceList.find(
             (device) => selectedId && device.deviceName === selectedId,
@@ -94,7 +94,7 @@ class BleScanner extends BaseScanner<BleConnector> {
         }
 
         // TODO type 화
-        let scanOption: RequestDeviceOptions = {acceptAllDevices: true};
+        let scanOption: RequestDeviceOptions = { acceptAllDevices: true };
         if (this.hwModule.getScanOptions) {
             scanOption = this.hwModule.getScanOptions() || scanOption;
         }
@@ -121,7 +121,7 @@ class BleScanner extends BaseScanner<BleConnector> {
         }
 
         try {
-            const {hardware} = this.config;
+            const { hardware } = this.config;
             const connector = new BleConnector(this.hwModule, hardware);
             this.router.setConnector(connector);
             this.router.sendState('before_connect');
