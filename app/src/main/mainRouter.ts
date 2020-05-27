@@ -142,7 +142,7 @@ class MainRouter {
      */
     reconnect() {
         logger.info('try to hardware reconnection..');
-        this.close();
+        this.close({saveConfig: true});
 
         if (this.config) {
             this.startScan(this.config);
@@ -234,7 +234,7 @@ class MainRouter {
         this.server.addRoomIdsOnSecondInstance(roomId);
     }
 
-    stopScan(option?: { saveSelectedPort: boolean }) {
+    stopScan(option?: { saveSelectedPort?: boolean }) {
         const { saveSelectedPort = false } = option || {};
         logger.info(`scan stopped. selectedPort will be ${saveSelectedPort ? 'saved' : 'undefined'}`);
 
@@ -395,15 +395,18 @@ class MainRouter {
      *
      * @param option {Object=} true 인 경우, 포트선택했던 내역을 지우지 않는다.
      */
-    close(option?: { saveSelectedPort: boolean }) {
-        const { saveSelectedPort = false } = option || {};
+    close(option?: { saveSelectedPort?: boolean, saveConfig?: boolean }) {
+        const { saveSelectedPort = false, saveConfig = false, } = option || {};
         logger.info(`scan stopped. selectedPort will be ${saveSelectedPort ? 'saved' : 'undefined'}`);
 
         if (this.server) {
             this.server.disconnectHardware();
         }
         this.stopScan(option);
-        this.config = undefined;
+
+        if (!saveConfig) {
+            this.config = undefined;
+        }
         this.hwModule = undefined;
         this.handler = undefined;
 
