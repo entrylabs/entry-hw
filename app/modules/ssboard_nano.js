@@ -1,7 +1,6 @@
 function Module() {
     this.sp = null;
-    this.sensorTypes = 
-	{
+    this.sensorTypes = {
         ALIVE: 0,
         DIGITAL: 1,
         ANALOG: 2,
@@ -23,26 +22,23 @@ function Module() {
 
     };
 
-    this.actionTypes = 
-	{
+    this.actionTypes = {
         GET: 1,
         SET: 2,
         RESET: 3,
 		MODULE:4,
     };
 
-    this.sensorValueSize = 
-	{
+    this.sensorValueSize = {
         FLOAT: 2,
         SHORT: 3,
         STRING : 4,
-        SHORTSHORT: 5
+        SHORTSHORT: 5,
     };
 
     this.digitalPortTimeList = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
-    this.sensorData = 
-	{
+    this.sensorData = {
         USONIC: 0,
         DIGITAL: 
 		{
@@ -109,41 +105,36 @@ function Module() {
     this.isDraing = false;
 }
 
-var sensorIdx = 0;
+let sensorIdx = 0;
 
-//�ʿ�� Handler Data �ʱⰪ ����
+// Handler Data 
 Module.prototype.init = function(handler, config) {  /// 초기설정
 
 };
 
-// Serial Port ���� ���� ����
+// Serial Port 
 Module.prototype.setSerialPort = function (sp) {   /// 시리얼포트 정보를 가지고오기
-    var self = this;
+    const self = this;
     this.sp = sp;
 };
 
-//�ʿ�� �������� Hardware�� ������ �ʱⰪ ����
+// Hardware
 Module.prototype.requestInitialData = function() {  /// 초기 송신 데이터
     // return null;
-    // MRT ���� �ڵ� ���� �� : �ּ� ó�� �� �ڻ� �ٸ� �߿������ ���� ���� ����
     return this.makeSensorReadBuffer(this.sensorTypes.ANALOG, 0);  
 //                                            2, 0                          
 };
    
-//�������� Hardware���������� Inital�������� Vaildation
+// Hardware Vaildation
 Module.prototype.checkInitialData = function(data, config) {   /// 초기 수신데이터 체크
     return true;
-    // ���Ŀ� üũ ���� �����Ǹ� ó��
-    // var datas = this.getDataByBuffer(data);
-    // var isValidData = datas.some(function (data) {
-    //     return (data.length > 4 && data[0] === 255 && data[1] === 85);
-    // });
-    // return isValidData;
 };
 
-Module.prototype.afterConnect = function(that, cb) {  ///cb 은 화면의 이벤트를 보내는 로직입니다. 여기서는 connected 라는 신호를 보내 강제로 연결됨 화면으로 넘어갑니다.
+Module.prototype.afterConnect = function(that, cb) {  
+    ///cb 은 화면의 이벤트를 보내는 로직입니다. 여기서는 connected 
+    //라는 신호를 보내 강제로 연결됨 화면으로 넘어갑니다.
     that.connected = true;
-    if(cb) {
+    if (cb) {
         cb('connected');
     };
 };
@@ -179,7 +170,7 @@ Module.prototype.handleLocalData = function(data) {
     
     
     datas.forEach((data) => {
-        if(data.length <= 4 || data[0] !== 255 || data[1] !== 85) {
+        if (data.length <= 4 || data[0] !== 255 || data[1] !== 85) {
             return;
         }
 		const readData = data.subarray(2, data.length);
@@ -188,7 +179,7 @@ Module.prototype.handleLocalData = function(data) {
         let value2;
         let type = readData[readData.length - 1];    /// 
         const port = readData[readData.length - 2];
-        switch(readData[0]) {
+        switch (readData[0]) {
             case self.sensorValueSize.FLOAT: {  //2
                 value = new Buffer(readData.subarray(1, 5)).readFloatLE();
                 value = Math.round(value * 100) / 100;                    
@@ -206,7 +197,7 @@ Module.prototype.handleLocalData = function(data) {
             }
             case self.sensorValueSize.SHORTSHORT: {  //5
                 value = new Buffer(readData.subarray(1, 3)).readInt16LE();
-                value2 =new Buffer(readData.subarray(3, 5)).readInt16LE();
+                value2 = new Buffer(readData.subarray(3, 5)).readInt16LE();
                 break;
             }
             case 0x10: { // 기본 패킷 수신인 경우 (디지털 데이터  + 아날로그 4개)
@@ -234,7 +225,7 @@ Module.prototype.handleLocalData = function(data) {
 
 
 	
-        switch(type) {
+        switch (type) {
             case 100: 
             case 101: {       ///  기본패킷
                 self.sensorData.DIGITAL[2] = (readData[2] >> 6) & 0x01;     	
