@@ -139,7 +139,7 @@ Module.prototype.afterConnect = function(that, cb) {
     };
 };
 
-// 1. Hardware���� ������ ��� �������� Vaildation
+// 1. Hardware Vaildation
 Module.prototype.validateLocalData = function(data) {
     return true;
 };
@@ -161,7 +161,7 @@ Module.prototype.getDataByBuffer = function(buffer) {  // 해당 코드 내에�
 /*
 ff 55 idx size data a
 */
-// 3. Hardware���� ������ ������ ����
+// 3. Hardware
 Module.prototype.handleLocalData = function(data) {   
     // 하드웨어에서 보내준 정보를 가공합니다. 여기선 하드웨어에서 정보를 읽어서 처리하지 않습니다.
     const self = this;
@@ -306,7 +306,7 @@ Module.prototype.handleLocalData = function(data) {
 };
 
 
-// 4. ������ ���� ������ ����
+// 4. 
 Module.prototype.requestRemoteData = function(handler) { 
     /// 엔트리에 전달할 데이터. 이 코드에서는 하드웨어에서 어떤 정보도 전달하지 않습니다.
     const self = this;
@@ -320,8 +320,9 @@ Module.prototype.requestRemoteData = function(handler) {
     });
 };
 
-// 5. �������� ������ ������ ����
-Module.prototype.handleRemoteData = function(handler) {   /// 엔트리에서 전달된 데이터 처리(Entry.hw.sendQueue로 보낸 데이터)
+// 5. 
+Module.prototype.handleRemoteData = function(handler) {   
+    /// 엔트리에서 전달된 데이터 처리(Entry.hw.sendQueue로 보낸 데이터)
     const self = this;
     const getDatas = handler.read('GET');
     const setDatas = handler.read('SET') || this.defaultOutput;
@@ -355,10 +356,9 @@ Module.prototype.handleRemoteData = function(handler) {   /// 엔트리에서 �
 
             if (isSend) {
                 if (!self.isRecentData(dataObj.port, key, dataObj.data)) {  // 여기서의  비교로 같은 명령어의 반복실행을 방지
-                    self.recentCheckData[dataObj.port] = 
-					{
+                    self.recentCheckData[dataObj.port] = {
                         type: key,
-                        data: dataObj.data
+                        data: dataObj.data,
                     }
                     buffer = Buffer.concat([buffer, self.makeSensorReadBuffer(key, 
                         dataObj.port, dataObj.data)]);						
@@ -378,14 +378,13 @@ Module.prototype.handleRemoteData = function(handler) {   /// 엔트리에서 �
                     if (!self.isRecentData(port, data.type, data.data)) {
                         self.recentCheckData[port] = {
                             type: data.type,
-                            data: data.data
+                            data: data.data,
                         };
                         buffer = Buffer.concat([buffer, self.makeOutputBuffer(data.type, 
                             port, data.data)]);
                     };     /// 전송 패킷 생성하여 버퍼에 저장
                 }
             }
-
         });
     }
 
@@ -425,7 +424,7 @@ Module.prototype.isRecentData = function(port, type, data) {
  //   isRecent = true;   참 들어가면 통신 데이터 무조건 안 보냄.
 
     return isRecent;
-}
+};
 
 
 
@@ -452,7 +451,7 @@ Module.prototype.makeSensorReadBuffer = function(device, port, data) {  // 센�
     } else if (!data) {
         buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.GET, device, port, 10]);	
     } else {
-        value = new Buffer(2);
+        const value = new Buffer(2);
         value.writeInt16LE(data);
         buffer = new Buffer([255, 85, 7, sensorIdx, this.actionTypes.GET, device, port, 10]);
         buffer = Buffer.concat([buffer, value, dummy]);
@@ -547,7 +546,6 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {    /// 출력
                 break;
         case this.sensorTypes.LCD_SET:          // LCD 제어
                 if (port == 3) {     // 프린트
-
                     buffer = new Buffer([255, 85, 26, sensorIdx, this.actionTypes.SET, 
                         device, port,data.line,data.column,data.text0,data.text1,data.text2,
                         data.text3,data.text4,data.text5,data.text6,data.text7,data.text8,
