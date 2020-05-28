@@ -4,7 +4,7 @@
         "en": "ssboard nano",
         "ko": "상상보드 나노"
     },
-    "category": "module",
+    "category": "board",
     "platform": ["win32", "darwin"],
     "icon": "ssboard_nano.png",
     "module": "ssboard_nano.js",
@@ -23,6 +23,7 @@
         "translate": "CH340 드라이버"
     }],
     "select_com_port": true,
+    "firmwareBaudRate": 57600,
     "reconnect": true,
     "firmware": "ssboard_nano",
     "entry": {
