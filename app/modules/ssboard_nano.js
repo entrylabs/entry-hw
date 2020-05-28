@@ -113,7 +113,7 @@ Module.prototype.init = function(handler, config) {  /// 초기설정
 };
 
 // Serial Port 
-Module.prototype.setSerialPort = function (sp) {   /// 시리얼포트 정보를 가지고오기
+Module.prototype.setSerialPort = function(sp) {   /// 시리얼포트 정보를 가지고오기
     const self = this;
     this.sp = sp;
 };
@@ -247,7 +247,6 @@ Module.prototype.handleLocalData = function(data) {
                 self.sensorData.ANALOG[1] = readData[4];
                 self.sensorData.ANALOG[2] = readData[5];
                 self.sensorData.ANALOG[3] = readData[6];
-                
             }
             case 101: {       ///  기본패킷
                 self.sensorData.ANALOG[4] = readData[7];
@@ -284,7 +283,7 @@ Module.prototype.handleLocalData = function(data) {
                 break;
             }			
             case self.sensorTypes.USONIC: {
-                self.sensorData.USONIC = value/10;			
+                self.sensorData.USONIC = value / 10;			
                 break;
             }
             case self.sensorTypes.SERVO: {
@@ -329,33 +328,33 @@ Module.prototype.handleRemoteData = function(handler) {   /// 엔트리에서 �
     const time = handler.read('TIME');
     let buffer = new Buffer([]);
 				
-    if(getDatas) {			
+    if (getDatas) {
         const keys = Object.keys(getDatas);
 			
         keys.forEach((key) => {
             let isSend = false;
             const dataObj = getDatas[key];
-            if(typeof dataObj.port === 'string' || typeof dataObj.port === 'number') {
+            if (typeof dataObj.port === 'string' || typeof dataObj.port === 'number') {
                 const time = self.digitalPortTimeList[dataObj.port];
-                if(dataObj.time > time) {
+                if (dataObj.time > time) {
                     isSend = true;
                     self.digitalPortTimeList[dataObj.port] = dataObj.time;
                 }
-            } else if(Array.isArray(dataObj.port)) {
-                isSend = dataObj.port.every(function(port) {
+            } else if (Array.isArray(dataObj.port)) {
+                isSend = dataObj.port.every((port) => {
                     const time = self.digitalPortTimeList[port];
                     return dataObj.time > time;
                 });
 
-                if(isSend) {
+                if (isSend) {
                     dataObj.port.forEach((port) => {
                         self.digitalPortTimeList[port] = dataObj.time;
                     });
                 }
             }
 
-            if(isSend) {
-                if(!self.isRecentData(dataObj.port, key, dataObj.data)) {  // 여기서의  비교로 같은 명령어의 반복실행을 방지
+            if (isSend) {
+                if (!self.isRecentData(dataObj.port, key, dataObj.data)) {  // 여기서의  비교로 같은 명령어의 반복실행을 방지
                     self.recentCheckData[dataObj.port] = 
 					{
                         type: key,
@@ -368,15 +367,15 @@ Module.prototype.handleRemoteData = function(handler) {   /// 엔트리에서 �
         });        
     }
 
-    if(setDatas) {  // 출력
+    if (setDatas) {  // 출력
         const setKeys = Object.keys(setDatas);
         setKeys.forEach((port) => {  /// port에 해당하는 데이터를 분석하여 처리
             const data = setDatas[port];
-            if(data) {
-                if(self.digitalPortTimeList[port] < data.time) { // 데이터 생성시간과 현 시간보다 이전 이면 
+            if (data) {
+                if (self.digitalPortTimeList[port] < data.time) { // 데이터 생성시간과 현 시간보다 이전 이면 
                     self.digitalPortTimeList[port] = data.time;
 
-                    if(!self.isRecentData(port, data.type, data.data)) {
+                    if (!self.isRecentData(port, data.type, data.data)) {
                         self.recentCheckData[port] = {
                             type: data.type,
                             data: data.data
@@ -390,7 +389,7 @@ Module.prototype.handleRemoteData = function(handler) {   /// 엔트리에서 �
         });
     }
 
-    if(buffer.length) {
+    if (buffer.length) {
         this.sendBuffers.push(buffer);
     }
 };
@@ -399,10 +398,10 @@ Module.prototype.handleRemoteData = function(handler) {   /// 엔트리에서 �
 Module.prototype.requestLocalData = function() { // 하드웨어에 명령을 전송합니다.
     const self = this;
 	
-     if(!this.isDraing && this.sendBuffers.length > 0) {
+     if (!this.isDraing && this.sendBuffers.length > 0) {
         this.isDraing = true;
         this.sp.write(this.sendBuffers.shift(), () => {
-            if(self.sp) {
+            if (self.sp) {
                 self.sp.drain(() => {
                     self.isDraing = false;
                 });
@@ -416,8 +415,8 @@ Module.prototype.requestLocalData = function() { // 하드웨어에 명령을 �
 Module.prototype.isRecentData = function(port, type, data) {
     let isRecent = false;
 	
-    if(port in this.recentCheckData) {
-        if(type != this.sensorTypes.TONE && this.recentCheckData[port].type === 
+    if (port in this.recentCheckData) {
+        if (type != this.sensorTypes.TONE && this.recentCheckData[port].type === 
             type && this.recentCheckData[port].data === data) {
 		    // 톤 명령이 아니고 타입과 데이터가 같고 같은 자료형 이면 
             isRecent = true;
@@ -439,18 +438,18 @@ Module.prototype.makeSensorReadBuffer = function(device, port, data) {  // 센�
     let buffer;
     const dummy = new Buffer([10]);
 	
-    if(device == this.sensorTypes.USONIC) {
+    if (device == this.sensorTypes.USONIC) {
         buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.GET, device, 
             port[0], port[1], 10]);	
-	} else if(device == this.sensorTypes.TEMP) {
+	} else if (device == this.sensorTypes.TEMP) {
         buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, 
             port[0], port[1], 10]);			
-    } else if(device == this.sensorTypes.SERVO) {
+    } else if (device == this.sensorTypes.SERVO) {
         buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, 
             port[0], port[1], 10]);	
-    } else if(device == this.sensorTypes.RD_BT) {
+    } else if (device == this.sensorTypes.RD_BT) {
         buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.GET, device, port, 10]);	
-    } else if(!data) {
+    } else if (!data) {
         buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.GET, device, port, 10]);	
     } else {
         value = new Buffer(2);
@@ -460,7 +459,7 @@ Module.prototype.makeSensorReadBuffer = function(device, port, data) {  // 센�
     }
 	
     sensorIdx++;
-    if(sensorIdx > 254) {
+    if (sensorIdx > 254) {
         sensorIdx = 0;
     }
 
@@ -474,7 +473,7 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {    /// 출력
     const dummy = new Buffer([10]);
     const time = new Buffer(2);
 		
-    switch(device) {
+    switch (device) {
         case this.sensorTypes.MOTOR:   // 모터제어
                 buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.SET, 
                     device, port, data[0], data[1]]);
@@ -514,7 +513,7 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {    /// 출력
 
         case this.sensorTypes.TONE:          // 스피커 제어 
 				//var time = new Buffer(2);
-                if($.isPlainObject(data)) {
+                if ($.isPlainObject(data)) {
                     value.writeInt16LE(data.value);
                     time.writeInt16LE(data.duration);
 				} else {
@@ -547,7 +546,7 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {    /// 출력
                 buffer = Buffer.concat([buffer, dummy]);
                 break;
         case this.sensorTypes.LCD_SET:          // LCD 제어
-                if(port == 3){     // 프린트
+                if (port == 3) {     // 프린트
 
                     buffer = new Buffer([255, 85, 26, sensorIdx, this.actionTypes.SET, 
                         device, port,data.line,data.column,data.text0,data.text1,data.text2,
@@ -570,7 +569,7 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {    /// 출력
 Module.prototype.disconnect = function(connect) {
     const self = this;
     connect.close();
-    if(self.sp) {
+    if (self.sp) {
         delete self.sp;
     }
 };
@@ -578,7 +577,7 @@ Module.prototype.disconnect = function(connect) {
 Module.prototype.disconnect = function(connect) {
     const self = this;
     connect.close();
-    if(self.sp) {
+    if (self.sp) {
         delete self.sp;
     }
 };
