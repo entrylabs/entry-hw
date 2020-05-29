@@ -2,8 +2,8 @@ import ComputerImage from '../../../../images/computer.png';
 import DriverButtonSetElement from './DriverButtonSetElement';
 import React from 'react';
 import styled from 'styled-components';
-import {useSelector} from 'react-redux';
-import {IStoreState} from '../../store';
+import { useSelector } from 'react-redux';
+import { IStoreState } from '../../store';
 
 const ClientElement = styled.div`
     width: 210px;

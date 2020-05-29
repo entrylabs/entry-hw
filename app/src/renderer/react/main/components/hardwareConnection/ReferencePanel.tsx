@@ -1,8 +1,8 @@
-import React, {useCallback} from 'react';
-import {useSelector} from 'react-redux';
+import React, { useCallback } from 'react';
+import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import usePreload from '../../hoc/usePreload';
-import {IStoreState} from '../../store';
+import { IStoreState } from '../../store';
 
 const ReferenceDiv = styled.div`
     display: grid;
