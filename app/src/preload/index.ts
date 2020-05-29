@@ -1,4 +1,4 @@
-import { clipboard, ipcRenderer } from 'electron';
+import { clipboard, ipcRenderer, remote } from 'electron';
 import Translator from './translator';
 import RendererRouter from './rendererRouter';
 import BleRouter from './bleProcessManager';
@@ -10,9 +10,9 @@ const isOSWin64 = () => (
 );
 
 function getInitializeList(): Preload {
-    const translator = new Translator();
-    const lang = translator.currentLanguage;
-    window.Lang = require(`./lang/${lang}.js`).Lang;
+    const rendererRouter = new RendererRouter();
+    const locale = remote.app.getLocale().substr(0, 2);
+    const translator = new Translator(locale);
     new BleRouter();
 
     return {
@@ -20,7 +20,7 @@ function getInitializeList(): Preload {
         clipboard,
         translator,
         os: `${process.platform}-${isOSWin64() ? 'x64' : process.arch}`,
-        rendererRouter: new RendererRouter(),
+        rendererRouter,
     };
 }
 
