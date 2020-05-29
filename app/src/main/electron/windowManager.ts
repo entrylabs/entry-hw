@@ -40,7 +40,7 @@ export default new class {
         });
     }
 
-    createMainWindow({ debug }: { debug: boolean }) {
+    createMainWindow({ debug }: { debug?: boolean }) {
         const language = app.getLocale();
         const title = language === 'ko' ? '엔트리 하드웨어 v' : 'Entry Hardware v';
         const { hardwareVersion } = global.sharedObject;

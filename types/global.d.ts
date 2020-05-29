@@ -1,27 +1,23 @@
-type ISharedObject = {
-    // from internal config
-    appName: string; // ?
-    roomIds: string[]; // ?
-    hardwareVersion: string;
-
-
-    // from external config file
-    baseUrl: string;
-    baseResource: string;
-    versionCheckApi: string;
-    moduleCheckApi: string;
-}
-
-type IFileConfig = {
+declare type IFileConfig = {
     moduleResourceUrl: string;
     updateCheckUrl: string;
 }
 
-type IInternalConfig = {
+declare type IInternalConfig = {
     appName: 'hardware',
     hardwareVersion: string,
     roomIds: string[],
 }
+
+declare type ICommandLineFlags = {
+    debug?: boolean; // alias: 'd', if flag is on, devtool will be opened
+}
+
+declare type ICommandLineArgs = {
+    config?: string; // alias: 'c', for configFileName mid-fix
+}
+
+declare type ICommandLineConfig = ICommandLineFlags & ICommandLineArgs;
 
 declare namespace NodeJS {
     // noinspection JSUnusedGlobalSymbols

@@ -1,6 +1,6 @@
 'use strict';
 
-import {app, BrowserWindow, dialog, ipcMain, Menu} from 'electron';
+import { app, BrowserWindow, dialog, ipcMain, Menu } from 'electron';
 import path from 'path';
 import fs from 'fs';
 import EntryServer from './serverProcessManager';
@@ -22,7 +22,7 @@ let entryServer: any = null;
 let autoOpenHardwareId = '';
 
 const argv = process.argv.slice(1);
-const commandLineOptions = parseCommandLine(argv) as any;
+const commandLineOptions = parseCommandLine(argv);
 const configuration = configInit(commandLineOptions.config);
 const { roomIds = [] } = configuration;
 
