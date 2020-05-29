@@ -1,12 +1,12 @@
 import React, { useCallback } from 'react';
 import styled from 'styled-components';
 import ProgressDot from './ProgressDot';
-import withPreload from '../../hoc/withPreload';
 import { useSelector } from 'react-redux';
 import { IStoreState } from '../../store';
 import DriverButtonSetElement from './DriverButtonSetElement';
 import FirmwareButtonSetElement from './FirmwareButtonSetElement';
 import ComputerImage from '../../../../images/computer.png';
+import usePreload from '../../hoc/usePreload';
 
 const HardwarePanel = styled.div`
     display: flex;
@@ -60,8 +60,8 @@ const RightBox = styled.div`
     float: right;
 `;
 
-const HardwareConnectionContainer: React.FC<Preload> = (props) => {
-    const { translator, clipboard, rendererRouter } = props;
+const HardwareConnectionContainer: React.FC = () => {
+    const { translator, clipboard, rendererRouter } = usePreload();
     const selectedHardware = useSelector<IStoreState, IHardwareConfig | undefined>(
         state => state.connection.selectedHardware,
     );
@@ -150,4 +150,4 @@ const HardwareConnectionContainer: React.FC<Preload> = (props) => {
     );
 };
 
-export default withPreload(HardwareConnectionContainer);
+export default HardwareConnectionContainer;
