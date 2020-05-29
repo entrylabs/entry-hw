@@ -3,11 +3,10 @@ import styled from 'styled-components';
 import {range} from 'lodash';
 import {useSelector} from 'react-redux';
 import {IStoreState} from '../../store';
-import DriverButtonSetElement from './DriverButtonSetElement';
 import FirmwareButtonSetElement from './FirmwareButtonSetElement';
-import ComputerImage from '../../../../images/computer.png';
 import usePreload from '../../hoc/usePreload';
 import ReferencePanel from './ReferencePanel';
+import ClientPanel from './ClientPanel';
 
 const HardwarePanel = styled.div`
     display: flex;
@@ -69,21 +68,13 @@ const HardwareConnectionContainer: React.FC = () => {
         return <HardwarePanel/>;
     }
 
-    const { icon, driver, firmware } = selectedHardware;
+    const { icon, firmware } = selectedHardware;
 
     return (
         <HardwarePanel id="hwPanel">
             <HardwareContentsDiv>
                 <ReferencePanel />
-                <ClientElement>
-                    <img src={ComputerImage} alt={''}/>
-                    {
-                        driver &&
-                        <div id="driverButtonSet">
-                            <DriverButtonSetElement buttonSet={driver}/>
-                        </div>
-                    }
-                </ClientElement>
+                <ClientPanel />
                 <ProgressContainer>
                     {
                         range(16)

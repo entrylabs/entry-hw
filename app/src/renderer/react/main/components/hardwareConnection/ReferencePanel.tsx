@@ -37,7 +37,7 @@ const ReferencePanel: React.FC = () => {
     }, []);
 
     if (!selectedHardware) {
-        return <div/>;
+        return <React.Fragment />;
     }
 
     const { email, url, video } = selectedHardware;
