@@ -18,9 +18,7 @@
     },
     "reconnect": true,
     "select_com_port": true,
-    "entry": {
-        "protocol": "json"
-    },
+
     "hardware": {
 		"type": "bluetooth",
 		"control": "slave",

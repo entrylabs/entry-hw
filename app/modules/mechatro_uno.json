@@ -21,9 +21,7 @@
             "translate": "유/무선 펌웨어"
         }
     ],
-    "entry": {
-        "protocol": "json"
-    },
+
     "hardware": {
         "type": "serial",
         "control": "slave",

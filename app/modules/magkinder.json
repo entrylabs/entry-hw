@@ -12,9 +12,7 @@
     "email": "blockmaster@magkinder.com",
     "reconnect": true,
     "select_com_port": true,
-    "entry": {
-        "protocol": "json"
-    },
+
     "hardware": {
         "type": "serial",
         "control": "slave",

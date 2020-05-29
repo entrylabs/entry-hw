@@ -15,9 +15,7 @@
     "url": "http://www.byrobot.co.kr",
     "email": "help@byrobot.co.kr",
     "reconnect" : true,
-    "entry": {
-        "protocol": "json"
-    },
+
     "hardware": {
         "type": "serial",
         "control": "slave",

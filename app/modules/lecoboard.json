@@ -16,9 +16,6 @@
   "firmware": "",
 
   "select_com_port": false,
-  "entry": {
-    "protocol": "json"
-  },
   "hardware": {
     "type": "serial",
     "control": "slave",

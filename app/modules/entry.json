@@ -34,9 +34,7 @@
         "name": "entrybt",
         "translate": "Install Firmware(Sensor Board Bluetooth)"
     }],
-    "entry": {
-        "protocol": "json"
-    },
+
     "hardware": {
         "type": "serial",
         "control": "slave",

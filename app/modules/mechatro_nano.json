@@ -27,9 +27,7 @@
     "firmware": "mechatro",
     "firmwareBaudRate": 57600,
 
-    "entry": {
-        "protocol": "json"
-    },
+
     "hardware": {
         "type": "serial",
         "control": "slave",

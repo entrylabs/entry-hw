@@ -17,9 +17,7 @@
         "name": "microbit",
         "afterDelay": 3000
     },
-    "entry": {
-        "protocol": "json"
-    },
+
     "driver": {
         "win32-ia32": "mbedWinSerial/mbedWinSerial_16466.exe",
         "win32-x64": "mbedWinSerial/mbedWinSerial_16466.exe"

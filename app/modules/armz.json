@@ -9,9 +9,7 @@
 	"icon" : "armz.png",
 	"module": "armz.js",
 	"url": "http://www.myarmz.com",
-	"entry": {
-		"protocol": "json"
-	},
+
 	"select_com_port" : true,
 	"hardware": {
 		"type": "serial",

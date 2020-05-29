@@ -25,9 +25,7 @@
     "select_com_port": true,
     "reconnect": true,
     "firmware": "kaduino",
-    "entry": {
-        "protocol": "json"
-    },
+
     "hardware": {
         "type": "serial",
         "control": "slave",

@@ -24,9 +24,7 @@
     }],
     "select_com_port": true,
     "reconnect": true,
-    "entry": {
-        "protocol": "json"
-    },
+
     "hardware": {
         "type": "serial",
         "control": "slave",

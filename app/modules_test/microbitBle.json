@@ -17,9 +17,6 @@
         "afterDelay": 3000
     },
     "reconnect": true,
-    "entry": {
-        "protocol": "json"
-    },
     "hardware": {
         "type": "ble",
         "duration": 100
