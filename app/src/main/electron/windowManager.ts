@@ -12,7 +12,7 @@ export default new class {
     해당 값을 세팅 한 뒤 다시 close 를 호출 하는 식으로 종료한다.
      */
     public mainWindowCloseConfirmed = false;
-    public aboutWindow ?: BrowserWindow = undefined;
+    public aboutWindow?: BrowserWindow = undefined;
     public mainWindow?: BrowserWindow = undefined;
 
     createAboutWindow(parent?: BrowserWindow) {

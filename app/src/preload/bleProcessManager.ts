@@ -1,5 +1,5 @@
 import IpcRendererManager from './ipcRendererManager';
-import IpcRendererEvent = Electron.IpcRendererEvent;
+import { ipcRenderer, IpcRendererEvent } from 'electron';
 
 class BleProcessManager {
     private ipcManager = new IpcRendererManager();
@@ -10,23 +10,26 @@ class BleProcessManager {
     private connected = false; // HW 모듈과 커뮤니케이션 준비가 되었는지 여부
 
     constructor() {
-        this.ipcManager.handle('scanBleDevice', this._handleScanBleDevice.bind(this));
-        this.ipcManager.handle('connectBleDevice', this._handleConnectBleDevice.bind(this));
-        this.ipcManager.handle('writeBleDevice', this._handleWriteBleDevice.bind(this));
-        this.ipcManager.handle('disconnectBleDevice', this._handleDisconnectBleDevice.bind(this));
-        this.ipcManager.handle('startBleDevice', (e) => {
-            this.connected = true;
-        });
+        ipcRenderer.on('scanBleDevice', this._handleScanBleDevice.bind(this));
+        // this.ipcManager.handle('scanBleDevice', this._handleScanBleDevice.bind(this));
+        // this.ipcManager.handle('connectBleDevice', this._handleConnectBleDevice.bind(this));
+        // this.ipcManager.handle('writeBleDevice', this._handleWriteBleDevice.bind(this));
+        // this.ipcManager.handle('disconnectBleDevice', this._handleDisconnectBleDevice.bind(this));
+        // this.ipcManager.handle('startBleDevice', (e) => {
+        //     this.connected = true;
+        // });
     }
 
-    private async _handleScanBleDevice(event: IpcRendererEvent, options?: RequestDeviceOptions) {
+    private _handleScanBleDevice(event: IpcRendererEvent, options?: RequestDeviceOptions) {
         try {
-            this.connectedDevice = await navigator.bluetooth.requestDevice(options);
-
-            const device = this.connectedDevice;
-            !(device?.gatt?.connected) && await device?.gatt?.connect();
-
-            console.log(this.connectedDevice);
+            navigator.bluetooth.requestDevice(options).then(async (device) => {
+                this.connectedDevice = device;
+                !(device?.gatt?.connected) && await device?.gatt?.connect();
+                event.sender.send('scanBleDevice');
+            }).catch(e => {
+                console.error(e);
+                event.sender.send('scanBleDevice', e);
+            });
         } catch (e) {
             console.error(e);
             // TODO 에러핸들
