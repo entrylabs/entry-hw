@@ -1,6 +1,6 @@
 import React from 'react';
-import {CloudModeTypesEnum, HardwarePageStateEnum} from '../constants/constants';
-import {HardwareStatement} from '../../../../common/constants';
+import { CloudModeTypesEnum, HardwarePageStateEnum } from '../constants/constants';
+import { HardwareStatement } from '../../../../common/constants';
 import {
     changeAlertMessage,
     changeCloudMode,
@@ -8,9 +8,9 @@ import {
     changeStateTitle,
     IAlertMessage,
 } from '../store/modules/common';
-import {changePortList} from '../store/modules/connection';
-import {connect} from 'react-redux';
-import {IMapDispatchToProps, IMapStateToProps} from '../store';
+import { changePortList } from '../store/modules/connection';
+import { connect } from 'react-redux';
+import { IMapDispatchToProps, IMapStateToProps } from '../store';
 
 const { translator, ipcRenderer, rendererRouter } = window;
 
