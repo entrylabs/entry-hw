@@ -66,6 +66,11 @@ class RendererRouter {
         ipcRenderer.send('selectPort', portName);
     }
 
+    sendHandshakePayload(payload: string) {
+        console.log('sendHandShakePayload', payload);
+        ipcRenderer.send('handshakePayload', payload);
+    }
+
     requestOpenAboutWindow() {
         ipcRenderer.send('openAboutWindow');
     }

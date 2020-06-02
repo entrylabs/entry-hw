@@ -1,4 +1,4 @@
-import { AnyAction, Middleware } from 'redux';
+import {Action, AnyAction, Middleware} from 'redux';
 import { Dispatch } from 'react';
 import { IStoreState } from '../index';
 import {
@@ -16,7 +16,7 @@ import refreshPriorHardwareList from '../../functions/refreshPriorHardwareList';
 import {
     changePortList,
     changeVisiblePortList,
-    FIRMWARE_INSTALL_REQUESTED,
+    FIRMWARE_INSTALL_REQUESTED, HANDSHAKE_PAYLOAD_SET,
     HARDWARE_SELECTED,
     PORT_SELECTED,
 } from '../modules/connection';
@@ -90,6 +90,20 @@ const entryHardwareMiddleware: Middleware = ({ getState }: { getState: () => ISt
         }
         case PORT_SELECTED: {
             rendererRouter.sendSelectedPort(action.payload);
+            next(action);
+            break;
+        }
+        case HANDSHAKE_PAYLOAD_SET: {
+            const value = action.payload;
+            if (value) {
+                rendererRouter.sendHandshakePayload(action.payload);
+            } else {
+                changeAlertMessage(next)({
+                    message: '값이 읎는데요 선생님',
+                    duration: 1000,
+                });
+            }
+
             next(action);
             break;
         }

@@ -13,12 +13,14 @@ export const HARDWARE_SELECTED = 'connection/HARDWARE_SELECTED';
 export const PORTLIST_CHANGED = 'connection/PORTLIST_CHANGED';
 export const PORTLIST_VISIBLE_CHANGED = 'connection/PORTLIST_VISIBLE_CHANGED';
 export const PORT_SELECTED = 'connection/PORT_SELECTED';
+export const HANDSHAKE_PAYLOAD_SET = 'connection/HANDSHAKE_PAYLOAD_SET';
 export const FIRMWARE_INSTALL_REQUESTED = 'connection/FIRMWARE_INSTALL_REQUESTED';
 
 export const selectHardware = makePayloadAction<IHardwareConfig>(HARDWARE_SELECTED);
 export const changePortList = makePayloadAction<ISerialPortScanData[]>(PORTLIST_CHANGED);
 export const changeVisiblePortList = makePayloadAction<boolean>(PORTLIST_VISIBLE_CHANGED);
 export const selectPort = makePayloadAction<string>(PORT_SELECTED);
+export const setHandshakePayload = makePayloadAction<string | undefined>(HANDSHAKE_PAYLOAD_SET);
 export const requestFirmwareInstall = makePayloadAction<IFirmwareInfo>(FIRMWARE_INSTALL_REQUESTED);
 
 const initialState: IConnectionState = {

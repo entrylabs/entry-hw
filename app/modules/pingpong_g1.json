@@ -18,7 +18,8 @@
         }
     ],
     "reconnect": true,
-    "select_com_port": true,
+    "handshakeType": "argument",
+    "select_com_port": false,
     "entry": {
         "protocol": "json"
     },
