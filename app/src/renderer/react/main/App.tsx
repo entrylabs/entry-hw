@@ -19,7 +19,6 @@ ReactDOM.render(
             <Main/>
             <Footer/>
             <GlobalStyle/>
-            <GlobalEventListener/>
         </Provider>
     </>,
     document.getElementById('__main'),
