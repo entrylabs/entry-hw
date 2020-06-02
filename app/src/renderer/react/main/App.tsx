@@ -8,9 +8,11 @@ import store from './store';
 import GlobalStyle from './GlobalStyle';
 import IpcRendererWatchComponent from './components/IpcRendererWatchComponent';
 import GlobalEventListener from './GlobalEventListener';
+import makeConsoleAsciiArt from './functions/makeConsoleAsciiArt';
 
 const { rendererRouter } = window;
 
+makeConsoleAsciiArt();
 ReactDOM.render(
     <>
         <Provider store={store}>
