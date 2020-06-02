@@ -11,7 +11,7 @@
     "url": "http://saeon.co.kr/",
     "email": "saeon@saeon.co.kr",
     "reconnect": true,
-    "select_com_port": true,
+    "selectPort": true,
     "entry": {
         "protocol": "json"
     },

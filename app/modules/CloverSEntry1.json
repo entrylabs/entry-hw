@@ -24,7 +24,7 @@
     "entry": {
         "protocol": "json"
     },
-    "select_com_port": false,
+    "selectPort": false,
     "hardware": {
         "type": "serial",
         "control": "slave",

@@ -10,7 +10,7 @@
 	"module": "smartboardbt.js",
 	"url": "http://www.sciencebox.co.kr",
 	"email": "mail@sciencebox.co.kr",
-    "select_com_port": true,
+    "selectPort": true,
     "reconnect": true,
 	"entry": {
 		"protocol": "json"

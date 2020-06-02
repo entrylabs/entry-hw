@@ -15,7 +15,7 @@ const template = {
     url: '',
     email: '',
     reconnect: false,
-    select_com_port: false,
+    selectPort: false,
     entry: {
         protocol: 'json',
     },
@@ -73,7 +73,7 @@ const template = {
         },
         {
             type: 'confirm',
-            name: 'select_com_port',
+            name: 'selectPort',
             message: 'need COM port selection popup ?',
             default: false,
         },

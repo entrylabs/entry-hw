@@ -12,7 +12,7 @@
 	"entry": {
 		"protocol": "json"
 	},
-	"select_com_port" : true,
+	"selectPort" : true,
 	"hardware": {
 		"type": "bluetooth",
 		"control": "slave",

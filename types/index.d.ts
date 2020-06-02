@@ -79,7 +79,7 @@ declare interface IHardwareConfig {
     email?: string;
     video?: string | string[];
     reconnect?: boolean;
-    select_com_port?: boolean | { [platform: string]: boolean };
+    selectPort?: boolean | { [platform: string]: boolean };
     tryFlasherNumber?: number;
 }
 

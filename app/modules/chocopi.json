@@ -13,7 +13,7 @@
 		"protocol": "json"
 	},
 	"reconnect" : true,
-	"select_com_port" : true,
+	"selectPort" : true,
 	"driver": {
 		"win32-ia32": "STMVCP/dpinst_x86.exe",
 		"win32-x64": "STMVCP/dpinst_amd64.exe"

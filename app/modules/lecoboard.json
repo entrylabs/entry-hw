@@ -15,7 +15,7 @@
   "reconnect": true,
   "firmware": "",
 
-  "select_com_port": false,
+  "selectPort": false,
   "entry": {
     "protocol": "json"
   },

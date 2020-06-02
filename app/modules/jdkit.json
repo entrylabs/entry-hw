@@ -15,7 +15,7 @@
 		"darwin-x64": "https://entrylabs.github.io/docs/files/drivers/CH34x_Install_MAC_10_9_AND_ABOVE/CH34x_Install_V1.3.pkg"
 	},
 	"reconnect" : true,
-	"select_com_port": {
+	"selectPort": {
 		"win32": false,
 		"darwin": true
 	},

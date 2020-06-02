@@ -16,7 +16,7 @@
         "darwin-x64": "https://entrylabs.github.io/docs/files/drivers/FTDIUSBSerial/FTDIUSBSerial.pkg"
     },
     "reconnect": true,
-    "select_com_port": true,
+    "selectPort": true,
     "entry": {
         "protocol": "json"
     },

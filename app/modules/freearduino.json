@@ -21,7 +21,7 @@
         "translate": "블루투스 드라이버 (필요한 경우)"
     }],
     "reconnect": true,
-    "select_com_port": true,
+    "selectPort": true,
     "firmware": [{
         "name": "freearduino",
         "translate": "유/무선 겸용 펌웨어 (D0:TX,D1:RX)"

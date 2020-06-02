@@ -17,7 +17,7 @@
     "reconnect" : true,
 	"firmware": "palmkit",
 	"firmwareBaudRate": "",
-	"select_com_port": false,
+	"selectPort": false,
 	"entry": {
 		"protocol": "json"
 	},

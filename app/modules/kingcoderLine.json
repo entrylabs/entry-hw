@@ -16,7 +16,7 @@
         "translate": "연결 드라이버"
     },
     "reconnect" : true, 
-    "select_com_port": {
+    "selectPort": {
         "win32": false
     },
    

@@ -11,7 +11,7 @@
     "email": "join@neweducation.co.kr",
     "module": "entrybt.js",
     "reconnect": true,
-    "select_com_port": true,
+    "selectPort": true,
     "entry": {
         "protocol": "json"
     },

@@ -9,7 +9,7 @@
     "icon": "elio.png",
     "module": "elio.js",
     "url": "https://mobilian.biz/#/app/product/elio",
-    "select_com_port": true,
+    "selectPort": true,
 	"entry": {
 		"protocol": "json"
     },
