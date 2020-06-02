@@ -1,12 +1,10 @@
 import React, { useCallback, useState } from 'react';
 import Styled from 'styled-components';
-import withPreload from '../../hoc/withPreload';
-import { HardwarePageStateEnum } from '../../constants/constants';
-import { IMapDispatchToProps, IMapStateToProps } from '../../store';
-import { connect } from 'react-redux';
-import { changeCurrentPageState } from '../../store/modules/common';
+import { IStoreState } from '../../store';
+import { useDispatch, useSelector } from 'react-redux';
 import { changePortList, selectPort } from '../../store/modules/connection';
 import CloseButton from '../../../../images/btn_close.png';
+import usePreload from '../../hooks/usePreload';
 
 const PortBoxContainer = Styled.div`
     background: rgba(0, 0, 0, 0.4);
@@ -103,20 +101,23 @@ const CancelButton = Styled.button`
     margin-right: 11px;
 `;
 
-type IProps = IDispatchProps & IStateProps & Preload & {
+type IProps = {
     handleCancelClicked: () => void;
 };
+
 const SelectPortContainer: React.FC<IProps> = (props) => {
-    const { translator, portList } = props;
+    const portList = useSelector<IStoreState, ISerialPortScanData[]>(state => state.connection.portList);
+    const { translator } = usePreload();
+    const dispatch = useDispatch();
     const [selectedPort, changeSelected] = useState<string>('');
 
     const onCancelClicked = useCallback(() => {
         props.handleCancelClicked();
-        props.clearPortList();
+        changePortList(dispatch)([]);
     }, []);
 
     const onPortSelected = useCallback((porName: string) => {
-        props.selectPort(porName);
+        selectPort(dispatch)(porName);
     }, []);
 
     return (
@@ -173,24 +174,4 @@ const SelectPortContainer: React.FC<IProps> = (props) => {
     );
 };
 
-interface IStateProps {
-    portList: ISerialPortScanData[];
-}
-
-const mapStateToProps: IMapStateToProps<IStateProps> = (state) => ({
-    portList: state.connection.portList,
-});
-
-interface IDispatchProps {
-    changeCurrentPageState: (page: HardwarePageStateEnum) => void;
-    clearPortList: () => void;
-    selectPort: (portName: string) => void;
-}
-
-const mapDispatchToProps: IMapDispatchToProps<IDispatchProps> = (dispatch) => ({
-    changeCurrentPageState: changeCurrentPageState(dispatch),
-    clearPortList: () => changePortList(dispatch)([]),
-    selectPort: selectPort(dispatch),
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(withPreload(SelectPortContainer));
+export default SelectPortContainer;
