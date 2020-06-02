@@ -111,7 +111,7 @@ class SerialConnector extends BaseConnector {
      *
      * @returns {Promise<void>} 준비완료 or 펌웨어체크 준비
      */
-    initialize() {
+    initialize(handshakePayload?: string) {
         return new Promise((resolve, reject) => {
             if (!this.serialPort) {
                 logger.error('serailport is not found but initialize() opened');
@@ -161,7 +161,7 @@ class SerialConnector extends BaseConnector {
 
                 // 최소 한번은 requestInitialData 전송을 강제
                 const firstRequestData = hwModule.requestInitialData(this.serialPort);
-                this.send(hwModule.requestInitialData(this.serialPort));
+                this.send(hwModule.requestInitialData(this.serialPort, handshakePayload));
                 logger.verbose(`[repeat..]handShake request data ${firstRequestData}`);
                 this.slaveInitRequestInterval = setInterval(() => {
                     const requestData = hwModule.requestInitialData(this.serialPort);

@@ -40,6 +40,7 @@ class MainRouter {
     private flasher: Flasher;
 
     public selectedPort?: string;
+    public selectedPayload?: string;
     public currentCloudMode: number = 0;
     public currentServerRunningMode: number = 2;
     private connector?: any; // TODO typing
@@ -456,6 +457,9 @@ class MainRouter {
         ipcMain.on('selectPort', (e, portName) => {
             logger.info(`port select from port selection window : ${portName}`);
             this.selectedPort = portName;
+        });
+        ipcMain.on('handshakePayload', (e, payload) => {
+            this.selectedPayload = payload;
         });
         ipcMain.on('stopScan', () => {
             logger.info('scan stopped');

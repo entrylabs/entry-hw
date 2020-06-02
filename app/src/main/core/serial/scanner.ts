@@ -95,6 +95,11 @@ class SerialScanner extends BaseScanner<SerialConnector> {
             );
         }
 
+        if (this.config.handshakeType === 'argument' && !this.router.selectedPayload) {
+            // handshakeType 가 argument 면 selectedPayload 가 필요하다. 이 값이 없으면 시리얼포트 선출하지 않는다.
+            return;
+        }
+
         const electedConnector = await electPort(selectedPorts, hardware, this.hwModule,
             (connector) => {
                 if (this.config && this.config.firmware) {

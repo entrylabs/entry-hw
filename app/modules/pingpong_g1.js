@@ -136,7 +136,8 @@ class PingpongG1 extends BaseModule {
     }
 
     // 연결 후 초기에 송신할 데이터가 필요한 경우 사용합니다.
-    requestInitialData(sp) {
+    requestInitialData(sp, payload) {
+        console.log('pingpong initialData', payload);
         //console.log('P:requestInitialData: ');
         /*
 		if (!this.sp) {

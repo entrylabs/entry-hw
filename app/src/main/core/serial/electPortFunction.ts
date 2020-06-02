@@ -2,18 +2,13 @@ import SerialConnector from './connector';
 import { compact } from 'lodash';
 
 type IElectedResult = { port: string; connector: SerialConnector; };
-/**
- * @param ports {string[]}
- * @param hwConfig {Object}
- * @param hwModule {Object}
- * @param beforeConnectCallback {Function=}
- * @return Promise <{port: string, connector: Connector} | void>
- */
+
 const electPort = async (
     ports: string[],
     hwConfig: IHardwareModuleConfig,
     hwModule: IHardwareModule,
     beforeConnectCallback: (connector: SerialConnector) => void,
+    handshakePayload?: string,
 ) => {
     // 선출 후보 포트 모두 오픈
     const connectors = await _initialize(ports, hwConfig, hwModule);
@@ -35,7 +30,7 @@ const electPort = async (
     const electedConnector = await Promise.race(
         connectors.map(async (connectorObject) => {
             const { connector } = connectorObject;
-            await connector.initialize();
+            await connector.initialize(handshakePayload);
             return connectorObject;
         }),
     );
