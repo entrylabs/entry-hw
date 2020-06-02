@@ -10,6 +10,3 @@ ReactDOM.render(
     </>,
     document.getElementById('__main'),
 );
-
-// 첫 렌더가 완료된 후 프로그램을 업데이트한다.
-// rendererRouter.checkProgramUpdate();

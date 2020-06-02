@@ -10,7 +10,7 @@ declare interface Preload {
     clipboard: {
         writeText(str: string): void;
     }
-    rendererRouter: any; //instance
+    rendererRouter: import('../app/src/preload/rendererRouter').default; //instance
     os: string;
 }
 
