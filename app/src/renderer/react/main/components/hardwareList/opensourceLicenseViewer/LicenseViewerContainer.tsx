@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import withPreload from '../../../hoc/withPreload';
-import { connect } from 'react-redux';
-import { IMapDispatchToProps, IMapStateToProps } from '../../../store';
+import { useDispatch, useSelector } from 'react-redux';
+import { IStoreState } from '../../../store';
 import { toggleLicenseView } from '../../../store/modules/common';
 import Styled from 'styled-components';
 import CloseButtonImage from '../../../../../images/btn_close.png';
+import usePreload from '../../../hooks/usePreload';
 
 const ViewerContainer = Styled.div`
     background: rgba(0, 0, 0, 0.4);
@@ -89,12 +89,13 @@ const CloseButton = Styled.button`
     border-radius: 3px;
 `;
 
-
-type IProps = Preload & IDispatchProps & IStateProps;
-const LicenseViewerContainer: React.FC<IProps> = (props) => {
+const LicenseViewerContainer: React.FC = () => {
     const [content, setContent] = useState<string>('Loading...');
+    const { translator, rendererRouter } = usePreload();
+    const dispatch = useDispatch();
+    const isLicenseShow = useSelector<IStoreState>(state => state.common.isLicenseShow);
     useEffect(() => {
-        props.rendererRouter.getOpenSourceContents()
+        rendererRouter.getOpenSourceContents()
             .then((contents: string) => {
                 setContent(contents);
             })
@@ -103,14 +104,14 @@ const LicenseViewerContainer: React.FC<IProps> = (props) => {
             });
     }, []);
 
-    if (props.isLicenseShow) {
+    if (isLicenseShow) {
         return (
             <ViewerContainer>
                 <ViewerBody>
                     <ViewerTitle>
-                            {props.translator.translate('Opensource lincense')}
+                        {translator.translate('Opensource lincense')}
                         <CancelIcon onClick={() => {
-                            props.hideLicenseView();
+                            toggleLicenseView(dispatch)(false);
                         }}/>
                     </ViewerTitle>
                     <ViewerContent>
@@ -118,10 +119,10 @@ const LicenseViewerContainer: React.FC<IProps> = (props) => {
                         <div>
                             <CloseButton
                                 onClick={() => {
-                                    props.hideLicenseView();
+                                    toggleLicenseView(dispatch)(false);
                                 }}
                             >
-                                {props.translator.translate('Close')}
+                                {translator.translate('Close')}
                             </CloseButton>
                         </div>
                     </ViewerContent>
@@ -133,20 +134,4 @@ const LicenseViewerContainer: React.FC<IProps> = (props) => {
     }
 };
 
-interface IStateProps {
-    isLicenseShow: boolean;
-}
-
-const mapStateToProps: IMapStateToProps<IStateProps> = (state) => ({
-    isLicenseShow: state.common.isLicenseShow,
-});
-
-interface IDispatchProps {
-    hideLicenseView: () => void;
-}
-
-const mapDispatchToProps: IMapDispatchToProps<IDispatchProps> = (dispatch) => ({
-    hideLicenseView: () => toggleLicenseView(dispatch)(false),
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(withPreload(LicenseViewerContainer));
+export default LicenseViewerContainer;

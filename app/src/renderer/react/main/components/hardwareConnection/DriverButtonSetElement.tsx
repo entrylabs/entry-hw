@@ -1,11 +1,10 @@
 import React, { useCallback } from 'react';
-import withPreload from '../../hoc/withPreload';
 import HardwarePanelButton from '../common/HardwarePanelButton';
+import usePreload from '../../hooks/usePreload';
 
-const { os } = window;
-
-const DriverButtonSetElement: React.FC<{ buttonSet: IDriverInfo } & Preload> = (props) => {
-    const { buttonSet, translator, rendererRouter } = props;
+const DriverButtonSetElement: React.FC<{ buttonSet: IDriverInfo }> = (props) => {
+    const { buttonSet } = props;
+    const { translator, rendererRouter, os } = usePreload();
     const onButtonClicked = useCallback((path: string) => {
         if (path.startsWith('http')) {
             rendererRouter.openExternalUrl(path);
@@ -36,4 +35,4 @@ const DriverButtonSetElement: React.FC<{ buttonSet: IDriverInfo } & Preload> = (
     }
 };
 
-export default withPreload(DriverButtonSetElement);
+export default DriverButtonSetElement;
