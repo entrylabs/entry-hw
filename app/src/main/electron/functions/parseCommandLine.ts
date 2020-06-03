@@ -15,20 +15,17 @@ const logger = createLogger('ParseCommandLine');
  * 모든 값은 대소문자를 구분한다.
  * 모든 값은 '=' 으로 구분한다.
  */
-const properties = {
+type IPropertyType = { flag: [keyof ICommandLineFlags, string][], pair: [keyof ICommandLineArgs, string][] };
+const properties: IPropertyType = {
     flag: [
         ['debug', 'd'],
     ],
     pair: [
-        ['version', 'v'],
-        ['app'],
-        ['host', 'h'],
-        ['protocol', 'p'],
         ['config', 'c'],
     ],
 };
 
-let result: any = {};
+let result: ICommandLineConfig = {};
 
 function parseFlags(key: string) {
     for (let i = 0; i < properties.flag.length; i++) {
@@ -54,7 +51,7 @@ function parsePair(key: string, value: string) {
     }
 }
 
-export default (argv: string[]) => {
+export default (argv: string[]): ICommandLineConfig => {
     result = {};
     for (let i = 0; i < argv.length; i++) {
         const [key, value] = argv[i].split('=');

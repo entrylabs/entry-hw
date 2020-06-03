@@ -7,6 +7,7 @@ import { AvailableTypes } from '../../common/constants';
 import getModuleList from './functions/getModuleList';
 import createLogger from '../electron/functions/createLogger';
 import directoryPaths from './directoryPaths';
+import MainRouter from '../mainRouter';
 
 const logger = createLogger('core/hardwareListManager.ts');
 
@@ -40,7 +41,7 @@ export default class {
     private readonly router?: any;
     public allHardwareList: IHardwareConfig[] = [];
 
-    constructor(router: any) {
+    constructor(router: MainRouter) {
         this.router = router;
         logger.verbose('hardwareListManager created');
         // 두번 하는 이유는, 먼저 유저에게 로컬 모듈 목록을 보여주기 위함
