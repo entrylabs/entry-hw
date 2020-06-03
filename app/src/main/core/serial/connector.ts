@@ -160,11 +160,11 @@ class SerialConnector extends BaseConnector {
                 logger.verbose('hardware handShake as Slave mode');
 
                 // 최소 한번은 requestInitialData 전송을 강제
-                const firstRequestData = hwModule.requestInitialData(this.serialPort);
-                this.send(hwModule.requestInitialData(this.serialPort, handshakePayload));
+                const firstRequestData = hwModule.requestInitialData(this.serialPort, handshakePayload);
+                this.send(firstRequestData);
                 logger.verbose(`[repeat..]handShake request data ${firstRequestData}`);
                 this.slaveInitRequestInterval = setInterval(() => {
-                    const requestData = hwModule.requestInitialData(this.serialPort);
+                    const requestData = hwModule.requestInitialData(this.serialPort, handshakePayload);
                     this.send(requestData);
                 }, duration);
 

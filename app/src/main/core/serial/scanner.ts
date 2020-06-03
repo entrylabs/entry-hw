@@ -113,6 +113,7 @@ class SerialScanner extends BaseScanner<SerialConnector> {
                     this.router.sendState('before_connect');
                 }
             },
+            this.router.selectedPayload,
         );
 
         if (electedConnector) {
