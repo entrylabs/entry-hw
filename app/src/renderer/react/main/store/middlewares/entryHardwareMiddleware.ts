@@ -48,18 +48,17 @@ const entryHardwareMiddleware: Middleware = ({ getState }: { getState: () => ISt
             const { hardware } = getState();
             const { hardwareFilterCategory } = hardware;
             const { payload: keyword } = action;
-            const hardwareList = filterHardwareList(
-                keyword,
-                hardwareFilterCategory,
-                rendererRouter.hardwareList,
-            );
-
-            if (!hardwareList || hardwareList.length === 0) {
-                alert(translator.translate('No results found'));
-            } else {
+            
+            new Promise<IHardwareConfig[]>(resolve => {
+                resolve(filterHardwareList(
+                    keyword,
+                    hardwareFilterCategory,
+                    rendererRouter.hardwareList,
+                ))
+            }).then((hardwareList) => {
                 changeHardwareList(next)(hardwareList);
-                next(action);
-            }
+            });
+            next(action);
             break;
         }
         case CURRENT_PAGE_STATE_CHANGED: {
@@ -148,4 +147,4 @@ const entryHardwareMiddleware: Middleware = ({ getState }: { getState: () => ISt
     }
 };
 
-export default entryHardwareMiddleware; // 불러와서 사용 할 수 있도록 내보내줍니다.
+export default entryHardwareMiddleware;

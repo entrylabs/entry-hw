@@ -1,7 +1,7 @@
 import FirmwareButtonSetElement from './FirmwareButtonSetElement';
 import React from 'react';
 import styled from 'styled-components';
-import usePreload from '../../hoc/usePreload';
+import usePreload from '../../hooks/usePreload';
 import { useSelector } from 'react-redux';
 import { IStoreState } from '../../store';
 
