@@ -6,9 +6,9 @@ import createLogger from '../electron/functions/createLogger';
 const logger = createLogger('core/ScannerManager.ts');
 
 type IScannerSelector = {
-    serial: any;
-    hid: any;
-    ble: any;
+    serial: SerialScanner;
+    hid: HidScanner;
+    ble: BleScanner;
 }
 
 type IScannerTypes = 'serial' | 'hid' | 'ble' | 'bluetooth';

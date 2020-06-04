@@ -24,9 +24,6 @@
         "name": "funboard2",
         "translate": "확장케이블용 펌웨어"
     }],
-    "entry": {
-        "protocol": "json"
-    },
     "hardware": {
         "type": "serial",
         "control": "slave",

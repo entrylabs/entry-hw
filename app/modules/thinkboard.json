@@ -19,9 +19,6 @@
     "selectPort": true,
     "reconnect": true,
     "firmware": "thinkboard",
-    "entry": {
-        "protocol": "json"
-    },
     "hardware": {
         "type": "serial",
         "control": "slave",

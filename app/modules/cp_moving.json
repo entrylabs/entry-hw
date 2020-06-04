@@ -16,9 +16,6 @@
 	},
     "reconnect" : true,
     "firmware": "cp_moving",
-	"entry": {
-		"protocol": "json"
-	},
 	"hardware": {
 		"type": "serial",
 		"control": "slave",

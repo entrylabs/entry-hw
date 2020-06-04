@@ -9,9 +9,6 @@
 	"icon" : "chocopi.png",
 	"module": "chocopi.js",
 	"url": "http://chocopi.org/entry",
-	"entry": {
-		"protocol": "json"
-	},
 	"reconnect" : true,
 	"selectPort" : true,
 	"driver": {

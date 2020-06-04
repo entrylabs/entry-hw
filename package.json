@@ -59,9 +59,9 @@
         "sharp": "^0.25.2",
         "source-map-support": "^0.5.16",
         "styled-components": "^4.4.0",
-        "ts-loader": "^6.2.0",
-        "ts-node": "^8.6.2",
-        "typescript": "^3.6.4",
+        "ts-loader": "^7.0.5",
+        "ts-node": "^8.10.2",
+        "typescript": "^3.9.3",
         "webpack": "^4.42.0",
         "webpack-cli": "^3.3.11",
         "webpack-merge": "^4.2.2"

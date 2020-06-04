@@ -21,9 +21,6 @@
     "reconnect": true,
     "firmware": "CloverSEntry1",
     "firmwareBaudRate": 57600,
-    "entry": {
-        "protocol": "json"
-    },
     "selectPort": false,
     "hardware": {
         "type": "serial",

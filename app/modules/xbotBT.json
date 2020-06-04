@@ -14,9 +14,6 @@
 		"win32-ia32": "XBOT/XBOT.exe",
 		"win32-x64": "XBOT/XBOT.exe"
 	},
-	"entry": {
-		"protocol": "json"
-	},
 	"selectPort" : true,
 	"hardware": {
 		"type": "bluetooth",

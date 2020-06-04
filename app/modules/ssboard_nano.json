@@ -26,9 +26,6 @@
     "firmwareBaudRate": 57600,
     "reconnect": true,
     "firmware": "ssboard_nano",
-    "entry": {
-        "protocol": "json"
-    },
     "hardware": {
         "type": "serial",
         "control": "slave",

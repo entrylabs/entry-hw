@@ -12,9 +12,6 @@
     "email": "saeon@saeon.co.kr",
     "reconnect": true,
     "selectPort": true,
-    "entry": {
-        "protocol": "json"
-    },
     "hardware": {
         "type": "bluetooth",
         "control": "slave",

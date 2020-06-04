@@ -14,9 +14,6 @@
     },
     "selectPort": true,
     "firmware": "coding_box",
-    "entry": {
-        "protocol": "json"
-    },
     "hardware": {
         "type": "serial",
         "control": "slave",

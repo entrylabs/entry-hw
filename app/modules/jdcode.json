@@ -22,9 +22,6 @@
 	"firmware": "JDCode",
 	"firmwareBaudRate": 19200,
     "firmwareMCUType": "atmega168",
-	"entry": {
-		"protocol": "json"
-	},
 	"hardware": {
 		"type": "serial",
 		"control": "slave",

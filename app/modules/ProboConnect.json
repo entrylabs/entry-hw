@@ -16,9 +16,6 @@
     "email": "alswn5609@naver.com",
     "reconnect": true,
     "selectPort": true,
-      "entry": {
-          "protocol": "json"
-      },
     "hardware": {
       "type": "serial",
       "control": "slave",

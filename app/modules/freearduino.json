@@ -29,9 +29,6 @@
         "name": "freearduino_BT",
         "translate": "무선 전용 펌웨어 (A4:TX,A5:RX)"
     }],
-    "entry": {
-        "protocol": "json"
-    },
     "hardware": {
         "type": "bluetooth",
         "control": "slave",

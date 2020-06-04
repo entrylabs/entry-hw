@@ -14,9 +14,6 @@
 	},
 	"selectPort": true,
 	"firmware": "JS_Shield",
-	"entry": {
-		"protocol": "json"
-	},
 	"hardware": {
 		"type": "serial",
 		"control": "slave",

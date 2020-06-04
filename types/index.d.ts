@@ -61,7 +61,6 @@ declare interface IHardwareConfig {
     availableType?: any;
 
     category: 'board' | 'robot' | 'module';
-    entry: { protocol: 'json' };
     id: string;
     name: any;
     icon: string;

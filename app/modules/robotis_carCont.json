@@ -10,9 +10,6 @@
 	"module": "robotis_carCont.js",
 	"url": "http://www.robotis.com",
 	"email": "kigate@robotis.com",
-	"entry": {
-		"protocol": "json"
-	},
 	"selectPort" : true,
 	"hardware": {
 		"type": "bluetooth",
