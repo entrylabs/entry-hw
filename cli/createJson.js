@@ -16,9 +16,6 @@ const template = {
     email: '',
     reconnect: false,
     select_com_port: false,
-    entry: {
-        protocol: 'json',
-    },
     hardware: {},
 };
 
@@ -112,7 +109,6 @@ const template = {
     ]);
 
     // modify configs
-    _.set(result, ['entry', 'protocol'], 'json');
     result.url || (delete result.url);
     result.email || (delete result.email);
     result.icon = `${result.name.en}.png`;
