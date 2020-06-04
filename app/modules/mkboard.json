@@ -16,7 +16,6 @@
 	},
     "reconnect" : true,
     "firmware": "mkboard",
-
 	"hardware": {
 		"type": "serial",
 		"control": "slave",

@@ -21,8 +21,7 @@
     "reconnect": true,
     "firmware": "CloverSEntry1",
     "firmwareBaudRate": 57600,
-
-    "select_com_port": false,
+    "selectPort": false,
     "hardware": {
         "type": "serial",
         "control": "slave",

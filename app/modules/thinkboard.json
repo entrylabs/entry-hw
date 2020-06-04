@@ -16,10 +16,9 @@
 		"win32-x64": "CDM21228_Driver/CDM21228_Setup.exe",
         "darwin-x64": "Mac_OSX_VCP_Driver/SiLabsUSBDriverDisk.dmg"
     },
-    "select_com_port": true,
+    "selectPort": true,
     "reconnect": true,
     "firmware": "thinkboard",
-
     "hardware": {
         "type": "serial",
         "control": "slave",

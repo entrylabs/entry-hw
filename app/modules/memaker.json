@@ -16,7 +16,6 @@
 	},
     "reconnect" : true,
     "firmware": "memaker",
-
 	"hardware": {
 		"type": "serial",
 		"control": "slave",

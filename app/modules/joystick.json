@@ -12,9 +12,8 @@
 	"email": "contact@kocoa.or.kr",
 	"driver": {
 	},
-	"select_com_port": true,
+	"selectPort": true,
 	"firmware": "JS_Shield",
-
 	"hardware": {
 		"type": "serial",
 		"control": "slave",

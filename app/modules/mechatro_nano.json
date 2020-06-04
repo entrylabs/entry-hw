@@ -26,8 +26,6 @@
     "reconnect": true,
     "firmware": "mechatro",
     "firmwareBaudRate": 57600,
-
-
     "hardware": {
         "type": "serial",
         "control": "slave",

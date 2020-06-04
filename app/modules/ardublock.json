@@ -18,7 +18,6 @@
     "reconnect" : true,
 	"firmware": "ardublock",
 	"firmwareBaudRate": 57600,
-
 	"hardware": {
 		"type": "serial",
 		"control": "slave",

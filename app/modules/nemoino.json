@@ -17,7 +17,6 @@
     "reconnect" : true,
 	"firmware": "board",
 	"firmwareBaudRate": 57600,
-
 	"hardware": {
 		"type": "serial",
 		"control": "slave",

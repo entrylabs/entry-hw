@@ -15,7 +15,6 @@
     "url": "http://dev.byrobot.co.kr/documents/kr/products/battle_drone/",
     "email": "help@byrobot.co.kr",
     "reconnect" : true,
-
     "hardware": {
         "type": "serial",
         "control": "slave",

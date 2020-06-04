@@ -15,7 +15,6 @@
     },
     "reconnect": false,
     "softwareReset": true,
-
     "hardware": {
         "type": "serial",
         "rtscts": true,

@@ -16,7 +16,6 @@
 	},
     "reconnect" : true,
     "firmware": "cp_moving",
-
 	"hardware": {
 		"type": "serial",
 		"control": "slave",

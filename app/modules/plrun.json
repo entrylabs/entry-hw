@@ -16,7 +16,6 @@
 	},
     "reconnect" : true,
     "firmware": "plrun",
-
 	"hardware": {
 		"type": "serial",
 		"control": "slave",

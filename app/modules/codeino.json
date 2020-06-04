@@ -19,7 +19,6 @@
     "reconnect" : true,
 	"firmware": "codeino",
 	"firmwareBaudRate": 57600,
-
 	"hardware": {
 		"type": "serial",
 		"control": "slave",

@@ -16,7 +16,6 @@
     "email": "mrtinternational@google.com",
     "reconnect": true,
     "firmware": "blacksmith",
-
     "hardware": {
         "type": "serial",
         "control": "slave",

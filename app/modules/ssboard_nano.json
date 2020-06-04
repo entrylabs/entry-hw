@@ -22,13 +22,10 @@
         "darwin-x64": "CH34x_Install_MAC_10_9_AND_ABOVE/CH34x_Install_V1.3.pkg",
         "translate": "CH340 드라이버"
     }],
-    "select_com_port": true,
+    "selectPort": true,
     "firmwareBaudRate": 57600,
     "reconnect": true,
     "firmware": "ssboard_nano",
-    "entry": {
-        "protocol": "json"
-    },
     "hardware": {
         "type": "serial",
         "control": "slave",

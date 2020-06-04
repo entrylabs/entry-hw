@@ -14,7 +14,6 @@
         "win32-x64": "DASH/PL2303_Prolific_DriverInstaller_v1190.exe"
     },
     "reconnect": true,
-
     "hardware": {
 	"type": "serial",
 	"control": "master",

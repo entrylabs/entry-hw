@@ -22,9 +22,8 @@
         "darwin-x64": "https://entrylabs.github.io/docs/files/drivers/CH34x_Install_MAC_10_9_AND_ABOVE/CH34x_Install_V1.3.pkg",
         "translate": "CH340 USB 드라이버"
     }],
-    "select_com_port": true,
+    "selectPort": true,
     "reconnect": true,
-
     "hardware": {
         "type": "serial",
         "control": "slave",
