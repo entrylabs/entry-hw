@@ -15,9 +15,7 @@
 	},
     "reconnect" : true,
 	"firmware": "codingtoolbox",
-	"entry": {
-		"protocol": "json"
-	},
+
 	"hardware": {
 		"type": "serial",
 		"control": "slave",

@@ -20,9 +20,7 @@
         "win32": false
     },
    
-    "entry": {
-        "protocol": "json"
-    },
+
     "hardware": {
         "type": "serial",
         "control": "slave",

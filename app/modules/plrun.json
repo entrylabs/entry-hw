@@ -16,9 +16,7 @@
 	},
     "reconnect" : true,
     "firmware": "plrun",
-	"entry": {
-		"protocol": "json"
-	},
+
 	"hardware": {
 		"type": "serial",
 		"control": "slave",

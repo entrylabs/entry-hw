@@ -16,9 +16,7 @@
     "select_com_port": true,
     "reconnect": true,
     "firmware": "board2",
-    "entry": {
-        "protocol": "json"
-    },
+
     "hardware": {
         "type": "serial",
         "control": "slave",

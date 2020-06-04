@@ -15,9 +15,7 @@
     },
     "reconnect": false,
     "softwareReset": true,
-    "entry": {
-        "protocol": "json"
-    },
+
     "hardware": {
         "type": "serial",
         "rtscts": true,
