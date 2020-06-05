@@ -9,6 +9,7 @@ const logger = createLogger('electron/server');
 
 class ServerProcessManager {
     private readonly childProcess: ChildProcess;
+    private currentRoomId: string | undefined;
     private router: MainRouter;
 
     constructor(router?: any) {
@@ -47,6 +48,7 @@ class ServerProcessManager {
 
     addRoomIdsOnSecondInstance(roomId: string) {
         // this.childProcess.addRoomId(roomId);
+        this.currentRoomId = roomId;
         this._sendToChild('addRoomId', roomId);
     }
 
@@ -105,7 +107,9 @@ class ServerProcessManager {
                 break;
             }
             case 'close': {
-                this.router.handleServerSocketClosed();
+                if (!this.currentRoomId || this.currentRoomId === value) {
+                    this.router.handleServerSocketClosed();
+                }
                 break;
             }
             default: {

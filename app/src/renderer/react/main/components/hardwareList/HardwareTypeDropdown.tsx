@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
 import Styled from 'styled-components';
-import { IMapDispatchToProps, IMapStateToProps } from '../../store';
+import { IStoreState } from '../../store';
 import { changeHardwareCategory } from '../../store/modules/hardware';
-import { connect } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { CategoryTypeEnum } from '../../constants/constants';
 import ArrowUpImage from '../../../../images/arrow_up.png';
 import ArrowDownImage from '../../../../images/arrow_down.png';
 
 const DropdownContainer = Styled.ul`
     float: right;
-    margin-right: 20px;
+    margin-right: 5px;
     margin-top: -15px;
     padding: 0;
     border: 1px #4c94f8 solid;
@@ -65,11 +65,13 @@ const HardwareCategoryEntries: { [key in keyof typeof CategoryTypeEnum]: string 
     [CategoryTypeEnum.board]: '보드형',
 };
 
-const HardwareTypeDropdown: React.FC<IStateProps & IDispatchProps> = (props) => {
+const HardwareTypeDropdown: React.FC = () => {
     const [isShowList, setShowState] = useState(false);
+    const hardwareFilterCategory = useSelector<IStoreState>(state => state.hardware.hardwareFilterCategory);
+    const dispatch = useDispatch();
     const [currentKey, currentValue] = Object
         .entries(HardwareCategoryEntries)
-        .find(([keyword]) => props.hardwareFilterCategory === keyword)
+        .find(([keyword]) => hardwareFilterCategory === keyword)
     || [CategoryTypeEnum.all, HardwareCategoryEntries[CategoryTypeEnum.all]];
 
     return (
@@ -83,34 +85,18 @@ const HardwareTypeDropdown: React.FC<IStateProps & IDispatchProps> = (props) => 
                 <div className="arrow"/>
             </DropdownContent>
             {isShowList && Object.entries(HardwareCategoryEntries).map(([keyword, value]) => (
-                    <DropdownContent
-                        key={keyword}
-                        onClick={() => {
-                            props.changeCategory(keyword as CategoryTypeEnum);
-                            setShowState(!isShowList);
-                        }}
-                    >
-                        <ContentSpan>{value}</ContentSpan>
-                    </DropdownContent>
-                ))}
+                <DropdownContent
+                    key={keyword}
+                    onClick={() => {
+                        changeHardwareCategory(dispatch)(keyword as CategoryTypeEnum);
+                        setShowState(!isShowList);
+                    }}
+                >
+                    <ContentSpan>{value}</ContentSpan>
+                </DropdownContent>
+            ))}
         </DropdownContainer>
     );
 };
 
-interface IStateProps {
-    hardwareFilterCategory: string;
-}
-
-const mapStateToProps: IMapStateToProps<IStateProps> = (state) => ({
-    hardwareFilterCategory: state.hardware.hardwareFilterCategory,
-});
-
-interface IDispatchProps {
-    changeCategory: (category: CategoryTypeEnum) => void;
-}
-
-const mapDispatchToProps: IMapDispatchToProps<IDispatchProps> = (dispatch) => ({
-    changeCategory: changeHardwareCategory(dispatch),
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(HardwareTypeDropdown);
+export default HardwareTypeDropdown;
