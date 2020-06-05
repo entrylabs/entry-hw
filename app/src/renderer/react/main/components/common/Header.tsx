@@ -6,7 +6,7 @@ import CloudIcon from './CloudIcon';
 import SearchArea from '../hardwareList/SearchArea';
 import { IStoreState } from '../../store';
 import { useSelector } from 'react-redux';
-import { HardwarePageStateEnum } from '../../constants/constants';
+import { CloudModeTypesEnum, HardwarePageStateEnum } from '../../constants/constants';
 import SocketConnectionIndicator from './SocketConnectionIndicator';
 
 const HeaderContainer = styled.div`
@@ -27,7 +27,7 @@ const Title = styled.h1`
 const Header: React.FC = () => {
     const currentState = useSelector<IStoreState, HardwarePageStateEnum>(state => state.common.currentPageState);
     const title = useSelector<IStoreState, string>(state => state.common.stateTitle);
-    const isCloudMode = useSelector<IStoreState>(state => state.common.isCloudMode);
+    const isCloudMode = useSelector<IStoreState, CloudModeTypesEnum>(state => state.common.isCloudMode);
 
     return (
         <HeaderContainer>
@@ -37,8 +37,8 @@ const Header: React.FC = () => {
             </div>
             <Title>{title}</Title>
             <div id={'footer-header'}>
-                <SocketConnectionIndicator>엔트리 서버 연결 안됨</SocketConnectionIndicator>
-                {isCloudMode && <CloudIcon/>}
+                <SocketConnectionIndicator/>
+                {isCloudMode === CloudModeTypesEnum.cloud && <CloudIcon/>}
                 {currentState === HardwarePageStateEnum.list && <HardwareTypeDropdown/>}
             </div>
         </HeaderContainer>

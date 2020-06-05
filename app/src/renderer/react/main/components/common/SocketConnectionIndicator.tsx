@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
-
+import { useSelector } from 'react-redux';
+import { IStoreState } from '../../store';
 
 const IndicatorContainer = styled.div`
     float: left;
@@ -16,10 +17,18 @@ const IndicatorContainer = styled.div`
     color: white;
 `;
 
-const SocketConnectionIndicator: React.FC = () => (
-    <IndicatorContainer>
-            엔트리 서버 연결 안됨
-    </IndicatorContainer>
-);
+const SocketConnectionIndicator: React.FC = () => {
+    const isSocketConnected = useSelector<IStoreState>(state => state.common.isSocketConnected);
+    return (
+        <IndicatorContainer>
+            {
+                isSocketConnected
+                    ? '엔트리 서버 연결됨'
+                    : '엔트리 서버 연결 안됨'
+
+            }
+        </IndicatorContainer>
+    );
+};
 
 export default SocketConnectionIndicator;

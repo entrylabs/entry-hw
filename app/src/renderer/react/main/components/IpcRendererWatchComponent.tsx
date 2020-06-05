@@ -5,6 +5,7 @@ import {
     changeAlertMessage,
     changeCloudMode,
     changeHardwareModuleState,
+    changeSocketConnectionState,
     changeStateTitle,
     IAlertMessage,
 } from '../store/modules/common';
@@ -103,7 +104,7 @@ class IpcRendererWatchComponent extends React.PureComponent<IProps> {
             props.changeCloudMode(mode);
         });
         ipcRenderer.on('socketConnected', (event, isConnected: boolean) => {
-            console.log('socket connected?', isConnected);
+            props.changeSocketConnectionState(isConnected);
         });
     }
 
@@ -128,6 +129,7 @@ interface IDispatchProps {
     changePortList: (portList: ISerialPortScanData[]) => void;
     changeAlertMessage: (alertMessage: IAlertMessage) => void;
     changeHardwareModuleState: (state: HardwareStatement) => void;
+    changeSocketConnectionState: (state: boolean) => void;
 }
 
 const mapDispatchToProps: IMapDispatchToProps<IDispatchProps> = (dispatch) => ({
@@ -136,6 +138,7 @@ const mapDispatchToProps: IMapDispatchToProps<IDispatchProps> = (dispatch) => ({
     changePortList: changePortList(dispatch),
     changeAlertMessage: changeAlertMessage(dispatch),
     changeHardwareModuleState: changeHardwareModuleState(dispatch),
+    changeSocketConnectionState: changeSocketConnectionState(dispatch),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(IpcRendererWatchComponent);
