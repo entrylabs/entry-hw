@@ -199,5 +199,13 @@
 	"Download": {
 		"ko": "최신 버전 다운로드",
 		"jp": "今すぐアップデート"
+	},
+	"Connected to the Entry server": {
+		"ko": "엔트리 서버 연결됨",
+		"jp": "エントリーサーバー接続"
+	},
+	"Disconnected from the Entry server": {
+		"ko": "엔트리 서버 연결 안 됨",
+		"jp": "エントリーサーバー未接続"
 	}
 }

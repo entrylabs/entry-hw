@@ -1,7 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
-import { useSelector } from 'react-redux';
-import { IStoreState } from '../../store';
+import {useSelector} from 'react-redux';
+import {IStoreState} from '../../store';
+import usePreload from '../../hooks/usePreload';
 
 const IndicatorContainer = styled.div`
     float: left;
@@ -19,12 +20,14 @@ const IndicatorContainer = styled.div`
 
 const SocketConnectionIndicator: React.FC = () => {
     const isSocketConnected = useSelector<IStoreState>(state => state.common.isSocketConnected);
+    const { translator } = usePreload();
+
     return (
         <IndicatorContainer>
             {
                 isSocketConnected
-                    ? '엔트리 서버 연결됨'
-                    : '엔트리 서버 연결 안됨'
+                    ? translator.translate('Connected to the Entry server')
+                    : translator.translate('Disconnected from the Entry server')
 
             }
         </IndicatorContainer>
