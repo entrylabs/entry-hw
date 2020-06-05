@@ -4,8 +4,8 @@ import Navigator from '../hardwareList/Navigator';
 import HardwareTypeDropdown from '../hardwareList/HardwareTypeDropdown';
 import CloudIcon from './CloudIcon';
 import SearchArea from '../hardwareList/SearchArea';
-import { IMapStateToProps } from '../../store';
-import { connect } from 'react-redux';
+import { IStoreState } from '../../store';
+import { useSelector } from 'react-redux';
 import { HardwarePageStateEnum } from '../../constants/constants';
 
 const HeaderContainer = Styled.div`
@@ -24,12 +24,16 @@ const Title = Styled.h1`
     margin-top: 8px;
 `;
 
-const Header: React.FC<IStateProps> = (props) => (
+const Header: React.FC = () => {
+    const currentState = useSelector<IStoreState, HardwarePageStateEnum>(state => state.common.currentPageState);
+    const title = useSelector<IStoreState, string>(state => state.common.stateTitle);
+
+    return (
         <HeaderContainer>
             <Navigator/>
-            <Title>{props.title}</Title>
+            <Title>{title}</Title>
             <CloudIcon/>
-            {props.currentState === HardwarePageStateEnum.list && (
+            {currentState === HardwarePageStateEnum.list && (
                 <>
                     <SearchArea/>
                     <HardwareTypeDropdown/>
@@ -37,15 +41,6 @@ const Header: React.FC<IStateProps> = (props) => (
             )}
         </HeaderContainer>
     );
+};
 
-interface IStateProps {
-    currentState: HardwarePageStateEnum;
-    title: string;
-}
-
-const mapStateToProps: IMapStateToProps<IStateProps> = (state) => ({
-    currentState: state.common.currentPageState,
-    title: state.common.stateTitle,
-});
-
-export default connect(mapStateToProps)(Header);
+export default Header;
