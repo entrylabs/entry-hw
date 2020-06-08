@@ -1,16 +1,62 @@
 import React, { useCallback, useRef } from 'react';
 import styled from 'styled-components';
-import {useDispatch} from "react-redux";
-import {setHandshakePayload} from "../../store/modules/connection";
+import { useDispatch } from 'react-redux';
+import { setHandshakePayload } from '../../store/modules/connection';
+import RightConnectionArrowImage from '../../../../images/connection-arrow.png';
+import LeftConnectionArrowImage from '../../../../images/connection-arrow-2.png';
 
 const Container = styled.div`
-    width: 137px;
-    margin-right: -7px;
-    padding-top: 30px;
+    width: 240px;
     display: inline-block;
     height: 100%;
     text-align: center;
     vertical-align: top;
+`;
+
+const IndicateTextDiv = styled.div`
+    font-size: 12px;
+    font-weight: bold;
+    color: #979797;
+    
+    margin-bottom: 25px;
+`;
+
+const SendButton = styled.button`
+    width: 62px;
+    height: 40px;
+    border-radius: 4px;
+    border: solid 1px #e2e2e2;
+    background-color: #f9f9f9;
+    
+    letter-spacing: -0.33px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: bold;
+    color: #cbcbcb;
+`;
+
+const SendInput = styled.input`
+    width: 62px;
+    height: 40px;
+    border-radius: 4px;
+    border: solid 1px #e2e2e2;
+    background-color: #ffffff;
+    
+    letter-spacing: -0.33px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: bold;
+    color: #2c313d;
+`;
+
+const ArrowImageDiv = styled.div<{image: string}>`
+    min-height: 40px;
+    line-height: 40px;
+    background-image: url(${props => props.image});
+    background-repeat: no-repeat;
+    background-position: center;
+    
+    margin-bottom: 16px;
 `;
 
 const HandShakePayloadPanel: React.FC = () => {
@@ -24,9 +70,13 @@ const HandShakePayloadPanel: React.FC = () => {
     return (
         <Container>
             <div>
-                <span>-------></span>
-                <input type="text" ref={inputRef}/>
-                <button onClick={onButtonClicked}>Send</button>
+                <IndicateTextDiv>하드웨어 연결을 위한 값을 입력해 주세요.</IndicateTextDiv>
+                <ArrowImageDiv image={LeftConnectionArrowImage}>
+                    <SendInput />
+                </ArrowImageDiv>
+                <ArrowImageDiv image={RightConnectionArrowImage}>
+                    <SendButton onClick={onButtonClicked}>Send</SendButton>
+                </ArrowImageDiv>
             </div>
         </Container>
     );
