@@ -32,15 +32,6 @@ const DotProgressPanel: React.FC = () => {
     if (!selectedHardware) {
         return <></>;
     }
-/*
-                selectedHardware.handshakeType === 'argument'
-                    ? <div>
-                        <span>-------></span>
-                        <input type="text"/>
-                        <button>Send</button>
-                    </div>
-                    :
- */
 
     return (
         <ProgressContainer>
