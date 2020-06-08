@@ -35,7 +35,6 @@ function Module() {
         DIGITAL_VALUES:1,
         FLOAT: 2,
         SHORT: 3,
-        //MYULTRA: 4,
     };
 
     this.digitalPortTimeList = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
@@ -43,8 +42,6 @@ function Module() {
     this.sensorData = {
         ULTRASONIC: 0,
         DIGITAL: {
-            // '0': 0,
-            // '1': 0,
             '2': 0,
             '3': 0,
             '4': 0,
@@ -57,12 +54,6 @@ function Module() {
             '11': 0,
             '12': 0,
             '13': 0,
-            // '14': 0,
-            // '15': 0,
-            // '16': 0,
-            // '17': 0,
-            // '18': 0,
-            // '19': 0
         },
         ANALOG: {
             '0': 0,
@@ -103,7 +94,6 @@ Module.prototype.setSerialPort = function (sp) {
 
 Module.prototype.requestInitialData = function() {
     return true;
-    //return this.makeSensorReadBuffer(this.sensorTypes.ANALOG, 0);
 };
 
 Module.prototype.checkInitialData = function(data, config) {
@@ -115,10 +105,6 @@ Module.prototype.afterConnect = function(that, cb) {
     if(cb) {
         cb('connected');
     }
-    // this.sendBuffers.push([255, 85, 6, 255, this.actionTypes.SET, 1, 13, 0, 0]);
-    // this.sendBuffers.push([255, 85, 6, 255, this.actionTypes.SET, 4, 17, 0, 0]);
-    // this.sendBuffers.push([255, 85, 6, 255, this.actionTypes.SET, 4, 18, 0, 0]);
-    // this.sendBuffers.push([255, 85, 6, 255, this.actionTypes.SET, 4, 19, 0, 0]);
 };
 
 Module.prototype.validateLocalData = function(data) {
@@ -126,7 +112,6 @@ Module.prototype.validateLocalData = function(data) {
 };
 
 Module.prototype.lostController = function(self, cb) {
-    // console.log(this.sp);
 };
 
 Module.prototype.requestRemoteData = function(handler) {
@@ -201,7 +186,6 @@ Module.prototype.handleRemoteData = function(handler) {
                             data: data.data
                         }
                         buffer = Buffer.concat([buffer, self.makeOutputBuffer(data.type, port, data.data)]);
-                        //delete setDatas[port]
                     }
                 }
             }
@@ -249,7 +233,6 @@ Module.prototype.handleLocalData = function(data) {
     var datas = this.getDataByBuffer(data);
     
     datas.forEach(function (data) {
-        //let customFormat = false;
         if(data.length <= 4 || data[0] !== 255 || data[1] !== 85) {
             return;
         }
@@ -257,8 +240,6 @@ Module.prototype.handleLocalData = function(data) {
         var value;
         switch(readData[0]) {
             case self.sensorValueSize.FLOAT: {
-                //value = new Buffer(readData.subarray(1, 5)).readFloatLE(); 
-                //value = Math.round(value * 100) / 100;
                 value = ((readData[1]<<8) + readData[2])/100;
                 break;
             }
@@ -266,27 +247,17 @@ Module.prototype.handleLocalData = function(data) {
                 value = new Buffer(readData.subarray(1, 3)).readInt16LE();
                 break;
             }
-            // case self.sensorValueSize.ANALOG: {
-            //     value = (readData[1]<<8) + readData[2];
-            //     break;
-            // }
             case self.sensorValueSize.DIGITAL_VALUES: {
                 value = readData[1];
                 break;
-                // for(let i=2; i<13; i++) {
-                //     self.sensorData.DIGITAL[readData[1+2*(i-2)]] = readData[+2*(i-1)];
-                // }
-                //함수 종료
-                //return;
             }
             case self.sensorValueSize.ANAL_VALUES: {
                 for(let i=0; i<7; ++i) {
                     self.sensorData.ANALOG[readData[1+3*i]] = (readData[2+3*i]<<8) + readData[3+3*i];
                 }
-                if(readData[22]) {//존재하면
+                if(readData[22]) {
                     self.sensorData.ULTRASONIC =((readData[23]<<8) + readData[24])/100;
                 }
-                //함수 종료
                 return;
             }
             default: {
@@ -303,14 +274,6 @@ Module.prototype.handleLocalData = function(data) {
                 self.sensorData.DIGITAL[port] = value;
                 break;
             }
-            // case self.sensorTypes.ANALOG: {
-            //     self.sensorData.ANALOG[port] = value;
-            //     break;
-            // }
-            // case self.sensorTypes.PULSEIN: {
-            //     self.sensorData.PULSEIN[port] = value;
-            //     break;
-            // }
             case self.sensorTypes.ULTRASONIC: {
                 self.sensorData.ULTRASONIC = value;
                 break;
@@ -375,7 +338,6 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
                 value.writeInt16LE(0);
                 time.writeInt16LE(0);
             }
-            // 2바이트씩이라 length = 4 + 2 +2
             buffer = new Buffer([255, 85, 8, sensorIdx, this.actionTypes.SET, device, port]);
             buffer = Buffer.concat([buffer, value, time, dummy]);
             break;
@@ -418,11 +380,10 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
                 r.writeUInt8(data.r);
                 g.writeUInt8(data.g);
                 b.writeUInt8(data.b);
-                //let pin = port-50; // 높은 포트번호에 대해서 위에서 50미리 빼봤음
+
                 buffer = new Buffer([255, 85, 7/* 4(ledNum : port-50) + 3(r, g, b) */, sensorIdx, this.actionTypes.SET, device, port]);
                 buffer = Buffer.concat([buffer, r, g, b]);
             } else {
-                // 지금 내용 지우고 모두 끄기신호 보내자 
                 buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.SET, this.sensorTypes.CUSTOM_NEOPIXEL_POWER, port, 0,22]);                
             }
             break;
@@ -435,7 +396,7 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
                 r.writeUInt8(data.r);
                 g.writeUInt8(data.g);
                 b.writeUInt8(data.b);
-                buffer = new Buffer([255, 85, 7/* 4(port:18고정) + 3(r, g, b) */, sensorIdx, this.actionTypes.SET, device, port]);
+                buffer = new Buffer([255, 85, 7/* 4(port:18) + 3(r, g, b) */, sensorIdx, this.actionTypes.SET, device, port]);
                 buffer = Buffer.concat([buffer, r, g, b]);
             } else {
                 // 끄기신호 보내자 
@@ -483,9 +444,6 @@ Module.prototype.disconnect = function(connect) {
 Module.prototype.reset = function() {
     this.lastTime = 0;
     this.lastSendTime = 0;
-
-    //  this.sensorData.PULSEIN = {
-    // };
 };
 
 module.exports = new Module();

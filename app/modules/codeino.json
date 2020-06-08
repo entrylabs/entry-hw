@@ -23,7 +23,7 @@
 		"translate" : "코드이노2(NEW)"
 	}],
 	"reconnect" : true,
-	"select_com_port": true,
+	"selectPort": true,
 	"firmware": "codeino",
 	"firmwareBaudRate": 57600,
 	"hardware": {
