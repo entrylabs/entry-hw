@@ -13,20 +13,21 @@ const Container = styled.div`
     vertical-align: top;
 `;
 
-const IndicateTextDiv = styled.div`
+const IndicateTextDiv = styled.div<{ isValid: boolean }>`
     font-size: 12px;
     font-weight: bold;
-    color: #979797;
+    color: ${({ isValid }) => (isValid ? '#979797' : '#fb5533')};
     
     margin-bottom: 25px;
 `;
 
-const SendButton = styled.button<{active: boolean}>`
+const SendButton = styled.button<{ active: boolean }>`
     width: 62px;
     height: 40px;
     border-radius: 4px;
     border: ${({ active }) => (active ? 'none' : 'solid 1px #e2e2e2')}
     background-color: ${({ active }) => (active ? '#4f80ff' : '#f9f9f9')};
+    cursor: ${({ active }) => (active ? 'pointer' : 'not-allowed')}
     
     letter-spacing: -0.33px;
     text-align: center;
@@ -49,7 +50,7 @@ const SendInput = styled.input`
     color: #2c313d;
 `;
 
-const ArrowImageDiv = styled.div<{image: string}>`
+const ArrowImageDiv = styled.div<{ image: string }>`
     min-height: 40px;
     line-height: 40px;
     background-image: url(${props => props.image});
@@ -62,22 +63,32 @@ const ArrowImageDiv = styled.div<{image: string}>`
 const HandShakePayloadPanel: React.FC = () => {
     const inputRef = useRef<HTMLInputElement>(null);
     const [isReady, setReadyState] = useState(false);
+    const [isValidPayload, setValidState] = useState(true);
     const dispatch = useDispatch();
 
     const onPayloadChanged = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
-        setReadyState(!!/^[a-zA-Z0-9]+$/.exec(value)); // 영숫자만 허용한다
+        const isAlphaDigit = !!/^[a-zA-Z0-9]+$/.exec(value);
+
+        setReadyState(isAlphaDigit);
+        setValidState(isAlphaDigit);
     }, []);
 
     const onButtonClicked = useCallback(() => {
-        const value = inputRef?.current?.value;
-        setHandshakePayload(dispatch)(value);
+        if (!isReady) {
+            return;
+        }
+        setHandshakePayload(dispatch)(inputRef?.current?.value);
     }, []);
 
     return (
         <Container>
             <div>
-                <IndicateTextDiv>하드웨어 연결을 위한 값을 입력해 주세요.</IndicateTextDiv>
+                <IndicateTextDiv isValid={isValidPayload}>{
+                    isValidPayload
+                        ? '하드웨어 연결을 위한 값을 입력해 주세요.'
+                        : '올바른 값을 입력해 주세요.'
+                }</IndicateTextDiv>
                 <ArrowImageDiv image={LeftConnectionArrowImage}>
                     <SendInput onChange={onPayloadChanged} ref={inputRef}/>
                 </ArrowImageDiv>
