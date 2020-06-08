@@ -3,6 +3,9 @@ import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import usePreload from '../../hooks/usePreload';
 import { IStoreState } from '../../store';
+import EmailIcon from '../../../../images/email.svg';
+import HomepageIcon from '../../../../images/home.svg';
+import MovieIcon from '../../../../images/movie.svg';
 
 const ReferenceDiv = styled.div`
     display: grid;
@@ -17,10 +20,21 @@ const ReferenceDiv = styled.div`
 const ReferenceContentSpan = styled.span`
     width: 100%;
     height: 100%;
+    font-size: 12px;
+    color: #555555;
     text-align: left;
     cursor: pointer;
-    text-decoration: underline;
+    text-decoration: none;
 `;
+
+const ReferenceIconContainer = styled.div`
+    display: inline-block;
+    margin-right: 8px;
+`;
+
+const ReferenceIcon = styled.img`
+    vertical-align: middle;
+`
 
 const RightBox = styled.div`
     float: right;
@@ -50,7 +64,9 @@ const ReferencePanel: React.FC = () => {
                     <RightBox onClick={() => {
                         copyString(email);
                     }}>
-                        <span>{translator.translate('E-Mail : ')}</span>
+                        <ReferenceIconContainer>
+                            <ReferenceIcon src={EmailIcon} alt={'email'}/>
+                        </ReferenceIconContainer>
                         <ReferenceContentSpan id="email">{email}</ReferenceContentSpan>
                     </RightBox>
                 </div>
@@ -59,7 +75,9 @@ const ReferencePanel: React.FC = () => {
                 url &&
                 <div id="urlArea">
                     <RightBox onClick={() => rendererRouter.openExternalUrl(url)}>
-                        <span>{translator.translate('WebSite : ')}</span>
+                        <ReferenceIconContainer>
+                            <ReferenceIcon src={HomepageIcon} alt={'homepage'} />
+                        </ReferenceIconContainer>
                         <ReferenceContentSpan id="url">{url}</ReferenceContentSpan>
                     </RightBox>
                 </div>
@@ -67,7 +85,9 @@ const ReferencePanel: React.FC = () => {
             {
                 video &&
                 <div id="videoArea">
-                    <span>{translator.translate('Video : ')}</span>
+                    <ReferenceIconContainer>
+                        <ReferenceIcon src={MovieIcon} alt={'movies'}/>
+                    </ReferenceIconContainer>
                     {
                         video instanceof Array
                             ? video.map((videoElement) => (
