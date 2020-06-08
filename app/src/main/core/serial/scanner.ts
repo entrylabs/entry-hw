@@ -54,7 +54,7 @@ class SerialScanner extends BaseScanner<SerialConnector> {
         const serverMode = this.router.currentCloudMode;
         const selectedComPortName = this.router.selectedPort;
         const { hardware } = this.config;
-        let { select_com_port: needCOMPortSelect } = this.config;
+        let { selectPort: needCOMPortSelect } = this.config;
         const { type } = hardware;
 
         // win, mac 플랫폼에 맞춰 COMPort 확인창 필요한지 설정

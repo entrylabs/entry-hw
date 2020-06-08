@@ -61,7 +61,6 @@ declare interface IHardwareConfig {
     availableType?: any;
 
     category: 'board' | 'robot' | 'module';
-    entry: { protocol: 'json' };
     id: string;
     name: any;
     icon: string;
@@ -79,8 +78,8 @@ declare interface IHardwareConfig {
     email?: string;
     video?: string | string[];
     reconnect?: boolean;
+    selectPort?: boolean | { [platform: string]: boolean };
     handshakeType?: 'open' | 'argument'; // open: default, 시리얼 오픈만 되면 완료, argument: UI 에서 값을 입력받음
-    select_com_port?: boolean | { [platform: string]: boolean };
     tryFlasherNumber?: number;
 }
 

@@ -23,7 +23,7 @@
         "translate": "Bluetooth driver"
     }],
     "reconnect" : true,
-    "select_com_port": {
+    "selectPort": {
         "win32": false,
         "darwin": true
     },
@@ -34,9 +34,7 @@
         "name": "entrybt",
         "translate": "Install Firmware(Sensor Board Bluetooth)"
     }],
-    "entry": {
-        "protocol": "json"
-    },
+
     "hardware": {
         "type": "serial",
         "control": "slave",

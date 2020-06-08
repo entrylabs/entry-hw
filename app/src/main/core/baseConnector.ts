@@ -21,8 +21,9 @@ abstract class BaseConnector {
     protected router?: MainRouter;
 
     // 현재상태 체크
-    protected connected = false;
+    public connected = false;
     protected received = false;
+    public executeFlash = false;
 
     constructor(hwModule: IHardwareModule, hardwareOptions: IHardwareModuleConfig) {
         this.options = hardwareOptions;

@@ -24,7 +24,7 @@ class SerialConnector extends BaseConnector {
         return 1000;
     }
 
-    private serialPort?: SerialPort;
+    public serialPort?: SerialPort; // TODO private 로 전환, mainRouter 에서 플래싱에 사용중
     private serialPortParser?: Stream.Duplex;
 
     // 현재상태 체크
@@ -36,8 +36,6 @@ class SerialConnector extends BaseConnector {
     private connectionLostTimer?: number;
     private requestLocalDataInterval?: number;
     private advertiseInterval?: number;
-
-    public executeFlash = false;
 
     constructor(hwModule: IHardwareModule, hardwareOptions: IHardwareModuleConfig) {
         super(hwModule, hardwareOptions);
