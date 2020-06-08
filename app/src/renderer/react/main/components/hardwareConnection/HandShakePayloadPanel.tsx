@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
 import { setHandshakePayload } from '../../store/modules/connection';
@@ -21,18 +21,18 @@ const IndicateTextDiv = styled.div`
     margin-bottom: 25px;
 `;
 
-const SendButton = styled.button`
+const SendButton = styled.button<{active: boolean}>`
     width: 62px;
     height: 40px;
     border-radius: 4px;
-    border: solid 1px #e2e2e2;
-    background-color: #f9f9f9;
+    border: ${({ active }) => (active ? 'none' : 'solid 1px #e2e2e2')}
+    background-color: ${({ active }) => (active ? '#4f80ff' : '#f9f9f9')};
     
     letter-spacing: -0.33px;
     text-align: center;
     font-size: 14px;
     font-weight: bold;
-    color: #cbcbcb;
+    color: ${({ active }) => (active ? '#ffffff' : '#cbcbcb')};
 `;
 
 const SendInput = styled.input`
@@ -61,7 +61,14 @@ const ArrowImageDiv = styled.div<{image: string}>`
 
 const HandShakePayloadPanel: React.FC = () => {
     const inputRef = useRef<HTMLInputElement>(null);
+    const [isReady, setReadyState] = useState(false);
     const dispatch = useDispatch();
+
+    const onPayloadChanged = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        setReadyState(!!/^[a-zA-Z0-9]+$/.exec(value)); // 영숫자만 허용한다
+    }, []);
+
     const onButtonClicked = useCallback(() => {
         const value = inputRef?.current?.value;
         setHandshakePayload(dispatch)(value);
@@ -72,10 +79,10 @@ const HandShakePayloadPanel: React.FC = () => {
             <div>
                 <IndicateTextDiv>하드웨어 연결을 위한 값을 입력해 주세요.</IndicateTextDiv>
                 <ArrowImageDiv image={LeftConnectionArrowImage}>
-                    <SendInput />
+                    <SendInput onChange={onPayloadChanged} ref={inputRef}/>
                 </ArrowImageDiv>
                 <ArrowImageDiv image={RightConnectionArrowImage}>
-                    <SendButton onClick={onButtonClicked}>Send</SendButton>
+                    <SendButton onClick={onButtonClicked} active={isReady}>설정</SendButton>
                 </ArrowImageDiv>
             </div>
         </Container>
