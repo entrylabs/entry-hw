@@ -1,9 +1,9 @@
-import React, { useEffect } from 'react';
+import React, {useEffect} from 'react';
 import Styled from 'styled-components';
-import { IMapDispatchToProps, IMapStateToProps } from '../../store';
-import { connect } from 'react-redux';
+import {IStoreState} from '../../store';
+import {useDispatch, useSelector} from 'react-redux';
 import HardwareElement from './HardwareElement';
-import { resetHardwareList } from '../../store/modules/hardware';
+import {resetHardwareList} from '../../store/modules/hardware';
 
 const HardwareListContainerRoot = Styled.div`
     padding: 40px;
@@ -29,11 +29,13 @@ const HardwareListContainerRoot = Styled.div`
     }
 `;
 
-const HardwareListContainer: React.FC<IStateProps & IDispatchProps> = (props) => {
-    const { hardwareList } = props;
+const HardwareListContainer: React.FC = () => {
+    const hardwareList = useSelector<IStoreState, IHardwareConfig[]>(state => state.hardware.hardwareList);
+    const dispatch = useDispatch();
+
     useEffect(() => {
         if (hardwareList.length === 0) {
-            props.resetHardwareList();
+            resetHardwareList(dispatch)();
         }
     }, []);
 
@@ -48,20 +50,4 @@ const HardwareListContainer: React.FC<IStateProps & IDispatchProps> = (props) =>
     );
 };
 
-interface IStateProps {
-    hardwareList: any[];
-}
-
-const mapStateToProps: IMapStateToProps<IStateProps> = (state) => ({
-    hardwareList: state.hardware.hardwareList,
-});
-
-interface IDispatchProps {
-    resetHardwareList: () => void;
-}
-
-const mapDispatchToProps: IMapDispatchToProps<IDispatchProps> = (dispatch) => ({
-    resetHardwareList: resetHardwareList(dispatch),
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(HardwareListContainer);
+export default HardwareListContainer;

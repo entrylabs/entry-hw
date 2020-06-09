@@ -1,5 +1,8 @@
 import React from 'react';
 import Styled from 'styled-components';
+import {useSelector} from 'react-redux';
+import {CloudModeTypesEnum} from '../../constants/constants';
+import {IStoreState} from '../../store';
 import Cloud from '../../../../images/cloud.png';
 
 const CloudIconContainer = Styled.div`
@@ -24,11 +27,19 @@ const CloudIconContainer = Styled.div`
     }
 `;
 
-const CloudIcon: React.FC = () => (
-    <CloudIconContainer id={'cloud_icon'}>
-        <span className="cloud_icon"/>
-        <span className="cloud_text">Cloud Mode</span>
-    </CloudIconContainer>
-);
+const CloudIcon: React.FC = () => {
+    const isCloudMode = useSelector<IStoreState>(state => state.common.isCloudMode);
+
+    if (isCloudMode === CloudModeTypesEnum.cloud) {
+        return (
+            <CloudIconContainer id={'cloud_icon'}>
+                <span className="cloud_icon"/>
+                <span className="cloud_text">Cloud Mode</span>
+            </CloudIconContainer>
+        );
+    } else {
+        return <div/>;
+    }
+};
 
 export default CloudIcon;
