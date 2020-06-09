@@ -13,7 +13,7 @@ const Container = styled.div`
     vertical-align: top;
 `;
 
-const IndicateTextDiv = styled.div<{isValid: boolean}>`
+const IndicateTextDiv = styled.div<{ isValid: boolean }>`
     font-size: 12px;
     font-weight: bold;
     color: ${({ isValid }) => (isValid ? '#979797' : '#fb5533')};
@@ -21,36 +21,46 @@ const IndicateTextDiv = styled.div<{isValid: boolean}>`
     margin-bottom: 25px;
 `;
 
-const SendButton = styled.button<{active: boolean}>`
+enum SendButtonState { inactive, active, sending }
+
+const SendButton = styled.button<{ state: SendButtonState }>`
     width: 62px;
     height: 40px;
     border-radius: 4px;
-    border: ${({ active }) => (active ? 'none' : 'solid 1px #e2e2e2')}
-    background-color: ${({ active }) => (active ? '#4f80ff' : '#f9f9f9')};
-    cursor: ${({ active }) => (active ? 'pointer' : 'not-allowed')}
+    border: ${({ state }) => (state === SendButtonState.active ? 'none' : 'solid 1px #e2e2e2')}
+    background-color: ${({ state }) => {
+        if (state === SendButtonState.sending) {
+            return '#6e5ae6';
+        } else if (state === SendButtonState.active) {
+            return '#4f80ff';
+        } else {
+            return '#f9f9f9';
+        }
+    }};
+    cursor: ${({ state }) => (state === SendButtonState.inactive ? 'not-allowed' : 'pointer')}
     
     letter-spacing: -0.33px;
     text-align: center;
     font-size: 14px;
     font-weight: bold;
-    color: ${({ active }) => (active ? '#ffffff' : '#cbcbcb')};
+    color: ${({ state }) => (state === SendButtonState.inactive ? '#cbcbcb' : '#ffffff')};
 `;
 
-const SendInput = styled.input`
+const SendInput = styled.input<{ state: SendButtonState }>`
     width: 62px;
     height: 40px;
     border-radius: 4px;
     border: solid 1px #e2e2e2;
-    background-color: #ffffff;
+    background-color: ${({ state }) => (state === SendButtonState.sending ? '#f9f9f9' : '#ffffff')};
     
     letter-spacing: -0.33px;
     text-align: center;
     font-size: 14px;
     font-weight: bold;
-    color: #2c313d;
+    color: ${({ state }) => (state === SendButtonState.sending ? '#cbcbcb' : '#2c313d')};
 `;
 
-const ArrowImageDiv = styled.div<{image: string}>`
+const ArrowImageDiv = styled.div<{ image: string }>`
     min-height: 40px;
     line-height: 40px;
     background-image: url(${props => props.image});
@@ -62,38 +72,56 @@ const ArrowImageDiv = styled.div<{image: string}>`
 
 const HandShakePayloadPanel: React.FC = () => {
     const inputRef = useRef<HTMLInputElement>(null);
-    const [isReady, setReadyState] = useState(false);
-    const [isValid, setValidState] = useState(true);
+    const [isTextShowValid, setTextShowValid] = useState(true);
+    const [currentState, setButtonState] = useState(SendButtonState.inactive);
+
     const dispatch = useDispatch();
 
     const onPayloadChanged = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         const isValid = !!/^[a-zA-Z0-9]+$/.exec(e.target.value);
-        setReadyState(isValid); // 영숫자만 허용한다
-        setValidState(isValid); // initial state 만 다르고 위와 동일하다
+        if (isValid) {
+            setButtonState(SendButtonState.active);
+        } else {
+            setButtonState(SendButtonState.inactive);
+        }
+
+        setTextShowValid(isValid); // initial state 만 다르고 위와 동일하다
     }, []);
 
     const onButtonClicked = useCallback(() => {
         const ref = inputRef?.current;
-        if (isReady) {
-            setHandshakePayload(dispatch)(ref?.value)
-        } else {
+        if (currentState === SendButtonState.active) {
+            setButtonState(SendButtonState.sending);
+            setHandshakePayload(dispatch)(ref?.value);
+        } else if (currentState === SendButtonState.sending) {
+            setButtonState(SendButtonState.active);
+        } else if (currentState === SendButtonState.inactive) {
             ref?.focus();
         }
-    }, []);
+    }, [currentState]);
 
     return (
         <Container>
             <div>
-                <IndicateTextDiv isValid={isValid}>{
-                    isValid
+                <IndicateTextDiv isValid={isTextShowValid}>{
+                    isTextShowValid
                         ? '하드웨어 연결을 위한 값을 입력해 주세요.'
                         : '올바른 값을 입력해 주세요.'
                 }</IndicateTextDiv>
                 <ArrowImageDiv image={LeftConnectionArrowImage}>
-                    <SendInput onChange={onPayloadChanged} ref={inputRef}/>
+                    <SendInput
+                        onChange={onPayloadChanged}
+                        disabled={currentState === SendButtonState.sending}
+                        state={currentState}
+                        ref={inputRef}
+                    />
                 </ArrowImageDiv>
                 <ArrowImageDiv image={RightConnectionArrowImage}>
-                    <SendButton onClick={onButtonClicked} active={isReady}>설정</SendButton>
+                    <SendButton onClick={onButtonClicked} state={currentState}>{
+                        currentState === SendButtonState.sending
+                            ? '재설정'
+                            : '설정'
+                    }</SendButton>
                 </ArrowImageDiv>
             </div>
         </Container>
