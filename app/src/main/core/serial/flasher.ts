@@ -2,8 +2,8 @@ import { dialog } from 'electron';
 import { ChildProcess, exec } from 'child_process';
 import path from 'path';
 import fileUtils from '../fileUtils';
-import getExtraDirectoryPath from '../functions/getExtraDirectoryPath';
 import createLogger from '../../electron/functions/createLogger';
+import directoryPaths from '../directoryPaths';
 
 const logger = createLogger('core/SerialFlasher.ts');
 
@@ -18,13 +18,8 @@ const platform = process.platform;
 class Flasher {
     private flasherProcess?: ChildProcess;
 
-    static get firmwareDirectoryPath() {
-        return getExtraDirectoryPath('firmware');
-    }
-
     private _flashArduino(firmware: IFirmwareInfo, port: string, options: { baudRate?: number; MCUType?: string; }): Promise<any[]> {
         return new Promise((resolve) => {
-            const appPath = Flasher.firmwareDirectoryPath;
             const baudRate = options.baudRate || '115200';
             const MCUType = options.MCUType || ' m328p';
 
@@ -63,7 +58,7 @@ class Flasher {
             this.flasherProcess = exec(
                 cmd.join(''),
                 {
-                    cwd: appPath,
+                    cwd: directoryPaths.firmware,
                 },
                 (...args) => {
                     resolve(args);
@@ -74,7 +69,7 @@ class Flasher {
 
     private async _flashCopy(firmware: ICopyTypeFirmware): Promise<any[]> {
         return new Promise((resolve, reject) => {
-            const firmwareDirectory = Flasher.firmwareDirectoryPath;
+            const firmwareDirectory = directoryPaths.firmware;
             const destPath = dialog.showOpenDialogSync({
                 properties: ['openDirectory'],
             });

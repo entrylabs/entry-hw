@@ -5,8 +5,8 @@ import lt from 'semver/functions/lt';
 import valid from 'semver/functions/valid';
 import { AvailableTypes } from '../../common/constants';
 import getModuleList from './functions/getModuleList';
-import getExtraDirectoryPath from './functions/getExtraDirectoryPath';
 import createLogger from '../electron/functions/createLogger';
+import directoryPaths from './directoryPaths';
 
 const logger = createLogger('core/hardwareListManager.ts');
 
@@ -37,7 +37,6 @@ const onlineModuleSchemaModifier = (schema: IOnlineHardwareConfig): IHardwareCon
 };
 
 export default class {
-    private moduleBasePath = getExtraDirectoryPath('modules');
     private readonly router?: any;
     public allHardwareList: IHardwareConfig[] = [];
 
@@ -97,10 +96,10 @@ export default class {
 
     private _getAllHardwareModulesFromDisk() {
         try {
-            return fs.readdirSync(this.moduleBasePath)
+            return fs.readdirSync(directoryPaths.modules)
                 .filter((file) => !!file.match(/\.json$/))
                 .map((file) => {
-                    const bufferData = fs.readFileSync(path.join(this.moduleBasePath, file));
+                    const bufferData = fs.readFileSync(path.join(directoryPaths.modules, file));
                     const configJson = JSON.parse(bufferData.toString());
                     configJson.availableType = AvailableTypes.available;
                     return configJson;
@@ -110,6 +109,10 @@ export default class {
         } catch (e) {
             console.error('error occurred while reading module json files', e);
         }
+    }
+
+    getHardwareById(id: string) {
+        return this.allHardwareList.find((hardware) => hardware.id === id);
     }
 
     private _notifyHardwareListChanged() {

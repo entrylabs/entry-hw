@@ -8,9 +8,9 @@
     "platform": ["win32", "darwin"],
     "icon": "thinkboard.png",
     "module": "thinkboard.js",
-    "url": "http://www.thinkfunedu.com",
-	"email": "help6337@gmail.com",
-    "video": "https://goo.gl/okk8s9",
+    "url": "http://thinkfuni.co.kr",
+	"email": "dksd2736@edu-partners.co.kr",
+    "video": "https://youtu.be/gQibrWCEs9M",
     "driver": {
 		"win32-ia32": "CDM21228_Driver/CDM21228_Setup.exe",
 		"win32-x64": "CDM21228_Driver/CDM21228_Setup.exe",

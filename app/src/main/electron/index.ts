@@ -1,6 +1,6 @@
 'use strict';
 
-import { app, BrowserWindow, dialog, ipcMain, Menu } from 'electron';
+import {app, BrowserWindow, dialog, ipcMain, Menu} from 'electron';
 import path from 'path';
 import fs from 'fs';
 import EntryServer from './serverProcessManager';
@@ -19,18 +19,23 @@ const logger = createLogger('electron/index.ts');
 let mainWindow: BrowserWindow | undefined = undefined;
 let mainRouter: any = null;
 let entryServer: any = null;
+let autoOpenHardwareId = '';
 
 const argv = process.argv.slice(1);
 const commandLineOptions = parseCommandLine(argv) as any;
 const configuration = configInit(commandLineOptions.config);
 const { roomIds = [] } = configuration;
 
-const roomIdIndex = argv.indexOf('entryhw:');
-if (roomIdIndex > -1) {
-    const data = CommonUtils.getArgsParseData(argv[roomIdIndex]);
-    if (data) {
-        logger.info(`roomId ${data} detected`);
-        roomIds.push(data);
+const customSchemaArgvIndex = argv.indexOf('entryhw:');
+if (customSchemaArgvIndex > -1) {
+    const { roomId, openHardwareId } = CommonUtils.getArgsParseData(argv[customSchemaArgvIndex]);
+    if (roomId) {
+        logger.info(`roomId ${roomId} detected`);
+        roomIds.push(roomId);
+    }
+
+    if (openHardwareId) {
+        autoOpenHardwareId = openHardwareId;
     }
 }
 
@@ -44,12 +49,24 @@ if (!app.requestSingleInstanceLock()) {
         app.quit();
     });
 
+    app.on('open-url', (event, url) => {
+        const { openHardwareId } = CommonUtils.getArgsParseData(url);
+        setTimeout(async () => {
+            while (!mainRouter) {
+                await new Promise((resolve) => setTimeout(resolve, 500));
+            }
+            mainRouter.selectHardware(openHardwareId);
+        }, 1000);
+    });
+
     // 어플리케이션을 중복 실행했습니다. 주 어플리케이션 인스턴스를 활성화 합니다.
     app.on('second-instance', (event, argv, workingDirectory) => {
-        let parseData: string | undefined = undefined;
-        const roomIdIndex = argv.indexOf('entryhw:');
-        if (roomIdIndex > -1) {
-            parseData = CommonUtils.getArgsParseData(argv[roomIdIndex]);
+        let parseData: { roomId: string; openHardwareId: string } = {
+            roomId: '', openHardwareId: '',
+        };
+        const entryHwCustomSchema = argv.find((arg) => arg.indexOf('entryhw:') > -1);
+        if (entryHwCustomSchema) {
+            parseData = CommonUtils.getArgsParseData(entryHwCustomSchema);
         }
 
         if (mainWindow) {
@@ -60,11 +77,16 @@ if (!app.requestSingleInstanceLock()) {
             mainWindow.focus();
 
             if (mainWindow.webContents && parseData) {
-                if (roomIds.indexOf(parseData) === -1) {
-                    logger.info(`[second-instance] roomId ${parseData} pushed`);
-                    roomIds.push(parseData);
+                const { roomId, openHardwareId } = parseData;
+                if (roomIds.indexOf(roomId) === -1) {
+                    logger.info(`[second-instance] roomId ${roomId} pushed`);
+                    roomIds.push(roomId);
                 }
-                mainRouter.addRoomId(parseData);
+                mainRouter.addRoomId(roomId);
+
+                if (openHardwareId) {
+                    mainRouter.selectHardware(openHardwareId);
+                }
             }
         }
     });
@@ -91,6 +113,12 @@ if (!app.requestSingleInstanceLock()) {
 
         // @ts-ignore
         mainRouter = new MainRouter(mainWindow, entryServer);
+
+        if (autoOpenHardwareId) {
+            setTimeout(() => {
+                mainRouter.selectHardware(autoOpenHardwareId);
+            }, 1000);
+        }
     });
 
     ipcMain.on('hardwareForceClose', () => {

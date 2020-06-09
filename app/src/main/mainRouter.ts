@@ -8,8 +8,8 @@ import HardwareListManager from './core/hardwareListManager';
 import DataHandler from './core/dataHandler';
 import downloadModule from './core/functions/downloadModule';
 import { EntryMessageAction, EntryStatePayload, HardwareStatement } from '../common/constants';
-import getExtraDirectoryPath from './core/functions/getExtraDirectoryPath';
 import createLogger from './electron/functions/createLogger';
+import directoryPaths from './core/directoryPaths';
 
 const nativeNodeRequire = require('./nativeNodeRequire.js');
 const logger = createLogger('core/mainRouter.ts');
@@ -142,7 +142,7 @@ class MainRouter {
      */
     reconnect() {
         logger.info('try to hardware reconnection..');
-        this.close();
+        this.close({saveConfig: true});
 
         if (this.config) {
             this.startScan(this.config);
@@ -205,7 +205,7 @@ class MainRouter {
             const { type = 'serial' } = hardware;
             this.scanner = this.scannerManager.getScanner(type);
             if (this.scanner) {
-                const moduleFilePath = getExtraDirectoryPath('modules');
+                const moduleFilePath = directoryPaths.modules;
                 this.hwModule = nativeNodeRequire(path.join(moduleFilePath, config.module)) as IHardwareModule;
                 this.sendState(HardwareStatement.scan);
                 this.scanner.stopScan();
@@ -218,7 +218,8 @@ class MainRouter {
                 }
             }
         } catch (e) {
-            console.error(e);
+            logger.error(`startScan Error, ${e.name} ${e.message}`);
+            this.sendState(HardwareStatement.scanFailed);
         }
     }
 
@@ -233,7 +234,7 @@ class MainRouter {
         this.server.addRoomIdsOnSecondInstance(roomId);
     }
 
-    stopScan(option?: { saveSelectedPort: boolean }) {
+    stopScan(option?: { saveSelectedPort?: boolean }) {
         const { saveSelectedPort = false } = option || {};
         logger.info(`scan stopped. selectedPort will be ${saveSelectedPort ? 'saved' : 'undefined'}`);
 
@@ -394,15 +395,18 @@ class MainRouter {
      *
      * @param option {Object=} true 인 경우, 포트선택했던 내역을 지우지 않는다.
      */
-    close(option?: { saveSelectedPort: boolean }) {
-        const { saveSelectedPort = false } = option || {};
+    close(option?: { saveSelectedPort?: boolean, saveConfig?: boolean }) {
+        const { saveSelectedPort = false, saveConfig = false, } = option || {};
         logger.info(`scan stopped. selectedPort will be ${saveSelectedPort ? 'saved' : 'undefined'}`);
 
         if (this.server) {
             this.server.disconnectHardware();
         }
         this.stopScan(option);
-        this.config = undefined;
+
+        if (!saveConfig) {
+            this.config = undefined;
+        }
         this.hwModule = undefined;
         this.handler = undefined;
 
@@ -411,20 +415,32 @@ class MainRouter {
         }
     };
 
-    /**
-     * 드라이버를 실행한다. 최초 실행시 app.asar 에 파일이 들어가있는 경우,
-     * 외부로 복사하여 외부 파일을 사용한다.
-     * @param driverPath
-     */
     executeDriver(driverPath: string) {
         if (!this.config) {
             return;
         }
 
-        const sourcePath = getExtraDirectoryPath('driver');
-        const driverFullPath = path.resolve(sourcePath, driverPath);
+        const driverFullPath = path.resolve(__dirname, '..', '..', 'drivers', driverPath);
         logger.info(`execute driver requested. filePath : ${driverFullPath}`);
         shell.openItem(driverFullPath);
+    }
+
+    /**
+     * 특정 ID 의 하드웨어를 직접 선택한다.
+     * URL 커스텀 스키마의 파라미터에 의해 실행된다.
+     */
+    async selectHardware(id: string) {
+        try {
+            if (!id) {
+                return;
+            }
+            const config = this.hardwareListManager.getHardwareById(id);
+            if (config) {
+                this.browser.webContents.send('selectHardware', config);
+            }
+        } catch (e) {
+            rendererConsole.error('startScan err : ', e);
+        }
     }
 
     _registerIpcEvents() {

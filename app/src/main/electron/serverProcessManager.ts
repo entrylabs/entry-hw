@@ -1,10 +1,8 @@
 import spawn from 'cross-spawn';
-import { app } from 'electron';
-import path from 'path';
 import fs from 'fs';
-import os from 'os';
 import { ChildProcess } from 'child_process';
 import createLogger from './functions/createLogger';
+import directoryPaths from './electronDirectoryPaths';
 
 const logger = createLogger('electron/server');
 
@@ -15,7 +13,7 @@ class ServerProcessManager {
     constructor(router?: any) {
         try {
             // this.childProcess = new Server();
-            const serverBinaryPath = this._getServerFilePath();
+            const serverBinaryPath = directoryPaths.server;
             logger.info(`EntryServer try to spawn.. ${serverBinaryPath}`);
             fs.accessSync(serverBinaryPath);
             this.childProcess = spawn(serverBinaryPath, [], {
@@ -34,25 +32,6 @@ class ServerProcessManager {
 
     setRouter(router: any) {
         this.router = router;
-    }
-
-    _getServerFilePath() {
-        const asarIndex = app.getAppPath().indexOf(`${path.sep}app.asar`);
-        if (asarIndex > -1) {
-            if (os.type().includes('Darwin')) {
-                return path.join(app.getAppPath().substr(0, asarIndex), 'server.txt');
-            } else {
-                return path.join(app.getAppPath().substr(0, asarIndex), 'server.exe');
-            }
-        } else {
-            const serverDirPath = [__dirname, '..', 'server'];
-            if (os.type().includes('Darwin')) {
-                console.log(path.join(...serverDirPath, 'mac', 'server.txt'));
-                return path.resolve(...serverDirPath, 'mac', 'server.txt');
-            } else {
-                return path.resolve(...serverDirPath, 'win', 'server.exe');
-            }
-        }
     }
 
     open() {

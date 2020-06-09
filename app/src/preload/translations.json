@@ -96,6 +96,10 @@
 		"ko": "하드웨어 > 연결 끊김",
 		"jp": "ハードウェア > 接続解除"
 	},
+	"hardware > connection failed": {
+		"ko": "하드웨어 > 연결 실패",
+		"jp": "ハードウェア > 接続失敗"
+	},
 	"Connecting to hardware device.": {
 		"ko": "하드웨어와 연결을 시도하고 있습니다.",
 		"jp": "ハードウェア接続：待機中"
@@ -103,6 +107,10 @@
 	"Connected to hardware device.": {
 		"ko": "하드웨어와 연결되었습니다.",
 		"jp": "ハードウェア接続完了"
+	},
+	"Connection failed. please restart application or reconnect manually.": {
+		"ko": "하드웨어 연결에 실패했습니다. 연결을 재시도하거나 프로그램을 재실행해주세요.",
+		"jp": "ハードウェアの接続に失敗しました。接続を再試行するか、プログラムを再実行してください。"
 	},
 	"Hardware device is disconnected. Please restart this program.": {
 		"ko": "하드웨어 연결이 끊어졌습니다. 연결 프로그램을 다시 시작해 주세요.",
