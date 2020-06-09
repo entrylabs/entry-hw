@@ -1,8 +1,8 @@
 import React from 'react';
 import Styled from 'styled-components';
-import { useSelector } from 'react-redux';
-import { CloudModeTypesEnum } from '../../constants/constants';
-import { IStoreState } from '../../store';
+import {useSelector} from 'react-redux';
+import {CloudModeTypesEnum} from '../../constants/constants';
+import {IStoreState} from '../../store';
 import Cloud from '../../../../images/cloud.png';
 
 const CloudIconContainer = Styled.div`
