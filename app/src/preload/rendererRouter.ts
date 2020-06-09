@@ -26,7 +26,7 @@ class RendererRouter {
         return (JSON.parse(localStorage.getItem('hardwareList') as string) || []).reverse();
     }
 
-    get sharedObject() {
+    get sharedObject(): ISharedObject {
         return remote.getGlobal('sharedObject');
     }
 

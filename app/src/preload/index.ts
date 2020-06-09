@@ -1,4 +1,4 @@
-import { clipboard, ipcRenderer, remote } from 'electron';
+import { clipboard, ipcRenderer } from 'electron';
 import Translator from './translator';
 import RendererRouter from './rendererRouter';
 import BleRouter from './bleProcessManager';
@@ -11,7 +11,7 @@ const isOSWin64 = () => (
 
 function getInitializeList(): Preload {
     const rendererRouter = new RendererRouter();
-    const locale = remote.app.getLocale().substr(0, 2);
+    const locale = rendererRouter.sharedObject.language;
     const translator = new Translator(locale);
     new BleRouter();
 
