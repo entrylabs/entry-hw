@@ -187,5 +187,25 @@
 	"Download": {
 		"ko": "최신 버전 다운로드",
 		"jp": "今すぐアップデート"
+	},
+	"Please enter a value for hardware connection.": {
+		"ko": "하드웨어 연결을 위한 값을 입력해 주세요.",
+		"jp": "ハードウェアを接続するための値を入力してください。"
+	},
+	"Please enter a valid value.": {
+		"ko": "올바른 값을 입력해 주세요.",
+		"jp": "正しい値を入力してください。"
+	},
+	"Please wait until the hardware is connected.": {
+		"ko": "하드웨어가 연결될 때까지 잠시 기다려 주세요.",
+		"jp": "ハードウェアが接続されるまでしばらくお待ちください。"
+	},
+	"Set": {
+		"ko": "설정",
+		"jp": "設定"
+	},
+	"Reset": {
+		"ko": "재설정",
+		"jp": "再設定"
 	}
 }

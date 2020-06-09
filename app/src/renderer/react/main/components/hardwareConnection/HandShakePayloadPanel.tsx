@@ -1,9 +1,10 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, {useCallback, useRef, useState} from 'react';
 import styled from 'styled-components';
-import { useDispatch } from 'react-redux';
-import { setHandshakePayload } from '../../store/modules/connection';
+import {useDispatch} from 'react-redux';
+import {setHandshakePayload} from '../../store/modules/connection';
 import RightConnectionArrowImage from '../../../../images/connection-arrow.png';
 import LeftConnectionArrowImage from '../../../../images/connection-arrow-2.png';
+import usePreload from '../../hooks/usePreload';
 
 const Container = styled.div`
     width: 240px;
@@ -71,8 +72,12 @@ const ArrowImageDiv = styled.div<{ image: string }>`
 `;
 
 const HandShakePayloadPanel: React.FC = () => {
+    const { translator } = usePreload();
     const inputRef = useRef<HTMLInputElement>(null);
     const [isTextShowValid, setTextShowValid] = useState(true);
+    const [indicatorText, setIndicatorText] = useState(translator.translate(
+        'Please enter a value for hardware connection.',
+    ));
     const [currentState, setButtonState] = useState(SendButtonState.inactive);
 
     const dispatch = useDispatch();
@@ -81,8 +86,10 @@ const HandShakePayloadPanel: React.FC = () => {
         const isValid = !!/^[a-zA-Z0-9]+$/.exec(e.target.value);
         if (isValid) {
             setButtonState(SendButtonState.active);
+            setIndicatorText(translator.translate('Please enter a value for hardware connection.'));
         } else {
             setButtonState(SendButtonState.inactive);
+            setIndicatorText(translator.translate('Please enter a valid value.'));
         }
 
         setTextShowValid(isValid); // initial state 만 다르고 위와 동일하다
@@ -92,6 +99,7 @@ const HandShakePayloadPanel: React.FC = () => {
         const ref = inputRef?.current;
         if (currentState === SendButtonState.active) {
             setButtonState(SendButtonState.sending);
+            setIndicatorText('Please wait until the hardware is connected.');
             setHandshakePayload(dispatch)(ref?.value);
         } else if (currentState === SendButtonState.sending) {
             setButtonState(SendButtonState.active);
@@ -103,11 +111,7 @@ const HandShakePayloadPanel: React.FC = () => {
     return (
         <Container>
             <div>
-                <IndicateTextDiv isValid={isTextShowValid}>{
-                    isTextShowValid
-                        ? '하드웨어 연결을 위한 값을 입력해 주세요.'
-                        : '올바른 값을 입력해 주세요.'
-                }</IndicateTextDiv>
+                <IndicateTextDiv isValid={isTextShowValid}>{indicatorText}</IndicateTextDiv>
                 <ArrowImageDiv image={LeftConnectionArrowImage}>
                     <SendInput
                         onChange={onPayloadChanged}
@@ -119,8 +123,8 @@ const HandShakePayloadPanel: React.FC = () => {
                 <ArrowImageDiv image={RightConnectionArrowImage}>
                     <SendButton onClick={onButtonClicked} state={currentState}>{
                         currentState === SendButtonState.sending
-                            ? '재설정'
-                            : '설정'
+                            ? translator.translate('Set')
+                            : translator.translate('Reset')
                     }</SendButton>
                 </ArrowImageDiv>
             </div>
