@@ -15,7 +15,7 @@ const IndicatorContainer = styled.div`
     font-stretch: normal;
     line-height: normal;
     letter-spacing: -0.5px;
-    color: white;
+    color: #b0d2ff;
 `;
 
 const SocketConnectionIndicator: React.FC = () => {
