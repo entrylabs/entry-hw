@@ -4,6 +4,7 @@ import { useDispatch } from 'react-redux';
 import { setHandshakePayload } from '../../store/modules/connection';
 import RightConnectionArrowImage from '../../../../images/connection-arrow.png';
 import LeftConnectionArrowImage from '../../../../images/connection-arrow-2.png';
+import usePreload from '../../hooks/usePreload';
 
 const Container = styled.div`
     width: 240px;
@@ -21,33 +22,43 @@ const IndicateTextDiv = styled.div<{ isValid: boolean }>`
     margin-bottom: 25px;
 `;
 
-const SendButton = styled.button<{ active: boolean }>`
+enum SendButtonState { inactive, active, sending }
+
+const SendButton = styled.button<{ state: SendButtonState }>`
     width: 62px;
     height: 40px;
     border-radius: 4px;
-    border: ${({ active }) => (active ? 'none' : 'solid 1px #e2e2e2')}
-    background-color: ${({ active }) => (active ? '#4f80ff' : '#f9f9f9')};
-    cursor: ${({ active }) => (active ? 'pointer' : 'not-allowed')}
+    border: ${({ state }) => (state === SendButtonState.active ? 'none' : 'solid 1px #e2e2e2')}
+    background-color: ${({ state }) => {
+        if (state === SendButtonState.sending) {
+            return '#6e5ae6';
+        } else if (state === SendButtonState.active) {
+            return '#4f80ff';
+        } else {
+            return '#f9f9f9';
+        }
+    }};
+    cursor: ${({ state }) => (state === SendButtonState.inactive ? 'not-allowed' : 'pointer')}
     
     letter-spacing: -0.33px;
     text-align: center;
     font-size: 14px;
     font-weight: bold;
-    color: ${({ active }) => (active ? '#ffffff' : '#cbcbcb')};
+    color: ${({ state }) => (state === SendButtonState.inactive ? '#cbcbcb' : '#ffffff')};
 `;
 
-const SendInput = styled.input`
+const SendInput = styled.input<{ state: SendButtonState }>`
     width: 62px;
     height: 40px;
     border-radius: 4px;
     border: solid 1px #e2e2e2;
-    background-color: #ffffff;
+    background-color: ${({ state }) => (state === SendButtonState.sending ? '#f9f9f9' : '#ffffff')};
     
     letter-spacing: -0.33px;
     text-align: center;
     font-size: 14px;
     font-weight: bold;
-    color: #2c313d;
+    color: ${({ state }) => (state === SendButtonState.sending ? '#cbcbcb' : '#2c313d')};
 `;
 
 const ArrowImageDiv = styled.div<{ image: string }>`
@@ -61,39 +72,60 @@ const ArrowImageDiv = styled.div<{ image: string }>`
 `;
 
 const HandShakePayloadPanel: React.FC = () => {
+    const { translator } = usePreload();
     const inputRef = useRef<HTMLInputElement>(null);
-    const [isReady, setReadyState] = useState(false);
-    const [isValidPayload, setValidState] = useState(true);
+    const [isTextShowValid, setTextShowValid] = useState(true);
+    const [indicatorText, setIndicatorText] = useState(translator.translate(
+        'Please enter a value for hardware connection.',
+    ));
+    const [currentState, setButtonState] = useState(SendButtonState.inactive);
+
     const dispatch = useDispatch();
 
     const onPayloadChanged = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        const isAlphaDigit = !!/^[a-zA-Z0-9]+$/.exec(value);
+        const isValid = !!/^[a-zA-Z0-9]+$/.exec(e.target.value);
+        if (isValid) {
+            setButtonState(SendButtonState.active);
+            setIndicatorText(translator.translate('Please enter a value for hardware connection.'));
+        } else {
+            setButtonState(SendButtonState.inactive);
+            setIndicatorText(translator.translate('Please enter a valid value.'));
+        }
 
-        setReadyState(isAlphaDigit);
-        setValidState(isAlphaDigit);
+        setTextShowValid(isValid); // initial state 만 다르고 위와 동일하다
     }, []);
 
     const onButtonClicked = useCallback(() => {
-        if (!isReady) {
-            return;
+        const ref = inputRef?.current;
+        if (currentState === SendButtonState.active) {
+            setButtonState(SendButtonState.sending);
+            setIndicatorText('Please wait until the hardware is connected.');
+            setHandshakePayload(dispatch)(ref?.value);
+        } else if (currentState === SendButtonState.sending) {
+            setButtonState(SendButtonState.active);
+        } else if (currentState === SendButtonState.inactive) {
+            ref?.focus();
         }
-        setHandshakePayload(dispatch)(inputRef?.current?.value);
-    }, []);
+    }, [currentState]);
 
     return (
         <Container>
             <div>
-                <IndicateTextDiv isValid={isValidPayload}>{
-                    isValidPayload
-                        ? '하드웨어 연결을 위한 값을 입력해 주세요.'
-                        : '올바른 값을 입력해 주세요.'
-                }</IndicateTextDiv>
+                <IndicateTextDiv isValid={isTextShowValid}>{indicatorText}</IndicateTextDiv>
                 <ArrowImageDiv image={LeftConnectionArrowImage}>
-                    <SendInput onChange={onPayloadChanged} ref={inputRef}/>
+                    <SendInput
+                        onChange={onPayloadChanged}
+                        disabled={currentState === SendButtonState.sending}
+                        state={currentState}
+                        ref={inputRef}
+                    />
                 </ArrowImageDiv>
                 <ArrowImageDiv image={RightConnectionArrowImage}>
-                    <SendButton onClick={onButtonClicked} active={isReady}>설정</SendButton>
+                    <SendButton onClick={onButtonClicked} state={currentState}>{
+                        currentState === SendButtonState.sending
+                            ? translator.translate('Set')
+                            : translator.translate('Reset')
+                    }</SendButton>
                 </ArrowImageDiv>
             </div>
         </Container>
