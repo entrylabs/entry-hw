@@ -4,6 +4,7 @@ import path from 'path';
 import fs from 'fs';
 import createLogger from './createLogger';
 import directoryPaths from '../electronDirectoryPaths';
+import { app } from 'electron';
 
 const logger = createLogger('ConfigInitialize');
 /**
@@ -17,7 +18,7 @@ const defaultConfigSchema: IFileConfig = {
 /**
  * 외부 설정이 아닌 내부에서 정의되며, 변경될 여지가 없는 하드코드의 경우 이쪽에 선언한다.
  */
-const internalConfig: IInternalConfig = {
+const internalConfig: Omit<IInternalConfig, 'language'> = {
     appName: 'hardware',
     hardwareVersion: packageJson.version,
     roomIds: [],
@@ -44,9 +45,15 @@ function getFileConfig(configName = 'entry') {
     return getMergedConfig(JSON.parse(fileData as any)) as IFileConfig;
 }
 
-export default (configName = 'entry') => {
-    const externalConfig = getFileConfig(configName);
-    const mergedConfig = merge({}, internalConfig, externalConfig);
+export default (cmdConfig: ICommandLineConfig) => {
+    const { config = 'entry', lang } = cmdConfig;
+    const externalConfig = getFileConfig(config);
+    const locale = (lang || externalConfig.language || app.getLocale()).substr(0, 2);
+
+    const mergedConfig = merge({},
+        internalConfig, { language: locale },
+        externalConfig,
+    ) as IFileConfig & IInternalConfig;
 
     logger.info('configuration applied');
     logger.verbose(reduce(toPairs(mergedConfig), (result, [key, value]) =>

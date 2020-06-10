@@ -41,9 +41,8 @@ export default new class {
     }
 
     createMainWindow({ debug }: { debug?: boolean }) {
-        const language = app.getLocale();
+        const { hardwareVersion, language } = global.sharedObject;
         const title = language === 'ko' ? '엔트리 하드웨어 v' : 'Entry Hardware v';
-        const { hardwareVersion } = global.sharedObject;
 
         this.mainWindow = new BrowserWindow({
             width: 800,

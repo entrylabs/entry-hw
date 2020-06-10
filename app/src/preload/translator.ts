@@ -11,10 +11,7 @@ class Translator {
             throw Error('translator must be created on browser environment');
         }
 
-        const selectedLang =
-            lang ||
-            window.navigator.language?.substr(0, 2) ||
-            'ko';
+        const selectedLang = lang || 'ko';
         
         this.lang = selectedLang;
         this.setGlobalLang(selectedLang);
@@ -27,7 +24,12 @@ class Translator {
     }
     
     private setGlobalLang(lang: string) {
-        window.Lang = require(`./lang/${lang}.js`).Lang;        
+        try {
+            window.Lang = require(`./lang/${lang}.js`).Lang;
+        } catch (e) {
+            console.error(e);
+            window.Lang = require(`./lang/en.js`).Lang;
+        }
     }
 }
 
