@@ -2,7 +2,7 @@ import _ from 'lodash';
 import rendererConsole from '../rendererConsole';
 import SerialPort from 'serialport';
 import electPort from './electPortFunction';
-import { CloudModeTypes } from '../../../common/constants';
+import {CloudModeTypes} from '../../../common/constants';
 import BaseScanner from '../baseScanner';
 import SerialConnector from './connector';
 import createLogger from '../../electron/functions/createLogger';
@@ -95,7 +95,7 @@ class SerialScanner extends BaseScanner<SerialConnector> {
             );
         }
 
-        if (this.config.handshakeType === 'argument' && !this.router.selectedPayload) {
+        if (this.config.handshake && !this.router.selectedPayload) {
             // handshakeType 가 argument 면 selectedPayload 가 필요하다. 이 값이 없으면 시리얼포트 선출하지 않는다.
             return;
         }

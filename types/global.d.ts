@@ -8,7 +8,7 @@ declare type IInternalConfig = {
     appName: 'hardware',
     hardwareVersion: string,
     roomIds: string[],
-    language: string;
+    language: SupportedLanguage;
 }
 
 declare type ICommandLineFlags = {

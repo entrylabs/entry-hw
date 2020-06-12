@@ -1,18 +1,18 @@
 class Translator {
-    public lang: string;
+    public lang: SupportedLanguage;
     private readonly data: any;
 
     get currentLanguage() {
         return this.lang;
     }
 
-    constructor(lang?: string) {
+    constructor(lang?: SupportedLanguage) {
         if (!window.navigator) {
             throw Error('translator must be created on browser environment');
         }
 
         const selectedLang = lang || 'ko';
-        
+
         this.lang = selectedLang;
         this.setGlobalLang(selectedLang);
         this.data = require('./translations.json');
@@ -22,7 +22,7 @@ class Translator {
         const value = this.data[str] || [];
         return value[this.lang] || str;
     }
-    
+
     private setGlobalLang(lang: string) {
         try {
             window.Lang = require(`./lang/${lang}.js`).Lang;

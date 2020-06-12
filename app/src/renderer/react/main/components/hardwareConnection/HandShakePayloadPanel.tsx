@@ -1,10 +1,11 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, {useCallback, useRef, useState} from 'react';
 import styled from 'styled-components';
-import { useDispatch } from 'react-redux';
-import { setHandshakePayload } from '../../store/modules/connection';
+import {useDispatch, useSelector} from 'react-redux';
+import {setHandshakePayload} from '../../store/modules/connection';
 import RightConnectionArrowImage from '../../../../images/connection-arrow.png';
 import LeftConnectionArrowImage from '../../../../images/connection-arrow-2.png';
 import usePreload from '../../hooks/usePreload';
+import {IStoreState} from '../../store';
 
 const Container = styled.div`
     width: 240px;
@@ -71,8 +72,23 @@ const ArrowImageDiv = styled.div<{ image: string }>`
     margin-bottom: 16px;
 `;
 
+const makeRegexByHandshakeType = (type?: HandshakeType) => {
+    switch (type) {
+    case 'digit':
+        return /^[0-9]+$/;
+    case 'word':
+        return /^[a-zA-Z]+$/;
+    case 'argument':
+    default:
+        return /^[a-zA-Z0-9]+$/;
+    }
+};
+
 const HandShakePayloadPanel: React.FC = () => {
     const { translator } = usePreload();
+    const selectedHardware = useSelector<IStoreState, IHardwareConfig>(
+        state => state.connection.selectedHardware as IHardwareConfig,
+    );
     const inputRef = useRef<HTMLInputElement>(null);
     const [isTextShowValid, setTextShowValid] = useState(true);
     const [indicatorText, setIndicatorText] = useState(translator.translate(
@@ -83,7 +99,8 @@ const HandShakePayloadPanel: React.FC = () => {
     const dispatch = useDispatch();
 
     const onPayloadChanged = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-        const isValid = !!/^[a-zA-Z0-9]+$/.exec(e.target.value);
+        const regex = makeRegexByHandshakeType(selectedHardware.handshake?.type);
+        const isValid = !!regex.exec(e.target.value);
         if (isValid) {
             setButtonState(SendButtonState.active);
             setIndicatorText(translator.translate('Please enter a value for hardware connection.'));
