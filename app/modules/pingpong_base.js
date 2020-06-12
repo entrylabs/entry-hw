@@ -19,7 +19,7 @@ class PingpongBase extends BaseModule {
         console.log('PINGPONG construct : G%d', this.cubeCount);
     }
 
-    makePackets(method) {
+    makePackets(method, grpid = 0) {
         //console.log('..make_packet: ' + method);
 
         // CUBE_ID[0:3] / ASSIGNED_ID[4:5] / OPCODE[6] / SIZE[7:8] / OPT[9..11]
@@ -27,50 +27,19 @@ class PingpongBase extends BaseModule {
 
         let result = null;
         if (method === 'connect') {
-            result = Buffer.from('dddd00000000da000b0000', 'hex');
+            result = Buffer.from([0xdd, 0xdd, grpid, 0x00, 0x00, 0x00, 0xda, 0x00, 0x0b, 0x00, 0x00]);
             //result[2] = this.groupId;
         } else if (method === 'disconnect') {
-            result = Buffer.from([
-                0xff,
-                0xff,
-                0xff,
-                0xff,
-                0x00,
-                0x00,
-                0xa8,
-                0x00,
-                0x0a,
-                0x01,
-            ]);
+            result = Buffer.from([0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0xa8, 0x00, 0x0a, 0x01]);
             //result = Buffer.from('ffffffff0000a8000a01', 'hex');
         } else if (method === 'checkdongle') {
-            result = Buffer.from([
-                0xdd,
-                0xdd,
-                0xdd,
-                0xdd,
-                0x00,
-                0x01,
-                0xda,
-                0x00,
-                0x0b,
-                0x00,
-                0x0d,
-            ]);
+            result = Buffer.from([0xdd, 0xdd, 0xdd, 0xdd, 0x00, 0x01, 0xda, 0x00, 0x0b, 0x00, 0x0d]);
         } else if (method === 'setMultirole') {
-            result = Buffer.from([
-                0xff,
-                0xff,
-                0x00,
-                0xff,
-                this.cubeCount << 4,
-                0x00,
-                0xad,
-                0x00,
-                0x0b,
-                0x0a,
-                0x00,
-            ]);
+            result = Buffer.from([0xff, 0xff, 0x00, 0xff, this.cubeCount << 4, 0x00, 0xad, 0x00, 0x0b, 0x0a, 0x00]);
+            if (grpid > 0) {
+                result[9] = 0x1a;
+                result[10] = grpid;
+            }
         } else if (method === 'getSensorData') {
             result = Buffer.from([
                 0xff,
@@ -94,9 +63,15 @@ class PingpongBase extends BaseModule {
     }
 
     // 연결 후 초기에 송신할 데이터가 필요한 경우 사용합니다.
-    requestInitialData(sp) {
+    requestInitialData(sp, payload) {
         //console.log('P:requestInitialData: ');
-        return this.makePackets('setMultirole');
+        let grpid = payload.match(/[0-7]{1,2}$/g);
+        if (grpid == null) {
+            console.warn('Wrong group id inputted', payload);
+            return null;
+        }
+        let grpno = parseInt(grpid[0], 16);
+        return this.makePackets('setMultirole', grpno);
     }
 
     dbgHexstr(data) {
