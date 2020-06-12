@@ -8,7 +8,7 @@ const electPort = async (
     hwConfig: IHardwareModuleConfig,
     hwModule: IHardwareModule,
     beforeConnectCallback: (connector: SerialConnector) => void,
-    handshakePayload?: string,
+    handshakePayload?: () => string | undefined,
 ) => {
     // 선출 후보 포트 모두 오픈
     const connectors = await _initialize(ports, hwConfig, hwModule);
