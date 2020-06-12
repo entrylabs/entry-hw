@@ -99,7 +99,7 @@ const HandShakePayloadPanel: React.FC = () => {
         const ref = inputRef?.current;
         if (currentState === SendButtonState.active) {
             setButtonState(SendButtonState.sending);
-            setIndicatorText('Please wait until the hardware is connected.');
+            setIndicatorText(translator.translate('Please wait until the hardware is connected.'));
             setHandshakePayload(dispatch)(ref?.value);
         } else if (currentState === SendButtonState.sending) {
             setButtonState(SendButtonState.active);
@@ -123,8 +123,8 @@ const HandShakePayloadPanel: React.FC = () => {
                 <ArrowImageDiv image={RightConnectionArrowImage}>
                     <SendButton onClick={onButtonClicked} state={currentState}>{
                         currentState === SendButtonState.sending
-                            ? translator.translate('Set')
-                            : translator.translate('Reset')
+                            ? translator.translate('Reset')
+                            : translator.translate('Set')
                     }</SendButton>
                 </ArrowImageDiv>
             </div>
