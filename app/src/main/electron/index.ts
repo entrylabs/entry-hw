@@ -20,24 +20,7 @@ let mainWindow: BrowserWindow | undefined = undefined;
 let mainRouter: any = null;
 let entryServer: any = null;
 let autoOpenHardwareId = '';
-
-const argv = process.argv.slice(1);
-const commandLineOptions = parseCommandLine(argv);
-const configuration = configInit(commandLineOptions.config);
-const { roomIds = [] } = configuration;
-
-const customSchemaArgvIndex = argv.indexOf('entryhw:');
-if (customSchemaArgvIndex > -1) {
-    const { roomId, openHardwareId } = CommonUtils.getArgsParseData(argv[customSchemaArgvIndex]);
-    if (roomId) {
-        logger.info(`roomId ${roomId} detected`);
-        roomIds.push(roomId);
-    }
-
-    if (openHardwareId) {
-        autoOpenHardwareId = openHardwareId;
-    }
-}
+let roomIds: string[] = [];
 
 if (!app.requestSingleInstanceLock()) {
     logger.verbose('App is already running');
@@ -104,6 +87,25 @@ if (!app.requestSingleInstanceLock()) {
     app.setAsDefaultProtocolClient('entryhw');
     app.once('ready', () => {
         Menu.setApplicationMenu(null);
+        const argv = process.argv.slice(1);
+        const commandLineOptions = parseCommandLine(argv);
+        const configuration = configInit(commandLineOptions);
+        const { roomIds: configRoomIds } = configuration;
+        roomIds = configRoomIds || [];
+
+        const customSchemaArgvIndex = argv.indexOf('entryhw:');
+        if (customSchemaArgvIndex > -1) {
+            const { roomId, openHardwareId } = CommonUtils.getArgsParseData(argv[customSchemaArgvIndex]);
+            if (roomId) {
+                logger.info(`roomId ${roomId} detected`);
+                roomIds.push(roomId);
+            }
+
+            if (openHardwareId) {
+                autoOpenHardwareId = openHardwareId;
+            }
+        }
+        
         WindowManager.createMainWindow({ debug: commandLineOptions.debug });
         mainWindow = WindowManager.mainWindow;
         WindowManager.createAboutWindow(mainWindow);

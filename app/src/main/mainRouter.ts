@@ -329,8 +329,7 @@ class MainRouter {
         logger.info('server socket connected');
         const hwModule = this.hwModule;
         const config = this.config;
-        const moduleConnected = this.connector?.connected;
-        if (moduleConnected && hwModule?.socketReconnection) {
+        if (this.connector?.connected && hwModule?.socketReconnection) {
             hwModule.socketReconnection();
         }
         if (config?.moduleName) {
@@ -339,6 +338,8 @@ class MainRouter {
                 name: config.moduleName,
             });
         }
+
+        this.sendEventToMainWindow('socketConnected', true);
     }
 
     /**
@@ -352,6 +353,8 @@ class MainRouter {
         if (moduleConnected && hwModule?.reset) {
             hwModule.reset();
         }
+
+        this.sendEventToMainWindow('socketConnected', false);
     }
 
     // 엔트리 측에서 데이터를 받아온 경우 전달

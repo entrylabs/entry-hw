@@ -14,7 +14,6 @@ import refreshButtonOffImage from '../../../../images/btn_refresh_off.png';
 import usePreload from '../../hooks/usePreload';
 
 const NavigatorContainer = Styled.div`
-    padding-top: 15px;
     width: 100px;
     margin: 0;
 `;

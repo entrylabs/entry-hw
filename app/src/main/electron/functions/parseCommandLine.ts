@@ -22,6 +22,7 @@ const properties: IPropertyType = {
     ],
     pair: [
         ['config', 'c'],
+        ['lang', 'l'],
     ],
 };
 

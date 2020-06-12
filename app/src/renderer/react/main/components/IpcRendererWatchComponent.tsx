@@ -5,6 +5,7 @@ import {
     changeAlertMessage,
     changeCloudMode,
     changeHardwareModuleState,
+    changeSocketConnectionState,
     changeStateTitle,
     IAlertMessage,
 } from '../store/modules/common';
@@ -24,12 +25,13 @@ class IpcRendererWatchComponent extends React.PureComponent<IProps> {
         ipcRenderer.removeAllListeners('state');
         ipcRenderer.removeAllListeners('portListScanned');
         ipcRenderer.removeAllListeners('cloudMode');
+        ipcRenderer.removeAllListeners('socketConnected');
 
-        ipcRenderer.on('console', (event: Electron.Event, ...args: any[]) => {
+        ipcRenderer.on('console', (event, ...args: any[]) => {
             console.log(...args);
         });
 
-        ipcRenderer.on('state', (event: Electron.Event, state: HardwareStatement) => {
+        ipcRenderer.on('state', (event, state: HardwareStatement) => {
             const applyTitle = (title: string) => {
                 props.changeStateTitle(translator.translate(title));
             };
@@ -38,68 +40,71 @@ class IpcRendererWatchComponent extends React.PureComponent<IProps> {
             console.log('state changed: ', state);
 
             switch (state) {
-                case HardwareStatement.disconnected: {
-                    if (props.currentPageState === HardwarePageStateEnum.list) {
-                        applyTitle('Select hardware');
-                    } else {
-                        applyTitle('hardware > disconnected');
-                        props.changeAlertMessage({
-                            message: translator.translate(
-                                'Hardware device is disconnected. Please restart this program.',
-                            ),
-                        });
-                    }
-                    break;
-                }
-                case HardwareStatement.connected: {
-                    applyTitle('hardware > connected');
-                    props.changeAlertMessage({
-                        message: translator.translate('Connected to hardware device.'),
-                        duration: 2000,
-                    });
-                    break;
-                }
-                case HardwareStatement.scan:
-                case HardwareStatement.lost: {
-                    applyTitle('hardware > connecting');
-                    props.changeAlertMessage({
-                        message: translator.translate('Connecting to hardware device.'),
-                    });
-                    break;
-                }
-                case HardwareStatement.beforeConnect: {
-                    applyTitle('hardware > connecting');
-                    const beforeConnectMessage = `${
-                        translator.translate('Connecting to hardware device.')
-                    } ${
-                        translator.translate('Please select the firmware.')
-                    }`;
-                    props.changeAlertMessage({
-                        message: beforeConnectMessage,
-                    });
-                    break;
-                }
-                case HardwareStatement.scanFailed: {
-                    applyTitle('hardware > connection failed');
+            case HardwareStatement.disconnected: {
+                if (props.currentPageState === HardwarePageStateEnum.list) {
+                    applyTitle('Select hardware');
+                } else {
+                    applyTitle('hardware > disconnected');
                     props.changeAlertMessage({
                         message: translator.translate(
-                            'Connection failed. please restart application or reconnect manually.',
+                            'Hardware device is disconnected. Please restart this program.',
                         ),
                     });
-                    break;
                 }
-                case HardwareStatement.flash: {
-                    props.changeAlertMessage({
-                        message: translator.translate('Firmware Uploading...'),
-                    });
-                }
+                break;
+            }
+            case HardwareStatement.connected: {
+                applyTitle('hardware > connected');
+                props.changeAlertMessage({
+                    message: translator.translate('Connected to hardware device.'),
+                    duration: 2000,
+                });
+                break;
+            }
+            case HardwareStatement.scan:
+            case HardwareStatement.lost: {
+                applyTitle('hardware > connecting');
+                props.changeAlertMessage({
+                    message: translator.translate('Connecting to hardware device.'),
+                });
+                break;
+            }
+            case HardwareStatement.beforeConnect: {
+                applyTitle('hardware > connecting');
+                const beforeConnectMessage = `${
+                    translator.translate('Connecting to hardware device.')
+                } ${
+                    translator.translate('Please select the firmware.')
+                }`;
+                props.changeAlertMessage({
+                    message: beforeConnectMessage,
+                });
+                break;
+            }
+            case HardwareStatement.scanFailed: {
+                applyTitle('hardware > connection failed');
+                props.changeAlertMessage({
+                    message: translator.translate(
+                        'Connection failed. please restart application or reconnect manually.',
+                    ),
+                });
+                break;
+            }
+            case HardwareStatement.flash: {
+                props.changeAlertMessage({
+                    message: translator.translate('Firmware Uploading...'),
+                });
+            }
             }
         });
-        ipcRenderer.on('portListScanned', (event: Electron.Event, data: ISerialPortScanData[]) => {
+        ipcRenderer.on('portListScanned', (event, data: ISerialPortScanData[]) => {
             props.changePortList(data);
         });
-        ipcRenderer.on('cloudMode', (event: Electron.Event, mode: CloudModeTypesEnum) => {
+        ipcRenderer.on('cloudMode', (event, mode: CloudModeTypesEnum) => {
             props.changeCloudMode(mode);
+        });
+        ipcRenderer.on('socketConnected', (event, isConnected: boolean) => {
+            props.changeSocketConnectionState(isConnected);
         });
     }
 
@@ -124,6 +129,7 @@ interface IDispatchProps {
     changePortList: (portList: ISerialPortScanData[]) => void;
     changeAlertMessage: (alertMessage: IAlertMessage) => void;
     changeHardwareModuleState: (state: HardwareStatement) => void;
+    changeSocketConnectionState: (state: boolean) => void;
 }
 
 const mapDispatchToProps: IMapDispatchToProps<IDispatchProps> = (dispatch) => ({
@@ -132,6 +138,7 @@ const mapDispatchToProps: IMapDispatchToProps<IDispatchProps> = (dispatch) => ({
     changePortList: changePortList(dispatch),
     changeAlertMessage: changeAlertMessage(dispatch),
     changeHardwareModuleState: changeHardwareModuleState(dispatch),
+    changeSocketConnectionState: changeSocketConnectionState(dispatch),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(IpcRendererWatchComponent);

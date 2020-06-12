@@ -207,5 +207,13 @@
 	"Reset": {
 		"ko": "재설정",
 		"jp": "再設定"
+	},
+	"Connected to the Entry server": {
+		"ko": "엔트리 서버 연결됨",
+		"jp": "エントリーサーバー接続"
+	},
+	"Disconnected from the Entry server": {
+		"ko": "엔트리 서버 연결 안 됨",
+		"jp": "エントリーサーバー未接続"
 	}
 }

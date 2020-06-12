@@ -1,9 +1,9 @@
-import React, { useEffect } from 'react';
+import React, {useEffect} from 'react';
 import Styled from 'styled-components';
-import { IStoreState } from '../../store';
-import { useDispatch, useSelector } from 'react-redux';
+import {IStoreState} from '../../store';
+import {useDispatch, useSelector} from 'react-redux';
 import HardwareElement from './HardwareElement';
-import { resetHardwareList } from '../../store/modules/hardware';
+import {resetHardwareList} from '../../store/modules/hardware';
 
 const HardwareListContainerRoot = Styled.div`
     padding: 40px;
