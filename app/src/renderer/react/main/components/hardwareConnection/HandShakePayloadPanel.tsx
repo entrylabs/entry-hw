@@ -1,5 +1,6 @@
 import React, {useCallback, useRef, useState} from 'react';
 import styled from 'styled-components';
+import {get} from 'lodash';
 import {useDispatch, useSelector} from 'react-redux';
 import {setHandshakePayload} from '../../store/modules/connection';
 import RightConnectionArrowImage from '../../../../images/connection-arrow.png';
@@ -90,23 +91,33 @@ const HandShakePayloadPanel: React.FC = () => {
         state => state.connection.selectedHardware as IHardwareConfig,
     );
     const inputRef = useRef<HTMLInputElement>(null);
+    const dispatch = useDispatch();
+    const getCustomTemplate = useCallback(
+        (key: string | LocalizedString | undefined) => get(key, translator.currentLanguage, key), [],
+    );
     const [isTextShowValid, setTextShowValid] = useState(true);
-    const [indicatorText, setIndicatorText] = useState(translator.translate(
-        'Please enter a value for hardware connection.',
-    ));
+    const [indicatorText, setIndicatorText] = useState(
+        getCustomTemplate(selectedHardware.handshake?.message?.default) ||
+        translator.translate('Please enter a value for hardware connection.'),
+    );
     const [currentState, setButtonState] = useState(SendButtonState.inactive);
 
-    const dispatch = useDispatch();
 
     const onPayloadChanged = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         const regex = makeRegexByHandshakeType(selectedHardware.handshake?.type);
         const isValid = !!regex.exec(e.target.value);
         if (isValid) {
             setButtonState(SendButtonState.active);
-            setIndicatorText(translator.translate('Please enter a value for hardware connection.'));
+            setIndicatorText(
+                getCustomTemplate(selectedHardware.handshake?.message?.default) ||
+                translator.translate('Please enter a value for hardware connection.'),
+            );
         } else {
             setButtonState(SendButtonState.inactive);
-            setIndicatorText(translator.translate('Please enter a valid value.'));
+            setIndicatorText(
+                getCustomTemplate(selectedHardware.handshake?.message?.invalid) ||
+                translator.translate('Please enter a valid value.'),
+            );
         }
 
         setTextShowValid(isValid); // initial state 만 다르고 위와 동일하다
@@ -116,7 +127,10 @@ const HandShakePayloadPanel: React.FC = () => {
         const ref = inputRef?.current;
         if (currentState === SendButtonState.active) {
             setButtonState(SendButtonState.sending);
-            setIndicatorText(translator.translate('Please wait until the hardware is connected.'));
+            setIndicatorText(
+                getCustomTemplate(selectedHardware.handshake?.message?.sending) ||
+                translator.translate('Please wait until the hardware is connected.'),
+            );
             setHandshakePayload(dispatch)(ref?.value);
         } else if (currentState === SendButtonState.sending) {
             setButtonState(SendButtonState.active);

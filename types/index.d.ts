@@ -98,9 +98,9 @@ declare interface IHardwareConfig {
         // argument = 어떤 문자도 허용 / digit = 숫자만 / word = 문자만
         type: HandshakeType;
         message?: {
-            default?: LocalizedString;
-            invalid?: LocalizedString;
-            sending?: LocalizedString;
+            default?: string | LocalizedString;
+            invalid?: string | LocalizedString;
+            sending?: string | LocalizedString;
         }
     }
     tryFlasherNumber?: number;

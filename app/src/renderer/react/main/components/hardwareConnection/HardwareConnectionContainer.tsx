@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
-import { useSelector } from 'react-redux';
-import { IStoreState } from '../../store';
+import {useSelector} from 'react-redux';
+import {IStoreState} from '../../store';
 import ReferencePanel from './ReferencePanel';
 import ClientPanel from './ClientPanel';
 import DevicePanel from './DevicePanel';
@@ -33,7 +33,7 @@ const HardwareConnectionContainer: React.FC = () => {
                 <ReferencePanel/>
                 <ClientPanel/>
                 {
-                    selectedHardware.handshakeType === 'argument'
+                    selectedHardware?.handshake
                         ? <HandShakePayloadPanel/>
                         : <DotProgressPanel/>
                 }
