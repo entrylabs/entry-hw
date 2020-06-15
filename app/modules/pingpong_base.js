@@ -37,6 +37,7 @@ class PingpongBase extends BaseModule {
         } else if (method === 'setMultirole') {
             result = Buffer.from([0xff, 0xff, 0x00, 0xff, this.cubeCount << 4, 0x00, 0xad, 0x00, 0x0b, 0x0a, 0x00]);
             if (grpid > 0) {
+                result[2] = grpid;
                 result[9] = 0x1a;
                 result[10] = grpid;
             }
