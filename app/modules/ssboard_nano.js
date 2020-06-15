@@ -62,6 +62,8 @@ function Module() {
             '17': 0,
             '18': 0,
             '19': 0,
+            '20': 0,
+            '21': 0,
         },
         ANALOG: 
 		{
@@ -228,13 +230,13 @@ Module.prototype.handleLocalData = function(data) {
         switch (type) {
             case 100: 
             case 101: {       ///  기본패킷
-                self.sensorData.DIGITAL[2] = (readData[2] >> 6) & 0x01;     	
-                self.sensorData.DIGITAL[8] = (readData[2]) & 0x01;	
-                self.sensorData.DIGITAL[9] = (readData[2] >> 1) & 0x01;	
-                self.sensorData.DIGITAL[10] = (readData[2] >> 2) & 0x01;	
-                self.sensorData.DIGITAL[11] = (readData[2] >> 3) & 0x01;	
-                self.sensorData.DIGITAL[12] = (readData[2] >> 4) & 0x01;	
-                self.sensorData.DIGITAL[13] = (readData[2] >> 5) & 0x01;
+                self.sensorData.DIGITAL[2] = (readData[2] >> 1) & 0x01;     	
+                self.sensorData.DIGITAL[3] = (readData[2] >> 2) & 0x01;	
+                self.sensorData.DIGITAL[4] = (readData[2] >> 3) & 0x01;	
+                self.sensorData.DIGITAL[5] = (readData[2] >> 4) & 0x01;	
+                self.sensorData.DIGITAL[11] = (readData[2] >> 5) & 0x01;	
+                self.sensorData.DIGITAL[12] = (readData[2] >> 6) & 0x01;
+                self.sensorData.DIGITAL[13] = (readData[2] >> 7) & 0x01;
 
                 self.sensorData.DIGITAL[14] = (readData[1]) & 0x01;
                 self.sensorData.DIGITAL[15] = (readData[1] >> 1) & 0x01;
@@ -242,6 +244,8 @@ Module.prototype.handleLocalData = function(data) {
                 self.sensorData.DIGITAL[17] = (readData[1] >> 3) & 0x01;	
                 self.sensorData.DIGITAL[18] = (readData[1] >> 4) & 0x01;
                 self.sensorData.DIGITAL[19] = (readData[1] >> 5) & 0x01;
+                self.sensorData.DIGITAL[20] = (readData[1] >> 6) & 0x01;
+                self.sensorData.DIGITAL[21] = (readData[1] >> 7) & 0x01;
 
                 self.sensorData.ANALOG[0] = readData[3];
                 self.sensorData.ANALOG[1] = readData[4];
