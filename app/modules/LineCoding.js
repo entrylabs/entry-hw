@@ -625,6 +625,9 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {   /// 출력 
             break;
 
         case this.sensorTypes.LINE_WHEEL:   // wheel
+        case this.sensorTypes.LINE_FFMOTOR:
+        case this.sensorTypes.LINE_BBMOTOR:
+        case this.sensorTypes.LINE_MOTORSTOP:    
             buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.SET, 
             device, port, data.lspeed, data.rspeed]);
             buffer = Buffer.concat([buffer, dummy]);
