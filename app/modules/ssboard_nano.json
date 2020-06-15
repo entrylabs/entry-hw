@@ -32,7 +32,7 @@
     "hardware": {
         "type": "serial",
         "control": "slave",
-        "duration": 1000,
+        "duration": 100,
         "lostTimer": 1000,
         "vendor": "",
         "baudRate": 115200
