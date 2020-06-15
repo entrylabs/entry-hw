@@ -1,9 +1,9 @@
 import fs from 'fs';
 import path from 'path';
-import { cloneDeep, merge, unionWith } from 'lodash';
+import {cloneDeep, merge, unionWith} from 'lodash';
 import lt from 'semver/functions/lt';
 import valid from 'semver/functions/valid';
-import { AvailableTypes } from '../../common/constants';
+import {AvailableTypes} from '../../common/constants';
 import getModuleList from './functions/getModuleList';
 import createLogger from '../electron/functions/createLogger';
 import directoryPaths from './directoryPaths';
@@ -12,8 +12,8 @@ import MainRouter from '../mainRouter';
 const logger = createLogger('core/hardwareListManager.ts');
 
 const nameSortComparator = (left: IHardwareConfig, right: IHardwareConfig) => {
-    const lName = left.name.ko.trim();
-    const rName = right.name.ko.trim();
+    const lName = left.name?.ko?.trim() || left.name;
+    const rName = right.name?.ko?.trim() || left.name;
 
     if (lName > rName) {
         return 1;

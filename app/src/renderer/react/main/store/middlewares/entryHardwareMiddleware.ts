@@ -17,6 +17,7 @@ import {
     changePortList,
     changeVisiblePortList,
     FIRMWARE_INSTALL_REQUESTED,
+    HANDSHAKE_PAYLOAD_SET,
     HARDWARE_SELECTED,
     PORT_SELECTED,
 } from '../modules/connection';
@@ -32,104 +33,118 @@ const entryHardwareMiddleware: Middleware = ({ getState }: { getState: () => ISt
     const { type, payload } = action; // currentAction
 
     switch (type) {
-        case CATEGORY_CHANGED: {
-            next(action);
-            const { hardware } = getState();
-            const { hardwareFilterKeyword, hardwareFilterCategory } = hardware;
-            const hardwareList = filterHardwareList(
-                hardwareFilterKeyword,
+    case CATEGORY_CHANGED: {
+        next(action);
+        const { hardware } = getState();
+        const { hardwareFilterKeyword, hardwareFilterCategory } = hardware;
+        const hardwareList = filterHardwareList(
+            hardwareFilterKeyword,
+            hardwareFilterCategory,
+            rendererRouter.hardwareList,
+        );
+        changeHardwareList(next)(hardwareList);
+        break;
+    }
+    case HARDWARE_SEARCH_KEYWORD_CHANGED: {
+        const { hardware } = getState();
+        const { hardwareFilterCategory } = hardware;
+        const { payload: keyword } = action;
+
+        new Promise<IHardwareConfig[]>(resolve => {
+            resolve(filterHardwareList(
+                keyword,
                 hardwareFilterCategory,
                 rendererRouter.hardwareList,
-            );
+            ));
+        }).then((hardwareList) => {
             changeHardwareList(next)(hardwareList);
-            break;
-        }
-        case HARDWARE_SEARCH_KEYWORD_CHANGED: {
-            const { hardware } = getState();
-            const { hardwareFilterCategory } = hardware;
-            const { payload: keyword } = action;
-            
-            new Promise<IHardwareConfig[]>(resolve => {
-                resolve(filterHardwareList(
-                    keyword,
-                    hardwareFilterCategory,
-                    rendererRouter.hardwareList,
-                ))
-            }).then((hardwareList) => {
-                changeHardwareList(next)(hardwareList);
-            });
-            next(action);
-            break;
-        }
-        case CURRENT_PAGE_STATE_CHANGED: {
-            const { payload: nextState } = action;
-            if (nextState === HardwarePageStateEnum.list) {
-                rendererRouter.close();
-                //NOTE resetHardwareList 를 쓰고자 했는데 안먹힌다. 왤까?
-                changeHardwareList(next)(rendererRouter.hardwareList);
-                changePortList(next)([]);
-            }
-            next(action);
-            break;
-        }
-        case HARDWARE_SELECTED: {
-            const { payload: hardware } = action;
-            // noinspection JSIgnoredPromiseFromCall
-            if (hardware.name && hardware.name.ko) {
-                refreshPriorHardwareList(hardware.name.ko);
-            }
-
-            rendererRouter.startScan(hardware);
-            next(action);
-            break;
-        }
-        case HARDWARE_LIST_RESET: {
+        });
+        next(action);
+        break;
+    }
+    case CURRENT_PAGE_STATE_CHANGED: {
+        const { payload: nextState } = action;
+        if (nextState === HardwarePageStateEnum.list) {
+            rendererRouter.close();
+            //NOTE resetHardwareList 를 쓰고자 했는데 안먹힌다. 왤까?
             changeHardwareList(next)(rendererRouter.hardwareList);
-            break;
+            changePortList(next)([]);
         }
-        case PORT_SELECTED: {
-            rendererRouter.sendSelectedPort(action.payload);
-            next(action);
-            break;
+        next(action);
+        break;
+    }
+    case HARDWARE_SELECTED: {
+        const { payload: hardware } = action;
+        // noinspection JSIgnoredPromiseFromCall
+        if (hardware.name && hardware.name.ko) {
+            refreshPriorHardwareList(hardware.name.ko);
         }
-        case FIRMWARE_INSTALL_REQUESTED: {
-            const { common } = getState();
-            const { moduleState } = common;
 
-            if (
-                action.payload.type !== 'copy' &&
+        rendererRouter.startScan(hardware);
+        next(action);
+        break;
+    }
+    case HARDWARE_LIST_RESET: {
+        changeHardwareList(next)(rendererRouter.hardwareList);
+        break;
+    }
+    case PORT_SELECTED: {
+        rendererRouter.sendSelectedPort(action.payload);
+        next(action);
+        break;
+    }
+    case HANDSHAKE_PAYLOAD_SET: {
+        const value = action.payload;
+        if (value) {
+            rendererRouter.sendHandshakePayload(action.payload);
+        } else {
+            changeAlertMessage(next)({
+                message: '값이 읎는데요 선생님',
+                duration: 1000,
+            });
+        }
+
+        next(action);
+        break;
+    }
+    case FIRMWARE_INSTALL_REQUESTED: {
+        const { common } = getState();
+        const { moduleState } = common;
+
+        if (
+            action.payload.type !== 'copy' &&
                 moduleState !== HardwareStatement.beforeConnect &&
                 moduleState !== HardwareStatement.connected
-            ) {
-                alert(translator.translate('Hardware Device Is Not Connected'));
-            } else {
-                rendererRouter.requestFlash(action.payload)
-                    .then(() => {
-                        changeAlertMessage(next)({
-                            message: translator.translate('Firmware Uploaded!'),
-                            duration: 1000,
-                        });
-                    })
-                    .catch(() => {
-                        changeAlertMessage(next)({
-                            message: translator.translate('Failed Firmware Upload'),
-                        });
-                    })
-                    .finally(() => {
-                        if (action.payload.type === 'copy') {
-                            changeVisiblePortList(next)(false);
-                        }
+        ) {
+            alert(translator.translate('Hardware Device Is Not Connected'));
+        } else {
+            rendererRouter.requestFlash(action.payload)
+                .then(() => {
+                    changeAlertMessage(next)({
+                        message: translator.translate('Firmware Uploaded!'),
+                        duration: 1000,
                     });
-            }
-            break;
+                })
+                .catch(() => {
+                    changeAlertMessage(next)({
+                        message: translator.translate('Failed Firmware Upload'),
+                    });
+                })
+                .finally(() => {
+                    if (action.payload.type === 'copy') {
+                        changeVisiblePortList(next)(false);
+                    }
+                });
         }
-        case HARDWARE_MODULE_DOWNLOAD_REQUESTED: {
-            await rendererRouter.requestDownloadModule(payload);
-            changeHardwareList(next)(rendererRouter.hardwareList);
-            break;
-        }
-        default:
-            next(action);
+        break;
+    }
+    case HARDWARE_MODULE_DOWNLOAD_REQUESTED: {
+        await rendererRouter.requestDownloadModule(payload);
+        changeHardwareList(next)(rendererRouter.hardwareList);
+        break;
+    }
+    default:
+        next(action);
     }
 };
 

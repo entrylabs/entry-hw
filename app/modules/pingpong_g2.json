@@ -19,6 +19,12 @@
     ],
     "reconnect": true,
     "selectPort": true,
+    "handshake": {
+        "type": "digit",
+        "message": {
+            "default": "연결할 그룹 번호를 입력해 주세요. (지정된 그룹 번호가 없다면 '00' 으로 입력해 주세요)"
+        }
+    },
     "hardware": {
         "type": "bluetooth",
         "control": "slave",

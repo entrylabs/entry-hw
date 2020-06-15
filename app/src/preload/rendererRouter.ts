@@ -1,6 +1,6 @@
-import { ipcRenderer, remote, shell } from 'electron';
+import {ipcRenderer, remote, shell} from 'electron';
 import path from 'path';
-import { HardwareStatement, RunningModeTypes } from '../common/constants';
+import {HardwareStatement, RunningModeTypes} from '../common/constants';
 
 /**
  * 렌더러 비즈니스로직을 담은 클래스.
@@ -64,6 +64,11 @@ class RendererRouter {
 
     sendSelectedPort(portName: string) {
         ipcRenderer.send('selectPort', portName);
+    }
+
+    sendHandshakePayload(payload: string) {
+        console.log('sendHandShakePayload', payload);
+        ipcRenderer.send('handshakePayload', payload);
     }
 
     requestOpenAboutWindow() {
@@ -143,9 +148,8 @@ class RendererRouter {
         const routerHardwareList = this.getHardwareListSync();
         this.priorHardwareList.forEach((target, index) => {
             const currentIndex = routerHardwareList.findIndex((item) => {
-                const itemName =
-                    item.name && item.name.ko ? item.name.ko : item.name;
-                return itemName === target;
+                const itemName = item.name?.ko || item.name;
+                return itemName === target.name?.ko || target.name;
             });
             if (currentIndex > -1) {
                 const temp = routerHardwareList[currentIndex];

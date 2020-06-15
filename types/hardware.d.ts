@@ -6,7 +6,7 @@ declare interface IHardwareModule {
     // 디바이스 데이터 송수신 라이프사이클
 
     // TODO serialport or undefined 를 어떻게 처리해야하나?
-    requestInitialData: (serialPort?: any) => any;
+    requestInitialData: (serialPort?: any, payload?: string) => any;
     checkInitialData: (data: any, options: IHardwareModuleConfig) => boolean | undefined;
     requestRemoteData: (handler: any) => void;
     handleRemoteData?: (handler: any) => void;

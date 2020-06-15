@@ -7,7 +7,6 @@ import { Provider } from 'react-redux';
 import store from './store';
 import GlobalStyle from './GlobalStyle';
 import IpcRendererWatchComponent from './components/IpcRendererWatchComponent';
-import GlobalEventListener from './GlobalEventListener';
 import makeConsoleAsciiArt from './functions/makeConsoleAsciiArt';
 
 const { rendererRouter } = window;
@@ -21,7 +20,6 @@ ReactDOM.render(
             <Main/>
             <Footer/>
             <GlobalStyle/>
-            <GlobalEventListener/>
         </Provider>
     </>,
     document.getElementById('__main'),
