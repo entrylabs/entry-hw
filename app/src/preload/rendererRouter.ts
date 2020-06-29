@@ -1,6 +1,6 @@
-import {ipcRenderer, remote, shell} from 'electron';
+import { ipcRenderer, remote, shell } from 'electron';
 import path from 'path';
-import {HardwareStatement, RunningModeTypes} from '../common/constants';
+import { HardwareStatement, RunningModeTypes } from '../common/constants';
 
 /**
  * 렌더러 비즈니스로직을 담은 클래스.
@@ -22,7 +22,7 @@ class RendererRouter {
             : path.join(__dirname, '..', '..', 'modules');
     }
 
-    get priorHardwareList(): IHardwareConfig[] {
+    get priorHardwareList(): string[] {
         return (JSON.parse(localStorage.getItem('hardwareList') as string) || []).reverse();
     }
 
@@ -149,7 +149,7 @@ class RendererRouter {
         this.priorHardwareList.forEach((target, index) => {
             const currentIndex = routerHardwareList.findIndex((item) => {
                 const itemName = item.name?.ko || item.name;
-                return itemName === target.name?.ko || target.name;
+                return itemName === target;
             });
             if (currentIndex > -1) {
                 const temp = routerHardwareList[currentIndex];
