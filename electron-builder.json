@@ -1,6 +1,6 @@
 {
     "mac": {
-        "target": "dmg",
+        "target": "dir",
         "category": "public.app-category.education",
         "identity": "Connect Foundation (DLFUSDA3L5)",
         "hardenedRuntime": true,
@@ -25,8 +25,11 @@
                 }
             ]
         },
-        "files": [
-            "app/server/mac/server.txt"
+        "extraResources": [
+            {
+                "from": "app/server/mac/server.txt",
+                "to": ""
+            }
         ]
     },
     "dmg": {
@@ -54,10 +57,6 @@
         ]
     },
     "files": [
-        "app/modules",
-        "app/firmwares",
-        "app/drivers",
-        "config",
         "app/src/index.bundle.js",
         "app/src/main/mainRouter.build.*",
         "app/src/main/nativeNodeRequire.js",
@@ -70,7 +69,22 @@
         "app/OPENSOURCE.md",
         "package.json"
     ],
-    "asar": false,
+    "extraResources": [
+        "config",
+        {
+            "from": "app/modules",
+            "to": "modules"
+        },
+        {
+            "from": "app/firmwares",
+            "to": "firmwares"
+        },
+        {
+            "from": "app/drivers",
+            "to": "drivers"
+        }
+    ],
+    "asar": true,
     "compression": "maximum",
     "appId": "org.playentry.entryhw",
     "productName": "Entry_HW",
