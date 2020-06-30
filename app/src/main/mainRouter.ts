@@ -436,7 +436,7 @@ class MainRouter {
             return;
         }
 
-        const driverFullPath = path.resolve(__dirname, '..', '..', 'drivers', driverPath);
+        const driverFullPath = path.join(directoryPaths.modules, driverPath);;
         logger.info(`execute driver requested. filePath : ${driverFullPath}`);
         shell.openItem(driverFullPath);
     }

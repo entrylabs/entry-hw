@@ -52,8 +52,11 @@
     },
     "win": {
         "target": "dir",
-        "files": [
-            "app/server/win/server.exe"
+        "extraResources": [
+            {
+                "from": "app/server/win/server.exe",
+                "to": ""
+            }
         ]
     },
     "files": [

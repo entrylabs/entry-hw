@@ -9,7 +9,7 @@ import os from 'os';
 const isAsarPacked = (() => app.getAppPath().indexOf('app.asar') > -1)();
 
 // project's app directory path
-// development: /Users/user/entry_projects/entry-hw/app/src (index.bundle.js path)
+// development: /Users/user/entry_projects/entry-hw/app
 // production: /Users/user/entry_projects/entry-hw/dist/mac/Entry_HW.app/Contents/Resources/app.asar
 const rootAppPath = (() => (isAsarPacked
     ? path.join(app.getAppPath(), 'app')
@@ -26,10 +26,6 @@ export default {
         const isMacOS = os.type().includes('Darwin');
         const subDirPath = isMacOS ? 'mac' : 'win';
         const fileName = isMacOS ? 'server.txt' : 'server.exe';
-
-        console.log(isAsarPacked
-            ? path.join(rootAppPath, '..', fileName)
-            : path.join(rootAppPath, 'server', subDirPath, fileName));
 
         return isAsarPacked
             ? path.join(rootAppPath, '..', '..', fileName)
