@@ -80,7 +80,8 @@
         },
         {
             "from": "app/firmwares",
-            "to": "firmwares"
+            "to": "firmwares",
+            "filter": ["!examples/"]
         },
         {
             "from": "app/drivers",
