@@ -1,10 +1,9 @@
 import React from 'react';
 import Styled from 'styled-components';
-import withPreload from '../../hoc/withPreload';
-import { IMapDispatchToProps } from '../../store';
 import { toggleLicenseView } from '../../store/modules/common';
-import { connect } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import Logo from '../../../../images/logo.png';
+import usePreload from '../../hooks/usePreload';
 
 const FooterContainer = Styled.div`
     flex: none;
@@ -34,14 +33,16 @@ const OpenSourceLabel = Styled.div`
     float: right;
 `;
 
-const Footer: React.FC<Preload & IDispatchProps> = (props) => {
-    const { translator } = props;
+const Footer: React.FC = () => {
+    const { translator, rendererRouter } = usePreload();
+    const dispatch = useDispatch();
+
     return (
         <FooterContainer>
             <VersionLabel
                 id="version_label"
                 onClick={() => {
-                    props.rendererRouter.requestOpenAboutWindow();
+                    rendererRouter.requestOpenAboutWindow();
                 }}
             >
                 {translator.translate('Version Info')}
@@ -49,7 +50,7 @@ const Footer: React.FC<Preload & IDispatchProps> = (props) => {
             <OpenSourceLabel
                 id="opensource_label"
                 onClick={() => {
-                    props.showLicenseView();
+                    toggleLicenseView(dispatch)(true);
                 }}
             >
                 {translator.translate('Opensource lincense')}
@@ -58,13 +59,4 @@ const Footer: React.FC<Preload & IDispatchProps> = (props) => {
     );
 };
 
-
-interface IDispatchProps {
-    showLicenseView: () => void;
-}
-
-const mapDispatchToProps: IMapDispatchToProps<IDispatchProps> = (dispatch) => ({
-    showLicenseView: () => toggleLicenseView(dispatch)(true),
-});
-
-export default connect(undefined, mapDispatchToProps)(withPreload(Footer));
+export default Footer;

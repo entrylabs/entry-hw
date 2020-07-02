@@ -1,8 +1,7 @@
 import React, { useCallback } from 'react';
 import Styled from 'styled-components';
-import withPreload from '../../hoc/withPreload';
-import { connect } from 'react-redux';
-import { IMapDispatchToProps, IMapStateToProps } from '../../store';
+import { useDispatch, useSelector } from 'react-redux';
+import { IStoreState } from '../../store';
 import { HardwarePageStateEnum } from '../../constants/constants';
 import { changeCurrentPageState } from '../../store/modules/common';
 
@@ -12,9 +11,9 @@ import backButtonOffImage from '../../../../images/btn_back_off.png';
 
 import refreshButtonOnImage from '../../../../images/btn_refresh_on.png';
 import refreshButtonOffImage from '../../../../images/btn_refresh_off.png';
+import usePreload from '../../hooks/usePreload';
 
 const NavigatorContainer = Styled.div`
-    padding-top: 15px;
     width: 100px;
     margin: 0;
 `;
@@ -34,9 +33,12 @@ const NavigatorButton = Styled.button<{ dimImage: string, enabledImage: string, 
     }
 `;
 
-const Navigator: React.FC<IStateProps & IDispatchProps & Preload> = (props) => {
+const Navigator: React.FC = () => {
+    const currentState = useSelector<IStoreState>(state => state.common.currentPageState);
+    const dispatch = useDispatch();
+    const { translator, rendererRouter } = usePreload();
+
     const onRefreshClicked = useCallback(() => {
-        const { translator, rendererRouter } = props;
         if (
             confirm(translator.translate('Do you want to restart the program?'))
         ) {
@@ -44,7 +46,7 @@ const Navigator: React.FC<IStateProps & IDispatchProps & Preload> = (props) => {
         }
     }, []);
     const onBackClicked = useCallback(() => {
-        props.changeCurrentPageState(HardwarePageStateEnum.list);
+        changeCurrentPageState(dispatch)(HardwarePageStateEnum.list);
     }, []);
 
     return (
@@ -55,9 +57,9 @@ const Navigator: React.FC<IStateProps & IDispatchProps & Preload> = (props) => {
                 enabledImage={backButtonOnImage}
                 disabledImage={backButtonOffImage}
                 onClick={() => {
-                    props.currentState !== HardwarePageStateEnum.list && onBackClicked();
+                    currentState !== HardwarePageStateEnum.list && onBackClicked();
                 }}
-                className={props.currentState !== HardwarePageStateEnum.list ? 'active' : ''}
+                className={currentState !== HardwarePageStateEnum.list ? 'active' : ''}
             />
             <NavigatorButton
                 dimImage={refreshButtonOffImage}
@@ -69,20 +71,4 @@ const Navigator: React.FC<IStateProps & IDispatchProps & Preload> = (props) => {
     );
 };
 
-interface IStateProps {
-    currentState: HardwarePageStateEnum;
-}
-
-const mapStateToProps: IMapStateToProps<IStateProps> = (state) => ({
-    currentState: state.common.currentPageState,
-});
-
-interface IDispatchProps {
-    changeCurrentPageState: (category: HardwarePageStateEnum) => void;
-}
-
-const mapDispatchToProps: IMapDispatchToProps<IDispatchProps> = (dispatch) => ({
-    changeCurrentPageState: changeCurrentPageState(dispatch),
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(withPreload(Navigator));
+export default Navigator;

@@ -71,7 +71,8 @@
         "camelcase": ["warn", { "properties": "never" }],
         "new-cap": ["warn", { "capIsNewExceptionPattern": "^Entry." }],
         "curly": "warn",
-        "keyword-spacing": "warn"
+        "keyword-spacing": "warn",
+        "indent": ["warn", 4]
     },
     "overrides": [
         {

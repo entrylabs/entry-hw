@@ -1,8 +1,10 @@
 import React from 'react';
+import { useSelector } from 'react-redux';
+import { IStoreState } from '../../store';
 import { range } from 'lodash';
-import Styled from 'styled-components';
+import styled from 'styled-components';
 
-const ProgressContainer = Styled.div`
+const ProgressContainer = styled.div`
     width: 137px;
     margin-right: -7px;
     padding-top: 22px;
@@ -12,7 +14,7 @@ const ProgressContainer = Styled.div`
     vertical-align: top;
 `;
 
-const ProgressDot = Styled.div`
+const ProgressDot = styled.div`
     width: 10px;
     height: 10px;
     border-radius: 5px;
@@ -22,7 +24,16 @@ const ProgressDot = Styled.div`
     margin-bottom: 33px;
 `;
 
-export default () => (
+const DotProgressPanel: React.FC = () => {
+    const selectedHardware = useSelector<IStoreState, IHardwareConfig | undefined>(
+        state => state.connection.selectedHardware,
+    );
+
+    if (!selectedHardware) {
+        return <></>;
+    }
+
+    return (
         <ProgressContainer>
             {
                 range(16)
@@ -32,3 +43,6 @@ export default () => (
             }
         </ProgressContainer>
     );
+};
+
+export default DotProgressPanel;
