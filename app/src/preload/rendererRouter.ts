@@ -18,7 +18,7 @@ class RendererRouter {
 
     get baseModulePath() {
         return process.env.NODE_ENV === 'production'
-            ? path.join(__dirname, '..', '..', 'modules')
+            ? path.join(__dirname, '..', '..', '..', '..', 'modules')
             : path.join(__dirname, '..', '..', 'modules');
     }
 
