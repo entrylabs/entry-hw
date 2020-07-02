@@ -48,7 +48,11 @@ function getFileConfig(configName = 'entry') {
 export default (cmdConfig: ICommandLineConfig) => {
     const { config = 'entry', lang } = cmdConfig;
     const externalConfig = getFileConfig(config);
-    const locale = (lang || externalConfig.language || app.getLocale()).substr(0, 2);
+    let locale = (lang || externalConfig.language || app.getLocale()).substr(0, 2);
+
+    if (locale === 'ja') {
+        locale = 'jp';
+    }
 
     const mergedConfig = merge({},
         internalConfig, { language: locale },
