@@ -1,6 +1,6 @@
 {
     "mac": {
-        "target": "dmg",
+        "target": "pkg",
         "category": "public.app-category.education",
         "identity": "Connect Foundation (DLFUSDA3L5)",
         "hardenedRuntime": true,
@@ -27,24 +27,6 @@
         },
         "files": [
             "app/server/mac/server.txt"
-        ]
-    },
-    "dmg": {
-        "icon": "build/icon.icns",
-        "iconSize": 80,
-        "sign": false,
-        "background": "build/background.png",
-        "contents": [
-            {
-                "x": 240,
-                "y": 120
-            },
-            {
-                "x": 240,
-                "y": 380,
-                "type": "link",
-                "path": "/Applications"
-            }
         ]
     },
     "win": {
@@ -74,5 +56,6 @@
     "compression": "maximum",
     "appId": "org.playentry.entryhw",
     "productName": "Entry_HW",
-    "afterSign": "scripts/notarize.js"
+    "afterSign": "scripts/notarize_app.js",
+    "afterAllArtifactBuild": "scripts/notarize_installer.js"
 }
