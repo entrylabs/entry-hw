@@ -29,6 +29,10 @@
             {
                 "from": "app/server/mac/server.txt",
                 "to": ""
+            },
+            {
+                "from": "app/validator/mac/validator.txt",
+                "to": ""
             }
         ]
     },

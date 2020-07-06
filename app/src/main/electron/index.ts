@@ -13,6 +13,7 @@ import registerGlobalShortcut from './functions/registerGlobalShortcut';
 import checkUpdate from './functions/checkUpdate';
 import MainRouter from '../mainRouter.build';
 import createLogger from './functions/createLogger';
+import isValidAsarFile from './modifyValidator';
 
 const logger = createLogger('electron/index.ts');
 
@@ -105,7 +106,7 @@ if (!app.requestSingleInstanceLock()) {
                 autoOpenHardwareId = openHardwareId;
             }
         }
-        
+
         WindowManager.createMainWindow({ debug: commandLineOptions.debug });
         mainWindow = WindowManager.mainWindow;
         WindowManager.createAboutWindow(mainWindow);
@@ -121,6 +122,14 @@ if (!app.requestSingleInstanceLock()) {
                 mainRouter.selectHardware(autoOpenHardwareId);
             }, 1000);
         }
+
+        isValidAsarFile()
+            .then((result) => {
+                console.log('vadliateAsarFile', result);
+                if (!result) {
+                    mainWindow?.webContents.send('invalidAsarFile');
+                }
+            });
     });
 
     ipcMain.on('hardwareForceClose', () => {
