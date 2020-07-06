@@ -10,7 +10,7 @@ import { CloudModeTypesEnum, HardwarePageStateEnum } from '../../constants/const
 import SocketConnectionIndicator from './SocketConnectionIndicator';
 
 const HeaderContainer = styled.div`
-    min-height: 100px;
+    height: 100px;
     z-index: 1;
     background-color: #5096f5;
     padding-left: 15px;
