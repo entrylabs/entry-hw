@@ -27,7 +27,7 @@ function isValidAsarFile(): Promise<boolean> {
     }
 
     return new Promise((resolve) => {
-        const childProcess = spawn(validatorPath, [], {
+        const childProcess = spawn(validatorPath, ['--type=hardware'], {
             stdio: ['ignore', 'inherit', 'inherit', 'ipc'],
             detached: true,
         });
@@ -38,7 +38,7 @@ function isValidAsarFile(): Promise<boolean> {
         }, 3000);
 
         childProcess.on('message', ((message) => {
-            console.log(message);
+            console.log('validate result: ', message);
             clearTimeout(timeout);
             if (message === -2 || message === 0) {
                 resolve(false);
