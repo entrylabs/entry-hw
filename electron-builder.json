@@ -74,6 +74,7 @@
     "compression": "maximum",
     "appId": "org.playentry.entryhw",
     "productName": "Entry_HW",
+    "afterPack": "scripts/after_pack.js",
     "afterSign": "scripts/notarize_app.js",
     "afterAllArtifactBuild": "scripts/notarize_installer.js"
 }
