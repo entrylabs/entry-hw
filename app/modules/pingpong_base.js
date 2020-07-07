@@ -15,6 +15,7 @@ class PingpongBase extends BaseModule {
         this.useNotification = false;
 
         this.cubeCount = cubeCnt || 2;
+        this.checkBuffer = null;
 
         console.log('PINGPONG construct : G%d', this.cubeCount);
     }
@@ -59,6 +60,8 @@ class PingpongBase extends BaseModule {
         return result;
     }
 
+    isPingpongConnected(packet) {}
+
     setSerialPort(sp) {
         this.sp = sp;
     }
@@ -77,7 +80,7 @@ class PingpongBase extends BaseModule {
 
     dbgHexstr(data) {
         let output = '';
-        data.map(item => {
+        data.map((item) => {
             let number = item.toString(16);
             if (number.length < 2) {
                 number = `0${number}`;
@@ -87,11 +90,36 @@ class PingpongBase extends BaseModule {
         return output;
     }
 
-    /*
     // 연결 후 초기에 수신받아서 정상연결인지를 확인해야하는 경우 사용합니다.
     checkInitialData(data, config) {
+        console.log('P:checkInitialData: /  data(%d)', data.length);
+
+        if (this.checkBuffer) {
+            this.checkBuffer = Buffer.concat([this.checkBuffer, data]);
+        } else {
+            this.checkBuffer = Buffer.from(data);
+        }
+
+        let payload = this.checkBuffer;
+
+        if (payload.length >= 9) {
+            const packetSize = payload.readInt16BE(7);
+            if (payload.length >= packetSize) {
+                const packet = payload.slice(0, packetSize);
+                console.log('PACKET: ', packetSize);
+
+                if (this.isPingpongConnected(packet) == true) {
+                    console.info('checkInitialData(): all cube connected!');
+                    return true;
+                }
+
+                // skip this packet
+                this.checkBuffer = Buffer.from(payload.slice(packetSize));
+                console.log('After skip: ', this.checkBuffer);
+                return;
+            }
+        }
     }
-	*/
 
     // optional. 하드웨어에서 받은 데이터의 검증이 필요한 경우 사용합니다.
     validateLocalData(data) {
@@ -183,7 +211,7 @@ class PingpongBase extends BaseModule {
     requestRemoteData(handler) {
         //console.log('P:request RD: ');
         const self = this;
-        Object.keys(this.readValue).forEach(key => {
+        Object.keys(this.readValue).forEach((key) => {
             if (self.readValue[key] !== undefined) {
                 handler.write(key, self.readValue[key]);
             }
@@ -192,7 +220,7 @@ class PingpongBase extends BaseModule {
         //XXX: entryjs의 monitorTemplate 사용하려면 트리상단에 PORT 정보 보내야함
         for (let cubeid = 0; cubeid < this.cubeCount; cubeid++) {
             const sdata = this._sensorData[cubeid];
-            Object.keys(sdata).forEach(key => {
+            Object.keys(sdata).forEach((key) => {
                 if (sdata[key] !== undefined) {
                     //console.log(" --handler.write (%s) = %j ", key, self._sensorData[key]);
                     handler.write(`c${cubeid.toString()}_${key}`, sdata[key]);
@@ -205,7 +233,7 @@ class PingpongBase extends BaseModule {
         console.log('P: connect: ');
 
         setTimeout(() => {
-            this.sp.write(this.makePackets('getSensorData'), err => {
+            this.sp.write(this.makePackets('getSensorData'), (err) => {
                 console.log('done.........');
             });
         }, 500);
@@ -222,7 +250,7 @@ class PingpongBase extends BaseModule {
             // getSensor disable
             //this.sp.write( Buffer.from('ffffffff00c8b8000b0001', 'hex') );
 
-            this.sp.write(this.makePackets('disconnect'), err => {
+            this.sp.write(this.makePackets('disconnect'), (err) => {
                 if (this.sp.isOpen) {
                     console.log('Disconnect');
                     connect.close();
