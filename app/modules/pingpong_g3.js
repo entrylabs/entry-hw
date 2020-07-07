@@ -41,17 +41,18 @@ class PingpongG3 extends PingpongBase {
         ];
     }
 
-    checkInitialData(data, config) {
-        console.log('P:checkInitialData: /  data(%d)', data.length);
+    isPingpongConnected(packet) {
+        console.log('check packet: ', packet[6].toString(16), packet);
 
-        if (data.length >= 18) {
-            if (data[6] == 0xad || data[6] == 0xae) {
-                if (data[11] == 0x01 && data[12] == 0x02) {
-                    console.log('checkinit: all cube connected!');
+        if (packet.length >= 18) {
+            const opcode = packet[6];
+            if (opcode == 0xad || opcode == 0xae) {
+                if (packet[11] == 0x01 && packet[12] == 0x02) {
                     return true;
                 }
             }
         }
+        return false;
     }
 }
 
