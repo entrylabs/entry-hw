@@ -35,30 +35,18 @@ npm install --global --production windows-build-tools
 npm install --global node-gyp
 ```
 
+## CommandLine arguments
+
+프로그램 실행시 인자를 추가하는 것으로 프로그램 설정을 변경할 수 있습니다.
+
+- --debug (-d, default = false): 프로그램 실행시 개발자콘솔(devtool) 이 같이 오픈됩니다.
+- --config (-c, default = 'entry'): config 파일 명칭을 선택합니다. 위치는 \<projectPath\>/config/config.${name}.json 입니다.
+- --lang (-l): locale 을 설정할 수 있습니다. 기본적으로 ko, en, jp 를 지원합니다. 코드 기여를 통해 타 다국어를 지원하게 만들 수 있습니다.
+  - lang 은 기본적으로 OS 의 locale 값을 따릅니다. 
 ## Entry Hardware Full Documentation
 
 [Entry Docs](https://entrylabs.github.io/docs/guide/entry-hw/2016-05-01-getting_started.html)
 
 ## Copyright and License
 
-The MIT License (MIT)
-
-Copyright(c) 2018 CONNECT.
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+[The MIT License (MIT)](https://github.com/entrylabs/entry-hw/blob/master/LICENSE)
