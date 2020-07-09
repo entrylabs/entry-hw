@@ -42,6 +42,10 @@
             {
                 "from": "app/server/win/server.exe",
                 "to": ""
+            },
+            {
+                "from": "app/validator/win/validator.exe",
+                "to": ""
             }
         ]
     },
