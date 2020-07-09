@@ -123,13 +123,17 @@ if (!app.requestSingleInstanceLock()) {
             }, 1000);
         }
 
-        isValidAsarFile()
-            .then((result) => {
-                console.log('vadliateAsarFile', result);
+        setTimeout(async () => {
+            try {
+                const result = await isValidAsarFile();
                 if (!result) {
                     mainWindow?.webContents.send('invalidAsarFile');
                 }
-            });
+            } catch (e) {
+                console.log(e);
+                mainWindow?.webContents.send('invalidAsarFile');
+            }
+        }, 2000);
     });
 
     ipcMain.on('hardwareForceClose', () => {

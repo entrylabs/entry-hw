@@ -2,7 +2,7 @@ import { AnyAction } from 'redux';
 import produce from 'immer';
 import { HardwareStatement } from '../../../../../common/constants';
 import { CategoryTypeEnum, CloudModeTypesEnum, HardwarePageStateEnum } from '../../constants/constants';
-import { makePayloadAction } from '../../functions/makeAction';
+import { makeAction, makePayloadAction } from '../../functions/makeAction';
 
 const { translator, ipcRenderer } = window;
 
@@ -16,6 +16,7 @@ export interface ICommonState {
     isLicenseShow: boolean;
     isCloudMode: CloudModeTypesEnum;
     isSocketConnected: boolean;
+    isInvalidBuild: boolean;
 }
 
 export interface IAlertMessage {
@@ -31,6 +32,7 @@ export const CLOUD_MODE_CHANGED = 'common/CLOUD_MODE_CHANGED';
 export const ALERT_MESSAGE_CHANGED = 'common/ALERT_MESSAGE_CHANGED';
 export const MODULE_STATE_CHANGED = 'common/MODULE_STATE_CHANGED';
 export const SOCKET_CONNECT_STATE_CHANGED = 'common/SOCKET_CONNECT_STATE_CHANGED';
+export const BUILD_INVALIDATED = 'common/BUILD_INVALIDATED';
 
 // actions
 export const toggleLicenseView = makePayloadAction<boolean>(LICENSE_VIEW_TOGGLE);
@@ -40,6 +42,7 @@ export const changeStateTitle = makePayloadAction<string>(STATE_TITLE_CHANGED);
 export const changeAlertMessage = makePayloadAction<IAlertMessage>(ALERT_MESSAGE_CHANGED);
 export const changeHardwareModuleState = makePayloadAction<HardwareStatement>(MODULE_STATE_CHANGED);
 export const changeSocketConnectionState = makePayloadAction<boolean>(SOCKET_CONNECT_STATE_CHANGED);
+export const invalidateBuild = makeAction(BUILD_INVALIDATED);
 
 // reducer
 const initialState: ICommonState = {
@@ -50,10 +53,15 @@ const initialState: ICommonState = {
     isLicenseShow: false,
     isCloudMode: ipcRenderer.sendSync('getCurrentCloudModeSync'),
     isSocketConnected: false,
+    isInvalidBuild: false,
 };
 
 export default (state = initialState, { type, payload }: AnyAction) => {
     switch (type) {
+    case BUILD_INVALIDATED:
+        return produce(state, (nextState) => {
+            nextState.isInvalidBuild = true;
+        });
     case LICENSE_VIEW_TOGGLE:
         return produce(state, (nextState) => {
             nextState.isLicenseShow = payload;
