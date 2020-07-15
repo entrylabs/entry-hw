@@ -29,10 +29,9 @@
     },
     "hardware": {
         "type": "serial",
-        "control": "slave",
+        "control": "master",
         "duration": 100,
         "lostTimer": 5000,
-        "vendor": "",
         "baudRate": 115200
     }
 }
