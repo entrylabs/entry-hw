@@ -15,11 +15,12 @@ class PingpongBase extends BaseModule {
         this.useNotification = false;
 
         this.cubeCount = cubeCnt || 2;
+        this.checkBuffer = null;
 
         console.log('PINGPONG construct : G%d', this.cubeCount);
     }
 
-    makePackets(method) {
+    makePackets(method, grpid = 0) {
         //console.log('..make_packet: ' + method);
 
         // CUBE_ID[0:3] / ASSIGNED_ID[4:5] / OPCODE[6] / SIZE[7:8] / OPT[9..11]
@@ -27,50 +28,20 @@ class PingpongBase extends BaseModule {
 
         let result = null;
         if (method === 'connect') {
-            result = Buffer.from('dddd00000000da000b0000', 'hex');
+            result = Buffer.from([0xdd, 0xdd, grpid, 0x00, 0x00, 0x00, 0xda, 0x00, 0x0b, 0x00, 0x00]);
             //result[2] = this.groupId;
         } else if (method === 'disconnect') {
-            result = Buffer.from([
-                0xff,
-                0xff,
-                0xff,
-                0xff,
-                0x00,
-                0x00,
-                0xa8,
-                0x00,
-                0x0a,
-                0x01,
-            ]);
+            result = Buffer.from([0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0xa8, 0x00, 0x0a, 0x01]);
             //result = Buffer.from('ffffffff0000a8000a01', 'hex');
         } else if (method === 'checkdongle') {
-            result = Buffer.from([
-                0xdd,
-                0xdd,
-                0xdd,
-                0xdd,
-                0x00,
-                0x01,
-                0xda,
-                0x00,
-                0x0b,
-                0x00,
-                0x0d,
-            ]);
+            result = Buffer.from([0xdd, 0xdd, 0xdd, 0xdd, 0x00, 0x01, 0xda, 0x00, 0x0b, 0x00, 0x0d]);
         } else if (method === 'setMultirole') {
-            result = Buffer.from([
-                0xff,
-                0xff,
-                0x00,
-                0xff,
-                this.cubeCount << 4,
-                0x00,
-                0xad,
-                0x00,
-                0x0b,
-                0x0a,
-                0x00,
-            ]);
+            result = Buffer.from([0xff, 0xff, 0x00, 0xff, this.cubeCount << 4, 0x00, 0xad, 0x00, 0x0b, 0x0a, 0x00]);
+            if (grpid > 0) {
+                result[2] = grpid;
+                result[9] = 0x1a;
+                result[10] = grpid;
+            }
         } else if (method === 'getSensorData') {
             result = Buffer.from([
                 0xff,
@@ -89,19 +60,27 @@ class PingpongBase extends BaseModule {
         return result;
     }
 
+    isPingpongConnected(packet) {}
+
     setSerialPort(sp) {
         this.sp = sp;
     }
 
     // 연결 후 초기에 송신할 데이터가 필요한 경우 사용합니다.
-    requestInitialData(sp) {
+    requestInitialData(sp, payload) {
         //console.log('P:requestInitialData: ');
-        return this.makePackets('setMultirole');
+        let grpid = payload.match(/[0-7]{1,2}$/g);
+        if (grpid == null) {
+            console.warn('Wrong group id inputted', payload);
+            return null;
+        }
+        let grpno = parseInt(grpid[0], 16);
+        return this.makePackets('setMultirole', grpno);
     }
 
     dbgHexstr(data) {
         let output = '';
-        data.map(item => {
+        data.map((item) => {
             let number = item.toString(16);
             if (number.length < 2) {
                 number = `0${number}`;
@@ -111,11 +90,36 @@ class PingpongBase extends BaseModule {
         return output;
     }
 
-    /*
     // 연결 후 초기에 수신받아서 정상연결인지를 확인해야하는 경우 사용합니다.
     checkInitialData(data, config) {
+        console.log('P:checkInitialData: /  data(%d)', data.length);
+
+        if (this.checkBuffer) {
+            this.checkBuffer = Buffer.concat([this.checkBuffer, data]);
+        } else {
+            this.checkBuffer = Buffer.from(data);
+        }
+
+        let payload = this.checkBuffer;
+
+        if (payload.length >= 9) {
+            const packetSize = payload.readInt16BE(7);
+            if (payload.length >= packetSize) {
+                const packet = payload.slice(0, packetSize);
+                console.log('PACKET: ', packetSize);
+
+                if (this.isPingpongConnected(packet) == true) {
+                    console.info('checkInitialData(): all cube connected!');
+                    return true;
+                }
+
+                // skip this packet
+                this.checkBuffer = Buffer.from(payload.slice(packetSize));
+                console.log('After skip: ', this.checkBuffer);
+                return;
+            }
+        }
     }
-	*/
 
     // optional. 하드웨어에서 받은 데이터의 검증이 필요한 경우 사용합니다.
     validateLocalData(data) {
@@ -207,7 +211,7 @@ class PingpongBase extends BaseModule {
     requestRemoteData(handler) {
         //console.log('P:request RD: ');
         const self = this;
-        Object.keys(this.readValue).forEach(key => {
+        Object.keys(this.readValue).forEach((key) => {
             if (self.readValue[key] !== undefined) {
                 handler.write(key, self.readValue[key]);
             }
@@ -216,7 +220,7 @@ class PingpongBase extends BaseModule {
         //XXX: entryjs의 monitorTemplate 사용하려면 트리상단에 PORT 정보 보내야함
         for (let cubeid = 0; cubeid < this.cubeCount; cubeid++) {
             const sdata = this._sensorData[cubeid];
-            Object.keys(sdata).forEach(key => {
+            Object.keys(sdata).forEach((key) => {
                 if (sdata[key] !== undefined) {
                     //console.log(" --handler.write (%s) = %j ", key, self._sensorData[key]);
                     handler.write(`c${cubeid.toString()}_${key}`, sdata[key]);
@@ -229,7 +233,7 @@ class PingpongBase extends BaseModule {
         console.log('P: connect: ');
 
         setTimeout(() => {
-            this.sp.write(this.makePackets('getSensorData'), err => {
+            this.sp.write(this.makePackets('getSensorData'), (err) => {
                 console.log('done.........');
             });
         }, 500);
@@ -246,7 +250,7 @@ class PingpongBase extends BaseModule {
             // getSensor disable
             //this.sp.write( Buffer.from('ffffffff00c8b8000b0001', 'hex') );
 
-            this.sp.write(this.makePackets('disconnect'), err => {
+            this.sp.write(this.makePackets('disconnect'), (err) => {
                 if (this.sp.isOpen) {
                     console.log('Disconnect');
                     connect.close();

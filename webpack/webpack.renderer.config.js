@@ -21,7 +21,7 @@ module.exports = merge({
     module: {
         rules: [
             {
-                test: /\.(png|jpe?g|gif|woff)$/i,
+                test: /\.(png|jpe?g|gif|woff|svg)$/i,
                 loader: 'file-loader',
                 options: {
                     outputPath: 'resources',

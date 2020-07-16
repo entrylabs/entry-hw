@@ -1,10 +1,12 @@
-import { app } from 'electron';
 import path from 'path';
 
+const isProduction = process.env.NODE_ENV === 'production';
 // project's app directory path
-const rootAppPath = process.env.NODE_ENV === 'production'
-    ? path.join(__dirname, '..', '..', '..', 'app')
-    : path.join(__dirname, '..' ,'..');
+// development: /Users/user/entry_projects/entry-hw/app
+// production: /Users/user/entry_projects/entry-hw/dist/mac/Entry_HW.app/Contents/Resources
+const rootAppPath = isProduction
+    ? path.join(__dirname, '..', '..', '..', '..')
+    : path.join(__dirname, '..', '..');
 
 export default {
     driver: path.join(rootAppPath, 'drivers'),

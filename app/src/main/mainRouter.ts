@@ -10,6 +10,9 @@ import downloadModule from './core/functions/downloadModule';
 import { EntryMessageAction, EntryStatePayload, HardwareStatement } from '../common/constants';
 import createLogger from './electron/functions/createLogger';
 import directoryPaths from './core/directoryPaths';
+import BaseScanner from './core/baseScanner';
+import BaseConnector from './core/baseConnector';
+import SerialConnector from './core/serial/connector';
 
 const nativeNodeRequire = require('./nativeNodeRequire.js');
 const logger = createLogger('core/mainRouter.ts');
@@ -40,11 +43,12 @@ class MainRouter {
     private flasher: Flasher;
 
     public selectedPort?: string;
+    public selectedPayload?: string;
     public currentCloudMode: number = 0;
     public currentServerRunningMode: number = 2;
-    private connector?: any; // TODO typing
+    private connector?: BaseConnector;
     private config?: IHardwareConfig;
-    private scanner?: any;
+    private scanner?: BaseScanner<any>;
     private hwModule?: IHardwareModule;
     private handler?: DataHandler;
 
@@ -67,8 +71,8 @@ class MainRouter {
         entryServer.setRouter(this);
         entryServer.open();
 
-        this._resetIpcEvents();
-        this._registerIpcEvents();
+        this.resetIpcEvents();
+        this.registerIpcEvents();
         logger.verbose('mainRouter created');
     }
 
@@ -82,7 +86,7 @@ class MainRouter {
      */
     flashFirmware(firmwareName: IFirmwareInfo): Promise<IFirmwareInfo> {
         logger.info(`firmware flash requested. firmwareName: ${firmwareName}`);
-        const connectorSerialPort = this.connector && this.connector.serialPort;
+        const connectorSerialPort = this.connector && (this.connector as SerialConnector).serialPort;
         // firmware type 이 copy 인 경우는 시리얼포트를 경유하지 않으므로 체크하지 않는다.
         // 그러나 config 은 필요하다.
         if (
@@ -103,6 +107,10 @@ class MainRouter {
 
             const flashFunction: () => Promise<IFirmwareInfo> = () => new Promise((resolve, reject) => {
                 setTimeout(() => {
+                    if (!lastSerialPortCOMPort) {
+                        return reject(new Error('COM Port is not selected'));
+                    }
+
                     //연결 해제 완료시간까지 잠시 대기 후 로직 수행한다.
                     this.flasher.flash(firmware, lastSerialPortCOMPort, { baudRate, MCUType })
                         .then(([error, ...args]) => {
@@ -142,7 +150,7 @@ class MainRouter {
      */
     reconnect() {
         logger.info('try to hardware reconnection..');
-        this.close();
+        this.close({ saveConfig: true });
 
         if (this.config) {
             this.startScan(this.config);
@@ -234,7 +242,7 @@ class MainRouter {
         this.server.addRoomIdsOnSecondInstance(roomId);
     }
 
-    stopScan(option?: { saveSelectedPort: boolean }) {
+    stopScan(option?: { saveSelectedPort?: boolean }) {
         const { saveSelectedPort = false } = option || {};
         logger.info(`scan stopped. selectedPort will be ${saveSelectedPort ? 'saved' : 'undefined'}`);
 
@@ -264,9 +272,9 @@ class MainRouter {
         - flashfirmware 가 config 에 세팅되어있고,
         - 3000ms 동안 checkInitialData 가 정상적으로 이루어지지 않은 경우이다.
          */
-        if (this.config && this.config.firmware && this.connector.executeFlash) {
+        if (this.config?.firmware && this.connector?.executeFlash) {
             this.sendState(HardwareStatement.flash);
-            delete this.connector.executeFlash;
+            delete (this.connector as SerialConnector).executeFlash;
 
             logger.info('firmware flash requested by executeFlash');
             this.flashFirmware(this.config.firmware)
@@ -280,7 +288,7 @@ class MainRouter {
         }
 
         // 엔트리측, 하드웨어측이 정상적으로 준비된 경우
-        if (this.hwModule && this.server && this.config) {
+        if (this.hwModule && this.server && this.config && this.connector) {
             logger.verbose('entryServer, connector connection');
             this.handler = new DataHandler(this.config.id);
             this._connectToServer();
@@ -312,29 +320,41 @@ class MainRouter {
         this.handleServerSocketConnected();
     }
 
+    /**
+     * 엔트리와 연결된 경우 호출된다.
+     * 이미 디바이스가 연결되어있는 경우 socketReconnection 함수를 호출한다.
+     * 모듈화 디바이스가 연결되어 있는 경우 엔트리 서버에 블록모듈 로드를 요청한다.
+     */
     handleServerSocketConnected() {
         logger.info('server socket connected');
         const hwModule = this.hwModule;
         const config = this.config;
-        const moduleConnected = this.connector && this.connector.serialPort;
-        if (moduleConnected && (hwModule && hwModule.socketReconnection)) {
+        if (this.connector?.connected && hwModule?.socketReconnection) {
             hwModule.socketReconnection();
         }
-        if (config && config.moduleName) {
+        if (config?.moduleName) {
             this.sendActionDataToServer(EntryMessageAction.state, {
                 statement: EntryStatePayload.connected,
                 name: config.moduleName,
             });
         }
+
+        this.sendEventToMainWindow('socketConnected', true);
     }
 
+    /**
+     * 엔트리와 연결이 해제된 경우 호출된다.
+     * 디바이스의 reset 함수가 존재하는 경우 reset 을 호출한다.
+     */
     handleServerSocketClosed() {
         logger.info('server socket closed');
         const hwModule = this.hwModule;
-        const moduleConnected = this.connector && this.connector.serialPort;
-        if (moduleConnected && (hwModule && hwModule.reset)) {
+        const moduleConnected = this.connector?.connected;
+        if (moduleConnected && hwModule?.reset) {
             hwModule.reset();
         }
+
+        this.sendEventToMainWindow('socketConnected', false);
     }
 
     // 엔트리 측에서 데이터를 받아온 경우 전달
@@ -359,7 +379,7 @@ class MainRouter {
         if (data) {
             this.server.send(data);
         } else {
-            const data = this.handler && this.handler.encode();
+            const data = this.handler?.encode();
             if (this.server && data) {
                 this.server.send(data);
             }
@@ -381,9 +401,7 @@ class MainRouter {
      * 하드웨어 모듈의 requestRemoteData 를 통해 핸들러 내 데이터를 세팅한다.
      */
     setHandlerData() {
-        if (this.hwModule && this.hwModule.requestRemoteData) {
-            this.hwModule.requestRemoteData(this.handler);
-        }
+        this.hwModule?.requestRemoteData(this.handler);
     }
 
     setConnector(connector: any) {
@@ -395,15 +413,16 @@ class MainRouter {
      *
      * @param option {Object=} true 인 경우, 포트선택했던 내역을 지우지 않는다.
      */
-    close(option?: { saveSelectedPort: boolean }) {
-        const { saveSelectedPort = false } = option || {};
+    close(option?: { saveSelectedPort?: boolean, saveConfig?: boolean }) {
+        const { saveSelectedPort = false, saveConfig = false } = option || {};
         logger.info(`scan stopped. selectedPort will be ${saveSelectedPort ? 'saved' : 'undefined'}`);
 
-        if (this.server) {
-            this.server.disconnectHardware();
-        }
+        this.server?.disconnectHardware();
         this.stopScan(option);
-        this.config = undefined;
+
+        if (!saveConfig) {
+            this.config = undefined;
+        }
         this.hwModule = undefined;
         this.handler = undefined;
 
@@ -417,7 +436,7 @@ class MainRouter {
             return;
         }
 
-        const driverFullPath = path.resolve(__dirname, '..', '..', 'drivers', driverPath);
+        const driverFullPath = path.join(directoryPaths.driver, driverPath);
         logger.info(`execute driver requested. filePath : ${driverFullPath}`);
         shell.openItem(driverFullPath);
     }
@@ -440,7 +459,7 @@ class MainRouter {
         }
     }
 
-    _registerIpcEvents() {
+    private registerIpcEvents() {
         ipcMain.on('startScan', async (e, config) => {
             try {
                 logger.info(`scan started. hardware config: ${JSON.stringify(config)}`);
@@ -453,6 +472,9 @@ class MainRouter {
         ipcMain.on('selectPort', (e, portName) => {
             logger.info(`port select from port selection window : ${portName}`);
             this.selectedPort = portName;
+        });
+        ipcMain.on('handshakePayload', (e, payload) => {
+            this.selectedPayload = payload;
         });
         ipcMain.on('stopScan', () => {
             logger.info('scan stopped');
@@ -493,7 +515,7 @@ class MainRouter {
         await this.hardwareListManager.updateHardwareListWithOnline();
     }
 
-    _resetIpcEvents() {
+    private resetIpcEvents() {
         ipcMain.removeAllListeners('startScan');
         ipcMain.removeAllListeners('selectPort');
         ipcMain.removeAllListeners('stopScan');

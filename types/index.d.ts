@@ -1,3 +1,18 @@
+type RequireAtLeastOne<T, Keys extends keyof T = keyof T> =
+    Pick<T, Exclude<keyof T, Keys>>
+    & {
+    [K in Keys]-?: Required<Pick<T, K>> & Partial<Pick<T, Exclude<Keys, K>>>
+}[Keys]
+
+declare type LocalizedString = RequireAtLeastOne<{
+    ko: string;
+    jp: string;
+    en: string;
+}>
+declare type SupportedLanguage = keyof LocalizedString;
+
+declare type HandshakeType = 'argument' | 'digit' | 'word';
+
 declare type ObjectLike = { [key: string]: string };
 
 declare type IDriverInfo = ObjectLike | [{ translate: string } & ObjectLike]
@@ -61,9 +76,8 @@ declare interface IHardwareConfig {
     availableType?: any;
 
     category: 'board' | 'robot' | 'module';
-    entry: { protocol: 'json' };
     id: string;
-    name: any;
+    name: LocalizedString;
     icon: string;
     module: string;
     platform: any;
@@ -79,7 +93,16 @@ declare interface IHardwareConfig {
     email?: string;
     video?: string | string[];
     reconnect?: boolean;
-    select_com_port?: boolean | { [platform: string]: boolean };
+    selectPort?: boolean | { [platform: string]: boolean };
+    handshake?: {
+        // argument = 어떤 문자도 허용 / digit = 숫자만 / word = 문자만
+        type: HandshakeType;
+        message?: {
+            default?: string | LocalizedString;
+            invalid?: string | LocalizedString;
+            sending?: string | LocalizedString;
+        }
+    }
     tryFlasherNumber?: number;
 }
 

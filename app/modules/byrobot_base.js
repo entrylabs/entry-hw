@@ -18,7 +18,7 @@ const BaseModule = require('./baseModule');
  *   - Battle Drone
  *
  * - 마지막 업데이트
- *   - 2020.5.8
+ *   - 2020.6.10
  *
  ***************************************************************************************/
 
@@ -769,13 +769,13 @@ class byrobot_base extends BaseModule
     {
         this.log(`BASE - updateBattleIrMessage() - length : ${this.dataBlock.length}`);
 
-        if (this.dataBlock != undefined && this.dataBlock.length == 4)
+        if (this.dataBlock != undefined && this.dataBlock.length == 1)
         {
             const array = Uint8Array.from(this.dataBlock);
             const view  = new DataView(array.buffer);
 
             this.battleIrMessage._updated            = true;
-            this.battleIrMessage.battle_ir_message   = view.getUint32(0, true);
+            this.battleIrMessage.battle_ir_message   = view.getUint8(0, true);
 
             return true;
         }
@@ -1911,10 +1911,10 @@ class byrobot_base extends BaseModule
     // BattleIrMessage
     reserveBattleIrMessage(target, irMessage)
     {
-        const dataArray   = new ArrayBuffer(4);
+        const dataArray   = new ArrayBuffer(1);
         const view        = new DataView(dataArray);
 
-        view.setUint32  (0, this.fit(0, irMessage, 0xFFFFFFFF), true);
+        view.setUint8   (0, this.fit(0, irMessage, 0xFF), true);
 
         this.log(`BASE - reserveBattleIrMessage() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x1F, target, dataArray);

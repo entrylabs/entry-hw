@@ -16,10 +16,7 @@
     "email": "eduino@robodyne.co.kr",
     "reconnect": true,
     "firmware": "arduino_ext",
-    "select_com_port": true,
-    "entry": {
-        "protocol": "json"
-    },
+    "selectPort": true,
     "hardware": {
         "type": "serial",
         "control": "slave",

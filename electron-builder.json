@@ -1,6 +1,6 @@
 {
     "mac": {
-        "target": "dmg",
+        "target": "pkg",
         "category": "public.app-category.education",
         "identity": "Connect Foundation (DLFUSDA3L5)",
         "hardenedRuntime": true,
@@ -25,39 +25,23 @@
                 }
             ]
         },
-        "files": [
-            "app/server/mac/server.txt"
-        ]
-    },
-    "dmg": {
-        "icon": "build/icon.icns",
-        "iconSize": 80,
-        "sign": false,
-        "background": "build/background.png",
-        "contents": [
+        "extraResources": [
             {
-                "x": 240,
-                "y": 120
-            },
-            {
-                "x": 240,
-                "y": 380,
-                "type": "link",
-                "path": "/Applications"
+                "from": "app/server/mac/server.txt",
+                "to": ""
             }
         ]
     },
     "win": {
         "target": "dir",
-        "files": [
-            "app/server/win/server.exe"
+        "extraResources": [
+            {
+                "from": "app/server/win/server.exe",
+                "to": ""
+            }
         ]
     },
     "files": [
-        "app/modules",
-        "app/firmwares",
-        "app/drivers",
-        "config",
         "app/src/index.bundle.js",
         "app/src/main/mainRouter.build.*",
         "app/src/main/nativeNodeRequire.js",
@@ -70,9 +54,27 @@
         "app/OPENSOURCE.md",
         "package.json"
     ],
-    "asar": false,
+    "extraResources": [
+        "config",
+        {
+            "from": "app/modules",
+            "to": "modules"
+        },
+        {
+            "from": "app/firmwares",
+            "to": "firmwares",
+            "filter": ["!examples/"]
+        },
+        {
+            "from": "app/drivers",
+            "to": "drivers"
+        }
+    ],
+    "asar": true,
     "compression": "maximum",
     "appId": "org.playentry.entryhw",
     "productName": "Entry_HW",
-    "afterSign": "scripts/notarize.js"
+    "afterPack": "scripts/after_pack.js",
+    "afterSign": "scripts/notarize_app.js",
+    "afterAllArtifactBuild": "scripts/notarize_installer.js"
 }

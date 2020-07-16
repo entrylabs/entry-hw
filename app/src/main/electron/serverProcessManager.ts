@@ -3,12 +3,14 @@ import fs from 'fs';
 import { ChildProcess } from 'child_process';
 import createLogger from './functions/createLogger';
 import directoryPaths from './electronDirectoryPaths';
+import type MainRouter from '../mainRouter';
 
 const logger = createLogger('electron/server');
 
 class ServerProcessManager {
     private readonly childProcess: ChildProcess;
-    private router: any;
+    private currentRoomId: string | undefined;
+    private router: MainRouter;
 
     constructor(router?: any) {
         try {
@@ -46,6 +48,7 @@ class ServerProcessManager {
 
     addRoomIdsOnSecondInstance(roomId: string) {
         // this.childProcess.addRoomId(roomId);
+        this.currentRoomId = roomId;
         this._sendToChild('addRoomId', roomId);
     }
 
@@ -84,32 +87,34 @@ class ServerProcessManager {
         // this.childProcess.on('close', () => {
 
         // });
-        this.childProcess && this.childProcess.on('message', (message: { key: string; value: string; }) => {
+        this.childProcess && this.childProcess.on('message', (message: { key: string; value: any; }) => {
             const { key, value } = message;
             switch (key) {
-                case 'cloudModeChanged': {
-                    this.router.notifyCloudModeChanged(value);
-                    break;
-                }
-                case 'runningModeChanged': {
-                    this.router.notifyServerRunningModeChanged(value);
-                    break;
-                }
-                case 'data': {
-                    this.router.handleServerData(value);
-                    break;
-                }
-                case 'connection': {
-                    this.router.handleServerSocketConnected();
-                    break;
-                }
-                case 'close': {
+            case 'cloudModeChanged': {
+                this.router.notifyCloudModeChanged(value);
+                break;
+            }
+            case 'runningModeChanged': {
+                this.router.notifyServerRunningModeChanged(value);
+                break;
+            }
+            case 'data': {
+                this.router.handleServerData(value);
+                break;
+            }
+            case 'connection': {
+                this.router.handleServerSocketConnected();
+                break;
+            }
+            case 'close': {
+                if (!this.currentRoomId || this.currentRoomId === value) {
                     this.router.handleServerSocketClosed();
-                    break;
                 }
-                default: {
-                    console.error('unhandled pkg server message', key, value);
-                }
+                break;
+            }
+            default: {
+                console.error('unhandled pkg server message', key, value);
+            }
             }
         });
     }

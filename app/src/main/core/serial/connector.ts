@@ -16,28 +16,16 @@ SerialPort.Binding = require('@serialport/bindings');
  * 라우터에서 setRouter, connect 를 거쳐 통신한다.
  */
 class SerialConnector extends BaseConnector {
-    static get DEFAULT_CONNECT_LOST_MILLS() {
-        return 1000;
-    }
-
-    static get DEFAULT_SLAVE_DURATION() {
-        return 1000;
-    }
-
-    private serialPort?: SerialPort;
+    public serialPort?: SerialPort; // TODO private 로 전환, mainRouter 에서 플래싱에 사용중
     private serialPortParser?: Stream.Duplex;
-
     // 현재상태 체크
     private isSending = false;
     private lostTimer: number;
-
     private flashFirmware?: number;
     private slaveInitRequestInterval?: number;
     private connectionLostTimer?: number;
     private requestLocalDataInterval?: number;
     private advertiseInterval?: number;
-
-    public executeFlash = false;
 
     constructor(hwModule: IHardwareModule, hardwareOptions: IHardwareModuleConfig) {
         super(hwModule, hardwareOptions);
@@ -50,25 +38,12 @@ class SerialConnector extends BaseConnector {
         this.serialPort = undefined;
     }
 
-    private _makeSerialPortOptions(serialPortOptions: IHardwareModuleConfig): SerialPort.OpenOptions {
-        const _options: Partial<SerialPort.OpenOptions> = {
-            autoOpen: true,
-            baudRate: 9600,
-            parity: 'none',
-            dataBits: 8,
-            stopBits: 1,
-            highWaterMark: 65536, // size of read, write buffer
-        };
+    static get DEFAULT_CONNECT_LOST_MILLS() {
+        return 1000;
+    }
 
-        if (serialPortOptions.flowControl === 'hardware') {
-            _options.rtscts = true;
-        } else if (serialPortOptions.flowControl === 'software') {
-            _options.xon = true;
-            _options.xoff = true;
-        }
-
-        Object.assign(_options, serialPortOptions);
-        return _options;
+    static get DEFAULT_SLAVE_DURATION() {
+        return 1000;
     }
 
     open(port: string) {
@@ -111,7 +86,7 @@ class SerialConnector extends BaseConnector {
      *
      * @returns {Promise<void>} 준비완료 or 펌웨어체크 준비
      */
-    initialize() {
+    initialize(handshakePayload?: () => string | undefined) {
         return new Promise((resolve, reject) => {
             if (!this.serialPort) {
                 logger.error('serailport is not found but initialize() opened');
@@ -160,11 +135,15 @@ class SerialConnector extends BaseConnector {
                 logger.verbose('hardware handShake as Slave mode');
 
                 // 최소 한번은 requestInitialData 전송을 강제
-                const firstRequestData = hwModule.requestInitialData(this.serialPort);
-                this.send(hwModule.requestInitialData(this.serialPort));
+                const firstRequestData = hwModule.requestInitialData(
+                    this.serialPort, handshakePayload && handshakePayload(),
+                );
+                this.send(firstRequestData);
                 logger.verbose(`[repeat..]handShake request data ${firstRequestData}`);
                 this.slaveInitRequestInterval = setInterval(() => {
-                    const requestData = hwModule.requestInitialData(this.serialPort);
+                    const requestData = hwModule.requestInitialData(
+                        this.serialPort, handshakePayload && handshakePayload(),
+                    );
                     this.send(requestData);
                 }, duration);
 
@@ -417,6 +396,27 @@ class SerialConnector extends BaseConnector {
                 }
             });
         }
+    }
+
+    private _makeSerialPortOptions(serialPortOptions: IHardwareModuleConfig): SerialPort.OpenOptions {
+        const _options: Partial<SerialPort.OpenOptions> = {
+            autoOpen: true,
+            baudRate: 9600,
+            parity: 'none',
+            dataBits: 8,
+            stopBits: 1,
+            highWaterMark: 65536, // size of read, write buffer
+        };
+
+        if (serialPortOptions.flowControl === 'hardware') {
+            _options.rtscts = true;
+        } else if (serialPortOptions.flowControl === 'software') {
+            _options.xon = true;
+            _options.xoff = true;
+        }
+
+        Object.assign(_options, serialPortOptions);
+        return _options;
     }
 }
 

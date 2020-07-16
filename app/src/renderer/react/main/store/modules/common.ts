@@ -15,6 +15,7 @@ export interface ICommonState {
     moduleState: HardwareStatement;
     isLicenseShow: boolean;
     isCloudMode: CloudModeTypesEnum;
+    isSocketConnected: boolean;
 }
 
 export interface IAlertMessage {
@@ -29,6 +30,7 @@ export const CURRENT_PAGE_STATE_CHANGED = 'common/CURRENT_PAGE_STATE_CHANGED';
 export const CLOUD_MODE_CHANGED = 'common/CLOUD_MODE_CHANGED';
 export const ALERT_MESSAGE_CHANGED = 'common/ALERT_MESSAGE_CHANGED';
 export const MODULE_STATE_CHANGED = 'common/MODULE_STATE_CHANGED';
+export const SOCKET_CONNECT_STATE_CHANGED = 'common/SOCKET_CONNECT_STATE_CHANGED';
 
 // actions
 export const toggleLicenseView = makePayloadAction<boolean>(LICENSE_VIEW_TOGGLE);
@@ -37,6 +39,7 @@ export const changeCloudMode = makePayloadAction<CloudModeTypesEnum>(CLOUD_MODE_
 export const changeStateTitle = makePayloadAction<string>(STATE_TITLE_CHANGED);
 export const changeAlertMessage = makePayloadAction<IAlertMessage>(ALERT_MESSAGE_CHANGED);
 export const changeHardwareModuleState = makePayloadAction<HardwareStatement>(MODULE_STATE_CHANGED);
+export const changeSocketConnectionState = makePayloadAction<boolean>(SOCKET_CONNECT_STATE_CHANGED);
 
 // reducer
 const initialState: ICommonState = {
@@ -46,39 +49,44 @@ const initialState: ICommonState = {
     moduleState: HardwareStatement.disconnected,
     isLicenseShow: false,
     isCloudMode: ipcRenderer.sendSync('getCurrentCloudModeSync'),
+    isSocketConnected: false,
 };
 
 export default (state = initialState, { type, payload }: AnyAction) => {
     switch (type) {
-        case LICENSE_VIEW_TOGGLE:
-            return produce(state, (nextState) => {
-                nextState.isLicenseShow = payload;
-            });
-        case CURRENT_PAGE_STATE_CHANGED:
-            return produce(state, (nextState) => {
-                if ((payload as HardwarePageStateEnum) === HardwarePageStateEnum.list) {
-                    nextState.alertMessage = undefined;
-                }
-                nextState.currentPageState = payload;
-            });
-        case CLOUD_MODE_CHANGED:
-            return produce(state, (nextState) => {
-                nextState.isCloudMode = payload;
-            });
-        case STATE_TITLE_CHANGED:
-            return produce(state, (nextState) => {
-                nextState.stateTitle = payload;
-            });
-        case ALERT_MESSAGE_CHANGED:
-            return produce(state, (nextState) => {
-                nextState.alertMessage = payload;
-            });
-        case MODULE_STATE_CHANGED:
-            return produce(state, (nextState) => {
-                nextState.moduleState = payload;
-            });
-        default:
-            return produce(state, () => {
-            });
+    case LICENSE_VIEW_TOGGLE:
+        return produce(state, (nextState) => {
+            nextState.isLicenseShow = payload;
+        });
+    case CURRENT_PAGE_STATE_CHANGED:
+        return produce(state, (nextState) => {
+            if ((payload as HardwarePageStateEnum) === HardwarePageStateEnum.list) {
+                nextState.alertMessage = undefined;
+            }
+            nextState.currentPageState = payload;
+        });
+    case CLOUD_MODE_CHANGED:
+        return produce(state, (nextState) => {
+            nextState.isCloudMode = payload;
+        });
+    case STATE_TITLE_CHANGED:
+        return produce(state, (nextState) => {
+            nextState.stateTitle = payload;
+        });
+    case ALERT_MESSAGE_CHANGED:
+        return produce(state, (nextState) => {
+            nextState.alertMessage = payload;
+        });
+    case MODULE_STATE_CHANGED:
+        return produce(state, (nextState) => {
+            nextState.moduleState = payload;
+        });
+    case SOCKET_CONNECT_STATE_CHANGED:
+        return produce(state, (nextState) => {
+            nextState.isSocketConnected = payload;
+        });
+    default:
+        return produce(state, () => {
+        });
     }
 };

@@ -18,15 +18,15 @@ class RendererRouter {
 
     get baseModulePath() {
         return process.env.NODE_ENV === 'production'
-            ? path.join(__dirname, '..', '..', 'modules')
+            ? path.join(__dirname, '..', '..', '..', '..', 'modules')
             : path.join(__dirname, '..', '..', 'modules');
     }
 
-    get priorHardwareList(): IHardwareConfig[] {
+    get priorHardwareList(): string[] {
         return (JSON.parse(localStorage.getItem('hardwareList') as string) || []).reverse();
     }
 
-    get sharedObject() {
+    get sharedObject(): ISharedObject {
         return remote.getGlobal('sharedObject');
     }
 
@@ -64,6 +64,11 @@ class RendererRouter {
 
     sendSelectedPort(portName: string) {
         ipcRenderer.send('selectPort', portName);
+    }
+
+    sendHandshakePayload(payload: string) {
+        console.log('sendHandShakePayload', payload);
+        ipcRenderer.send('handshakePayload', payload);
     }
 
     requestOpenAboutWindow() {
@@ -143,8 +148,7 @@ class RendererRouter {
         const routerHardwareList = this.getHardwareListSync();
         this.priorHardwareList.forEach((target, index) => {
             const currentIndex = routerHardwareList.findIndex((item) => {
-                const itemName =
-                    item.name && item.name.ko ? item.name.ko : item.name;
+                const itemName = item.name?.ko || item.name;
                 return itemName === target;
             });
             if (currentIndex > -1) {

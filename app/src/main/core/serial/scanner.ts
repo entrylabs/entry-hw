@@ -2,7 +2,7 @@ import _ from 'lodash';
 import rendererConsole from '../rendererConsole';
 import SerialPort from 'serialport';
 import electPort from './electPortFunction';
-import { CloudModeTypes } from '../../../common/constants';
+import {CloudModeTypes} from '../../../common/constants';
 import BaseScanner from '../baseScanner';
 import SerialConnector from './connector';
 import createLogger from '../../electron/functions/createLogger';
@@ -54,7 +54,7 @@ class SerialScanner extends BaseScanner<SerialConnector> {
         const serverMode = this.router.currentCloudMode;
         const selectedComPortName = this.router.selectedPort;
         const { hardware } = this.config;
-        let { select_com_port: needCOMPortSelect } = this.config;
+        let { selectPort: needCOMPortSelect } = this.config;
         const { type } = hardware;
 
         // win, mac 플랫폼에 맞춰 COMPort 확인창 필요한지 설정
@@ -95,6 +95,11 @@ class SerialScanner extends BaseScanner<SerialConnector> {
             );
         }
 
+        if (this.config.handshake && !this.router.selectedPayload) {
+            // handshakeType 가 argument 면 selectedPayload 가 필요하다. 이 값이 없으면 시리얼포트 선출하지 않는다.
+            return;
+        }
+
         const electedConnector = await electPort(selectedPorts, hardware, this.hwModule,
             (connector) => {
                 if (this.config && this.config.firmware) {
@@ -108,6 +113,7 @@ class SerialScanner extends BaseScanner<SerialConnector> {
                     this.router.sendState('before_connect');
                 }
             },
+            () => this.router.selectedPayload,
         );
 
         if (electedConnector) {

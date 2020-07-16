@@ -4,7 +4,10 @@ import IpcManager from '../ipcMainManager';
 import BaseScanner from '../baseScanner';
 import BleConnector from './connector';
 import MainRouter from '../../mainRouter';
-import {BrowserWindow} from 'electron';
+import { BrowserWindow } from 'electron';
+import createLogger from '../../electron/functions/createLogger';
+
+const logger = createLogger('[BleScanner]');
 
 class BleScanner extends BaseScanner<BleConnector> {
     private isScanning = false;
@@ -98,13 +101,17 @@ class BleScanner extends BaseScanner<BleConnector> {
 
         // scan 이 한번 실행되면 await navigator.bluetooth.requestDevice 가 계속 이벤트를 발생시킴
         // 디바이스 객체는 렌더러에서 다루며, 직접 메인으로 가져와서 다루지 않는다.
-        const error = await this.ipcManager.invoke<Error>('scanBleDevice', scanOption);
-        if (error) {
-            throw new Error('Ble connection failed');
-        }
-
-        if (this.isScanning) {
-            return await this.prepareConnector();
+        try {
+            const e = await this.ipcManager.invoke<Error>('scanBleDevice', scanOption);
+            if (e) {
+                throw e;
+            }
+            if (this.isScanning) {
+                return await this.prepareConnector();
+            }
+        } catch (e) {
+            logger.error('ble scanner error', e);
+            throw e;
         }
     }
 
