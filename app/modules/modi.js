@@ -274,12 +274,13 @@ Module.prototype.isConnect = function(id, port) {
 }
 
 Module.prototype.str2ab = function(str) {
-    var buf = new ArrayBuffer(str.length);
-    var bufView = new Uint8Array(buf);
-    for (var i=0, strLen=str.length; i<strLen; i++) {
-        bufView[i] = str.charCodeAt(i);
+    var binaryString = atob(str);
+    var len = binaryString.length;
+    var bytes = new Uint8Array(len);
+    for (var i = 0; i < len; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
     }
-    return buf;
+    return bytes.buffer;
 }
 
 Module.prototype.type2strArr = function( type ) {    
@@ -306,8 +307,8 @@ Module.prototype.handleJsonMessage = function( object ) {
     obj.c = object.c;
     obj.id = object.s;
 
-    var byteTemp = Buffer.from(object.b, 'base64').toString();
-    var buffer = this.str2ab(byteTemp);
+    // var byteTemp = Buffer.from(object.b, 'base64').toString();
+    var buffer = this.str2ab(object.b);
 
     switch(obj.c) {
         case 0x00:
@@ -316,6 +317,13 @@ Module.prototype.handleJsonMessage = function( object ) {
             break;
         case 0x05:
             this.offPnp(obj.id);
+
+            if(buffer.byteLength === 8){
+                type = new Uint16Array(buffer, 4, 2);
+            } else {
+                // In case module state LED is Red
+                type = new Uint16Array(buffer, 4, 1);
+            }
 
             // type, uuid, category, module, sw
             var type = new Uint16Array(buffer, 4, 2);
