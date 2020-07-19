@@ -197,7 +197,7 @@ class mechatro extends BaseModule {
     //};
     */
     requestLocalData() {
-        //console.log( '     ■ -->> Device');
+        //console.log('     ■ -->> Device');
         const queryString = [];
         let query;
         const portkeys = Object.keys(this.dataFromEntry);
@@ -370,7 +370,10 @@ class mechatro extends BaseModule {
                 case this.getMode.GET_DIGITAL_IN:
                     for (portkey = 0; portkey < 6; portkey++) {
                         portNo = this.portMapToEntry.DIGITAL[portkey];
-                        this.dataFromDevice[portNo] = (data2 >> portkey) & 0x01;
+                        // 초음파 센서 echo 핀 업데이트 정지.
+                        if (this.isUltraEchoPort[portNo] === undefined) {
+                            this.dataFromDevice[portNo] = (data2 >> portkey) & 0x01;
+                        }
                     }
                     break;
                 case this.getMode.GET_ANALOG_IN:
@@ -399,14 +402,16 @@ class mechatro extends BaseModule {
                         } else {
                             this.remainmode = 0;
                             data2 = data[idx + 1];
-                            for (portkey = 0; portkey < 6; portkey++) {
 
+                            for (portkey = 0; portkey < 6; portkey++) {
                                 portNo = this.portMapToEntry.DIGITAL[portkey];
                                 // 초음파 센서 echo 핀 업데이트 정지.
-                                if ( this.isUltraEchoPort[portNo] === undefined ){
+                                if (this.isUltraEchoPort[portNo] === undefined) {
                                     this.dataFromDevice[portNo] = (data2 >> portkey) & 0x01;
+                                    //console.log( "     ■ <-- [",portNo,"]: ", this.dataFromDevice[portNo]);
                                 }
                             }
+                            
                         }
                         break;
                     case this.getMode.GET_ANALOG_IN:
@@ -438,7 +443,9 @@ class mechatro extends BaseModule {
             this.entryJS_State++;
             //console.log("set 4 entryJS_State ", this.entryJS_State);
             Object.keys(this.portMapToEntry.ANALOG).forEach((key) => {
-                this.dataFromDevice[this.portMapToEntry.ANALOG[key]] = 0;
+                if (key >= 8) {  // 아날로그 포트만 초기화
+                    this.dataFromDevice[this.portMapToEntry.ANALOG[key]] = 0;
+                }
             });
         }
         //console.log("dataFromDevice data: ", this.dataFromDevice );
