@@ -1,3 +1,5 @@
+var atob = require("atob");
+
 var connect_ = {};
 var conModuleName = [];
 var hrI = 0;
@@ -203,9 +205,9 @@ function btoa(data) {
     return Buffer.from(data).toString('base64');
 }
 
-function atob(data) {
-    return Buffer.from(data, 'base64').toString();
-}
+// function atob(data) {
+//     return Buffer.from(data, 'base64').toString();
+// }
 
 function unsetConnect( id, port ) {
     var obj = connect_[id];
@@ -317,7 +319,7 @@ Module.prototype.handleJsonMessage = function( object ) {
             break;
         case 0x05:
             this.offPnp(obj.id);
-
+console.log("BUFFER", buffer);
             if(buffer.byteLength === 8){
                 type = new Uint16Array(buffer, 4, 2);
             } else {

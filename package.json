@@ -67,6 +67,8 @@
         "webpack-merge": "^4.2.2"
     },
     "dependencies": {
+        "@serialport/stream": "^9.0.0",
+        "atob": "^2.1.2",
         "cross-spawn": "^7.0.0",
         "fs-extra": "^8.1.0",
         "lodash": "^4.17.13",
