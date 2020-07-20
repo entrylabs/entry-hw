@@ -1,4 +1,4 @@
-var atob = require("atob");
+const atob = require('atob');
 
 var connect_ = {};
 var conModuleName = [];
@@ -276,10 +276,10 @@ Module.prototype.isConnect = function(id, port) {
 }
 
 Module.prototype.str2ab = function(str) {
-    var binaryString = atob(str);
-    var len = binaryString.length;
-    var bytes = new Uint8Array(len);
-    for (var i = 0; i < len; i++) {
+    const binaryString = atob(str);
+    const len = binaryString.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) {
         bytes[i] = binaryString.charCodeAt(i);
     }
     return bytes.buffer;
@@ -319,7 +319,9 @@ Module.prototype.handleJsonMessage = function( object ) {
             break;
         case 0x05:
             this.offPnp(obj.id);
-console.log("BUFFER", buffer);
+            // console.log("BUFFER", buffer);
+
+            let type;
             if(buffer.byteLength === 8){
                 type = new Uint16Array(buffer, 4, 2);
             } else {
@@ -328,7 +330,7 @@ console.log("BUFFER", buffer);
             }
 
             // type, uuid, category, module, sw
-            var type = new Uint16Array(buffer, 4, 2);
+            // var type = new Uint16Array(buffer, 4, 2);
             var arr = this.type2strArr(type);
             obj.uuid = Number("0x" + (type[0]).toString(16) + (new Uint32Array(buffer, 0, 1)[0]).toString(16));
             obj.category = arr[0];
