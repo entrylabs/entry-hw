@@ -586,14 +586,18 @@ Module.prototype.setTune = function(moduleValue) {
         view[i] = freqView.getUint8(3-i);
         view[i+4] = volView.getUint8(3-i);
     }
-
-    var b64 = Buffer.from(this.ab2str(buffer)).toString('base64');
+    console.log("buffer", buffer);
+    // var b64 = Buffer.from(this.ab2str(buffer)).toString('base64');
+    var b64 = Buffer.from(buffer).toString('base64');
+    
 
     obj.c = 0x04;
     obj.s = setProperty[moduleValue.module];//function ID
     obj.d = moduleValue.id;// module ID
     obj.b = b64;// property value
     obj.l = 8;// property value
+
+    console.log("setTune", obj);
 
     return JSON.stringify(obj);
 };
