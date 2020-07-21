@@ -206,6 +206,7 @@ function Module() {
 	this.sound = {
 		written: false,
 		flag: 0,
+		prev: 0,
 		event: 0,
 		stateId: -1
 	};
@@ -1487,6 +1488,10 @@ Module.prototype.requestLocalData = function() {
 	if(sndid > 0) { // sound
 		str += '00';
 		str += self.toHex(sndid | sound.flag);
+		sound.prev = sndid;
+	} else if(sound.prev > 0) {
+		sound.prev = 0;
+		str += '0000';
 	} else if(motoring.note > 0) { // note
 		str += '01';
 		str += self.toHex(motoring.note);
@@ -1592,6 +1597,7 @@ Module.prototype.reset = function() {
 
 	var sound = this.sound;
 	sound.written = false;
+	sound.prev = 0;
 	sound.event = 0;
 	sound.stateId = -1;
 
