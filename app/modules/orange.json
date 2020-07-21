@@ -4,6 +4,7 @@
 		"en": "Orange Board",
 		"ko": "오렌지 보드"
 	},
+	"category": "board",
 	"platform": ["win32", "darwin"],
 	"icon" : "orange.png",
 	"module": "orange.js",
@@ -16,9 +17,6 @@
 	},
     "reconnect" : true,
 	"firmware": "orange",
-	"entry": {
-		"protocol": "json"
-	},
 	"hardware": {
 		"type": "serial",
 		"control": "slave",
