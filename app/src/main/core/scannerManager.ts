@@ -1,11 +1,14 @@
 import SerialScanner from './serial/scanner';
 import HidScanner from './hid/scanner';
 import BleScanner from './ble/scanner';
+import createLogger from '../electron/functions/createLogger';
+
+const logger = createLogger('core/ScannerManager.ts');
 
 type IScannerSelector = {
-    serial: any;
-    hid: any;
-    ble: any;
+    serial: SerialScanner;
+    hid: HidScanner;
+    ble: BleScanner;
 }
 
 type IScannerTypes = 'serial' | 'hid' | 'ble' | 'bluetooth';
@@ -22,6 +25,7 @@ class ScannerManager {
     }
 
     getScanner(type: IScannerTypes) {
+        logger.verbose(`scanner ${type} type requested`);
         switch (type) {
             case 'ble':
                 return this.scanners.ble;

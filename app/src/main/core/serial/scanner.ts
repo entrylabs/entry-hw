@@ -2,9 +2,12 @@ import _ from 'lodash';
 import rendererConsole from '../rendererConsole';
 import SerialPort from 'serialport';
 import electPort from './electPortFunction';
-import { CloudModeTypes } from '../../../common/constants';
+import {CloudModeTypes} from '../../../common/constants';
 import BaseScanner from '../baseScanner';
 import SerialConnector from './connector';
+import createLogger from '../../electron/functions/createLogger';
+
+const logger = createLogger('core/SerialScanner.ts');
 
 /**
  * 전체 포트를 검색한다.
@@ -21,6 +24,7 @@ class SerialScanner extends BaseScanner<SerialConnector> {
     }
 
     public stopScan() {
+        logger.verbose('scan stopped');
         this.config = undefined;
         this.isScanning = false;
     };
@@ -29,7 +33,9 @@ class SerialScanner extends BaseScanner<SerialConnector> {
         this.isScanning = true;
         let scanResult = undefined;
         while (this.isScanning) {
+            logger.verbose('intervalScan..');
             scanResult = await this.scan();
+            logger.verbose(`scan result :${scanResult}`);
             if (scanResult) {
                 this.isScanning = false;
                 break;
@@ -41,14 +47,14 @@ class SerialScanner extends BaseScanner<SerialConnector> {
 
     private async scan() {
         if (!this.config || !this.hwModule) {
-            console.warn('config or hwModule is not present');
+            logger.warn('config or hwModule is not present');
             return;
         }
 
         const serverMode = this.router.currentCloudMode;
         const selectedComPortName = this.router.selectedPort;
         const { hardware } = this.config;
-        let { select_com_port: needCOMPortSelect } = this.config;
+        let { selectPort: needCOMPortSelect } = this.config;
         const { type } = hardware;
 
         // win, mac 플랫폼에 맞춰 COMPort 확인창 필요한지 설정
@@ -89,6 +95,11 @@ class SerialScanner extends BaseScanner<SerialConnector> {
             );
         }
 
+        if (this.config.handshake && !this.router.selectedPayload) {
+            // handshakeType 가 argument 면 selectedPayload 가 필요하다. 이 값이 없으면 시리얼포트 선출하지 않는다.
+            return;
+        }
+
         const electedConnector = await electPort(selectedPorts, hardware, this.hwModule,
             (connector) => {
                 if (this.config && this.config.firmware) {
@@ -102,13 +113,16 @@ class SerialScanner extends BaseScanner<SerialConnector> {
                     this.router.sendState('before_connect');
                 }
             },
+            () => this.router.selectedPayload,
         );
 
         if (electedConnector) {
+            logger.info(`${electedConnector.port} is finally connected`);
             rendererConsole.log(`${electedConnector.port} is finally connected`);
             this.stopScan();
             return electedConnector.connector;
         }
+        logger.info(`scan completed but no connected. portList is ${comPorts.map((port) => port.path).join(', ')}`);
     };
 
     private _selectCOMPortUsingProperties(hardwareConfig: IHardwareModuleConfig, comPort: SerialPort.PortInfo) {
@@ -136,8 +150,10 @@ class SerialScanner extends BaseScanner<SerialConnector> {
 
         // 현재 포트가 config 과 일치하는 경우 연결시도할 포트목록에 추가
         if (isVendor || isPnpId || isComName) {
+            logger.info(`auto port select: ${comName}`);
             return comName;
         }
+        logger.verbose('not found auto select port');
     }
 
     private _indexOfStringOrArray(arrayOrString?: string | string[], target?: string): boolean {

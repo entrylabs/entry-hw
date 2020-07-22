@@ -1,13 +1,12 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import withPreload from '../../hoc/withPreload';
-import { connect } from 'react-redux';
-import { IMapDispatchToProps } from '../../store';
+import { useDispatch } from 'react-redux';
 import { changeCurrentPageState } from '../../store/modules/common';
 import { HardwareAvailableTypeEnum, HardwarePageStateEnum } from '../../constants/constants';
 import { selectHardware } from '../../store/modules/connection';
 import styled from 'styled-components';
 import { requestHardwareModuleDownload } from '../../store/modules/hardware';
 import EmptyDeviceImage from '../../../../images/empty_module_image.png';
+import usePreload from '../../hooks/usePreload';
 
 const HardwareTypeDiv = styled.div`
     width: 170px;
@@ -44,19 +43,21 @@ const HardwareTitle = styled.h2`
     display: flex;
 `;
 
-const HardwareElement: React.FC<Preload & IDispatchProps & { hardware: any }> = (props) => {
-    const { hardware, translator, rendererRouter } = props;
+const HardwareElement: React.FC<{ hardware: IHardwareConfig }> = (props) => {
+    const { translator, rendererRouter } = usePreload();
+    const dispatch = useDispatch();
+    const { hardware } = props;
     const { availableType } = hardware;
 
     const [isImageSrcNotFound, setImageNotFound] = useState(false);
     const langType = useMemo(() => translator.currentLanguage, [translator]);
     const onElementClick = useCallback(() => {
         if (availableType === HardwareAvailableTypeEnum.available) {
-            props.selectHardware(hardware);
-            props.changeCurrentState(HardwarePageStateEnum.connection);
+            selectHardware(dispatch)(hardware);
+            changeCurrentPageState(dispatch)(HardwarePageStateEnum.connection);
         } else {
             hardware.moduleName
-                ? props.requestHardwareModuleDownload(hardware.moduleName)
+                ? requestHardwareModuleDownload(dispatch)(hardware.moduleName)
                 : console.log('moduleName is not defined');
         }
     }, [hardware, availableType]);
@@ -69,12 +70,12 @@ const HardwareElement: React.FC<Preload & IDispatchProps & { hardware: any }> = 
         const imageBaseUrl = rendererRouter.sharedObject.moduleResourceUrl;
 
         switch (availableType) {
-            case HardwareAvailableTypeEnum.needUpdate:
-            case HardwareAvailableTypeEnum.needDownload:
-                return `${imageBaseUrl}/${hardware.moduleName}/files/image`;
-            case HardwareAvailableTypeEnum.available:
-            default:
-                return `${rendererRouter.baseModulePath}/${hardware.icon}`;
+        case HardwareAvailableTypeEnum.needUpdate:
+        case HardwareAvailableTypeEnum.needDownload:
+            return `${imageBaseUrl}/${hardware.moduleName}/files/image`;
+        case HardwareAvailableTypeEnum.available:
+        default:
+            return `${rendererRouter.baseModulePath}/${hardware.icon}`;
         }
     }, [isImageSrcNotFound, availableType]);
 
@@ -97,16 +98,5 @@ const HardwareElement: React.FC<Preload & IDispatchProps & { hardware: any }> = 
     );
 };
 
-interface IDispatchProps {
-    selectHardware: (hardware: IHardwareConfig) => void;
-    changeCurrentState: (category: HardwarePageStateEnum) => void;
-    requestHardwareModuleDownload: (moduleName: string) => void;
-}
+export default HardwareElement;
 
-const mapDispatchToProps: IMapDispatchToProps<IDispatchProps> = (dispatch) => ({
-    selectHardware: selectHardware(dispatch),
-    changeCurrentState: changeCurrentPageState(dispatch),
-    requestHardwareModuleDownload: requestHardwareModuleDownload(dispatch),
-});
-
-export default connect(undefined, mapDispatchToProps)(withPreload(HardwareElement));

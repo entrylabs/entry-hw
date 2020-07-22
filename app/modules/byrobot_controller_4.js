@@ -1,4 +1,3 @@
-const _ = require('lodash');
 const byrobot_base = require('./byrobot_base');
 
 
@@ -15,10 +14,11 @@ class byrobot_controller_4 extends byrobot_base
     {
         super();
 
-        this.log("BYROBOT_E-DRONE_CCONTROLLER - constructor()");
+        this.log('BYROBOT_E-DRONE_CCONTROLLER - constructor()');
 
-        this.targetDevice   = 0x20;
-        this.targetDeviceID = '0F0901';
+        this.targetDevice     = 0x20;
+        this.targetDeviceID   = '0F0901';
+        this.arrayRequestData = null;
     }
 }
 

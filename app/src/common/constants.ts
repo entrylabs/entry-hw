@@ -15,7 +15,7 @@ export enum HardwareStatement {
     flash = 'flash',
     beforeConnect = 'before_connect',
     connected = 'connected',
-    showRobot = 'show_robot',
+    scanFailed = 'scan_failed',
 }
 
 export enum AvailableTypes {

@@ -1,21 +1,25 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import withPreload from '../../hoc/withPreload';
-import { connect } from 'react-redux';
-import { IMapDispatchToProps, IMapStateToProps } from '../../store';
+import { useDispatch, useSelector } from 'react-redux';
+import { IStoreState } from '../../store';
 import { requestFirmwareInstall } from '../../store/modules/connection';
-import { HardwareConnectionStatusEnum } from '../../constants/constants';
+import { HardwareStatement } from '../../../../../common/constants';
 import HardwarePanelButton from '../common/HardwarePanelButton';
+import usePreload from '../../hooks/usePreload';
 
-interface IProps extends Preload, IDispatchProps, IStateProps {
+interface IProps {
     buttonSet: IFirmwareInfo;
 }
 
 const FirmwareButtonSetElement: React.FC<IProps> = (props) => {
     const [isElementShow, showElement] = useState(true);
-    const { moduleState, buttonSet, translator } = props;
+    const { buttonSet } = props;
+    const moduleState = useSelector<IStoreState>(state => state.common.moduleState);
+    const { translator } = usePreload();
+    const dispatch = useDispatch();
+
     const onButtonClicked = useCallback((firmware: IFirmwareInfo) => {
         console.log('firmware requested', firmware);
-        props.requestFirmwareInstall(firmware);
+        requestFirmwareInstall(dispatch)(firmware);
     }, []);
 
     useEffect(() => {
@@ -23,9 +27,9 @@ const FirmwareButtonSetElement: React.FC<IProps> = (props) => {
         flash 요청이 들어오면 버튼을 가린다.
         버튼이 한번 가려지면 connected 될때까지 버튼이 돌아오지 않는다.
          */
-        if (moduleState === HardwareConnectionStatusEnum.flash) {
+        if (moduleState === HardwareStatement.flash) {
             showElement(false);
-        } else if (!isElementShow && moduleState === HardwareConnectionStatusEnum.connected) {
+        } else if (!isElementShow && moduleState === HardwareStatement.connected) {
             showElement(true);
         }
     }, [moduleState]);
@@ -38,36 +42,20 @@ const FirmwareButtonSetElement: React.FC<IProps> = (props) => {
         return <>
             {
                 buttonSet.map((firmware) => <HardwarePanelButton
-                        key={firmware.name}
-                        onClick={() => {
-onButtonClicked(firmware.name);
-}}
-                    >{translator.translate(firmware.translate)}</HardwarePanelButton>)
+                    key={firmware.name}
+                    onClick={() => {
+                        onButtonClicked(firmware.name);
+                    }}
+                >{translator.translate(firmware.translate)}</HardwarePanelButton>)
             }
         </>;
     } else {
         return <HardwarePanelButton
             onClick={() => {
-onButtonClicked(buttonSet);
-}}
+                onButtonClicked(buttonSet);
+            }}
         >{translator.translate('Install Firmware')}</HardwarePanelButton>;
     }
 };
 
-interface IStateProps {
-    moduleState: HardwareConnectionStatusEnum;
-}
-
-interface IDispatchProps {
-    requestFirmwareInstall: (firmware: IFirmwareInfo) => void;
-}
-
-const mapStateToProps: IMapStateToProps<IStateProps> = (state) => ({
-    moduleState: state.common.moduleState,
-});
-
-const mapDispatchToProps: IMapDispatchToProps<IDispatchProps> = (dispatch) => ({
-    requestFirmwareInstall: requestFirmwareInstall(dispatch),
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(withPreload(FirmwareButtonSetElement));
+export default FirmwareButtonSetElement;

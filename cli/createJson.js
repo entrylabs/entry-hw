@@ -15,10 +15,7 @@ const template = {
     url: '',
     email: '',
     reconnect: false,
-    select_com_port: false,
-    entry: {
-        protocol: 'json',
-    },
+    selectPort: false,
     hardware: {},
 };
 
@@ -73,7 +70,7 @@ const template = {
         },
         {
             type: 'confirm',
-            name: 'select_com_port',
+            name: 'selectPort',
             message: 'need COM port selection popup ?',
             default: false,
         },
@@ -112,7 +109,6 @@ const template = {
     ]);
 
     // modify configs
-    _.set(result, ['entry', 'protocol'], 'json');
     result.url || (delete result.url);
     result.email || (delete result.email);
     result.icon = `${result.name.en}.png`;

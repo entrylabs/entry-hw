@@ -1,9 +1,8 @@
-const _ = require('lodash');
 const byrobot_base = require('./byrobot_base');
 
 
 /***************************************************************************************
- *  BYROBOT Coding Drone 
+ *  BYROBOT Coding Drone
  ***************************************************************************************/
 
 class byrobot_drone_8 extends byrobot_base
@@ -15,8 +14,11 @@ class byrobot_drone_8 extends byrobot_base
     {
         super();
 
-        this.targetDevice   = 0x10;
-        this.targetDeviceID = '0F0701';
+        this.log('BYROBOT_CODING_DRONE - constructor()');
+
+        this.targetDevice     = 0x10;
+        this.targetDeviceID   = '0F0701';
+        this.arrayRequestData = [0x40, 0x44, 0x45, 0x93]; // State, Motion, Range, CardColor
     }
 }
 
