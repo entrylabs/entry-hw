@@ -94,6 +94,7 @@ function Module() {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
     this.sensorData = 
@@ -215,7 +216,7 @@ Module.prototype.validateLocalData = function(data) {
 // 2. getDataByBuffer
 
 Module.prototype.getDataByBuffer = function(buffer) {  // 해당 코드 내에서만 쓰는 함수입니다.
-    const datas = [];
+    let datas = [];
     let lastIndex = 0;
 	
  /*   buffer.forEach(function (value,idx) {  //--
@@ -246,7 +247,7 @@ Module.prototype.handleLocalData = function(data) {
     
     
     datas.forEach ((data) => {  //--
-        if (data.length <= 4 || data[0] !== 255 || data[1] !== 85) {
+        if (data.length <= 6 || data[0] !== 255 || data[1] !== 85) {
             return;                
         }
 		const readData = data.subarray(2, data.length);
@@ -518,11 +519,13 @@ Module.prototype.isRecentData = function(port, type, data) {
                 if (type != this.sensorTypes.LINE_EASY && type != this.sensorTypes.LINE_EASY_MOTOR &&
                     type != this.sensorTypes.LINE_DELAY && type != this.sensorTypes.LINE_LINE &&
                     type != this.sensorTypes.LINE_TURN && type != this.sensorTypes.LINE_MOTOR &&
-                    type != this.sensorTypes.LINE_BMOTOR && type != this.sensorTypes.LINE_BWMOTOR) {
+                    type != this.sensorTypes.LINE_BMOTOR && type != this.sensorTypes.LINE_BWMOTOR &&
+                    type != this.sensorTypes.LINE_SERVO && type != this.sensorTypes.LINE_PORT) {
                     isRecent = true;
                 }
         }
     }
+//    isRecent = true;
     return isRecent;
 };
 
