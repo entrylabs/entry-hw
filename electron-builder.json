@@ -29,6 +29,10 @@
             {
                 "from": "app/server/mac/server.txt",
                 "to": ""
+            },
+            {
+                "from": "app/validator/mac/validator.txt",
+                "to": ""
             }
         ]
     },
@@ -37,6 +41,10 @@
         "extraResources": [
             {
                 "from": "app/server/win/server.exe",
+                "to": ""
+            },
+            {
+                "from": "app/validator/win/validator.exe",
                 "to": ""
             }
         ]
