@@ -5,7 +5,7 @@
 		"ko": "코드이노"
 	},
 	"category": "board",
-	"platform": ["win32", "darwin"],
+	"platform": ["win32"],
 	"icon" : "codeino.png",
 	"module": "codeino.js",
 	"url": "http://www.codable.co.kr",
@@ -14,7 +14,6 @@
 	"driver": [{
 		"win32-ia32": "ftdi/dpinst-x86.exe",
 		"win32-x64": "ftdi/dpinst-amd64.exe",
-		"darwin-x64": "https://entrylabs.github.io/docs/files/drivers/FTDIUSBSerial/FTDIUSBSerial.pkg",
 		"translate" : "코드이노1(OLD)"
 	},
 	{
@@ -23,7 +22,7 @@
 		"translate" : "코드이노2(NEW)"
 	}],
 	"reconnect" : true,
-	"selectPort": true,
+	"select_com_port": true,
 	"firmware": "codeino",
 	"firmwareBaudRate": 57600,
 	"hardware": {
