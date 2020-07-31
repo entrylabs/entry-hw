@@ -1,4 +1,4 @@
-import { app } from 'electron';
+import {app} from 'electron';
 import path from 'path';
 import os from 'os';
 
@@ -16,6 +16,8 @@ const rootAppPath = (() => (isAsarPacked
     : path.join(app.getAppPath(), '..')
 ))();
 
+const isMacOS = os.type().includes('Darwin');
+
 export default {
     views: path.join(rootAppPath, 'src', 'views'),
     config: (() => (isAsarPacked
@@ -23,13 +25,20 @@ export default {
         : path.join(rootAppPath, '..', 'config')
     ))(),
     server: (() => {
-        const isMacOS = os.type().includes('Darwin');
         const subDirPath = isMacOS ? 'mac' : 'win';
         const fileName = isMacOS ? 'server.txt' : 'server.exe';
-
         return isAsarPacked
             ? path.join(rootAppPath, '..', '..', fileName)
             : path.join(rootAppPath, 'server', subDirPath, fileName);
+    })(),
+    validator: (() => {
+        if (!isAsarPacked) {
+            return undefined;
+        } else if (isMacOS) {
+            return path.join(rootAppPath, '..', '..', 'validator.txt');
+        } else {
+            return path.join(rootAppPath, '..', '..', 'validator.exe');
+        }
     })(),
 };
 
