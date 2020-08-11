@@ -442,22 +442,22 @@ Module.prototype.makeSensorReadBuffer = function(device, port, data) {  // ì„¼ì„
     const dummy = new Buffer([10]);
 	
     if (device == this.sensorTypes.USONIC) {
-        buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.GET, device, 
+        buffer = new Buffer([255, 85, 4, sensorIdx, this.actionTypes.GET, device, 
             port[0], port[1], 10]);	
 	} else if (device == this.sensorTypes.TEMP) {
-        buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, 
+        buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.GET, device, 
             port[0], port[1], 10]);			
     } else if (device == this.sensorTypes.SERVO) {
-        buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, 
+        buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.GET, device, 
             port[0], port[1], 10]);	
     } else if (device == this.sensorTypes.RD_BT) {
-        buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.GET, device, port, 10]);	
+        buffer = new Buffer([255, 85, 4, sensorIdx, this.actionTypes.GET, device, port, 10]);	
     } else if (!data) {
-        buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.GET, device, port, 10]);	
+        buffer = new Buffer([255, 85, 4, sensorIdx, this.actionTypes.GET, device, port, 10]);	
     } else {
         const value = new Buffer(2);
         value.writeInt16LE(data);
-        buffer = new Buffer([255, 85, 7, sensorIdx, this.actionTypes.GET, device, port, 10]);
+        buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port, 10]);
         buffer = Buffer.concat([buffer, value, dummy]);
     }
 	

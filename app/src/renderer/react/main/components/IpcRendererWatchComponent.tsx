@@ -7,6 +7,7 @@ import {
     changeHardwareModuleState,
     changeSocketConnectionState,
     changeStateTitle,
+    invalidateBuild,
     IAlertMessage,
 } from '../store/modules/common';
 import { changePortList } from '../store/modules/connection';
@@ -26,6 +27,11 @@ class IpcRendererWatchComponent extends React.PureComponent<IProps> {
         ipcRenderer.removeAllListeners('portListScanned');
         ipcRenderer.removeAllListeners('cloudMode');
         ipcRenderer.removeAllListeners('socketConnected');
+        ipcRenderer.removeAllListeners('invalidAsarFile');
+
+        ipcRenderer.on('invalidAsarFile', () => {
+            props.invalidateBuild();
+        });
 
         ipcRenderer.on('console', (event, ...args: any[]) => {
             console.log(...args);
@@ -130,6 +136,7 @@ interface IDispatchProps {
     changeAlertMessage: (alertMessage: IAlertMessage) => void;
     changeHardwareModuleState: (state: HardwareStatement) => void;
     changeSocketConnectionState: (state: boolean) => void;
+    invalidateBuild: () => void;
 }
 
 const mapDispatchToProps: IMapDispatchToProps<IDispatchProps> = (dispatch) => ({
@@ -139,6 +146,7 @@ const mapDispatchToProps: IMapDispatchToProps<IDispatchProps> = (dispatch) => ({
     changeAlertMessage: changeAlertMessage(dispatch),
     changeHardwareModuleState: changeHardwareModuleState(dispatch),
     changeSocketConnectionState: changeSocketConnectionState(dispatch),
+    invalidateBuild: invalidateBuild(dispatch),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(IpcRendererWatchComponent);

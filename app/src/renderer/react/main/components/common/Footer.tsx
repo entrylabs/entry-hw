@@ -1,12 +1,14 @@
 import React from 'react';
-import Styled from 'styled-components';
+import styled from 'styled-components';
 import { toggleLicenseView } from '../../store/modules/common';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import Logo from '../../../../images/logo.png';
 import usePreload from '../../hooks/usePreload';
+import { IStoreState } from '../../store';
 
-const FooterContainer = Styled.div`
-    flex: none;
+const FooterContainer = styled.div`
+    display: flex;
+    flex-direction: row-reverse;
     width: 100%;
     height: 60px;
     background-position: 30px 15px;
@@ -15,26 +17,35 @@ const FooterContainer = Styled.div`
     background-color: white;
 `;
 
-const VersionLabel = Styled.div`
-    text-align: right;
+const VersionLabel = styled.div`
     margin: 20px 20px 20px 10px;
     color: #595757;
     cursor: pointer;
     font-weight: bold;
-    float: right;
+    display: flex;
+    align-self: flex-end;
 `;
 
-const OpenSourceLabel = Styled.div`
-    text-align: right;
+const OpenSourceLabel = styled.div`
     margin: 20px 10px 20px 20px;
     color: #595757;
     cursor: pointer;
     font-weight: bold;
-    float: right;
+    display: flex;
+    align-self: flex-end;
+`;
+
+const InvalidatedInformLabel = styled.div`
+    margin-top: 20px;
+    color: #979797;
+    padding-bottom: 40px;
+    position: absolute;
+    left: 35%;
 `;
 
 const Footer: React.FC = () => {
     const { translator, rendererRouter } = usePreload();
+    const isInvalidBuild = useSelector<IStoreState>((state) => state.common.isInvalidBuild);
     const dispatch = useDispatch();
 
     return (
@@ -55,6 +66,12 @@ const Footer: React.FC = () => {
             >
                 {translator.translate('Opensource lincense')}
             </OpenSourceLabel>
+            {
+                isInvalidBuild &&
+                <InvalidatedInformLabel>
+                    이 프로그램은 엔트리 공식 빌드가 아닙니다.
+                </InvalidatedInformLabel>
+            }
         </FooterContainer>
     );
 };
