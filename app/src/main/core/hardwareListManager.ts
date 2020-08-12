@@ -95,6 +95,7 @@ export default class {
 
     private getAllHardwareModulesFromDisk() {
         try {
+            console.log(directoryPaths.modules);
             return fs.readdirSync(directoryPaths.modules)
                 .filter((file) => !!file.match(/\.json$/))
                 .map((file) => {

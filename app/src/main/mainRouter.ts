@@ -14,6 +14,7 @@ import directoryPaths from './core/directoryPaths';
 import BaseScanner from './core/baseScanner';
 import BaseConnector from './core/baseConnector';
 import SerialConnector from './core/serial/connector';
+import FileUtils from './core/fileUtils';
 
 const nativeNodeRequire = require('./nativeNodeRequire.js');
 const logger = createLogger('core/mainRouter.ts');
@@ -93,16 +94,20 @@ class MainRouter {
     async initializeModuleFiles() {
         if (!this.isFileInitialized &&
             __dirname.indexOf('app.asar') > -1 &&
-            fs.pathExistsSync(path.join(directoryPaths.relativeRootPath, 'modules'))
+            fs.pathExistsSync(directoryPaths.relativeRootModules)
         ) {
             await Promise.all([
-                fs.move(path.join(directoryPaths.relativeRootPath, 'modules'), directoryPaths.modules),
-                fs.move(path.join(directoryPaths.relativeRootPath, 'drivers'), directoryPaths.driver),
-                fs.move(path.join(directoryPaths.relativeRootPath, 'firmwares'), directoryPaths.firmware),
+                FileUtils.rmdir(directoryPaths.modules),
+                FileUtils.rmdir(directoryPaths.firmware),
+                FileUtils.rmdir(directoryPaths.driver),
             ]);
-
-            await this.hardwareListManager.updateHardwareList();
+            await Promise.all([
+                fs.move(directoryPaths.relativeRootModules, directoryPaths.modules, { overwrite: true }),
+                fs.move(directoryPaths.relativeRootDriver, directoryPaths.driver), { overwrite: true },
+                fs.move(directoryPaths.relativeRootFirmware, directoryPaths.firmware, { overwrite: true }),
+            ]);
         }
+        await this.hardwareListManager.updateHardwareList();
         this.isFileInitialized = true;
     }
 
@@ -308,7 +313,7 @@ class MainRouter {
 
             logger.info('firmware flash requested by executeFlash');
             this.flashFirmware(this.config.firmware)
-                // @ts-ignore
+            // @ts-ignore
                 .finally(() => {
                     this.flasher.kill();
                     this.config && this.startScan(this.config);
