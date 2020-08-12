@@ -1,5 +1,4 @@
 import { ipcRenderer, remote, shell } from 'electron';
-import path from 'path';
 import { HardwareStatement, RunningModeTypes } from '../common/constants';
 
 /**
@@ -8,6 +7,7 @@ import { HardwareStatement, RunningModeTypes } from '../common/constants';
  */
 class RendererRouter {
     private _hardwareList: IHardwareConfig[] = [];
+    private readonly _baseModulePath: string;
     public currentState = HardwareStatement.disconnected;
     public serverMode = RunningModeTypes.server;
 
@@ -17,9 +17,7 @@ class RendererRouter {
     }
 
     get baseModulePath() {
-        return process.env.NODE_ENV === 'production'
-            ? path.join(__dirname, '..', '..', '..', '..', 'modules')
-            : path.join(__dirname, '..', '..', 'modules');
+        return this._baseModulePath;
     }
 
     get priorHardwareList(): string[] {
@@ -48,6 +46,7 @@ class RendererRouter {
         ipcRenderer.on('serverMode', (event, mode) => {
             this.consoleWriteServerMode(mode);
         });
+        this._baseModulePath = ipcRenderer.sendSync('baseModuleSync');
     }
 
     startScan(hardware: IHardwareConfig) {

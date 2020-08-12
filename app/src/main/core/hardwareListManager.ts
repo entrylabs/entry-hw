@@ -1,9 +1,9 @@
 import fs from 'fs';
 import path from 'path';
-import {cloneDeep, merge, unionWith} from 'lodash';
+import { cloneDeep, merge, unionWith } from 'lodash';
 import lt from 'semver/functions/lt';
 import valid from 'semver/functions/valid';
-import {AvailableTypes} from '../../common/constants';
+import { AvailableTypes } from '../../common/constants';
 import getModuleList from './functions/getModuleList';
 import createLogger from '../electron/functions/createLogger';
 import directoryPaths from './directoryPaths';
@@ -44,12 +44,9 @@ export default class {
     constructor(router: MainRouter) {
         this.router = router;
         logger.verbose('hardwareListManager created');
-        // 두번 하는 이유는, 먼저 유저에게 로컬 모듈 목록을 보여주기 위함
-        this.updateHardwareList();
-        this.updateHardwareListWithOnline();
     }
 
-    async updateHardwareListWithOnline() {
+    private async updateHardwareListWithOnline() {
         logger.verbose('hardware List update from online..');
         try {
             const onlineList = await getModuleList();
@@ -64,13 +61,13 @@ export default class {
                     (`${module.id}|${module.name?.ko || module.name?.en || module.moduleName}`)).join(',')
             }`);
 
-            this.updateHardwareList(moduleList);
+            await this.updateHardwareList(moduleList);
         } catch (e) {
             logger.warn(`online hardware list update failed ${JSON.stringify(e)}`);
         }
     }
 
-    updateHardwareList(source: any[] = []) {
+    async updateHardwareList(source: any[] = []) {
         logger.verbose('hardware List update from file system..');
         const availables = this.getAllHardwareModulesFromDisk();
         const mergedList = unionWith(availables, source, (src, ori) => {
@@ -93,6 +90,7 @@ export default class {
             .filter(platformFilter)
             .sort(nameSortComparator);
         this.notifyHardwareListChanged();
+        await this.updateHardwareListWithOnline();
     }
 
     private getAllHardwareModulesFromDisk() {

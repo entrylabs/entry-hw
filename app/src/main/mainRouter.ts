@@ -1,5 +1,6 @@
 import { BrowserWindow, ipcMain, shell } from 'electron';
 import path from 'path';
+import fs from 'fs-extra';
 import ScannerManager from './core/scannerManager';
 import Flasher from './core/serial/flasher';
 import rendererConsole from './core/rendererConsole';
@@ -41,6 +42,7 @@ class MainRouter {
     private readonly server: IEntryServer;
     private hardwareListManager: HardwareListManager;
     private flasher: Flasher;
+    private isFileInitialized = process.env.NODE_ENV === 'development';
 
     public selectedPort?: string;
     public selectedPayload?: string;
@@ -74,6 +76,34 @@ class MainRouter {
         this.resetIpcEvents();
         this.registerIpcEvents();
         logger.verbose('mainRouter created');
+        if (this.isFileInitialized) {
+            this.hardwareListManager.updateHardwareList();
+        }
+    }
+
+    /**
+     * modules, firmwares, drivers 디렉토리를 appData 아래로 옮긴다.
+     * mac 에서는 .app 하위 경로에서 파일을 write/read 하는데 권한 문제가 발생하기 때문이다.
+     *
+     * development 모드에서는 이 작업을 수행하지 않는다. 이 함수는 명시적으로 호출되어야 한다.
+     *
+     * macOS : /Users/user/Library/Application Support/entry-hw
+     * windows : C:\Users\user\AppData\Roaming\entry-hw
+     */
+    async initializeModuleFiles() {
+        if (!this.isFileInitialized &&
+            __dirname.indexOf('app.asar') > -1 &&
+            fs.pathExistsSync(path.join(directoryPaths.relativeRootPath, 'modules'))
+        ) {
+            await Promise.all([
+                fs.move(path.join(directoryPaths.relativeRootPath, 'modules'), directoryPaths.modules),
+                fs.move(path.join(directoryPaths.relativeRootPath, 'drivers'), directoryPaths.driver),
+                fs.move(path.join(directoryPaths.relativeRootPath, 'firmwares'), directoryPaths.firmware),
+            ]);
+
+            await this.hardwareListManager.updateHardwareList();
+        }
+        this.isFileInitialized = true;
     }
 
     /**
@@ -460,6 +490,9 @@ class MainRouter {
     }
 
     private registerIpcEvents() {
+        ipcMain.on('baseModuleSync', (e) => {
+            e.returnValue = directoryPaths.modules;
+        });
         ipcMain.on('startScan', async (e, config) => {
             try {
                 logger.info(`scan started. hardware config: ${JSON.stringify(config)}`);
@@ -511,8 +544,7 @@ class MainRouter {
     async requestHardwareModule(moduleName: string) {
         logger.info(`hardware module requested from online, moduleName : ${moduleName}`);
         const moduleConfig = await downloadModule(moduleName);
-        this.hardwareListManager.updateHardwareList([moduleConfig]);
-        await this.hardwareListManager.updateHardwareListWithOnline();
+        await this.hardwareListManager.updateHardwareList([moduleConfig]);
     }
 
     private resetIpcEvents() {

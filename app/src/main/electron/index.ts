@@ -86,7 +86,7 @@ if (!app.requestSingleInstanceLock()) {
     app.commandLine.appendSwitch('disable-renderer-backgrounding');
     app.commandLine.appendSwitch('enable-web-bluetooth');
     app.setAsDefaultProtocolClient('entryhw');
-    app.once('ready', () => {
+    app.once('ready', async () => {
         Menu.setApplicationMenu(null);
         const argv = process.argv.slice(1);
         const commandLineOptions = parseCommandLine(argv);
@@ -116,6 +116,7 @@ if (!app.requestSingleInstanceLock()) {
 
         // @ts-ignore
         mainRouter = new MainRouter(mainWindow, entryServer);
+        await mainRouter.initializeModuleFiles();
 
         if (autoOpenHardwareId) {
             setTimeout(() => {
