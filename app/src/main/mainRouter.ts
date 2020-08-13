@@ -96,11 +96,13 @@ class MainRouter {
             __dirname.indexOf('app.asar') > -1 &&
             fs.pathExistsSync(directoryPaths.relativeRootModules)
         ) {
+            console.log('remote dest directory..', directoryPaths.modules);
             await Promise.all([
                 FileUtils.rmdir(directoryPaths.modules),
                 FileUtils.rmdir(directoryPaths.firmware),
                 FileUtils.rmdir(directoryPaths.driver),
             ]);
+            console.log(`move ${directoryPaths.relativeRootModules} to ${directoryPaths.modules}`);
             await Promise.all([
                 fs.move(directoryPaths.relativeRootModules, directoryPaths.modules, { overwrite: true }),
                 fs.move(directoryPaths.relativeRootDriver, directoryPaths.driver), { overwrite: true },
