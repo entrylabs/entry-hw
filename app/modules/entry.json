@@ -14,7 +14,7 @@
     "driver": [{
         "win32-ia32": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
         "win32-x64": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
-        "darwin-x64": "CH34x_Install_MAC_10_9_AND_ABOVE/CH34x_Install_V1.3.pkg",
+        "darwin-x64": "https://entrylabs.github.io/docs/files/drivers/CH34x_Install_MAC_10_9_AND_ABOVE/CH34x_Install_V1.3.pkg",
         "translate": "Arduino compatible driver"
     }, {
         "win32-ia32": "esensorbt/CP210xVCPInstaller_x86.exe",
@@ -23,7 +23,7 @@
         "translate": "Bluetooth driver"
     }],
     "reconnect" : true,
-    "select_com_port": {
+    "selectPort": {
         "win32": false,
         "darwin": true
     },
@@ -34,9 +34,7 @@
         "name": "entrybt",
         "translate": "Install Firmware(Sensor Board Bluetooth)"
     }],
-    "entry": {
-        "protocol": "json"
-    },
+
     "hardware": {
         "type": "serial",
         "control": "slave",

@@ -1,5 +1,5 @@
 {
-	"id": "010103",
+	"id": "010F01",
 	"name": {
 		"en": "Little Bits",
 		"ko": "리틀비츠"
@@ -16,9 +16,6 @@
 	},
     "reconnect" : true,
 	"softwareReset": true,
-    "entry": {
-		"protocol": "json"
-	},
     "hardware" : {
         "type": "serial",
 		"rtscts": true,
