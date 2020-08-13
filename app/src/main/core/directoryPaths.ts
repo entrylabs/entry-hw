@@ -17,8 +17,8 @@ const relativeRootPath = () => {
     } else {
         return path.join(__dirname, '..', '..');
     }
-
 };
+
 console.log('directoryPath', __dirname);
 const getRootAppPath = () => (isInAsar ? getUserDataPath() : relativeRootPath());
 

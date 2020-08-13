@@ -43,7 +43,7 @@ class MainRouter {
     private readonly server: IEntryServer;
     private hardwareListManager: HardwareListManager;
     private flasher: Flasher;
-    private isFileInitialized = process.env.NODE_ENV === 'development';
+    private isFileInitialized = __dirname.indexOf('app.asar') === -1;
 
     public selectedPort?: string;
     public selectedPayload?: string;
