@@ -106,6 +106,7 @@ class MainRouter {
                 fs.move(directoryPaths.relativeRootDriver, directoryPaths.driver), { overwrite: true },
                 fs.move(directoryPaths.relativeRootFirmware, directoryPaths.firmware, { overwrite: true }),
             ]);
+            // TODO app.asar.unpacked 인경우 안됨;;;;;;;;;;;;;
         }
         await this.hardwareListManager.updateHardwareList();
         this.isFileInitialized = true;

@@ -18,7 +18,7 @@ export default {
     driver: path.join(getUserDataPath(), 'drivers'),
     firmware: path.join(getRootAppPath(), 'firmwares'),
     modules: path.join(getRootAppPath(), 'modules'),
-    relativeRootDriver: path.join(relativeRootPath(), 'drivers'),
-    relativeRootFirmware: path.join(relativeRootPath(), 'firmwares'),
-    relativeRootModules: path.join(relativeRootPath(), 'modules'),
+    relativeRootDriver: path.join(relativeRootPath(), 'drivers').replace('app.asar', 'app.asar.unpacked'),
+    relativeRootFirmware: path.join(relativeRootPath(), 'firmwares').replace('app.asar', 'app.asar.unpacked'),
+    relativeRootModules: path.join(relativeRootPath(), 'modules').replace('app.asar', 'app.asar.unpacked'),
 };
