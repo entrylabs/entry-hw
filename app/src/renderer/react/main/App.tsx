@@ -15,7 +15,7 @@ makeConsoleAsciiArt();
 ReactDOM.render(
     <>
         <Provider store={store}>
-            <IpcRendererWatchComponent />
+            <IpcRendererWatchComponent/>
             <Header/>
             <Main/>
             <Footer/>
@@ -23,7 +23,9 @@ ReactDOM.render(
         </Provider>
     </>,
     document.getElementById('__main'),
+    () => {
+        // 첫 렌더가 완료된 후 하드웨어 리스트 업데이트한다.
+        rendererRouter.refreshHardwareModules();
+        rendererRouter.checkProgramUpdate();
+    },
 );
-
-// 첫 렌더가 완료된 후 프로그램을 업데이트한다.
-rendererRouter.checkProgramUpdate();

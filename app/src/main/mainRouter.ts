@@ -78,7 +78,7 @@ class MainRouter {
         this.registerIpcEvents();
         logger.verbose('mainRouter created');
         if (this.isFileInitialized) {
-            this.hardwareListManager.updateHardwareList();
+            this.hardwareListManager.refreshHardwareList();
         }
     }
 
@@ -102,12 +102,12 @@ class MainRouter {
                 FileUtils.rmdir(directoryPaths.driver),
             ]);
             await Promise.all([
-                fs.move(directoryPaths.relativeRootModules, directoryPaths.modules, { overwrite: true }),
-                fs.move(directoryPaths.relativeRootDriver, directoryPaths.driver), { overwrite: true },
-                fs.move(directoryPaths.relativeRootFirmware, directoryPaths.firmware, { overwrite: true }),
+                fs.copy(directoryPaths.relativeRootModules, directoryPaths.modules, { overwrite: true }),
+                fs.copy(directoryPaths.relativeRootDriver, directoryPaths.driver), { overwrite: true },
+                fs.copy(directoryPaths.relativeRootFirmware, directoryPaths.firmware, { overwrite: true }),
             ]);
         }
-        await this.hardwareListManager.updateHardwareList();
+        await this.hardwareListManager.refreshHardwareList();
         this.isFileInitialized = true;
     }
 
@@ -532,6 +532,7 @@ class MainRouter {
             e.returnValue = this.currentCloudMode;
         });
         ipcMain.on('requestHardwareListSync', (e) => {
+            console.log(this.hardwareListManager.allHardwareList);
             e.returnValue = this.hardwareListManager.allHardwareList;
         });
         ipcMain.handle('requestDownloadModule', async (e, moduleName) => {
@@ -549,7 +550,7 @@ class MainRouter {
     async requestHardwareModule(moduleName: string) {
         logger.info(`hardware module requested from online, moduleName : ${moduleName}`);
         const moduleConfig = await downloadModule(moduleName);
-        await this.hardwareListManager.updateHardwareList([moduleConfig]);
+        await this.hardwareListManager.refreshHardwareList([moduleConfig]);
     }
 
     private resetIpcEvents() {

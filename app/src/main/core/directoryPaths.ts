@@ -15,7 +15,7 @@ console.log('directoryPath', __dirname);
 const getRootAppPath = () => (isProduction ? getUserDataPath() : relativeRootPath());
 
 export default {
-    driver: path.join(getUserDataPath(), 'drivers'),
+    driver: path.join(getRootAppPath(), 'drivers'),
     firmware: path.join(getRootAppPath(), 'firmwares'),
     modules: path.join(getRootAppPath(), 'modules'),
     relativeRootDriver: path.join(relativeRootPath(), 'drivers'),
