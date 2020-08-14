@@ -14,7 +14,7 @@ const relativeRootPath = () => (
         : path.join(__dirname, '..', '..')
 );
 console.log('directoryPath', __dirname);
-const getRootAppPath = () => (isProduction ? getUserDataPath() : relativeRootPath());
+const getRootAppPath = () => (isProduction && __dirname.indexOf('app.asar') ? getUserDataPath() : relativeRootPath());
 
 export default {
     appRoot: getRootAppPath(),
