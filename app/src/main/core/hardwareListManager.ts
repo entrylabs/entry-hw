@@ -46,7 +46,7 @@ export default class {
         logger.verbose('hardwareListManager created');
     }
 
-    private async updateHardwareListWithOnline() {
+    private async getOnlineModuleList() {
         logger.verbose('hardware List update from online..');
         try {
             const onlineList = await getModuleList();
@@ -61,13 +61,19 @@ export default class {
                     (`${module.id}|${module.name?.ko || module.name?.en || module.moduleName}`)).join(',')
             }`);
 
-            await this.updateHardwareList(moduleList);
+            return moduleList;
         } catch (e) {
             logger.warn(`online hardware list update failed ${JSON.stringify(e)}`);
         }
     }
 
-    async updateHardwareList(source: any[] = []) {
+    async refreshHardwareList(source: any[] = []) {
+        this.updateHardwareList(source);
+        const onlineList = await this.getOnlineModuleList();
+        this.updateHardwareList(onlineList);
+    }
+
+    private updateHardwareList(source: any[] = []) {
         logger.verbose('hardware List update from file system..');
         const availables = this.getAllHardwareModulesFromDisk();
         const mergedList = unionWith(availables, source, (src, ori) => {
@@ -90,7 +96,6 @@ export default class {
             .filter(platformFilter)
             .sort(nameSortComparator);
         this.notifyHardwareListChanged();
-        await this.updateHardwareListWithOnline();
     }
 
     private getAllHardwareModulesFromDisk() {
