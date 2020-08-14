@@ -1,6 +1,5 @@
-import { BrowserWindow, ipcMain, shell } from 'electron';
+import { app, BrowserWindow, ipcMain, shell } from 'electron';
 import path from 'path';
-import fs from 'fs-extra';
 import ScannerManager from './core/scannerManager';
 import Flasher from './core/serial/flasher';
 import rendererConsole from './core/rendererConsole';
@@ -14,7 +13,7 @@ import directoryPaths from './core/directoryPaths';
 import BaseScanner from './core/baseScanner';
 import BaseConnector from './core/baseConnector';
 import SerialConnector from './core/serial/connector';
-import FileUtils from './core/fileUtils';
+import initializeModuleFiles from './core/functions/initializeModuleFiles';
 
 const nativeNodeRequire = require('./nativeNodeRequire.js');
 const logger = createLogger('core/mainRouter.ts');
@@ -43,7 +42,7 @@ class MainRouter {
     private readonly server: IEntryServer;
     private hardwareListManager: HardwareListManager;
     private flasher: Flasher;
-    private isFileInitialized = process.env.NODE_ENV === 'development';
+    private needModuleFilesInitialize = __dirname.indexOf('app.asar') > -1;
 
     public selectedPort?: string;
     public selectedPayload?: string;
@@ -77,7 +76,14 @@ class MainRouter {
         this.resetIpcEvents();
         this.registerIpcEvents();
         logger.verbose('mainRouter created');
-        if (this.isFileInitialized) {
+        if (this.needModuleFilesInitialize) {
+            console.log('needModuleFilesInitialize');
+            initializeModuleFiles().then(() => {
+                this.hardwareListManager.refreshHardwareList();
+            });
+            this.needModuleFilesInitialize = false;
+        } else {
+            console.log('no needModuleFilesInitialize');
             this.hardwareListManager.refreshHardwareList();
         }
     }
@@ -92,23 +98,11 @@ class MainRouter {
      * windows : C:\Users\user\AppData\Roaming\entry-hw
      */
     async initializeModuleFiles() {
-        if (!this.isFileInitialized &&
-            __dirname.indexOf('app.asar') > -1 &&
-            fs.pathExistsSync(directoryPaths.relativeRootModules)
-        ) {
-            await Promise.all([
-                FileUtils.rmdir(directoryPaths.modules),
-                FileUtils.rmdir(directoryPaths.firmware),
-                FileUtils.rmdir(directoryPaths.driver),
-            ]);
-            await Promise.all([
-                fs.copy(directoryPaths.relativeRootModules, directoryPaths.modules, { overwrite: true }),
-                fs.copy(directoryPaths.relativeRootDriver, directoryPaths.driver), { overwrite: true },
-                fs.copy(directoryPaths.relativeRootFirmware, directoryPaths.firmware, { overwrite: true }),
-            ]);
-        }
-        await this.hardwareListManager.refreshHardwareList();
-        this.isFileInitialized = true;
+        // if (this.needModuleFilesInitialize) {
+        //     await initializeModuleFiles();
+        // }
+        // await this.hardwareListManager.refreshHardwareList();
+        // this.needModuleFilesInitialize = false;
     }
 
     /**
