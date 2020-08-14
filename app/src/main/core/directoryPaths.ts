@@ -9,7 +9,9 @@ const isProduction = process.env.NODE_ENV === 'production';
 // @ts-ignore
 const getUserDataPath = () => app.getPath('userData');
 const relativeRootPath = () => (
-    isProduction ? path.join(__dirname, '..', '..', '..', '..') : path.join(__dirname, '..', '..')
+    (isProduction && !__dirname.indexOf('app.asar.unpacked'))
+        ? path.join(__dirname, '..', '..', '..', '..')
+        : path.join(__dirname, '..', '..')
 );
 console.log('directoryPath', __dirname);
 const getRootAppPath = () => (isProduction ? getUserDataPath() : relativeRootPath());

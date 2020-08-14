@@ -532,7 +532,6 @@ class MainRouter {
             e.returnValue = this.currentCloudMode;
         });
         ipcMain.on('requestHardwareListSync', (e) => {
-            console.log(this.hardwareListManager.allHardwareList);
             e.returnValue = this.hardwareListManager.allHardwareList;
         });
         ipcMain.handle('requestDownloadModule', async (e, moduleName) => {
