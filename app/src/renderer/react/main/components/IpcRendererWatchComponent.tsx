@@ -7,12 +7,13 @@ import {
     changeHardwareModuleState,
     changeSocketConnectionState,
     changeStateTitle,
-    invalidateBuild,
     IAlertMessage,
+    invalidateBuild,
 } from '../store/modules/common';
 import { changePortList } from '../store/modules/connection';
 import { connect } from 'react-redux';
 import { IMapDispatchToProps, IMapStateToProps } from '../store';
+import { changeHardwareList } from '../store/modules/hardware';
 
 const { translator, ipcRenderer, rendererRouter } = window;
 
@@ -28,6 +29,7 @@ class IpcRendererWatchComponent extends React.PureComponent<IProps> {
         ipcRenderer.removeAllListeners('cloudMode');
         ipcRenderer.removeAllListeners('socketConnected');
         ipcRenderer.removeAllListeners('invalidAsarFile');
+        ipcRenderer.removeAllListeners('hardwareListChanged');
 
         ipcRenderer.on('invalidAsarFile', () => {
             props.invalidateBuild();
@@ -112,6 +114,11 @@ class IpcRendererWatchComponent extends React.PureComponent<IProps> {
         ipcRenderer.on('socketConnected', (event, isConnected: boolean) => {
             props.changeSocketConnectionState(isConnected);
         });
+
+        ipcRenderer.on('hardwareListChanged', () => {
+            const hardwareList = rendererRouter.hardwareList;
+            props.changeHardwareList(hardwareList);
+        });
     }
 
     render() {
@@ -137,6 +144,7 @@ interface IDispatchProps {
     changeHardwareModuleState: (state: HardwareStatement) => void;
     changeSocketConnectionState: (state: boolean) => void;
     invalidateBuild: () => void;
+    changeHardwareList: (hardwareList: IHardwareConfig[]) => void;
 }
 
 const mapDispatchToProps: IMapDispatchToProps<IDispatchProps> = (dispatch) => ({
@@ -147,6 +155,7 @@ const mapDispatchToProps: IMapDispatchToProps<IDispatchProps> = (dispatch) => ({
     changeHardwareModuleState: changeHardwareModuleState(dispatch),
     changeSocketConnectionState: changeSocketConnectionState(dispatch),
     invalidateBuild: invalidateBuild(dispatch),
+    changeHardwareList: changeHardwareList(dispatch),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(IpcRendererWatchComponent);
