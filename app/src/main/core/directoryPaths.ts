@@ -22,9 +22,16 @@ const isInAsar = __dirname.indexOf('app.asar/') > -1;
 const isInAsarUnpacked = __dirname.indexOf('app.asar.unpacked') > -1;
 
 const userDataPath = app.getPath('userData');
-const relativeRootPath = (isProduction && isInAsar)
-    ? path.join(__dirname, '..', '..', '..', '..')
-    : path.join(__dirname, '..', '..');
+const relativeRootPath = (() => {
+    if (isProduction) {
+        if (isInAsar) {
+            return path.join(__dirname, '..', '..', '..', '..');
+        } else if (isInAsarUnpacked) {
+            return path.join(__dirname, '..', '..').replace('app.asar', 'app.asar.unpacked');
+        }
+    }
+    return path.join(__dirname, '..', '..');
+})();
 
 const getRootAppPath = () => (isProduction && (isInAsar || isInAsarUnpacked) ? userDataPath : relativeRootPath);
 
