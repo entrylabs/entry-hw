@@ -24,7 +24,7 @@ async function isSameMarkedVersion() {
 
 export default async () => {
     const isInAsar = __dirname.indexOf('app.asar') > -1;
-    const isSourceExists = await fs.pathExists(directoryPaths.relativeRootModules);
+    const isSourceExists = await fs.pathExists(directoryPaths.relativeRootModules());
 
     if (isInAsar && isSourceExists && !(await isSameMarkedVersion())) {
         await Promise.all([
@@ -33,9 +33,9 @@ export default async () => {
             FileUtils.rmdir(directoryPaths.driver),
         ]);
         await Promise.all([
-            fs.copy(directoryPaths.relativeRootModules, directoryPaths.modules, { overwrite: true }),
-            fs.copy(directoryPaths.relativeRootDriver, directoryPaths.driver), { overwrite: true },
-            fs.copy(directoryPaths.relativeRootFirmware, directoryPaths.firmware, { overwrite: true }),
+            fs.copy(directoryPaths.relativeRootModules(), directoryPaths.modules, { overwrite: true }),
+            fs.copy(directoryPaths.relativeRootDriver(), directoryPaths.driver), { overwrite: true },
+            fs.copy(directoryPaths.relativeRootFirmware(), directoryPaths.firmware, { overwrite: true }),
         ]);
         await markInitializedVersion();
     } else {

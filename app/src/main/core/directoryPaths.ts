@@ -21,7 +21,7 @@ const isInAsar = __dirname.indexOf('app.asar/') > -1;
 const isInAsarUnpacked = __dirname.indexOf('app.asar.unpacked') > -1;
 
 const userDataPath = app.getPath('userData');
-const relativeRootPath = (() => {
+const relativeRootPath = () => {
     if (isInAsar) {
         if (process.env.ASAR_UNPACKED === 'true') {
             return path.join(__dirname, '..', '..').replace('app.asar', 'app.asar.unpacked');
@@ -30,16 +30,16 @@ const relativeRootPath = (() => {
         }
     }
     return path.join(__dirname, '..', '..');
-})();
+};
 
-const getRootAppPath = () => ((isInAsar || isInAsarUnpacked) ? userDataPath : relativeRootPath);
+const getRootAppPath = () => ((isInAsar || isInAsarUnpacked) ? userDataPath : relativeRootPath());
 
 export default {
     appRoot: getRootAppPath(),
     driver: path.join(getRootAppPath(), 'drivers'),
     firmware: path.join(getRootAppPath(), 'firmwares'),
     modules: path.join(getRootAppPath(), 'modules'),
-    relativeRootDriver: path.join(relativeRootPath, 'drivers'),
-    relativeRootFirmware: path.join(relativeRootPath, 'firmwares'),
-    relativeRootModules: path.join(relativeRootPath, 'modules'),
+    relativeRootDriver: () => path.join(relativeRootPath(), 'drivers'),
+    relativeRootFirmware: () => path.join(relativeRootPath(), 'firmwares'),
+    relativeRootModules: () => path.join(relativeRootPath(), 'modules'),
 };
