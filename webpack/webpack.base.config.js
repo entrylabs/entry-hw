@@ -1,3 +1,5 @@
+const { EnvironmentPlugin } = require('webpack');
+
 module.exports = {
     mode: process.env.NODE_ENV || 'development',
     resolve: {
@@ -20,4 +22,9 @@ module.exports = {
             },
         ],
     },
+    plugins: [
+        new EnvironmentPlugin({
+            ASAR_UNPACKED: false,
+        }),
+    ],
 };
