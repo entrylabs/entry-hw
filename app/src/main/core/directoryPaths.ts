@@ -17,13 +17,12 @@ import { app } from 'electron';
  * 빌드환경 : NODE_ENV=production, asar.unpack, 상대경로 ../../ (unpack 이기 때문에 권한 문제 x)
  */
 
-const isProduction = process.env.NODE_ENV === 'production';
 const isInAsar = __dirname.indexOf('app.asar/') > -1;
 const isInAsarUnpacked = __dirname.indexOf('app.asar.unpacked') > -1;
 
 const userDataPath = app.getPath('userData');
 const relativeRootPath = (() => {
-    if (isInAsar && isProduction) {
+    if (isInAsar) {
         if (process.env.ASAR_UNPACKED === 'true') {
             return path.join(__dirname, '..', '..').replace('app.asar', 'app.asar.unpacked');
         } else {
@@ -33,7 +32,7 @@ const relativeRootPath = (() => {
     return path.join(__dirname, '..', '..');
 })();
 
-const getRootAppPath = () => (isProduction && (isInAsar || isInAsarUnpacked) ? userDataPath : relativeRootPath);
+const getRootAppPath = () => ((isInAsar || isInAsarUnpacked) ? userDataPath : relativeRootPath);
 
 export default {
     appRoot: getRootAppPath(),
