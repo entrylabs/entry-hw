@@ -78,19 +78,19 @@ function Module() {
 
 let sensorIdx = 0;
 
-Module.prototype.init=function(handler, config){
+Module.prototype.init = function(handler, config) {
 };
 
-Module.prototype.setSerialPort=function(sp){
+Module.prototype.setSerialPort = function(sp) {
     this.sp = sp;
-    sp.set({dtr: false,rts:true});
-    sp.set({dtr: false,rts:false});
+    sp.set({ dtr: false,rts:true });
+    sp.set({ dtr: false,rts:false });
 };
 
 Module.prototype.requestInitialData = function(sp) {
     this.sp = sp;
-    sp.set({dtr: false,rts:true});
-    sp.set({dtr: false,rts:false});
+    sp.set({ dtr: false,rts:true });
+    sp.set({ dtr: false,rts:false });
     return true;
 };
 
