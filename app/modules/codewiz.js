@@ -13,16 +13,16 @@ function Module() {
     this.defaultSensorList = [
         'SOUND','LIGHT','DIST','HALL',
         'touchPin_13', 'touchPin_14', 'touchPin_15',
-		'touchPin_27', 'touchPin_32', 'touchPin_33', 
-		'switchButton_4', 'switchButton_26',
+        'touchPin_27', 'touchPin_32', 'touchPin_33', 
+        'switchButton_4', 'switchButton_26',
         'GYRO_X', 'GYRO_Y', 'GYRO_Z', 'tempSensor',
-    ]
+    ];
     this.actionTypes = {
         GET: 1,
         SET: 2,
         RESET: 3,
         READ:1,
-        RUN:0
+        RUN:0,
     };
 
     this.sensorValueSize = {
@@ -76,29 +76,22 @@ function Module() {
     this.isDraing = false;
 }
 
-var sensorIdx = 0;
+let sensorIdx = 0;
 
-Module.prototype.init = function(handler, config) {
+Module.prototype.init=function(handler, config){
 };
 
-Module.prototype.setSerialPort = function (sp) {
-    var self = this;
-    //"select_com_port": true,
-    //if(!this.sp) {
-        this.sp = sp;
-        sp.set({dtr: false,rts:true});
-        sp.set({dtr: false,rts:false});
-    //}
+Module.prototype.setSerialPort=function(sp){
+    this.sp = sp;
+    sp.set({dtr: false,rts:true});
+    sp.set({dtr: false,rts:false});
 };
 
 Module.prototype.requestInitialData = function(sp) {
-    //if(!this.sp) {
-        this.sp = sp;
-        sp.set({dtr: false,rts:true});
-        sp.set({dtr: false,rts:false});
-    //}
+    this.sp = sp;
+    sp.set({dtr: false,rts:true});
+    sp.set({dtr: false,rts:false});
     return true;
-    //return this.makeSensorReadBuffer(this.sensorTypes.ANALOG, 0);
 };
 
 Module.prototype.checkInitialData = function(data, config) {
@@ -121,7 +114,7 @@ Module.prototype.lostController = function(self, cb) {
 };
 
 Module.prototype.requestRemoteData = function(handler) {
-    var self = this;
+    let self = this;
     if(!self.sensorData) {
         return;
     }
@@ -133,21 +126,21 @@ Module.prototype.requestRemoteData = function(handler) {
 };
 
 Module.prototype.handleRemoteData = function(handler) {
-    var self = this;
-    var getDatas = handler.read('GET');
-    var setDatas = handler.read('SET') || this.defaultOutput;
-    var isReset = handler.read('RESET');
-    var buffer = new Buffer([]);
+    let self = this;
+    let getDatas = handler.read('GET');
+    let setDatas = handler.read('SET') || this.defaultOutput;
+    let isReset = handler.read('RESET');
+    let buffer = new Buffer([]);
     if(isReset) {
         // this.sp.set({dtr: false,rts:true});
         // this.sp.set({dtr: false,rts:false});
         this.sp.write([254,255,3,1,0]);
     }
     if(getDatas) {
-        var keys = Object.keys(getDatas);
+        let keys = Object.keys(getDatas);
         keys.forEach(function(key) {
-            //var isSend = false;
-            var dataObj = getDatas[key];
+            //let isSend = false;
+            let dataObj = getDatas[key];
             // if(typeof dataObj.port === 'string' || typeof dataObj.port === 'number') {
             //         isSend = true;
             // } 
@@ -166,9 +159,9 @@ Module.prototype.handleRemoteData = function(handler) {
     }
 
     if(setDatas) {
-        var setKeys = Object.keys(setDatas);
+        let setKeys = Object.keys(setDatas);
         setKeys.forEach(function (port) {   
-            var data = setDatas[port];
+            let data = setDatas[port];
             if(data) {
 
                     if(!self.isRecentData(port, data.type, data.value)) {
@@ -188,7 +181,7 @@ Module.prototype.handleRemoteData = function(handler) {
 };
 
 Module.prototype.isRecentData = function(port, type, data) {
-    var isRecent = false;
+    let isRecent = false;
 
     if(port in this.recentCheckData) {
         if(type != this.sensorTypes.TONE && this.recentCheckData[port].type === type && this.recentCheckData[port].data === data) {
@@ -200,7 +193,7 @@ Module.prototype.isRecentData = function(port, type, data) {
 }
 
 Module.prototype.requestLocalData = function() {
-    var self = this;
+    let self = this;
 
     if(!this.isDraing && this.sendBuffers.length > 0) {
         this.isDraing = true;
@@ -230,8 +223,8 @@ Module.prototype.requestLocalData = function() {
 ff 55 idx size data a
 */
 Module.prototype.handleLocalData = function(data) {
-    var self = this;
-    var datas = this.getDataByBuffer(data);
+    let self = this;
+    let datas = this.getDataByBuffer(data);
     
     datas.forEach(function (data) {
         //let customFormat = false;
@@ -242,8 +235,8 @@ Module.prototype.handleLocalData = function(data) {
         if(data.length <= 4 || data[0] !== 255 || data[1] !== 85) {
             return;
         }
-        var readData = data.subarray(2, data.length);
-        var value;
+        let readData = data.subarray(2, data.length);
+        let value;
         switch(readData[0]) {
             case self.sensorValueSize.SENSOR_TYPE1: {
                 for(let i=0; 2*i<readData.length; ++i) {
@@ -296,8 +289,8 @@ ff 55 len idx action device port  slot  data a
 0  1  2   3   4      5      6     7     8
 */
 Module.prototype.makeSensorReadBuffer = function(device, port, data) {
-    var buffer;
-    var dummy = new Buffer([10]);
+    let buffer;
+    let dummy = new Buffer([10]);
     if(!data) {
         buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.GET, device, port, 10]);
     } else {
@@ -315,7 +308,7 @@ Module.prototype.makeSensorReadBuffer = function(device, port, data) {
 };
 
 Module.prototype.makeOutputBuffer = function(device, port, data) {
-    var buffer;
+    let buffer;
     switch(device) {        
         case this.sensorTypes.BUZZER:{
             if ($.isPlainObject(data)) {
@@ -550,8 +543,8 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
 };
 
 Module.prototype.getDataByBuffer = function(buffer) {
-    var datas = [];
-    var lastIndex = 0;
+    let datas = [];
+    let lastIndex = 0;
     buffer.forEach(function (value, idx) {
         if(value == 13 && buffer[idx + 1] == 10) {
             datas.push(buffer.subarray(lastIndex, idx));
@@ -563,7 +556,7 @@ Module.prototype.getDataByBuffer = function(buffer) {
 };
 
 Module.prototype.disconnect = function(connect) {
-    var self = this;
+    let self = this;
     connect.close();
     if(self.sp) {
         delete self.sp;
