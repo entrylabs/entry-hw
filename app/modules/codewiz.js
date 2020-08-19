@@ -100,7 +100,7 @@ Module.prototype.checkInitialData = function(data, config) {
 
 Module.prototype.afterConnect = function(that, cb) {
     that.connected = true;
-    if(cb) {
+    if (cb) {
         cb('connected');
     }
 };
@@ -114,22 +114,22 @@ Module.prototype.lostController = function(self, cb) {
 };
 
 Module.prototype.requestRemoteData = function(handler) {
-    let self = this;
-    if(!self.sensorData) {
+    const self = this;
+    if (!self.sensorData) {
         return;
     }
-    Object.keys(this.sensorData).forEach(function (key) {
-        if(self.sensorData[key] != undefined) {
+    Object.keys(this.sensorData).forEach((key) => {
+        if (self.sensorData[key] != undefined) {
             handler.write(key, self.sensorData[key]);
         }
     });
 };
 
 Module.prototype.handleRemoteData = function(handler) {
-    let self = this;
-    let getDatas = handler.read('GET');
-    let setDatas = handler.read('SET') || this.defaultOutput;
-    let isReset = handler.read('RESET');
+    const self = this;
+    const getDatas = handler.read('GET');
+    const setDatas = handler.read('SET') || this.defaultOutput;
+    const isReset = handler.read('RESET');
     let buffer = new Buffer([]);
     if(isReset) {
         // this.sp.set({dtr: false,rts:true});
