@@ -140,7 +140,7 @@ Module.prototype.handleRemoteData = function(handler) {
         const keys = Object.keys(getDatas);
         keys.forEach((key) => {
             //let isSend = false;
-            let dataObj = getDatas[key];
+            const dataObj = getDatas[key];
             // if (typeof dataObj.port === 'string' || typeof dataObj.port === 'number') {
             //         isSend = true;
             // } 
@@ -150,8 +150,8 @@ Module.prototype.handleRemoteData = function(handler) {
             if (!self.isRecentData(dataObj.port, key, dataObj.data)) {
                 self.recentCheckData[dataObj.port] = {
                     type: key,
-                    data: dataObj.data
-                }
+                    data: dataObj.data,
+                };
                 buffer = Buffer.concat([buffer, self.makeSensorReadBuffer(key, dataObj.port, dataObj.data)]);
             }
             //}
@@ -161,15 +161,14 @@ Module.prototype.handleRemoteData = function(handler) {
     if (setDatas) {
         const setKeys = Object.keys(setDatas);
         setKeys.forEach((port) => {   
-            let data = setDatas[port];
+            const data = setDatas[port];
             if (data) {
                 if (!self.isRecentData(port, data.type, data.value)) {
                     self.recentCheckData[port] = {
                         type: data.type,
-                        data: data.value
-                    }
+                        data: data.value,
+                    };
                     buffer = Buffer.concat([buffer, self.makeOutputBuffer(data.type, port ,data.value)]);
-                        //delete setDatas[port]
                 }
             }
         });
@@ -183,13 +182,13 @@ Module.prototype.isRecentData = function(port, type, data) {
     let isRecent = false;
 
     if (port in this.recentCheckData) {
-        if (type != this.sensorTypes.TONE && this.recentCheckData[port].type === type && this.recentCheckData[port].data === data) {
+        if (type != this.sensorTypes.BUZZER && this.recentCheckData[port].type === type && this.recentCheckData[port].data === data) {
             isRecent = true;
         }
     }
 
     return isRecent;
-}
+};
 
 Module.prototype.requestLocalData = function() {
     let self = this;
@@ -207,30 +206,15 @@ Module.prototype.requestLocalData = function() {
 
     return null;
 };
-// Module.prototype.isOkSign = function(data) {
-//     let isOk = true;
-//     let chkVal = [255, 85, 2, 6]
-//     for(let i=0; i<chkVal.length; ++i) {
-//         if (data[i]!==chkVal[i]) {
-//             isOk=false;
-//             break;
-//         }
-//     }
-//     return isOk;
-// }
+
 /*
 ff 55 idx size data a
 */
 Module.prototype.handleLocalData = function(data) {
-    let self = this;
-    let datas = this.getDataByBuffer(data);
+    const self = this;
+    const datas = this.getDataByBuffer(data);
     
-    datas.forEach((data) => {
-        //let customFormat = false;
-        // if (this.isOkSign(data)) {
-        //     self.sensorData['ISRUN']=1;
-        //     return;
-        // }
+    datas.forEach((data) => {        
         if (data.length <= 4 || data[0] !== 255 || data[1] !== 85) {
             return;
         }
@@ -555,7 +539,7 @@ Module.prototype.getDataByBuffer = function(buffer) {
 };
 
 Module.prototype.disconnect = function(connect) {
-    let self = this;
+    const self = this;
     connect.close();
     if (self.sp) {
         delete self.sp;
