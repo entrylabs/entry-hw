@@ -12,10 +12,10 @@ function Module() {
     };
     this.defaultSensorList = [
         'SOUND','LIGHT','DIST','HALL',
-        "touchPin_13", "touchPin_14", "touchPin_15",
-		"touchPin_27", "touchPin_32", "touchPin_33", 
-		"switchButton_4", "switchButton_26",
-        'GYRO_X', 'GYRO_Y', 'GYRO_Z', "tempSensor",
+        'touchPin_13', 'touchPin_14', 'touchPin_15',
+		'touchPin_27', 'touchPin_32', 'touchPin_33', 
+		'switchButton_4', 'switchButton_26',
+        'GYRO_X', 'GYRO_Y', 'GYRO_Z', 'tempSensor',
     ]
     this.actionTypes = {
         GET: 1,
