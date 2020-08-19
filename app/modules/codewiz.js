@@ -228,7 +228,7 @@ Module.prototype.handleLocalData = function(data) {
                 value = (readData[i * 2 + 1] << 8) | readData[i * 2 + 2];
                 if (i === 2) {
                     if (value < 3000) {
-                        self.sensorData['DIST'] = value;
+                        self.sensorData["DIST"] = value;
                     }
                 } else if (i === 3) {
                     self.sensorData[self.defaultSensorList[i]] = value - 300;
@@ -256,7 +256,7 @@ Module.prototype.handleLocalData = function(data) {
             _value -= 400;
             _value /= 10.0;
             if (_value < 81) {
-                self.sensorData['tempSensor'] = _value;
+                self.sensorData["tempSensor"] = _value;
             }
             return;
         }
@@ -265,7 +265,6 @@ Module.prototype.handleLocalData = function(data) {
             break;
         }
         }
-
     });
 };
 
@@ -274,8 +273,8 @@ ff 55 len idx action device port  slot  data a
 0  1  2   3   4      5      6     7     8
 */
 Module.prototype.makeSensorReadBuffer = function(device, port, data) {
-    let buffer;
-    let dummy = new Buffer([10]);
+    let buffer, value;
+    const dummy = new Buffer([10]);
     if (!data) {
         buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.GET, device, port, 10]);
     } else {
@@ -295,11 +294,11 @@ Module.prototype.makeSensorReadBuffer = function(device, port, data) {
 Module.prototype.makeOutputBuffer = function(device, port, data) {
     let buffer;
     switch (device) {        
-    case this.sensorTypes.BUZZER:{
+    case this.sensorTypes.BUZZER: {
         if ($.isPlainObject(data)) {
-            let octave = new Buffer(1); 
-            let note = new Buffer(1); 
-            let beat = new Buffer(1);
+            const octave = new Buffer(1); 
+            const note = new Buffer(1); 
+            const beat = new Buffer(1);
             octave.writeUInt8(data.octave);
             note.writeUInt8(data.note);
             beat.writeUInt8(data.beat);
@@ -309,9 +308,9 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
         }
         break;
     } // END BUZZER
-    case this.sensorTypes.NEOPIXEL:{
+    case this.sensorTypes.NEOPIXEL: {
         if ($.isPlainObject(data)) {
-            let opcode = Number.parseInt(data.opcode);
+            const opcode = Number.parseInt(data.opcode);
             if (opcode === 0) {
                 buffer = new Buffer([
                     254, 255, 
@@ -346,9 +345,9 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
         }
         break;
     } // END NEOPIXEL
-    case this.sensorTypes.OLED:{
+    case this.sensorTypes.OLED: {
         if ($.isPlainObject(data)) {
-            let opcode = Number.parseInt(data.opcode);  // 0~16
+            const opcode = Number.parseInt(data.opcode);  // 0~16
             if (opcode === 0) {
                 buffer = new Buffer([
                     254, 255, 
@@ -493,9 +492,9 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
         }
         break;
     } // END OLED
-    case this.sensorTypes.DIGITAL_OUTPUT:{
+    case this.sensorTypes.DIGITAL_OUTPUT: {
         if ($.isPlainObject(data)) {
-            let opcode = Number.parseInt(data.opcode);
+            const opcode = Number.parseInt(data.opcode);
             if (opcode === 0) {
                 buffer = new Buffer([
                     254, 255, 
