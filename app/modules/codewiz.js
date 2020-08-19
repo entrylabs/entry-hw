@@ -228,7 +228,7 @@ Module.prototype.handleLocalData = function(data) {
                 value = (readData[i * 2 + 1] << 8) | readData[i * 2 + 2];
                 if (i === 2) {
                     if (value < 3000) {
-                        self.sensorData["DIST"] = value;
+                        self.sensorData.DIST = value;
                     }
                 } else if (i === 3) {
                     self.sensorData[self.defaultSensorList[i]] = value - 300;
@@ -256,7 +256,7 @@ Module.prototype.handleLocalData = function(data) {
             _value -= 400;
             _value /= 10.0;
             if (_value < 81) {
-                self.sensorData["tempSensor"] = _value;
+                self.sensorData.tempSensor = _value;
             }
             return;
         }
@@ -273,12 +273,12 @@ ff 55 len idx action device port  slot  data a
 0  1  2   3   4      5      6     7     8
 */
 Module.prototype.makeSensorReadBuffer = function(device, port, data) {
-    let buffer, value;
+    let buffer;
     const dummy = new Buffer([10]);
     if (!data) {
         buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.GET, device, port, 10]);
-    } else {
-        value = new Buffer(2);
+    } else {        
+        let value = new Buffer(2);
         value.writeInt16LE(data);
         buffer = new Buffer([255, 85, 7, sensorIdx, this.actionTypes.GET, device, port, 10]);
         buffer = Buffer.concat([buffer, value, dummy]);
