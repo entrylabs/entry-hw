@@ -14,7 +14,7 @@
     },
     "reconnect" : true,
     "firmwareBaudRate": 57600,
-    "firmware": "etboard",
+    "firmware": "http://et.ketri.re.kr/purchase/",
     "entry": {
         "protocol": "json"
     },

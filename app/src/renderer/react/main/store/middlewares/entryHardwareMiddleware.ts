@@ -110,15 +110,16 @@ const entryHardwareMiddleware: Middleware = ({ getState }: { getState: () => ISt
     case FIRMWARE_INSTALL_REQUESTED: {
         const { common } = getState();
         const { moduleState } = common;
+        const firmwareInfo = action.payload as IFirmwareInfo;
 
-        if (
-            action.payload.type !== 'copy' &&
+        if (typeof firmwareInfo === 'string' && firmwareInfo.startsWith('http')) {
+            rendererRouter.openExternalUrl(firmwareInfo);
+        } else if ((firmwareInfo as ICopyTypeFirmware).type !== 'copy' &&
                 moduleState !== HardwareStatement.beforeConnect &&
-                moduleState !== HardwareStatement.connected
-        ) {
+                moduleState !== HardwareStatement.connected) {
             alert(translator.translate('Hardware Device Is Not Connected'));
         } else {
-            rendererRouter.requestFlash(action.payload)
+            rendererRouter.requestFlash(firmwareInfo)
                 .then(() => {
                     changeAlertMessage(next)({
                         message: translator.translate('Firmware Uploaded!'),
