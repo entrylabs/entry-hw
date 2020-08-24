@@ -6,6 +6,7 @@ import fs from 'fs';
 import EntryServer from './serverProcessManager';
 import WindowManager from './windowManager';
 import CommonUtils from './commonUtils';
+import StatisticsLogger from '../core/statisticsLogger';
 // functions
 import parseCommandLine from './functions/parseCommandLine';
 import configInit from './functions/configInitialize';
@@ -93,6 +94,16 @@ if (!app.requestSingleInstanceLock()) {
         const configuration = configInit(commandLineOptions);
         const { roomIds: configRoomIds } = configuration;
         roomIds = configRoomIds || [];
+
+
+        const statisticsLogger = StatisticsLogger.getInstance();
+
+        statisticsLogger.setOptions({
+            logPath: path.join(__dirname),
+            serverUrl: 'http://localhost:4000/log/hardware'
+        });
+        statisticsLogger.run();
+        statisticsLogger.log('hello world', 'value1', 'value2', 1 + 1);
 
         const customSchemaArgvIndex = argv.indexOf('entryhw:');
         if (customSchemaArgvIndex > -1) {
