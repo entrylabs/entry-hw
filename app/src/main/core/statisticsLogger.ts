@@ -17,8 +17,8 @@ type ConstructorOptions = Partial<Options> & Pick<Options, RequiredOptions>;
 
 type LogObject = {
     key: string;
-    values: any[];
     date: number;
+    value?: { [key: string]: string }
 }
 
 const defaultOptions: DefaultOptions = {
@@ -43,20 +43,12 @@ const LOG_EXTENSION = '.ehl';
  * 2.
  */
 class StatisticsLogger {
-    private static _instance: StatisticsLogger;
     private options?: Options;
     private logQueue: LogObject[] = [];
     private isInternetConnected: boolean = true;
     private lastInternetConnectedFlag = false;
     private connectionCheckInterval?: number;
     private queueCheckInterval?: number;
-
-    public static getInstance() {
-        if (!this._instance) {
-            this._instance = new StatisticsLogger();
-        }
-        return this._instance;
-    }
 
     public setOptions(nextOptions: ConstructorOptions) {
         if (!nextOptions.logPath) {
@@ -67,10 +59,17 @@ class StatisticsLogger {
         }
 
         this.options = Object.assign<DefaultOptions, ConstructorOptions>(defaultOptions, nextOptions);
-        StatisticsLogger._instance = this;
     }
 
     public run() {
+        if (!this.options) {
+            throw new Error('option is not defined');
+        }
+
+        if (this.queueCheckInterval || this.connectionCheckInterval) {
+            this.stop();
+        }
+
         this.checkInternetConnected();
         this.checkLoggerQueue();
     }
@@ -82,12 +81,13 @@ class StatisticsLogger {
 
     /**
      * 로그를 쌓는다. 만약 인터넷에 연결되어있는 상태로 판단되는 경우는 바로 서버로 전송하고, 그렇지 않은 경우에는 파일로 로그를 떨군다.
+     * options 가 세팅되지 않은 경우는 log 함수가 호출되어도 큐에 쌓지 않는다.
      * @param key
      * @param value
      */
-    public log(key: string, ...value: any[]) {
-        this.logQueue.push({
-            key, values: value, date: Date.now(),
+    public log(key: string, value?: { [key: string]: string }) {
+        this.options && this.logQueue.push({
+            key, date: Date.now(), value,
         });
     }
 
@@ -123,6 +123,7 @@ class StatisticsLogger {
                         await this.loadLogFiles();
                         this.lastInternetConnectedFlag = true;
                     }
+
                     await this.sendLogToServer(logObject);
                 } else {
                     this.lastInternetConnectedFlag = false;
@@ -145,9 +146,11 @@ class StatisticsLogger {
                 .filter((fileName) => path.extname(fileName).toLowerCase() === LOG_EXTENSION)
                 .map(async (fileName) => {
                     try {
-                        const fileContent = await fs.readFile(path.join(logPath, fileName));
+                        const targetLogFile = path.join(logPath, fileName);
+                        const fileContent = await fs.readFile(targetLogFile);
                         const logObject = JSON.parse(fileContent as any) as LogObject;
                         logObject && this.logQueue.push(logObject);
+                        await fs.unlink(targetLogFile);
                     } catch (e) {
                         //TODO 여기는 뭔가 상정되지 않은 에러가 발생한 경우이므로 기록을 남기거나 해야한다.
                         console.error(e);
@@ -160,8 +163,9 @@ class StatisticsLogger {
 
     private async sendLogToServer(logObject: LogObject) {
         try {
+            const { key, value, date } = logObject;
             await axios.get(this.options!.serverUrl, {
-                params: logObject,
+                params: { key, date, ...value },
             });
         } catch (e) {
             // 만약 에러가 발생한 경우, 다시 큐에 집어넣는다.
@@ -172,7 +176,12 @@ class StatisticsLogger {
     private async sendLogToFile(logObject: LogObject) {
         try {
             const fileName = crypto.randomBytes(20).toString('hex');
-            await fs.writeFile(path.join(this.options!.logPath, fileName, LOG_EXTENSION), JSON.stringify(logObject));
+            await fs.writeFile(
+                path.join(
+                    this.options!.logPath,
+                    `${fileName}${LOG_EXTENSION}`)
+                , JSON.stringify(logObject),
+            );
         } catch (e) {
             //TODO 여기는 뭔가 상정되지 않은 에러가 발생한 경우이므로 기록을 남기거나 해야한다.
             console.error(e);
@@ -180,4 +189,5 @@ class StatisticsLogger {
     }
 }
 
-export default StatisticsLogger;
+export type StatisticsLoggerOptions = ConstructorOptions;
+export default new StatisticsLogger();
