@@ -16,7 +16,7 @@ type DefaultOptions = Omit<Options, RequiredOptions>
 type ConstructorOptions = Partial<Options> & Pick<Options, RequiredOptions>;
 
 type LogObject = {
-    key: string;
+    action: string;
     date: number;
     value?: { [key: string]: string }
 }
@@ -26,7 +26,7 @@ const defaultOptions: DefaultOptions = {
     logCheckInterval: 1000,
 };
 
-const LOG_EXTENSION = '.ehl';
+const LOG_EXTENSION = '.ehl'; // entry hardware log
 
 /**
  * 통계용 로그를 전송하는 로거
@@ -78,12 +78,12 @@ class StatisticsLogger {
     /**
      * 로그를 쌓는다. 만약 인터넷에 연결되어있는 상태로 판단되는 경우는 바로 서버로 전송하고, 그렇지 않은 경우에는 파일로 로그를 떨군다.
      * options 가 세팅되지 않은 경우는 log 함수가 호출되어도 큐에 쌓지 않는다.
-     * @param key
+     * @param action
      * @param value
      */
-    public log(key: string, value?: { [key: string]: string }) {
+    public log(action: string, value?: { [key: string]: string }) {
         this.options && this.logQueue.push({
-            key, date: Date.now(), value,
+            action, date: Date.now(), value,
         });
     }
 
@@ -159,9 +159,9 @@ class StatisticsLogger {
 
     private async sendLogToServer(logObject: LogObject) {
         try {
-            const { key, value, date } = logObject;
+            const { action, value, date } = logObject;
             await axios.get(this.options!.serverUrl, {
-                params: { key, date, ...value },
+                params: { action, date, ...value },
             });
         } catch (e) {
             // 만약 에러가 발생한 경우, 다시 큐에 집어넣는다.
