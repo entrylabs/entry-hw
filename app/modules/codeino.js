@@ -64,8 +64,6 @@ function Module() {
             '5': 0,
             '6': 0
         },
-        // PULSEIN: {
-        // },
         TIMER: 0,
     };
 
@@ -186,6 +184,7 @@ Module.prototype.handleRemoteData = function(handler) {
                             data: data.data
                         }
                         buffer = Buffer.concat([buffer, self.makeOutputBuffer(data.type, port, data.data)]);
+                        //delete setDatas[port]
                     }
                 }
             }
@@ -233,6 +232,7 @@ Module.prototype.handleLocalData = function(data) {
     var datas = this.getDataByBuffer(data);
     
     datas.forEach(function (data) {
+        //let customFormat = false;
         if(data.length <= 4 || data[0] !== 255 || data[1] !== 85) {
             return;
         }
@@ -240,6 +240,8 @@ Module.prototype.handleLocalData = function(data) {
         var value;
         switch(readData[0]) {
             case self.sensorValueSize.FLOAT: {
+                //value = new Buffer(readData.subarray(1, 5)).readFloatLE(); 
+                //value = Math.round(value * 100) / 100;
                 value = ((readData[1]<<8) + readData[2])/100;
                 break;
             }
@@ -255,9 +257,10 @@ Module.prototype.handleLocalData = function(data) {
                 for(let i=0; i<7; ++i) {
                     self.sensorData.ANALOG[readData[1+3*i]] = (readData[2+3*i]<<8) + readData[3+3*i];
                 }
-                if(readData[22]) {
+                if(readData[22]) {//존재하면
                     self.sensorData.ULTRASONIC =((readData[23]<<8) + readData[24])/100;
                 }
+                //함수 종료
                 return;
             }
             default: {
@@ -338,6 +341,7 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
                 value.writeInt16LE(0);
                 time.writeInt16LE(0);
             }
+            // 2바이트씩이라 length = 4 + 2 +2
             buffer = new Buffer([255, 85, 8, sensorIdx, this.actionTypes.SET, device, port]);
             buffer = Buffer.concat([buffer, value, time, dummy]);
             break;
@@ -380,7 +384,6 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
                 r.writeUInt8(data.r);
                 g.writeUInt8(data.g);
                 b.writeUInt8(data.b);
-
                 buffer = new Buffer([255, 85, 7/* 4(ledNum : port-50) + 3(r, g, b) */, sensorIdx, this.actionTypes.SET, device, port]);
                 buffer = Buffer.concat([buffer, r, g, b]);
             } else {
@@ -396,7 +399,7 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
                 r.writeUInt8(data.r);
                 g.writeUInt8(data.g);
                 b.writeUInt8(data.b);
-                buffer = new Buffer([255, 85, 7/* 4(port:18) + 3(r, g, b) */, sensorIdx, this.actionTypes.SET, device, port]);
+                buffer = new Buffer([255, 85, 7, sensorIdx, this.actionTypes.SET, device, port]);
                 buffer = Buffer.concat([buffer, r, g, b]);
             } else {
                 // 끄기신호 보내자 
@@ -444,6 +447,7 @@ Module.prototype.disconnect = function(connect) {
 Module.prototype.reset = function() {
     this.lastTime = 0;
     this.lastSendTime = 0;
+
 };
 
 module.exports = new Module();
