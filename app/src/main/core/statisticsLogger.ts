@@ -3,6 +3,7 @@ import path from 'path';
 import axios from 'axios';
 import crypto from 'crypto';
 import isInternetConnected from './functions/isInternetConnected';
+import os from 'os';
 
 type Options = {
     logPath: string;
@@ -45,6 +46,9 @@ class StatisticsLogger {
     private lastInternetConnectedFlag = false;
     private connectionCheckInterval?: number;
     private queueCheckInterval?: number;
+    private defaultLoggerInfo = {
+        osType: os.type(),
+    }
 
     public setOptions(nextOptions: ConstructorOptions) {
         if (!nextOptions.logPath) {
@@ -83,7 +87,10 @@ class StatisticsLogger {
      */
     public log(action: string, value?: { [key: string]: string }) {
         this.options && this.logQueue.push({
-            action, date: Date.now(), value,
+            action,
+            value,
+            date: Date.now(),
+            ...this.defaultLoggerInfo,
         });
     }
 
