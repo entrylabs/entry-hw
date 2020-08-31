@@ -18,10 +18,12 @@ declare type ObjectLike = { [key: string]: string };
 declare type IDriverInfo = ObjectLike | [{ translate: string } & ObjectLike]
 
 declare type ICopyTypeFirmware = { type: 'copy'; afterDelay?: number, name: string; }
+declare type IESP32TypeFirmware = { type: 'esp32'; afterDelay?: number, name: string; }
 declare type IFirmwareInfo =
     string
     | [{ name: string; translate: string }]
     | ICopyTypeFirmware
+    | IESP32TypeFirmware
 
 declare type IHardwareType = 'serial' | 'bluetooth' | 'hid' | 'ble';
 declare type IHardwareControlType = 'slave' | 'master';

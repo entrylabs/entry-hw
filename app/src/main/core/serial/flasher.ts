@@ -18,7 +18,66 @@ const platform = process.platform;
 class Flasher {
     private flasherProcess?: ChildProcess;
 
-    private _flashArduino(firmware: IFirmwareInfo, port: string, options: { baudRate?: number; MCUType?: string; }): Promise<any[]> {
+    private _flashESP(
+        firmware: IFirmwareInfo,
+        port: string,
+        options: {
+            baudRate?: number;
+            MCUType?: string;
+        }
+    ): Promise<any[]> {
+        return new Promise((resolve) => {
+            const baudRate = options.baudRate || '115200';
+            const MCUType = options.MCUType || 'esp32';
+
+            let espName;
+            let portPrefix;
+
+            if (platform === 'darwin') {
+                espName = './esptool';
+                portPrefix = '';
+            } else {
+                espName = 'esptool.exe';
+                portPrefix = '\\\\.\\';
+            }
+
+            const cmd = [
+                espName,
+                '-p',
+                MCUType,
+                '-P',
+                portPrefix,
+                port,
+                '-b',
+                baudRate,
+                '--before default_reset',
+                '--after hard_reset write_flash',
+                '--flashSize detect 0x1000',
+                `${firmware}.bin`,
+                'pause',
+            ];
+            logger.info(`ESP board firmware requested.\nparameter is ${cmd.join(' ')}`);
+
+            this.flasherProcess = exec(
+                cmd.join(' '),
+                {
+                    cwd: directoryPaths.firmware,
+                },
+                (...args) => {
+                    resolve(args);
+                }
+            );
+        });
+    }
+
+    private _flashArduino(
+        firmware: IFirmwareInfo,
+        port: string,
+        options: {
+            baudRate?: number;
+            MCUType?: string;
+        }
+    ): Promise<any[]> {
         return new Promise((resolve) => {
             const baudRate = options.baudRate || '115200';
             const MCUType = options.MCUType || ' m328p';
@@ -62,7 +121,7 @@ class Flasher {
                 },
                 (...args) => {
                     resolve(args);
-                },
+                }
             );
         });
     }
@@ -82,22 +141,34 @@ class Flasher {
             // TODO 파일 없을 시 에러 처리
             logger.info('copy style firmware upload requested');
             logger.info(`${firmwareDirectory} to ${destFirmwarePath}`);
-            fileUtils.copyFile(targetFirmwarePath, destFirmwarePath).then(async () => {
-                if (firmware.afterDelay) {
-                    await new Promise((resolve) => setTimeout(resolve, firmware.afterDelay));
-                }
-                resolve([]);
-            }).catch((err) => {
-                reject([err]);
-            });
+            fileUtils
+                .copyFile(targetFirmwarePath, destFirmwarePath)
+                .then(async () => {
+                    if (firmware.afterDelay) {
+                        await new Promise((resolve) => setTimeout(resolve, firmware.afterDelay));
+                    }
+                    resolve([]);
+                })
+                .catch((err) => {
+                    reject([err]);
+                });
         });
     }
 
-    flash(firmware: IFirmwareInfo, port: string, options: { baudRate?: number; MCUType?: string; }): Promise<any[]> {
+    flash(
+        firmware: IFirmwareInfo,
+        port: string,
+        options: {
+            baudRate?: number;
+            MCUType?: string;
+        }
+    ): Promise<any[]> {
         if (typeof firmware === 'string') {
             return this._flashArduino(firmware, port, options);
         } else if ((firmware as ICopyTypeFirmware).type === 'copy') {
             return this._flashCopy(firmware as ICopyTypeFirmware);
+        } else if ((firmware as IESP32TypeFirmware).type === 'esp32') {
+            return this._flashESP(firmware, port, options);
         } else {
             return Promise.reject(new Error());
         }
