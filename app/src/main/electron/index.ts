@@ -91,7 +91,12 @@ if (!app.requestSingleInstanceLock()) {
         const argv = process.argv.slice(1);
         const commandLineOptions = parseCommandLine(argv);
         const configuration = configInit(commandLineOptions);
-        const { roomIds: configRoomIds } = configuration;
+        const { roomIds: configRoomIds, statisticsUrl } = configuration;
+        const statisticLogPath =
+            process.env.NODE_ENV === 'development'
+                ? path.join(__dirname)
+                : app.getPath('userData');
+
         roomIds = configRoomIds || [];
 
         const customSchemaArgvIndex = argv.indexOf('entryhw:');
@@ -117,8 +122,8 @@ if (!app.requestSingleInstanceLock()) {
         // @ts-ignore
         mainRouter = new MainRouter(mainWindow, entryServer, {
             loggerOptions: {
-                logPath: path.join(__dirname),
-                serverUrl: 'http://localhost:4000/log/hardware',
+                logPath: statisticLogPath,
+                serverUrl: statisticsUrl,
             },
         });
 
