@@ -58,8 +58,12 @@ class MainRouter {
         return global.sharedObject.roomIds || [];
     }
 
-    constructor(mainWindow: BrowserWindow, entryServer: IEntryServer) {
+    constructor(mainWindow: BrowserWindow, entryServer: IEntryServer, options: {rootAppPath?: string}) {
         global.$ = require('lodash');
+        if (options.rootAppPath) {
+            directoryPaths.setRootAppPath(options.rootAppPath);
+        }
+
         rendererConsole.initialize(mainWindow);
         this.ipcManager = new IpcManager(mainWindow.webContents);
         this.browser = mainWindow;
@@ -73,6 +77,10 @@ class MainRouter {
 
         this.resetIpcEvents();
         this.registerIpcEvents();
+
+        this.hardwareListManager.updateHardwareList();
+        this.hardwareListManager.updateHardwareListWithOnline();
+
         logger.verbose('mainRouter created');
     }
 
@@ -213,7 +221,7 @@ class MainRouter {
             const { type = 'serial' } = hardware;
             this.scanner = this.scannerManager.getScanner(type);
             if (this.scanner) {
-                const moduleFilePath = directoryPaths.modules;
+                const moduleFilePath = directoryPaths.modules();
                 this.hwModule = nativeNodeRequire(path.join(moduleFilePath, config.module)) as IHardwareModule;
                 this.sendState(HardwareStatement.scan);
                 this.scanner.stopScan();
@@ -436,7 +444,7 @@ class MainRouter {
             return;
         }
 
-        const driverFullPath = path.join(directoryPaths.driver, driverPath);
+        const driverFullPath = path.join(directoryPaths.driver(), driverPath);
         logger.info(`execute driver requested. filePath : ${driverFullPath}`);
         shell.openItem(driverFullPath);
     }
