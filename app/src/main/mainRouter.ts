@@ -498,6 +498,9 @@ class MainRouter {
         ipcMain.on('getCurrentServerModeSync', (e) => {
             e.returnValue = this.currentServerRunningMode;
         });
+        ipcMain.on('getBaseModulePath', (e) => {
+            e.returnValue = directoryPaths.modules();
+        });
         ipcMain.on('getCurrentCloudModeSync', (e) => {
             e.returnValue = this.currentCloudMode;
         });
