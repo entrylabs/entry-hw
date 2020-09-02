@@ -15,9 +15,6 @@
         "win32-x64": "robotori/PL2303_Prolific_DriverInstaller_v1.5.0.exe"
     },
     "reconnect":"true",
-    "entry": {
-        "protocol": "json"
-    },
     "hardware": {
         "type": "serial",
         "control": "slave",

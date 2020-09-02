@@ -8,6 +8,7 @@
     "platform": ["win32", "darwin"],
     "icon": "mechatro_uno.png",
     "url": "http://cafe.naver.com/easybread",
+    "email": "in_school@naver.com",
     "module": "mechatro.js",
     "driver": {
         "win32-ia32": "arduino/dpinst-x86.exe",
@@ -16,13 +17,10 @@
     "reconnect": true,
     "firmware": [
         {
-            "name": "mechatro_hc_05",
+            "name": "mechatro",
             "translate": "유/무선 펌웨어"
         }
     ],
-    "entry": {
-        "protocol": "json"
-    },
     "hardware": {
         "type": "serial",
         "control": "slave",
