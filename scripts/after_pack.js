@@ -3,13 +3,14 @@ const crypto = require('crypto');
 
 module.exports = async (context) => {
     const { appOutDir, electronPlatformName } = context;
-    if (electronPlatformName !== 'darwin') {
-        return;
+
+    let targetPath = '';
+    if (electronPlatformName === 'darwin') {
+        const appName = context.packager.appInfo.productFilename;
+        targetPath = `${appOutDir}/${appName}.app/Contents/Resources/app.asar`;
+    } else {
+        targetPath = `${appOutDir}/resources/app.asar`;
     }
-
-    const appName = context.packager.appInfo.productFilename;
-
-    const targetPath = `${appOutDir}/${appName}.app/Contents/Resources/app.asar`;
 
     if (fs.existsSync(targetPath)) {
         await new Promise((resolve) => {
