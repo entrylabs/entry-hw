@@ -19,7 +19,7 @@ class Flasher {
     private flasherProcess?: ChildProcess;
 
     private _flashESP(
-        firmware: IFirmwareInfo,
+        firmware: IESP32TypeFirmware,
         port: string,
         options: {
             baudRate?: number;
@@ -27,12 +27,8 @@ class Flasher {
         }
     ): Promise<any[]> {
         return new Promise((resolve) => {
-            const baudRate = options.baudRate || '115200';
-            const MCUType = options.MCUType || 'esp32';
-
             let espName;
             let portPrefix;
-
             if (platform === 'darwin') {
                 espName = './esptool';
                 portPrefix = '';
@@ -43,25 +39,18 @@ class Flasher {
 
             const cmd = [
                 espName,
-                '-p',
-                MCUType,
-                '-P',
-                portPrefix,
-                port,
-                '-b',
-                baudRate,
-                '--before default_reset',
-                '--after hard_reset write_flash',
-                '--flashSize detect 0x1000',
-                `${firmware}.bin`,
-                'pause',
+                ` --port ${portPrefix}${port}`,
+                ' --before default_reset',
+                ' --after hard_reset write_flash',
+                ` ${firmware.offset}`,
+                ' codewiz.bin',
             ];
-            logger.info(`ESP board firmware requested.\nparameter is ${cmd.join(' ')}`);
 
+            logger.info(`ESP board firmware requested.\nparameter is ${cmd.join('')}`);
             this.flasherProcess = exec(
-                cmd.join(' '),
+                cmd.join(''),
                 {
-                    cwd: directoryPaths.firmware,
+                    cwd: directoryPaths.firmware(),
                 },
                 (...args) => {
                     resolve(args);
@@ -168,7 +157,7 @@ class Flasher {
         } else if ((firmware as ICopyTypeFirmware).type === 'copy') {
             return this._flashCopy(firmware as ICopyTypeFirmware);
         } else if ((firmware as IESP32TypeFirmware).type === 'esp32') {
-            return this._flashESP(firmware, port, options);
+            return this._flashESP(firmware as IESP32TypeFirmware, port, options);
         } else {
             return Promise.reject(new Error());
         }

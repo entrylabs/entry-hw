@@ -1,4 +1,4 @@
-import { ipcRenderer, remote, shell } from 'electron';
+import { ipcRenderer, remote, shell, webFrame } from 'electron';
 import { HardwareStatement, RunningModeTypes } from '../common/constants';
 
 /**
@@ -45,11 +45,12 @@ class RendererRouter {
         ipcRenderer.on('serverMode', (event, mode) => {
             this.consoleWriteServerMode(mode);
         });
+        webFrame.setZoomFactor(1.0);
     }
 
     startScan(hardware: IHardwareConfig) {
         ipcRenderer.send('startScan', hardware);
-    };
+    }
 
     stopScan() {
         ipcRenderer.send('stopScan');
@@ -105,36 +106,47 @@ class RendererRouter {
         const modal = new Modal.default();
 
         if (appName === 'hardware' && navigator.onLine) {
-            await ipcRenderer.invoke('checkUpdate')
+            await ipcRenderer
+                .invoke('checkUpdate')
                 .then(({ hasNewVersion, version: latestVersion }) => {
                     const lastDontCheckedVersion = localStorage.getItem('lastDontCheckedVersion');
                     if (
                         hasNewVersion &&
                         (!lastDontCheckedVersion || lastDontCheckedVersion < latestVersion)
                     ) {
-                        modal.alert(
-                            translate('You can use the latest Entry Hardware version(%1).')
-                                .replace(/%1/gi, latestVersion),
-                            translate('Alert'),
-                            {
-                                positiveButtonText: translate('Download'),
-                                positiveButtonStyle: {
-                                    marginTop: '16px',
-                                    marginBottom: '16px',
-                                    width: '180px',
-                                },
-                                parentClassName: 'versionAlert',
-                                withDontShowAgain: true,
-                            }).one('click', (event: any, { dontShowChecked }: { dontShowChecked: boolean }) => {
-                            if (event === 'ok') {
-                                shell.openExternal(
-                                    'https://playentry.org/#!/offlineEditor',
-                                );
-                            }
-                            if (dontShowChecked) {
-                                localStorage.setItem('lastDontCheckedVersion', latestVersion);
-                            }
-                        });
+                        modal
+                            .alert(
+                                translate(
+                                    'You can use the latest Entry Hardware version(%1).'
+                                ).replace(/%1/gi, latestVersion),
+                                translate('Alert'),
+                                {
+                                    positiveButtonText: translate('Download'),
+                                    positiveButtonStyle: {
+                                        marginTop: '16px',
+                                        marginBottom: '16px',
+                                        width: '180px',
+                                    },
+                                    parentClassName: 'versionAlert',
+                                    withDontShowAgain: true,
+                                }
+                            )
+                            .one(
+                                'click',
+                                (event: any, { dontShowChecked }: { dontShowChecked: boolean }) => {
+                                    if (event === 'ok') {
+                                        shell.openExternal(
+                                            'https://playentry.org/#!/offlineEditor'
+                                        );
+                                    }
+                                    if (dontShowChecked) {
+                                        localStorage.setItem(
+                                            'lastDontCheckedVersion',
+                                            latestVersion
+                                        );
+                                    }
+                                }
+                            );
                     }
                 });
         }
@@ -167,10 +179,7 @@ class RendererRouter {
         }
 
         if (mode === RunningModeTypes.client) {
-            console.log(
-                '%cI`M CLIENT',
-                'background:black;color:yellow;font-size: 30px',
-            );
+            console.log('%cI`M CLIENT', 'background:black;color:yellow;font-size: 30px');
         } else if (mode === RunningModeTypes.server) {
             console.log('%cI`M SERVER', 'background:orange; font-size: 30px');
         }
@@ -183,9 +192,7 @@ class RendererRouter {
         let isQuit = true;
         if (this.currentState === 'connected') {
             isQuit = confirm(
-                translate(
-                    'Connection to the hardware will terminate once program is closed.',
-                ),
+                translate('Connection to the hardware will terminate once program is closed.')
             );
         }
 

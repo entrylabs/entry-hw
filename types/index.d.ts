@@ -1,29 +1,32 @@
-type RequireAtLeastOne<T, Keys extends keyof T = keyof T> =
-    Pick<T, Exclude<keyof T, Keys>>
-    & {
-    [K in Keys]-?: Required<Pick<T, K>> & Partial<Pick<T, Exclude<Keys, K>>>
-}[Keys]
+type RequireAtLeastOne<T, Keys extends keyof T = keyof T> = Pick<T, Exclude<keyof T, Keys>> &
+    {
+        [K in Keys]-?: Required<Pick<T, K>> & Partial<Pick<T, Exclude<Keys, K>>>;
+    }[Keys];
 
 declare type LocalizedString = RequireAtLeastOne<{
     ko: string;
     jp: string;
     en: string;
-}>
+}>;
 declare type SupportedLanguage = keyof LocalizedString;
 
 declare type HandshakeType = 'argument' | 'digit' | 'word';
 
 declare type ObjectLike = { [key: string]: string };
 
-declare type IDriverInfo = ObjectLike | [{ translate: string } & ObjectLike]
+declare type IDriverInfo = ObjectLike | [{ translate: string } & ObjectLike];
 
-declare type ICopyTypeFirmware = { type: 'copy'; afterDelay?: number, name: string; }
-declare type IESP32TypeFirmware = { type: 'esp32'; afterDelay?: number, name: string; }
+declare type ICopyTypeFirmware = { type: 'copy'; afterDelay?: number; name: string };
+declare type IESP32TypeFirmware = {
+    type: string;
+    offset: string;
+    name: string;
+};
 declare type IFirmwareInfo =
-    string
+    | string
     | [{ name: string; translate: string }]
     | ICopyTypeFirmware
-    | IESP32TypeFirmware
+    | IESP32TypeFirmware;
 
 declare type IHardwareType = 'serial' | 'bluetooth' | 'hid' | 'ble';
 declare type IHardwareControlType = 'slave' | 'master';
@@ -103,8 +106,8 @@ declare interface IHardwareConfig {
             default?: string | LocalizedString;
             invalid?: string | LocalizedString;
             sending?: string | LocalizedString;
-        }
-    }
+        };
+    };
     tryFlasherNumber?: number;
 }
 
@@ -116,4 +119,3 @@ declare interface ISerialPortScanData {
     vendorId?: string;
     productId?: string;
 }
-
