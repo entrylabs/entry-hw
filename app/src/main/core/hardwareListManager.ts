@@ -46,12 +46,59 @@ export default class {
         logger.verbose('hardwareListManager created');
     }
 
-    async updateHardwareListWithOnline() {
+    public async updateHardwareList(source: IHardwareConfig[] = []) {
+        logger.verbose('hardware List update from file system..');
+        try {
+            const availables = this.getAllHardwareModulesFromDisk();
+            const localMergedList = this.mergeHardwareList(availables, source);
+            this.updateAndNotifyHardwareListChanged(localMergedList);
+
+            const onlineModuleList = await this.getHardwareModulesFromOnline();
+            const onlineMergedList = this.mergeHardwareList(this.allHardwareList, onlineModuleList);
+            this.updateAndNotifyHardwareListChanged(onlineMergedList);
+        } catch (e) {
+            logger.error('hardware list update failed with error', e);
+        }
+    }
+
+    public getHardwareById(id: string) {
+        return this.allHardwareList.find((hardware) => hardware.id === id);
+    }
+
+    private mergeHardwareList(base: IHardwareConfig[], target: IHardwareConfig[]) {
+        const mergedList = unionWith<IHardwareConfig>(base, target, (src, ori) => {
+            if (ori.id === src.id) {
+                if (!ori.version || lt(valid(ori.version) as string, valid(src.version) as string)) {
+                    // legacy 는 moduleName 이 없기 때문에 서버에 요청을 줄 인자가 없다.
+                    ori.moduleName = src.moduleName;
+                    ori.availableType = AvailableTypes.needUpdate;
+                }
+                return true;
+            }
+            return false;
+        });
+
+        return mergedList
+            .filter(platformFilter)
+            .sort(nameSortComparator);
+    }
+
+    private updateAndNotifyHardwareListChanged(newHardwareList: any[]) {
+        const message = 'hardware list update from file system.\n' +
+            `current hardware count: ${this.allHardwareList?.length}\n` +
+            `new hardware counts: ${newHardwareList.length}`;
+
+        logger.info(message);
+        this.allHardwareList = newHardwareList;
+        this.notifyHardwareListChanged();
+    }
+
+    private async getHardwareModulesFromOnline(): Promise<IHardwareConfig[]> {
         logger.verbose('hardware List update from online..');
         try {
             const onlineList = await getModuleList();
             if (!onlineList || onlineList.length === 0) {
-                return;
+                return [];
             }
 
             const moduleList = onlineList.map(onlineModuleSchemaModifier);
@@ -61,38 +108,14 @@ export default class {
                     (`${module.id}|${module.name?.ko || module.name?.en || module.moduleName}`)).join(',')
             }`);
 
-            this.updateHardwareList(moduleList);
+            return moduleList;
         } catch (e) {
             logger.warn(`online hardware list update failed ${JSON.stringify(e)}`);
+            return [];
         }
     }
 
-    updateHardwareList(source: any[] = []) {
-        logger.verbose('hardware List update from file system..');
-        const availables = this.getAllHardwareModulesFromDisk();
-        const mergedList = unionWith(availables, source, (src, ori) => {
-            if (ori.id === src.id) {
-                if (!ori.version || lt(valid(ori.version) as string, valid(src.version) as string)) {
-                    // legacy 는 moduleName 이 없기 때문에 서버에 요청을 줄 인자가 없다.
-                    ori.moduleName = src.moduleName;
-                    ori.availableType = AvailableTypes.needUpdate;
-                    return ori;
-                }
-                return src;
-            }
-        });
-
-        logger.info(`hardware list update from file system.\ncurrent hardware count: ${
-            this.allHardwareList?.length
-        }\nnew hardware counts: ${mergedList.length}`);
-
-        this.allHardwareList = mergedList
-            .filter(platformFilter)
-            .sort(nameSortComparator);
-        this.notifyHardwareListChanged();
-    }
-
-    private getAllHardwareModulesFromDisk() {
+    private getAllHardwareModulesFromDisk(): any[] {
         try {
             return fs.readdirSync(directoryPaths.modules())
                 .filter((file) => !!file.match(/\.json$/))
@@ -106,11 +129,8 @@ export default class {
                 .sort(nameSortComparator);
         } catch (e) {
             console.error('error occurred while reading module json files', e);
+            return [];
         }
-    }
-
-    getHardwareById(id: string) {
-        return this.allHardwareList.find((hardware) => hardware.id === id);
     }
 
     private notifyHardwareListChanged() {

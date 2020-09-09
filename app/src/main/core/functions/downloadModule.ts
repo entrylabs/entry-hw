@@ -9,7 +9,7 @@ import directoryPaths from '../directoryPaths';
 
 const logger = createLogger('DownloadModule');
 
-const downloadModuleFunction = (moduleName: string) =>
+const downloadModuleFunction = (moduleName: string): Promise<IHardwareConfig> =>
     new Promise((resolve, reject) => {
         if (!moduleName) {
             reject('must be present moduleName');
