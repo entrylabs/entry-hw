@@ -27,20 +27,18 @@ class Flasher {
         }
     ): Promise<any[]> {
         return new Promise((resolve) => {
-            let espName = platform === 'darwin'? './esptool' : 'esptool.exe';
-        
             const cmd = [
-                espName,
+                platform === 'darwin' ? './esptool' : 'esptool.exe',
                 ` --port ${port}`,
                 ' --before default_reset',
                 ' --after hard_reset write_flash',
                 ` ${firmware.offset}`,
                 ' codewiz.bin',
-            ];
+            ].join('');
 
-            logger.info(`ESP board firmware requested.\nparameter is ${cmd.join('')}`);
+            logger.info(`ESP board firmware requested.\nparameter is ${cmd}`);
             this.flasherProcess = exec(
-                cmd.join(''),
+                cmd,
                 {
                     cwd: directoryPaths.firmware(),
                 },
@@ -91,12 +89,12 @@ class Flasher {
                 '.hex":i -C',
                 avrConf,
                 ' -carduino -D',
-            ];
+            ].join('');
 
-            logger.info(`arduino board firmware requested.\nparameter is ${cmd.join('')}`);
+            logger.info(`arduino board firmware requested.\nparameter is ${cmd}`);
 
             this.flasherProcess = exec(
-                cmd.join(''),
+                cmd,
                 {
                     cwd: directoryPaths.firmware(),
                 },
