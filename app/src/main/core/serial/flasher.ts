@@ -27,19 +27,11 @@ class Flasher {
         }
     ): Promise<any[]> {
         return new Promise((resolve) => {
-            let espName;
-            let portPrefix;
-            if (platform === 'darwin') {
-                espName = './esptool';
-                portPrefix = '';
-            } else {
-                espName = 'esptool.exe';
-                portPrefix = '\\\\.\\';
-            }
-
+            let espName = platform === 'darwin'? './esptool' : 'esptool.exe';
+        
             const cmd = [
                 espName,
-                ` --port ${portPrefix}${port}`,
+                ` --port ${port}`,
                 ' --before default_reset',
                 ' --after hard_reset write_flash',
                 ` ${firmware.offset}`,
