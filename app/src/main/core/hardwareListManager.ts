@@ -1,9 +1,9 @@
 import fs from 'fs';
 import path from 'path';
-import {cloneDeep, merge, unionWith} from 'lodash';
+import { cloneDeep, merge, unionWith } from 'lodash';
 import lt from 'semver/functions/lt';
 import valid from 'semver/functions/valid';
-import {AvailableTypes} from '../../common/constants';
+import { AvailableTypes } from '../../common/constants';
 import getModuleList from './functions/getModuleList';
 import createLogger from '../electron/functions/createLogger';
 import directoryPaths from './directoryPaths';
@@ -44,9 +44,6 @@ export default class {
     constructor(router: MainRouter) {
         this.router = router;
         logger.verbose('hardwareListManager created');
-        // 두번 하는 이유는, 먼저 유저에게 로컬 모듈 목록을 보여주기 위함
-        this.updateHardwareList();
-        this.updateHardwareListWithOnline();
     }
 
     async updateHardwareListWithOnline() {
@@ -97,10 +94,10 @@ export default class {
 
     private getAllHardwareModulesFromDisk() {
         try {
-            return fs.readdirSync(directoryPaths.modules)
+            return fs.readdirSync(directoryPaths.modules())
                 .filter((file) => !!file.match(/\.json$/))
                 .map((file) => {
-                    const bufferData = fs.readFileSync(path.join(directoryPaths.modules, file));
+                    const bufferData = fs.readFileSync(path.join(directoryPaths.modules(), file));
                     const configJson = JSON.parse(bufferData.toString());
                     configJson.availableType = AvailableTypes.available;
                     return configJson;
