@@ -1,4 +1,4 @@
-import { BrowserWindow, ipcMain, shell } from 'electron';
+import { BrowserWindow, ipcMain, shell, dialog } from 'electron';
 import path from 'path';
 import ScannerManager from './core/scannerManager';
 import Flasher from './core/serial/flasher';
@@ -535,6 +535,22 @@ class MainRouter {
             this.flasher.kill();
             this.config && this.startScan(this.config);
         });
+        ipcMain.handle('uploadPack', async () => {
+            const pathToPack = dialog.showOpenDialogSync(this.browser, {
+                filters: [
+                    {
+                        name: 'modulePack',
+                        extensions: ['zip'],
+                    },
+                ],
+                properties: ['openFile'],
+            });
+
+            if (!pathToPack || pathToPack.length == 0) {
+                return;
+            }
+            this.hardwareListManager.updateHardwareListWithPack(pathToPack[0]);
+        });
 
         logger.verbose('EntryHW ipc event registered');
     }
@@ -557,6 +573,7 @@ class MainRouter {
         ipcMain.removeAllListeners('requestHardwareListSync');
         ipcMain.removeHandler('requestDownloadModule');
         ipcMain.removeHandler('requestFlash');
+        ipcMain.removeHandler('uploadPack');
         logger.verbose('EntryHW ipc event all cleared');
     }
 }

@@ -46,6 +46,10 @@ export default class {
         logger.verbose('hardwareListManager created');
     }
 
+    async updateHardwareListWithExtensionPack() {
+        logger.verbose('hardware List update from ExtensionPack..');
+    }
+
     async updateHardwareListWithOnline() {
         logger.verbose('hardware List update from online..');
         try {
@@ -56,10 +60,16 @@ export default class {
 
             const moduleList = onlineList.map(onlineModuleSchemaModifier);
 
-            logger.info(`online hardware list received.\nlist: ${
-                moduleList.map((module) =>
-                    (`${module.id}|${module.name?.ko || module.name?.en || module.moduleName}`)).join(',')
-            }`);
+            logger.info(
+                `online hardware list received.\nlist: ${moduleList
+                    .map(
+                        (module) =>
+                            `${module.id}|${
+                                module.name?.ko || module.name?.en || module.moduleName
+                            }`
+                    )
+                    .join(',')}`
+            );
 
             this.updateHardwareList(moduleList);
         } catch (e) {
@@ -72,7 +82,10 @@ export default class {
         const availables = this.getAllHardwareModulesFromDisk();
         const mergedList = unionWith(availables, source, (src, ori) => {
             if (ori.id === src.id) {
-                if (!ori.version || lt(valid(ori.version) as string, valid(src.version) as string)) {
+                if (
+                    !ori.version ||
+                    lt(valid(ori.version) as string, valid(src.version) as string)
+                ) {
                     // legacy 는 moduleName 이 없기 때문에 서버에 요청을 줄 인자가 없다.
                     ori.moduleName = src.moduleName;
                     ori.availableType = AvailableTypes.needUpdate;
@@ -82,19 +95,18 @@ export default class {
             }
         });
 
-        logger.info(`hardware list update from file system.\ncurrent hardware count: ${
-            this.allHardwareList?.length
-        }\nnew hardware counts: ${mergedList.length}`);
+        logger.info(
+            `hardware list update from file system.\ncurrent hardware count: ${this.allHardwareList?.length}\nnew hardware counts: ${mergedList.length}`
+        );
 
-        this.allHardwareList = mergedList
-            .filter(platformFilter)
-            .sort(nameSortComparator);
+        this.allHardwareList = mergedList.filter(platformFilter).sort(nameSortComparator);
         this.notifyHardwareListChanged();
     }
 
     private getAllHardwareModulesFromDisk() {
         try {
-            return fs.readdirSync(directoryPaths.modules())
+            return fs
+                .readdirSync(directoryPaths.modules())
                 .filter((file) => !!file.match(/\.json$/))
                 .map((file) => {
                     const bufferData = fs.readFileSync(path.join(directoryPaths.modules(), file));
@@ -113,8 +125,11 @@ export default class {
         return this.allHardwareList.find((hardware) => hardware.id === id);
     }
 
-    private notifyHardwareListChanged() {
-        this.router &&
-        this.router.sendEventToMainWindow('hardwareListChanged');
+    updateHardwareListWithPack(path: string) {
+        console.log('updateHardwareList');
     }
-};
+
+    private notifyHardwareListChanged() {
+        this.router && this.router.sendEventToMainWindow('hardwareListChanged');
+    }
+}

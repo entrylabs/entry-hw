@@ -63,6 +63,9 @@ class RendererRouter {
     sendSelectedPort(portName: string) {
         ipcRenderer.send('selectPort', portName);
     }
+    sendUploadPackRequest() {
+        ipcRenderer.invoke('uploadPack');
+    }
 
     sendHandshakePayload(payload: string) {
         console.log('sendHandShakePayload', payload);

@@ -9,7 +9,11 @@ import {
     HARDWARE_SEARCH_KEYWORD_CHANGED,
 } from '../modules/hardware';
 import filterHardwareList from '../../functions/filterHardware';
-import { changeAlertMessage, CURRENT_PAGE_STATE_CHANGED } from '../modules/common';
+import {
+    changeAlertMessage,
+    CURRENT_PAGE_STATE_CHANGED,
+    UPLOAD_PACK_STATE_CHANGED,
+} from '../modules/common';
 import { HardwareStatement } from '../../../../../common/constants';
 import { HardwarePageStateEnum } from '../../constants/constants';
 import refreshPriorHardwareList from '../../functions/refreshPriorHardwareList';
@@ -29,123 +33,130 @@ const { translator, rendererRouter } = window;
  * 리액트 엘리먼트에서는 뷰 전환에 관련한 로직만 생각하고, 여기서는 메인프로세스와의 통신만을 다룬다.
  */
 // eslint-disable-next-line max-len
-const entryHardwareMiddleware: Middleware = ({ getState }: { getState: () => IStoreState }) => (next: Dispatch<AnyAction>) => async (action: AnyAction) => {
+const entryHardwareMiddleware: Middleware = ({ getState }: { getState: () => IStoreState }) => (
+    next: Dispatch<AnyAction>
+) => async (action: AnyAction) => {
     const { type, payload } = action; // currentAction
 
     switch (type) {
-    case CATEGORY_CHANGED: {
-        next(action);
-        const { hardware } = getState();
-        const { hardwareFilterKeyword, hardwareFilterCategory } = hardware;
-        const hardwareList = filterHardwareList(
-            hardwareFilterKeyword,
-            hardwareFilterCategory,
-            rendererRouter.hardwareList,
-        );
-        changeHardwareList(next)(hardwareList);
-        break;
-    }
-    case HARDWARE_SEARCH_KEYWORD_CHANGED: {
-        const { hardware } = getState();
-        const { hardwareFilterCategory } = hardware;
-        const { payload: keyword } = action;
-
-        new Promise<IHardwareConfig[]>(resolve => {
-            resolve(filterHardwareList(
-                keyword,
+        case CATEGORY_CHANGED: {
+            next(action);
+            const { hardware } = getState();
+            const { hardwareFilterKeyword, hardwareFilterCategory } = hardware;
+            const hardwareList = filterHardwareList(
+                hardwareFilterKeyword,
                 hardwareFilterCategory,
-                rendererRouter.hardwareList,
-            ));
-        }).then((hardwareList) => {
+                rendererRouter.hardwareList
+            );
             changeHardwareList(next)(hardwareList);
-        });
-        next(action);
-        break;
-    }
-    case CURRENT_PAGE_STATE_CHANGED: {
-        const { payload: nextState } = action;
-        if (nextState === HardwarePageStateEnum.list) {
-            rendererRouter.close();
-            //NOTE resetHardwareList 를 쓰고자 했는데 안먹힌다. 왤까?
-            changeHardwareList(next)(rendererRouter.hardwareList);
-            changePortList(next)([]);
+            break;
         }
-        next(action);
-        break;
-    }
-    case HARDWARE_SELECTED: {
-        const { payload: hardware } = action;
-        // noinspection JSIgnoredPromiseFromCall
-        if (hardware.name && hardware.name.ko) {
-            refreshPriorHardwareList(hardware.name.ko);
+        case UPLOAD_PACK_STATE_CHANGED: {
+            rendererRouter.sendUploadPackRequest();
+            break;
         }
+        case HARDWARE_SEARCH_KEYWORD_CHANGED: {
+            const { hardware } = getState();
+            const { hardwareFilterCategory } = hardware;
+            const { payload: keyword } = action;
 
-        rendererRouter.startScan(hardware);
-        next(action);
-        break;
-    }
-    case HARDWARE_LIST_RESET: {
-        changeHardwareList(next)(rendererRouter.hardwareList);
-        break;
-    }
-    case PORT_SELECTED: {
-        rendererRouter.sendSelectedPort(action.payload);
-        next(action);
-        break;
-    }
-    case HANDSHAKE_PAYLOAD_SET: {
-        const value = action.payload;
-        if (value) {
-            rendererRouter.sendHandshakePayload(action.payload);
-        } else {
-            changeAlertMessage(next)({
-                message: '값이 읎는데요 선생님',
-                duration: 1000,
+            new Promise<IHardwareConfig[]>((resolve) => {
+                resolve(
+                    filterHardwareList(keyword, hardwareFilterCategory, rendererRouter.hardwareList)
+                );
+            }).then((hardwareList) => {
+                changeHardwareList(next)(hardwareList);
             });
+            next(action);
+            break;
         }
+        case CURRENT_PAGE_STATE_CHANGED: {
+            const { payload: nextState } = action;
+            if (nextState === HardwarePageStateEnum.list) {
+                rendererRouter.close();
+                //NOTE resetHardwareList 를 쓰고자 했는데 안먹힌다. 왤까?
+                changeHardwareList(next)(rendererRouter.hardwareList);
+                changePortList(next)([]);
+            }
+            next(action);
+            break;
+        }
+        case HARDWARE_SELECTED: {
+            const { payload: hardware } = action;
+            // noinspection JSIgnoredPromiseFromCall
+            if (hardware.name && hardware.name.ko) {
+                refreshPriorHardwareList(hardware.name.ko);
+            }
 
-        next(action);
-        break;
-    }
-    case FIRMWARE_INSTALL_REQUESTED: {
-        const { common } = getState();
-        const { moduleState } = common;
-        const firmwareInfo = action.payload as IFirmwareInfo;
-
-        if (typeof firmwareInfo === 'string' && firmwareInfo.startsWith('http')) {
-            rendererRouter.openExternalUrl(firmwareInfo);
-        } else if ((firmwareInfo as ICopyTypeFirmware).type !== 'copy' &&
-                moduleState !== HardwareStatement.beforeConnect &&
-                moduleState !== HardwareStatement.connected) {
-            alert(translator.translate('Hardware Device Is Not Connected'));
-        } else {
-            rendererRouter.requestFlash(firmwareInfo)
-                .then(() => {
-                    changeAlertMessage(next)({
-                        message: translator.translate('Firmware Uploaded!'),
-                        duration: 1000,
-                    });
-                })
-                .catch(() => {
-                    changeAlertMessage(next)({
-                        message: translator.translate('Failed Firmware Upload'),
-                    });
-                })
-                .finally(() => {
-                    if (action.payload.type === 'copy') {
-                        changeVisiblePortList(next)(false);
-                    }
+            rendererRouter.startScan(hardware);
+            next(action);
+            break;
+        }
+        case HARDWARE_LIST_RESET: {
+            changeHardwareList(next)(rendererRouter.hardwareList);
+            break;
+        }
+        case PORT_SELECTED: {
+            rendererRouter.sendSelectedPort(action.payload);
+            next(action);
+            break;
+        }
+        case HANDSHAKE_PAYLOAD_SET: {
+            const value = action.payload;
+            if (value) {
+                rendererRouter.sendHandshakePayload(action.payload);
+            } else {
+                changeAlertMessage(next)({
+                    message: '값이 읎는데요 선생님',
+                    duration: 1000,
                 });
+            }
+
+            next(action);
+            break;
         }
-        break;
-    }
-    case HARDWARE_MODULE_DOWNLOAD_REQUESTED: {
-        await rendererRouter.requestDownloadModule(payload);
-        changeHardwareList(next)(rendererRouter.hardwareList);
-        break;
-    }
-    default:
-        next(action);
+        case FIRMWARE_INSTALL_REQUESTED: {
+            const { common } = getState();
+            const { moduleState } = common;
+            const firmwareInfo = action.payload as IFirmwareInfo;
+
+            if (typeof firmwareInfo === 'string' && firmwareInfo.startsWith('http')) {
+                rendererRouter.openExternalUrl(firmwareInfo);
+            } else if (
+                (firmwareInfo as ICopyTypeFirmware).type !== 'copy' &&
+                moduleState !== HardwareStatement.beforeConnect &&
+                moduleState !== HardwareStatement.connected
+            ) {
+                alert(translator.translate('Hardware Device Is Not Connected'));
+            } else {
+                rendererRouter
+                    .requestFlash(firmwareInfo)
+                    .then(() => {
+                        changeAlertMessage(next)({
+                            message: translator.translate('Firmware Uploaded!'),
+                            duration: 1000,
+                        });
+                    })
+                    .catch(() => {
+                        changeAlertMessage(next)({
+                            message: translator.translate('Failed Firmware Upload'),
+                        });
+                    })
+                    .finally(() => {
+                        if (action.payload.type === 'copy') {
+                            changeVisiblePortList(next)(false);
+                        }
+                    });
+            }
+            break;
+        }
+        case HARDWARE_MODULE_DOWNLOAD_REQUESTED: {
+            await rendererRouter.requestDownloadModule(payload);
+            changeHardwareList(next)(rendererRouter.hardwareList);
+            break;
+        }
+        default:
+            next(action);
     }
 };
 

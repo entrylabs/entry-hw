@@ -1,7 +1,11 @@
 import { AnyAction } from 'redux';
 import produce from 'immer';
 import { HardwareStatement } from '../../../../../common/constants';
-import { CategoryTypeEnum, CloudModeTypesEnum, HardwarePageStateEnum } from '../../constants/constants';
+import {
+    CategoryTypeEnum,
+    CloudModeTypesEnum,
+    HardwarePageStateEnum,
+} from '../../constants/constants';
 import { makeAction, makePayloadAction } from '../../functions/makeAction';
 
 const { translator, ipcRenderer } = window;
@@ -9,7 +13,7 @@ const { translator, ipcRenderer } = window;
 // interface
 export interface ICommonState {
     stateTitle: string;
-    alertMessage?: IAlertMessage
+    alertMessage?: IAlertMessage;
     currentPageState: HardwarePageStateEnum;
     categoryState: CategoryTypeEnum;
     moduleState: HardwareStatement;
@@ -33,16 +37,20 @@ export const ALERT_MESSAGE_CHANGED = 'common/ALERT_MESSAGE_CHANGED';
 export const MODULE_STATE_CHANGED = 'common/MODULE_STATE_CHANGED';
 export const SOCKET_CONNECT_STATE_CHANGED = 'common/SOCKET_CONNECT_STATE_CHANGED';
 export const BUILD_INVALIDATED = 'common/BUILD_INVALIDATED';
+export const UPLOAD_PACK_STATE_CHANGED = 'common/UPLOAD_PACK';
 
 // actions
 export const toggleLicenseView = makePayloadAction<boolean>(LICENSE_VIEW_TOGGLE);
-export const changeCurrentPageState = makePayloadAction<HardwarePageStateEnum>(CURRENT_PAGE_STATE_CHANGED);
+export const changeCurrentPageState = makePayloadAction<HardwarePageStateEnum>(
+    CURRENT_PAGE_STATE_CHANGED
+);
 export const changeCloudMode = makePayloadAction<CloudModeTypesEnum>(CLOUD_MODE_CHANGED);
 export const changeStateTitle = makePayloadAction<string>(STATE_TITLE_CHANGED);
 export const changeAlertMessage = makePayloadAction<IAlertMessage>(ALERT_MESSAGE_CHANGED);
 export const changeHardwareModuleState = makePayloadAction<HardwareStatement>(MODULE_STATE_CHANGED);
 export const changeSocketConnectionState = makePayloadAction<boolean>(SOCKET_CONNECT_STATE_CHANGED);
 export const invalidateBuild = makeAction(BUILD_INVALIDATED);
+export const changePackUploadState = makePayloadAction<boolean>(UPLOAD_PACK_STATE_CHANGED);
 
 // reducer
 const initialState: ICommonState = {
@@ -58,43 +66,42 @@ const initialState: ICommonState = {
 
 export default (state = initialState, { type, payload }: AnyAction) => {
     switch (type) {
-    case BUILD_INVALIDATED:
-        return produce(state, (nextState) => {
-            nextState.isInvalidBuild = true;
-        });
-    case LICENSE_VIEW_TOGGLE:
-        return produce(state, (nextState) => {
-            nextState.isLicenseShow = payload;
-        });
-    case CURRENT_PAGE_STATE_CHANGED:
-        return produce(state, (nextState) => {
-            if ((payload as HardwarePageStateEnum) === HardwarePageStateEnum.list) {
-                nextState.alertMessage = undefined;
-            }
-            nextState.currentPageState = payload;
-        });
-    case CLOUD_MODE_CHANGED:
-        return produce(state, (nextState) => {
-            nextState.isCloudMode = payload;
-        });
-    case STATE_TITLE_CHANGED:
-        return produce(state, (nextState) => {
-            nextState.stateTitle = payload;
-        });
-    case ALERT_MESSAGE_CHANGED:
-        return produce(state, (nextState) => {
-            nextState.alertMessage = payload;
-        });
-    case MODULE_STATE_CHANGED:
-        return produce(state, (nextState) => {
-            nextState.moduleState = payload;
-        });
-    case SOCKET_CONNECT_STATE_CHANGED:
-        return produce(state, (nextState) => {
-            nextState.isSocketConnected = payload;
-        });
-    default:
-        return produce(state, () => {
-        });
+        case BUILD_INVALIDATED:
+            return produce(state, (nextState) => {
+                nextState.isInvalidBuild = true;
+            });
+        case LICENSE_VIEW_TOGGLE:
+            return produce(state, (nextState) => {
+                nextState.isLicenseShow = payload;
+            });
+        case CURRENT_PAGE_STATE_CHANGED:
+            return produce(state, (nextState) => {
+                if ((payload as HardwarePageStateEnum) === HardwarePageStateEnum.list) {
+                    nextState.alertMessage = undefined;
+                }
+                nextState.currentPageState = payload;
+            });
+        case CLOUD_MODE_CHANGED:
+            return produce(state, (nextState) => {
+                nextState.isCloudMode = payload;
+            });
+        case STATE_TITLE_CHANGED:
+            return produce(state, (nextState) => {
+                nextState.stateTitle = payload;
+            });
+        case ALERT_MESSAGE_CHANGED:
+            return produce(state, (nextState) => {
+                nextState.alertMessage = payload;
+            });
+        case MODULE_STATE_CHANGED:
+            return produce(state, (nextState) => {
+                nextState.moduleState = payload;
+            });
+        case SOCKET_CONNECT_STATE_CHANGED:
+            return produce(state, (nextState) => {
+                nextState.isSocketConnected = payload;
+            });
+        default:
+            return produce(state, () => {});
     }
 };
