@@ -121,6 +121,7 @@ if (!app.requestSingleInstanceLock()) {
 
         // @ts-ignore
         mainRouter = new MainRouter(mainWindow, entryServer, {
+            rootAppPath: process.env.NODE_ENV === 'production' && path.join(__dirname, '..', '..', '..'),
             loggerOptions: {
                 logPath: statisticLogPath,
                 serverUrl: statisticsUrl,

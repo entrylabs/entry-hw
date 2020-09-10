@@ -14,9 +14,10 @@
         "webpack:prod": "cross-env NODE_ENV=production webpack",
         "webpack:watch": "cross-env NODE_ENV=development webpack -w",
         "update:licence": "lcdoc make -o app/OPENSOURCE.md -d 1",
-        "dist:win32": "npm run webpack:prod && electron-builder --win --ia32",
-        "dist:mac:notarize": "npm run webpack:prod && cross-env NOTARIZE=true CSC_NAME=\"Connect Foundation (DLFUSDA3L5)\" electron-builder",
-        "dist:mac": "npm run webpack:prod && cross-env NOTARIZE=false CSC_NAME=\"Connect Foundation (DLFUSDA3L5)\" electron-builder",
+        "dist:win32": "cross-env BUILD_MODE=STANDALONE npm run webpack:prod && electron-builder --win --ia32",
+        "dist:mac:notarize": "cross-env BUILD_MODE=STANDALONE npm run webpack:prod && cross-env NOTARIZE=true CSC_NAME=\"Connect Foundation (DLFUSDA3L5)\" electron-builder",
+        "dist:mac": "cross-env BUILD_MODE=STANDALONE npm run webpack:prod && cross-env NOTARIZE=false CSC_NAME=\"Connect Foundation (DLFUSDA3L5)\" electron-builder",
+        "dist:offline": "cross-env BUILD_MODE=OFFLINE npm run webpack:prod",
         "rebuild": "electron-rebuild -f -w serialport,node-hid",
         "setting": "npm run rebuild && npm run webpack:dev"
     },

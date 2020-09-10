@@ -72,7 +72,7 @@
         "new-cap": ["warn", { "capIsNewExceptionPattern": "^Entry." }],
         "curly": "warn",
         "keyword-spacing": "warn",
-        "indent": ["warn", 4]
+        "indent": ["warn", 4, { "SwitchCase": 1 }]
     },
     "overrides": [
         {

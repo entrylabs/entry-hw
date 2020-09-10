@@ -58,7 +58,7 @@ class Flasher {
             this.flasherProcess = exec(
                 cmd.join(''),
                 {
-                    cwd: directoryPaths.firmware,
+                    cwd: directoryPaths.firmware(),
                 },
                 (...args) => {
                     resolve(args);
@@ -69,7 +69,7 @@ class Flasher {
 
     private async _flashCopy(firmware: ICopyTypeFirmware): Promise<any[]> {
         return new Promise((resolve, reject) => {
-            const firmwareDirectory = directoryPaths.firmware;
+            const firmwareDirectory = directoryPaths.firmware();
             const destPath = dialog.showOpenDialogSync({
                 properties: ['openDirectory'],
             });

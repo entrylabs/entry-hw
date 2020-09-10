@@ -28,6 +28,7 @@ interface IEntryServer {
 
 interface MainRouterOptions {
     loggerOptions?: StatisticsLoggerOptions
+    rootAppPath?: string,
 }
 
 /**
@@ -66,11 +67,15 @@ class MainRouter {
     constructor(mainWindow: BrowserWindow, entryServer: IEntryServer, options?: MainRouterOptions) {
         global.$ = require('lodash');
 
-        rendererConsole.initialize(mainWindow);
+        if (options?.rootAppPath) {
+            directoryPaths.setRootAppPath(options.rootAppPath);
+        }
+
         if (options?.loggerOptions) {
             statisticsLogger.setOptions(options.loggerOptions);
             statisticsLogger.run();
         }
+        rendererConsole.initialize(mainWindow);
         this.ipcManager = new IpcManager(mainWindow.webContents);
         this.browser = mainWindow;
         this.server = entryServer;
@@ -83,6 +88,10 @@ class MainRouter {
 
         this.resetIpcEvents();
         this.registerIpcEvents();
+
+        this.hardwareListManager.updateHardwareList();
+        this.hardwareListManager.updateHardwareListWithOnline();
+
         logger.verbose('mainRouter created');
         statisticsLogger.log('execute');
     }
@@ -224,7 +233,7 @@ class MainRouter {
             const { type = 'serial' } = hardware;
             this.scanner = this.scannerManager.getScanner(type);
             if (this.scanner) {
-                const moduleFilePath = directoryPaths.modules;
+                const moduleFilePath = directoryPaths.modules();
                 this.hwModule = nativeNodeRequire(path.join(moduleFilePath, config.module)) as IHardwareModule;
                 this.sendState(HardwareStatement.scan);
                 this.scanner.stopScan();
@@ -236,7 +245,7 @@ class MainRouter {
                     this._connect(connector);
                 }
                 statisticsLogger.log('device-connected', {
-                    id: config.id,
+                    hardwareId: config.id,
                 });
             }
         } catch (e) {
@@ -450,7 +459,7 @@ class MainRouter {
             return;
         }
 
-        const driverFullPath = path.join(directoryPaths.driver, driverPath);
+        const driverFullPath = path.join(directoryPaths.driver(), driverPath);
         logger.info(`execute driver requested. filePath : ${driverFullPath}`);
         shell.openItem(driverFullPath);
     }
@@ -477,7 +486,7 @@ class MainRouter {
         ipcMain.on('startScan', async (e, config: IHardwareConfig) => {
             try {
                 logger.info(`scan started. hardware config: ${JSON.stringify(config)}`);
-                statisticsLogger.log('device-select', { id: config.id });
+                statisticsLogger.log('device-select', { hardwareId: config.id });
                 await this.startScan(config);
             } catch (e) {
                 logger.warn(`scan error : ${e.title}, ${e.message}`);
@@ -504,6 +513,9 @@ class MainRouter {
         });
         ipcMain.on('getCurrentServerModeSync', (e) => {
             e.returnValue = this.currentServerRunningMode;
+        });
+        ipcMain.on('getBaseModulePath', (e) => {
+            e.returnValue = directoryPaths.modules();
         });
         ipcMain.on('getCurrentCloudModeSync', (e) => {
             e.returnValue = this.currentCloudMode;
