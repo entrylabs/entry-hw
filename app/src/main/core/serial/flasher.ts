@@ -33,7 +33,7 @@ class Flasher {
                 ' --before default_reset',
                 ' --after hard_reset write_flash',
                 ` ${firmware.offset}`,
-                ' codewiz.bin',
+                ` ${firmware.name}.bin`,
             ].join('');
 
             logger.info(`ESP board firmware requested.\nparameter is ${cmd}`);
