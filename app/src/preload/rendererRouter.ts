@@ -37,10 +37,8 @@ class RendererRouter {
 
         this.consoleWriteServerMode(initialServerMode);
 
-        ipcRenderer.removeAllListeners('hardwareListChanged');
         ipcRenderer.removeAllListeners('hardwareCloseConfirm');
         ipcRenderer.removeAllListeners('serverMode');
-        ipcRenderer.on('hardwareListChanged', this.refreshHardwareModules.bind(this));
         ipcRenderer.on('hardwareCloseConfirm', this.confirmHardwareClose.bind(this));
         ipcRenderer.on('serverMode', (event, mode) => {
             this.consoleWriteServerMode(mode);
@@ -155,7 +153,7 @@ class RendererRouter {
         }
     }
 
-    private refreshHardwareModules() {
+    public refreshHardwareModules() {
         // configuration
         const routerHardwareList = this.getHardwareListSync();
         this.priorHardwareList.forEach((target, index) => {
