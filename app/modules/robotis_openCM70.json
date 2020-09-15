@@ -9,7 +9,7 @@
 	"icon" : "robotis_openCM70.png",
 	"module": "robotis_openCM70.js",
 	"url": "http://www.robotis.com",
-	"email": "kjs@robotis.com",
+	"email": "kjw@robotis.com",
 	"video": "https://goo.gl/QaXNYy",
 	"reconnect" : true,
 	"driver": {
