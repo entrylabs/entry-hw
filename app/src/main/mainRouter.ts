@@ -538,7 +538,7 @@ class MainRouter {
                 filters: [
                     {
                         name: 'modulePack',
-                        extensions: ['zip'],
+                        extensions: ['ehw'],
                     },
                 ],
                 properties: ['openFile'],
