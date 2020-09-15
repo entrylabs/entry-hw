@@ -83,8 +83,6 @@ class MainRouter {
         this.registerIpcEvents();
 
         this.hardwareListManager.updateHardwareList();
-        this.hardwareListManager.updateHardwareListWithOnline();
-
         logger.verbose('mainRouter created');
     }
 
@@ -558,8 +556,7 @@ class MainRouter {
     async requestHardwareModule(moduleName: string) {
         logger.info(`hardware module requested from online, moduleName : ${moduleName}`);
         const moduleConfig = await downloadModule(moduleName);
-        this.hardwareListManager.updateHardwareList([moduleConfig]);
-        await this.hardwareListManager.updateHardwareListWithOnline();
+        await this.hardwareListManager.updateHardwareList([moduleConfig]);
     }
 
     private resetIpcEvents() {

@@ -11,7 +11,10 @@ const getModuleListFunction: () => Promise<IOnlineHardwareConfig[]> = () => new 
 
     request.on('response', (response) => {
         let buffer = '';
-        response.on('error', reject);
+        response.on('error', (e: Error) => {
+            logger.warn('get module list from online failed, ', e);
+            resolve([]);
+        });
         response.on('data', (chunk) => {
             buffer += chunk.toString();
         });
@@ -27,7 +30,10 @@ const getModuleListFunction: () => Promise<IOnlineHardwareConfig[]> = () => new 
             }
         });
     });
-    request.on('error', reject);
+    request.on('error', ((e) => {
+        logger.warn('get module list from online failed, ', e);
+        resolve([]);
+    }));
     request.end();
 });
 
