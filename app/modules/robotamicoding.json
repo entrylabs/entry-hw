@@ -15,9 +15,6 @@
 	},
     "reconnect": true,
     "firmware": "robotami_coding",
-    "entry": {
-        "protocol": "json"
-    },
 	"hardware": {
 		"type": "serial",
         "control": "slave",
