@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { cloneDeep, merge, unionWith } from 'lodash';
+import { app } from 'electron';
 import lt from 'semver/functions/lt';
 import valid from 'semver/functions/valid';
 import { AvailableTypes } from '../../common/constants';
@@ -8,6 +9,7 @@ import getModuleList from './functions/getModuleList';
 import createLogger from '../electron/functions/createLogger';
 import directoryPaths from './directoryPaths';
 import MainRouter from '../mainRouter';
+import tar from 'tar';
 
 const logger = createLogger('core/hardwareListManager.ts');
 
@@ -32,8 +34,8 @@ const onlineModuleSchemaModifier = (schema: IOnlineHardwareConfig): IHardwareCon
     swapElement.name = schema.title;
     swapElement.availableType = AvailableTypes.needDownload;
 
-    delete swapElement.title;
-    delete swapElement.files;
+    delete swapElement?.title;
+    delete swapElement?.files;
     return merge(swapElement, schema.properties) as IHardwareConfig;
 };
 
@@ -46,10 +48,6 @@ export default class {
         logger.verbose('hardwareListManager created');
     }
 
-    async updateHardwareListWithExtensionPack() {
-        logger.verbose('hardware List update from ExtensionPack..');
-    }
-
     async updateHardwareListWithOnline() {
         logger.verbose('hardware List update from online..');
         try {
@@ -59,6 +57,7 @@ export default class {
             }
 
             const moduleList = onlineList.map(onlineModuleSchemaModifier);
+            console.log('moduleList', onlineList);
 
             logger.info(
                 `online hardware list received.\nlist: ${moduleList
@@ -104,7 +103,11 @@ export default class {
     }
 
     private getAllHardwareModulesFromDisk() {
+        logger.info('getAllHardwareModulesFromDisk');
         try {
+            if (!fs.existsSync(directoryPaths.modules())) {
+                fs.mkdirSync(directoryPaths.modules(), { recursive: true });
+            }
             return fs
                 .readdirSync(directoryPaths.modules())
                 .filter((file) => !!file.match(/\.json$/))
@@ -125,8 +128,26 @@ export default class {
         return this.allHardwareList.find((hardware) => hardware.id === id);
     }
 
-    updateHardwareListWithPack(path: string) {
-        console.log('updateHardwareList');
+    async updateHardwareListWithPack(filePath: string) {
+        const modulePath = path.join(app.getPath('appData'), 'entry-hw-modules');
+        logger.info(`extract files on ${modulePath}`);
+        if (!fs.existsSync(modulePath)) {
+            fs.mkdirSync(modulePath, { recursive: true });
+        }
+        try {
+            await fs.createReadStream(filePath).pipe(
+                require('unzipper')
+                    .Extract({ path: modulePath })
+                    .on('close', () => {
+                        logger.info('EXTRACT DONE');
+                        this.updateHardwareListWithOnline();
+                    })
+            );
+            return;
+        } catch (e) {
+            logger.info(e);
+            logger.info(`hardware list update from pack failed, path: ${modulePath}`);
+        }
     }
 
     private notifyHardwareListChanged() {

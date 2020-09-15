@@ -1,13 +1,18 @@
 import path from 'path';
+import { app } from 'electron';
 
 let rootAppPath = path.join(__dirname, '..', '..');
+const modulesPath = path.join(app.getPath('appData'), 'entry-hw-modules');
 
 export default {
     setRootAppPath: (nextPath: string) => {
-        rootAppPath = nextPath;
+        rootAppPath = modulesPath;
     },
-    driver: () => path.join(rootAppPath, 'drivers'),
-    firmware: () => path.join(rootAppPath, 'firmwares'),
-    modules: () => path.join(rootAppPath, 'modules'),
-};
+    flasherPath: () => path.join(rootAppPath, 'firmwares'),
 
+    // moduleRelatedPath
+    driver: () => path.join(modulesPath, 'drivers'),
+    firmware: () => path.join(modulesPath, 'firmwares'),
+    modules: () => path.join(modulesPath, 'modules'),
+    moduleRoot: () => rootAppPath,
+};
