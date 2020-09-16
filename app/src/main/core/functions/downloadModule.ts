@@ -32,7 +32,9 @@ const downloadModuleFunction = (moduleName: string): Promise<IHardwareConfig> =>
                     logger.info(`hardware module config path: ${moduleConfigPath}`);
                     fs.readFile(moduleConfigPath, async (err, data) => {
                         if (err) {
-                            logger.warn(`hardware module config read failed. ${err.name} ${err.message}`);
+                            logger.warn(
+                                `hardware module config read failed. ${err.name} ${err.message}`
+                            );
                             return reject(err);
                         }
 
@@ -40,7 +42,11 @@ const downloadModuleFunction = (moduleName: string): Promise<IHardwareConfig> =>
                         const configJson = JSON.parse(data as any) as IHardwareConfig;
                         configJson.availableType = AvailableTypes.available;
 
-                        logger.info(`hardware module online load success. config : ${JSON.stringify(configJson)}`);
+                        logger.info(
+                            `hardware module online load success. config : ${JSON.stringify(
+                                configJson
+                            )}`
+                        );
                         resolve(configJson);
                     });
                 });
@@ -59,7 +65,7 @@ const downloadModuleFunction = (moduleName: string): Promise<IHardwareConfig> =>
     });
 
 const moveFirmwareAndDriverDirectory = async () => {
-    const appDirPath = path.join(__dirname, '..', '..');
+    const appDirPath = path.join(directoryPaths.moduleRoot());
     const moduleDirPath = path.join(appDirPath, 'modules');
     const srcDriverDirPath = path.join(moduleDirPath, 'drivers');
     const destDriverDirPath = path.join(appDirPath, 'drivers');
@@ -78,7 +84,9 @@ const moveFirmwareAndDriverDirectory = async () => {
             }),
             new Promise(async (resolve) => {
                 if (fs.pathExistsSync(srcFirmwaresDirPath)) {
-                    logger.info(`firmware file move ${srcFirmwaresDirPath} to ${destFirmwareDirPath}`);
+                    logger.info(
+                        `firmware file move ${srcFirmwaresDirPath} to ${destFirmwareDirPath}`
+                    );
                     await fileUtils.moveFileOrDirectory(srcFirmwaresDirPath, destFirmwareDirPath);
                     await fileUtils.rmdir(srcFirmwaresDirPath);
                 }

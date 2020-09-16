@@ -6,7 +6,7 @@ const modulesPath = path.join(app.getPath('appData'), 'entry-hw-modules');
 
 export default {
     setRootAppPath: (nextPath: string) => {
-        rootAppPath = modulesPath;
+        rootAppPath = nextPath;
     },
     flasherPath: () => path.join(rootAppPath, 'firmwares'),
 
@@ -14,5 +14,5 @@ export default {
     driver: () => path.join(modulesPath, 'drivers'),
     firmware: () => path.join(modulesPath, 'firmwares'),
     modules: () => path.join(modulesPath, 'modules'),
-    moduleRoot: () => rootAppPath,
+    moduleRoot: () => modulesPath,
 };
