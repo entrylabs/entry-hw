@@ -10,6 +10,7 @@ import createLogger from '../electron/functions/createLogger';
 import directoryPaths from './directoryPaths';
 import MainRouter from '../mainRouter';
 import tar from 'tar';
+import { mainRouter } from '../mainRouter.build';
 
 const logger = createLogger('core/hardwareListManager.ts');
 
@@ -57,6 +58,7 @@ export default class {
 
             const onlineModuleList = await this.getHardwareModulesFromOnline();
             const onlineMergedList = this.mergeHardwareList(this.allHardwareList, onlineModuleList);
+            this.allHardwareList = onlineMergedList;
             this.updateAndNotifyHardwareListChanged(onlineMergedList);
         } catch (e) {
             logger.error('hardware list update failed with error', e);

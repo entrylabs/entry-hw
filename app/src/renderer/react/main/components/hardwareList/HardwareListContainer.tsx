@@ -40,12 +40,14 @@ const HardwareListContainer: React.FC = () => {
             resetHardwareList(dispatch)();
         }
     }, []);
-
     return (
         <HardwareListContainerRoot>
-            {hardwareList.map((hardware) => (
-                <HardwareElement key={hardware.id} hardware={hardware} />
-            ))}
+            {hardwareList.map((hardware) => {
+                if (!hardware) {
+                    return null;
+                }
+                return <HardwareElement key={hardware.id} hardware={hardware} />;
+            })}
         </HardwareListContainerRoot>
     );
 };
