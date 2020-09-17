@@ -85,7 +85,7 @@ class Flasher {
                 ' -b',
                 baudRate,
                 ' -Uflash:w:"',
-                firmware,
+                `${directoryPaths.firmware()}/${firmware}`,
                 '.hex":i -C',
                 avrConf,
                 ' -carduino -D',
