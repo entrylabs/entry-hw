@@ -56,13 +56,6 @@ export default class {
                 ...this.getAllHardwareModulesFromDisk(),
                 ...this.legacyHardwareModulesLoadingFromDisk(),
             ];
-            // Object.assign(
-            //     {},
-            //     this.legacyHardwareModulesLoadingFromDisk(),
-
-            // );
-            console.log(availables);
-            console.log(this.legacyHardwareModulesLoadingFromDisk());
 
             const localMergedList = this.mergeHardwareList(availables, source);
             this.updateAndNotifyHardwareListChanged(localMergedList);

@@ -11,17 +11,13 @@
             "URL Types": [
                 {
                     "URL Identifie": "org.playentry.entryhw",
-                    "URL Schemes": [
-                        "entryhw"
-                    ]
+                    "URL Schemes": ["entryhw"]
                 }
             ],
             "CFBundleURLTypes": [
                 {
                     "CFBundleURLName": "org.playentry.entryhw",
-                    "CFBundleURLSchemes": [
-                        "entryhw"
-                    ]
+                    "CFBundleURLSchemes": ["entryhw"]
                 }
             ]
         },
@@ -76,6 +72,10 @@
         {
             "from": "app/drivers",
             "to": "drivers"
+        },
+        {
+            "from": "app/packs",
+            "to": "packs"
         }
     ],
     "asar": true,

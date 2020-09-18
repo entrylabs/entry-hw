@@ -1,5 +1,6 @@
 import { BrowserWindow, ipcMain, shell, dialog } from 'electron';
 import path from 'path';
+import fs from 'fs';
 import ScannerManager from './core/scannerManager';
 import Flasher from './core/serial/flasher';
 import rendererConsole from './core/rendererConsole';
@@ -73,6 +74,12 @@ class MainRouter {
         this.browser = mainWindow;
         this.server = entryServer;
         this.hardwareListManager = new HardwareListManager(this);
+
+        const packPath = path.join(directoryPaths.packs(), 'pack.ehw');
+        if (fs.existsSync(packPath)) {
+            this.hardwareListManager.updateHardwareListWithPack(packPath);
+            fs.unlinkSync(packPath);
+        }
         this.scannerManager = new ScannerManager(this);
         this.flasher = new Flasher();
 

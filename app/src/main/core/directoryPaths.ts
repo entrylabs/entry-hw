@@ -8,6 +8,7 @@ export default {
     setRootAppPath: (nextPath: string) => {
         rootAppPath = nextPath;
     },
+    rootAppPath: () => rootAppPath,
     flasherPath: () => path.join(rootAppPath, 'flashbinary'),
 
     //legacy path, only for development
@@ -19,5 +20,6 @@ export default {
     driver: () => path.join(modulesPath, 'drivers'),
     firmware: () => path.join(modulesPath, 'firmwares'),
     modules: () => path.join(modulesPath, 'modules'),
+    packs: () => path.join(rootAppPath, 'packs'),
     moduleRoot: () => modulesPath,
 };
