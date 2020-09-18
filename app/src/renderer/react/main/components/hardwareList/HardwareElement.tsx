@@ -49,7 +49,8 @@ const HardwareElement: React.FC<{ hardware: IHardwareConfig }> = (props) => {
     const { hardware } = props;
     const { availableType } = hardware;
 
-    const [isImageSrcNotFound, setImageNotFound] = useState(false);
+    // imageStatus = error counter;
+    const [imageStatus, setImageStatus] = useState(0);
     const langType = useMemo(() => translator.currentLanguage, [translator]);
     const onElementClick = useCallback(() => {
         if (availableType === HardwareAvailableTypeEnum.available) {
@@ -63,21 +64,25 @@ const HardwareElement: React.FC<{ hardware: IHardwareConfig }> = (props) => {
     }, [hardware, availableType]);
 
     const getImageBaseSrc = useMemo(() => {
-        if (isImageSrcNotFound) {
+        // 이미지가 공용 모듈 폴더에 없으면, 스태틱을 찾는다, 아니면 empty인 이미지를 리턴
+        if (imageStatus == 1) {
+            return `${rendererRouter.staticModulePath}/${hardware.icon}`;
+        } else if (imageStatus == 2) {
             return EmptyDeviceImage;
         }
 
+        // 로딩 초기 경로 세팅
         const imageBaseUrl = rendererRouter.sharedObject.moduleResourceUrl;
 
         switch (availableType) {
-        case HardwareAvailableTypeEnum.needUpdate:
-        case HardwareAvailableTypeEnum.needDownload:
-            return `${imageBaseUrl}/${hardware.moduleName}/files/image`;
-        case HardwareAvailableTypeEnum.available:
-        default:
-            return `${rendererRouter.baseModulePath}/${hardware.icon}`;
+            case HardwareAvailableTypeEnum.needUpdate:
+            case HardwareAvailableTypeEnum.needDownload:
+                return `${imageBaseUrl}/${hardware.moduleName}/files/image`;
+            case HardwareAvailableTypeEnum.available:
+            default:
+                return `${rendererRouter.baseModulePath}/${hardware.icon}`;
         }
-    }, [isImageSrcNotFound, availableType]);
+    }, [imageStatus, availableType]);
 
     return (
         <HardwareTypeDiv id={`${hardware.id}`} onClick={onElementClick}>
@@ -87,16 +92,15 @@ const HardwareElement: React.FC<{ hardware: IHardwareConfig }> = (props) => {
                     type={availableType}
                     alt=""
                     onError={() => {
-                        setImageNotFound(true);
+                        setImageStatus(imageStatus + 1);
                     }}
                 />
             </HardwareThumbnailContainer>
             <HardwareTitle>
-                {`${hardware.name && hardware.name[langType] || hardware.name.en}`}
+                {`${(hardware.name && hardware.name[langType]) || hardware.name.en}`}
             </HardwareTitle>
         </HardwareTypeDiv>
     );
 };
 
 export default HardwareElement;
-

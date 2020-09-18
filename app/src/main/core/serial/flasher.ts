@@ -1,6 +1,7 @@
 import { dialog } from 'electron';
 import { ChildProcess, exec } from 'child_process';
 import path from 'path';
+import fs from 'fs';
 import fileUtils from '../fileUtils';
 import createLogger from '../../electron/functions/createLogger';
 import directoryPaths from '../directoryPaths';
@@ -17,7 +18,14 @@ const platform = process.platform;
  */
 class Flasher {
     private flasherProcess?: ChildProcess;
-
+    private pathResolver(filename: string): string {
+        const modulizedPath = `${directoryPaths.firmware()}/${filename}`;
+        const staticPath = `${directoryPaths.static_firmware()}/${filename}`;
+        if (fs.existsSync(modulizedPath)) {
+            return modulizedPath;
+        }
+        return staticPath;
+    }
     private _flashESP(
         firmware: IESP32TypeFirmware,
         port: string,
@@ -26,6 +34,7 @@ class Flasher {
             MCUType?: string;
         }
     ): Promise<any[]> {
+        const firmwarePath = this.pathResolver(`${firmware.name}.bin`);
         return new Promise((resolve) => {
             const cmd = [
                 platform === 'darwin' ? './esptool' : 'esptool.exe',
@@ -33,7 +42,7 @@ class Flasher {
                 ' --before default_reset',
                 ' --after hard_reset write_flash',
                 ` ${firmware.offset}`,
-                ` ${firmware.name}.bin`,
+                ` ${firmwarePath}`,
             ].join('');
 
             logger.info(`ESP board firmware requested.\nparameter is ${cmd}`);
@@ -50,7 +59,7 @@ class Flasher {
     }
 
     private _flashArduino(
-        firmware: IFirmwareInfo,
+        firmware: string,
         port: string,
         options: {
             baudRate?: number;
@@ -60,6 +69,7 @@ class Flasher {
         return new Promise((resolve) => {
             const baudRate = options.baudRate || '115200';
             const MCUType = options.MCUType || ' m328p';
+            const firmwarePath = this.pathResolver(firmware);
 
             let avrName;
             let avrConf;
@@ -85,7 +95,7 @@ class Flasher {
                 ' -b',
                 baudRate,
                 ' -Uflash:w:"',
-                `${directoryPaths.firmware()}/${firmware}`,
+                `${firmwarePath}`,
                 '.hex":i -C',
                 avrConf,
                 ' -carduino -D',
@@ -115,11 +125,11 @@ class Flasher {
                 return reject(['경로 미선택']);
             }
 
-            const targetFirmwarePath = path.join(firmwareDirectory, `${firmware.name}.hex`);
+            const targetFirmwarePath = this.pathResolver(`${firmware.name}.hex`);
             const destFirmwarePath = path.join(destPath[0], `${firmware.name}.hex`);
             // TODO 파일 없을 시 에러 처리
             logger.info('copy style firmware upload requested');
-            logger.info(`${firmwareDirectory} to ${destFirmwarePath}`);
+            logger.info(`${targetFirmwarePath} to ${destFirmwarePath}`);
             fileUtils
                 .copyFile(targetFirmwarePath, destFirmwarePath)
                 .then(async () => {

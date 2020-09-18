@@ -229,10 +229,17 @@ class MainRouter {
             const { type = 'serial' } = hardware;
             this.scanner = this.scannerManager.getScanner(type);
             if (this.scanner) {
-                const moduleFilePath = directoryPaths.modules();
-                this.hwModule = nativeNodeRequire(
-                    path.join(moduleFilePath, config.module)
-                ) as IHardwareModule;
+                try {
+                    const moduleFilePath = directoryPaths.modules();
+                    this.hwModule = nativeNodeRequire(
+                        path.join(moduleFilePath, config.module)
+                    ) as IHardwareModule;
+                } catch (err) {
+                    const staticModuleFilePath = directoryPaths.static_modules();
+                    this.hwModule = nativeNodeRequire(
+                        path.join(staticModuleFilePath, config.module)
+                    ) as IHardwareModule;
+                }
                 this.sendState(HardwareStatement.scan);
                 this.scanner.stopScan();
                 const connector = await this.scanner.startScan(this.hwModule, this.config);
@@ -518,6 +525,9 @@ class MainRouter {
         });
         ipcMain.on('getBaseModulePath', (e) => {
             e.returnValue = directoryPaths.modules();
+        });
+        ipcMain.on('getStaticModulePath', (e) => {
+            e.returnValue = directoryPaths.static_modules();
         });
         ipcMain.on('getCurrentCloudModeSync', (e) => {
             e.returnValue = this.currentCloudMode;

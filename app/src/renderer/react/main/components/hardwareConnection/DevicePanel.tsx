@@ -1,5 +1,5 @@
 import FirmwareButtonSetElement from './FirmwareButtonSetElement';
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 import usePreload from '../../hooks/usePreload';
 import { useSelector } from 'react-redux';
@@ -21,27 +21,36 @@ const SelectedHardwareThumb = styled.img`
 const DevicePanel: React.FC = () => {
     const { rendererRouter } = usePreload();
     const selectedHardware = useSelector<IStoreState, IHardwareConfig | undefined>(
-        state => state.connection.selectedHardware,
+        (state) => state.connection.selectedHardware
     );
+    const [imageFound, setImageFound] = useState(true);
 
     if (!selectedHardware) {
         return <React.Fragment />;
     }
 
     const { icon, firmware } = selectedHardware;
+    const getImageSrc = useMemo(() => {
+        if (!imageFound) {
+            return `${rendererRouter.staticModulePath}/${icon}`;
+        }
+        return `${rendererRouter.baseModulePath}/${icon}`;
+    }, [imageFound]);
 
     return (
         <HardwareElement>
             <SelectedHardwareThumb
                 alt={''}
-                src={`${rendererRouter.baseModulePath}/${icon}`}
+                src={getImageSrc}
+                onError={() => {
+                    setImageFound(false);
+                }}
             />
-            {
-                firmware &&
+            {firmware && (
                 <div id="firmwareButtonSet">
-                    <FirmwareButtonSetElement buttonSet={firmware}/>
+                    <FirmwareButtonSetElement buttonSet={firmware} />
                 </div>
-            }
+            )}
         </HardwareElement>
     );
 };

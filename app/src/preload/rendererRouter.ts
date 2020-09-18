@@ -19,6 +19,10 @@ class RendererRouter {
         return ipcRenderer.sendSync('getBaseModulePath');
     }
 
+    get staticModulePath() {
+        return ipcRenderer.sendSync('getStaticModulePath');
+    }
+
     get priorHardwareList(): string[] {
         return (JSON.parse(localStorage.getItem('hardwareList') as string) || []).reverse();
     }

@@ -52,7 +52,18 @@ export default class {
     public async updateHardwareList(source: IHardwareConfig[] = []) {
         logger.verbose('hardware List update from file system..');
         try {
-            const availables = this.getAllHardwareModulesFromDisk();
+            const availables = [
+                ...this.getAllHardwareModulesFromDisk(),
+                ...this.legacyHardwareModulesLoadingFromDisk(),
+            ];
+            // Object.assign(
+            //     {},
+            //     this.legacyHardwareModulesLoadingFromDisk(),
+
+            // );
+            console.log(availables);
+            console.log(this.legacyHardwareModulesLoadingFromDisk());
+
             const localMergedList = this.mergeHardwareList(availables, source);
             this.updateAndNotifyHardwareListChanged(localMergedList);
 
@@ -123,6 +134,29 @@ export default class {
             return moduleList;
         } catch (e) {
             logger.warn(`online hardware list update failed ${JSON.stringify(e)}`);
+            return [];
+        }
+    }
+    private legacyHardwareModulesLoadingFromDisk(): any[] {
+        try {
+            if (!fs.existsSync(directoryPaths.static_modules())) {
+                fs.mkdirSync(directoryPaths.modules(), { recursive: true });
+            }
+            return fs
+                .readdirSync(directoryPaths.static_modules())
+                .filter((file) => !!file.match(/\.json$/))
+                .map((file) => {
+                    const bufferData = fs.readFileSync(
+                        path.join(directoryPaths.static_modules(), file)
+                    );
+                    const configJson = JSON.parse(bufferData.toString());
+                    configJson.availableType = AvailableTypes.available;
+                    return configJson;
+                })
+                .filter(platformFilter)
+                .sort(nameSortComparator);
+        } catch (e) {
+            console.error('error occurred while reading module json files', e);
             return [];
         }
     }
