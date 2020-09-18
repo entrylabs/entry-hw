@@ -14,8 +14,6 @@ import checkUpdate from './functions/checkUpdate';
 import MainRouter from '../mainRouter.build';
 import createLogger from './functions/createLogger';
 import isValidAsarFile from './modifyValidator';
-import directoryPaths from '../core/directoryPaths';
-import hardwareListManager from '../core/hardwareListManager';
 
 const logger = createLogger('electron/index.ts');
 

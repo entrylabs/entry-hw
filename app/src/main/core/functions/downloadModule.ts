@@ -6,6 +6,7 @@ import fileUtils from '../fileUtils';
 import NetworkZipHandlerStream from '../networkZipHandleStream';
 import createLogger from '../../electron/functions/createLogger';
 import directoryPaths from '../directoryPaths';
+import axios from 'axios';
 
 const logger = createLogger('DownloadModule');
 
@@ -37,11 +38,10 @@ const downloadModuleFunction = (moduleName: string): Promise<IHardwareConfig> =>
                             );
                             return reject(err);
                         }
-
+                        await downloadBlockFile(moduleName);
                         await moveFirmwareAndDriverDirectory();
                         const configJson = JSON.parse(data as any) as IHardwareConfig;
                         configJson.availableType = AvailableTypes.available;
-
                         logger.info(
                             `hardware module online load success. config : ${JSON.stringify(
                                 configJson
@@ -64,6 +64,31 @@ const downloadModuleFunction = (moduleName: string): Promise<IHardwareConfig> =>
         request.end();
     });
 
+const downloadBlockFile = async (moduleName: string) => {
+    const { moduleResourceUrl } = global.sharedObject;
+    const blockModuleKeys = ['image', 'block', 'module'];
+    const requestModuleUrl = `${moduleResourceUrl}/${moduleName}/files`;
+    const queue = [];
+    await Promise.all(
+        blockModuleKeys.map(async (key) => {
+            try {
+                const requestUrl = `${requestModuleUrl}/${key}`;
+                const response = await axios({
+                    url: requestUrl,
+                    method: 'GET',
+                    responseType: 'arraybuffer',
+                });
+                await fs.ensureDir(path.join(directoryPaths.block_modules(), moduleName));
+                await fs.writeFile(
+                    path.join(directoryPaths.block_modules(), moduleName, key),
+                    Buffer.from(response.data, 'binary')
+                );
+            } catch (err) {
+                console.error(err);
+            }
+        })
+    );
+};
 const moveFirmwareAndDriverDirectory = async () => {
     const appDirPath = path.join(directoryPaths.moduleRoot());
     const moduleDirPath = path.join(appDirPath, 'modules');
