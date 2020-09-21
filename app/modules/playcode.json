@@ -1,0 +1,28 @@
+{
+    "id": "1E0101",
+    "name": {
+        "en": "playcode",
+        "ko": "플레이코드"
+    },
+    "category": "module",
+    "platform": ["win32", "darwin"],
+    "icon": "playcode.png",
+    "module": "playcode.js",
+    "url": "http://www.playcode.kr",
+    "video": "https://goo.gl/HY2Bfz",
+    "driver": {
+        "win32-ia32": "arduino/dpinst-x86.exe",
+        "win32-x64": "arduino/dpinst-amd64.exe"
+    },
+    "selectPort": true,
+    "reconnect": false,
+    "softwareReset": true,
+    "hardware": {
+        "type": "serial",
+        "control": "slave",
+        "duration": 32,
+        "vendor": "playcode",
+        "baudRate": 38400,
+        "firmwarecheck": false
+    }
+}
