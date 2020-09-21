@@ -3,6 +3,7 @@ import path from 'path';
 import { cloneDeep, merge, unionWith } from 'lodash';
 import { app } from 'electron';
 import lt from 'semver/functions/lt';
+import eq from 'semver/functions/eq';
 import valid from 'semver/functions/valid';
 import { AvailableTypes } from '../../common/constants';
 import getModuleList from './functions/getModuleList';
@@ -52,10 +53,10 @@ export default class {
     public async updateHardwareList(source: IHardwareConfig[] = []) {
         logger.verbose('hardware List update from file system..');
         try {
-            const availables = [
-                ...this.getAllHardwareModulesFromDisk(),
-                ...this.legacyHardwareModulesLoadingFromDisk(),
-            ];
+            const staticModules = this.legacyHardwareModulesLoadingFromDisk();
+            const modules = this.getAllHardwareModulesFromDisk();
+
+            const availables = this.mergeHardwareListWithLegacy(staticModules, modules);
 
             const localMergedList = this.mergeHardwareList(availables, source);
             this.updateAndNotifyHardwareListChanged(localMergedList);
@@ -71,6 +72,27 @@ export default class {
 
     public getHardwareById(id: string) {
         return this.allHardwareList.find((hardware) => hardware.id === id);
+    }
+
+    private mergeHardwareListWithLegacy(base: IHardwareConfig[], target: IHardwareConfig[]) {
+        const mergedList = unionWith<IHardwareConfig>(base, target, (src, ori) => {
+            if (ori.id === src.id) {
+                if (
+                    !ori.version ||
+                    lt(valid(ori.version) as string, valid(src.version) as string) ||
+                    eq(valid(ori.version) as string, valid(src.version) as string)
+                ) {
+                    // legacy 는 moduleName 이 없기 때문에 서버에 요청을 줄 인자가 없다.
+                    ori.version = src.version;
+                    ori.moduleName = src.moduleName;
+                    ori.availableType = AvailableTypes.available;
+                }
+                return true;
+            }
+            return false;
+        });
+
+        return mergedList.filter(platformFilter).sort(nameSortComparator);
     }
 
     private mergeHardwareList(base: IHardwareConfig[], target: IHardwareConfig[]) {
