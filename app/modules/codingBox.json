@@ -12,11 +12,8 @@
         "win32-ia32": "arduino/dpinst-x86.exe",
         "win32-x64": "arduino/dpinst-amd64.exe"
     },
-    "select_com_port": true,
+    "selectPort": true,
     "firmware": "coding_box",
-    "entry": {
-        "protocol": "json"
-    },
     "hardware": {
         "type": "serial",
         "control": "slave",

@@ -16,15 +16,12 @@
     "driver": {
         "win32-ia32": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
         "win32-x64": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
-        "darwin-x64": "CH34x_Install_MAC_10_9_AND_ABOVE/CH34x_Install_V1.3.pkg"
+        "darwin-x64": "https://entrylabs.github.io/docs/files/drivers/CH34x_Install_MAC_10_9_AND_ABOVE/CH34x_Install_V1.3.pkg"
     },
     "reconnect": true,
     "firmware": "CloverSEntry1",
     "firmwareBaudRate": 57600,
-    "entry": {
-        "protocol": "json"
-    },
-    "select_com_port": false,
+    "selectPort": false,
     "hardware": {
         "type": "serial",
         "control": "slave",
