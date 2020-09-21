@@ -69,7 +69,7 @@ class Flasher {
         return new Promise((resolve) => {
             const baudRate = options.baudRate || '115200';
             const MCUType = options.MCUType || ' m328p';
-            const firmwarePath = this.pathResolver(firmware);
+            const firmwarePath = this.pathResolver(`${firmware}.hex`);
 
             let avrName;
             let avrConf;
@@ -96,7 +96,7 @@ class Flasher {
                 baudRate,
                 ' -Uflash:w:"',
                 `${firmwarePath}`,
-                '.hex":i -C',
+                '":i -C',
                 avrConf,
                 ' -carduino -D',
             ].join('');

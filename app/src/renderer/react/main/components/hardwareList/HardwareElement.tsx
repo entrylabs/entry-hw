@@ -57,10 +57,29 @@ const HardwareElement: React.FC<{ hardware: IHardwareConfig }> = (props) => {
             selectHardware(dispatch)(hardware);
             changeCurrentPageState(dispatch)(HardwarePageStateEnum.connection);
         } else {
-            hardware.moduleName
-                ? requestHardwareModuleDownload(dispatch)(hardware.moduleName)
-                : console.log('moduleName is not defined');
+            canUpdateModule();
         }
+    }, [hardware, availableType]);
+
+    const canUpdateModule = useCallback(() => {
+        if (availableType === HardwareAvailableTypeEnum.needUpdate) {
+            if (confirm('업데이트를 진행하시겠습니까?')) {
+                downloadModule();
+            } else {
+                selectHardware(dispatch)(hardware);
+                changeCurrentPageState(dispatch)(HardwarePageStateEnum.connection);
+            }
+        } else if (availableType === HardwareAvailableTypeEnum.needDownload) {
+            if (confirm('다운로드가 필요한 모델입니다. 다운로드 하시겠습니까?')) {
+                downloadModule();
+            }
+        }
+    }, [hardware, availableType]);
+
+    const downloadModule = useCallback(() => {
+        hardware.moduleName
+            ? requestHardwareModuleDownload(dispatch)(hardware.moduleName)
+            : console.log('moduleName is not defined');
     }, [hardware, availableType]);
 
     const getImageBaseSrc = useMemo(() => {
