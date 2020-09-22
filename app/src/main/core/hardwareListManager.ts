@@ -103,6 +103,7 @@ export default class {
                     lt(valid(ori.version) as string, valid(src.version) as string)
                 ) {
                     // legacy 는 moduleName 이 없기 때문에 서버에 요청을 줄 인자가 없다.
+                    ori.version = src.version;
                     ori.moduleName = src.moduleName;
                     ori.availableType = AvailableTypes.needUpdate;
                 }

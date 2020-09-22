@@ -198,8 +198,19 @@ class MainRouter {
                     this.close();
                 }
             } else if (state === HardwareStatement.connected && this.config.moduleName) {
+                const modulePath = path.join(
+                    directoryPaths.block_modules(),
+                    this.config.moduleName,
+                    'block'
+                );
+                logger.info(`moduleFile ${modulePath}`);
                 this.sendActionDataToServer(EntryMessageAction.init, {
-                    name: this.config.moduleName,
+                    name: {
+                        name: this.config.moduleName,
+                        file: fs.existsSync(modulePath)
+                            ? fs.readFileSync(modulePath, { encoding: 'utf8' })
+                            : null,
+                    },
                 });
             }
         }
@@ -371,9 +382,21 @@ class MainRouter {
             hwModule.socketReconnection();
         }
         if (config?.moduleName) {
+            const modulePath = path.join(
+                directoryPaths.block_modules(),
+                config.moduleName,
+                'block'
+            );
+
+            logger.info(`moduleFile ${modulePath}`);
             this.sendActionDataToServer(EntryMessageAction.state, {
                 statement: EntryStatePayload.connected,
-                name: config.moduleName,
+                name: {
+                    name: config.moduleName,
+                    file: fs.existsSync(modulePath)
+                        ? fs.readFileSync(modulePath, { encoding: 'utf8' })
+                        : null,
+                },
             });
         }
 
