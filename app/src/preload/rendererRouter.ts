@@ -94,8 +94,8 @@ class RendererRouter {
         ipcRenderer.send('executeDriver', driverPath);
     }
 
-    async requestDownloadModule(moduleName: string) {
-        await ipcRenderer.invoke('requestDownloadModule', moduleName);
+    async requestDownloadModule(moduleInfo: { name: string; version: string }) {
+        await ipcRenderer.invoke('requestDownloadModule', moduleInfo);
     }
 
     reloadApplication() {

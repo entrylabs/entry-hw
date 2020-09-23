@@ -14,6 +14,7 @@ import directoryPaths from './core/directoryPaths';
 import BaseScanner from './core/baseScanner';
 import BaseConnector from './core/baseConnector';
 import SerialConnector from './core/serial/connector';
+import cryptojs from 'crypto-js';
 
 const nativeNodeRequire = require('./nativeNodeRequire.js');
 const logger = createLogger('core/mainRouter.ts');
@@ -207,15 +208,31 @@ class MainRouter {
                 this.sendActionDataToServer(EntryMessageAction.init, {
                     name: {
                         name: this.config.moduleName,
-                        file: fs.existsSync(modulePath)
-                            ? fs.readFileSync(modulePath, { encoding: 'utf8' })
-                            : null,
+                        ...this.loadBlockFileIfNotModified(modulePath),
                     },
                 });
             }
         }
 
         this.sendEventToMainWindow('state', resultState, ...args);
+    }
+
+    loadBlockFileIfNotModified(modulePath: string) {
+        const fileRead = fs.existsSync(modulePath)
+            ? fs.readFileSync(modulePath, { encoding: 'utf8' })
+            : null;
+        if (!fileRead || !fs.existsSync(path.join(modulePath, '..', 'key'))) {
+            console.log('KEY NOT EXIST');
+            return {};
+        }
+        const keyRead = fs.readFileSync(path.join(modulePath, '..', 'key'), 'utf8');
+        const keyFromFile = cryptojs.SHA1(fileRead).toString();
+        if (keyFromFile != keyRead) {
+            console.log('LOCAL KEY MISMATCH');
+            return {};
+        }
+
+        return { file: fileRead, key: keyFromFile };
     }
 
     notifyCloudModeChanged(mode: number) {
@@ -377,14 +394,14 @@ class MainRouter {
     handleServerSocketConnected() {
         logger.info('server socket connected');
         const hwModule = this.hwModule;
-        const config = this.config;
+
         if (this.connector?.connected && hwModule?.socketReconnection) {
             hwModule.socketReconnection();
         }
-        if (config?.moduleName) {
+        if (this.config?.moduleName) {
             const modulePath = path.join(
                 directoryPaths.block_modules(),
-                config.moduleName,
+                this.config.moduleName,
                 'block'
             );
 
@@ -392,10 +409,8 @@ class MainRouter {
             this.sendActionDataToServer(EntryMessageAction.state, {
                 statement: EntryStatePayload.connected,
                 name: {
-                    name: config.moduleName,
-                    file: fs.existsSync(modulePath)
-                        ? fs.readFileSync(modulePath, { encoding: 'utf8' })
-                        : null,
+                    name: this.config.moduleName,
+                    ...this.loadBlockFileIfNotModified(modulePath),
                 },
             });
         }
@@ -565,8 +580,8 @@ class MainRouter {
         ipcMain.on('requestHardwareListSync', (e) => {
             e.returnValue = this.hardwareListManager.allHardwareList;
         });
-        ipcMain.handle('requestDownloadModule', async (e, moduleName) => {
-            await this.requestHardwareModule(moduleName);
+        ipcMain.handle('requestDownloadModule', async (e, moduleInfo) => {
+            await this.requestHardwareModule(moduleInfo);
         });
         ipcMain.handle('requestFlash', async (e, firmwareName: IFirmwareInfo) => {
             await this.flashFirmware(firmwareName);
@@ -593,9 +608,9 @@ class MainRouter {
         logger.verbose('EntryHW ipc event registered');
     }
 
-    async requestHardwareModule(moduleName: string) {
-        logger.info(`hardware module requested from online, moduleName : ${moduleName}`);
-        const moduleConfig = await downloadModule(moduleName);
+    async requestHardwareModule(moduleInfo: { name: string; version: string }) {
+        logger.info(`hardware module requested from online, moduleName : ${moduleInfo.name}`);
+        const moduleConfig = await downloadModule(moduleInfo);
         await this.hardwareListManager.updateHardwareList([moduleConfig]);
     }
 

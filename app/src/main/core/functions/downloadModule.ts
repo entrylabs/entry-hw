@@ -7,18 +7,21 @@ import NetworkZipHandlerStream from '../networkZipHandleStream';
 import createLogger from '../../electron/functions/createLogger';
 import directoryPaths from '../directoryPaths';
 import axios from 'axios';
-
+import cryptojs from 'crypto-js';
 const logger = createLogger('DownloadModule');
 
-const downloadModuleFunction = (moduleName: string): Promise<IHardwareConfig> =>
+const downloadModuleFunction = (moduleInfo: {
+    name: string;
+    version: string;
+}): Promise<IHardwareConfig> =>
     new Promise((resolve, reject) => {
-        if (!moduleName) {
+        if (!moduleInfo.name) {
             reject('must be present moduleName');
             return;
         }
 
         const { moduleResourceUrl } = global.sharedObject;
-        const requestModuleUrl = `${moduleResourceUrl}/${moduleName}/files/module`;
+        const requestModuleUrl = `${moduleResourceUrl}/${moduleInfo.name}/files/module/${moduleInfo.version}`;
         const request = net.request(requestModuleUrl);
         logger.info(`hardware module download from ${requestModuleUrl}`);
 
@@ -29,7 +32,7 @@ const downloadModuleFunction = (moduleName: string): Promise<IHardwareConfig> =>
                 logger.verbose('hardware module zip extract..');
                 const zipStream = new NetworkZipHandlerStream(moduleDirPath);
                 zipStream.on('done', () => {
-                    const moduleConfigPath = path.join(moduleDirPath, `${moduleName}.json`);
+                    const moduleConfigPath = path.join(moduleDirPath, `${moduleInfo.name}.json`);
                     logger.info(`hardware module config path: ${moduleConfigPath}`);
                     fs.readFile(moduleConfigPath, async (err, data) => {
                         if (err) {
@@ -38,7 +41,7 @@ const downloadModuleFunction = (moduleName: string): Promise<IHardwareConfig> =>
                             );
                             return reject(err);
                         }
-                        await downloadBlockFile(moduleName);
+                        await downloadBlockFile(moduleInfo);
                         await moveFirmwareAndDriverDirectory();
                         const configJson = JSON.parse(data as any) as IHardwareConfig;
                         configJson.availableType = AvailableTypes.available;
@@ -64,25 +67,25 @@ const downloadModuleFunction = (moduleName: string): Promise<IHardwareConfig> =>
         request.end();
     });
 
-const downloadBlockFile = async (moduleName: string) => {
+const downloadBlockFile = async (moduleInfo: { name: string; version: string }) => {
     const { moduleResourceUrl } = global.sharedObject;
-    const blockModuleKeys = ['image', 'block', 'module'];
-    const requestModuleUrl = `${moduleResourceUrl}/${moduleName}/files`;
+    const blockModuleKeys = ['block'];
+    const requestModuleUrl = `${moduleResourceUrl}/${moduleInfo.name}/files`;
     const queue = [];
     await Promise.all(
         blockModuleKeys.map(async (key) => {
             try {
-                const requestUrl = `${requestModuleUrl}/${key}`;
+                const requestUrl = `${requestModuleUrl}/${key}/${moduleInfo.version}`;
                 const response = await axios({
                     url: requestUrl,
                     method: 'GET',
                     responseType: 'arraybuffer',
                 });
-                await fs.ensureDir(path.join(directoryPaths.block_modules(), moduleName));
-                await fs.writeFile(
-                    path.join(directoryPaths.block_modules(), moduleName, key),
-                    Buffer.from(response.data, 'binary')
-                );
+                const blockPath = path.join(directoryPaths.block_modules(), moduleInfo.name);
+                await fs.ensureDir(blockPath);
+                await fs.writeFile(path.join(blockPath, key), Buffer.from(response.data, 'binary'));
+                const fileRead = fs.readFileSync(path.join(blockPath, key), { encoding: 'utf8' });
+                fs.writeFileSync(path.join(blockPath, 'key'), cryptojs.SHA1(fileRead).toString());
             } catch (err) {
                 console.error(err);
             }

@@ -79,6 +79,7 @@ declare interface IHardwareConfig {
     moduleName?: string;
 
     availableType?: any;
+    availableVersions: any[];
 
     category: 'board' | 'robot' | 'module';
     id: string;

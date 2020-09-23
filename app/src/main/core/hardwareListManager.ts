@@ -44,6 +44,7 @@ const onlineModuleSchemaModifier = (schema: IOnlineHardwareConfig): IHardwareCon
 export default class {
     private readonly router?: any;
     public allHardwareList: IHardwareConfig[] = [];
+    public allOnlineModuleList: IHardwareConfig[] = [];
 
     constructor(router: MainRouter) {
         this.router = router;
@@ -63,8 +64,9 @@ export default class {
 
             const onlineModuleList = await this.getHardwareModulesFromOnline();
             const onlineMergedList = this.mergeHardwareList(this.allHardwareList, onlineModuleList);
-            this.allHardwareList = onlineMergedList;
-            this.updateAndNotifyHardwareListChanged(onlineMergedList);
+            const completeList = this.addOtherVersions(onlineMergedList, this.allOnlineModuleList);
+            // this.allHardwareList = onlineMergedList;
+            this.updateAndNotifyHardwareListChanged(completeList);
         } catch (e) {
             logger.error('hardware list update failed with error', e);
         }
@@ -103,9 +105,33 @@ export default class {
                     lt(valid(ori.version) as string, valid(src.version) as string)
                 ) {
                     // legacy 는 moduleName 이 없기 때문에 서버에 요청을 줄 인자가 없다.
-                    ori.version = src.version;
+                    ori.version = ori.version || '1.0.0';
                     ori.moduleName = src.moduleName;
                     ori.availableType = AvailableTypes.needUpdate;
+                }
+                return true;
+            }
+            return false;
+        });
+
+        return mergedList.filter(platformFilter).sort(nameSortComparator);
+    }
+
+    private addOtherVersions(base: IHardwareConfig[], target: IHardwareConfig[]) {
+        const mergedList = unionWith<IHardwareConfig>(base, target, (src, ori) => {
+            if (ori.id === src.id) {
+                if (
+                    !ori.version ||
+                    lt(valid(ori.version) as string, valid(src.version) as string)
+                ) {
+                    // legacy 는 moduleName 이 없기 때문에 서버에 요청을 줄 인자가 없다.
+                    ori.version = ori.version || '1.0.0';
+                    ori.moduleName = src.moduleName;
+                    ori.availableType = AvailableTypes.needUpdate;
+                }
+
+                if (src.version) {
+                    ori.availableVersions = (ori.availableVersions || []).concat([src.version]);
                 }
                 return true;
             }
@@ -129,15 +155,25 @@ export default class {
     private async getHardwareModulesFromOnline(): Promise<IHardwareConfig[]> {
         logger.verbose('hardware List update from online..');
         try {
-            const onlineList = await getModuleList();
+            const fetchedModuleList = await getModuleList();
+            this.allOnlineModuleList = fetchedModuleList.map(onlineModuleSchemaModifier);
+            const onlineList = [];
+
+            const foundModule = new Set();
+
+            for (const module of this.allOnlineModuleList) {
+                if (!foundModule.has(module.moduleName)) {
+                    foundModule.add(module.moduleName);
+                    onlineList.push(module);
+                }
+            }
+
             if (!onlineList || onlineList.length === 0) {
                 return [];
             }
 
-            const moduleList = onlineList.map(onlineModuleSchemaModifier);
-
             logger.info(
-                `online hardware list received.\nlist: ${moduleList
+                `online hardware list received.\nlist: ${onlineList
                     .map(
                         (module) =>
                             `${module.id}|${
@@ -147,7 +183,7 @@ export default class {
                     .join(',')}`
             );
 
-            return moduleList;
+            return onlineList;
         } catch (e) {
             logger.warn(`online hardware list update failed ${JSON.stringify(e)}`);
             return [];
