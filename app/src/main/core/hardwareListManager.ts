@@ -107,6 +107,9 @@ export default class {
                     // legacy 는 moduleName 이 없기 때문에 서버에 요청을 줄 인자가 없다.
                     ori.version = ori.version || '1.0.0';
                     ori.moduleName = src.moduleName;
+                    if (ori.platform.length < src.platform.length) {
+                        ori.platform = [...src.platform];
+                    }
                     ori.availableType = AvailableTypes.needUpdate;
                 }
                 return true;
