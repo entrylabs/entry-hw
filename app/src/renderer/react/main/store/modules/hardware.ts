@@ -18,7 +18,7 @@ export const HARDWARE_LIST_CHANGED = 'hardware/HARDWARE_LIST_CHANGED';
 export const HARDWARE_LIST_RESET = 'hardware/HARDWARE_LIST_RESET';
 
 // actions
-export const requestHardwareModuleDownload = makePayloadAction<string>(HARDWARE_MODULE_DOWNLOAD_REQUESTED);
+export const requestHardwareModuleDownload = makePayloadAction<{name: string; version: string|undefined}>(HARDWARE_MODULE_DOWNLOAD_REQUESTED);
 export const changeHardwareSearchKeyword = makePayloadAction<string>(HARDWARE_SEARCH_KEYWORD_CHANGED);
 export const changeHardwareCategory = makePayloadAction<CategoryTypeEnum>(CATEGORY_CHANGED);
 export const changeHardwareList = makePayloadAction<IHardwareConfig[]>(HARDWARE_LIST_CHANGED);

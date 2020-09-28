@@ -110,7 +110,6 @@ export default class {
                     if (ori.platform.length < src.platform.length) {
                         ori.platform = [...src.platform];
                     }
-                    ori.availableType = AvailableTypes.needUpdate;
                 }
                 return true;
             }
