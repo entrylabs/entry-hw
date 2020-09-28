@@ -73,7 +73,12 @@ const DropdownCell = styled.div`
 `;
 
 const DropdownContainer = styled.div`
+    position: absolute;
+    top: 25;
+    left: 0;
+    border-radius: 5px;
     height: 80px;
+    padding: 5px;
     background-color: rgba(0, 0, 0, 0.1);
     overflow-y: scroll;
 `;
@@ -143,9 +148,9 @@ const HardwareElement: React.FC<{ hardware: IHardwareConfig }> = (props) => {
         const imageBaseUrl = rendererRouter.sharedObject.moduleResourceUrl;
 
         switch (availableType) {
-            case HardwareAvailableTypeEnum.needUpdate:
             case HardwareAvailableTypeEnum.needDownload:
                 return `${imageBaseUrl}/${hardware.moduleName}/files/image`;
+            case HardwareAvailableTypeEnum.needUpdate:
             case HardwareAvailableTypeEnum.available:
             default:
                 return `${rendererRouter.baseModulePath}/${hardware.icon}`;
@@ -172,16 +177,19 @@ const HardwareElement: React.FC<{ hardware: IHardwareConfig }> = (props) => {
             <HardwareVersionInd
                 onClick={toggleDropdown()}
                 ref={dropdownRef}
-                showPointer={hardware.availableVersions && hardware.availableVersions.length > 0}
+                showPointer={hardware.availableVersions?.length > 0}
             >
-                {currVersion || '1.0.0'}
+                {currVersion}
                 {showVerDropdown &&
                     hardware.availableVersions &&
                     hardware.availableVersions.length > 0 && (
                         <DropdownContainer>
                             {hardware.availableVersions.map((version) => {
                                 return (
-                                    <DropdownCell onClick={handleVersionSelect(version)}>
+                                    <DropdownCell
+                                        onClick={handleVersionSelect(version)}
+                                        id={`${hardware.name}/${version}`}
+                                    >
                                         {version}
                                     </DropdownCell>
                                 );

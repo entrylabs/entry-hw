@@ -5,7 +5,7 @@
 		"ko": "코드이노"
 	},
 	"category": "board",
-	"platform": ["win32"],
+	"platform": ["win32","darwin"],
 	"icon" : "codeino.png",
 	"module": "codeino.js",
 	"url": "http://www.codable.co.kr",

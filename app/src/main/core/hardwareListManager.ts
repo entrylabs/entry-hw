@@ -78,6 +78,9 @@ export default class {
 
     private mergeHardwareListWithLegacy(base: IHardwareConfig[], target: IHardwareConfig[]) {
         const mergedList = unionWith<IHardwareConfig>(base, target, (src, ori) => {
+            if (!ori.version) {
+                ori.version = '1.0.0';
+            }
             if (ori.id === src.id) {
                 if (
                     !ori.version ||
