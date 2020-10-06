@@ -23,32 +23,32 @@ Module.prototype.validateLocalData = function(data) {
 
 Module.prototype.handleRemoteData = function(handler) {
     this.readablePorts = handler.read('readablePorts');
-    let digitalValue = this.remoteDigitalValue;
+    const digitalValue = this.remoteDigitalValue;
     for (let port = 0; port < 14; port++) {
         digitalValue[port] = handler.read(port);
     }
 };
 
 Module.prototype.requestLocalData = function() {
-    let queryString = [];
+    const queryString = [];
 
-    let readablePorts = this.readablePorts;
+    const readablePorts = this.readablePorts;
     if (readablePorts) {
-        for (let i in readablePorts) {
-            let query = (5 << 5) + (readablePorts[i] << 1);
+        for (const i in readablePorts) {
+            const query = (5 << 5) + (readablePorts[i] << 1);
             queryString.push(query);
         }
     }
-    let readablePortsValues =
+    const readablePortsValues =
         (readablePorts && Object.values(readablePorts)) || [];
-    let digitalValue = this.remoteDigitalValue;
+    const digitalValue = this.remoteDigitalValue;
     for (let port = 0; port < 14; port++) {
         if (readablePortsValues.indexOf(port) > -1) {
             continue;
         }
-        let value = digitalValue[port];
+        const value = digitalValue[port];
         if (value === 255 || value === 0) {
-            let query = (7 << 5) + (port << 1) + (value == 255 ? 1 : 0);
+            const query = (7 << 5) + (port << 1) + (value == 255 ? 1 : 0);
             queryString.push(query);
         } else if (value > 0 && value < 255) {
             let query = (6 << 5) + (port << 1) + (value >> 7);
