@@ -89,7 +89,7 @@ const downloadBlockFile = async (moduleInfo: { name: string; version: string }, 
                 await fs.writeFile(path.join(blockPath, key), Buffer.from(response.data, 'binary'));
                 const fileRead = fs.readFileSync(path.join(blockPath, key), { encoding: 'utf8' });
                 //overwrite encryption
-                fs.writeFileSync(
+                await fs.writeFile(
                     path.join(blockPath, key),
                     cryptojs.AES.encrypt(fileRead, code).toString()
                 );

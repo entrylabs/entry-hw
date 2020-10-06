@@ -20,7 +20,7 @@ const nativeNodeRequire = require('./nativeNodeRequire.js');
 const logger = createLogger('core/mainRouter.ts');
 
 interface IEntryServer {
-    getCode(): string;
+    setSecret: () => void;
     setRouter: (router: MainRouter) => void;
     open: () => void;
     disconnectHardware: () => void;
@@ -77,7 +77,6 @@ class MainRouter {
         this.ipcManager = new IpcManager(mainWindow.webContents);
         this.browser = mainWindow;
         this.server = entryServer;
-        this.server.requestSecret();
         this.hardwareListManager = new HardwareListManager(this);
         const packPath = path.join(directoryPaths.packs(), 'pack.ehw');
         if (fs.existsSync(packPath)) {
@@ -86,7 +85,7 @@ class MainRouter {
         }
         this.scannerManager = new ScannerManager(this);
         this.flasher = new Flasher();
-
+        this.server.requestSecret();
         entryServer.setRouter(this);
         entryServer.open();
 
@@ -95,6 +94,9 @@ class MainRouter {
 
         this.hardwareListManager.updateHardwareList();
         logger.verbose('mainRouter created');
+    }
+    setSecret(value: string) {
+        this.secret = value;
     }
 
     /**
@@ -228,7 +230,10 @@ class MainRouter {
             console.log('KEY NOT EXIST');
             return {};
         }
-        const fileDecrypted = cryptojs.AES.decrypt(fileRead, this.server.getCode()).toString();
+        const fileDecrypted = cryptojs.AES.decrypt(fileRead.toString(), this.secret || '').toString(
+            cryptojs.enc.Utf8
+        );
+
         return { file: fileDecrypted };
     }
 
@@ -609,7 +614,7 @@ class MainRouter {
 
     async requestHardwareModule(moduleInfo: { name: string; version: string }) {
         logger.info(`hardware module requested from online, moduleName : ${moduleInfo.name}`);
-        const moduleConfig = await downloadModule(moduleInfo, this.server.getCode());
+        const moduleConfig = await downloadModule(moduleInfo, this.secret || '');
         await this.hardwareListManager.updateHardwareList([moduleConfig]);
     }
 
