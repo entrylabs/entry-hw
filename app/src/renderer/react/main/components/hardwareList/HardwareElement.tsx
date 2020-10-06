@@ -7,7 +7,6 @@ import styled from 'styled-components';
 import { requestHardwareModuleDownload } from '../../store/modules/hardware';
 import EmptyDeviceImage from '../../../../images/empty_module_image.png';
 import usePreload from '../../hooks/usePreload';
-import { AvailableTypes } from '../../../../../main/mainRouter.build';
 
 const HardwareTypeDiv = styled.div`
     width: 170px;

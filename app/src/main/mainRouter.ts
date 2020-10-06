@@ -25,6 +25,7 @@ interface IEntryServer {
     disconnectHardware: () => void;
     addRoomIdsOnSecondInstance: (roomId: string) => void;
     send: (data: any) => void;
+    requestSecret: () => void;
 }
 
 /**
@@ -53,6 +54,7 @@ class MainRouter {
     private scanner?: BaseScanner<any>;
     private hwModule?: IHardwareModule;
     private handler?: DataHandler;
+    private secret?: string;
 
     private firmwareTryCount = 0;
 
@@ -75,7 +77,7 @@ class MainRouter {
         this.browser = mainWindow;
         this.server = entryServer;
         this.hardwareListManager = new HardwareListManager(this);
-
+        this.server.requestSecret();
         const packPath = path.join(directoryPaths.packs(), 'pack.ehw');
         if (fs.existsSync(packPath)) {
             this.hardwareListManager.updateHardwareListWithPack(packPath);
@@ -94,6 +96,9 @@ class MainRouter {
         logger.verbose('mainRouter created');
     }
 
+    setSecret(value: string) {
+        this.secret = value;
+    }
     /**
      * 펌웨어를 업로드한다.
      * 펌웨어는 커넥터가 닫힌 상태에서 작업되어야 한다. (COMPort 점유)
@@ -264,17 +269,19 @@ class MainRouter {
             const { type = 'serial' } = hardware;
             this.scanner = this.scannerManager.getScanner(type);
             if (this.scanner) {
-                try {
-                    const moduleFilePath = directoryPaths.modules();
-                    this.hwModule = nativeNodeRequire(
-                        path.join(moduleFilePath, config.module)
-                    ) as IHardwareModule;
-                } catch (err) {
-                    const staticModuleFilePath = directoryPaths.static_modules();
-                    this.hwModule = nativeNodeRequire(
-                        path.join(staticModuleFilePath, config.module)
-                    ) as IHardwareModule;
+                // first try with dynamic module
+                let moduleFilePath = path.join(directoryPaths.modules(), config.module);
+                logger.info(
+                    `PROCEED WITH MODULIZED MODULE ${config.moduleName} at ${moduleFilePath}`
+                );
+                if (!fs.existsSync(moduleFilePath)) {
+                    moduleFilePath = path.join(directoryPaths.static_modules(), config.module);
+                    logger.info(
+                        `DYNAMIC MODULE NOT EXIST PROCEED WITH STATIC MODULE ${config.moduleName} at ${moduleFilePath}`
+                    );
                 }
+                this.hwModule = nativeNodeRequire(moduleFilePath) as IHardwareModule;
+
                 this.sendState(HardwareStatement.scan);
                 this.scanner.stopScan();
                 const connector = await this.scanner.startScan(this.hwModule, this.config);
