@@ -10,10 +10,13 @@ import axios from 'axios';
 import cryptojs from 'crypto-js';
 const logger = createLogger('DownloadModule');
 
-const downloadModuleFunction = (moduleInfo: {
-    name: string;
-    version: string;
-}): Promise<IHardwareConfig> =>
+const downloadModuleFunction = (
+    moduleInfo: {
+        name: string;
+        version: string;
+    },
+    code: string
+): Promise<IHardwareConfig> =>
     new Promise((resolve, reject) => {
         if (!moduleInfo.name) {
             reject('must be present moduleName');
@@ -41,7 +44,7 @@ const downloadModuleFunction = (moduleInfo: {
                             );
                             return reject(err);
                         }
-                        await downloadBlockFile(moduleInfo);
+                        await downloadBlockFile(moduleInfo, code);
                         await moveFirmwareAndDriverDirectory();
                         const configJson = JSON.parse(data as any) as IHardwareConfig;
                         configJson.availableType = AvailableTypes.available;
@@ -67,7 +70,7 @@ const downloadModuleFunction = (moduleInfo: {
         request.end();
     });
 
-const downloadBlockFile = async (moduleInfo: { name: string; version: string }) => {
+const downloadBlockFile = async (moduleInfo: { name: string; version: string }, code: string) => {
     const { moduleResourceUrl } = global.sharedObject;
     const blockModuleKeys = ['block'];
     const requestModuleUrl = `${moduleResourceUrl}/${moduleInfo.name}/files`;
@@ -85,7 +88,11 @@ const downloadBlockFile = async (moduleInfo: { name: string; version: string }) 
                 await fs.ensureDir(blockPath);
                 await fs.writeFile(path.join(blockPath, key), Buffer.from(response.data, 'binary'));
                 const fileRead = fs.readFileSync(path.join(blockPath, key), { encoding: 'utf8' });
-                fs.writeFileSync(path.join(blockPath, 'key'), cryptojs.SHA1(fileRead).toString());
+                //overwrite encryption
+                fs.writeFileSync(
+                    path.join(blockPath, key),
+                    cryptojs.AES.encrypt(fileRead, code).toString()
+                );
             } catch (err) {
                 console.error(err);
             }

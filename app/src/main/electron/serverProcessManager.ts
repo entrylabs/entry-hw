@@ -11,6 +11,7 @@ class ServerProcessManager {
     private readonly childProcess: ChildProcess;
     private currentRoomId: string | undefined;
     private router: MainRouter;
+    private code!: string;
 
     constructor(router?: any) {
         try {
@@ -64,6 +65,9 @@ class ServerProcessManager {
     send(data: any) {
         // this.childProcess.sendToClient(data);
         this._sendToChild('send', data);
+    }
+    getCode() {
+        return this.code;
     }
 
     /**
@@ -119,8 +123,7 @@ class ServerProcessManager {
                         break;
                     }
                     case 'secret': {
-                        console.log(value);
-                        this.router.setSecret(value);
+                        this.code = value;
                         break;
                     }
                     default: {

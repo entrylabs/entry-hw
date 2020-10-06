@@ -20,6 +20,7 @@ const nativeNodeRequire = require('./nativeNodeRequire.js');
 const logger = createLogger('core/mainRouter.ts');
 
 interface IEntryServer {
+    getCode(): string;
     setRouter: (router: MainRouter) => void;
     open: () => void;
     disconnectHardware: () => void;
@@ -76,8 +77,8 @@ class MainRouter {
         this.ipcManager = new IpcManager(mainWindow.webContents);
         this.browser = mainWindow;
         this.server = entryServer;
-        this.hardwareListManager = new HardwareListManager(this);
         this.server.requestSecret();
+        this.hardwareListManager = new HardwareListManager(this);
         const packPath = path.join(directoryPaths.packs(), 'pack.ehw');
         if (fs.existsSync(packPath)) {
             this.hardwareListManager.updateHardwareListWithPack(packPath);
@@ -96,9 +97,6 @@ class MainRouter {
         logger.verbose('mainRouter created');
     }
 
-    setSecret(value: string) {
-        this.secret = value;
-    }
     /**
      * 펌웨어를 업로드한다.
      * 펌웨어는 커넥터가 닫힌 상태에서 작업되어야 한다. (COMPort 점유)
@@ -226,18 +224,12 @@ class MainRouter {
         const fileRead = fs.existsSync(modulePath)
             ? fs.readFileSync(modulePath, { encoding: 'utf8' })
             : null;
-        if (!fileRead || !fs.existsSync(path.join(modulePath, '..', 'key'))) {
+        if (!fileRead) {
             console.log('KEY NOT EXIST');
             return {};
         }
-        const keyRead = fs.readFileSync(path.join(modulePath, '..', 'key'), 'utf8');
-        const keyFromFile = cryptojs.SHA1(fileRead).toString();
-        if (keyFromFile != keyRead) {
-            console.log('LOCAL KEY MISMATCH');
-            return {};
-        }
-
-        return { file: fileRead, key: keyFromFile };
+        const fileDecrypted = cryptojs.AES.decrypt(fileRead, this.server.getCode()).toString();
+        return { file: fileDecrypted };
     }
 
     notifyCloudModeChanged(mode: number) {
@@ -617,7 +609,7 @@ class MainRouter {
 
     async requestHardwareModule(moduleInfo: { name: string; version: string }) {
         logger.info(`hardware module requested from online, moduleName : ${moduleInfo.name}`);
-        const moduleConfig = await downloadModule(moduleInfo);
+        const moduleConfig = await downloadModule(moduleInfo, this.server.getCode());
         await this.hardwareListManager.updateHardwareList([moduleConfig]);
     }
 
