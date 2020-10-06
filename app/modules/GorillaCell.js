@@ -62,7 +62,7 @@ Module.prototype.requestLocalData = function() {
 
 Module.prototype.handleLocalData = function(data) {
     // data: Native Buffer
-    let pointer = 0;
+    const pointer = 0;
     for (let i = 0; i < 32; i++) {
         let chunk;
         if (!this.remainValue) {
@@ -73,19 +73,19 @@ Module.prototype.handleLocalData = function(data) {
         }
         if (chunk >> 7) {
             if ((chunk >> 6) & 1) {
-                let nextChunk = data[i + 1];
+                const nextChunk = data[i + 1];
                 if (!nextChunk && nextChunk !== 0) {
                     this.remainValue = chunk;
                 } else {
                     this.remainValue = null;
 
-                    let port = (chunk >> 3) & 7;
+                    const port = (chunk >> 3) & 7;
                     this.analogValue[port] =
                         ((chunk & 7) << 7) + (nextChunk & 127);
                 }
                 i++;
             } else {
-                let port = (chunk >> 2) & 15;
+                const port = (chunk >> 2) & 15;
                 this.digitalValue[port] = chunk & 1;
             }
         }
@@ -94,11 +94,11 @@ Module.prototype.handleLocalData = function(data) {
 
 Module.prototype.requestRemoteData = function(handler) {
     for (let i = 0; i < this.analogValue.length; i++) {
-        let value = this.analogValue[i];
+        const value = this.analogValue[i];
         handler.write('a' + i, value);
     }
     for (let i = 0; i < this.digitalValue.length; i++) {
-        let value = this.digitalValue[i];
+        const value = this.digitalValue[i];
         handler.write(i, value);
     }
 };
