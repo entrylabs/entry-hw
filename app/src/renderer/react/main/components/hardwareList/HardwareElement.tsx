@@ -159,6 +159,7 @@ const HardwareElement: React.FC<{ hardware: IHardwareConfig }> = (props) => {
     const dropdownRef = useRef(null);
 
     const handleClickOutside = (event: Event) => {
+        // @ts-ignore
         if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
             setShowVerDropdown(false);
         }
