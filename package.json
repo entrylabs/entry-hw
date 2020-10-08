@@ -22,7 +22,7 @@
         "setting": "npm run rebuild && npm run webpack:dev"
     },
     "devDependencies": {
-        "@types/cross-spawn": "^6.0.1",
+        "@types/cross-spawn": "^6.0.2",
         "@types/fs-extra": "^8.0.1",
         "@types/inquirer": "^6.5.0",
         "@types/lodash": "^4.14.149",

@@ -120,3 +120,12 @@ declare interface ISerialPortScanData {
     vendorId?: string;
     productId?: string;
 }
+
+declare interface IEntryServerBase {
+    open: () => void;
+    disconnectHardware: () => void;
+    addRoomIdsOnSecondInstance: (roomId: string) => void;
+    send: (data: any) => void;
+    requestEncryption: (value: string) => string;
+    requestDecryption: (value: string) => string;
+}

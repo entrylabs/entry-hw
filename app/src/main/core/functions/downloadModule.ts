@@ -7,7 +7,6 @@ import NetworkZipHandlerStream from '../networkZipHandleStream';
 import createLogger from '../../electron/functions/createLogger';
 import directoryPaths from '../directoryPaths';
 import axios from 'axios';
-import cryptojs from 'crypto-js';
 const logger = createLogger('DownloadModule');
 
 const downloadModuleFunction = (
@@ -15,7 +14,7 @@ const downloadModuleFunction = (
         name: string;
         version: string;
     },
-    code: string
+    server: IEntryServerBase
 ): Promise<IHardwareConfig> =>
     new Promise((resolve, reject) => {
         if (!moduleInfo.name) {
@@ -44,7 +43,7 @@ const downloadModuleFunction = (
                             );
                             return reject(err);
                         }
-                        await downloadBlockFile(moduleInfo, code);
+                        await downloadBlockFile(moduleInfo, server);
                         await moveFirmwareAndDriverDirectory();
                         const configJson = JSON.parse(data as any) as IHardwareConfig;
                         configJson.availableType = AvailableTypes.available;
@@ -70,7 +69,10 @@ const downloadModuleFunction = (
         request.end();
     });
 
-const downloadBlockFile = async (moduleInfo: { name: string; version: string }, code: string) => {
+const downloadBlockFile = async (
+    moduleInfo: { name: string; version: string },
+    server: IEntryServerBase
+) => {
     const { moduleResourceUrl } = global.sharedObject;
     const blockModuleKeys = ['block'];
     const requestModuleUrl = `${moduleResourceUrl}/${moduleInfo.name}/files`;
@@ -91,7 +93,7 @@ const downloadBlockFile = async (moduleInfo: { name: string; version: string }, 
                 //overwrite encryption
                 await fs.writeFile(
                     path.join(blockPath, key),
-                    cryptojs.AES.encrypt(fileRead, code).toString()
+                    await server.requestEncryption(fileRead)
                 );
             } catch (err) {
                 console.error(err);
