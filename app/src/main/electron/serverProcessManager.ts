@@ -52,8 +52,11 @@ class ServerProcessManager {
         this._sendToChild('addRoomId', roomId);
     }
 
-    requestSecret() {
-        return this._sendToChild('secret');
+    requestEncryption(value: string) {
+        return this._sendToChildSync('encrypt', value);
+    }
+    requestDecryption(value: string) {
+        return this._sendToChildSync('decrypt', value);
     }
 
     disconnectHardware() {
@@ -77,6 +80,23 @@ class ServerProcessManager {
                 key: methodName,
                 value: message,
             });
+    }
+    _sendToChildSync(methodName: string, message?: any) {
+        return new Promise((resolve, reject) => {
+            if (this._isProcessLive()) {
+                this.childProcess.on('message', (message: { key: string; value: any }) => {
+                    const { key, value } = message;
+                    if (key === methodName) {
+                        this._receiveFromChildEventRegister();
+                        resolve(value);
+                    }
+                });
+                this.childProcess.send({
+                    key: methodName,
+                    value: message,
+                });
+            }
+        });
     }
 
     _receiveFromChildEventRegister() {
@@ -118,10 +138,9 @@ class ServerProcessManager {
                         }
                         break;
                     }
-                    case 'secret': {
-                        this.router.setSecret(value);
+                    case 'encrypt':
+                    case 'decrypt':
                         break;
-                    }
                     default: {
                         console.error('unhandled pkg server message', key, value);
                     }

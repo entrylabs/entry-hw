@@ -19,14 +19,8 @@ import cryptojs from 'crypto-js';
 const nativeNodeRequire = require('./nativeNodeRequire.js');
 const logger = createLogger('core/mainRouter.ts');
 
-interface IEntryServer {
-    setSecret: () => void;
+interface IEntryServer extends IEntryServerBase {
     setRouter: (router: MainRouter) => void;
-    open: () => void;
-    disconnectHardware: () => void;
-    addRoomIdsOnSecondInstance: (roomId: string) => void;
-    send: (data: any) => void;
-    requestSecret: () => void;
 }
 
 /**
@@ -55,7 +49,6 @@ class MainRouter {
     private scanner?: BaseScanner<any>;
     private hwModule?: IHardwareModule;
     private handler?: DataHandler;
-    private secret?: string;
 
     private firmwareTryCount = 0;
 
@@ -85,7 +78,6 @@ class MainRouter {
         }
         this.scannerManager = new ScannerManager(this);
         this.flasher = new Flasher();
-        this.server.requestSecret();
         entryServer.setRouter(this);
         entryServer.open();
 
@@ -94,9 +86,6 @@ class MainRouter {
 
         this.hardwareListManager.updateHardwareList();
         logger.verbose('mainRouter created');
-    }
-    setSecret(value: string) {
-        this.secret = value;
     }
 
     /**
@@ -210,19 +199,25 @@ class MainRouter {
                     'block'
                 );
                 logger.info(`moduleFile ${modulePath}`);
-                this.sendActionDataToServer(EntryMessageAction.init, {
-                    name: {
-                        name: this.config.moduleName,
-                        ...this.loadBlockFileIfNotModified(modulePath),
-                    },
-                });
+                this.loadBlockFileIfNotModified(
+                    modulePath,
+                    this.config.moduleName,
+                    (file: string, name: string) => {
+                        this.sendActionDataToServer(EntryMessageAction.init, {
+                            name: {
+                                name,
+                                file,
+                            },
+                        });
+                    }
+                );
             }
         }
 
         this.sendEventToMainWindow('state', resultState, ...args);
     }
 
-    loadBlockFileIfNotModified(modulePath: string) {
+    async loadBlockFileIfNotModified(modulePath: string, moduleName: string, callback: Function) {
         const fileRead = fs.existsSync(modulePath)
             ? fs.readFileSync(modulePath, { encoding: 'utf8' })
             : null;
@@ -230,11 +225,8 @@ class MainRouter {
             console.log('KEY NOT EXIST');
             return {};
         }
-        const fileDecrypted = cryptojs.AES.decrypt(fileRead.toString(), this.secret || '').toString(
-            cryptojs.enc.Utf8
-        );
-
-        return { file: fileDecrypted };
+        const fileDecrypted = await this.server.requestDecryption(fileRead.toString());
+        callback(fileDecrypted, moduleName);
     }
 
     notifyCloudModeChanged(mode: number) {
@@ -410,13 +402,19 @@ class MainRouter {
             );
 
             logger.info(`moduleFile ${modulePath}`);
-            this.sendActionDataToServer(EntryMessageAction.state, {
-                statement: EntryStatePayload.connected,
-                name: {
-                    name: this.config.moduleName,
-                    ...this.loadBlockFileIfNotModified(modulePath),
-                },
-            });
+            this.loadBlockFileIfNotModified(
+                modulePath,
+                this.config.moduleName,
+                (file: string, name: string) => {
+                    this.sendActionDataToServer(EntryMessageAction.state, {
+                        statement: EntryStatePayload.connected,
+                        name: {
+                            name,
+                            file,
+                        },
+                    });
+                }
+            );
         }
 
         this.sendEventToMainWindow('socketConnected', true);
@@ -614,7 +612,7 @@ class MainRouter {
 
     async requestHardwareModule(moduleInfo: { name: string; version: string }) {
         logger.info(`hardware module requested from online, moduleName : ${moduleInfo.name}`);
-        const moduleConfig = await downloadModule(moduleInfo, this.secret || '');
+        const moduleConfig = await downloadModule(moduleInfo, this.server);
         await this.hardwareListManager.updateHardwareList([moduleConfig]);
     }
 
