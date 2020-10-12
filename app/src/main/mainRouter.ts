@@ -14,7 +14,6 @@ import directoryPaths from './core/directoryPaths';
 import BaseScanner from './core/baseScanner';
 import BaseConnector from './core/baseConnector';
 import SerialConnector from './core/serial/connector';
-import cryptojs from 'crypto-js';
 
 const nativeNodeRequire = require('./nativeNodeRequire.js');
 const logger = createLogger('core/mainRouter.ts');
