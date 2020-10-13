@@ -61,7 +61,6 @@ Module.prototype.requestLocalData = function() {
 };
 
 Module.prototype.handleLocalData = function(data) {
-    // data: Native Buffer
     const pointer = 0;
     for (let i = 0; i < 32; i++) {
         let chunk;
