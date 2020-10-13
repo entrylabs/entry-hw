@@ -101,11 +101,10 @@ class exMarsCube extends BaseModule {
         }
 
         for (let i = 0; i < 6; i++) {
-            for (let j = 0; j < 8; j++) {
+            for (let j = 0; j < 9; j++) {
                 this.faceCell[i][j] = 0;
                 this.cubeData[i][j] = this.translation_CellColorToString(i, j);
             }
-            this.cubeData[i][8] = this.translation_CellColorToString(i, j);
         }
         for (let i = 0; i < 6; i++) {
             this.faceDir[i] = 0;
@@ -135,9 +134,7 @@ class exMarsCube extends BaseModule {
     //requestInitialData 를 사용한 경우 checkInitialData 가 필수입니다.
     //이 두 함수가 정의되어있어야 로직이 동작합니다. 필요없으면 작성하지 않아도 됩니다.
     requestInitialData() {
-        let buffer =  this.makePacket_SensingRequest(this.protocols.faceColor.yellow);
-
-        return buffer;
+        return this.makePacket_SensingRequest(this.protocols.faceColor.yellow);
     }
 
     // 연결 후 초기에 수신받아서 정상연결인지를 확인해야하는 경우 사용합니다.
@@ -146,8 +143,7 @@ class exMarsCube extends BaseModule {
 
         if (data[0] == this.protocols.header && data[6] == this.protocols.footer) {
             result = true;
-        }
-        else {
+        } else {
             result = false;
         }
 
@@ -173,9 +169,8 @@ class exMarsCube extends BaseModule {
                 }
                 count++;
             }
-        }
-        else if (data.length >= 7) {
-            while(true) {
+        } else if (data.length >= 7) {
+            while (true) {
                 if (data[count] == this.protocols.header && data[count + 6] == this.protocols.footer) {
                     for (let i = 0; i < 7; i++) {
                         this.received[i] = data[i];
@@ -195,8 +190,7 @@ class exMarsCube extends BaseModule {
 
     // 하드웨어에서 온 데이터 처리
     handleLocalData(data) {
-        if (this.packetIntegrity == true)
-        {
+        if (this.packetIntegrity == true) {
             this.decodingPacket(this.received);
         }
     }
@@ -212,10 +206,9 @@ class exMarsCube extends BaseModule {
         for (let i = 0; i < 8; i++) {
             for (let j = 0; j < 6; j++) {
                 this.cubeData[i + 7][j] = String(this.record[i][j]);
-            }
-            
+            }            
         }
-        for (let face in this.cubeData) {
+        for (var face in this.cubeData) {
             handler.write(face, this.cubeData[face]);
         }
     }
@@ -223,39 +216,31 @@ class exMarsCube extends BaseModule {
     // 엔트리에서 받은 데이터에 대한 처리
     handleRemoteData(handler) {
         if (this.entryMessage == 0) {
-            let received = handler.read('SetBlock');
+            const received = handler.read('SetBlock');
             if (this.blockIndex != received.index) {
                 if (received.name == 'MenuInit') {
                     this.transmit = this.makePacket_MenuSetting(10, 10);
                     this.blockIndex = received.index;
                     this.entryMessage = 1;
-                }
-                else if (received.name == 'NonBrake') {
+                } else if (received.name == 'NonBrake') {
                     let brake = Number(received.data0);
-                    if (brake == 0) {
-                        this.transmit = this.makePacket_MenuSetting(13, 4);
-                    }
-                    else {
-                        this.transmit = this.makePacket_MenuSetting(9, 3);
-                    }                    
+                    if (brake == 0) this.transmit = this.makePacket_MenuSetting(13, 4);
+                    else this.transmit = this.makePacket_MenuSetting(9, 3);
                     this.blockIndex = received.index;
                     this.entryMessage = 1;
-                }
-                else if (received.name == 'ModeSetting') {
+                } else if (received.name == 'ModeSetting') {
                     let main = Number(received.data0);
                     let sub = Number(received.data1);
                     this.transmit = this.makePacket_MenuSetting(main, sub);
                     this.blockIndex = received.index;
                     this.entryMessage = 1;
-                }
-                else if (received.name == 'CenterColorChange') {
+                } else if (received.name == 'CenterColorChange') {
                     let face = Number(received.data0);
                     let cell = Number(received.data1);
                     this.transmit = this.makePacket_SetCenterColor(face, cell);
                     this.blockIndex = received.index;
                     this.entryMessage = 1;
-                }
-                else if (received.name == 'CellColorChange') {
+                } else if (received.name == 'CellColorChange') {
                     let face = Number(received.data0);
                     let cell1 = Number(received.data1);
                     let cell2 = Number(received.data2);
@@ -268,8 +253,7 @@ class exMarsCube extends BaseModule {
                     this.transmit = this.makePacket_SetCellColor(face, cell1, cell2, cell3, cell4, cell5, cell6, cell7, cell8);                    
                     this.blockIndex = received.index;
                     this.entryMessage = 1;
-                }
-                else if (received.name == 'PosDirTorChange') {
+                } else if (received.name == 'PosDirTorChange') {
                     let face = Number(received.data0);
                     let position = Number(received.data1);
                     let direction = Number(received.data2);
@@ -277,8 +261,7 @@ class exMarsCube extends BaseModule {
                     this.transmit = this.makePacket_SetPosDirTor(face, position, direction, torque);                    
                     this.blockIndex = received.index;
                     this.entryMessage = 1;
-                }
-                else if (received.name == 'FaceRotationOnlyColor') {
+                } else if (received.name == 'FaceRotationOnlyColor') {
                     let face = Number(received.data0);
                     let direction = Number(received.data1);
                     let angle = Number(received.data2);
@@ -286,8 +269,7 @@ class exMarsCube extends BaseModule {
                     this.transmit = this.makePacket_MoveFace(face, angle);
                     this.blockIndex = received.index;
                     this.entryMessage = 1;
-                }
-                else if (received.name == 'FaceRotation') {                    
+                } else if (received.name == 'FaceRotation') {                    
                     let face = Number(received.data0);
                     let direction = Number(received.data1);
                     let angle = Number(received.data2);
@@ -295,8 +277,7 @@ class exMarsCube extends BaseModule {
                     this.transmit = this.makePacket_FaceMoveWithMotor(face, angle);
                     this.blockIndex = received.index;
                     this.entryMessage = 1;
-                }
-                else if (received.name == 'FacesRotation') {
+                } else if (received.name == 'FacesRotation') {
                     let face1 = Number(received.data0);
                     let direction1 = Number(received.data1);
                     let angle1 = Number(received.data2);
@@ -308,15 +289,14 @@ class exMarsCube extends BaseModule {
                     this.transmit = this.makePacket_FacesMoveWithMotor(face1, angle1, face2, angle2);
                     this.blockIndex = received.index;
                     this.entryMessage = 1;
-                }
-                else if (received.name == 'SolveCube') {
+                } else if (received.name == 'SolveCube') {
                     let color = Number(received.data0);
                     let movingFace = Number(received.data1);
                     let face = this.protocols.faceColor.yellow;
                     let angle = this.protocols.rotation.ninety;
                     if (movingFace % 2 == 1) angle += 8;
                     if (color == 2) {
-                        switch(movingFace) {
+                        switch (movingFace) {
                             case 0: case 1: face = this.protocols.faceColor.green; break;
                             case 2: case 3: face = this.protocols.faceColor.purple; break;
                             case 4: case 5: face = this.protocols.faceColor.red; break;
@@ -324,9 +304,8 @@ class exMarsCube extends BaseModule {
                             case 8: case 9: face = this.protocols.faceColor.white; break;
                             case 10: case 11: face = this.protocols.faceColor.blue; break;
                         }
-                    }
-                    else if (color == 5) {
-                        switch(movingFace) {
+                    } else if (color == 5) {
+                        switch (movingFace) {
                             case 0: case 1: face = this.protocols.faceColor.purple; break;
                             case 2: case 3: face = this.protocols.faceColor.blue; break;
                             case 4: case 5: face = this.protocols.faceColor.green; break;
@@ -334,9 +313,8 @@ class exMarsCube extends BaseModule {
                             case 8: case 9: face = this.protocols.faceColor.white; break;
                             case 10: case 11: face = this.protocols.faceColor.red; break;
                         }
-                    }
-                    else if (color == 3) {
-                        switch(movingFace) {
+                    } else if (color == 3) {
+                        switch (movingFace) {
                             case 0: case 1: face = this.protocols.faceColor.blue; break;
                             case 2: case 3: face = this.protocols.faceColor.red; break;
                             case 4: case 5: face = this.protocols.faceColor.purple; break;
@@ -344,9 +322,8 @@ class exMarsCube extends BaseModule {
                             case 8: case 9: face = this.protocols.faceColor.white; break;
                             case 10: case 11: face = this.protocols.faceColor.green; break;
                         }
-                    }
-                    else if (color == 4) {
-                        switch(movingFace) {
+                    } else if (color == 4) {
+                        switch (movingFace) {
                             case 0: case 1: face = this.protocols.faceColor.red; break;
                             case 2: case 3: face = this.protocols.faceColor.green; break;
                             case 4: case 5: face = this.protocols.faceColor.blue; break;
@@ -358,32 +335,27 @@ class exMarsCube extends BaseModule {
                     this.transmit = this.makePacket_FaceMoveWithMotor(face, angle);
                     this.blockIndex = received.index;
                     this.entryMessage = 1;
-                }
-                else if (received.name == 'ResetAllFace') {
+                } else if (received.name == 'ResetAllFace') {
                     this.transmit = this.makePacket_ResetAllFace();
                     this.blockIndex = received.index;
                     this.entryMessage = 1;
-                }
-                else if (received.name == "PlayMode") {
+                } else if (received.name == "PlayMode") {
                     let mode = Number(received.data0);                     
                     this.transmit = this.makePacket(0, 30, 3, mode, 255);
                     this.blockIndex = received.index;
                     this.entryMessage = 1;
-                }
-                else if (received.name == "UserMode") {
+                } else if (received.name == "UserMode") {
                     let mode = Number(received.data0);                    
                     this.transmit = this.makePacket(0, 30, 1, mode, 255);
                     this.blockIndex = received.index;
                     this.entryMessage = 1;
-                }
-                else if (received.name == "PlayNote") {
+                } else if (received.name == "PlayNote") {
                     let note = Number(received.data0); 
                     let face = this.protocols.faceColor.white;
                     let angle = 3;
-                    if (note != 12)
-                    {
+                    if (note != 12) {
                         if (note % 2 == 1) angle += 8;
-                        switch(note) {
+                        switch (note) {
                             case 0: case 1: face = this.protocols.faceColor.white; break;
                             case 2: case 3: face = this.protocols.faceColor.yellow; break;
                             case 4: case 5: face = this.protocols.faceColor.green; break;
@@ -395,9 +367,8 @@ class exMarsCube extends BaseModule {
                         this.blockIndex = received.index;
                         this.entryMessage = 1;
                     }
-                }
-                else if (received.name == "GetRecord") {
-                    if (this.getRecord != this.blockIndex) {
+                } else if (received.name == "GetRecord") {
+                    if(this.getRecord != this.blockIndex) {
                         this.recordIndex =  Number(received.data0);
                         this.transmit = this.makePacket_Record(this.recordIndex);
                         this.blockIndex = received.index;
@@ -417,17 +388,11 @@ class exMarsCube extends BaseModule {
         if (this.entryMessage == 1) {
             buffer = this.transmit;
             this.entryMessage = 0;
-        }
-        else {
-            if (this.checkCount % 5 == 0)
-            {
-                buffer = this.makePacket_SensingRequest(this.protocols.faceColor.all);
-            }
+        } else {
+            if (this.checkCount % 5 == 0) buffer = this.makePacket_SensingRequest(this.protocols.faceColor.all);
         }
         if (this.checkCount % 12 == 0) {
-            for (let i = 0; i < 6; i++) {
-                this.faceDir[i] = 0;
-            }
+            for (let i = 0; i < 6; i++) this.faceDir[i] = 0;
         }
 
         this.checkCount++;
@@ -447,8 +412,7 @@ class exMarsCube extends BaseModule {
         let self = this;
 
         connect.close();
-        if(self.sp)
-        {
+        if(self.sp) {
             delete self.sp;
         }
     }
@@ -473,8 +437,7 @@ class exMarsCube extends BaseModule {
             buffer[8] = this.protocols.dongle.firstCheck;
             buffer[9] = this.protocols.dongle.secondCheck;
             buffer[10] = this.protocols.dongle.thridCheck;
-        }
-        else {            
+        } else {            
             buffer[0] = this.protocols.header;
             buffer[1] = index;
             buffer[2] = parameter1;
@@ -493,7 +456,7 @@ class exMarsCube extends BaseModule {
     }
 
     makePacket_SetCenterColor(face, color) {
-        let index = ((face << 5) | this.protocols.index.centerColor);
+        const index = ((face << 5) | this.protocols.index.centerColor);
 
         return this.makePacket(index, color, 0, 0, 0);
     }
@@ -509,16 +472,14 @@ class exMarsCube extends BaseModule {
     }
 
     makePacket_SetPosDirTor(face, position, direction, torque) {
-        let index = ((face << 5) | this.protocols.index.posDirTor);
+        const index = ((face << 5) | this.protocols.index.posDirTor);
         let pos = 0;
 
         if (position < 2) {
             pos = 2;
-        }
-        else if (position > 141) {
+        } else if (position > 141) {
             pos = 141;
-        }
-        else {
+        } else {
             pos = position;
         }
 
@@ -534,8 +495,7 @@ class exMarsCube extends BaseModule {
                 face == this.protocols.faceColor.green ||
                 face == this.protocols.faceColor.red) {
                 para = (rotation << 4) & 240;
-            }
-            else if (face == this.protocols.faceColor.yellow ||
+            } else if (face == this.protocols.faceColor.yellow ||
                      face == this.protocols.faceColor.blue ||
                      face == this.protocols.faceColor.purple) {
                 para = rotation & 15;
@@ -544,11 +504,9 @@ class exMarsCube extends BaseModule {
 
         if (face == this.protocols.faceColor.white || face == this.protocols.faceColor.yellow) {
             buffer = this.makePacket(this.protocols.index.face, this.protocols.action.faceMove, para, 0, 0);
-        }
-        else if (face == this.protocols.faceColor.green || face == this.protocols.faceColor.blue) {
+        } else if (face == this.protocols.faceColor.green || face == this.protocols.faceColor.blue) {
             buffer = this.makePacket(this.protocols.index.face, this.protocols.action.faceMove, 0, para, 0);
-        }
-        else if (face == this.protocols.faceColor.red || face == this.protocols.faceColor.purple) {
+        } else if (face == this.protocols.faceColor.red || face == this.protocols.faceColor.purple) {
             buffer = this.makePacket(this.protocols.index.face, this.protocols.action.faceMove, 0, 0, para);
         }
 
@@ -568,8 +526,7 @@ class exMarsCube extends BaseModule {
                 face == this.protocols.faceColor.green ||
                 face == this.protocols.faceColor.red) {
                 para = (rotation << 4) & 240;
-            }
-            else if (face == this.protocols.faceColor.yellow ||
+            } else if (face == this.protocols.faceColor.yellow ||
                      face == this.protocols.faceColor.blue ||
                      face == this.protocols.faceColor.purple) {
                 para = rotation & 15;
@@ -578,11 +535,9 @@ class exMarsCube extends BaseModule {
 
         if (face == this.protocols.faceColor.white || face == this.protocols.faceColor.yellow) {
             buffer = this.makePacket(this.protocols.index.face, this.protocols.action.faceMoveWithMotor, para, 0, 0);
-        }
-        else if (face == this.protocols.faceColor.green || face == this.protocols.faceColor.blue) {
+        } else if (face == this.protocols.faceColor.green || face == this.protocols.faceColor.blue) {
             buffer = this.makePacket(this.protocols.index.face, this.protocols.action.faceMoveWithMotor, 0, para, 0);
-        }
-        else if (face == this.protocols.faceColor.red || face == this.protocols.faceColor.purple) {
+        } else if (face == this.protocols.faceColor.red || face == this.protocols.faceColor.purple) {
             buffer = this.makePacket(this.protocols.index.face, this.protocols.action.faceMoveWithMotor, 0, 0, para);
         }
 
@@ -615,13 +570,13 @@ class exMarsCube extends BaseModule {
     }
 
     makePacket_Record(recordIndex) {
-        let index = ((7 << 5) | this.protocols.index.recordRequest);
+        const index = ((7 << 5) | this.protocols.index.recordRequest);
         
         return this.makePacket(index, recordIndex, 255, 255, 255);
     }
 
     makePacket_SensingRequest(face) {
-        let index = ((face << 5) | this.protocols.index.sensingRequest);
+        const index = ((face << 5) | this.protocols.index.sensingRequest);
 
         return this.makePacket(index, 255, 255, 255, 255);
     }
@@ -629,29 +584,15 @@ class exMarsCube extends BaseModule {
     translation_CellColorToString(face, cell) {
         let value = "";
 
-        if (this.faceCell[face][cell] == this.protocols.cellColor.off) {
-            value = "O";
-        }
-        else if (this.faceCell[face][cell] == this.protocols.cellColor.red) {
-            value = "R";
-        }
-        else if (this.faceCell[face][cell] == this.protocols.cellColor.green) {
-            value = "G";
-        }
-        else if (this.faceCell[face][cell] == this.protocols.cellColor.blue) {
-            value = "B";
-        }
-        else if (this.faceCell[face][cell] == this.protocols.cellColor.yellow) {
-            value = "Y";
-        }
-        else if (this.faceCell[face][cell] == this.protocols.cellColor.purple) {
-            value = "P";
-        }
-        else if (this.faceCell[face][cell] == this.protocols.cellColor.white) {
-            value = "W";
-        }
-        else if (this.faceCell[face][cell] == this.protocols.cellColor.skip) {
-            value = "S";
+        switch(this.faceCell[face][cell]) {
+            case this.protocols.cellColor.off: value = "O"; break;
+            case this.protocols.cellColor.red: value = "R"; break;
+            case this.protocols.cellColor.green: value = "G"; break;
+            case this.protocols.cellColor.blue: value = "B"; break;
+            case this.protocols.cellColor.yellow: value = "Y"; break;
+            case this.protocols.cellColor.purple: value = "P"; break;
+            case this.protocols.cellColor.white: value = "W"; break;
+            case this.protocols.cellColor.skip: value = "S"; break;
         }
 
         return value;
@@ -662,20 +603,15 @@ class exMarsCube extends BaseModule {
 
         if (faceName == "W") {
             translation = this.protocols.faceColor.white;
-        }
-        else if (faceName == "Y") {
+        } else if (faceName == "Y") {
             translation = this.protocols.faceColor.yellow;
-        }
-        else if (faceName == "G") {
+        } else if (faceName == "G") {
             translation = this.protocols.faceColor.green;
-        }
-        else if (faceName == "B") {
+        } else if (faceName == "B") {
             translation = this.protocols.faceColor.blue;
-        }
-        else if (faceName == "R") {
+        } else if (faceName == "R") {
             translation = this.protocols.faceColor.red;
-        }
-        else if (faceName == "P") {
+        } else if (faceName == "P") {
             translation = this.protocols.faceColor.purple;
         }
 
@@ -687,26 +623,19 @@ class exMarsCube extends BaseModule {
 
         if (colorName == "Off") {
             translation = this.protocols.cellColor.off;
-        }
-        else if (colorName == "Red") {
+        } else if (colorName == "Red") {
             translation = this.protocols.cellColor.red;
-        }
-        else if (colorName == "Green") {
+        } else if (colorName == "Green") {
             translation = this.protocols.cellColor.green;
-        }
-        else if (colorName == "Blue") {
+        } else if (colorName == "Blue") {
             translation = this.protocols.cellColor.blue;
-        }
-        else if (colorName == "Yellow") {
+        } else if (colorName == "Yellow") {
             translation = this.protocols.cellColor.yellow;
-        }
-        else if (colorName == "Purple") {
+        } else if (colorName == "Purple") {
             translation = this.protocols.cellColor.purple;
-        }
-        else if (colorName == "White") {
+        } else if (colorName == "White") {
             translation = this.protocols.cellColor.white;
-        }
-        else if (colorName == "Skip") {
+        } else if (colorName == "Skip") {
             translation = this.protocols.cellColor.skip;
         }
 
@@ -718,23 +647,17 @@ class exMarsCube extends BaseModule {
 
         if (rotation = "0") {
             translation = this.protocols.rotation.zero;
-        }
-        else if (rotation == "30") {
+        } else if (rotation == "30") {
             translation = this.protocols.rotation.thirty;
-        }
-        else if (rotation == "60") {
+        } else if (rotation == "60") {
             translation = this.protocols.rotation.sixty;
-        }
-        else if (rotation == "90") {
+        } else if (rotation == "90") {
             translation = this.protocols.rotation.ninety;
-        }
-        else if (rotation == "120") {
+        } else if (rotation == "120") {
             translation = this.protocols.rotation.aHundredTwenty;
-        }
-        else if (rotation == "150") {
+        } else if (rotation == "150") {
             translation = this.protocols.rotation.aHundredFifty;
-        }
-        else if (rotation == "180") {
+        } else if (rotation == "180") {
             translation = this.protocols.rotation.aHundredEighty;
         }
 
@@ -746,14 +669,11 @@ class exMarsCube extends BaseModule {
 
         if (direction == "Break") {
             translation = this.protocols.direction.break;
-        }
-        else if (direction == "CW") {
+        } else if (direction == "CW") {
             translation = this.protocols.direction.cw;
-        }
-        else if (direction == "CCW") {
+        } else if (direction == "CCW") {
             translation = this.protocols.direction.ccw;
-        }
-        else if (direction == "Passive") {
+        } else if (direction == "Passive") {
             translation = this.protocols.direction.passive;
         }
 
@@ -776,8 +696,7 @@ class exMarsCube extends BaseModule {
                     this.faceCell[face][5] = packet[5] & 15;
                     this.faceCell[face][6] = (packet[2] >> 4) & 15;
                     this.faceCell[face][7] = packet[2] & 15;
-                }
-                else if (face == this.protocols.faceColor.yellow) {
+                } else if (face == this.protocols.faceColor.yellow) {
                     this.faceCell[face][0] = (packet[2] >> 4) & 15;
                     this.faceCell[face][1] = packet[2] & 15;
                     this.faceCell[face][2] = (packet[3] >> 4) & 15;
@@ -786,8 +705,7 @@ class exMarsCube extends BaseModule {
                     this.faceCell[face][5] = packet[4] & 15;
                     this.faceCell[face][6] = (packet[5] >> 4) & 15;
                     this.faceCell[face][7] = packet[5] & 15;
-                }
-                else if (face == this.protocols.face.green) {
+                } else if (face == this.protocols.face.green) {
                     this.faceCell[face][0] = (packet[3] >> 4) & 15;
                     this.faceCell[face][1] = packet[3] & 15;
                     this.faceCell[face][2] = (packet[4] >> 4) & 15;
@@ -796,8 +714,25 @@ class exMarsCube extends BaseModule {
                     this.faceCell[face][5] = packet[5] & 15;
                     this.faceCell[face][6] = (packet[2] >> 4) & 15;
                     this.faceCell[face][7] = packet[2] & 15;
-                }
-                else if (face == this.protocols.face.blue) {
+                } else if (face == this.protocols.face.blue) {
+                    this.faceCell[face][0] = (packet[4] >> 4) & 15;
+                    this.faceCell[face][1] = packet[4] & 15;
+                    this.faceCell[face][2] = (packet[5] >> 4) & 15;
+                    this.faceCell[face][3] = packet[5] & 15;
+                    this.faceCell[face][4] = (packet[2] >> 4) & 15;
+                    this.faceCell[face][5] = packet[2] & 15;
+                    this.faceCell[face][6] = (packet[3] >> 4) & 15;
+                    this.faceCell[face][7] = packet[3] & 15;
+                } else if (face == this.protocols.face.red) {
+                    this.faceCell[face][0] = (packet[3] >> 4) & 15;
+                    this.faceCell[face][1] = packet[3] & 15;
+                    this.faceCell[face][2] = (packet[4] >> 4) & 15;
+                    this.faceCell[face][3] = packet[4] & 15;
+                    this.faceCell[face][4] = (packet[5] >> 4) & 15;
+                    this.faceCell[face][5] = packet[5] & 15;
+                    this.faceCell[face][6] = (packet[2] >> 4) & 15;
+                    this.faceCell[face][7] = packet[2] & 15;
+                } else if (face == this.protocols.face.purple) {
                     this.faceCell[face][0] = (packet[4] >> 4) & 15;
                     this.faceCell[face][1] = packet[4] & 15;
                     this.faceCell[face][2] = (packet[5] >> 4) & 15;
@@ -807,28 +742,7 @@ class exMarsCube extends BaseModule {
                     this.faceCell[face][6] = (packet[3] >> 4) & 15;
                     this.faceCell[face][7] = packet[3] & 15;
                 }
-                else if (face == this.protocols.face.red) {
-                    this.faceCell[face][0] = (packet[3] >> 4) & 15;
-                    this.faceCell[face][1] = packet[3] & 15;
-                    this.faceCell[face][2] = (packet[4] >> 4) & 15;
-                    this.faceCell[face][3] = packet[4] & 15;
-                    this.faceCell[face][4] = (packet[5] >> 4) & 15;
-                    this.faceCell[face][5] = packet[5] & 15;
-                    this.faceCell[face][6] = (packet[2] >> 4) & 15;
-                    this.faceCell[face][7] = packet[2] & 15;
-                }
-                else if (face == this.protocols.face.purple) {
-                    this.faceCell[face][0] = (packet[4] >> 4) & 15;
-                    this.faceCell[face][1] = packet[4] & 15;
-                    this.faceCell[face][2] = (packet[5] >> 4) & 15;
-                    this.faceCell[face][3] = packet[5] & 15;
-                    this.faceCell[face][4] = (packet[2] >> 4) & 15;
-                    this.faceCell[face][5] = packet[2] & 15;
-                    this.faceCell[face][6] = (packet[3] >> 4) & 15;
-                    this.faceCell[face][7] = packet[3] & 15;
-                }
-            }
-            else if (face == 7) {
+            } else if (face == 7) {
                 this.faceCell[0][0] = (((packet[2] & 3) << 1) | (packet[3] >> 7) & 1) & 7;
                 this.faceCell[0][1] = (packet[3] >> 4) & 7;
                 this.faceCell[0][2] = (packet[3] >> 1) & 7;
@@ -883,8 +797,7 @@ class exMarsCube extends BaseModule {
                 this.faceCell[5][6] = (((packet[17] & 3) << 1) | (packet[18] >> 7) & 1) & 7;
                 this.faceCell[5][7] = (packet[18] >> 4) & 7;            
             }
-        }
-        else if ((packet[1] & 31) == this.protocols.index.faceDirection) {
+        } else if ((packet[1] & 31) == this.protocols.index.faceDirection) {
             if (packet[2] == 1) {
                 this.faceDir[0] = (packet[3] >> 4) & 15; // 흰
                 this.faceDir[1] = packet[3] & 15;        // 노
@@ -893,8 +806,7 @@ class exMarsCube extends BaseModule {
                 this.faceDir[4] = (packet[5] >> 4) & 15; // 빨
                 this.faceDir[5] = packet[5] & 15;        // 보
             }
-        }
-        else if ((packet[1] & 31) == this.protocols.index.recordResponse) {
+        } else if ((packet[1] & 31) == this.protocols.index.recordResponse) {
             // 0 : 최신
             // 1 : 차순
             // ---
