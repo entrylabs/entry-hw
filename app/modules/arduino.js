@@ -2,6 +2,7 @@ const BaseModule = require('./baseModule');
 
 class Arduino extends BaseModule {
     constructor() {
+        super();
         this.digitalValue = new Array(14);
         this.analogValue = new Array(6);
 
