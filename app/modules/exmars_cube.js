@@ -1,6 +1,6 @@
 const BaseModule = require('./baseModule');
 
-class exMarsCube extends BaseModule {
+class ExMarsCube extends BaseModule {
     // 클래스 내부에서 사용될 필드들을 이곳에서 선언합니다.
     constructor() {
         super();
@@ -224,7 +224,7 @@ class exMarsCube extends BaseModule {
                     this.entryMessage = 1;
                 } else if (received.name == 'NonBrake') {
                     const brake = Number(received.data0);
-                    if (brake == 0){
+                    if (brake == 0) {
                         this.transmit = this.makePacketMenuSetting(13, 4);
                     } else {
                         this.transmit = this.makePacketMenuSetting(9, 3);
@@ -253,7 +253,8 @@ class exMarsCube extends BaseModule {
                     const cell6 = Number(received.data6);
                     const cell7 = Number(received.data7);
                     const cell8 = Number(received.data8);
-                    this.transmit = this.makePacketSetCellColor(face, cell1, cell2, cell3, cell4, cell5, cell6, cell7, cell8);                    
+                    this.transmit = this.makePacketSetCellColor(face, cell1, cell2, cell3,
+                                                                cell4, cell5, cell6, cell7, cell8);
                     this.blockIndex = received.index;
                     this.entryMessage = 1;
                 } else if (received.name == 'PosDirTorChange') {
@@ -268,7 +269,9 @@ class exMarsCube extends BaseModule {
                     const face = Number(received.data0);
                     const direction = Number(received.data1);
                     let angle = Number(received.data2);
-                    if (direction == 2) angle += 8;
+                    if (direction == 2) {
+                        angle += 8;
+                    }
                     this.transmit = this.makePacketMoveFace(face, angle);
                     this.blockIndex = received.index;
                     this.entryMessage = 1;
@@ -276,7 +279,9 @@ class exMarsCube extends BaseModule {
                     const face = Number(received.data0);
                     const direction = Number(received.data1);
                     let angle = Number(received.data2);
-                    if (direction == 2) angle += 8;
+                    if (direction == 2) {
+                        angle += 8;
+                    }
                     this.transmit = this.makePacketFaceMoveWithMotor(face, angle);
                     this.blockIndex = received.index;
                     this.entryMessage = 1;
@@ -287,8 +292,12 @@ class exMarsCube extends BaseModule {
                     const face2 = Number(received.data3);
                     const direction2 = Number(received.data4);
                     let angle2 = Number(received.data5);
-                    if (direction1 == 2) angle1 += 8;
-                    if (direction2 == 2) angle2 += 8;
+                    if (direction1 == 2) {
+                        angle1 += 8;
+                    }
+                    if (direction2 == 2) {
+                        angle2 += 8;
+                    }
                     this.transmit = this.makePacketFacesMoveWithMotor(face1, angle1, face2, angle2);
                     this.blockIndex = received.index;
                     this.entryMessage = 1;
@@ -297,7 +306,9 @@ class exMarsCube extends BaseModule {
                     const movingFace = Number(received.data1);
                     let face = this.protocols.faceColor.yellow;
                     let angle = this.protocols.rotation.ninety;
-                    if (movingFace % 2 == 1) angle += 8;
+                    if (movingFace % 2 == 1) {
+                        angle += 8;
+                    }
                     if (color == 2) {
                         switch (movingFace) {
                             case 0: case 1: face = this.protocols.faceColor.green; break;
@@ -342,22 +353,24 @@ class exMarsCube extends BaseModule {
                     this.transmit = this.makePacketResetAllFace();
                     this.blockIndex = received.index;
                     this.entryMessage = 1;
-                } else if (received.name == "PlayMode") {
-                    let mode = Number(received.data0);                     
+                } else if (received.name == 'PlayMode') {
+                    const mode = Number(received.data0);                     
                     this.transmit = this.makePacket(0, 30, 3, mode, 255);
                     this.blockIndex = received.index;
                     this.entryMessage = 1;
-                } else if (received.name == "UserMode") {
+                } else if (received.name == 'UserMode') {
                     const mode = Number(received.data0);                    
                     this.transmit = this.makePacket(0, 30, 1, mode, 255);
                     this.blockIndex = received.index;
                     this.entryMessage = 1;
-                } else if (received.name == "PlayNote") {
+                } else if (received.name == 'PlayNote') {
                     const note = Number(received.data0); 
                     let face = this.protocols.faceColor.white;
                     let angle = 3;
                     if (note != 12) {
-                        if (note % 2 == 1) angle += 8;
+                        if (note % 2 == 1) {
+                            angle += 8;
+                        }
                         switch (note) {
                             case 0: case 1: face = this.protocols.faceColor.white; break;
                             case 2: case 3: face = this.protocols.faceColor.yellow; break;
@@ -370,7 +383,7 @@ class exMarsCube extends BaseModule {
                         this.blockIndex = received.index;
                         this.entryMessage = 1;
                     }
-                } else if (received.name == "GetRecord") {
+                } else if (received.name == 'GetRecord') {
                     if(this.getRecord != this.blockIndex) {
                         this.recordIndex =  Number(received.data0);
                         this.transmit = this.makePacketRecord(this.recordIndex);
@@ -430,7 +443,7 @@ class exMarsCube extends BaseModule {
     }
 
     makePacket(index, parameter1, parameter2, parameter3, parameter4) {
-        let buffer = new Buffer(this.packetType);
+        const buffer = new Buffer(this.packetType);
         
         if (this.packetType == this.protocols.length.transmitUSB) {
             buffer[0] = this.protocols.header;
@@ -459,7 +472,6 @@ class exMarsCube extends BaseModule {
 
     makePacketMenuSetting(main, sub) {
         return this.makePacket(this.protocols.index.menu, 11, main, sub, 255);
-
     }
 
     makePacketSetCenterColor(face, color) {
@@ -469,11 +481,11 @@ class exMarsCube extends BaseModule {
     }
 
     makePacketSetCellColor(face, color1, color2, color3, color4, color5, color6, color7, color8) {
-        let index = ((face << 5) | this.protocols.index.cellColor);
-        let para1 = (color1 << 4) | color2;
-        let para2 = (color3 << 4) | color4;
-        let para3 = (color5 << 4) | color6;
-        let para4 = (color7 << 4) | color8;
+        const index = ((face << 5) | this.protocols.index.cellColor);
+        const para1 = (color1 << 4) | color2;
+        const para2 = (color3 << 4) | color4;
+        const para3 = (color5 << 4) | color6;
+        const para4 = (color7 << 4) | color8;
         
         return this.makePacket(index, para1, para2, para3, para4);
     }
@@ -556,7 +568,7 @@ class exMarsCube extends BaseModule {
         let para3 = 0;
         let para4 = 0;
         
-        switch(face1) {
+        switch (face1) {
             case this.protocols.faceColor.white: para2 |= (rotation1 << 4) & 240; break;
             case this.protocols.faceColor.yellow: para2 |= rotation1 & 15; break;
             case this.protocols.faceColor.green: para3 |= (rotation1 << 4) & 240; break;
@@ -564,7 +576,7 @@ class exMarsCube extends BaseModule {
             case this.protocols.faceColor.red: para4 |= (rotation1 << 4) & 240; break;
             case this.protocols.faceColor.purple: para4 |= rotation1 & 15; break;
         }        
-        switch(face2) {
+        switch (face2) {
             case this.protocols.faceColor.white: para2 |= (rotation2 << 4) & 240; break;
             case this.protocols.faceColor.yellow: para2 |= rotation2 & 15; break;
             case this.protocols.faceColor.green: para3 |= (rotation2 << 4) & 240; break;
@@ -589,17 +601,17 @@ class exMarsCube extends BaseModule {
     }
 
     translationCellColorToString(face, cell) {
-        let value = "";
+        let value = '';
 
         switch (this.faceCell[face][cell]) {
-            case this.protocols.cellColor.off: value = "O"; break;
-            case this.protocols.cellColor.red: value = "R"; break;
-            case this.protocols.cellColor.green: value = "G"; break;
-            case this.protocols.cellColor.blue: value = "B"; break;
-            case this.protocols.cellColor.yellow: value = "Y"; break;
-            case this.protocols.cellColor.purple: value = "P"; break;
-            case this.protocols.cellColor.white: value = "W"; break;
-            case this.protocols.cellColor.skip: value = "S"; break;
+            case this.protocols.cellColor.off: value = 'O'; break;
+            case this.protocols.cellColor.red: value = 'R'; break;
+            case this.protocols.cellColor.green: value = 'G'; break;
+            case this.protocols.cellColor.blue: value = 'B'; break;
+            case this.protocols.cellColor.yellow: value = 'Y'; break;
+            case this.protocols.cellColor.purple: value = 'P'; break;
+            case this.protocols.cellColor.white: value = 'W'; break;
+            case this.protocols.cellColor.skip: value = 'S'; break;
         }
 
         return value;
@@ -608,17 +620,17 @@ class exMarsCube extends BaseModule {
     translationFaceNameToInt(faceName) {
         let translation = 0;
 
-        if (faceName == "W") {
+        if (faceName == 'W') {
             translation = this.protocols.faceColor.white;
-        } else if (faceName == "Y") {
+        } else if (faceName == 'Y') {
             translation = this.protocols.faceColor.yellow;
-        } else if (faceName == "G") {
+        } else if (faceName == 'G') {
             translation = this.protocols.faceColor.green;
-        } else if (faceName == "B") {
+        } else if (faceName == 'B') {
             translation = this.protocols.faceColor.blue;
-        } else if (faceName == "R") {
+        } else if (faceName == 'R') {
             translation = this.protocols.faceColor.red;
-        } else if (faceName == "P") {
+        } else if (faceName == 'P') {
             translation = this.protocols.faceColor.purple;
         }
 
@@ -628,21 +640,21 @@ class exMarsCube extends BaseModule {
     translationColorNameToInt(colorName) {        
         let translation = 0;
 
-        if (colorName == "Off") {
+        if (colorName == 'Off') {
             translation = this.protocols.cellColor.off;
-        } else if (colorName == "Red") {
+        } else if (colorName == 'Red') {
             translation = this.protocols.cellColor.red;
-        } else if (colorName == "Green") {
+        } else if (colorName == 'Green') {
             translation = this.protocols.cellColor.green;
-        } else if (colorName == "Blue") {
+        } else if (colorName == 'Blue') {
             translation = this.protocols.cellColor.blue;
-        } else if (colorName == "Yellow") {
+        } else if (colorName == 'Yellow') {
             translation = this.protocols.cellColor.yellow;
-        } else if (colorName == "Purple") {
+        } else if (colorName == 'Purple') {
             translation = this.protocols.cellColor.purple;
-        } else if (colorName == "White") {
+        } else if (colorName == 'White') {
             translation = this.protocols.cellColor.white;
-        } else if (colorName == "Skip") {
+        } else if (colorName == 'Skip') {
             translation = this.protocols.cellColor.skip;
         }
 
@@ -652,19 +664,19 @@ class exMarsCube extends BaseModule {
     translationRotationToProtocols(rotation) {
         let translation = 0;
 
-        if (rotation = "0") {
+        if (rotation == '0') {
             translation = this.protocols.rotation.zero;
-        } else if (rotation == "30") {
+        } else if (rotation == '30') {
             translation = this.protocols.rotation.thirty;
-        } else if (rotation == "60") {
+        } else if (rotation == '60') {
             translation = this.protocols.rotation.sixty;
-        } else if (rotation == "90") {
+        } else if (rotation == '90') {
             translation = this.protocols.rotation.ninety;
-        } else if (rotation == "120") {
+        } else if (rotation == '120') {
             translation = this.protocols.rotation.aHundredTwenty;
-        } else if (rotation == "150") {
+        } else if (rotation == '150') {
             translation = this.protocols.rotation.aHundredFifty;
-        } else if (rotation == "180") {
+        } else if (rotation == '180') {
             translation = this.protocols.rotation.aHundredEighty;
         }
 
@@ -674,13 +686,13 @@ class exMarsCube extends BaseModule {
     translationDirectionToProtocols(direction) {
         let translation = 0;
 
-        if (direction == "Break") {
+        if (direction == 'Break') {
             translation = this.protocols.direction.break;
-        } else if (direction == "CW") {
+        } else if (direction == 'CW') {
             translation = this.protocols.direction.cw;
-        } else if (direction == "CCW") {
+        } else if (direction == 'CCW') {
             translation = this.protocols.direction.ccw;
-        } else if (direction == "Passive") {
+        } else if (direction == 'Passive') {
             translation = this.protocols.direction.passive;
         }
 
@@ -824,4 +836,4 @@ class exMarsCube extends BaseModule {
     }
 }
 
-module.exports = new exMarsCube();
+module.exports = new ExMarsCube();
