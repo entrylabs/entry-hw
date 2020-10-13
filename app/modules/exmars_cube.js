@@ -103,7 +103,7 @@ class exMarsCube extends BaseModule {
         for (let i = 0; i < 6; i++) {
             for (let j = 0; j < 9; j++) {
                 this.faceCell[i][j] = 0;
-                this.cubeData[i][j] = this.translation_CellColorToString(i, j);
+                this.cubeData[i][j] = this.translationCellColorToString(i, j);
             }
         }
         for (let i = 0; i < 6; i++) {
@@ -134,7 +134,7 @@ class exMarsCube extends BaseModule {
     //requestInitialData 를 사용한 경우 checkInitialData 가 필수입니다.
     //이 두 함수가 정의되어있어야 로직이 동작합니다. 필요없으면 작성하지 않아도 됩니다.
     requestInitialData() {
-        return this.makePacket_SensingRequest(this.protocols.faceColor.yellow);
+        return this.makePacketSensingRequest(this.protocols.faceColor.yellow);
     }
 
     // 연결 후 초기에 수신받아서 정상연결인지를 확인해야하는 경우 사용합니다.
@@ -198,8 +198,8 @@ class exMarsCube extends BaseModule {
     // 엔트리로 전달할 데이터
     requestRemoteData(handler) {
         for (let i = 0; i < 6; i++) {
-            for (let j = 0; j < 8; j++) {
-                this.cubeData[i][j] = this.translation_CellColorToString(i, j);
+            for (let j = 0; j < 9; j++) {
+                this.cubeData[i][j] = this.translationCellColorToString(i, j);
             }
             this.cubeData[6][i] = String(this.faceDir[i]);
         }
@@ -208,7 +208,7 @@ class exMarsCube extends BaseModule {
                 this.cubeData[i + 7][j] = String(this.record[i][j]);
             }            
         }
-        for (var face in this.cubeData) {
+        for (const face in this.cubeData) {
             handler.write(face, this.cubeData[face]);
         }
     }
@@ -219,79 +219,82 @@ class exMarsCube extends BaseModule {
             const received = handler.read('SetBlock');
             if (this.blockIndex != received.index) {
                 if (received.name == 'MenuInit') {
-                    this.transmit = this.makePacket_MenuSetting(10, 10);
+                    this.transmit = this.makePacketMenuSetting(10, 10);
                     this.blockIndex = received.index;
                     this.entryMessage = 1;
                 } else if (received.name == 'NonBrake') {
-                    let brake = Number(received.data0);
-                    if (brake == 0) this.transmit = this.makePacket_MenuSetting(13, 4);
-                    else this.transmit = this.makePacket_MenuSetting(9, 3);
+                    const brake = Number(received.data0);
+                    if (brake == 0){
+                        this.transmit = this.makePacketMenuSetting(13, 4);
+                    } else {
+                        this.transmit = this.makePacketMenuSetting(9, 3);
+                    }
                     this.blockIndex = received.index;
                     this.entryMessage = 1;
                 } else if (received.name == 'ModeSetting') {
-                    let main = Number(received.data0);
-                    let sub = Number(received.data1);
-                    this.transmit = this.makePacket_MenuSetting(main, sub);
+                    const main = Number(received.data0);
+                    const sub = Number(received.data1);
+                    this.transmit = this.makePacketMenuSetting(main, sub);
                     this.blockIndex = received.index;
                     this.entryMessage = 1;
                 } else if (received.name == 'CenterColorChange') {
-                    let face = Number(received.data0);
-                    let cell = Number(received.data1);
-                    this.transmit = this.makePacket_SetCenterColor(face, cell);
+                    const face = Number(received.data0);
+                    const cell = Number(received.data1);
+                    this.transmit = this.makePacketSetCenterColor(face, cell);
                     this.blockIndex = received.index;
                     this.entryMessage = 1;
                 } else if (received.name == 'CellColorChange') {
-                    let face = Number(received.data0);
-                    let cell1 = Number(received.data1);
-                    let cell2 = Number(received.data2);
-                    let cell3 = Number(received.data3);
-                    let cell4 = Number(received.data4);
-                    let cell5 = Number(received.data5);
-                    let cell6 = Number(received.data6);
-                    let cell7 = Number(received.data7);
-                    let cell8 = Number(received.data8);
-                    this.transmit = this.makePacket_SetCellColor(face, cell1, cell2, cell3, cell4, cell5, cell6, cell7, cell8);                    
+                    const face = Number(received.data0);
+                    const cell1 = Number(received.data1);
+                    const cell2 = Number(received.data2);
+                    const cell3 = Number(received.data3);
+                    const cell4 = Number(received.data4);
+                    const cell5 = Number(received.data5);
+                    const cell6 = Number(received.data6);
+                    const cell7 = Number(received.data7);
+                    const cell8 = Number(received.data8);
+                    this.transmit = this.makePacketSetCellColor(face, cell1, cell2, cell3, cell4, cell5, cell6, cell7, cell8);                    
                     this.blockIndex = received.index;
                     this.entryMessage = 1;
                 } else if (received.name == 'PosDirTorChange') {
-                    let face = Number(received.data0);
-                    let position = Number(received.data1);
-                    let direction = Number(received.data2);
-                    let torque = Number(received.data3);
-                    this.transmit = this.makePacket_SetPosDirTor(face, position, direction, torque);                    
+                    const face = Number(received.data0);
+                    const position = Number(received.data1);
+                    const direction = Number(received.data2);
+                    const torque = Number(received.data3);
+                    this.transmit = this.makePacketSetPosDirTor(face, position, direction, torque);                    
                     this.blockIndex = received.index;
                     this.entryMessage = 1;
                 } else if (received.name == 'FaceRotationOnlyColor') {
-                    let face = Number(received.data0);
-                    let direction = Number(received.data1);
+                    const face = Number(received.data0);
+                    const direction = Number(received.data1);
                     let angle = Number(received.data2);
                     if (direction == 2) angle += 8;
-                    this.transmit = this.makePacket_MoveFace(face, angle);
+                    this.transmit = this.makePacketMoveFace(face, angle);
                     this.blockIndex = received.index;
                     this.entryMessage = 1;
                 } else if (received.name == 'FaceRotation') {                    
-                    let face = Number(received.data0);
-                    let direction = Number(received.data1);
+                    const face = Number(received.data0);
+                    const direction = Number(received.data1);
                     let angle = Number(received.data2);
                     if (direction == 2) angle += 8;
-                    this.transmit = this.makePacket_FaceMoveWithMotor(face, angle);
+                    this.transmit = this.makePacketFaceMoveWithMotor(face, angle);
                     this.blockIndex = received.index;
                     this.entryMessage = 1;
                 } else if (received.name == 'FacesRotation') {
-                    let face1 = Number(received.data0);
-                    let direction1 = Number(received.data1);
+                    const face1 = Number(received.data0);
+                    const direction1 = Number(received.data1);
                     let angle1 = Number(received.data2);
-                    let face2 = Number(received.data3);
-                    let direction2 = Number(received.data4);
+                    const face2 = Number(received.data3);
+                    const direction2 = Number(received.data4);
                     let angle2 = Number(received.data5);
                     if (direction1 == 2) angle1 += 8;
                     if (direction2 == 2) angle2 += 8;
-                    this.transmit = this.makePacket_FacesMoveWithMotor(face1, angle1, face2, angle2);
+                    this.transmit = this.makePacketFacesMoveWithMotor(face1, angle1, face2, angle2);
                     this.blockIndex = received.index;
                     this.entryMessage = 1;
                 } else if (received.name == 'SolveCube') {
-                    let color = Number(received.data0);
-                    let movingFace = Number(received.data1);
+                    const color = Number(received.data0);
+                    const movingFace = Number(received.data1);
                     let face = this.protocols.faceColor.yellow;
                     let angle = this.protocols.rotation.ninety;
                     if (movingFace % 2 == 1) angle += 8;
@@ -332,11 +335,11 @@ class exMarsCube extends BaseModule {
                             case 10: case 11: face = this.protocols.faceColor.purple; break;
                         }
                     }
-                    this.transmit = this.makePacket_FaceMoveWithMotor(face, angle);
+                    this.transmit = this.makePacketFaceMoveWithMotor(face, angle);
                     this.blockIndex = received.index;
                     this.entryMessage = 1;
                 } else if (received.name == 'ResetAllFace') {
-                    this.transmit = this.makePacket_ResetAllFace();
+                    this.transmit = this.makePacketResetAllFace();
                     this.blockIndex = received.index;
                     this.entryMessage = 1;
                 } else if (received.name == "PlayMode") {
@@ -345,12 +348,12 @@ class exMarsCube extends BaseModule {
                     this.blockIndex = received.index;
                     this.entryMessage = 1;
                 } else if (received.name == "UserMode") {
-                    let mode = Number(received.data0);                    
+                    const mode = Number(received.data0);                    
                     this.transmit = this.makePacket(0, 30, 1, mode, 255);
                     this.blockIndex = received.index;
                     this.entryMessage = 1;
                 } else if (received.name == "PlayNote") {
-                    let note = Number(received.data0); 
+                    const note = Number(received.data0); 
                     let face = this.protocols.faceColor.white;
                     let angle = 3;
                     if (note != 12) {
@@ -363,14 +366,14 @@ class exMarsCube extends BaseModule {
                             case 8: case 9: face = this.protocols.faceColor.red; break;
                             case 10: case 11: face = this.protocols.faceColor.purple; break;
                         }                    
-                        this.transmit = this.makePacket_FaceMoveWithMotor(face, angle);
+                        this.transmit = this.makePacketFaceMoveWithMotor(face, angle);
                         this.blockIndex = received.index;
                         this.entryMessage = 1;
                     }
                 } else if (received.name == "GetRecord") {
                     if(this.getRecord != this.blockIndex) {
                         this.recordIndex =  Number(received.data0);
-                        this.transmit = this.makePacket_Record(this.recordIndex);
+                        this.transmit = this.makePacketRecord(this.recordIndex);
                         this.blockIndex = received.index;
                         this.getRecord =  received.index;
                         this.entryMessage = 1;
@@ -389,10 +392,14 @@ class exMarsCube extends BaseModule {
             buffer = this.transmit;
             this.entryMessage = 0;
         } else {
-            if (this.checkCount % 5 == 0) buffer = this.makePacket_SensingRequest(this.protocols.faceColor.all);
+            if (this.checkCount % 5 == 0) {
+                buffer = this.makePacketSensingRequest(this.protocols.faceColor.all);
+            }
         }
         if (this.checkCount % 12 == 0) {
-            for (let i = 0; i < 6; i++) this.faceDir[i] = 0;
+            for (let i = 0; i < 6; i++) {
+                this.faceDir[i] = 0;
+            }
         }
 
         this.checkCount++;
@@ -409,7 +416,7 @@ class exMarsCube extends BaseModule {
 
     // 하드웨어 연결 해제 시 호출
     disconnect(connect) {
-        let self = this;
+        const self = this;
 
         connect.close();
         if(self.sp) {
@@ -450,18 +457,18 @@ class exMarsCube extends BaseModule {
         return buffer;
     }
 
-    makePacket_MenuSetting(main, sub) {
+    makePacketMenuSetting(main, sub) {
         return this.makePacket(this.protocols.index.menu, 11, main, sub, 255);
 
     }
 
-    makePacket_SetCenterColor(face, color) {
+    makePacketSetCenterColor(face, color) {
         const index = ((face << 5) | this.protocols.index.centerColor);
 
         return this.makePacket(index, color, 0, 0, 0);
     }
 
-    makePacket_SetCellColor(face, color1, color2, color3, color4, color5, color6, color7, color8) {
+    makePacketSetCellColor(face, color1, color2, color3, color4, color5, color6, color7, color8) {
         let index = ((face << 5) | this.protocols.index.cellColor);
         let para1 = (color1 << 4) | color2;
         let para2 = (color3 << 4) | color4;
@@ -471,7 +478,7 @@ class exMarsCube extends BaseModule {
         return this.makePacket(index, para1, para2, para3, para4);
     }
 
-    makePacket_SetPosDirTor(face, position, direction, torque) {
+    makePacketSetPosDirTor(face, position, direction, torque) {
         const index = ((face << 5) | this.protocols.index.posDirTor);
         let pos = 0;
 
@@ -486,7 +493,7 @@ class exMarsCube extends BaseModule {
         return this.makePacket(index, pos, direction, torque, 0);
     }
 
-    makePacket_MoveFace(face, rotation) {
+    makePacketMoveFace(face, rotation) {
         let para = 0;
         let buffer = new Buffer(this.packetType);
 
@@ -513,11 +520,11 @@ class exMarsCube extends BaseModule {
         return buffer;
     }
 
-    makePacket_ResetAllFace() {
+    makePacketResetAllFace() {
         return this.makePacket(this.protocols.index.face, this.protocols.action.faceResetAll, 0, 0, 0);
     }
 
-    makePacket_FaceMoveWithMotor(face, rotation) {
+    makePacketFaceMoveWithMotor(face, rotation) {
         let para = 0;
         let buffer = new Buffer(this.packetType);
 
@@ -544,7 +551,7 @@ class exMarsCube extends BaseModule {
         return buffer;
     }
     
-    makePacket_FacesMoveWithMotor(face1, rotation1, face2, rotation2) {
+    makePacketFacesMoveWithMotor(face1, rotation1, face2, rotation2) {
         let para2 = 0;
         let para3 = 0;
         let para4 = 0;
@@ -569,22 +576,22 @@ class exMarsCube extends BaseModule {
         return this.makePacket(this.protocols.index.face, this.protocols.action.faceMoveWithMotor, para2, para3, para4);
     }
 
-    makePacket_Record(recordIndex) {
+    makePacketRecord(recordIndex) {
         const index = ((7 << 5) | this.protocols.index.recordRequest);
         
         return this.makePacket(index, recordIndex, 255, 255, 255);
     }
 
-    makePacket_SensingRequest(face) {
+    makePacketSensingRequest(face) {
         const index = ((face << 5) | this.protocols.index.sensingRequest);
 
         return this.makePacket(index, 255, 255, 255, 255);
     }
 
-    translation_CellColorToString(face, cell) {
+    translationCellColorToString(face, cell) {
         let value = "";
 
-        switch(this.faceCell[face][cell]) {
+        switch (this.faceCell[face][cell]) {
             case this.protocols.cellColor.off: value = "O"; break;
             case this.protocols.cellColor.red: value = "R"; break;
             case this.protocols.cellColor.green: value = "G"; break;
@@ -598,7 +605,7 @@ class exMarsCube extends BaseModule {
         return value;
     }
 
-    translation_FaceNameToInt(faceName) {
+    translationFaceNameToInt(faceName) {
         let translation = 0;
 
         if (faceName == "W") {
@@ -618,7 +625,7 @@ class exMarsCube extends BaseModule {
         return translation;
     }
 
-    translation_ColorNameToInt(colorName) {        
+    translationColorNameToInt(colorName) {        
         let translation = 0;
 
         if (colorName == "Off") {
@@ -642,7 +649,7 @@ class exMarsCube extends BaseModule {
         return translation;
     }
 
-    translation_RotationToProtocols(rotation) {
+    translationRotationToProtocols(rotation) {
         let translation = 0;
 
         if (rotation = "0") {
@@ -664,7 +671,7 @@ class exMarsCube extends BaseModule {
         return translation;
     }
 
-    translation_DirectionToProtocols(direction) {
+    translationDirectionToProtocols(direction) {
         let translation = 0;
 
         if (direction == "Break") {
