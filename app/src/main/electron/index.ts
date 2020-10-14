@@ -118,15 +118,14 @@ if (!app.requestSingleInstanceLock()) {
 
         registerGlobalShortcut();
         entryServer = new EntryServer();
-
+        const isProduction = process.env.NODE_ENV === 'production';
         // @ts-ignore
         mainRouter = new MainRouter(mainWindow, entryServer, {
-            rootAppPath:
-                process.env.NODE_ENV === 'production' && path.join(__dirname, '..', '..', '..'),
+            rootAppPath: isProduction && path.join(__dirname, '..', '..', '..'),
             loggerOptions: {
                 logPath: statisticLogPath,
                 serverUrl: statisticsUrl,
-                nodeEnv: process.env.NODE_ENV,
+                isProduction,
             },
         });
 

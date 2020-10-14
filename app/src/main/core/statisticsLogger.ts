@@ -10,9 +10,9 @@ type Options = {
     serverUrl: string;
     networkCheckInterval: number;
     logCheckInterval: number;
-    nodeEnv: string;
+    isProduction: string;
 };
-type RequiredOptions = keyof Pick<Options, 'logPath' | 'serverUrl'>;
+type RequiredOptions = keyof Pick<Options, 'logPath' | 'serverUrl' | 'isProduction'>;
 
 type DefaultOptions = Omit<Options, RequiredOptions>;
 type ConstructorOptions = Partial<Options> & Pick<Options, RequiredOptions>;
@@ -26,7 +26,6 @@ type LogObject = {
 const defaultOptions: DefaultOptions = {
     networkCheckInterval: 1000,
     logCheckInterval: 1000,
-    nodeEnv: 'development',
 };
 
 const LOG_EXTENSION = '.ehl'; // entry hardware log
@@ -117,13 +116,13 @@ class StatisticsLogger {
      *
      * 만약 인터넷이 연결되지 않았다가 새로 연결이 된 것으로 판단되는 경우, 다시 파일시스템에 있는 로그들을 불러온다.
      * (이때 로그는 삭제한다)
-     *
+     * NODE_ENV 가 development인 경우는 저장하지 않음.
      * @private
      */
     private checkLoggerQueue() {
         this.queueCheckInterval = setInterval(async () => {
             const logObject = this.logQueue.shift();
-            if (logObject && this.options?.nodeEnv === 'production') {
+            if (logObject && this.options?.isProduction) {
                 if (this.isInternetConnected) {
                     // 혹시 파일로 남아있는 로그가 있는지 체크한다.
                     // 서버로 로그를 보낸다
