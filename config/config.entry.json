@@ -1,4 +1,5 @@
 {
     "updateCheckUrl": "https://playentry.org/api/checkVersion",
-    "moduleResourceUrl": "https://playentry.org/modules"
+    "moduleResourceUrl": "https://playentry.org/modules",
+    "statisticsUrl": "https://playentry.org/log/hardware"
 }

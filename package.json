@@ -39,6 +39,7 @@
         "@types/web-bluetooth": "^0.0.5",
         "@typescript-eslint/eslint-plugin": "^3.1.0",
         "@typescript-eslint/parser": "^3.1.0",
+        "axios": "^0.20.0",
         "babel-eslint": "^10.0.3",
         "clean-webpack-plugin": "^3.0.0",
         "cross-env": "^5.1.3",

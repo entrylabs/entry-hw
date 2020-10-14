@@ -1,6 +1,7 @@
 declare type IFileConfig = {
     moduleResourceUrl: string;
     updateCheckUrl: string;
+    statisticsUrl: string;
     language?: string;
 }
 

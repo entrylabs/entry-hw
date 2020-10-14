@@ -14,6 +14,7 @@ const logger = createLogger('ConfigInitialize');
 const defaultConfigSchema: IFileConfig = {
     updateCheckUrl: 'https://playentry.org/api/checkVersion',
     moduleResourceUrl: 'https://playentry.org/modules',
+    statisticsUrl: 'https://playentry.org/log/hardware',
 };
 /**
  * 외부 설정이 아닌 내부에서 정의되며, 변경될 여지가 없는 하드코드의 경우 이쪽에 선언한다.

@@ -13,6 +13,7 @@ import directoryPaths from './core/directoryPaths';
 import BaseScanner from './core/baseScanner';
 import BaseConnector from './core/baseConnector';
 import SerialConnector from './core/serial/connector';
+import statisticsLogger, { StatisticsLoggerOptions } from './core/statisticsLogger';
 
 const nativeNodeRequire = require('./nativeNodeRequire.js');
 const logger = createLogger('core/mainRouter.ts');
@@ -23,6 +24,11 @@ interface IEntryServer {
     disconnectHardware: () => void;
     addRoomIdsOnSecondInstance: (roomId: string) => void;
     send: (data: any) => void;
+}
+
+interface MainRouterOptions {
+    loggerOptions?: StatisticsLoggerOptions;
+    rootAppPath?: string;
 }
 
 /**
@@ -58,16 +64,17 @@ class MainRouter {
         return global.sharedObject.roomIds || [];
     }
 
-    constructor(
-        mainWindow: BrowserWindow,
-        entryServer: IEntryServer,
-        options: { rootAppPath?: string }
-    ) {
+    constructor(mainWindow: BrowserWindow, entryServer: IEntryServer, options?: MainRouterOptions) {
         global.$ = require('lodash');
-        if (options.rootAppPath) {
+
+        if (options?.rootAppPath) {
             directoryPaths.setRootAppPath(options.rootAppPath);
         }
 
+        if (options?.loggerOptions) {
+            statisticsLogger.setOptions(options.loggerOptions);
+            statisticsLogger.run();
+        }
         rendererConsole.initialize(mainWindow);
         this.ipcManager = new IpcManager(mainWindow.webContents);
         this.browser = mainWindow;
@@ -84,6 +91,7 @@ class MainRouter {
 
         this.hardwareListManager.updateHardwareList();
         logger.verbose('mainRouter created');
+        statisticsLogger.log('execute');
     }
 
     /**
@@ -137,7 +145,6 @@ class MainRouter {
                                             flashFunction().then(resolve);
                                         }, 100);
                                     } else {
-                                        console.log(error);
                                         reject(new Error('Failed Firmware Upload'));
                                     }
                                 } else {
@@ -246,6 +253,9 @@ class MainRouter {
                     connector.setRouter(this);
                     this._connect(connector);
                 }
+                statisticsLogger.log('device-connected', {
+                    hardwareId: config.id,
+                });
             }
         } catch (e) {
             logger.error(`startScan Error, ${e.name} ${e.message}`);
@@ -486,9 +496,10 @@ class MainRouter {
     }
 
     private registerIpcEvents() {
-        ipcMain.on('startScan', async (e, config) => {
+        ipcMain.on('startScan', async (e, config: IHardwareConfig) => {
             try {
                 logger.info(`scan started. hardware config: ${JSON.stringify(config)}`);
+                statisticsLogger.log('device-select', { hardwareId: config.id });
                 await this.startScan(config);
             } catch (e) {
                 logger.warn(`scan error : ${e.title}, ${e.message}`);
