@@ -10,6 +10,7 @@ type Options = {
     serverUrl: string;
     networkCheckInterval: number;
     logCheckInterval: number;
+    nodeEnv: string;
 };
 type RequiredOptions = keyof Pick<Options, 'logPath' | 'serverUrl'>;
 
@@ -25,6 +26,7 @@ type LogObject = {
 const defaultOptions: DefaultOptions = {
     networkCheckInterval: 1000,
     logCheckInterval: 1000,
+    nodeEnv: 'development',
 };
 
 const LOG_EXTENSION = '.ehl'; // entry hardware log
@@ -121,8 +123,7 @@ class StatisticsLogger {
     private checkLoggerQueue() {
         this.queueCheckInterval = setInterval(async () => {
             const logObject = this.logQueue.shift();
-
-            if (logObject) {
+            if (logObject && this.options?.nodeEnv === 'production') {
                 if (this.isInternetConnected) {
                     // 혹시 파일로 남아있는 로그가 있는지 체크한다.
                     // 서버로 로그를 보낸다

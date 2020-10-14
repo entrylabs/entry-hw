@@ -126,6 +126,7 @@ if (!app.requestSingleInstanceLock()) {
             loggerOptions: {
                 logPath: statisticLogPath,
                 serverUrl: statisticsUrl,
+                nodeEnv: process.env.NODE_ENV,
             },
         });
 
