@@ -11,16 +11,16 @@ type Options = {
     networkCheckInterval: number;
     logCheckInterval: number;
 };
-type RequiredOptions = keyof Pick<Options, 'logPath' | 'serverUrl'>
+type RequiredOptions = keyof Pick<Options, 'logPath' | 'serverUrl'>;
 
-type DefaultOptions = Omit<Options, RequiredOptions>
+type DefaultOptions = Omit<Options, RequiredOptions>;
 type ConstructorOptions = Partial<Options> & Pick<Options, RequiredOptions>;
 
 type LogObject = {
     action: string;
     date: number;
-    value?: { [key: string]: string }
-}
+    value?: { [key: string]: string };
+};
 
 const defaultOptions: DefaultOptions = {
     networkCheckInterval: 1000,
@@ -48,7 +48,7 @@ class StatisticsLogger {
     private queueCheckInterval?: number;
     private defaultLoggerInfo = {
         osType: os.type(),
-    }
+    };
 
     public setOptions(nextOptions: ConstructorOptions) {
         if (!nextOptions.logPath) {
@@ -58,7 +58,10 @@ class StatisticsLogger {
             throw new Error('server url must be presented');
         }
 
-        this.options = Object.assign<DefaultOptions, ConstructorOptions>(defaultOptions, nextOptions);
+        this.options = Object.assign<DefaultOptions, ConstructorOptions>(
+            defaultOptions,
+            nextOptions
+        );
     }
 
     public run() {
@@ -86,12 +89,13 @@ class StatisticsLogger {
      * @param value
      */
     public log(action: string, value?: { [key: string]: string }) {
-        this.options && this.logQueue.push({
-            action,
-            value,
-            date: Date.now(),
-            ...this.defaultLoggerInfo,
-        });
+        this.options &&
+            this.logQueue.push({
+                action,
+                value,
+                date: Date.now(),
+                ...this.defaultLoggerInfo,
+            });
     }
 
     /**
@@ -145,20 +149,23 @@ class StatisticsLogger {
             await fs.ensureDir(logPath);
             const logFiles = await fs.readdir(logPath);
 
-            await Promise.all(logFiles
-                .filter((fileName) => path.extname(fileName).toLowerCase() === LOG_EXTENSION)
-                .map(async (fileName) => {
-                    try {
-                        const targetLogFile = path.join(logPath, fileName);
-                        const fileContent = await fs.readFile(targetLogFile);
-                        const logObject = JSON.parse(fileContent as any) as LogObject;
-                        logObject && this.logQueue.push(logObject);
-                        await fs.unlink(targetLogFile);
-                    } catch (e) {
-                        //TODO 여기는 뭔가 상정되지 않은 에러가 발생한 경우이므로 기록을 남기거나 해야한다.
-                        console.error(e);
-                    }
-                }));
+            await Promise.all(
+                logFiles
+                    .filter((fileName) => path.extname(fileName).toLowerCase() === LOG_EXTENSION)
+                    .map(async (fileName) => {
+                        try {
+                            const targetLogFile = path.join(logPath, fileName);
+                            const fileContent = await fs.readFile(targetLogFile);
+                            const logObject = JSON.parse(fileContent as any) as LogObject;
+                            logObject && this.logQueue.push(logObject);
+                            await fs.unlink(targetLogFile);
+                        } catch (e) {
+                            //TODO 여기는 뭔가 상정되지 않은 에러가 발생한 경우이므로 기록을 남기거나 해야한다.
+                            this.log('unexpected', { error: e });
+                            console.error(e);
+                        }
+                    })
+            );
         } catch (e) {
             console.error('logPath load failed', e);
         }
@@ -180,10 +187,8 @@ class StatisticsLogger {
         try {
             const fileName = crypto.randomBytes(20).toString('hex');
             await fs.writeFile(
-                path.join(
-                    this.options!.logPath,
-                    `${fileName}${LOG_EXTENSION}`)
-                , JSON.stringify(logObject),
+                path.join(this.options!.logPath, `${fileName}${LOG_EXTENSION}`),
+                JSON.stringify(logObject)
             );
         } catch (e) {
             //TODO 여기는 뭔가 상정되지 않은 에러가 발생한 경우이므로 기록을 남기거나 해야한다.
