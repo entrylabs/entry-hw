@@ -193,7 +193,7 @@ class MainRouter {
                 }
             } else if (state === HardwareStatement.connected && this.config.moduleName) {
                 const modulePath = path.join(
-                    directoryPaths.block_modules(),
+                    directoryPaths.blockModules(),
                     this.config.moduleName,
                     'block'
                 );
@@ -395,7 +395,7 @@ class MainRouter {
         }
         if (this.config?.moduleName) {
             const modulePath = path.join(
-                directoryPaths.block_modules(),
+                directoryPaths.blockModules(),
                 this.config.moduleName,
                 'block'
             );

@@ -86,7 +86,7 @@ const downloadBlockFile = async (
                     method: 'GET',
                     responseType: 'arraybuffer',
                 });
-                const blockPath = path.join(directoryPaths.block_modules(), moduleInfo.name);
+                const blockPath = path.join(directoryPaths.blockModules(), moduleInfo.name);
                 await fs.ensureDir(blockPath);
                 await fs.writeFile(path.join(blockPath, key), Buffer.from(response.data, 'binary'));
                 const fileRead = fs.readFileSync(path.join(blockPath, key), { encoding: 'utf8' });

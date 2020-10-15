@@ -20,7 +20,7 @@ export default {
     driver: () => path.join(modulesPath, 'drivers'),
     firmware: () => path.join(modulesPath, 'firmwares'),
     modules: () => path.join(modulesPath, 'modules'),
-    block_modules: () => path.join(modulesPath, 'block_module'),
+    blockModules: () => path.join(modulesPath, 'block_module'),
     packs: () => path.join(rootAppPath, 'packs'),
     moduleRoot: () => modulesPath,
 };
