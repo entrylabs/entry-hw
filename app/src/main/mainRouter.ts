@@ -224,8 +224,14 @@ class MainRouter {
             console.log('KEY NOT EXIST');
             return {};
         }
-        const fileDecrypted = await this.server.requestDecryption(fileRead.toString());
-        callback(fileDecrypted, moduleName);
+        if (this.server.requestDecryption) {
+            // if online decrypt and load
+            const fileDecrypted = await this.server.requestDecryption(fileRead.toString());
+            callback(fileDecrypted, moduleName);
+        } else {
+            // if offline do not decrypt and let offline program to decrypt and load
+            callback(fileRead.toString(), moduleName);
+        }
     }
 
     notifyCloudModeChanged(mode: number) {
