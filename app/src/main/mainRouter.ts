@@ -259,6 +259,9 @@ class MainRouter {
             }
         } catch (e) {
             logger.error(`startScan Error, ${e.name} ${e.message}`);
+            statisticsLogger.log('device-connect-failed', {
+                hardwareId: config.id,
+            });
             this.sendState(HardwareStatement.scanFailed);
         }
     }
