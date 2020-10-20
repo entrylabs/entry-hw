@@ -21,6 +21,8 @@ type LogObject = {
     action: string;
     date: number;
     value?: { [key: string]: string };
+    osType?: string;
+    category: string;
 };
 
 const defaultOptions: DefaultOptions = {
@@ -48,6 +50,7 @@ class StatisticsLogger {
     private connectionCheckInterval?: number;
     private queueCheckInterval?: number;
     private defaultLoggerInfo = {
+        category: 'hardware',
         osType: os.type(),
     };
 
@@ -173,9 +176,9 @@ class StatisticsLogger {
 
     private async sendLogToServer(logObject: LogObject) {
         try {
-            const { action, value, date } = logObject;
+            const { action, value, date, osType, category } = logObject;
             await axios.get(this.options!.serverUrl, {
-                params: { action, date, ...value },
+                params: { action, date, ...value, osType, category },
             });
         } catch (e) {
             // 만약 에러가 발생한 경우, 다시 큐에 집어넣는다.
