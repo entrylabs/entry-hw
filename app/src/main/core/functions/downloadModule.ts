@@ -6,7 +6,7 @@ import fileUtils from '../fileUtils';
 import NetworkZipHandlerStream from '../networkZipHandleStream';
 import createLogger from '../../electron/functions/createLogger';
 import directoryPaths from '../directoryPaths';
-import axios from 'axios';
+
 const logger = createLogger('DownloadModule');
 
 const downloadModuleFunction = (
@@ -80,27 +80,37 @@ const downloadBlockFile = async (
     await Promise.all(
         blockModuleKeys.map(async (key) => {
             try {
-                const requestUrl = `${requestModuleUrl}/${key}/${moduleInfo.version}`;
-                const response = await axios({
-                    url: requestUrl,
-                    method: 'GET',
-                    responseType: 'arraybuffer',
+                return new Promise((resolve, reject) => {
+                    const requestUrl = `${requestModuleUrl}/block/${moduleInfo.version}`;
+                    const request = net.request(requestUrl);
+                    let data = '';
+                    request.on('response', async (response) => {
+                        response.on('data', async (chunk) => {
+                            data += chunk.toString();
+                        });
+                        response.on('end', async () => {
+                            const blockPath = path.join(
+                                directoryPaths.blockModules(),
+                                moduleInfo.name
+                            );
+                            await fs.ensureDir(blockPath);
+                            // encryption
+                            fs.writeFileSync(
+                                path.join(blockPath, 'block'),
+                                await server.requestEncryption(data)
+                            );
+                            resolve();
+                        });
+                    });
+                    request.end();
                 });
-                const blockPath = path.join(directoryPaths.blockModules(), moduleInfo.name);
-                await fs.ensureDir(blockPath);
-                await fs.writeFile(path.join(blockPath, key), Buffer.from(response.data, 'binary'));
-                const fileRead = fs.readFileSync(path.join(blockPath, key), { encoding: 'utf8' });
-                //overwrite encryption
-                await fs.writeFile(
-                    path.join(blockPath, key),
-                    await server.requestEncryption(fileRead)
-                );
             } catch (err) {
                 console.error(err);
             }
         })
     );
 };
+
 const moveFirmwareAndDriverDirectory = async () => {
     const appDirPath = path.join(directoryPaths.moduleRoot());
     const moduleDirPath = path.join(appDirPath, 'modules');
