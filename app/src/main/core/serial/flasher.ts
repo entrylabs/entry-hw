@@ -30,6 +30,7 @@ class Flasher {
             const cmd = [
                 platform === 'darwin' ? './esptool' : 'esptool.exe',
                 ` --port ${port}`,
+                ` --baud ${options.baudRate || '115200'}`,
                 ' --before default_reset',
                 ' --after hard_reset write_flash',
                 ` ${firmware.offset}`,
