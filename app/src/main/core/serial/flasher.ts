@@ -18,7 +18,46 @@ const platform = process.platform;
 class Flasher {
     private flasherProcess?: ChildProcess;
 
-    private _flashArduino(firmware: IFirmwareInfo, port: string, options: { baudRate?: number; MCUType?: string; }): Promise<any[]> {
+    private _flashESP(
+        firmware: IESP32TypeFirmware,
+        port: string,
+        options: {
+            baudRate?: number;
+            MCUType?: string;
+        }
+    ): Promise<any[]> {
+        return new Promise((resolve) => {
+            const cmd = [
+                platform === 'darwin' ? './esptool' : 'esptool.exe',
+                ` --port ${port}`,
+                ` --baud ${options.baudRate || '115200'}`,
+                ' --before default_reset',
+                ' --after hard_reset write_flash',
+                ` ${firmware.offset}`,
+                ` ${firmware.name}.bin`,
+            ].join('');
+
+            logger.info(`ESP board firmware requested.\nparameter is ${cmd}`);
+            this.flasherProcess = exec(
+                cmd,
+                {
+                    cwd: directoryPaths.firmware(),
+                },
+                (...args) => {
+                    resolve(args);
+                }
+            );
+        });
+    }
+
+    private _flashArduino(
+        firmware: IFirmwareInfo,
+        port: string,
+        options: {
+            baudRate?: number;
+            MCUType?: string;
+        }
+    ): Promise<any[]> {
         return new Promise((resolve) => {
             const baudRate = options.baudRate || '115200';
             const MCUType = options.MCUType || ' m328p';
@@ -51,25 +90,25 @@ class Flasher {
                 '.hex":i -C',
                 avrConf,
                 ' -carduino -D',
-            ];
+            ].join('');
 
-            logger.info(`arduino board firmware requested.\nparameter is ${cmd.join('')}`);
+            logger.info(`arduino board firmware requested.\nparameter is ${cmd}`);
 
             this.flasherProcess = exec(
-                cmd.join(''),
+                cmd,
                 {
-                    cwd: directoryPaths.firmware,
+                    cwd: directoryPaths.firmware(),
                 },
                 (...args) => {
                     resolve(args);
-                },
+                }
             );
         });
     }
 
     private async _flashCopy(firmware: ICopyTypeFirmware): Promise<any[]> {
         return new Promise((resolve, reject) => {
-            const firmwareDirectory = directoryPaths.firmware;
+            const firmwareDirectory = directoryPaths.firmware();
             const destPath = dialog.showOpenDialogSync({
                 properties: ['openDirectory'],
             });
@@ -82,22 +121,34 @@ class Flasher {
             // TODO 파일 없을 시 에러 처리
             logger.info('copy style firmware upload requested');
             logger.info(`${firmwareDirectory} to ${destFirmwarePath}`);
-            fileUtils.copyFile(targetFirmwarePath, destFirmwarePath).then(async () => {
-                if (firmware.afterDelay) {
-                    await new Promise((resolve) => setTimeout(resolve, firmware.afterDelay));
-                }
-                resolve([]);
-            }).catch((err) => {
-                reject([err]);
-            });
+            fileUtils
+                .copyFile(targetFirmwarePath, destFirmwarePath)
+                .then(async () => {
+                    if (firmware.afterDelay) {
+                        await new Promise((resolve) => setTimeout(resolve, firmware.afterDelay));
+                    }
+                    resolve([]);
+                })
+                .catch((err) => {
+                    reject([err]);
+                });
         });
     }
 
-    flash(firmware: IFirmwareInfo, port: string, options: { baudRate?: number; MCUType?: string; }): Promise<any[]> {
+    flash(
+        firmware: IFirmwareInfo,
+        port: string,
+        options: {
+            baudRate?: number;
+            MCUType?: string;
+        }
+    ): Promise<any[]> {
         if (typeof firmware === 'string') {
             return this._flashArduino(firmware, port, options);
         } else if ((firmware as ICopyTypeFirmware).type === 'copy') {
             return this._flashCopy(firmware as ICopyTypeFirmware);
+        } else if ((firmware as IESP32TypeFirmware).type === 'esp32') {
+            return this._flashESP(firmware as IESP32TypeFirmware, port, options);
         } else {
             return Promise.reject(new Error());
         }

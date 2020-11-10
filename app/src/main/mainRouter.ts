@@ -58,8 +58,16 @@ class MainRouter {
         return global.sharedObject.roomIds || [];
     }
 
-    constructor(mainWindow: BrowserWindow, entryServer: IEntryServer) {
+    constructor(
+        mainWindow: BrowserWindow,
+        entryServer: IEntryServer,
+        options: { rootAppPath?: string }
+    ) {
         global.$ = require('lodash');
+        if (options.rootAppPath) {
+            directoryPaths.setRootAppPath(options.rootAppPath);
+        }
+
         rendererConsole.initialize(mainWindow);
         this.ipcManager = new IpcManager(mainWindow.webContents);
         this.browser = mainWindow;
@@ -73,6 +81,8 @@ class MainRouter {
 
         this.resetIpcEvents();
         this.registerIpcEvents();
+
+        this.hardwareListManager.updateHardwareList();
         logger.verbose('mainRouter created');
     }
 
@@ -86,7 +96,8 @@ class MainRouter {
      */
     flashFirmware(firmwareName: IFirmwareInfo): Promise<IFirmwareInfo> {
         logger.info(`firmware flash requested. firmwareName: ${firmwareName}`);
-        const connectorSerialPort = this.connector && (this.connector as SerialConnector).serialPort;
+        const connectorSerialPort =
+            this.connector && (this.connector as SerialConnector).serialPort;
         // firmware type 이 copy 인 경우는 시리얼포트를 경유하지 않으므로 체크하지 않는다.
         // 그러나 config 은 필요하다.
         if (
@@ -105,40 +116,45 @@ class MainRouter {
 
             this.stopScan({ saveSelectedPort: true }); // 서버 통신 중지, 시리얼포트 연결 해제
 
-            const flashFunction: () => Promise<IFirmwareInfo> = () => new Promise((resolve, reject) => {
-                setTimeout(() => {
-                    if (!lastSerialPortCOMPort) {
-                        return reject(new Error('COM Port is not selected'));
-                    }
+            const flashFunction: () => Promise<IFirmwareInfo> = () =>
+                new Promise((resolve, reject) => {
+                    setTimeout(() => {
+                        if (!lastSerialPortCOMPort) {
+                            return reject(new Error('COM Port is not selected'));
+                        }
 
-                    //연결 해제 완료시간까지 잠시 대기 후 로직 수행한다.
-                    this.flasher.flash(firmware, lastSerialPortCOMPort, { baudRate, MCUType })
-                        .then(([error, ...args]) => {
-                            if (error) {
-                                rendererConsole.log('flashError', error);
-                                if (error === 'exit') {
-                                    // 에러 메세지 없이 프로세스 종료
-                                    reject(new Error());
-                                } else if (++this.firmwareTryCount <= maxFlashTryCount) {
-                                    setTimeout(() => {
-                                        flashFunction().then(resolve);
-                                    }, 100);
+                        //연결 해제 완료시간까지 잠시 대기 후 로직 수행한다.
+                        this.flasher
+                            .flash(firmware, lastSerialPortCOMPort, { baudRate, MCUType })
+                            .then(([error, ...args]) => {
+                                if (error) {
+                                    rendererConsole.log('flashError', error);
+                                    if (error === 'exit') {
+                                        // 에러 메세지 없이 프로세스 종료
+                                        reject(new Error());
+                                    } else if (++this.firmwareTryCount <= maxFlashTryCount) {
+                                        setTimeout(() => {
+                                            flashFunction().then(resolve);
+                                        }, 100);
+                                    } else {
+                                        console.log(error);
+                                        reject(new Error('Failed Firmware Upload'));
+                                    }
                                 } else {
-                                    reject(new Error('Failed Firmware Upload'));
+                                    logger.info('firmware flash success');
+                                    resolve(firmware);
                                 }
-                            } else {
-                                logger.info('firmware flash success');
-                                resolve(firmware);
-                            }
-                        })
-                        .catch(reject);
-                }, 500);
-            });
+                            })
+                            .catch(reject);
+                    }, 500);
+                });
 
             // 에러가 발생하거나, 정상종료가 되어도 일단 startScan 을 재시작한다.
             return flashFunction();
         } else {
-            logger.warn(`[${firmwareName}] Hardware Device Is Not Connected. config: ${this.config}`);
+            logger.warn(
+                `[${firmwareName}] Hardware Device Is Not Connected. config: ${this.config}`
+            );
             return Promise.reject(new Error('Hardware Device Is Not Connected'));
         }
     }
@@ -213,13 +229,19 @@ class MainRouter {
             const { type = 'serial' } = hardware;
             this.scanner = this.scannerManager.getScanner(type);
             if (this.scanner) {
-                const moduleFilePath = directoryPaths.modules;
-                this.hwModule = nativeNodeRequire(path.join(moduleFilePath, config.module)) as IHardwareModule;
+                const moduleFilePath = directoryPaths.modules();
+                this.hwModule = nativeNodeRequire(
+                    path.join(moduleFilePath, config.module)
+                ) as IHardwareModule;
                 this.sendState(HardwareStatement.scan);
                 this.scanner.stopScan();
                 const connector = await this.scanner.startScan(this.hwModule, this.config);
                 if (connector) {
-                    logger.info(`[Device Info] ${config.id} | ${config?.name?.ko || config?.name?.en || 'noname'}`);
+                    logger.info(
+                        `[Device Info] ${config.id} | ${
+                            config?.name?.ko || config?.name?.en || 'noname'
+                        }`
+                    );
                     this.connector = connector;
                     connector.setRouter(this);
                     this._connect(connector);
@@ -244,7 +266,9 @@ class MainRouter {
 
     stopScan(option?: { saveSelectedPort?: boolean }) {
         const { saveSelectedPort = false } = option || {};
-        logger.info(`scan stopped. selectedPort will be ${saveSelectedPort ? 'saved' : 'undefined'}`);
+        logger.info(
+            `scan stopped. selectedPort will be ${saveSelectedPort ? 'saved' : 'undefined'}`
+        );
 
         this.server && this.server.disconnectHardware();
         this.scanner && this.scanner.stopScan();
@@ -358,7 +382,7 @@ class MainRouter {
     }
 
     // 엔트리 측에서 데이터를 받아온 경우 전달
-    handleServerData({ data }: { data: any; }) {
+    handleServerData({ data }: { data: any }) {
         if (!this.hwModule || !this.handler || !this.config) {
             logger.warn('hardware is not connected but entry server data is received');
             return;
@@ -405,7 +429,7 @@ class MainRouter {
     }
 
     setConnector(connector: any) {
-        logger.verbose('mainRouter\'s connector is set');
+        logger.verbose("mainRouter's connector is set");
         this.connector = connector;
     }
 
@@ -413,9 +437,11 @@ class MainRouter {
      *
      * @param option {Object=} true 인 경우, 포트선택했던 내역을 지우지 않는다.
      */
-    close(option?: { saveSelectedPort?: boolean, saveConfig?: boolean }) {
+    close(option?: { saveSelectedPort?: boolean; saveConfig?: boolean }) {
         const { saveSelectedPort = false, saveConfig = false } = option || {};
-        logger.info(`scan stopped. selectedPort will be ${saveSelectedPort ? 'saved' : 'undefined'}`);
+        logger.info(
+            `scan stopped. selectedPort will be ${saveSelectedPort ? 'saved' : 'undefined'}`
+        );
 
         this.server?.disconnectHardware();
         this.stopScan(option);
@@ -429,14 +455,14 @@ class MainRouter {
         if (!saveSelectedPort) {
             this.selectedPort = undefined;
         }
-    };
+    }
 
     executeDriver(driverPath: string) {
         if (!this.config) {
             return;
         }
 
-        const driverFullPath = path.join(directoryPaths.driver, driverPath);
+        const driverFullPath = path.join(directoryPaths.driver(), driverPath);
         logger.info(`execute driver requested. filePath : ${driverFullPath}`);
         shell.openItem(driverFullPath);
     }
@@ -490,6 +516,9 @@ class MainRouter {
         ipcMain.on('getCurrentServerModeSync', (e) => {
             e.returnValue = this.currentServerRunningMode;
         });
+        ipcMain.on('getBaseModulePath', (e) => {
+            e.returnValue = directoryPaths.modules();
+        });
         ipcMain.on('getCurrentCloudModeSync', (e) => {
             e.returnValue = this.currentCloudMode;
         });
@@ -511,8 +540,7 @@ class MainRouter {
     async requestHardwareModule(moduleName: string) {
         logger.info(`hardware module requested from online, moduleName : ${moduleName}`);
         const moduleConfig = await downloadModule(moduleName);
-        this.hardwareListManager.updateHardwareList([moduleConfig]);
-        await this.hardwareListManager.updateHardwareListWithOnline();
+        await this.hardwareListManager.updateHardwareList([moduleConfig]);
     }
 
     private resetIpcEvents() {

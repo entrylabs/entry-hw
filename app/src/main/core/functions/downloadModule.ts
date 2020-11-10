@@ -9,7 +9,7 @@ import directoryPaths from '../directoryPaths';
 
 const logger = createLogger('DownloadModule');
 
-const downloadModuleFunction = (moduleName: string) =>
+const downloadModuleFunction = (moduleName: string): Promise<IHardwareConfig> =>
     new Promise((resolve, reject) => {
         if (!moduleName) {
             reject('must be present moduleName');
@@ -24,7 +24,7 @@ const downloadModuleFunction = (moduleName: string) =>
         request.on('response', (response) => {
             response.on('error', reject);
             if (response.statusCode === 200) {
-                const moduleDirPath = directoryPaths.modules;
+                const moduleDirPath = directoryPaths.modules();
                 logger.verbose('hardware module zip extract..');
                 const zipStream = new NetworkZipHandlerStream(moduleDirPath);
                 zipStream.on('done', () => {
