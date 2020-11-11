@@ -1,0 +1,43 @@
+{
+    "id": "360101",
+    "name": {
+        "en": "Arduino GorillaCell",
+        "ko": "아두이노 고릴라셀"
+    },
+    "category": "board",
+    "platform": ["win32", "darwin"],
+    "icon": "GorillaCell.png",
+    "module": "GorillaCell.js",
+    "url": "https://www.gorillacell.kr/",
+	"email": "35mwlee@naver.com",
+    "driver": [{
+        "win32-ia32": "arduino/dpinst-x86.exe",
+        "win32-x64": "arduino/dpinst-amd64.exe",
+        "translate": "아두이노 드라이버"
+    },{
+        "win32-ia32": "CP210x_VCP_Windows/CP210xVCPInstaller_x86.exe",
+        "win32-x64": "CP210x_VCP_Windows/CP210xVCPInstaller_x64.exe",
+		"darwin-x64": "Mac_OSX_VCP_Driver/SiLabsUSBDriverDisk.dmg",
+        "translate": "USB 드라이버 (CP210x)"
+    },{
+        "win32-ia32": "CDM21228_Driver/CDM21228_Setup.EXE",
+        "win32-x64": "CDM21228_Driver/CDM21228_Setup.EXE",
+        "translate": "CDM 드라이버"
+    },{
+        "win32-ia32": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
+        "win32-x64": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
+        "darwin-x64": "CH34x_Install_MAC_10_9_AND_ABOVE/CH34x_Install_V1.3.pkg",
+        "translate": "CH34x 시리즈 드라이버"
+    }],
+    "selectPort": true,
+    "reconnect": true,
+    "firmware": "board2",
+    "hardware": {
+        "type": "serial",
+        "control": "slave",
+        "duration": 32,
+        "vendor": "Arduino",
+        "baudRate": 9600,
+        "firmwarecheck": true
+    }
+}
