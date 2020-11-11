@@ -402,8 +402,11 @@ class ExMarsCube extends BaseModule {
         let buffer;
 
         if (this.entryMessage == 1) {
-            buffer = this.transmit;
-            this.entryMessage = 0;
+            if (this.checkCount > 0) {
+                buffer = this.transmit;
+                this.entryMessage = 0;
+                this.checkCount = 0;
+            }
         } else {
             if (this.checkCount % 5 == 0) {
                 buffer = this.makePacketSensingRequest(this.protocols.faceColor.all);
