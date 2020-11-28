@@ -1,9 +1,6 @@
 
-var events = require('events'),
-    util   = require('util'),
-    colors = require('colors'),
-    child  = require('child_process'),
-    serial = require('serialport');
+
+const { delay } = require('./bingles');
 
 
 function micros (return_float) {
@@ -33,245 +30,20 @@ function micros (return_float) {
     };
 }
 
-
-/*
- * The main Arduino constructor
- * Connect to the serial port and bind
- */
-
-var Board = function (options) {
-    this.log('info', 'initializing');
-    this.debug = false;
-    this.device = options && options.device || 'usb|ttyACM*|ttyS|COM1|COM2|COM3|COM4|COM5}';
-    this.baudrate = 115200;
-    this.writeBuffer = [];
-
-    var self = this;
-    this.device = '/dev/COM5';
-    /*
-    this.detect(function (err, serial) {
-        if (err) {
-        if(self.listeners('error').length)
-            self.emit('error', err);
-        else
-            throw new Error(err);
-        }else{
-            self.serial = serial;
-            self.emit('connected');
-
-            self.log('info', 'binding serial events');
-            self.serial.on('data', function(data){
-                self.log('receive', data.toString().red);
-                self.emit('data', data);
-            });
-
-                setTimeout(function(){
-                    self.log('info', 'board ready');
-                    self.sendClearingBytes();
-
-                    if (self.debug) {
-                    self.log('info', 'sending debug mode toggle on to board');
-                    self.write('99' + self.normalizePin(0) + self.normalizeVal(1));
-                    process.on('SIGINT', function(){
-                        self.log('info', 'sending debug mode toggle off to board');
-                        self.write('99' + self.normalizePin(0) + self.normalizeVal(0));
-                        delete self.serial;
-                        setTimeout(function(){
-                        process.exit();
-                        }, 100);
-                    });
-                    }
-
-                    if (self.writeBuffer.length > 0) {
-                    self.processWriteBuffer();
-                    }
-
-                    self.emit('ready');      
-                }, 500);
-        }
-    });
-    */
+function _delay_us(return_float){
+    delay = function (ms) {
+        ms += +new Date();
+        while (+new Date() < ms) { }
+    }
+    return (delay * 1000);
 }
-  
-  /*
-   * EventEmitter, I choose you!
-   */
-util.inherits(Board, events.EventEmitter);
-  
-  /*
-   * Detect an Arduino board
-   * Loop through all USB devices and try to connect
-   * This should really message the device and wait for a correct response
-   */
-  Board.prototype.detect = function (callback) {
-    //this.log('info', 'attempting to find Arduino board');
-    var self = this;
-    child.exec('ls /dev | grep -E "'+ self.device +'"', function(err, stdout, stderr){
-      var usb = stdout.slice(0, -1).split('\n'),
-          found = false,
-          err = null,
-          possible, temp, com_temp;
-  
-      while ( usb.length ) {
-        possible = usb.pop();
-  
-        if (possible.slice(0, 2) !== 'cu') {
-          try {
-            temp = new serial.SerialPort('/dev/' + possible, {
-              baudrate: self.baudrate,
-              parser: serial.parsers.readline('\n')
-            });
-
-            com_temp = new serial.SerialPort('/dev/COM5' , {
-                baudrate: self.baudrate,
-                parser: serial.parsers.readline('\n')
-            });
-
-          } catch (e) {
-            err = e;
-          }
-          if (!err) {
-            if(!temp)
-                found = temp;
-            else if(!com_temp)
-                found = com_temp;
-            //self.log('info', 'found board at ' + temp.port);
-            break;
-          } else {
-            err = new Error('Could not find Arduino');
-          }
-        }
-      }
-  
-      callback(err, found);
-    });
-  }
-  
-  /*
-   * The board will eat the first 4 bytes of the session
-   * So we give it crap to eat
-   */
-  Board.prototype.sendClearingBytes = function () {
-    this.serial.write('00000000');
-  }
-  
-  /*
-   * Process the writeBuffer (messages attempted before serial was ready)
-   */
-  Board.prototype.processWriteBuffer = function () {
-    //this.log('info', 'processing buffered messages');
-    while (this.writeBuffer.length > 0) {
-      //this.log('info', 'writing buffered message');
-      this.write(this.writeBuffer.shift());
-    }
-  }
-  
-  /*
-   * Low-level serial write
-   */
-  Board.prototype.write = function (m) {
-    if (this.serial) {
-      //this.log('write', m);
-      this.serial.write('!' + m + '.');
-    } else {
-      //this.log('info', 'serial not ready, buffering message: ' + m.red);
-      this.writeBuffer.push(m);
-    }
-  }
-  
-  /*
-   * Add a 0 to the front of a single-digit pin number
-   */
-  Board.prototype.normalizePin = function (pin) {
-    return this.lpad( 2, '0', pin );
-  }
-  
-  Board.prototype.normalizeVal = function(val) {
-      return this.lpad( 3, '0', val );
-  }
-  
-  //
-  Board.prototype.lpad = function(len, chr, str) {
-    return (Array(len + 1).join(chr || ' ') + str).substr(-len);
-  };
-  
-  /*
-   * Define constants
-   */
-  Board.prototype.HIGH = '255';
-  Board.prototype.LOW = '000';
-  
-  /*
-   * Set a pin's mode
-   * val == out = 001
-   * val == in  = 000
-   */
-  Board.prototype.pinMode = function (pin, val) {
-    pin = this.normalizePin(pin);
-    //this.log('info', 'set pin ' + pin + ' mode to ' + val);
-    val = (
-      val == 'out' ?
-      this.normalizeVal(1) :
-      this.normalizeVal(0)
-    );
-    this.write('00' + pin + val);
-  }
-  
-  /*
-   * Tell the board to write to a digital pin
-   */
-  Board.prototype.digitalWrite = function (pin, val) {
-    pin = this.normalizePin(pin);
-    val = this.normalizeVal(val);
-    //this.log('info', 'digitalWrite to pin ' + pin + ': ' + val.green);
-    this.write('01' + pin + val);
-  }
-  
-  /*
-   * Tell the board to extract data from a pin
-   */
-  Board.prototype.digitalRead = function (pin) {
-    pin = this.normalizePin(pin);
-    //this.log('info', 'digitalRead from pin ' + pin);
-    this.write('02' + pin + this.normalizeVal(0));
-  }
-  
-  Board.prototype.analogWrite = function (pin, val) {
-      pin = this.normalizePin(pin);
-      val = this.normalizeVal(val);
-      //this.log('info', 'analogWrite to pin ' + pin + ': ' + val.green);
-      this.write('03' + pin + val);
-  }
-  Board.prototype.analogRead = function (pin) {
-      pin = this.normalizePin(pin);
-      //this.log('info', 'analogRead from pin ' + pin);
-      this.write('04' + pin + this.normalizeVal(0));
-  }
-  
-  /*
-   * Utility function to pause for a given time
-   */
-  Board.prototype.delay = function (ms) {
-    ms += +new Date();
-    while (+new Date() < ms) { }
-  }
-
-/*
- * Logger utility function
- */
-Board.prototype.log = function (/*level, message*/) {
-    var args = [].slice.call(arguments);
-    if (this.debug) {
-      console.log(String(+new Date()).grey + ' duino '.blue + args.shift().magenta + ' ' + args.join(', '));
-    }
-}
-
-//Full Used Library
 
 class twi{
     constructor(){
+        this.F_CPU  = 1000000;
         this.TWI_FREQ = 100000; 
         this.TWI_BUFFER_LENGTH = 32;
+        this.WIRE_HAS_END = 0;
     
         this.TWI_READY = 0;
         this.TWI_MRX   = 1;
@@ -279,13 +51,20 @@ class twi{
         this.TWI_SRX   = 3;
         this.TWI_STX   = 4;
         
-        this.cbi(sfr, bit) = (_SFR_BYTE(sfr) &= ~_BV(bit));
-        this.sbi(sfr, bit) = (_SFR_BYTE(sfr) |= _BV(bit));
+        this.SFR_MEM_ADDR(sfr) = (new Uint16Array() & (sfr));
+        this._SFR_ADDR(sfr) = _SFR_MEM_ADDR(sfr);
+        this._MMIO_BYTE(mem_addr) = new Uint8Array(mem_addr);
+
+        this._SFR_BYTE(sfr) = this._MMIO_BYTE(_SFR_ADDR(sfr));
+
+        this.cbi(sfr, bit) = (this._SFR_BYTE(sfr) &= ~ this._BV(bit));
+        this.sbi(sfr, bit) = (this._SFR_BYTE(sfr) |= this._BV(bit));
         
-        this.twi_state;
-        this.twi_slarw;
-        this.twi_sendStop;			// should the transaction end with a stop
-        this.twi_inRepStart;			// in the middle of a repeated start
+
+        this.twi_state = new Uint8Array();
+        this.twi_slarw = new Uint8Array();
+        this.twi_sendStop = new Uint8Array();			// should the transaction end with a stop
+        this.twi_inRepStart = new Uint8Array();			// in the middle of a repeated start
         
         // twi_timeout_us > 0 prevents the code from getting stuck in various while loops here
         // if twi_timeout_us == 0 then timeout checking is disabled (the previous Wire lib behavior)
@@ -294,24 +73,65 @@ class twi{
         // to conform to the SMBus standard
         // http://smbus.org/specs/SMBus_3_1_20180319.pdf
 
-        this.twi_timeout_us = 0;
+        this.twi_timeout_us = new Uint32Array();
+        this.twi_timeout_us = 0 ;
+
         this.twi_timed_out_flag = false;  // a timeout has been seen
         this.twi_do_reset_on_timeout = false;  // reset the TWI registers on timeout
         
         
-        this.twi_masterBuffer[TWI_BUFFER_LENGTH];
-        this.twi_masterBufferIndex;
-        this.twi_masterBufferLength;
+        this.twi_masterBuffer[TWI_BUFFER_LENGTH] = new Uint8Array();
+        this.twi_masterBufferIndex = new Uint8Array();
+        this.twi_masterBufferLength = new Uint8Array();
         
-        this.twi_txBuffer[TWI_BUFFER_LENGTH];
-        this.twi_txBufferIndex;
-        this.twi_txBufferLength;
+        this.twi_txBuffer[TWI_BUFFER_LENGTH] = new Uint8Array();
+        this.twi_txBufferIndex = new Uint8Array();
+        this.twi_txBufferLength = new Uint8Array();
         
-        this.twi_rxBuffer[TWI_BUFFER_LENGTH];
-        this.twi_rxBufferIndex;
-        
-        this.twi_error;        
+        this.twi_rxBuffer[TWI_BUFFER_LENGTH] = new Uint8Array();
+        this.twi_rxBufferIndex = new Uint8Array();
 
+        this.twi_error = new Uint8Array();        
+
+        /*
+            Initilize TWSR, ...
+        */
+
+        this.TWBR7,
+        this.TWBR6,
+        this.TWBR5,
+        this.TWBR4,
+        this.TWBR3,
+        this.TWBR2,
+        this.TWBR1,
+        this.TWBR0 = 0;
+        this.TWBR = new Uint8Array([this.TWBR7, this.TWBR6, this.TWBR5, this.TWBR4, this.TWBR3, this.TWBR2, this.TWBR1, this.TWBR0]);
+              
+        this.TWINT,
+        this.TWEA,
+        this.TWSTA,
+        this.TWSTO, 
+        this.TWWC, 
+        this.TWEN, 
+        this.TWIE = 0; 
+        this.TWCR = new Uint8Array([this.TWINT, this.TWEA, this.TWSTA, this.TWSTO, this.TWWC, this.TWEN, 0, this.TWIE]);
+        
+
+        this.TWS7, this.TWS6, this.TWS5, this.TWS4, this.TWS3 = 1;
+        this.TWPS1, this.TWPS0 = 0;
+        this.TWSR = new Uint8Array([this.TWS7, this.TWS6, this.TWS5, this.TWS4, this.TWS3, 0, this.TWPS1, this.TWPS0]);
+
+        this.TWA6, this.TWA6, this.TWA6, this.TWA6, this.TWA6, this.TWA6, this.TWA6 = 1;
+        this.TWGCE = 0;
+        this.TWAR = new Uint8Array([this.TWA6, this.TWA6, this.TWA6, this.TWA6, this.TWA6, this.TWA6, this.TWA6, this.TWGCE]);
+
+        let wait_data =  0x00;
+        this.TWDR = wait_data;
+
+        this.SDA = 4;   //A4(SDA) port
+        this.SCL = 5;   //A5(SCL) port
+
+    
         /*@{*/
         /* Master */
         /** \ingroup util_twi
@@ -458,9 +278,42 @@ class twi{
             \def TW_BUS_ERROR
             illegal start or stop condition */
         this.TW_BUS_ERROR = 0x00;
+
+
+        /**
+         * \ingroup util_twi
+         * \def TW_STATUS_MASK
+         * The lower 3 bits of TWSR are reserved on the ATmega163.
+         * The 2 LSB carry the prescaler bits on the newer ATmegas.
+         */
+        this.TW_STATUS_MASK	= (this._BV(this.TWS7)|this._BV(this.TWS6)|this._BV(this.TWS5)|this._BV(this.TWS4)|this._BV(this.TWS3));
+        /**
+        * \ingroup util_twi
+        * \def TW_STATUS
+        *
+        * TWSR, masked by TW_STATUS_MASK
+        */
+        this.TW_STATUS = (TWSR & this.TW_STATUS_MASK);
+        /*@}*/
+        /**
+         * \name R/~W bit in SLA+R/W address field.
+         */
+
+        /*@{*/
+        /** \ingroup util_twi
+            \def TW_READ
+            SLA+R address */
+        this.TW_READ = 1;
+
+        /** \ingroup util_twi
+            \def TW_WRITE
+            SLA+W address */
+        this.TW_WRITE = 0;
+        /*@}*/
+        this.digitalWrite_Module = new Module();
     }
 
-    
+
     _BV(n){
         return (1 << n);
     }
@@ -482,9 +335,9 @@ class twi{
         digitalWrite(SCL, 1);
 
         // initialize twi prescaler and bit rate
-        cbi(TWSR, TWPS0);
-        cbi(TWSR, TWPS1);
-        TWBR = ((F_CPU / TWI_FREQ) - 16) / 2;
+        this.cbi(this.TWSR, this.TWPS0);
+        this.cbi(this.TWSR, this.TWPS1);
+        this.TWBR = ((this.F_CPU / this.TWI_FREQ) - 16) / 2;
 
         /* twi bit rate formula from atmega128 manual pg 204
         SCL Frequency = CPU Clock Frequency / (16 + (2 * TWBR))
@@ -492,7 +345,7 @@ class twi{
         It is 72 for a 16mhz Wiring board with 100kHz TWI */
 
         // enable twi module, acks, and twi interrupt
-        TWCR = _BV(TWEN) | _BV(TWIE) | _BV(TWEA);
+        this.TWCR = this._BV(this.TWEN) | this._BV(this.TWIE) | this._BV(this.TWEA);
     }
 
     /* 
@@ -502,10 +355,15 @@ class twi{
     * Output   none
     */
     twi_disable(){
-    // disable twi module, acks, and twi interrupt
-    TWCR &= ~(_BV(TWEN) | _BV(TWIE) | _BV(TWEA));
+
+        let buffer = new Buffer();
+
+        // disable twi module, acks, and twi interrupt
+        this.TWCR &= ~(this._BV(this.TWEN) | this._BV(this.TWIE) | this._BV(this.TWEA));
 
         // deactivate internal pullups for twi.
+        buffer = Buffer.concat([buffer, this.digitalWrite_Module.makeOutputBuffer(this.digitalWrite_Module.sensorTypes.ANALOG, 4, 0)]);
+    
         digitalWrite(SDA, 0);
         digitalWrite(SCL, 0);
     }
@@ -517,8 +375,10 @@ class twi{
     * Output   none
     */
     twi_setAddress(address){
-    // set twi slave address (skip over TWGCE bit)
-        TWAR = (address << 1) >>> 0;
+      // set twi slave address (skip over TWGCE bit)
+      let _address = new Uint8Array();
+      _address = address;
+      this.TWAR = _address << 1;
     }
 
     /* 
@@ -528,7 +388,10 @@ class twi{
     * Output   none
     */
     twi_setFrequency(frequency){
-        TWBR = (((F_CPU / frequency) - 16) / 2) >>> 0;
+        let _frequency = new Uint32Array();
+        _frequency = frequency;
+
+        this.TWBR = ((this.F_CPU / _frequency) - 16) / 2;
         
         /* twi bit rate formula from atmega128 manual pg 204
         SCL Frequency = CPU Clock Frequency / (16 + (2 * TWBR))
@@ -547,7 +410,7 @@ class twi{
     * Output   number of bytes read
     */
     twi_readFrom(address, data, length, sendStop){
-        let i = [];
+        let i = new Uint8Array();
 
         // ensure data will fit into buffer
         if(this.TWI_BUFFER_LENGTH < length){
@@ -556,22 +419,23 @@ class twi{
 
         // wait until twi is ready, become master receiver
         // micro_second method
-        let startMicros = micros();
-        //unsigneds int
-        while(this.TWI_READY != twi_state){
-            if((twi_timeout_us > 0) && ((micros() - startMicros) > twi_timeout_us)) {
-            twi_handleTimeout(twi_do_reset_on_timeout);
+        let startMicros =  new Uint32Array();
+        startMicros = micros();
+
+        while(this.TWI_READY != this.twi_state){
+            if((this.twi_timeout_us > 0) && ((micros() - startMicros) > this.twi_timeout_us)) {
+            this.twi_handleTimeout(this.twi_do_reset_on_timeout);
             return 0;
             }
         }
-        twi_state = this.TWI_MRX;
-        twi_sendStop = sendStop;
+        this.twi_state = this.TWI_MRX;
+        this.twi_sendStop = sendStop;
         // reset error state (0xFF.. no error occured)
-        twi_error = 0xFF;
+        this.twi_error = 0xFF;
 
         // initialize buffer iteration vars
-        twi_masterBufferIndex = 0;
-        twi_masterBufferLength = length-1;  // This is not intuitive, read on...
+        this.twi_masterBufferIndex = 0;
+        this.twi_masterBufferLength = length-1;  // This is not intuitive, read on...
         // On receive, the previously configured ACK/NACK setting is transmitted in
         // response to the received byte before the interrupt is signalled. 
         // Therefor we must actually set NACK when the _next_ to last byte is
@@ -579,47 +443,47 @@ class twi{
         // expected byte of data.
 
         // build sla+w, slave device address + w bit
-        twi_slarw = TW_READ;
-        twi_slarw |= address << 1;
+        this.twi_slarw = this.TW_READ;
+        this.twi_slarw |= address << 1;
 
-        if (true == twi_inRepStart) {
+        if (true == this.twi_inRepStart) {
             // if we're in the repeated start state, then we've already sent the start,
             // (@@@ we hope), and the TWI statemachine is just waiting for the address byte.
             // We need to remove ourselves from the repeated start state before we enable interrupts,
             // since the ISR is ASYNC, and we could get confused if we hit the ISR before cleaning
             // up. Also, don't enable the START interrupt. There may be one pending from the 
             // repeated start that we sent ourselves, and that would really confuse things.
-            twi_inRepStart = false;			// remember, we're dealing with an ASYNC ISR
+            this.twi_inRepStart = false;			// remember, we're dealing with an ASYNC ISR
             startMicros = micros();
             do {
-            TWDR = this.twi_slarw;
-            if((this.twi_timeout_us > 0) && ((micros() - startMicros) > this.twi_timeout_us)) {
-                twi_handleTimeout(twi_do_reset_on_timeout);
-                return 0;
-            }
-            } while(TWCR & _BV(TWWC));
-            TWCR = _BV(TWINT) | _BV(TWEA) | _BV(TWEN) | _BV(TWIE);	// enable INTs, but not START
+                this.TWDR = this.twi_slarw;
+                if((this.twi_timeout_us > 0) && ((micros() - startMicros) > this.twi_timeout_us)) {
+                    this.twi_handleTimeout(this.twi_do_reset_on_timeout);
+                    return 0;
+                }
+            } while(this.TWCR & this._BV(this.TWWC));
+            this.TWCR = this._BV(this.TWINT) | this._BV(this.TWEA) | this._BV(this.TWEN) | this._BV(this.TWIE);	// enable INTs, but not START
         } else {
             // send start condition
-            TWCR = _BV(TWEN) | _BV(TWIE) | _BV(TWEA) | _BV(TWINT) | _BV(TWSTA);
+            this.TWCR = this._BV(this.TWEN) | this._BV(this.TWIE) | this._BV(this.TWEA) | this._BV(this.TWINT) | this._BV(this.TWSTA);
         }
 
         // wait for read operation to complete
         startMicros = micros();
-        while(TWI_MRX == twi_state){
+        while(this.TWI_MRX == this.twi_state){
             if((this.twi_timeout_us > 0) && ((micros() - startMicros) > this.twi_timeout_us)) {
-            twi_handleTimeout(twi_do_reset_on_timeout);
-            return 0;
+                this.twi_handleTimeout(this.twi_do_reset_on_timeout);
+                return 0;
             }
         }
 
-        if (twi_masterBufferIndex < length) {
-            length = twi_masterBufferIndex;
+        if (this.twi_masterBufferIndex < length) {
+            length = this.twi_masterBufferIndex;
         }
 
         // copy twi buffer to data
         for(i = 0; i < length; ++i){
-            data[i] = twi_masterBuffer[i];
+            data[i] = this.twi_masterBuffer[i];
         }
 
         return length;
@@ -644,7 +508,7 @@ class twi{
     *          5 .. timeout
     */
     twi_writeTo(address, data, length, wait, sendStop){
-        let i = [];
+        let i = Uint8Array();
 
         // ensure data will fit into buffer
         if(this.TWI_BUFFER_LENGTH < length){
@@ -652,70 +516,72 @@ class twi{
         }
 
         // wait until twi is ready, become master transmitter
+        let startMicros = new Uint32Array();
         startMicros = micros();
-        while(this.TWI_READY != twi_state){
+
+        while(this.TWI_READY != this.twi_state){
             if((this.twi_timeout_us > 0) && ((micros() - startMicros) > this.twi_timeout_us)) {
-            twi_handleTimeout(twi_do_reset_on_timeout);
-            return (5);
+                this.twi_handleTimeout(this.twi_do_reset_on_timeout);
+                return (5);
             }
         }
-        twi_state = TWI_MTX;
-        twi_sendStop = sendStop;
+        this.twi_state = this.TWI_MTX;
+        this.twi_sendStop = sendStop;
         // reset error state (0xFF.. no error occured)
-        twi_error = 0xFF;
+        this.twi_error = 0xFF;
 
         // initialize buffer iteration vars
-        twi_masterBufferIndex = 0;
-        twi_masterBufferLength = length;
+        this.twi_masterBufferIndex = 0;
+        this.twi_masterBufferLength = length;
         
         // copy data to twi buffer
         for(i = 0; i < length; ++i){
-            twi_masterBuffer[i] = data[i];
+            this.twi_masterBuffer[i] = data[i];
         }
         
         // build sla+w, slave device address + w bit
-        twi_slarw = TW_WRITE;
-        twi_slarw |= address << 1;
+        this.twi_slarw = this.TW_WRITE;
+        this.twi_slarw |= address << 1;
         
         // if we're in a repeated start, then we've already sent the START
         // in the ISR. Don't do it again.
         //
-        if (true == twi_inRepStart) {
+        if (true == this.twi_inRepStart) {
             // if we're in the repeated start state, then we've already sent the start,
             // (@@@ we hope), and the TWI statemachine is just waiting for the address byte.
             // We need to remove ourselves from the repeated start state before we enable interrupts,
             // since the ISR is ASYNC, and we could get confused if we hit the ISR before cleaning
             // up. Also, don't enable the START interrupt. There may be one pending from the 
             // repeated start that we sent outselves, and that would really confuse things.
-            twi_inRepStart = false;			// remember, we're dealing with an ASYNC ISR
+            this.twi_inRepStart = false;			// remember, we're dealing with an ASYNC ISR
             startMicros = micros();
             do {
-            TWDR = twi_slarw;
-            if((twi_timeout_us > 0) && ((micros() - startMicros) > twi_timeout_us)) {
-                twi_handleTimeout(twi_do_reset_on_timeout);
-                return (5);
-            }
-            } while(TWCR & _BV(TWWC));
-            TWCR = _BV(TWINT) | _BV(TWEA) | _BV(TWEN) | _BV(TWIE);	// enable INTs, but not START
+                this.TWDR = this.twi_slarw;
+                if((this.twi_timeout_us > 0) && ((micros() - startMicros) > this.twi_timeout_us)) {
+                    this.twi_handleTimeout(this.twi_do_reset_on_timeout);
+                    return (5);
+                }
+            } while(this.TWCR & this._BV(this.TWWC));
+            this.TWCR = this._BV(this.TWINT) | this._BV(this.TWEA) | this._BV(this.TWEN) | this._BV(this.TWIE);	// enable INTs, but not START
         } else {
             // send start condition
-            TWCR = _BV(TWINT) | _BV(TWEA) | _BV(TWEN) | _BV(TWIE) | _BV(TWSTA);	// enable INTs
+            this.TWCR = this._BV(this.TWINT) | this._BV(this.TWEA) | this._BV(this.TWEN) | this._BV(this.TWIE) | this._BV(this.TWSTA);	// enable INTs
         }
 
         // wait for write operation to complete
         startMicros = micros();
-        while(wait && (TWI_MTX == twi_state)){
-            if((twi_timeout_us > 0) && ((micros() - startMicros) > twi_timeout_us)) {
-            twi_handleTimeout(twi_do_reset_on_timeout);
-            return (5);
+        while(wait && (this.TWI_MTX == this.twi_state)){
+            if((this.twi_timeout_us > 0) && ((micros() - startMicros) > this.twi_timeout_us)) {
+                this.twi_handleTimeout(this.twi_do_reset_on_timeout);
+                return (5);
             }
         }
         
-        if (twi_error == 0xFF)
+        if (this.twi_error == 0xFF)
             return 0;	// success
-        else if (twi_error == TW_MT_SLA_NACK)
+        else if (this.twi_error == this.TW_MT_SLA_NACK)
             return 2;	// error: address send, nack received
-        else if (twi_error == TW_MT_DATA_NACK)
+        else if (this.twi_error == this.TW_MT_DATA_NACK)
             return 3;	// error: data send, nack received
         else
             return 4;	// other twi error
@@ -732,7 +598,7 @@ class twi{
     *          0 ok
     */
     twi_transmit(data, length){
-        let i;
+        let i = new Uint8Array();
 
         // ensure data will fit into buffer
         if(this.TWI_BUFFER_LENGTH < (this.twi_txBufferLength+length)){
@@ -746,7 +612,7 @@ class twi{
         
         // set length and copy data into tx buffer
         for(i = 0; i < length; ++i){
-            twi_txBuffer[this.twi_txBufferLength+i] = data[i];
+            this.twi_txBuffer[this.twi_txBufferLength+i] = data[i];
         }
         this.twi_txBufferLength += length;
         
@@ -760,7 +626,7 @@ class twi{
     * Output   none
     */
     twi_attachSlaveRxEvent(recv_function){
-      twi_onSlaveReceive = recv_function(uint8_t_param, int_t_param);
+        this.twi_onSlaveReceive = recv_function(uint8_t_param, int_t_param);
     }
 
     /* 
@@ -770,7 +636,7 @@ class twi{
     * Output   none
     */
     twi_attachSlaveTxEvent(recv_function){
-        twi_onSlaveTransmit = recv_function();
+        this.twi_onSlaveTransmit = recv_function();
     }
 
     /* 
@@ -782,9 +648,9 @@ class twi{
     twi_reply(ack){
         // transmit master read ready signal, with or without ack
         if(ack){
-            TWCR = _BV(TWEN) | _BV(TWIE) | _BV(TWINT) | _BV(TWEA);
+            this.TWCR = this._BV(this.TWEN) | this._BV(this.TWIE) | this._BV(this.TWINT) | this._BV(this.TWEA);
         }else{
-            TWCR = _BV(TWEN) | _BV(TWIE) | _BV(TWINT);
+            this.TWCR = this._BV(this.TWEN) | this._BV(this.TWIE) | this._BV(this.TWINT);
         }
     }
 
@@ -796,27 +662,30 @@ class twi{
     */
     twi_stop(){
         // send stop condition
-        TWCR = _BV(TWEN) | _BV(TWIE) | _BV(TWEA) | _BV(TWINT) | _BV(TWSTO);
+        this.TWCR = this._BV(this.TWEN) | this._BV(this.TWIE) | this._BV(this.TWEA) | this._BV(this.TWINT) | this._BV(this.TWSTO);
 
         // wait for stop condition to be exectued on bus
         // TWINT is not set after a stop condition!
         // We cannot use micros() from an ISR, so approximate the timeout with cycle-counted delays
-        let us_per_loop = 8;
-        let counter = (twi_timeout_us + us_per_loop - 1)/us_per_loop; // Round up
-        while(TWCR & _BV(TWSTO)){
-            if(twi_timeout_us > 0){
+        const us_per_loop = new Uint8Array();
+        us_per_loop = 8;
+
+        let counter = Uint32Array();
+        counter = (this.twi_timeout_us + us_per_loop - 1)/us_per_loop; // Round up
+        while(this.TWCR & this._BV(this.TWSTO)){
+            if(this.twi_timeout_us > 0){
                 if (counter > 0){
                     _delay_us(10);
                     counter--;
                 } else {
-                    twi_handleTimeout(twi_do_reset_on_timeout);
+                    this.twi_handleTimeout(this.twi_do_reset_on_timeout);
                     return;
                 }
             }
         }
 
         // update twi state
-        twi_state = TWI_READY;
+        this.twi_state = this.TWI_READY;
     }
 
     /* 
@@ -827,10 +696,10 @@ class twi{
     */
     twi_releaseBus(){
         // release bus
-        TWCR = _BV(TWEN) | _BV(TWIE) | _BV(TWEA) | _BV(TWINT);
+        this.TWCR = this._BV(this.TWEN) | this._BV(this.TWIE) | this._BV(this.TWEA) | this._BV(this.TWINT);
 
         // update twi state
-        twi_state = TWI_READY;
+        this.twi_state = this.TWI_READY;
     }
 
     /* 
@@ -841,9 +710,9 @@ class twi{
     * Output   none
     */
     twi_setTimeoutInMicros(timeout, reset_with_timeout){
-        twi_timed_out_flag = false;
-        twi_timeout_us = timeout;
-        twi_do_reset_on_timeout = reset_with_timeout;
+        this.twi_timed_out_flag = false;
+        this.twi_timeout_us = timeout;
+        this.twi_do_reset_on_timeout = reset_with_timeout;
     }
     
     /* 
@@ -854,20 +723,24 @@ class twi{
     * Output   none
     */
     twi_handleTimeout(reset){
-        twi_timed_out_flag = true;
+        this.twi_timed_out_flag = true;
     
         if (reset) {
-        // remember bitrate and address settings
-        previous_TWBR = TWBR;
-        previous_TWAR = TWAR;
-    
-        // reset the interface
-        twi_disable();
-        twi_init();
-    
-        // reapply the previous register values
-        TWAR = previous_TWAR;
-        TWBR = previous_TWBR;
+            // remember bitrate and address settings
+            let previous_TWBR = new Uint8Array();
+            previous_TWBR = this.TWBR;
+
+
+            let previous_TWAR = new Uint8Array();
+            previous_TWAR = this.TWAR;
+        
+            // reset the interface
+            this.twi_disable();
+            this.twi_init();
+        
+            // reapply the previous register values
+            this.TWAR = previous_TWAR;
+            this.TWBR = previous_TWBR;
         }
     }
 
@@ -881,64 +754,64 @@ class twi{
     * Output   none
     */
     twi_manageTimeoutFlag(clear_flag){
-        flag = twi_timed_out_flag;
+        flag = this.twi_timed_out_flag;
         if (clear_flag){
-        twi_timed_out_flag = false;
+            this.twi_timed_out_flag = false;
         }
-        return(flag);
+        return (flag);
     }
 
     ISR(TWI_vect)
     {
-      switch(TW_STATUS){
+      switch(this.TW_STATUS){
         // All Master
-        case TW_START:     // sent start condition
-        case TW_REP_START: // sent repeated start condition
+        case this.TW_START:     // sent start condition
+        case this.TW_REP_START: // sent repeated start condition
           // copy device address and r/w bit to output register and ack
-          TWDR = this.twi_slarw;
+          this.TWDR = this.twi_slarw;
           this.twi_reply(1);
           break;
     
         // Master Transmitter
-        case TW_MT_SLA_ACK:  // slave receiver acked address
-        case TW_MT_DATA_ACK: // slave receiver acked data
+        case this.TW_MT_SLA_ACK:  // slave receiver acked address
+        case this.TW_MT_DATA_ACK: // slave receiver acked data
           // if there is data to send, send it, otherwise stop 
           if(this.twi_masterBufferIndex < this.twi_masterBufferLength){
             // copy data to output register and ack
             TWDR = this.twi_masterBuffer[this.twi_masterBufferIndex++];
             this.twi_reply(1);
           }else{
-            if (this.twi_sendStop){
-                this.twi_stop();
-           } else {
-            this.twi_inRepStart = true;	// we're gonna send the START
-             // don't enable the interrupt. We'll generate the start, but we
-             // avoid handling the interrupt until we're in the next transaction,
-             // at the point where we would normally issue the start.
-             TWCR = _BV(TWINT) | _BV(TWSTA)| _BV(TWEN) ;
-             this.twi_state = this.TWI_READY;
-            }
+                if (this.twi_sendStop){
+                    this.twi_stop();
+                } else {
+                    this.twi_inRepStart = true;	// we're gonna send the START
+                    // don't enable the interrupt. We'll generate the start, but we
+                    // avoid handling the interrupt until we're in the next transaction,
+                    // at the point where we would normally issue the start.
+                    this.TWCR = this._BV(this.TWINT) | this._BV(this.TWSTA)| this._BV(this.TWEN) ;
+                    this.twi_state = this.TWI_READY;
+                }
           }
           break;
-        case TW_MT_SLA_NACK:  // address sent, nack received
-            this.twi_error = TW_MT_SLA_NACK;
+        case this.TW_MT_SLA_NACK:  // address sent, nack received
+            this.twi_error = this.TW_MT_SLA_NACK;
             this.twi_stop();
-          break;
-        case TW_MT_DATA_NACK: // data sent, nack received
-            this.twi_error = TW_MT_DATA_NACK;
+            break;
+        case this.TW_MT_DATA_NACK: // data sent, nack received
+            this.twi_error = this.TW_MT_DATA_NACK;
             this.twi_stop();
-          break;
-        case TW_MT_ARB_LOST: // lost bus arbitration
-        this.twi_error = TW_MT_ARB_LOST;
-          this.twi_releaseBus();
-          break;
+            break;
+        case this.TW_MT_ARB_LOST: // lost bus arbitration
+            this.twi_error = this.TW_MT_ARB_LOST;
+            this.twi_releaseBus();
+            break;
     
         // Master Receiver
-        case TW_MR_DATA_ACK: // data received, ack sent
+        case this.TW_MR_DATA_ACK: // data received, ack sent
           // put byte into buffer
-          this.twi_masterBuffer[this.twi_masterBufferIndex++] = TWDR;
-          __attribute__ ((fallthrough));
-        case TW_MR_SLA_ACK:  // address sent, ack received
+          this.twi_masterBuffer[this.twi_masterBufferIndex++] = this.TWDR;
+          //__attribute__ ((fallthrough));
+        case this.TW_MR_SLA_ACK:  // address sent, ack received
           // ack if more bytes are expected, otherwise nack
           if(this.twi_masterBufferIndex < this.twi_masterBufferLength){
             this.twi_reply(1);
@@ -946,9 +819,9 @@ class twi{
             this.twi_reply(0);
           }
           break;
-        case TW_MR_DATA_NACK: // data received, nack sent
+        case this.TW_MR_DATA_NACK: // data received, nack sent
           // put final byte into buffer
-          this.twi_masterBuffer[this.twi_masterBufferIndex++] = TWDR;
+          this.twi_masterBuffer[this.twi_masterBufferIndex++] = this.TWDR;
           if (this.twi_sendStop){
             this.twi_stop();
           } else {
@@ -956,39 +829,39 @@ class twi{
             // don't enable the interrupt. We'll generate the start, but we
             // avoid handling the interrupt until we're in the next transaction,
             // at the point where we would normally issue the start.
-            TWCR = _BV(TWINT) | _BV(TWSTA)| _BV(TWEN) ;
+            this.TWCR = this._BV(this.TWINT) | this._BV(this.TWSTA)| this._BV(this.TWEN) ;
             this.twi_state = this.TWI_READY;
           }
           break;
-        case TW_MR_SLA_NACK: // address sent, nack received
+        case this.TW_MR_SLA_NACK: // address sent, nack received
             this.twi_stop();
           break;
         // TW_MR_ARB_LOST handled by TW_MT_ARB_LOST case
     
         // Slave Receiver
-        case TW_SR_SLA_ACK:   // addressed, returned ack
-        case TW_SR_GCALL_ACK: // addressed generally, returned ack
-        case TW_SR_ARB_LOST_SLA_ACK:   // lost arbitration, returned ack
-        case TW_SR_ARB_LOST_GCALL_ACK: // lost arbitration, returned ack
+        case this.TW_SR_SLA_ACK:   // addressed, returned ack
+        case this.TW_SR_GCALL_ACK: // addressed generally, returned ack
+        case this.TW_SR_ARB_LOST_SLA_ACK:   // lost arbitration, returned ack
+        case this.TW_SR_ARB_LOST_GCALL_ACK: // lost arbitration, returned ack
           // enter slave receiver mode
           this.twi_state = this.TWI_SRX;
           // indicate that rx buffer can be overwritten and ack
           this.twi_rxBufferIndex = 0;
           this.twi_reply(1);
           break;
-        case TW_SR_DATA_ACK:       // data received, returned ack
-        case TW_SR_GCALL_DATA_ACK: // data received generally, returned ack
+        case this.TW_SR_DATA_ACK:       // data received, returned ack
+        case this.TW_SR_GCALL_DATA_ACK: // data received generally, returned ack
           // if there is still room in the rx buffer
           if(this.twi_rxBufferIndex < this.TWI_BUFFER_LENGTH){
             // put byte in buffer and ack
-            this.twi_rxBuffer[this.twi_rxBufferIndex++] = TWDR;
+            this.twi_rxBuffer[this.twi_rxBufferIndex++] = this.TWDR;
             this.twi_reply(1);
           }else{
             // otherwise nack
             this.twi_reply(0);
           }
           break;
-        case TW_SR_STOP: // stop or repeated start condition received
+        case this.TW_SR_STOP: // stop or repeated start condition received
           // ack future responses and leave slave receiver state
           this.twi_releaseBus();
           // put a null char after data if there's room
@@ -1000,17 +873,17 @@ class twi{
           // since we submit rx buffer to "wire" library, we can reset it
           this.twi_rxBufferIndex = 0;
           break;
-        case TW_SR_DATA_NACK:       // data received, returned nack
-        case TW_SR_GCALL_DATA_NACK: // data received generally, returned nack
+        case this.TW_SR_DATA_NACK:       // data received, returned nack
+        case this.TW_SR_GCALL_DATA_NACK: // data received generally, returned nack
           // nack back at master
           this.twi_reply(0);
           break;
         
         // Slave Transmitter
-        case TW_ST_SLA_ACK:          // addressed, returned ack
-        case TW_ST_ARB_LOST_SLA_ACK: // arbitration lost, returned ack
+        case this.TW_ST_SLA_ACK:          // addressed, returned ack
+        case this.TW_ST_ARB_LOST_SLA_ACK: // arbitration lost, returned ack
           // enter slave transmitter mode
-          this.twi_state = TWI_STX;
+          this.twi_state = this.TWI_STX;
           // ready the tx buffer index for iteration
           this.twi_txBufferIndex = 0;
           // set tx buffer length to be zero, to verify if user changes it
@@ -1023,11 +896,11 @@ class twi{
             this.twi_txBufferLength = 1;
             this.twi_txBuffer[0] = 0x00;
           }
-          __attribute__ ((fallthrough));		  
+          //__attribute__ ((fallthrough));		  
           // transmit first byte from buffer, fall
-        case TW_ST_DATA_ACK: // byte sent, ack returned
+        case this.TW_ST_DATA_ACK: // byte sent, ack returned
           // copy data to output register
-          TWDR = this.twi_txBuffer[this.twi_txBufferIndex++];
+          this.TWDR = this.twi_txBuffer[this.twi_txBufferIndex++];
           // if there is more to send, ack, otherwise nack
           if(this.twi_txBufferIndex < this.twi_txBufferLength){
             this.twi_reply(1);
@@ -1035,8 +908,8 @@ class twi{
             this.twi_reply(0);
           }
           break;
-        case TW_ST_DATA_NACK: // received nack, we are done 
-        case TW_ST_LAST_DATA: // received ack, but we are done already!
+        case this.TW_ST_DATA_NACK: // received nack, we are done 
+        case this.TW_ST_LAST_DATA: // received ack, but we are done already!
           // ack future responses
           this.twi_reply(1);
           // leave slave receiver state
@@ -1044,10 +917,10 @@ class twi{
           break;
     
         // All
-        case TW_NO_INFO:   // no state information
+        case this.TW_NO_INFO:   // no state information
           break;
-        case TW_BUS_ERROR: // bus error, illegal stop/start
-          this.twi_error = TW_BUS_ERROR;
+        case this.TW_BUS_ERROR: // bus error, illegal stop/start
+          this.twi_error = this.TW_BUS_ERROR;
           this.twi_stop();
           break;
       }
@@ -1055,334 +928,408 @@ class twi{
 }
 
 
-class LiquidCrystal_I2C{
-    constructor(lcd_Addr, lcd_cols, lcd_rows){
-        // port of LiquidCrystal.cpp by natevw
-        // commands
-        this.LCD_CLEARDISPLAY = 0x01;
-        this.LCD_RETURNHOME = 0x02;
-        this.LCD_ENTRYMODESET = 0x04;
-        this.LCD_DISPLAYCONTROL =0x08;
-        this.LCD_CURSORSHIFT = 0x10;
-        this.LCD_FUNCTIONSET = 0x20;
-        this.LCD_SETCGRAMADDR = 0x40;
-        this.LCD_SETDDRAMADDR = 0x80;
-        
-        // flags for display entry mode
-        this.LCD_ENTRYRIGHT = 0x00;
-        this.LCD_ENTRYLEFT = 0x02;
-        this.LCD_ENTRYSHIFTINCREMENT = 0x01;
-        this.LCD_ENTRYSHIFTDECREMENT = 0x00;
-        
-        // flags for display on/off control
-        this.LCD_DISPLAYON = 0x04;
-        this.LCD_DISPLAYOFF = 0x00;
-        this.LCD_CURSORON = 0x02;
-        this.LCD_CURSOROFF = 0x00;
-        this.LCD_BLINKON = 0x01;
-        this.LCD_BLINKOFF = 0x00;
-        
-        // flags for display/cursor shift
-        this.LCD_DISPLAYMOVE = 0x08;
-        this.LCD_CURSORMOVE = 0x00;
-        this.LCD_MOVERIGHT = 0x04;
-        this.LCD_MOVELEFT = 0x00;
-        
-        // flags for functi on set
-        this.LCD_8BITMODE = 0x10;
-        this.LCD_4BITMODE = 0x00;
-        this.LCD_2LINE = 0x08;
-        this.LCD_1LINE = 0x00;
-        this.LCD_5x10DOTS = 0x04;
-        this.LCD_5x8DOTS = 0x00;
-        
-        // flags for backlight control
-        this.LCD_BACKLIGHT = 0x08;
-        this.LCD_NOBACKLIGHT = 0x00;
-        this.En = 0x04; // Enable bit
-        this.Rw = 0x02; // Read/Write bit
-        this.Rs = 0x01; // Register select bit
+class TwoWire{
+    constructor(){
+        // Initialize Class Variables //////////////////////////////////////////////////
+        // Class Variable, externed, combined to one class
 
-        this._oled = 0x00;
-        this._numlines = 0x00;
-        this._displaycontrol = 0x00;
-        this._displaymode = 0x00;
+        this.BUFFER_LENGTH = 32;
 
-        _Addr = lcd_Addr;
-        _cols = lcd_cols;
-        _rows = lcd_rows;
-        _backlightval = this.LCD_NOBACKLIGHT;
+        // WIRE_HAS_END means Wire has end()
+        this.WIRE_HAS_END  = 1;
+
+        this.rxBuffer[BUFFER_LENGTH] = new Uint8Array(); // static uint8_t
+        this.rxBufferIndex = new Uint8Array(); // static uint8_t
+        this.rxBufferLength = new Uint8Array();    // static uint8_t
+
+        this.txAddress = new Uint8Array(); // static uint8_t
+        this.txBuffer[BUFFER_LENGTH] = new Uint8Array(); // static uint8_t
+        this.txBufferIndex = new Uint8Array(); // static uint8_t
+        this.txBufferLength = new Uint8Array();    // static uint8_t
+
+        this.transmitting = new Uint8Array();  // static uint8_t 
+       
+        this.rxBufferIndex = 0;
+        this.rxBufferLength = 0;
         
-        if (!options || !options.board) throw new Error('Must supply required options');
-        this.board = options.board;
-        // modify needed
-
-        var pins = options.pins || [12, 11, 5, 4, 3, 2];
-        // default pin assigned  12, 11, 5, 4, 3, 2
-        // modify needed
-
-        if (!Array.isArray(pins))
-          this.pins = pins;
-        else if (pins.length % 2)
-          this.pins = {rs:pins[0], rw:pins[1], e:pins[2], data:pins.slice(3)};
-          // length of pins was even-number, Rs, Rw, E, data
-        else
-          this.pins = {rs:pins[0], e:pins[1], data:pins.slice(2)};
-
-        if (!('rw' in this.pins)) this.pins.rw = 255;
-        // Rw was set, pins.rw assigned to 255(0xFF)
-
-        this.board.pinMode(this.pins.rs, 'out');
-        if (this.pins.rw !== 255) {
-            this.board.pinMode(this.pins.rw, 'out');
-        }
-        this.board.pinMode(this.pins.e, 'out');
-        
-        this.begin(16, 1);        
-    }
+        this.txAddress = 0;
+        this.txBufferIndex = 0;
+        this.txBufferLength = 0;
+        this.transmitting = 0;
     
-    oled_init(){
-        this._oled = true;
-        init_priv();
+        this.twi_ = new twi();
+
+        this.user_onReceive;
+        this.user_onRequest;
     }
 
-    init(){
-        init_priv();
-    }
+    // Public Methods //////////////////////////////////////////////////////////////
+    begin(address){
+        if(address instanceof Uint8Array){
+            this.begin();
+            this.twi_.twi_setAddress(address);   
+        } 
 
-    init_priv()
-    {
-        Wire.begin();      //not implemented.
-        _displayfunction = this.LCD_4BITMODE | this.LCD_1LINE | this.LCD_5x8DOTS;
-        begin(_cols, _rows);  
-    } 
-
-    begin(cols, lines, dotsize) {
-        this._numlines = lines;
-  
-        var displayfunction = 0;
-        displayfunction |= (lines > 1) ? this.LCD_2LINE : this.LCD_1LINE;
-        displayfunction |= (dotsize && lines === 1) ? this.LCD_5x10DOTS : this.LCD_5x8DOTS;
-        
-        this._delayMicroseconds(50000);
-
-        this.board.digitalWrite(this.pins.rs, this.board.LOW);
-        this.board.digitalWrite(this.pins.e, this.board.LOW);
-        if (this.pins.rw !== 255)
-          this.board.digitalWrite(this.pins.rw, this.board.LOW);
-        
-        // put the LCD into 4 bit or 8 bit mode
-        if (this.pins.data.length === 4) {
-          displayfunction |= this.LCD_4BITMODE;
-          this._writeNbits(4, 0x03);
-          this._delayMicroseconds(4500);
-          this._writeNbits(4, 0x03);
-          this._delayMicroseconds(4500);
-          this._writeNbits(4, 0x03);
-          this._delayMicroseconds(150);
-          this._writeNbits(4, 0x02);
-        } else {
-          displayfunction |= this.LCD_8BITMODE;
-          this.command(this.LCD_FUNCTIONSET | displayfunction);
-          this._delayMicroseconds(4500);
-          this.command(this.LCD_FUNCTIONSET | displayfunction);
-          this._delayMicroseconds(150);
-          this.command(this.LCD_FUNCTIONSET | displayfunction);
+        if((Number.isInteger(address) === true) && !(address instanceof Uint8Array)){
+            let _address = new Uint8Array();
+            _address = address;
+            this.begin(_address);
         }
-        
-        this.command(this.LCD_FUNCTIONSET | displayfunction);
-        
-        this._displaycontrol = this.LCD_DISPLAYON | this.LCD_CURSOROFF | this.LCD_BLINKOFF;
-        this.display();
-        
-        this.clear();
-        
-        this._displaymode = this.LCD_ENTRYLEFT | this.LCD_ENTRYSHIFTDECREMENT;
-        this.leftToRight();
 
-        this.home();
-      
-    }      
-
-    clear(){
-        this.command(this.LCD_CLEARDISPLAY);
-        this._delayMicroseconds(2000);  // this command takes a long time!
-        if (this._oled) setCursor(0,0);
-    }
-
-    home() {
-        this.command(this.LCD_RETURNHOME);
-        this._delayMicroseconds(2000);
-    }    
-
-    setCursor(col, row) {
-        if (row >= this._numlines) {
-          row = this._numlines - 1;
-        }
-        
-        var row_offsets = [0x00, 0x40, 0x14, 0x54];
-        this.command(this.LCD_SETDDRAMADDR | (col + row_offsets[row]));
-    }
-
-    display(on) {
-        on = (arguments.length) ? on : true;
-        if (on) this._displaycontrol |= this.LCD_DISPLAYON;
-        else this._displaycontrol &= ~this.LCD_DISPLAYON;
-        this.command(this.LCD_DISPLAYCONTROL | this._displaycontrol);
-    }
-
-    noDisplay() { this.display(false); }
-
-    cursor(on) {
-        on = (arguments.length) ? on : true;
-        if (on) this._displaycontrol |= this.LCD_CURSORON;
-        else this._displaycontrol &= ~this.LCD_CURSORON;
-        this.command(this.LCD_DISPLAYCONTROL | this._displaycontrol);
-    }
-
-    noCursor() { this.cursor(false); }
-
-    blink(on) {
-        on = (arguments.length) ? on : true;
-        if (on) this._displaycontrol |= this.LCD_BLINKON;
-        else this._displaycontrol &= ~this.LCD_BLINKON;
-        this.command(this.LCD_DISPLAYCONTROL | this._displaycontrol);
-    }
-      
-    noBlink() { this.blink(false); } 
-
-    scrollDisplayLeft() {
-        this.command(this.LCD_CURSORSHIFT | this.LCD_DISPLAYMOVE | this.LCD_MOVELEFT);
-    }
-      
-    scrollDisplayRight() {
-        this.command(this.LCD_CURSORSHIFT | this.LCD_DISPLAYMOVE | this.LCD_MOVERIGHT);
-    }
-
-    leftToRight() {
-        this._displaymode |= this.LCD_ENTRYLEFT;
-        this.command(this.LCD_ENTRYMODESET | this._displaymode);
-    }
-    
-    rightToLeft() {
-        this._displaymode &= ~LCD_ENTRYLEFT;
-        this.command(LCD_ENTRYMODESET | this._displaymode);
-    }    
-
-    autoscroll(on) {
-        on = (arguments.length) ? on : true;
-        if (on) this._displaymode |= this.LCD_ENTRYSHIFTINCREMENT;
-        else this._displaymode &= ~this.LCD_ENTRYSHIFTINCREMENT;
-        this.command(this.LCD_ENTRYMODESET | this._displaymode);
-    }    
-
-    noAutoscroll() { this.autoscroll(false); }
-
-    createChar(location, charmap) {
-      location &= 0x7;
-      this.command(this.LCD_SETCGRAMADDR | (location << 3));
-      
-      var buffer = new Buffer(8);
-      if (Array.isArray(charmap)) for (var i = 0; i < 8; i++) {
-        buffer[i] = parseInt(charmap[i], 2);
-      } else if (typeof charmap === 'string') for (var i = 0; i < 8; i++) {
-        var byte = 0;
-        if (charmap[5*i + 0] !== ' ') byte |= 0x10;
-        if (charmap[5*i + 1] !== ' ') byte |= 0x08;
-        if (charmap[5*i + 2] !== ' ') byte |= 0x04;
-        if (charmap[5*i + 3] !== ' ') byte |= 0x02;
-        if (charmap[5*i + 4] !== ' ') byte |= 0x01;
-        buffer[i] = byte;
-      } else buffer = charmap;
-      this.write(buffer);
-    }
-    
-    /*
-    * mid/low level stuff
-    */
-
-    command(value) {
-        this.send(value, this.board.LOW);
-    }
-
-    send(value, mode) {
-        this.board.digitalWrite(this.pins.rs, mode);
-        if (this.pins.rw !== 255) {
-            this.board.digitalWrite(this.pins.rw, this.board.LOW);
-        }
-        if (this.pins.data.length === 8) {
-            this._writeNbits(8, value);
-        } else {
-            this._writeNbits(4, value >> 4);
-            this._writeNbits(4, value & 0xF);
-        }
-    }
-
-    _writeNbits(n, value) {
-        //expanderWrite Part 
-        //expanderWrite(uint8_t _data);
-        /*
-            Wire.beginTransmission(_Addr);
-            Wire.send(((int)(_data) | _backlightval));
-            Wire.endTransmission();   
-        */
-        for (var i = 0; i < n; i++) {
-            this.board.pinMode(this.pins.data[i], 'out');
-            var bit = (value >> i) & 0x01;
-            this.board.digitalWrite(this.pins.data[i], (bit) ? this.board.HIGH : this.board.LOW);
-        }
-        //----------------------
-        this._pulseEnable();
-    }  
-
-    _pulseEnable() {
-        /*
-            expanderWrite(_data | En);	// En high
-            delayMicroseconds(1);		// enable pulse must be >450ns
+        if(typeof address !== "undefined"){
+            this.rxBufferIndex = 0;
+            this.rxBufferLength = 0;
             
-            expanderWrite(_data & ~En);	// En low
-            delayMicroseconds(50);		// commands need > 37us to settle
-        */
-        this.board.digitalWrite(this.pins.e, this.board.LOW);
-        this._delayMicroseconds(1);
-        this.board.digitalWrite(this.pins.e, this.board.HIGH);
-        this._delayMicroseconds(1);    // enable pulse must be >450ns
-        this.board.digitalWrite(this.pins.e, this.board.LOW);
-        this._delayMicroseconds(100);   // commands need > 37us to settle
+            this.txBufferIndex = 0;
+            this.txBufferLength = 0;
+            
+            this.twi_.twi_init();
+        
+            this.twi_.twi_attachSlaveTxEvent(onRequestService); // default callback must exist
+            this.twi_.twi_attachSlaveRxEvent(onReceiveService); // default callback must exist    
+        }
     }
 
-    /*
-    expanderWrite(_data){                                        
-        Wire.beginTransmission(_Addr);
-        Wire.send(((int)(_data) | _backlightval));
-        Wire.endTransmission();   
-    }   
-    */
+    end(){
+        this.twi_.twi_disable();
+    }    
 
+    setClock(clock){
+        // clock assigned to uint32_t
+        if(clock instanceof Uint32Array)
+            this.twi_.twi_setFrequency(clock);
+    }
+    
 
-    _delayMicroseconds(us) {
-        this.board.delay(us/1000);
+    /***
+     * Sets the TWI timeout.
+     *
+     * This limits the maximum time to wait for the TWI hardware. If more time passes, the bus is assumed
+     * to have locked up (e.g. due to noise-induced glitches or faulty slaves) and the transaction is aborted.
+     * Optionally, the TWI hardware is also reset, which can be required to allow subsequent transactions to
+     * succeed in some cases (in particular when noise has made the TWI hardware think there is a second
+     * master that has claimed the bus).
+     *
+     * When a timeout is triggered, a flag is set that can be queried with `getWireTimeoutFlag()` and is cleared
+     * when `clearWireTimeoutFlag()` or `setWireTimeoutUs()` is called.
+     *
+     * Note that this timeout can also trigger while waiting for clock stretching or waiting for a second master
+     * to complete its transaction. So make sure to adapt the timeout to accomodate for those cases if needed.
+     * A typical timeout would be 25ms (which is the maximum clock stretching allowed by the SMBus protocol),
+     * but (much) shorter values will usually also work.
+     *
+     * In the future, a timeout will be enabled by default, so if you require the timeout to be disabled, it is
+     * recommended you disable it by default using `setWireTimeoutUs(0)`, even though that is currently
+     * the default.
+     *
+     * @param timeout a timeout value in microseconds, if zero then timeout checking is disabled
+     * @param reset_with_timeout if true then TWI interface will be automatically reset on timeout
+     *                           if false then TWI interface will not be reset on timeout
+
+    */    
+
+    setWireTimeout(timeout, reset_with_timeout){
+        //uint32_t timeout, bool reset_with_timeout
+        if(timeout instanceof Uint32Array)
+            this.twi_.twi_setTimeoutInMicros(timeout, reset_with_timeout);
+    }    
+
+    /***
+     * Returns the TWI timeout flag.
+     *
+     * @return true if timeout has occured since the flag was last cleared.
+     */
+
+    getWireTimeoutFlag(){
+        return(this.twi_.twi_manageTimeoutFlag(false));
     }
 
-    write = print = function (str) {
-        // TODO: map misc Unicode chars to typical LCD extended charset?
-        var bytes = (typeof str === 'string') ? new Buffer(str, 'ascii') :
-            (typeof str === 'object') ? str : new Buffer([str]);
-        for (var i = 0, len = bytes.length; i < len; i++)
-            this.send(bytes[i], this.board.HIGH);
-    }   
-    
-    
-    /*
-    var lcd = new d.LCD({
-        board: board,
-        pins: {rs:12, rw:11, e:10, data:[5, 4, 3, 2]}
-    });
+    /***
+     * Clears the TWI timeout flag.
+     */
+    clearWireTimeoutFlag(){
+        this.twi_.twi_manageTimeoutFlag(true);
+    }
 
-    lcd.begin(16, 2);
-    lcd.print("Hello Internet.");
-    */
+    requestFrom(address, quantity, iaddress, isize, sendStop){
+        //uint8_t address, uint8_t quantity, uint32_t iaddress, uint8_t isize, uint8_t sendStop
+        if ((isize > 0) && (isize instanceof Uint8Array)) {
+            // send internal address; this mode allows sending a repeated start to access
+            // some devices' internal registers. This function is executed by the hardware
+            // TWI module on other processors (for example Due's TWI_IADR and TWI_MMR registers)
+          
+            if(address instanceof Uint8Array)
+                this.beginTransmission(address);
+          
+            // the maximum size of internal address is 3 bytes
+            if (isize > 3){
+              isize = 3;
+            }
+          
+            let temp_val = new Uint8Array();
+            temp_val = (iaddress >> (isize*8));
+            // write internal register address - most significant byte first
+            while (isize-- > 0)
+              this.write(temp_val);
+            this.endTransmission(false);
+        }
+          
+        // clamp to buffer length
+        if(quantity > this.BUFFER_LENGTH){
+            quantity = this.BUFFER_LENGTH;
+        }
+        // perform blocking read into buffer
+        let read = new Uint8Array();
+        read = this.Wire.twi_readFrom(address, rxBuffer, quantity, sendStop);
+
+        // set rx buffer iterator vars
+        this.rxBufferIndex = 0;
+        this.rxBufferLength = read;
+        
+        return read;    //return needed uint8_t
+    }
+
+    requestFrom(address, quantity, sendStop) {
+        //uint8_t address, uint8_t quantity, uint8_t sendStop
+        let _address = new Uint8Array();
+        _address = address;
+
+        let _quantity = new Uint8Array();
+        _quantity = quantity;
+
+        let _sendStop = new Uint8Array();
+        _sendStop = sendStop;
+        
+        let zero_filed = new Uint32Array();
+
+        return this.requestFrom(_address, _quantity, zero_filed, zero_filed, _sendStop);
+    }    
+
+    requestFrom(address, quantity){
+        let _address = new Uint8Array();
+        _address = address;
+ 
+        let _quantity = new Uint8Array();
+        _quantity = quantity;
+        
+        let _temp_bool = new Uint8Array();
+        _temp_bool = true;
+
+      return this.requestFrom(_address, _quantity, _temp_bool);
+    }    
+
+    requestFrom(address, quantity, sendStop){
+        let _address = new Uint8Array();
+        _address = address;
+ 
+        let _quantity = new Uint8Array();
+        _quantity = quantity;
+        
+        let _sendStop = new Uint8Array();
+        _sendStop = sendStop;    
+        
+        return this.requestFrom(_address, _quantity, _sendStop);
+    }    
+
+    beginTransmission(address){
+        let _address = new Uint8Array();
+
+        _address = address;
+        // indicate that we are transmitting
+        this.transmitting = 1;
+        // set address of targeted slave
+        this.txAddress = _address;
+        // reset tx buffer iterator vars
+        this.txBufferIndex = 0;
+        this.txBufferLength = 0;
+    }
+    
+    //
+    //	Originally, 'endTransmission' was an f(void) function.
+    //	It has been modified to take one parameter indicating
+    //	whether or not a STOP should be performed on the bus.
+    //	Calling endTransmission(false) allows a sketch to 
+    //	perform a repeated start. 
+    //
+    //	WARNING: Nothing in the library keeps track of whether
+    //	the bus tenure has been properly ended with a STOP. It
+    //	is very possible to leave the bus in a hung state if
+    //	no call to endTransmission(true) is made. Some I2C
+    //	devices will behave oddly if they do not see a STOP.
+    //
+    endTransmission(sendStop){
+        let _sendStop = new Uint8Array();
+        _sendStop = sendStop;   
+        // transmit buffer (blocking)
+        let ret = new Uint8Array();
+        ret = this.twi_.twi_writeTo(txAddress, txBuffer, txBufferLength, 1, _sendStop);
+ 
+        // reset tx buffer iterator vars
+        this.txBufferIndex = 0;
+        this.txBufferLength = 0;
+        // indicate that we are done transmitting
+        this.transmitting = 0;
+
+        return ret;
+    }    
+    //	This provides backwards compatibility with the original
+    //	definition, and expected behaviour, of endTransmission
+    //
+    endTransmission(){
+        let _temp_bool = new Uint8Array();
+        _temp_bool = true;
+        
+        return this.endTransmission(_temp_bool);
+    }    
+
+    // must be called in:
+    // slave tx event callback
+    // or after beginTransmission(address)
+    write(data){
+        let _data = new Uint8Array();
+        _data = data;
+    
+        if(this.transmitting){
+        // in master transmitter mode
+        // don't bother if buffer is full
+        if(this.txBufferLength >= this.BUFFER_LENGTH){
+            this.twi_.setWriteError();
+            
+            return 0;
+        }
+        // put byte in tx buffer
+        this.txBuffer[this.txBufferIndex] = _data;
+        ++this.txBufferIndex;
+        // update amount in buffer   
+        this.txBufferLength = this.txBufferIndex;
+        }else{
+            // in slave send mode
+            // reply to master
+            this.twi_.twi_transmit(_data, 1);
+            //&data 
+        }
+
+        return 1;
+    }
+
+    // must be called in:
+    // slave tx event callback
+    // or after beginTransmission(address)
+    write(data, quantity){
+        let _data = new Uint8Array();
+        _data = data;
+
+        if(this.transmitting){
+        // in master transmitter mode
+            for(let i = 0; i < quantity; ++i){
+                this.write(data[i]);
+            }
+        }else{
+            // in slave send mode
+            // reply to master
+            this.twi_.twi_transmit(_data, quantity);
+        }
+        return quantity;
+    }        
+
+    // must be called in:
+    // slave rx event callback
+    // or after requestFrom(address, numBytes)
+    available(){
+        return this.rxBufferLength - this.rxBufferIndex;
+    }    
+
+    // must be called in:
+    // slave rx event callback
+    // or after requestFrom(address, numBytes)
+    read(){
+        //int TwoWire::read(void)
+        let value = -1;
+        
+        // get each successive byte on each call
+        if(this.rxBufferIndex < this.rxBufferLength){
+            value = this.rxBuffer[this.rxBufferIndex];
+            ++this.rxBufferIndex;
+        }
+    
+        return value;
+    }
+
+    // must be called in:
+    // slave rx event callback
+    // or after requestFrom(address, numBytes)
+    peek(){
+        let value = -1;
+        
+        if(this.rxBufferIndex < this.rxBufferLength){
+            value = this.rxBuffer[this.rxBufferIndex];
+        }
+    
+        return value;
+    }
+
+    flush(){
+        // XXX: to be implemented.
+    }  
+    
+    // behind the scenes function that is called when data is received
+    onReceiveService(inBytes, numBytes){
+
+        //void TwoWire::onReceiveService(uint8_t* inBytes, int numBytes)
+        // don't bother if user hasn't registered a callback
+        if(!this.user_onReceive){
+            return;
+        }
+
+        // don't bother if rx buffer is in use by a master requestFrom() op
+        // i know this drops data, but it allows for slight stupidity
+        // meaning, they may not have read all the master requestFrom() data yet
+        if(this.rxBufferIndex < this.rxBufferLength){
+            return;
+        }
+        // copy twi rx buffer into local read buffer
+        // this enables new reads to happen in parallel
+        for(let i = 0; i < numBytes; ++i){
+        //uint8_t i = 0; i < numBytes; ++i
+        //unsigned char
+            this.rxBuffer[i] = inBytes[i];    
+        }
+        // set rx iterator vars
+        this.rxBufferIndex = 0;
+        this.rxBufferLength = numBytes;
+        // alert user program
+        let callback = this.user_onReceive;
+        callback(numBytes);
+    }
+
+    // behind the scenes function that is called when data is requested
+    onRequestService(){
+        // don't bother if user hasn't registered a callback
+        if(!this.user_onRequest){
+            return;
+        }
+        // reset tx buffer iterator vars
+        // !!! this will kill any pending pre-master sendTo() activity
+        this.txBufferIndex = 0;
+        this.txBufferLength = 0;
+        // alert user program
+        let callback = this.user_onRequest;
+        callback();
+    }
+
+    // sets function called on slave write
+    onReceive(callback){
+        //void (*function)(int)
+        this.user_onReceive = callback;
+    }
+    
+    // sets function called on slave read
+    onRequest(callback){
+        //void TwoWire::onRequest( void (*function)(void) )
+        this.user_onRequest = callback;
+    }  
 }
+
 
 function Module() {
     this.sp = null;
