@@ -1,6 +1,9 @@
 
-
-const { delay } = require('./bingles');
+function watch_dog_logger(log_message){
+    let watch_dog = new Module();
+    
+    return watch_dog.log_message = log_message;
+}
 
 
 function micros (return_float) {
@@ -331,8 +334,8 @@ class twi{
         this.twi_inRepStart = false;
         
         // activate internal pullups for twi.
-        digitalWrite(SDA, 1);
-        digitalWrite(SCL, 1);
+        this.digitalWrite(this.SDA, 1);
+        this.digitalWrite(this.SCL, 1);
 
         // initialize twi prescaler and bit rate
         this.cbi(this.TWSR, this.TWPS0);
@@ -348,6 +351,28 @@ class twi{
         this.TWCR = this._BV(this.TWEN) | this._BV(this.TWIE) | this._BV(this.TWEA);
     }
 
+
+    /*
+    *   Function digitalWrite
+    *   Desc    I2C Configuration
+    *   Input   I2C_typper, value
+    *   Output  none
+    *   Author  Remoted
+    */
+
+
+    digitalWrite(I2C_typper, value){
+        let buffer = new Buffer();
+   
+        //Breaking Point
+        buffer = Buffer.concat([buffer, this.digitalWrite_Module.makeOutputBuffer(this.digitalWrite_Module.sensorTypes.ANALOG, I2C_typper, value)]);
+        
+        // send data to device
+        if (buffer.length) {
+            this.digitalWrite_Module.sendBuffers.push(buffer);
+        } 
+    }
+    
     /* 
     * Function twi_disable
     * Desc     disables twi pins
@@ -355,17 +380,12 @@ class twi{
     * Output   none
     */
     twi_disable(){
-
-        let buffer = new Buffer();
-
         // disable twi module, acks, and twi interrupt
         this.TWCR &= ~(this._BV(this.TWEN) | this._BV(this.TWIE) | this._BV(this.TWEA));
-
         // deactivate internal pullups for twi.
-        buffer = Buffer.concat([buffer, this.digitalWrite_Module.makeOutputBuffer(this.digitalWrite_Module.sensorTypes.ANALOG, 4, 0)]);
-    
-        digitalWrite(SDA, 0);
-        digitalWrite(SCL, 0);
+     
+        this.digitalWrite(this.SDA, 0);
+        this.digitalWrite(this.SCL, 0);
     }
 
     /* 
@@ -379,6 +399,8 @@ class twi{
       let _address = new Uint8Array();
       _address = address;
       this.TWAR = _address << 1;
+      
+      watch_dog_logger("address setting: " + _address);
     }
 
     /* 
@@ -965,6 +987,7 @@ class TwoWire{
 
     // Public Methods //////////////////////////////////////////////////////////////
     begin(address){
+        watch_dog_logger("begin process 1 start");
         if(address instanceof Uint8Array){
             this.begin();
             this.twi_.twi_setAddress(address);   
@@ -977,6 +1000,7 @@ class TwoWire{
         }
 
         if(typeof address !== "undefined"){
+            watch_dog_logger("normal begin process.. process is safe");
             this.rxBufferIndex = 0;
             this.rxBufferLength = 0;
             
@@ -1406,6 +1430,8 @@ function Module() {
     this.lastTime = 0;
     this.lastSendTime = 0;
     this.isDraing = false;
+
+    this.log_message = [];
 }
 
 let sensorIdx = 0;
@@ -1447,6 +1473,8 @@ Module.prototype.validateLocalData = function(data) {
 };
 
 Module.prototype.requestRemoteData = function(handler) {
+    // 디바이스에서 데이터를 받아온 후, 브라우저로 데이터를 보내기 위해 호출되는 로직. handler 를 세팅하는 것으로 값을 보낼 수 있다.
+    // handler.write(key, value) 로 세팅한 값은 Entry.hw.portData 에서 받아볼 수 있다.
     const self = this;
     if (!self.sensorData) {
         return;
@@ -1456,6 +1484,8 @@ Module.prototype.requestRemoteData = function(handler) {
             handler.write(key, self.sensorData[key]);
         }
     });
+    
+    handler.write("watch_dog", this.log_message);
 };
 
 
@@ -1809,6 +1839,12 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
 
 
             if(data.length === 2){
+                let address = new Uint8Array();
+                address = text1;
+
+                Wire = new TwoWire();
+                Wire.begin(address);
+                /*
                 var lcd = new LiquidCrystal_I2C({
                     board: board,
                     pins: {rs:12, rw:11, e:10, data:[5, 4, 3, 2]}
@@ -1816,7 +1852,7 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
        
                 buffer = new Buffer([255, 85, 36, sensorIdx, this.actionTypes.MODULE, device, port]);
                 buffer = Buffer.concat([buffer, text0, text1, dummy]);     
-                console.log(buffer);
+                */
             } else {
                 buffer = new Buffer([255, 85, 36, sensorIdx, this.actionTypes.MODULE, device, port]);
                 buffer = Buffer.concat([buffer, text0, text1, text2, text3, text4, text5, text6, text7, text8, text9, text10, text11, text12, text13, text14, text15, dummy]);
