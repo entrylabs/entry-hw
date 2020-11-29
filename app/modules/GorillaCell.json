@@ -31,12 +31,12 @@
     }],
     "selectPort": true,
     "reconnect": true,
-    "firmware": "board2",
+    "firmware": "GorillaCell",       
     "hardware": {
         "type": "serial",
         "control": "slave",
         "duration": 32,
-        "vendor": "Arduino",
+        "vendor": ["SF Edu", "Remoted"],
         "baudRate": 115200,
         "firmwarecheck": true
     }
