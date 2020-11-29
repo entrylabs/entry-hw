@@ -1485,7 +1485,10 @@ Module.prototype.requestRemoteData = function(handler) {
         }
     });
     
-    handler.write("watch_dog", this.log_message);
+    setTimeout(function() {
+        handler.write("watch_dog", this.log_message);
+        handler.write("watch_dog", "What?");
+    }, 1000);
 };
 
 
@@ -1844,6 +1847,8 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
 
                 Wire = new TwoWire();
                 Wire.begin(address);
+                
+                
                 /*
                 var lcd = new LiquidCrystal_I2C({
                     board: board,
