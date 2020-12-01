@@ -1,8 +1,8 @@
 {
     "id": "360101",
     "name": {
-        "en": "Arduino GorillaCell",
-        "ko": "아두이노 고릴라셀"
+        "en": "Arduino + GorillaCell",
+        "ko": "아두이노 + 고릴라셀"
     },
     "category": "board",
     "platform": ["win32", "darwin"],
