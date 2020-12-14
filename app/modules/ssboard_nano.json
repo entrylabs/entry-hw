@@ -23,9 +23,12 @@
         "translate": "CH340 드라이버"
     }],
     "select_com_port": true,
-    "firmwareBaudRate": 115200,
     "reconnect": true,
-    "firmware": "ssboard_nano",
+    "firmwareBaudRate": 115200,
+    "firmware": [{
+        "name": "ssboard_nano",
+        "translate": "상상보드 펌웨어"
+    }],
     "entry": {
         "protocol": "json"
     },
@@ -33,8 +36,8 @@
         "type": "serial",
         "control": "slave",
         "duration": 100,
-        "lostTimer": 1000,
-        "vendor": "",
+        "lostTimer": 2000,
+        "vendor": "CH340",
         "baudRate": 115200
     }
 }
