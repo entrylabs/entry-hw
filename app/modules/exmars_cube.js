@@ -146,7 +146,6 @@ class ExMarsCube extends BaseModule {
         } else {
             result = false;
         }
-
         return result;
     }
 
@@ -384,13 +383,13 @@ class ExMarsCube extends BaseModule {
                         this.entryMessage = 1;
                     }
                 } else if (received.name == 'GetRecord') {
-                    if(this.getRecord != this.blockIndex) {
-                        this.recordIndex =  Number(received.data0);
-                        this.transmit = this.makePacketRecord(this.recordIndex);
-                        this.blockIndex = received.index;
-                        this.getRecord =  received.index;
-                        this.entryMessage = 1;
-                    }
+                    //if(this.getRecord != this.blockIndex) {
+                    this.recordIndex =  Number(received.data0);
+                    this.transmit = this.makePacketRecord(this.recordIndex);
+                    this.blockIndex = received.index;
+                    //this.getRecord = received.index;
+                    this.entryMessage = 1;
+                    //}
                 }
             }
         }
