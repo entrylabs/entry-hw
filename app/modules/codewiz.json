@@ -9,8 +9,12 @@
 	"icon" : "codewiz.png",
 	"module": "codewiz.js",
 	"url": "http://www.codable.co.kr",
-	"email": "book@kdice.co.kr",
-	"video": "https://youtu.be/FvxYhMH5xnM",	
+	"email": "kgb612@codable.co.kr",
+	"video": "https://youtu.be/FvxYhMH5xnM",
+	"driver": {
+        "win32-ia32": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
+        "win32-x64": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE"
+    },
 	"reconnect" : true,
 	"selectPort": true,
 	"firmware": {
@@ -23,7 +27,7 @@
 		"type": "serial",
 		"control": "slave",
 		"duration": 32,
-		"vendor": ["wch.cn", "FTDI"],
+		"vendor": ["wch.cn"],
 		"baudRate": 115200,
 		"firmwarecheck" : false,
 		"advertise": 2000
