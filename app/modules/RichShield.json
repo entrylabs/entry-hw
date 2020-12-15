@@ -1,8 +1,8 @@
 {
     "id": "360201",
     "name": {
-        "en": "Arduino + RichShield",
-        "ko": "아두이노 + 부자실드"
+        "en": "Arduino RichShield",
+        "ko": "아두이노 부자실드"
     },
     "category": "board",
     "platform": ["win32", "darwin"],
@@ -29,15 +29,15 @@
         "darwin-x64": "CH34x_Install_MAC_10_9_AND_ABOVE/CH34x_Install_V1.3.pkg",
         "translate": "CH34x 시리즈 드라이버"
     }],
-    "selectPort": true,
     "reconnect": true,
-    "firmware": "GorillaCell",       
+    "select_com_port": true,
+    "firmware": "RichShield",       
     "hardware": {
         "type": "serial",
         "control": "slave",
         "duration": 32,
-        "vendor": ["SF Edu", "Remoted"],
-        "baudRate": 9600,
-        "firmwarecheck": true
+        "vendor": "Arduino",
+        "baudRate": 115200,
+        "firmwarecheck": false
     }
 }
