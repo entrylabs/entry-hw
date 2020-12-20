@@ -1,7 +1,6 @@
 const _ = global.$;
 const BaseModule = require('./baseModule');
 
-
 class Choco extends BaseModule {
     /***************************************************************************************
      *  클래스 내부에서 사용될 필드들을 이곳에서 선언합니다.
@@ -10,10 +9,8 @@ class Choco extends BaseModule {
     constructor() {
         super();
 
-        this.cmdSeq = 0;
-        this.serialport = undefined;
-        this.isConnect = false;
-
+        this.log('BASE - constructor()');
+        
         this.crctab16 = new Uint16Array([
             0X0000, 0X1189, 0X2312, 0X329B, 0X4624, 0X57AD, 0X6536, 0X74BF,
             0X8C48, 0X9DC1, 0XAF5A, 0XBED3, 0XCA6C, 0XDBE5, 0XE97E, 0XF8F7,
@@ -49,7 +46,6 @@ class Choco extends BaseModule {
             0X7BC7, 0X6A4E, 0X58D5, 0X495C, 0X3DE3, 0X2C6A, 0X1EF1, 0X0F78,
         ]);
 
-
         this.COMMAND_TYPE = {
             MOVE_FORWARD: 0x01,
             MOVE_BACKWARD: 0x02,
@@ -62,6 +58,29 @@ class Choco extends BaseModule {
             GET_FORWARD_SENSOR: 0x09,
             GET_BOTTOM_SENSOR: 0x0A,
             GET_LIGHT_SENSOR: 0x0B,
+        };
+
+        this.SEND_PACKET = {
+            START: 0x7C,
+            END: 0x7E,
+        };
+
+        this.cmdSeq = 0;
+        this.serialport = undefined;
+        this.isConnect = false;
+
+        this.sendBuffers = [];
+        this.rcvBuffers = [];
+        this.cmdBuffers = [];
+        this.executeCheckList = [];
+
+        this.sensorData = {
+          is_front_sensor : 0,
+          is_bottom_sensor : 0,
+          is_light_sensor : 0,
+          front_sensor : 0,
+          bottom_sensor : 0,
+          light_sensor : 0,
         };
     }
     // #endregion Constructor
@@ -80,18 +99,24 @@ class Choco extends BaseModule {
         this.config = config;
     }
 
+    setSerialPort(serialport) {
+      this.log('BASE - setSerialPort()');
+      this.serialport = serialport;
+    }
+
     /*
     연결 후 초기에 송신할 데이터가 필요한 경우 사용합니다.
     requestInitialData 를 사용한 경우 checkInitialData 가 필수입니다.
     이 두 함수가 정의되어있어야 로직이 동작합니다. 필요없으면 작성하지 않아도 됩니다.
     */
     requestInitialData(serialport) {
-        this.isConnect = true;
+        this.log('BASE - requestInitialData()');
         this.serialport = serialport;
 
-        //const ready = Buffer.from([0x7C, 0x04, 0x00, 0x27, 0x68, 0x7E]);
-        const ping = Buffer.from([0x7C, 0x03, 0x00, 0x2F, 0x25, 0x7E]);
-        return ping;
+        const cmdPing = this.makeData("ping");
+        console.log(cmdPing);
+        
+        return cmdPing;
     };
 
     // 연결 후 초기에 수신받아서 정상연결인지를 확인해야하는 경우 사용합니다.
@@ -109,8 +134,18 @@ class Choco extends BaseModule {
     slave 모드인 경우 duration 속성 간격으로 지속적으로 기기에 요청을 보냅니다.
     */
     requestLocalData() {
-        const ping = Buffer.from([0x7C, 0x03, 0x00, 0x2F, 0x25, 0x7E]);
-        return ping;
+      this.log('BASE - requestLocalData()');
+      const cmdPing = this.makeData("ping");
+      if (this.sendBuffers.length > 0) {
+          const cmd = this.sendBuffers.shift();
+          if (cmd.length <6) {
+              return cmdPing;
+          }
+          this.log(cmd);
+          return cmd;
+      }
+      
+      return cmdPing;
     };
 
     /**
@@ -118,8 +153,28 @@ class Choco extends BaseModule {
      * @param {*} data 
      */
     handleLocalData(data) {
-        //this.rcvBuffers.push(...data);
-        let test_val = data;
+      this.log('BASE - handleLocalData()');
+      this.log(data);
+      this.rcvBuffers.push(...data);
+
+      let startIdx = 0;
+      let idx = this.rcvBuffers.indexOf(this.SEND_PACKET.END);
+      if (idx < 0) { return; }
+        
+      if (this.rcvBuffers[0] != this.SEND_PACKET.START) {
+          const trash = this.rcvBuffers.splice(0, idx + 1);
+          return;
+      } else if (idx < 10 && this.rcvBuffers.length < 11) {
+          return;
+      } else if (idx < 10 && this.rcvBuffers.length >= 11) {
+          startIdx  = idx;
+          idx = this.rcvBuffers.indexOf(this.SEND_PACKET.END, idx + 1);
+      }
+      const rcvData = this.rcvBuffers.splice(startIdx, idx + 1);
+      this.cmdBuffers.push(rcvData);
+
+      this.log(rcvData);  
+      this.log('BASE - handleLocalData()--end');
     };
 
     /**
@@ -127,7 +182,40 @@ class Choco extends BaseModule {
      * @param {*} handler 
      */
     requestRemoteData(handler) {
+      this.log('BASE - requestRemoteData()');
+      this.log(handler.serverData);
 
+      if (this.cmdBuffers.length > 0) {
+          const data = this.cmdBuffers.shift();
+          let raw_data = this.escape_decode(data.slice(1, data.length-1));
+
+          let seqNo = raw_data.readUInt8(1);
+          let sensor0 = raw_data.readUInt16LE(2);
+          let sensor1 = raw_data.readUInt16LE(4);
+          let sensor2 = raw_data.readUInt16LE(6);
+
+          this.sensorData.front_sensor = sensor0;
+          this.sensorData.bottom_sensor = sensor1;
+          this.sensorData.light_sensor = sensor2;
+
+          this.log(this.sensorData);
+          handler.write('sensorData', this.sensorData);
+          
+          this.log(`BASE - requestRemoteData()---------1,seqNo:${seqNo}`);    
+      
+          const index = seqNo;
+          const msgId = this.executeCheckList[index];
+          this.log(`BASE - requestRemoteData()---------2, msgId:${msgId}`);    
+          if (msgId === undefined || msgId === '') {
+            return;
+          }
+          
+          this.log(`BASE - requestRemoteData()---------3, msgId:${msgId}`);    
+          
+          handler.write('msg_id', msgId);
+          this.executeCheckList[index] = '';
+      }
+      this.log('BASE - requestRemoteData()-------END');
     };
 
     /**
@@ -135,11 +223,26 @@ class Choco extends BaseModule {
      * @param {*} handler 
      */
     handleRemoteData(handler) {
-        //console.log(handler.serverData);
+      this.log('BASE - handleRemoteData()');
+      this.log(handler.serverData);
+      
+      const msgId = handler.serverData.msg_id;
+      const msg = handler.serverData.msg;
+      if (!msgId || this.executeCheckList.indexOf(msgId) >= 0) {
+          return;
+      }
+      this.log(`BASE - handleRemoteData()---------1,index:${index},msg.id:${msg.id}`);    
+      this.executeCheckList[this.cmdSeq] = msg.id;
+      
+      const sendData = this.makeData(msg);
+      this.log(sendData);
+      this.sendBuffers.push(sendData);
+      this.log('BASE - handleRemoteData()-------END');
     }
 
     connect() {
         this.log('BASE - connect()');
+        this.isConnect = true;        
     }
 
 
@@ -152,7 +255,6 @@ class Choco extends BaseModule {
         this.serialport = undefined;
     }
 
-
     /*
         Web Socket 종료후 처리
     */
@@ -160,6 +262,8 @@ class Choco extends BaseModule {
         this.log('BASE - reset()');
         this.resetData();
     }
+    // #endregion Base Functions for Entry
+    
 
     /***************************************************************************************
      *  데이터 리셋
@@ -173,9 +277,9 @@ class Choco extends BaseModule {
      *  프로토롤 제어 함수
      ***************************************************************************************/
     sequenctNo() {
-        let seqNo = this.cmdSeq++;
-        if (this.cmdSeq > 256) this.cmdSeq = 0;
-        return seqNo;
+        if (this.cmdSeq < 254) this.cmdSeq = 0;
+        else this.cmdSeq++;
+        return this.cmdSeq;
     }
 
     cal_move_val(args) {
@@ -205,61 +309,76 @@ class Choco extends BaseModule {
     /***************************************************************************************
      *  Protocol 데이터 생성
      ***************************************************************************************/
-    makeData(msg, args = {}) {
-        let data = null;
-        let crc = 0;
-        let encodedCmd = [];
+    makeData(msg) {
+      let id = this.sequenctNo();
+      let data = null;
+      let crc = 0;
+      let encodedCmd = [];
 
-        switch (msg) {
-            case "ping":
-                data = Buffer.from([0x03, sequenctNo()]);
-                crc = cal_crc16(data);
-                encodedCmd = this.escape_encode(Buffer.concat([data, Buffer.from([crc & 0xFF, (crc >> 8) & 0xFF])]));
-                return encodedCmd;
+      let type = msg;
+      let args = {};
+      if(msg.type) {
+        type = msg.type;
+      }
+      if(msg.data) {
+        args = msg.data;
+      }
+      
+      switch (type) {
+          case "ping":
+              data = Buffer.from([0x03, id]);
+              crc = this.cal_crc16(data);
+              encodedCmd = this.escape_encode(Buffer.concat([data, Buffer.from([crc & 0xFF, (crc >> 8) & 0xFF])]));
+              break;
 
-            case "ready":
-                data = Buffer.from([0x04, sequenctNo()]);
-                crc = cal_crc16(data);
-                encodedCmd = this.escape_encode(Buffer.concat([data, Buffer.from([crc & 0xFF, (crc >> 8) & 0xFF])]));
-                return encodedCmd;
+          case "ready":
+              data = Buffer.from([0x04, id]);
+              crc = this.cal_crc16(data);
+              encodedCmd = this.escape_encode(Buffer.concat([data, Buffer.from([crc & 0xFF, (crc >> 8) & 0xFF])]));
+              break;
 
-            case this.COMMAND_TYPE.MOVE_FORWARD:
-            case "move_fw":
-                data = Buffer.from([0x05, sequenctNo(), cal_move_val(args)]);
-                crc = cal_crc16(data);
-                encodedCmd = this.escape_encode(Buffer.concat([data, Buffer.from([crc & 0xFF, (crc >> 8) & 0xFF])]));
-                return encodedCmd;
+          case this.COMMAND_TYPE.MOVE_FORWARD:
+          case "move_fw":
+              data = Buffer.from([0x05, id, this.cal_move_val(args)]);
+              crc = this.cal_crc16(data);
+              encodedCmd = this.escape_encode(Buffer.concat([data, Buffer.from([crc & 0xFF, (crc >> 8) & 0xFF])]));
+              break;
 
-            case this.COMMAND_TYPE.MOVE_BACKWARD:
-            case "move_bw":
-                data = Buffer.from([0x06, sequenctNo(), cal_move_val(args)]);
-                crc = cal_crc16(data);
-                encodedCmd = this.escape_encode(Buffer.concat([data, Buffer.from([crc & 0xFF, (crc >> 8) & 0xFF])]));
-                return encodedCmd;
+          case this.COMMAND_TYPE.MOVE_BACKWARD:
+          case "move_bw":
+              data = Buffer.from([0x06, id, this.cal_move_val(args)]);
+              crc = this.cal_crc16(data);
+              encodedCmd = this.escape_encode(Buffer.concat([data, Buffer.from([crc & 0xFF, (crc >> 8) & 0xFF])]));
+              break;
 
-            case this.COMMAND_TYPE.TURN_LEFT:
-            case "turn_left":
-                if (args.params === 'degree') {
-                    data = Buffer.from([0x0A, sequenctNo(), 0x01, cal_turn_val(args)]);
-                } else {
-                    data = Buffer.from([0x07, sequenctNo(), cal_turn_val(args)]);
-                }
-                crc = cal_crc16(data);
-                encodedCmd = this.escape_encode(Buffer.concat([data, Buffer.from([crc & 0xFF, (crc >> 8) & 0xFF])]));
-                return encodedCmd;
+          case this.COMMAND_TYPE.TURN_LEFT:
+          case "turn_left":
+              if (args.params === 'degree') {
+                  data = Buffer.from([0x0A, id, 0x01, this.cal_turn_val(args)]);
+              } else {
+                  data = Buffer.from([0x07, id, this.cal_turn_val(args)]);
+              }
+              crc = this.cal_crc16(data);
+              encodedCmd = this.escape_encode(Buffer.concat([data, Buffer.from([crc & 0xFF, (crc >> 8) & 0xFF])]));
+              break;
 
-            case this.COMMAND_TYPE.TURN_RIGHT:
-            case "turn_right":
-                if (args.params === 'degree') {
-                    data = Buffer.from([0x0A, sequenctNo(), 0x00, cal_turn_val(args)]);
-                } else {
-                    data = Buffer.from([0x08, sequenctNo(), cal_turn_val(args)]);
-                }
-                crc = cal_crc16(data);
-                encodedCmd = this.escape_encode(Buffer.concat([data, Buffer.from([crc & 0xFF, (crc >> 8) & 0xFF])]));
-                return encodedCmd;
-        }
-    }
+          case this.COMMAND_TYPE.TURN_RIGHT:
+          case "turn_right":
+              if (args.params === 'degree') {
+                  data = Buffer.from([0x0A, id, 0x00, this.cal_turn_val(args)]);
+              } else {
+                  data = Buffer.from([0x08, id, this.cal_turn_val(args)]);
+              }
+              crc = this.cal_crc16(data);
+              encodedCmd = this.escape_encode(Buffer.concat([data, Buffer.from([crc & 0xFF, (crc >> 8) & 0xFF])]));
+              break;
+      }
+
+      let cmdData = Buffer.from([0x7C, ...encodedCmd, 0x7E]);
+      console.log(cmdData);
+      return cmdData;
+  }
+    
 
     /***************************************************************************************
      *  데이터 encoding
@@ -346,11 +465,11 @@ class Choco extends BaseModule {
         let strHexArray = '';
         let strHex;
 
-        if (typeof data == 'object' && data.length > 1) {
+        if (typeof data === 'object' && data.length > 1) {
             for (let i = 0; i < data.length; i++) {
                 strHex = data[i].toString(16).toUpperCase();
                 strHexArray += ' ';
-                if (strHex.length == 1) {
+                if (strHex.length === 1) {
                     strHexArray += '0';
                 }
                 strHexArray += strHex;
@@ -365,3 +484,4 @@ class Choco extends BaseModule {
 } // end of class
 
 module.exports = new Choco();
+
