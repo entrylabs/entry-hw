@@ -1,8 +1,7 @@
 function Module() {
     this.sp = null;
     this.sensorTypes = {
-        ALIVE: 0,
-        LIGHT: 0, 
+        ALIVE: 0, 
         DIGITAL: 1,
         ANALOG: 2,
         PWM: 3,
@@ -17,6 +16,8 @@ function Module() {
         RGBLED: 12,
         DCMOTOR: 13,
         OLED: 14,
+        PIR : 15,
+        FND : 16,        
     };
 
     this.actionTypes = {
@@ -176,21 +177,6 @@ Module.prototype.handleRemoteData = function(handler) {
             }
         });
     }
-
-    // LCD Address init needed 
-
-    // LCD_Init type data protocol defined
-    /*
-    Entry.hw.sendQueue['SET'][device] = {
-        type: Entry.GorillaCell.sensorTypes.LCD,
-        data: {
-            text0: text[0],
-            text1: text[1],
-        },
-        time: new Date().getTime(),
-    };
-    */
-    // device -> port
 
     if (setDatas) {
         const setKeys = Object.keys(setDatas);
@@ -360,6 +346,9 @@ Module.prototype.makeSensorReadBuffer = function(device, port, data) {
 
 // 255 85   36  0   1   10  9   0    0  10
 //0xff 0x55 0x6 0x0 0x1 0xa 0x9 0x0 0x0 0xa
+
+
+// type, port, data
 Module.prototype.makeOutputBuffer = function(device, port, data) {
     let buffer;
     const value = new Buffer(2);
@@ -371,8 +360,8 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
             value.writeInt16LE(data);
             buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.SET, device, port]);
             buffer = Buffer.concat([buffer, value, dummy]);
-            break;
         }
+        break;        
         case this.sensorTypes.RGBLED: {
             const redValue = new Buffer(2);
             const greenValue = new Buffer(2);
@@ -388,8 +377,8 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
             }
             buffer = new Buffer([255, 85, 10, sensorIdx, this.actionTypes.SET, device, port]);
             buffer = Buffer.concat([buffer, redValue, greenValue, blueValue, dummy]);
-            break;
         }
+        break;        
         case this.sensorTypes.TONE: {
             const time = new Buffer(2);
             if ($.isPlainObject(data)) {
@@ -401,8 +390,8 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
             }
             buffer = new Buffer([255, 85, 8, sensorIdx, this.actionTypes.SET, device, port]);
             buffer = Buffer.concat([buffer, value, time, dummy]);
-            break;
         }
+        break;
         case this.sensorTypes.DCMOTOR: {
             const directionPort = new Buffer(2);
             const speedPort = new Buffer(2);
@@ -421,8 +410,9 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
             }
             buffer = new Buffer([255, 85, 12, sensorIdx, this.actionTypes.SET, device, port]);
             buffer = Buffer.concat([buffer, directionPort, speedPort, directionValue, speedValue, dummy]);
-            break;
+            
         }
+        break;
         case this.sensorTypes.WRITE_BLUETOOTH:
         case this.sensorTypes.LCD: {
             var text0 = new Buffer(2);
@@ -478,30 +468,28 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
                 text15.writeInt16LE(0);
             }
 
-
+            /* Only device address value need to set.
+            Added By Remoted 2020-12-17
+            */
+            
+            /*
             if(data.length === 2){
-                let address = new Uint8Array();
-                address = text1;
 
-                Wire = new TwoWire();
-                Wire.begin(address);
-                
-                
-                /*
-                var lcd = new LiquidCrystal_I2C({
-                    board: board,
-                    pins: {rs:12, rw:11, e:10, data:[5, 4, 3, 2]}
-                });
-       
-                buffer = new Buffer([255, 85, 36, sensorIdx, this.actionTypes.MODULE, device, port]);
-                buffer = Buffer.concat([buffer, text0, text1, dummy]);     
-                */
-            } else {
+                lcd_address = (typeof string === 'number') ? text1 : text0;
+
+                buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.MODULE, device, port]);
+                buffer = Buffer.concat([buffer, lcd_address, dummy]);
+
+            } else { */
                 buffer = new Buffer([255, 85, 36, sensorIdx, this.actionTypes.MODULE, device, port]);
                 buffer = Buffer.concat([buffer, text0, text1, text2, text3, text4, text5, text6, text7, text8, text9, text10, text11, text12, text13, text14, text15, dummy]);
-            }
-            break;
+
+
+                // if buffer was 2 byte, 18  counts. 18 * 2 = 36
+            //}
+            
         }
+        break;
         case this.sensorTypes.OLED: {
             const coodinate_x = new Buffer(2);
             const coodinate_y = new Buffer(2);
@@ -562,8 +550,26 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
             }
             buffer = new Buffer([255, 85, 40, sensorIdx, this.actionTypes.MODULE, device, port]);
             buffer = Buffer.concat([buffer, coodinate_x, coodinate_y, text0, text1, text2, text3, text4, text5, text6, text7, text8, text9, text10, text11, text12, text13, text14, text15, dummy]);
-            break;
+
         }
+        break;        
+        case this.sensorTypes.FND: {
+            let fnd_clk = Buffer.alloc(2);
+            let fnd_dio = Buffer.alloc(2);
+            
+            if ($.isPlainObject(data)) {
+                fnd_clk.writeInt16LE(data.clk_pin);
+                fnd_dio.writeInt16LE(data.dio_pin);
+            } else {
+                fnd_clk.writeInt16LE(0);
+                fnd_dio.writeInt16LE(0);                
+            }
+
+            buffer = new Buffer([255, 85, 8, sensorIdx, this.actionTypes.MODULE, device, port]);
+            buffer = Buffer.concat([buffer, fnd_clk, fnd_dio, dummy]);
+
+        } 
+        break;        
     }
 
     return buffer;
