@@ -138,7 +138,7 @@ class Choco extends BaseModule {
   requestLocalData() {
     //this.log('BASE - requestLocalData()');    
     if(!this.isConnect) return;
-    
+
     if (this.sendBuffers.length > 0) {
       const cmd = this.sendBuffers.shift();
       this.executeCmd.id = cmd.id;
@@ -194,9 +194,9 @@ class Choco extends BaseModule {
           if(this.sensorData.bottom_sensor > this.sensor_init.sensor1.max) this.sensorData.bottom_sensor = this.sensor_init.sensor1.max;
           if(this.sensorData.light_sensor < this.sensor_init.sensor2.min) this.sensorData.light_sensor = this.sensor_init.sensor2.min;
           if(this.sensorData.light_sensor > this.sensor_init.sensor2.max) this.sensorData.light_sensor = this.sensor_init.sensor2.max;
-          this.sensorData.is_front_sensor = (this.sensorData.front_sensor > this.sensor_init.sensor0.threshold)?1:0;
-          this.sensorData.is_bottom_sensor = (this.sensorData.bottom_sensor < this.sensor_init.sensor1.threshold)?1:0;
-          this.sensorData.is_light_sensor = (this.sensorData.light_sensor > this.sensor_init.sensor2.threshold)?1:0;
+          this.sensorData.is_front_sensor = (this.sensorData.front_sensor > this.sensor_init.sensor0.threshold);
+          this.sensorData.is_bottom_sensor = (this.sensorData.bottom_sensor < this.sensor_init.sensor1.threshold);
+          this.sensorData.is_light_sensor = (this.sensorData.light_sensor > this.sensor_init.sensor2.threshold);
         }
 
         this.log(`len: ${decoded_data.length}, data:${data.toString('hex')}, seqNo:${seqNo}`,
