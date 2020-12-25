@@ -70,6 +70,25 @@ class Choco extends BaseModule {
       bottom_sensor: 0,
       light_sensor: 0,
     };
+
+    this.sensor_init = {
+      inited:false,
+      sensor0 : {
+        min: 0,
+        max: 0,
+        threshold:0,
+      },
+      sensor1 : {
+        min: 0,
+        max: 0,
+        threshold:0,
+      },
+      sensor2 : {
+        min: 0,
+        max: 0,
+        threshold:0,
+      },
+    }
   }
   // #endregion Constructor
 
@@ -98,7 +117,7 @@ class Choco extends BaseModule {
   */
   requestInitialData(serialport) {
     this.serialport = serialport;
-    const cmdPing = this.makeData({type:"ping"});
+    const cmdPing = this.makeData({type:"ready"});
     return cmdPing;
   };
 
@@ -108,7 +127,7 @@ class Choco extends BaseModule {
   };
 
   // 주기적으로 하드웨어에서 받은 데이터의 검증이 필요한 경우 사용합니다.
-  valseqNoateLocalData(data) {
+  validateLocalData(data) {
     return true;
   };
 
@@ -117,18 +136,22 @@ class Choco extends BaseModule {
   slave 모드인 경우 duration 속성 간격으로 지속적으로 기기에 요청을 보냅니다.
   */
   requestLocalData() {
-    //this.log('BASE - requestLocalData()');
-    const cmdPing = this.makeData({type:"ping"});
+    //this.log('BASE - requestLocalData()');    
+    if(!this.isConnect) return;
+    
     if (this.sendBuffers.length > 0) {
       const cmd = this.sendBuffers.shift();
       this.executeCmd.id = cmd.id;
       this.executeCmd.processing = "started";
-      console.log("Send Data:");
-      console.log(cmd.sendData);
+      this.log("Send Data:");
+      this.log(cmd.sendData);
       return cmd.sendData;
     }
-
-    return cmdPing;
+    
+    if(!this.sensor_init.inited) {
+      return this.makeData({type:"ready"});  
+    } 
+    return this.makeData({type:"ping"});  
   };
 
   /**
@@ -138,19 +161,50 @@ class Choco extends BaseModule {
   handleLocalData(data) {
     //this.log('BASE - handleLocalData()');
     if (data.length > 12 && data[0] === this.SEND_PACKET.START) {
-      let seqNox = data.indexOf(this.SEND_PACKET.END);
-      if (seqNox > 0) {
-        let decoded_data = this.escape_decode(data.slice(1, seqNox - 1));
+      let idx = data.indexOf(this.SEND_PACKET.END);
+      if (idx > 0) {
+        let decoded_data = this.escape_decode(data.slice(1, idx));
 
-        let sensor0 = decoded_data.readUInt16LE(3);
-        let sensor1 = decoded_data.readUInt16LE(5);
-        let sensor2 = decoded_data.readUInt16LE(7);
+        let seqNo = decoded_data.readUInt8(1); 
+        let sensor0 = decoded_data.readUInt16LE(2);
+        let sensor1 = decoded_data.readUInt16LE(4);
+        let sensor2 = decoded_data.readUInt16LE(6);
 
         this.sensorData.front_sensor = sensor0;
         this.sensorData.bottom_sensor = sensor1;
         this.sensorData.light_sensor = sensor2;
+
+        if(decoded_data.length===29) {
+          this.sensor_init.inited = true;
+          this.sensor_init.sensor0.min = decoded_data.readUInt16LE(9);
+          this.sensor_init.sensor0.max = decoded_data.readUInt16LE(11);
+          this.sensor_init.sensor0.threshold = decoded_data.readUInt16LE(13);
+          this.sensor_init.sensor1.min = decoded_data.readUInt16LE(15);
+          this.sensor_init.sensor1.max = decoded_data.readUInt16LE(17);
+          this.sensor_init.sensor1.threshold = decoded_data.readUInt16LE(19);
+          this.sensor_init.sensor2.min = decoded_data.readUInt16LE(21);
+          this.sensor_init.sensor2.max = decoded_data.readUInt16LE(23);
+          this.sensor_init.sensor2.threshold = decoded_data.readUInt16LE(25);
+          this.log(this.sensor_init);
+        }
+        if(this.sensor_init.inited) {
+          if(this.sensorData.front_sensor < this.sensor_init.sensor0.min) this.sensorData.front_sensor = this.sensor_init.sensor0.min;
+          if(this.sensorData.front_sensor > this.sensor_init.sensor0.max) this.sensorData.front_sensor = this.sensor_init.sensor0.max;
+          if(this.sensorData.bottom_sensor < this.sensor_init.sensor1.min) this.sensorData.bottom_sensor = this.sensor_init.sensor1.min;
+          if(this.sensorData.bottom_sensor > this.sensor_init.sensor1.max) this.sensorData.bottom_sensor = this.sensor_init.sensor1.max;
+          if(this.sensorData.light_sensor < this.sensor_init.sensor2.min) this.sensorData.light_sensor = this.sensor_init.sensor2.min;
+          if(this.sensorData.light_sensor > this.sensor_init.sensor2.max) this.sensorData.light_sensor = this.sensor_init.sensor2.max;
+          this.sensorData.is_front_sensor = (this.sensorData.front_sensor > this.sensor_init.sensor0.threshold)?1:0;
+          this.sensorData.is_bottom_sensor = (this.sensorData.bottom_sensor < this.sensor_init.sensor1.threshold)?1:0;
+          this.sensorData.is_light_sensor = (this.sensorData.light_sensor > this.sensor_init.sensor2.threshold)?1:0;
+        }
+
+        this.log(`len: ${decoded_data.length}, data:${data.toString('hex')}, seqNo:${seqNo}`,
+                    `${sensor0},${sensor1},${sensor2}`,
+                    `${this.sensorData.is_front_sensor},${this.sensorData.is_bottom_sensor},${this.sensorData.is_light_sensor}`,
+                    `${this.sensorData.front_sensor},${this.sensorData.front_sensor},${this.sensorData.bottom_sensor}`);
+        
         if (this.executeCmd.processing === "started") {
-          console.log(this.sensorData);
           this.executeCmd.processing = 'done';
         }
       }
@@ -163,7 +217,7 @@ class Choco extends BaseModule {
    */
   requestRemoteData(handler) {
     if (this.executeCmd.processing === 'done') {
-      console.log("requestRemoteData done", this.executeCmd.id);
+      this.log("requestRemoteData done", this.executeCmd.id);
 
       handler.write('msg_id', this.executeCmd.id);
       handler.write('sensorData', this.sensorData);
@@ -195,6 +249,7 @@ class Choco extends BaseModule {
 
   connect() {
     this.isConnect = true;
+    this.sensor_init.inited = false;
   }
 
 
@@ -203,6 +258,7 @@ class Choco extends BaseModule {
 
     this.isConnect = false;
     this.serialport = undefined;
+    this.sensor_init.inited = false;
   }
 
   /*
@@ -267,7 +323,6 @@ class Choco extends BaseModule {
   cal_led_col(args) {
     let right_led = 0;
     let left_led = 0;
-    console.log(args);
 
     if(args.param1==='right') {
       right_led = args.param2;
@@ -358,7 +413,6 @@ class Choco extends BaseModule {
 
       case "set_led_color":  {
           let {right_led, left_led} = this.cal_led_col(args);
-          console.log(right_led, left_led);
           data = Buffer.from([0x0B, seqNo, right_led, left_led, 0]);          
           crc = this.cal_crc16(data);
           encodedCmd = this.escape_encode(Buffer.concat([data, Buffer.from([crc & 0xFF, (crc >> 8) & 0xFF])]));
@@ -384,26 +438,26 @@ class Choco extends BaseModule {
    ***************************************************************************************/
   escape_encode(data) {
     let buffer = Buffer.alloc(data.length * 2);
-    let seqNox = 0;
+    let idx = 0;
     for (let d of data) {
       if (d === 0x7C) {
-        buffer[seqNox] = 0x7D;
-        buffer[seqNox + 1] = 0x5C;
-        seqNox += 2;
+        buffer[idx] = 0x7D;
+        buffer[idx + 1] = 0x5C;
+        idx += 2;
       } else if (d === 0x7D) {
-        buffer[seqNox] = 0x7D;
-        buffer[seqNox + 1] = 0x5D;
-        seqNox += 2;
+        buffer[idx] = 0x7D;
+        buffer[idx + 1] = 0x5D;
+        idx += 2;
       } else if (d === 0x7E) {
-        buffer[seqNox] = 0x7D;
-        buffer[seqNox + 1] = 0x5E;
-        seqNox += 2;
+        buffer[seidxqNox] = 0x7D;
+        buffer[idx + 1] = 0x5E;
+        idx += 2;
       } else {
-        buffer[seqNox] = d;
-        seqNox++;
+        buffer[idx] = d;
+        idx++;
       }
     }
-    return buffer.slice(0, seqNox);
+    return buffer.slice(0, idx);
   }
 
   /***************************************************************************************
@@ -411,14 +465,14 @@ class Choco extends BaseModule {
    ***************************************************************************************/
   escape_decode(data) {
     let buffer = Buffer.alloc(data.length);
-    let seqNox = 0;
+    let idx = 0;
     for (let i = 0; i < data.length;) {
       if (data[i] === 0x7D) {
-        buffer[seqNox++] = data[i + 1] ^ 0x20;
+        buffer[idx++] = data[i + 1] ^ 0x20;
         i += 2;
-      } else buffer[seqNox++] = data[i++];
+      } else buffer[idx++] = data[i++];
     }
-    return buffer.slice(0, seqNox);
+    return buffer.slice(0, idx);
   }
 
   /***************************************************************************************
