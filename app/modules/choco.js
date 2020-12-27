@@ -63,16 +63,16 @@ class Choco extends BaseModule {
     this.executeCount = 0;
 
     this.sensorData = {
-      is_front_sensor: 0,
-      is_bottom_sensor: 0,
-      is_light_sensor: 0,
+      is_front_sensor: false,
+      is_bottom_sensor: false,
+      is_light_sensor: false,
       front_sensor: 0,
       bottom_sensor: 0,
       light_sensor: 0,
     };
 
     this.sensor_init = {
-      inited:false,
+      inited: 'none',
       sensor0 : {
         min: 0,
         max: 0,
@@ -88,7 +88,7 @@ class Choco extends BaseModule {
         max: 0,
         threshold:0,
       },
-    }
+    };
   }
   // #endregion Constructor
 
@@ -117,7 +117,7 @@ class Choco extends BaseModule {
   */
   requestInitialData(serialport) {
     this.serialport = serialport;
-    const cmdPing = this.makeData({type:"ready"});
+    const cmdPing = this.makeData({type:"ping2"});
     return cmdPing;
   };
 
@@ -139,19 +139,30 @@ class Choco extends BaseModule {
     //this.log('BASE - requestLocalData()');    
     if(!this.isConnect) return;
 
+    if(this.sensor_init.inited === "none") {
+      const cmdReady = this.makeData({type:"ready"});
+      if (this.serialport) {
+        this.sensor_init.inited = "sent";
+        this.serialport.write(cmdReady, () => {
+          this.serialport.drain();
+        });
+      };
+    }
+
     if (this.sendBuffers.length > 0) {
       const cmd = this.sendBuffers.shift();
-      this.executeCmd.id = cmd.id;
-      this.executeCmd.processing = "started";
-      this.log("Send Data:");
-      this.log(cmd.sendData);
-      return cmd.sendData;
+      if (this.serialport) {
+        this.serialport.write(cmd.sendData, () => {
+          this.serialport.drain(() => {
+            this.log("Send Data:");
+            this.log(cmd.sendData);
+            this.executeCmd.id = cmd.id;                        
+          });
+        });
+      };
     }
     
-    if(!this.sensor_init.inited) {
-      return this.makeData({type:"ready"});  
-    } 
-    return this.makeData({type:"ping"});  
+    return;
   };
 
   /**
@@ -159,12 +170,13 @@ class Choco extends BaseModule {
    * @param {*} data 
    */
   handleLocalData(data) {
-    //this.log('BASE - handleLocalData()');
+    //this.log(`BASE - handleLocalData(): ${data.toString('hex')}`);
     if (data.length > 12 && data[0] === this.SEND_PACKET.START) {
       let idx = data.indexOf(this.SEND_PACKET.END);
       if (idx > 0) {
         let decoded_data = this.escape_decode(data.slice(1, idx));
 
+        let command = decoded_data.readUInt8();
         let seqNo = decoded_data.readUInt8(1); 
         let sensor0 = decoded_data.readUInt16LE(2);
         let sensor1 = decoded_data.readUInt16LE(4);
@@ -175,7 +187,7 @@ class Choco extends BaseModule {
         this.sensorData.light_sensor = sensor2;
 
         if(decoded_data.length===29) {
-          this.sensor_init.inited = true;
+          this.sensor_init.inited = "inited";
           this.sensor_init.sensor0.min = decoded_data.readUInt16LE(9);
           this.sensor_init.sensor0.max = decoded_data.readUInt16LE(11);
           this.sensor_init.sensor0.threshold = decoded_data.readUInt16LE(13);
@@ -185,26 +197,26 @@ class Choco extends BaseModule {
           this.sensor_init.sensor2.min = decoded_data.readUInt16LE(21);
           this.sensor_init.sensor2.max = decoded_data.readUInt16LE(23);
           this.sensor_init.sensor2.threshold = decoded_data.readUInt16LE(25);
-          this.log(this.sensor_init);
+          console.log(this.sensor_init);
         }
-        if(this.sensor_init.inited) {
+        if(this.sensor_init.inited === "inited") {
           if(this.sensorData.front_sensor < this.sensor_init.sensor0.min) this.sensorData.front_sensor = this.sensor_init.sensor0.min;
           if(this.sensorData.front_sensor > this.sensor_init.sensor0.max) this.sensorData.front_sensor = this.sensor_init.sensor0.max;
           if(this.sensorData.bottom_sensor < this.sensor_init.sensor1.min) this.sensorData.bottom_sensor = this.sensor_init.sensor1.min;
           if(this.sensorData.bottom_sensor > this.sensor_init.sensor1.max) this.sensorData.bottom_sensor = this.sensor_init.sensor1.max;
           if(this.sensorData.light_sensor < this.sensor_init.sensor2.min) this.sensorData.light_sensor = this.sensor_init.sensor2.min;
           if(this.sensorData.light_sensor > this.sensor_init.sensor2.max) this.sensorData.light_sensor = this.sensor_init.sensor2.max;
-          this.sensorData.is_front_sensor = (this.sensorData.front_sensor > this.sensor_init.sensor0.threshold);
-          this.sensorData.is_bottom_sensor = (this.sensorData.bottom_sensor < this.sensor_init.sensor1.threshold);
-          this.sensorData.is_light_sensor = (this.sensorData.light_sensor > this.sensor_init.sensor2.threshold);
+          this.sensorData.is_front_sensor = (this.sensorData.front_sensor < this.sensor_init.sensor0.threshold);
+          this.sensorData.is_bottom_sensor = (this.sensorData.bottom_sensor > this.sensor_init.sensor1.threshold);
+          this.sensorData.is_light_sensor = (this.sensorData.light_sensor < this.sensor_init.sensor2.threshold);
         }
 
-        this.log(`len: ${decoded_data.length}, data:${data.toString('hex')}, seqNo:${seqNo}`,
+        console.log(`len: ${decoded_data.length}, data:${data.toString('hex')}, seqNo:${seqNo}`,
                     `${sensor0},${sensor1},${sensor2}`,
                     `${this.sensorData.is_front_sensor},${this.sensorData.is_bottom_sensor},${this.sensorData.is_light_sensor}`,
                     `${this.sensorData.front_sensor},${this.sensorData.front_sensor},${this.sensorData.bottom_sensor}`);
         
-        if (this.executeCmd.processing === "started") {
+        if (command === 0x02 && this.executeCmd.processing === "started") {
           this.executeCmd.processing = 'done';
         }
       }
@@ -231,7 +243,9 @@ class Choco extends BaseModule {
    * 엔트리에서 받은 데이터에 대한 처리
    * @param {*} handler 
    */
-  handleRemoteData(handler) {
+  handleRemoteData(handler) { 
+    if(!this.isConnect) return;
+      
     const msgId = handler.serverData.msg_id;
     const msg = handler.serverData.msg;
     if (!msgId || this.executeCheckList.indexOf(msgId) >= 0) {
@@ -243,40 +257,40 @@ class Choco extends BaseModule {
     const sendData = this.makeData(msg);
     this.sendBuffers.push({
       id: msg.id,
-      sendData
+      sendData,
+      index,
     });
   }
 
   connect() {
     this.isConnect = true;
-    this.sensor_init.inited = false;
+    this.sensor_init.inited = "none";
   }
 
-
   disconnect(connect) {
-    connect.close();
-
-    this.isConnect = false;
-    this.serialport = undefined;
-    this.sensor_init.inited = false;
+    const cmdPingEnd = this.makeData({type:"ping2_end"});
+    if(this.serialport) {
+      this.serialport.write(cmdPingEnd, () => {
+        this.serialport.drain(() => {
+          //this.log(`Ping2 End, ${cmdPingEnd.toString('hex')}`); 
+          connect.close();
+          this.isConnect = false;
+          this.serialport = undefined;
+          this.sensor_init.inited = 'none';
+        })
+      });
+    }
   }
 
   /*
       Web Socket 종료후 처리
   */
   reset() {
-    this.resetData();
+    this.executeCheckList = [];
   }
   // #endregion Base Functions for Entry
 
-
-  /***************************************************************************************
-   *  데이터 리셋
-   ***************************************************************************************/
-  resetData() {
-
-  }
-
+ 
 
   /***************************************************************************************
    *  프로토롤 제어 함수
@@ -357,6 +371,18 @@ class Choco extends BaseModule {
         crc = this.cal_crc16(data);
         encodedCmd = this.escape_encode(Buffer.concat([data, Buffer.from([crc & 0xFF, (crc >> 8) & 0xFF])]));
         break;
+        
+     case "ping2":
+        data = Buffer.from([0x13, seqNo]);
+        crc = this.cal_crc16(data);
+        encodedCmd = this.escape_encode(Buffer.concat([data, Buffer.from([crc & 0xFF, (crc >> 8) & 0xFF])]));
+        break;
+        
+      case "ping2_end":
+        data = Buffer.from([0x17, seqNo]);
+        crc = this.cal_crc16(data);
+        encodedCmd = this.escape_encode(Buffer.concat([data, Buffer.from([crc & 0xFF, (crc >> 8) & 0xFF])]));
+        break;  
 
       case "ready":
         data = Buffer.from([0x04, seqNo]);

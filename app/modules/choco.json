@@ -14,16 +14,14 @@
         "win32-x64": "CDM21228_Driver/CDM21228_Setup.exe",
         "darwin-x64": "Mac_OSX_VCP_Driver/SiLabsUSBDriverDisk.dmg"
     },
-    "reconnect": true,
-    "softwareReset": false,
+    "reconnect": true,    
     "hardware": {
         "type": "serial",
         "control": "slave",
-        "duration": 1000,
+        "duration": 16,
         "vendor": "FTDI",
         "pnpId":"FTDIBUS\\VID_0403+PID_6015+DM03B974A\\0000",
         "baudRate": 115200,
-        "byteDelimiter" : [126],
-        "firmwarecheck": false
+        "byteDelimiter" : [126]
     }
 }
