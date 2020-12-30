@@ -91,7 +91,12 @@ Module.prototype.requestRemoteData = function(handler) {
         val = -1 * (256 - val);
     }
     handler.write('A9', val);
-    handler.write('A10', this.sensorData[16]); 
+    
+    val = this.sensorData[16];
+    if (val > 127)	{
+        val = -1 * (256 - val);
+    }
+    handler.write('A10', val);
     handler.write('A11', this.sensorData[17]); 
    	handler.write('CMD', this.sensorData);
 };
