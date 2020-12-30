@@ -346,9 +346,7 @@ Module.prototype.makeSensorReadBuffer = function(device, port, data) {
 
 // 255 85   36  0   1   10  9   0    0  10
 //0xff 0x55 0x6 0x0 0x1 0xa 0x9 0x0 0x0 0xa
-
-
-// type, port, data
+// data.type(device), port, data
 Module.prototype.makeOutputBuffer = function(device, port, data) {
     let buffer;
     const value = new Buffer(2);
@@ -360,8 +358,8 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
             value.writeInt16LE(data);
             buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.SET, device, port]);
             buffer = Buffer.concat([buffer, value, dummy]);
+            break;
         }
-        break;        
         case this.sensorTypes.RGBLED: {
             const redValue = new Buffer(2);
             const greenValue = new Buffer(2);
@@ -377,8 +375,8 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
             }
             buffer = new Buffer([255, 85, 10, sensorIdx, this.actionTypes.SET, device, port]);
             buffer = Buffer.concat([buffer, redValue, greenValue, blueValue, dummy]);
-        }
-        break;        
+            break;
+        }   
         case this.sensorTypes.TONE: {
             const time = new Buffer(2);
             if ($.isPlainObject(data)) {
@@ -390,8 +388,8 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
             }
             buffer = new Buffer([255, 85, 8, sensorIdx, this.actionTypes.SET, device, port]);
             buffer = Buffer.concat([buffer, value, time, dummy]);
+            break;
         }
-        break;
         case this.sensorTypes.DCMOTOR: {
             const directionPort = new Buffer(2);
             const speedPort = new Buffer(2);
@@ -410,9 +408,8 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
             }
             buffer = new Buffer([255, 85, 12, sensorIdx, this.actionTypes.SET, device, port]);
             buffer = Buffer.concat([buffer, directionPort, speedPort, directionValue, speedValue, dummy]);
-            
+            break;    
         }
-        break;
         case this.sensorTypes.WRITE_BLUETOOTH:
         case this.sensorTypes.LCD: {
             var text0 = new Buffer(2);
@@ -487,9 +484,9 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
 
                 // if buffer was 2 byte, 18  counts. 18 * 2 = 36
             //}
-            
+            break;
         }
-        break;
+        
         case this.sensorTypes.OLED: {
             const coodinate_x = new Buffer(2);
             const coodinate_y = new Buffer(2);
@@ -551,25 +548,50 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
             buffer = new Buffer([255, 85, 40, sensorIdx, this.actionTypes.MODULE, device, port]);
             buffer = Buffer.concat([buffer, coodinate_x, coodinate_y, text0, text1, text2, text3, text4, text5, text6, text7, text8, text9, text10, text11, text12, text13, text14, text15, dummy]);
 
+            break;
         }
-        break;        
         case this.sensorTypes.FND: {
             let fnd_clk = Buffer.alloc(2);
-            let fnd_dio = Buffer.alloc(2);
-            
+            let fnd_dio = Buffer.alloc(2);            
+            let fnd_brightness_lev =  Buffer.alloc(2);
+            let fnd_onoff =  Buffer.alloc(2);
+            let fnd_block_index = Buffer.alloc(2);
+            let fnd_display_str = Buffer.alloc(2);
+            let fnd_delay_ms = Buffer.alloc(2);
+
             if ($.isPlainObject(data)) {
                 fnd_clk.writeInt16LE(data.clk_pin);
                 fnd_dio.writeInt16LE(data.dio_pin);
+                // FND Init Block Area Above
+
+                fnd_brightness_lev.writeInt16LE(data.level_val);
+                fnd_block_index.writeInt16LE(data.block_index);                
+                // FND Display Block Area Above
+
+                fnd_onoff.writeInt16LE(data.onoff);                
+                fnd_display_str.writeInt16LE(data.display_str);
+                fnd_delay_ms.writeInt16LE(data.delay_ms);
             } else {
                 fnd_clk.writeInt16LE(0);
-                fnd_dio.writeInt16LE(0);                
+                fnd_dio.writeInt16LE(0);    
+                // FND Init Block Area Above   
+
+                fnd_brightness_lev.writeInt16LE(0);
+                fnd_block_index.writeInt16LE(0);
+                // FND Display Block Area Above
+
+                fnd_onoff.writeInt16LE(0);
+                fnd_display_str.writeInt16LE(0);
+                fnd_delay_ms.writeInt16LE(0);                     
             }
+ 
+            buffer = new Buffer([255, 85, 14, sensorIdx, this.actionTypes.MODULE, device, port]);
+            buffer = Buffer.concat([buffer, fnd_block_index, fnd_clk, fnd_dio, fnd_brightness_lev, fnd_onoff, fnd_display_str, fnd_delay_ms, dummy]);
 
-            buffer = new Buffer([255, 85, 8, sensorIdx, this.actionTypes.MODULE, device, port]);
-            buffer = Buffer.concat([buffer, fnd_clk, fnd_dio, dummy]);
-
+            // fnd_block_index needed check by Remoted 2020-12-22
+            break;
         } 
-        break;        
+                
     }
 
     return buffer;
