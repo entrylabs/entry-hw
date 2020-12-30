@@ -51,7 +51,7 @@ Module.prototype.handleLocalData = function(data) {
         }
     });
     if ((data[5] == (sum & 0xFF)) && (data[0] == 0x26) && (data[1] == 0xA8) && 
-        (data[2] == 0x14) && (data[3] == 0xE1)) { 
+        (data[2] == 0x14) && (data[3] == 0xE3)) { 
         const sensorData = this.sensorData;
         data.forEach((value, idx) => {
             sensorData[idx] = value;
