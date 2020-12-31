@@ -100,7 +100,6 @@ Module.prototype.checkInitialData = function(data, config) {
 
 // 하드웨어 데이터 처리
 Module.prototype.handleLocalData = function(data) { // data: Native Buffer
-
     var buf = this.rx_d;
     var rx_check_sum = 0;
     var sensordata = this.sensordata;
