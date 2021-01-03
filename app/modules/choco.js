@@ -484,7 +484,7 @@ class Choco extends BaseModule {
         buffer[idx + 1] = 0x5D;
         idx += 2;
       } else if (d === 0x7E) {
-        buffer[seidxqNox] = 0x7D;
+        buffer[idx] = 0x7D;
         buffer[idx + 1] = 0x5E;
         idx += 2;
       } else {
