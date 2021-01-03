@@ -140,7 +140,7 @@ class Choco extends BaseModule {
     if(!this.isConnect) return;
 
     if(this.sensor_init.inited === "none") {
-      const cmdReady = this.makeData({type:"ready"});
+      const cmdReady = this.makeData({type:"reapdy"});
       if (this.serialport) {
         this.sensor_init.inited = "sent";
         this.serialport.write(cmdReady, () => {
@@ -156,7 +156,8 @@ class Choco extends BaseModule {
           this.serialport.drain(() => {
             this.log("Send Data:");
             this.log(cmd.sendData);
-            this.executeCmd.id = cmd.id;                        
+            this.executeCmd.id = cmd.id;    
+            this.executeCmd.processing = "started";               
           });
         });
       };
@@ -211,11 +212,10 @@ class Choco extends BaseModule {
           this.sensorData.is_light_sensor = (this.sensorData.light_sensor < this.sensor_init.sensor2.threshold);
         }
 
-        console.log(`len: ${decoded_data.length}, data:${data.toString('hex')}, seqNo:${seqNo}`,
+        console.log(`command:${command}, len: ${decoded_data.length}, data:${data.toString('hex')}, seqNo:${seqNo}`,
                     `${sensor0},${sensor1},${sensor2}`,
                     `${this.sensorData.is_front_sensor},${this.sensorData.is_bottom_sensor},${this.sensorData.is_light_sensor}`,
                     `${this.sensorData.front_sensor},${this.sensorData.front_sensor},${this.sensorData.bottom_sensor}`);
-        
         if (command === 0x02 && this.executeCmd.processing === "started") {
           this.executeCmd.processing = 'done';
         }
@@ -374,6 +374,12 @@ class Choco extends BaseModule {
         
      case "ping2":
         data = Buffer.from([0x13, seqNo]);
+        crc = this.cal_crc16(data);
+        encodedCmd = this.escape_encode(Buffer.concat([data, Buffer.from([crc & 0xFF, (crc >> 8) & 0xFF])]));
+        break;
+
+      case "ping3":
+        data = Buffer.from([0x14, seqNo]);
         crc = this.cal_crc16(data);
         encodedCmd = this.escape_encode(Buffer.concat([data, Buffer.from([crc & 0xFF, (crc >> 8) & 0xFF])]));
         break;
