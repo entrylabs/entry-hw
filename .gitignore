@@ -16,3 +16,4 @@ build/*.zip
 *.build.js
 *.bundle.js
 *.map
+build-base/

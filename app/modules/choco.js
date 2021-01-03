@@ -1,5 +1,4 @@
 const _ = global.$;
-const { left } = require('inquirer/lib/utils/readline');
 const BaseModule = require('./baseModule');
 
 class Choco extends BaseModule {
@@ -140,9 +139,11 @@ class Choco extends BaseModule {
     if(!this.isConnect) return;
 
     if(this.sensor_init.inited === "none") {
-      const cmdReady = this.makeData({type:"reapdy"});
+      const cmdReady = this.makeData({type:"ready"});
       if (this.serialport) {
         this.sensor_init.inited = "sent";
+        this.log("Send Data:");
+        this.log(cmdReady);
         this.serialport.write(cmdReady, () => {
           this.serialport.drain();
         });
@@ -198,7 +199,7 @@ class Choco extends BaseModule {
           this.sensor_init.sensor2.min = decoded_data.readUInt16LE(21);
           this.sensor_init.sensor2.max = decoded_data.readUInt16LE(23);
           this.sensor_init.sensor2.threshold = decoded_data.readUInt16LE(25);
-          console.log(this.sensor_init);
+          //this.log(this.sensor_init);
         }
         if(this.sensor_init.inited === "inited") {
           if(this.sensorData.front_sensor < this.sensor_init.sensor0.min) this.sensorData.front_sensor = this.sensor_init.sensor0.min;
@@ -212,10 +213,10 @@ class Choco extends BaseModule {
           this.sensorData.is_light_sensor = (this.sensorData.light_sensor < this.sensor_init.sensor2.threshold);
         }
 
-        console.log(`command:${command}, len: ${decoded_data.length}, data:${data.toString('hex')}, seqNo:${seqNo}`,
-                    `${sensor0},${sensor1},${sensor2}`,
-                    `${this.sensorData.is_front_sensor},${this.sensorData.is_bottom_sensor},${this.sensorData.is_light_sensor}`,
-                    `${this.sensorData.front_sensor},${this.sensorData.front_sensor},${this.sensorData.bottom_sensor}`);
+        // console.log(`command:${command}, len: ${decoded_data.length}, data:${data.toString('hex')}, seqNo:${seqNo}`,
+        //             `${sensor0},${sensor1},${sensor2}`,
+        //             `${this.sensorData.is_front_sensor},${this.sensorData.is_bottom_sensor},${this.sensorData.is_light_sensor}`,
+        //             `${this.sensorData.front_sensor},${this.sensorData.bottom_sensor},${this.sensorData.bottom_sensor}`);
         if (command === 0x02 && this.executeCmd.processing === "started") {
           this.executeCmd.processing = 'done';
         }
@@ -296,7 +297,7 @@ class Choco extends BaseModule {
    *  프로토롤 제어 함수
    ***************************************************************************************/
   sequenceNo() {
-    if (this.cmdSeq < 254) this.cmdSeq = 0;
+    if (this.cmdSeq > 254) this.cmdSeq = 0;
     else this.cmdSeq++;
     return this.cmdSeq;
   }
@@ -310,10 +311,11 @@ class Choco extends BaseModule {
     return this.executeCount;
   }
 
-  cal_move_val(args) {
+  cal_move_val(args) {    
     let retval = 0;
     if (args.param2 === 'cm') {
       retval = parseInt(args.param1 * 10 / 15);
+      if(args.param1>0 && retval===0) retval = 1;      
     } else {
       retval = args.param1 * 10;
     }
@@ -326,6 +328,7 @@ class Choco extends BaseModule {
     let retval = 0;
     if (args.param2 === 'degree') {
       retval = parseInt(args.param1 * 10 / 90);
+      if(args.param1>0 && retval===0) retval = 1;
     } else {
       retval = args.param1 * 10 * 4;
     }
@@ -527,7 +530,7 @@ class Choco extends BaseModule {
 
   log(message, data = undefined) {
     // 로그를 출력하지 않으려면 아래 주석을 활성화 할 것
-    //*
+    /*
     let strInfo = '';
 
     switch (typeof data) {
