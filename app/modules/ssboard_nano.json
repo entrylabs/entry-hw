@@ -10,7 +10,7 @@
     "module": "ssboard_nano.js",
     "url": "http://www.ssmaker.co.kr",
 	"email": "red@ssmaker.co.kr",
-    "video": " ",
+    "video": "https://youtu.be/BsA6J7Bxock",
     "driver": [{
         "win32-ia32": "CP210x_VCP_Windows/CP210xVCPInstaller_x86.exe",
         "win32-x64": "CP210x_VCP_Windows/CP210xVCPInstaller_x64.exe",
@@ -25,10 +25,7 @@
     "select_com_port": true,
     "reconnect": true,
     "firmwareBaudRate": 115200,
-    "firmware": [{
-        "name": "ssboard_nano",
-        "translate": "상상보드 펌웨어"
-    }],
+    "firmware": "ssboard_nano",
     "entry": {
         "protocol": "json"
     },
@@ -36,8 +33,8 @@
         "type": "serial",
         "control": "slave",
         "duration": 100,
-        "lostTimer": 2000,
-        "vendor": "CH340",
+        "lostTimer": 1000,
+        "vendor": "",
         "baudRate": 115200
     }
 }
