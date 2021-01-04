@@ -100,25 +100,24 @@ Module.prototype.checkInitialData = function(data, config) {
 
 // 하드웨어 데이터 처리
 Module.prototype.handleLocalData = function(data) { // data: Native Buffer
-    var buf = this.rx_d;
     var rx_check_sum = 0;
     var sensordata = this.sensordata;
     
     for (var i = 0; i < data.length; i++) {
         var str = data[i];
-        buf[i] = parseInt(str, 10);
+        this.rx_d[i] = parseInt(str, 10);
     }
 
-    if((buf[0] == 0x02) && (buf[21] == 0x03))
+    if((this.rx_d[0] == 0x02) && (this.rx_d[21] == 0x03))
     {
-        sensordata.ir1 = buf[5] * 256 + buf[6]; //ir1
-        sensordata.ir2 = buf[7] * 256 + buf[8]; //ir2
-        sensordata.ir3 = buf[9] * 256 + buf[10]; //ir3
-        sensordata.ir4 = buf[11] * 256 + buf[12]; //ir4
-        sensordata.ir5 = buf[13] * 256 + buf[14]; //ir5
-        sensordata.ir6 = buf[15] * 256 + buf[16]; //ir6
-        sensordata.cds = buf[17] * 256 + buf[18]; //cds
-        sensordata.bat = buf[19] * 256 + buf[20]; //battery
+        sensordata.ir1 = this.rx_d[5] * 256 + this.rx_d[6]; //ir1
+        sensordata.ir2 = this.rx_d[7] * 256 + this.rx_d[8]; //ir2
+        sensordata.ir3 = this.rx_d[9] * 256 + this.rx_d[10]; //ir3
+        sensordata.ir4 = this.rx_d[11] * 256 + this.rx_d[12]; //ir4
+        sensordata.ir5 = this.rx_d[13] * 256 + this.rx_d[14]; //ir5
+        sensordata.ir6 = this.rx_d[15] * 256 + this.rx_d[16]; //ir6
+        sensordata.cds = this.rx_d[17] * 256 + this.rx_d[18]; //cds
+        sensordata.bat = this.rx_d[19] * 256 + this.rx_d[20]; //battery
     }
 };
 
