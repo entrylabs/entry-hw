@@ -51,7 +51,7 @@ Module.prototype.handleLocalData = function(data) {
         }
     });
     if ((data[5] == (sum & 0xFF)) && (data[0] == 0x26) && (data[1] == 0xA8) && 
-        (data[2] == 0x14) && (data[3] == 0xE1)) { 
+        (data[2] == 0x14) && (data[3] == 0xE3)) { 
         const sensorData = this.sensorData;
         data.forEach((value, idx) => {
             sensorData[idx] = value;
@@ -91,7 +91,12 @@ Module.prototype.requestRemoteData = function(handler) {
         val = -1 * (256 - val);
     }
     handler.write('A9', val);
-    handler.write('A10', this.sensorData[16]); 
+    
+    val = this.sensorData[16];
+    if (val > 127)	{
+        val = -1 * (256 - val);
+    }
+    handler.write('A10', val);
     handler.write('A11', this.sensorData[17]); 
    	handler.write('CMD', this.sensorData);
 };
