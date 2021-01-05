@@ -1,8 +1,8 @@
 {
 	"id": "070201",
 	"name": {
-		"en": "ROBOTIS IoT",
-		"ko": "로보티즈 IoT"
+		"en": "ROBOTIS RB100",
+		"ko": "로보티즈 RB100"
 	},
 	"category": "module",
 	"platform": ["win32"],

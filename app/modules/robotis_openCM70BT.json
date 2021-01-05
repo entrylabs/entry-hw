@@ -1,8 +1,8 @@
 {
 	"id": "070202",
 	"name": {
-		"en": "ROBOTIS IoT(무선연결)",
-		"ko": "로보티즈 IoT(무선연결)"
+		"en": "ROBOTIS RB100(무선연결)",
+		"ko": "로보티즈 RB100(무선연결)"
 	},
 	"category": "module",
 	"platform": ["win32"],
