@@ -1,12 +1,8 @@
 const { notarize } = require('electron-notarize');
 
-exports.default = async function notarizing(context) {
-    const { electronPlatformName, appOutDir } = context;
-    const { NOTARIZE, APPLE_ID, APPLE_PASSWORD } = process.env;
-
-    if (electronPlatformName !== 'darwin') {
-        return;
-    }
+module.exports = async function notarizing(notarizeOption) {
+    const { appBundleId, appPath, appleId, appleIdPassword } = notarizeOption;
+    const { NOTARIZE } = process.env;
 
     // noinspection EqualityComparisonWithCoercionJS
     if (NOTARIZE == 'false') {
@@ -14,22 +10,20 @@ exports.default = async function notarizing(context) {
         return;
     }
 
-    if (!APPLE_ID || !APPLE_PASSWORD) {
+    if (!appleId || !appleIdPassword) {
         console.log('  • APPLE_ID or APPLE_PASSWORD not found. will be skipped this process');
         return;
     }
 
-    const appName = context.packager.appInfo.productFilename;
-
     console.log('  • Apple Notarizing...');
-    console.log(`  • appBundleId: org.playentry.entryhw
-    appPath: ${appOutDir}/${appName}.app
-    appleId: ${APPLE_ID}`,
+    console.log(`  • appBundleId: ${appBundleId}
+    appPath: ${appPath}
+    appleId: ${appleId}`,
     );
     return await notarize({
-        appBundleId: 'org.playentry.entryhw',
-        appPath: `${appOutDir}/${appName}.app`,
-        appleId: APPLE_ID,
-        appleIdPassword: APPLE_PASSWORD,
+        appBundleId,
+        appPath,
+        appleId,
+        appleIdPassword,
     });
 };

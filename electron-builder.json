@@ -1,6 +1,6 @@
 {
     "mac": {
-        "target": "dmg",
+        "target": "pkg",
         "category": "public.app-category.education",
         "identity": "Connect Foundation (DLFUSDA3L5)",
         "hardenedRuntime": true,
@@ -27,26 +27,12 @@
         },
         "extraResources": [
             {
-                "from": "app/server/mac/server.exe",
-                "to": "server.exe"
-            }
-        ]
-    },
-    "dmg": {
-        "icon": "build/icon.icns",
-        "iconSize": 80,
-        "sign": false,
-        "background": "build/background.png",
-        "contents": [
-            {
-                "x": 240,
-                "y": 120
+                "from": "app/server/mac/server.txt",
+                "to": ""
             },
             {
-                "x": 240,
-                "y": 380,
-                "type": "link",
-                "path": "/Applications"
+                "from": "app/validator/mac/validator.txt",
+                "to": ""
             }
         ]
     },
@@ -55,18 +41,48 @@
         "extraResources": [
             {
                 "from": "app/server/win/server.exe",
-                "to": "server.exe"
+                "to": ""
+            },
+            {
+                "from": "app/validator/win/validator.exe",
+                "to": ""
             }
         ]
     },
     "files": [
-        "app",
-        "!app/firmwares/examples",
-        "!app/server",
-        "!app/test.html"
+        "app/src/index.bundle.js",
+        "app/src/main/mainRouter.build.*",
+        "app/src/main/nativeNodeRequire.js",
+        "app/src/preload/lang",
+        "app/src/preload/preload.bundle.js",
+        "app/src/renderer/modal",
+        "app/src/renderer/react/dist",
+        "app/src/views",
+        "app/index.js",
+        "app/OPENSOURCE.md",
+        "package.json"
+    ],
+    "extraResources": [
+        "config",
+        {
+            "from": "app/modules",
+            "to": "modules"
+        },
+        {
+            "from": "app/firmwares",
+            "to": "firmwares",
+            "filter": ["!examples/"]
+        },
+        {
+            "from": "app/drivers",
+            "to": "drivers"
+        }
     ],
     "asar": true,
+    "compression": "maximum",
     "appId": "org.playentry.entryhw",
     "productName": "Entry_HW",
-    "afterSign": "scripts/notarize.js"
+    "afterPack": "scripts/after_pack.js",
+    "afterSign": "scripts/notarize_app.js",
+    "afterAllArtifactBuild": "scripts/notarize_installer.js"
 }

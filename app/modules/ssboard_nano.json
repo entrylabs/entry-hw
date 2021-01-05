@@ -23,12 +23,10 @@
         "translate": "CH340 드라이버"
     }],
     "select_com_port": true,
+    "selectPort": true,
     "reconnect": true,
     "firmwareBaudRate": 115200,
     "firmware": "ssboard_nano",
-    "entry": {
-        "protocol": "json"
-    },
     "hardware": {
         "type": "serial",
         "control": "slave",

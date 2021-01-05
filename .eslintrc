@@ -1,5 +1,5 @@
 {
-    "extends": ["prettier"],
+    "parser": "babel-eslint",
     "parserOptions": {
         "ecmaVersion": 2018,
         "sourceType": "module"
@@ -13,6 +13,7 @@
     "rules": {
         "prefer-const": "warn",
         "no-var": "warn",
+        "quotes": ["warn", "single"],
         "eqeqeq": 0,
         "no-const-assign": "error",
         "no-new-object": "warn",
@@ -62,7 +63,7 @@
         "space-in-parens": ["warn", "never"],
         "array-bracket-spacing": ["warn", "never"],
         "object-curly-spacing": ["warn", "always"],
-        "max-len": ["warn", { "code": 100 }],
+        "max-len": ["warn", { "code": 120 }],
         "comma-style": ["warn", "last"],
         "comma-dangle": ["warn", "always-multiline"],
         "semi": ["warn"],
@@ -70,6 +71,21 @@
         "camelcase": ["warn", { "properties": "never" }],
         "new-cap": ["warn", { "capIsNewExceptionPattern": "^Entry." }],
         "curly": "warn",
-        "keyword-spacing": "warn"
-    }
+        "keyword-spacing": "warn",
+        "indent": ["warn", 4, { "SwitchCase": 1 }]
+    },
+    "overrides": [
+        {
+            "files": ["**/*.ts", "**/*.tsx"],
+            "parser": "@typescript-eslint/parser",
+            "parserOptions": {
+                "sourceType": "module",
+                "project": "./tsconfig.json"
+            },
+            "plugins": ["@typescript-eslint"],
+            "rules": {
+
+            }
+        }
+    ]
 }
