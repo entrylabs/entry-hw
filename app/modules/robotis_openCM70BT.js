@@ -64,7 +64,7 @@ Module.prototype.requestInitialData = function() {
 
 	// ping : 0xFF, 0xFF, 0xFD, 0x00, 0xC8, 0x03, 0x00, 0x01, 0x3B, 0xFA
 
-	this.robotisBuffer.push([INST_READ, 87, 1, 0], [INST_READ, 87, 1, 0]);
+	this.robotisBuffer.push([INST_READ, 87, 1, 0], [INST_READ, 87, 1, 0], [INST_WRITE, 21, 2, 20]);
 	
 	return this.readPacket(200, 87, 1);
 };

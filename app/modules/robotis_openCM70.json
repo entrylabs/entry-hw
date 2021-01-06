@@ -6,7 +6,7 @@
 	},
 	"category": "module",
 	"platform": ["win32"],
-	"icon" : "robotis_openCM70.png",
+	"icon" : "robotis_RB100_tmp.png",
 	"module": "robotis_openCM70.js",
 	"url": "http://www.robotis.com",
 	"email": "kjw@robotis.com",
