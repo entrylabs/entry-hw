@@ -184,8 +184,7 @@ Module.prototype.setSerialPort = function(sp) {   /// 시리얼포트 정보를 
 //�ʿ�� �������� Hardware�� ������ �ʱⰪ ����
 Module.prototype.requestInitialData = function() {  /// 초기 송신 데이터
     // return null;
-    // MRT ���� �ڵ� ���� �� : �ּ� ó�� �� �ڻ� �ٸ� �߿������ ���� ���� ����
-   // return this.makeSensorReadBuffer(this.sensorTypes.ANALOG, 0);  
+   return this.makeSensorReadBuffer(this.sensorTypes.ANALOG, 0);  
 //                                            2, 0                          
 };
    
