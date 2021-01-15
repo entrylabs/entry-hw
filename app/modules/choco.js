@@ -52,6 +52,7 @@ class Choco extends BaseModule {
     this.cmdSeq = 0;
     this.serialport = undefined;
     this.isConnect = false;
+    this.isSendInitData = false;
 
     this.sendBuffers = [];
     this.executeCmd = {
@@ -116,8 +117,22 @@ class Choco extends BaseModule {
   */
   requestInitialData(serialport) {
     this.serialport = serialport;
-    const cmdPing = this.makeData({type:"ping2"});
-    return cmdPing;
+
+    if (this.serialport) {
+      if (!this.isSendInitData) {
+        const cmdPing = this.makeData({type:"ping2"});
+        this.serialport.write(cmdPing, () => {
+          this.serialport.drain(() => {
+            this.log("Send Data:");
+            this.log(cmdPing);            
+            // this.isSendInitData = true; //연결이 될때까지 메시지를 보내줘야 함, 한번만 보내면 재연결 시도가 자주 발생..
+          });
+          //return cmdPing;
+        });
+      }
+    };
+    
+    return null;
   };
 
   // 연결 후 초기에 수신받아서 정상연결인지를 확인해야하는 경우 사용합니다.
@@ -213,10 +228,10 @@ class Choco extends BaseModule {
           this.sensorData.is_light_sensor = (this.sensorData.light_sensor < this.sensor_init.sensor2.threshold);
         }
 
-        // console.log(`command:${command}, len: ${decoded_data.length}, data:${data.toString('hex')}, seqNo:${seqNo}`,
-        //             `${sensor0},${sensor1},${sensor2}`,
-        //             `${this.sensorData.is_front_sensor},${this.sensorData.is_bottom_sensor},${this.sensorData.is_light_sensor}`,
-        //             `${this.sensorData.front_sensor},${this.sensorData.bottom_sensor},${this.sensorData.bottom_sensor}`);
+        //  console.log(`command:${command}, len: ${decoded_data.length}, data:${data.toString('hex')}, seqNo:${seqNo}`,
+        //              `${sensor0},${sensor1},${sensor2}`,
+        //              `${this.sensorData.is_front_sensor},${this.sensorData.is_bottom_sensor},${this.sensorData.is_light_sensor}`,
+        //              `${this.sensorData.front_sensor},${this.sensorData.bottom_sensor},${this.sensorData.light_sensor}`);
         if (command === 0x02 && this.executeCmd.processing === "started") {
           this.executeCmd.processing = 'done';
         }
@@ -268,18 +283,19 @@ class Choco extends BaseModule {
     this.sensor_init.inited = "none";
   }
 
-  disconnect(connect) {
+  disconnect(connect) {    
     const cmdPingEnd = this.makeData({type:"ping2_end"});
     if(this.serialport) {
       this.serialport.write(cmdPingEnd, () => {
         this.serialport.drain(() => {
-          //this.log(`Ping2 End, ${cmdPingEnd.toString('hex')}`); 
+          this.log(`Ping2 End, ${cmdPingEnd.toString('hex')}`); 
           connect.close();
           this.isConnect = false;
           this.serialport = undefined;
-          this.sensor_init.inited = 'none';
+          this.sensor_init.inited = 'none';          
         })
       });
+      this.isSendInitData = false;
     }
   }
 
@@ -319,6 +335,7 @@ class Choco extends BaseModule {
     } else {
       retval = args.param1 * 10;
     }
+    retval = parseInt(retval);
     if (retval < 0) retval = 0;
     if (retval > 990) retval = 990;
     return retval;
@@ -332,6 +349,7 @@ class Choco extends BaseModule {
     } else {
       retval = args.param1 * 10 * 4;
     }
+    retval = parseInt(retval);
     if (retval < 0) retval = 0;
     if (retval > 990) retval = 990;
     return retval;
