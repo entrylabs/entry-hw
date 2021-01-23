@@ -17,7 +17,8 @@ function Module() {
         DCMOTOR: 13,
         OLED: 14,
         PIR : 15,
-        FND : 16,        
+        FND : 16,
+        DHT : 12,        
     };
 
     this.actionTypes = {
@@ -89,19 +90,11 @@ Module.prototype.setSerialPort = function(sp) {
 
 Module.prototype.requestInitialData = function() {
     return true;
-    // MRT 개선 코드 구성 중 : 주석 처리 시 자사 다른 펌웨어와의 연결 오류 없음
-    //return this.makeSensorReadBuffer(this.sensorTypes.ANALOG, 0);
 };
 
 
 Module.prototype.checkInitialData = function(data, config) {
     return true;
-    // 이후에 체크 로직 개선되면 처리
-    // var datas = this.getDataByBuffer(data);
-    // var isValidData = datas.some(function (data) {
-    //     return (data.length > 4 && data[0] === 255 && data[1] === 85);
-    // });
-    // return isValidData;
 };
 
 Module.prototype.afterConnect = function(that, cb) {
@@ -132,9 +125,7 @@ Module.prototype.requestRemoteData = function(handler) {
 
 
 // Because there are no testino hw code, digitalPin Module wasn't available.
-Module.prototype.handleRemoteData = function(handler) {
-    // 엔트리 브라우저에서 온 데이터를 처리한다. handler.read 로 브라우저의 데이터를 읽어올 수 있다.
-    // handler 의 값은 Entry.hw.sendQueue 에 세팅한 값과 같다.    
+Module.prototype.handleRemoteData = function(handler) {   
     const self = this;
     const getDatas = handler.read('GET');
     const setDatas = handler.read('SET') || this.defaultOutput;
@@ -217,8 +208,6 @@ Module.prototype.isRecentData = function(port, type, data) {
 };
 
 Module.prototype.requestLocalData = function() {
-    // 디바이스로 데이터를 보내는 로직. control: slave 인 경우 duration 주기에 맞춰 디바이스에 데이터를 보낸다.
-    // return 값으로 버퍼를 반환하면 디바이스로 데이터를 보내나, 아두이노의 경우 레거시 코드를 따르고 있다.
     const self = this;
     if (!this.isDraing && this.sendBuffers.length > 0) {
         this.isDraing = true;
@@ -308,7 +297,7 @@ Module.prototype.handleLocalData = function(data) {
 ff 55 len idx action device port  slot  data a
 0  1  2   3   4      5      6     7     8
 */
-
+// readBuffer Access Point
 Module.prototype.makeSensorReadBuffer = function(device, port, data) {
     let buffer;
     const dummy = new Buffer([10]);
@@ -326,6 +315,8 @@ Module.prototype.makeSensorReadBuffer = function(device, port, data) {
         }else{
             buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port, data, 10]);
         }
+    }else if (device == this.sensorTypes.DHT){
+        buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port, 10]);
     }else if (device == this.sensorTypes.ULTRASONIC) {
         buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port[0], port[1], 10]);
     } else if (device == this.sensorTypes.READ_BLUETOOTH) {
@@ -468,22 +459,10 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
             /* Only device address value need to set.
             Added By Remoted 2020-12-17
             */
-            
-            /*
-            if(data.length === 2){
 
-                lcd_address = (typeof string === 'number') ? text1 : text0;
+            buffer = new Buffer([255, 85, 36, sensorIdx, this.actionTypes.MODULE, device, port]);
+            buffer = Buffer.concat([buffer, text0, text1, text2, text3, text4, text5, text6, text7, text8, text9, text10, text11, text12, text13, text14, text15, dummy]);
 
-                buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.MODULE, device, port]);
-                buffer = Buffer.concat([buffer, lcd_address, dummy]);
-
-            } else { */
-                buffer = new Buffer([255, 85, 36, sensorIdx, this.actionTypes.MODULE, device, port]);
-                buffer = Buffer.concat([buffer, text0, text1, text2, text3, text4, text5, text6, text7, text8, text9, text10, text11, text12, text13, text14, text15, dummy]);
-
-
-                // if buffer was 2 byte, 18  counts. 18 * 2 = 36
-            //}
             break;
         }
         
@@ -551,47 +530,103 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
             break;
         }
         case this.sensorTypes.FND: {
-            let fnd_clk = Buffer.alloc(2);
-            let fnd_dio = Buffer.alloc(2);            
-            let fnd_brightness_lev =  Buffer.alloc(2);
-            let fnd_onoff =  Buffer.alloc(2);
-            let fnd_block_index = Buffer.alloc(2);
-            let fnd_display_str = Buffer.alloc(2);
-            let fnd_delay_ms = Buffer.alloc(2);
+            let fndClk = Buffer.alloc(2);
+            let fndDio = Buffer.alloc(2);            
+            let fndBrightnessLev =  Buffer.alloc(2);
+            let fndOnOff =  Buffer.alloc(2);
+            let fndBlockIndex = Buffer.alloc(2);
+            let fndDelayMs = Buffer.alloc(2);
+            let fndDisplayStrLength = Buffer.alloc(2);
+            let fndDisplayStr0 = Buffer.alloc(2);    
+            let fndDisplayStr1 = Buffer.alloc(2);
+            let fndDisplayStr2 = Buffer.alloc(2);
+            let fndDisplayStr3 = Buffer.alloc(2);
 
             if ($.isPlainObject(data)) {
-                fnd_clk.writeInt16LE(data.clk_pin);
-                fnd_dio.writeInt16LE(data.dio_pin);
+                fndClk.writeInt16LE(data.clk_pin);
+                fndDio.writeInt16LE(data.dio_pin);
                 // FND Init Block Area Above
 
-                fnd_brightness_lev.writeInt16LE(data.level_val);
-                fnd_block_index.writeInt16LE(data.block_index);                
+                fndBrightnessLev.writeInt16LE(data.level_val);
+                fndBlockIndex.writeInt16LE(data.block_index);                
                 // FND Display Block Area Above
 
-                fnd_onoff.writeInt16LE(data.onoff);                
-                fnd_display_str.writeInt16LE(data.display_str);
-                fnd_delay_ms.writeInt16LE(data.delay_ms);
+                fndOnOff.writeInt16LE(data.onoff);                
+                fndDelayMs.writeInt16LE(data.delay_ms);
+
+                fndDisplayStrLength.writeInt16LE(data.str_length);
+                fndDisplayStr0.writeInt16LE(data.data_0);
+                fndDisplayStr1.writeInt16LE(data.data_1);
+                fndDisplayStr2.writeInt16LE(data.data_2);
+                fndDisplayStr3.writeInt16LE(data.data_3);   
             } else {
-                fnd_clk.writeInt16LE(0);
-                fnd_dio.writeInt16LE(0);    
+                fndClk.writeInt16LE(0);
+                fndDio.writeInt16LE(0);    
                 // FND Init Block Area Above   
 
-                fnd_brightness_lev.writeInt16LE(0);
-                fnd_block_index.writeInt16LE(0);
+                fndBrightnessLev.writeInt16LE(0);
+                fndBlockIndex.writeInt16LE(0);
                 // FND Display Block Area Above
 
-                fnd_onoff.writeInt16LE(0);
-                fnd_display_str.writeInt16LE(0);
-                fnd_delay_ms.writeInt16LE(0);                     
+                fndOnOff.writeInt16LE(0);            
+                fndDelayMs.writeInt16LE(0);         
+
+                fndDisplayStrLength.writeInt16LE(0);
+                fndDisplayStr0.writeInt16LE(0);
+                fndDisplayStr1.writeInt16LE(0);
+                fndDisplayStr2.writeInt16LE(0);
+                fndDisplayStr3.writeInt16LE(0);        
             }
  
-            buffer = new Buffer([255, 85, 14, sensorIdx, this.actionTypes.MODULE, device, port]);
-            buffer = Buffer.concat([buffer, fnd_block_index, fnd_clk, fnd_dio, fnd_brightness_lev, fnd_onoff, fnd_display_str, fnd_delay_ms, dummy]);
+            buffer = Buffer.from([255, 85, 26, sensorIdx, this.actionTypes.MODULE, device, port]);
+            buffer = Buffer.concat([buffer, 
+                                    fndBlockIndex, 
+                                    fndClk, 
+                                    fndDio, 
+                                    fndBrightnessLev, 
+                                    fndOnOff, 
+                                    fndDisplayStrLength, 
+                                    fndDisplayStr0, 
+                                    fndDisplayStr1, 
+                                    fndDisplayStr2, 
+                                    fndDisplayStr3, 
+                                    fndDelayMs, 
+                                    dummy
+                                ]);
+            // fndBlockIndex needed check by Remoted 2020-12-22
+            break;  
+        }
+        case this.sensorTypes.DHT: { 
+            let dhtPin = Buffer.alloc(2);
+            let dhtVerInfo = Buffer.alloc(2);
+            let dhtBlockIndex = Buffer.alloc(2);
+            let dhtTempMode = Buffer.alloc(2);
 
-            // fnd_block_index needed check by Remoted 2020-12-22
-            break;
-        } 
-                
+            if ($.isPlainObject(data)) {
+                dhtPin.writeInt16LE(data.dht_pin);
+                dhtVerInfo.writeInt16LE(data.ver_info);
+                dhtBlockIndex.writeInt16LE(data.dht_block_index);
+
+                dhtTempMode.writeInt16LE(data.tempMode);
+            } else {
+                dhtPin.writeInt16LE(0);
+                dhtVerInfo.writeInt16LE(0);
+                dhtBlockIndex.writeInt16LE(0);    
+
+                dhtTempMode.writeInt16LE(0);      
+            }
+
+            buffer = Buffer.from([255, 85, 12, sensorIdx, this.actionTypes.MODULE, device, port]);
+            buffer = Buffer.concat([buffer, 
+                                    dhtBlockIndex,
+                                    dhtPin, 
+                                    dhtVerInfo, 
+                                    dhtTempMode,                                    
+                                    dummy
+                                    ]);
+            // dhtBlockIndex needed check by Remoted 2020-01-12
+            break;  
+        }
     }
 
     return buffer;
