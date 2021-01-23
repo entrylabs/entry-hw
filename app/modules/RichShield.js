@@ -530,17 +530,17 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
             break;
         }
         case this.sensorTypes.FND: {
-            let fndClk = Buffer.alloc(2);
-            let fndDio = Buffer.alloc(2);            
-            let fndBrightnessLev =  Buffer.alloc(2);
-            let fndOnOff =  Buffer.alloc(2);
-            let fndBlockIndex = Buffer.alloc(2);
-            let fndDelayMs = Buffer.alloc(2);
-            let fndDisplayStrLength = Buffer.alloc(2);
-            let fndDisplayStr0 = Buffer.alloc(2);    
-            let fndDisplayStr1 = Buffer.alloc(2);
-            let fndDisplayStr2 = Buffer.alloc(2);
-            let fndDisplayStr3 = Buffer.alloc(2);
+            const fndClk = Buffer.alloc(2);
+            const fndDio = Buffer.alloc(2);            
+            const fndBrightnessLev =  Buffer.alloc(2);
+            const fndOnOff =  Buffer.alloc(2);
+            const fndBlockIndex = Buffer.alloc(2);
+            const fndDelayMs = Buffer.alloc(2);
+            const fndDisplayStrLength = Buffer.alloc(2);
+            const fndDisplayStr0 = Buffer.alloc(2);    
+            const fndDisplayStr1 = Buffer.alloc(2);
+            const fndDisplayStr2 = Buffer.alloc(2);
+            const fndDisplayStr3 = Buffer.alloc(2);
 
             if ($.isPlainObject(data)) {
                 fndClk.writeInt16LE(data.clk_pin);
@@ -579,28 +579,15 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
             }
  
             buffer = Buffer.from([255, 85, 26, sensorIdx, this.actionTypes.MODULE, device, port]);
-            buffer = Buffer.concat([buffer, 
-                                    fndBlockIndex, 
-                                    fndClk, 
-                                    fndDio, 
-                                    fndBrightnessLev, 
-                                    fndOnOff, 
-                                    fndDisplayStrLength, 
-                                    fndDisplayStr0, 
-                                    fndDisplayStr1, 
-                                    fndDisplayStr2, 
-                                    fndDisplayStr3, 
-                                    fndDelayMs, 
-                                    dummy
-                                ]);
+            buffer = Buffer.concat([buffer, fndBlockIndex, fndClk, fndDio, fndBrightnessLev, fndOnOff, fndDisplayStrLength, fndDisplayStr0, fndDisplayStr1, fndDisplayStr2, fndDisplayStr3, fndDelayMs, dummy]);
             // fndBlockIndex needed check by Remoted 2020-12-22
             break;  
         }
         case this.sensorTypes.DHT: { 
-            let dhtPin = Buffer.alloc(2);
-            let dhtVerInfo = Buffer.alloc(2);
-            let dhtBlockIndex = Buffer.alloc(2);
-            let dhtTempMode = Buffer.alloc(2);
+            const dhtPin = Buffer.alloc(2);
+            const dhtVerInfo = Buffer.alloc(2);
+            const dhtBlockIndex = Buffer.alloc(2);
+            const dhtTempMode = Buffer.alloc(2);
 
             if ($.isPlainObject(data)) {
                 dhtPin.writeInt16LE(data.dht_pin);
@@ -617,13 +604,7 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
             }
 
             buffer = Buffer.from([255, 85, 12, sensorIdx, this.actionTypes.MODULE, device, port]);
-            buffer = Buffer.concat([buffer, 
-                                    dhtBlockIndex,
-                                    dhtPin, 
-                                    dhtVerInfo, 
-                                    dhtTempMode,                                    
-                                    dummy
-                                    ]);
+            buffer = Buffer.concat([buffer, dhtBlockIndex, dhtPin, dhtVerInfo, dhtTempMode, dummy]);
             // dhtBlockIndex needed check by Remoted 2020-01-12
             break;  
         }
