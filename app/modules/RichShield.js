@@ -577,7 +577,7 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
                 fndDisplayStr2.writeInt16LE(0);
                 fndDisplayStr3.writeInt16LE(0);        
             }
- 
+
             buffer = Buffer.from([255, 85, 26, sensorIdx, this.actionTypes.MODULE, device, port]);
             buffer = Buffer.concat([buffer, fndBlockIndex, fndClk, fndDio, fndBrightnessLev, fndOnOff, fndDisplayStrLength, fndDisplayStr0, fndDisplayStr1, fndDisplayStr2, fndDisplayStr3, fndDelayMs, dummy]);
             // fndBlockIndex needed check by Remoted 2020-12-22
