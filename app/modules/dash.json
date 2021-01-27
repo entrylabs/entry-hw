@@ -8,7 +8,7 @@
     "platform": "win32",
     "icon": "dash.png",
     "module": "dash.js",
-    "url": "http://www.dashedu.kr",
+    "url": "https://clevermate.kr",
     "driver": {
         "win32-ia32": "DASH/PL2303_Prolific_DriverInstaller_v1190.exe",
         "win32-x64": "DASH/PL2303_Prolific_DriverInstaller_v1190.exe"
