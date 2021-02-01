@@ -71,7 +71,7 @@ class Choco extends BaseModule {
             light_sensor: 0,
         };
 
-        this.sensor_init = {
+        this.sensorInit = {
             inited: 'none',
             sensor0: {
                 min: 0,
@@ -89,6 +89,8 @@ class Choco extends BaseModule {
                 threshold: 0,
             },
         };
+
+        this.ledStatus = [0,0,0]; //right, left, rear
     }
     // #endregion Constructor
 
@@ -131,6 +133,7 @@ class Choco extends BaseModule {
                     });
                     //return cmdPing;
                 });
+                this.ledStatus = [0,0,0];
             }
         };
 
@@ -157,12 +160,12 @@ class Choco extends BaseModule {
             return;
         }
 
-        if (this.sensor_init.inited === 'none') {
+        if (this.sensorInit.inited === 'none') {
             const cmdReady = this.makeData({
                 type: 'ready',
             });
             if (this.serialport) {
-                this.sensor_init.inited = 'sent';
+                this.sensorInit.inited = 'sent';
                 this.log('Send Data:');
                 this.log(cmdReady);
                 this.serialport.write(cmdReady, () => {
@@ -210,43 +213,43 @@ class Choco extends BaseModule {
                 this.sensorData.light_sensor = sensor2;
 
                 if (decodedData.length === 29) {
-                    this.sensor_init.inited = 'inited';
-                    this.sensor_init.sensor0.min = decodedData.readUInt16LE(9);
-                    this.sensor_init.sensor0.max = decodedData.readUInt16LE(11);
-                    this.sensor_init.sensor0.threshold = decodedData.readUInt16LE(13);
-                    this.sensor_init.sensor1.min = decodedData.readUInt16LE(15);
-                    this.sensor_init.sensor1.max = decodedData.readUInt16LE(17);
-                    this.sensor_init.sensor1.threshold = decodedData.readUInt16LE(19);
-                    this.sensor_init.sensor2.min = decodedData.readUInt16LE(21);
-                    this.sensor_init.sensor2.max = decodedData.readUInt16LE(23);
-                    this.sensor_init.sensor2.threshold = decodedData.readUInt16LE(25);
-                    //this.log(this.sensor_init);
+                    this.sensorInit.inited = 'inited';
+                    this.sensorInit.sensor0.min = decodedData.readUInt16LE(9);
+                    this.sensorInit.sensor0.max = decodedData.readUInt16LE(11);
+                    this.sensorInit.sensor0.threshold = decodedData.readUInt16LE(13);
+                    this.sensorInit.sensor1.min = decodedData.readUInt16LE(15);
+                    this.sensorInit.sensor1.max = decodedData.readUInt16LE(17);
+                    this.sensorInit.sensor1.threshold = decodedData.readUInt16LE(19);
+                    this.sensorInit.sensor2.min = decodedData.readUInt16LE(21);
+                    this.sensorInit.sensor2.max = decodedData.readUInt16LE(23);
+                    this.sensorInit.sensor2.threshold = decodedData.readUInt16LE(25);
+                    //this.log(this.sensorInit);
                 }
-                if (this.sensor_init.inited === 'inited') {
-                    if (this.sensorData.front_sensor < this.sensor_init.sensor0.min) {
-                        this.sensorData.front_sensor = this.sensor_init.sensor0.min;
+                if (this.sensorInit.inited === 'inited') {
+                    if (this.sensorData.front_sensor < this.sensorInit.sensor0.min) {
+                        this.sensorData.front_sensor = this.sensorInit.sensor0.min;
                     }
-                    if (this.sensorData.front_sensor > this.sensor_init.sensor0.max) {
-                        this.sensorData.front_sensor = this.sensor_init.sensor0.max;
+                    if (this.sensorData.front_sensor > this.sensorInit.sensor0.max) {
+                        this.sensorData.front_sensor = this.sensorInit.sensor0.max;
                     }
-                    if (this.sensorData.bottom_sensor < this.sensor_init.sensor1.min) {
-                        this.sensorData.bottom_sensor = this.sensor_init.sensor1.min;
+                    if (this.sensorData.bottom_sensor < this.sensorInit.sensor1.min) {
+                        this.sensorData.bottom_sensor = this.sensorInit.sensor1.min;
                     }
-                    if (this.sensorData.bottom_sensor > this.sensor_init.sensor1.max) {
-                        this.sensorData.bottom_sensor = this.sensor_init.sensor1.max;
+                    if (this.sensorData.bottom_sensor > this.sensorInit.sensor1.max) {
+                        this.sensorData.bottom_sensor = this.sensorInit.sensor1.max;
                     }
-                    if (this.sensorData.light_sensor < this.sensor_init.sensor2.min) {
-                        this.sensorData.light_sensor = this.sensor_init.sensor2.min;
+                    if (this.sensorData.light_sensor < this.sensorInit.sensor2.min) {
+                        this.sensorData.light_sensor = this.sensorInit.sensor2.min;
                     }
-                    if (this.sensorData.light_sensor > this.sensor_init.sensor2.max) {
-                        this.sensorData.light_sensor = this.sensor_init.sensor2.max;
+                    if (this.sensorData.light_sensor > this.sensorInit.sensor2.max) {
+                        this.sensorData.light_sensor = this.sensorInit.sensor2.max;
                     }
                     this.sensorData.is_front_sensor = 
-                        (this.sensorData.front_sensor < this.sensor_init.sensor0.threshold);
+                        (this.sensorData.front_sensor < this.sensorInit.sensor0.threshold);
                     this.sensorData.is_bottom_sensor = 
-                        (this.sensorData.bottom_sensor > this.sensor_init.sensor1.threshold);
+                        (this.sensorData.bottom_sensor > this.sensorInit.sensor1.threshold);
                     this.sensorData.is_light_sensor = 
-                        (this.sensorData.light_sensor < this.sensor_init.sensor2.threshold);
+                        (this.sensorData.light_sensor < this.sensorInit.sensor2.threshold);
                 }
 
                 //  console.log(`command:${command}, len: ${decodedData.length}`, 
@@ -308,7 +311,8 @@ class Choco extends BaseModule {
 
     connect() {
         this.isConnect = true;
-        this.sensor_init.inited = 'none';
+        this.sensorInit.inited = 'none';
+        this.ledStatus = [0,0,0];
     }
 
     disconnect(connect) {
@@ -322,11 +326,12 @@ class Choco extends BaseModule {
                     connect.close();
                     this.isConnect = false;
                     this.serialport = undefined;
-                    this.sensor_init.inited = 'none';
+                    this.sensorInit.inited = 'none';
                 });
             });
-            this.isSendInitData = false;
+            this.isSendInitData = false;            
         }
+        this.ledStatus = [0,0,0];
     }
 
     /*
@@ -523,7 +528,8 @@ class Choco extends BaseModule {
 
             case 'onoff_led_rear': {
                 const rearLed = (args.param1 === 'On') ? 1 : 0;
-                data = Buffer.from([0x0B, seqNo, 0, 0, rearLed]);
+                this.ledStatus[2] = rearLed;
+                data = Buffer.from([0x0B, seqNo, this.ledStatus[0], this.ledStatus[1], this.ledStatus[2]]);
                 crc = this.calCrc16(data);
                 encodedCmd = this.escapeEncode(Buffer.concat([data, 
                     Buffer.from([crc & 0xFF, (crc >> 8) & 0xFF])]));
@@ -536,7 +542,15 @@ class Choco extends BaseModule {
                     rightLed,
                     leftLed,
                 } = this.calLedCol(args);
-                data = Buffer.from([0x0B, seqNo, rightLed, leftLed, 0]);
+                if (args.param1 === 'right') {
+                    this.ledStatus[0] = rightLed;
+                } else if (args.param1 === 'left') {
+                    this.ledStatus[1] = leftLed;
+                } else if (args.param1 === 'dual') {
+                    this.ledStatus[0] = rightLed;
+                    this.ledStatus[1] = leftLed;
+                }
+                data = Buffer.from([0x0B, seqNo, this.ledStatus[0], this.ledStatus[1], this.ledStatus[2]]);
                 crc = this.calCrc16(data);
                 encodedCmd = this.escapeEncode(Buffer.concat([data,
                     Buffer.from([crc & 0xFF, (crc >> 8) & 0xFF])]));
