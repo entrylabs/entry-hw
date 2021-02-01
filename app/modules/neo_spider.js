@@ -10,8 +10,8 @@ function Module() {
         gas: 0,
         cds: 0,
         tmp: 0,
-        vibe: 0
-    }
+        vibe: 0,
+    };
 
     this.worker_data = {
         tone: 0,
@@ -25,46 +25,46 @@ function Module() {
             first: {
                 r: 0,
                 g: 0,
-                b: 0
+                b: 0,
             },
             second: {
                 r: 0,
                 g: 0,
-                b: 0
+                b: 0,
             },
             third: {
                 r: 0,
                 g: 0,
-                b: 0
+                b: 0,
             },
             fourth: {
                 r: 0,
                 g: 0,
-                b: 0
+                b: 0,
             },
             fifth: {
                 r: 0,
                 g: 0,
-                b: 0
+                b: 0,
             },
             sixth: {
                 r: 0,
                 g: 0,
-                b: 0
+                b: 0,
             },
             seventh: {
                 r: 0,
                 g: 0,
-                b: 0
+                b: 0,
             },
             eighth: {
                 r: 0,
                 g: 0,
-                b: 0
-            }
+                b: 0,
+            },
         },
-        outer_motor: 0
-    }
+        outer_motor: 0,
+    };
 
     this.sensorValueSize = {
         FLOAT: 2,
@@ -81,15 +81,15 @@ function Module() {
     };
 }
 
-var TESTINO = {
+const NEOSPIDER = {
     TONE: 'tone',
     MOTOR_STATE: 'motorState',
     SERVO_ANGLE: 'servoAngle',
     ULTRASONIC: 'ultrasonic',
     MOTION: 'motion',
     NEOPIXEL: 'neopixel',
-    OUTER_MOTOR: 'outerMotor'
-}
+    OUTER_MOTOR: 'outerMotor',
+};
 
 Module.prototype.init = function(handler, config) {};
 
@@ -98,15 +98,15 @@ Module.prototype.setSerialPort = function(sp) {
 };
 
 Module.prototype.requestInitialData = function() {
-    let tx_data = this.tx_data;
-    tx_data[0] = 0xff; // 시작 255
-    tx_data[1] = 0x23; // 길이 35
-    for (let i=2; i < this.tx_max_len-2; i++) {
-        tx_data[i] = 0;
+    const txData = this.tx_data;
+    txData[0] = 0xff; // 시작 255
+    txData[1] = 0x23; // 길이 35
+    for (let i = 2; i < this.tx_max_len - 2; i++) {
+        txData[i] = 0;
     }
-    tx_data[33] = 0x0;
-    tx_data[34] = 0xa;
-    return tx_data;
+    txData[33] = 0x0;
+    txData[34] = 0xa;
+    return txData;
 };
 
 Module.prototype.checkInitialData = function(data, config) {
@@ -126,196 +126,198 @@ Module.prototype.validateLocalData = function(data) {
 
 /* 엔트리HW -> 엔트리JS */
 Module.prototype.requestRemoteData = function(handler) {
-    let sensor_data = this.sensor_data;
-    for (let key in sensor_data) {
-        handler.write(key, sensor_data[key]);
+    const sensorData = this.sensor_data;
+    for (const key in sensorData) {
+        handler.write(key, sensorData[key]);
     }
 };
 
 /** 엔트리JS -> 엔트리HW */
 Module.prototype.handleRemoteData = function(handler) {
-    let worker_data = this.worker_data;
-    let new_value;
+    const workerData = this.worker_data;
+    let newValue;
 
-    if (handler.e(TESTINO.TONE)) {
-        new_value = handler.read(TESTINO.TONE);
-        if (new_value.data) {
-            let value = new_value.data.value;
-            worker_data.buz_octave = parseInt(value / 256);
-            worker_data.buz_note = (value % 256);
-        } else if (new_value === 0) {
-            worker_data.buz_octave = 0;
-            worker_data.buz_note = 0;
+    if (handler.e(NEOSPIDER.TONE)) {
+        newValue = handler.read(NEOSPIDER.TONE);
+        if (newValue.data) {
+            const value = newValue.data.value;
+            workerData.buz_octave = parseInt(value / 256, 10);
+            workerData.buz_note = (value % 256);
+        } else if (newValue === 0) {
+            workerData.buz_octave = 0;
+            workerData.buz_note = 0;
         } else {
-            worker_data.buz_octave = 0;
-            worker_data.buz_note = 0;
+            workerData.buz_octave = 0;
+            workerData.buz_note = 0;
         }
     }
 
-    if (handler.e(TESTINO.MOTOR_STATE)) {
-        new_value = handler.read(TESTINO.MOTOR_STATE);
+    if (handler.e(NEOSPIDER.MOTOR_STATE)) {
+        newValue = handler.read(NEOSPIDER.MOTOR_STATE);
 
-        if (worker_data.motor_state != new_value) {
-            worker_data.motor_state = new_value;
+        if (workerData.motor_state != newValue) {
+            workerData.motor_state = newValue;
         }
     }
 
-    if (handler.e(TESTINO.SERVO_ANGLE)) {
-        new_value = handler.read(TESTINO.SERVO_ANGLE);
-        if (new_value == 0) {
-            new_value = 90;
-        } else if (new_value > 130) {
-            new_value = 130;
-        } else if (new_value < 50) {
-            new_value = 50;
+    if (handler.e(NEOSPIDER.SERVO_ANGLE)) {
+        newValue = handler.read(NEOSPIDER.SERVO_ANGLE);
+        if (newValue == 0) {
+            newValue = 90;
+        } else if (newValue > 130) {
+            newValue = 130;
+        } else if (newValue < 50) {
+            newValue = 50;
         }
-        worker_data.servo_angle = new_value;
+        workerData.servo_angle = newValue;
     }
 
-    if (handler.e(TESTINO.ULTRASONIC)) {
-        new_value = handler.read(TESTINO.ULTRASONIC);
-        worker_data.ultrasonic = new_value;
+    if (handler.e(NEOSPIDER.ULTRASONIC)) {
+        newValue = handler.read(NEOSPIDER.ULTRASONIC);
+        workerData.ultrasonic = newValue;
     }
 
-    if (handler.e(TESTINO.MOTION)) {
-        new_value = handler.read(TESTINO.MOTION);
-        worker_data.motion = new_value;
+    if (handler.e(NEOSPIDER.MOTION)) {
+        newValue = handler.read(NEOSPIDER.MOTION);
+        workerData.motion = newValue;
     }
 
-    if (handler.e(TESTINO.NEOPIXEL)) {
-        new_value = handler.read(TESTINO.NEOPIXEL);
-        if (new_value.data) {
-
-            let red = new_value.data.red;
-            let green = new_value.data.green;
-            let blue = new_value.data.blue;
-            let numAble = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth'];
+    if (handler.e(NEOSPIDER.NEOPIXEL)) {
+        newValue = handler.read(NEOSPIDER.NEOPIXEL);
+        if (newValue.data) {
+            const red = newValue.data.red;
+            const green = newValue.data.green;
+            const blue = newValue.data.blue;
+            const numAble = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth'];
             
-            if (new_value.data.numStr) {
-                let num = new_value.data.numStr;
+            if (newValue.data.numStr) {
+                const num = newValue.data.numStr;
     
                 if (numAble.includes(num)) {
-                    worker_data.neopixel[num].r = red;
-                    worker_data.neopixel[num].g = green;
-                    worker_data.neopixel[num].b = blue;
+                    workerData.neopixel[num].r = red;
+                    workerData.neopixel[num].g = green;
+                    workerData.neopixel[num].b = blue;
                 }
             } else {
-                for (able in numAble) {
-                    worker_data.neopixel[numAble[able]].r = red;
-                    worker_data.neopixel[numAble[able]].g = green;
-                    worker_data.neopixel[numAble[able]].b = blue;
+                for (const able in numAble) {
+                    workerData.neopixel[numAble[able]].r = red;
+                    workerData.neopixel[numAble[able]].g = green;
+                    workerData.neopixel[numAble[able]].b = blue;
                 }
             }
         } else {
-            worker_data.neopixel.first.r = 0;
-            worker_data.neopixel.first.g = 0;
-            worker_data.neopixel.first.b = 0;
-            worker_data.neopixel.second.r = 0;
-            worker_data.neopixel.second.g = 0;
-            worker_data.neopixel.second.b = 0;
-            worker_data.neopixel.third.r = 0;
-            worker_data.neopixel.third.g = 0;
-            worker_data.neopixel.third.b = 0;
-            worker_data.neopixel.fourth.r = 0;
-            worker_data.neopixel.fourth.g = 0;
-            worker_data.neopixel.fourth.b = 0;
-            worker_data.neopixel.fifth.r = 0;
-            worker_data.neopixel.fifth.g = 0;
-            worker_data.neopixel.fifth.b = 0;
-            worker_data.neopixel.sixth.r = 0;
-            worker_data.neopixel.sixth.g = 0;
-            worker_data.neopixel.sixth.b = 0;
-            worker_data.neopixel.seventh.r = 0;
-            worker_data.neopixel.seventh.g = 0;
-            worker_data.neopixel.seventh.b = 0;
-            worker_data.neopixel.eighth.r = 0;
-            worker_data.neopixel.eighth.g = 0;
-            worker_data.neopixel.eighth.b = 0;
+            workerData.neopixel.first.r = 0;
+            workerData.neopixel.first.g = 0;
+            workerData.neopixel.first.b = 0;
+            workerData.neopixel.second.r = 0;
+            workerData.neopixel.second.g = 0;
+            workerData.neopixel.second.b = 0;
+            workerData.neopixel.third.r = 0;
+            workerData.neopixel.third.g = 0;
+            workerData.neopixel.third.b = 0;
+            workerData.neopixel.fourth.r = 0;
+            workerData.neopixel.fourth.g = 0;
+            workerData.neopixel.fourth.b = 0;
+            workerData.neopixel.fifth.r = 0;
+            workerData.neopixel.fifth.g = 0;
+            workerData.neopixel.fifth.b = 0;
+            workerData.neopixel.sixth.r = 0;
+            workerData.neopixel.sixth.g = 0;
+            workerData.neopixel.sixth.b = 0;
+            workerData.neopixel.seventh.r = 0;
+            workerData.neopixel.seventh.g = 0;
+            workerData.neopixel.seventh.b = 0;
+            workerData.neopixel.eighth.r = 0;
+            workerData.neopixel.eighth.g = 0;
+            workerData.neopixel.eighth.b = 0;
         }
     }
 
-    if (handler.e(TESTINO.OUTER_MOTOR)) {
-        new_value = handler.read(TESTINO.OUTER_MOTOR);
-        worker_data.outer_motor = new_value;
+    if (handler.e(NEOSPIDER.OUTER_MOTOR)) {
+        newValue = handler.read(NEOSPIDER.OUTER_MOTOR);
+        workerData.outer_motor = newValue;
     }
 
-    this.worker_data = worker_data;
+    this.worker_data = workerData;
 };
 
 
 /* 엔트리HW -> 교구 */
 Module.prototype.requestLocalData = function() {
-    let worker_data = this.worker_data
-    let tx_data = this.tx_data;
-    let check_sum = 0;
-    let data_len = 35;
+    const workerData = this.worker_data;
+    const txData = this.tx_data;
+    let checkSum = 0;
+    const dataLen = 35;
 
-    tx_data[0] = 0xff;
-    tx_data[1] = 0x23;
-    tx_data[2] = worker_data.buz_octave;
-    tx_data[3] = worker_data.buz_note;
-    tx_data[4] = worker_data.ultrasonic;
-    tx_data[5] = worker_data.motion;
-    tx_data[6] = worker_data.motor_state;
-    tx_data[7] = worker_data.servo_angle;
-    tx_data[8] = worker_data.neopixel.first.r;
-    tx_data[9] = worker_data.neopixel.first.g;
-    tx_data[10] = worker_data.neopixel.first.b;
-    tx_data[11] = worker_data.neopixel.second.r;
-    tx_data[12] = worker_data.neopixel.second.g;
-    tx_data[13] = worker_data.neopixel.second.b;
-    tx_data[14] = worker_data.neopixel.third.r;
-    tx_data[15] = worker_data.neopixel.third.g;
-    tx_data[16] = worker_data.neopixel.third.b;
-    tx_data[17] = worker_data.neopixel.fourth.r;
-    tx_data[18] = worker_data.neopixel.fourth.g;
-    tx_data[19] = worker_data.neopixel.fourth.b;
-    tx_data[20] = worker_data.neopixel.fifth.r;
-    tx_data[21] = worker_data.neopixel.fifth.g;
-    tx_data[22] = worker_data.neopixel.fifth.b;
-    tx_data[23] = worker_data.neopixel.sixth.r;
-    tx_data[24] = worker_data.neopixel.sixth.g;
-    tx_data[25] = worker_data.neopixel.sixth.b;
-    tx_data[26] = worker_data.neopixel.seventh.r;
-    tx_data[27] = worker_data.neopixel.seventh.g;
-    tx_data[28] = worker_data.neopixel.seventh.b;
-    tx_data[29] = worker_data.neopixel.eighth.r;
-    tx_data[30] = worker_data.neopixel.eighth.g;
-    tx_data[31] = worker_data.neopixel.eighth.b;
-    tx_data[32] = worker_data.outer_motor;
-    tx_data[34] = 0xa;
+    txData[0] = 0xff;
+    txData[1] = 0x23;
+    txData[2] = workerData.buz_octave;
+    txData[3] = workerData.buz_note;
+    txData[4] = workerData.ultrasonic;
+    txData[5] = workerData.motion;
+    txData[6] = workerData.motor_state;
+    txData[7] = workerData.servo_angle;
+    txData[8] = workerData.neopixel.first.r;
+    txData[9] = workerData.neopixel.first.g;
+    txData[10] = workerData.neopixel.first.b;
+    txData[11] = workerData.neopixel.second.r;
+    txData[12] = workerData.neopixel.second.g;
+    txData[13] = workerData.neopixel.second.b;
+    txData[14] = workerData.neopixel.third.r;
+    txData[15] = workerData.neopixel.third.g;
+    txData[16] = workerData.neopixel.third.b;
+    txData[17] = workerData.neopixel.fourth.r;
+    txData[18] = workerData.neopixel.fourth.g;
+    txData[19] = workerData.neopixel.fourth.b;
+    txData[20] = workerData.neopixel.fifth.r;
+    txData[21] = workerData.neopixel.fifth.g;
+    txData[22] = workerData.neopixel.fifth.b;
+    txData[23] = workerData.neopixel.sixth.r;
+    txData[24] = workerData.neopixel.sixth.g;
+    txData[25] = workerData.neopixel.sixth.b;
+    txData[26] = workerData.neopixel.seventh.r;
+    txData[27] = workerData.neopixel.seventh.g;
+    txData[28] = workerData.neopixel.seventh.b;
+    txData[29] = workerData.neopixel.eighth.r;
+    txData[30] = workerData.neopixel.eighth.g;
+    txData[31] = workerData.neopixel.eighth.b;
+    txData[32] = workerData.outer_motor;
+    txData[34] = 0xa;
 
-    for (let i = 2; i < data_len-2; i++) {
-        check_sum += tx_data[i];
+    for (let i = 2; i < dataLen - 2; i++) {
+        checkSum += txData[i];
     }
-    tx_data[data_len-2] = check_sum % 256;
+    txData[dataLen - 2] = checkSum & 255;
 
-    this.tx_data = tx_data;
+    this.tx_data = txData;
 
-    return tx_data;
+    return txData;
 };
 
 /* 교구 -> 엔트리HW */
 Module.prototype.handleLocalData = function(data) {
-    let self = this;
-    let datas = this.getDataByBuffer(data);
-    let sensor_data = this.sensor_data;
+    const datas = this.getDataByBuffer(data);
+    const sensorData = this.sensor_data;
 
-    datas.forEach(function(data) {
+    datas.forEach((data) => {
         if (data.length <= 4 || data[0] !== 255 || data[1] !== 12) {
             return;
         }
-        let readData = data.subarray(2, data.length);
+        const readData = data.subarray(2, data.length);
         let value;
 
+        if (readData.length != 8) {
+            return;
+        }
+
         switch (readData[0]) {
-            case self.sensorValueSize.FLOAT: {
-                value = new Buffer(readData.subarray(2, 6)).readFloatLE();
+            case this.sensorValueSize.FLOAT: {
+                value = new Buffer.from(readData.subarray(2, 6)).readFloatLE();
                 value = Math.round(value * 100) / 100;
                 break;
             }
-            case self.sensorValueSize.SHORT: {
-                value = new Buffer(readData.subarray(2, 4)).readInt16LE();
+            case this.sensorValueSize.SHORT: {
+                value = new Buffer.from(readData.subarray(2, 4)).readInt16LE();
                 break;
             }
             default: {
@@ -324,22 +326,34 @@ Module.prototype.handleLocalData = function(data) {
             }
         }
 
-        let type = readData[readData.length - 1];
-        let port = readData[1];
+        
+        let checkSum = 0;
+        checkSum += readData[0];
+        checkSum += readData[1];
+        checkSum += parseInt(value, 10);
+        checkSum += readData[readData.length - 2];
+        checkSum = checkSum & 255;
+
+        if (readData[readData.length - 1] != checkSum) {
+            return;
+        }
+
+        const type = readData[readData.length - 2];
+        const port = readData[1];
 
         switch (type) {
-            case self.sensorTypes.DIGITAL: {
+            case this.sensorTypes.DIGITAL: {
                 switch (port) {
                     case 5: {
-                        sensor_data.left_infared = value;
+                        sensorData.left_infared = value;
                         break;
                     }
                     case 6: {
-                        sensor_data.left_infared = value;
+                        sensorData.right_infared = value;
                         break;
                     }
                     case 11: {
-                        sensor_data.motion = value;
+                        sensorData.motion = value;
                         break;
                     }
                     default: {
@@ -348,22 +362,22 @@ Module.prototype.handleLocalData = function(data) {
                 }
                 break;
             }
-            case self.sensorTypes.ANALOG: {
+            case this.sensorTypes.ANALOG: {
                 switch (port) {
                     case 0: {
-                        sensor_data.gas = value;
+                        sensorData.gas = value;
                         break;
                     }
                     case 1: {
-                        sensor_data.cds = value;
+                        sensorData.cds = value;
                         break;
                     }
                     case 2: {
-                        sensor_data.tmp = ((value * 5.0 * 100) / 1024.0 - 3.0).toFixed(2);
+                        sensorData.tmp = (value * 5.0 / 1024.0 / 0.01).toFixed(2);
                         break;
                     }
                     case 3: {
-                        sensor_data.vibe = value;
+                        sensorData.vibe = value;
                         break;
                     }
                     default: {
@@ -372,10 +386,10 @@ Module.prototype.handleLocalData = function(data) {
                 }
                 break;
             }
-            case self.sensorTypes.ULTRASONIC: {
+            case this.sensorTypes.ULTRASONIC: {
                 switch (port) {
                     case 13: {
-                        sensor_data.ultrasonic = value;
+                        sensorData.ultrasonic = value;
                         break;
                     }
                     default: {
@@ -388,28 +402,26 @@ Module.prototype.handleLocalData = function(data) {
                 break;
             }
         }
-    })
-
-    self.sensor_data = sensor_data;
+    });
+    this.sensor_data = sensorData;
 };
 
 Module.prototype.getDataByBuffer = function(buffer) {
-    let datas = [];
+    const datas = [];
     let lastIndex = 0;
-    buffer.forEach(function(value, idx) {
+    buffer.forEach((value, idx) => {
         if (value == 13 && buffer[idx + 1] == 10) {
             datas.push(buffer.subarray(lastIndex, idx));
             lastIndex = idx + 2;
         }
-    })
+    });
     return datas;
-}
+};
 
 Module.prototype.disconnect = function(connect) {
-    var self = this;
     connect.close();
-    if (self.sp) {
-        delete self.sp;
+    if (this.sp) {
+        delete this.sp;
     }
 };
 
