@@ -601,10 +601,9 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
 
                 dhtTempMode.writeInt16LE(0);      
             }
-
+            
             buffer = Buffer.from([255, 85, 12, sensorIdx, this.actionTypes.MODULE, device, port]);
             buffer = Buffer.concat([buffer, dhtBlockIndex, dhtPin, dhtVerInfo, dhtTempMode, dummy]);
-            // dhtBlockIndex needed check by Remoted 2020-01-12
             break;  
         }
     }
