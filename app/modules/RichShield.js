@@ -459,7 +459,6 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
             /* Only device address value need to set.
             Added By Remoted 2020-12-17
             */
-           
             buffer = new Buffer([255, 85, 36, sensorIdx, this.actionTypes.MODULE, device, port]);
             buffer = Buffer.concat([buffer, text0, text1, text2, text3, text4, text5, text6, text7, text8, text9, text10, text11, text12, text13, text14, text15, dummy]);
 
