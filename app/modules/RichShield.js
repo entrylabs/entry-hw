@@ -20,7 +20,7 @@ function Module() {
         FND : 16,
         DHT : 12,        
     };
-
+    
     this.actionTypes = {
         GET: 1,
         SET: 2,
