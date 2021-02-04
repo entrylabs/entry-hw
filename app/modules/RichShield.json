@@ -1,13 +1,13 @@
 {
-    "id": "360101",
+    "id": "360201",
     "name": {
-        "en": "Arduino + GorillaCell",
-        "ko": "아두이노 + 고릴라셀"
+        "en": "Arduino RichShield",
+        "ko": "아두이노 부자실드"
     },
     "category": "board",
     "platform": ["win32", "darwin"],
-    "icon": "GorillaCell.png",
-    "module": "GorillaCell.js",
+    "icon": "RichShield.png",
+    "module": "RichShield.js",
     "url": "https://www.gorillacell.kr/",
 	"email": "35mwlee@naver.com",
     "driver": [{
@@ -29,16 +29,15 @@
         "darwin-x64": "CH34x_Install_MAC_10_9_AND_ABOVE/CH34x_Install_V1.3.pkg",
         "translate": "CH34x 시리즈 드라이버"
     }],
-    "selectPort": true,
     "reconnect": true,
-    "firmware": "GorillaCell",       
+    "selectPort": true,
+    "firmware": "RichShield",       
     "hardware": {
         "type": "serial",
         "control": "slave",
         "duration": 32,
         "vendor": ["Arduino", "wch.cn", "FTDI"],
-        "baudRate": 115200,
-        "firmwarecheck": true
+        "baudRate": 9600,
+        "firmwarecheck": false
     }
-    
 }

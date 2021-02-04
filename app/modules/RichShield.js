@@ -1,7 +1,7 @@
 function Module() {
     this.sp = null;
     this.sensorTypes = {
-        ALIVE: 0,
+        ALIVE: 0, 
         DIGITAL: 1,
         ANALOG: 2,
         PWM: 3,
@@ -16,6 +16,9 @@ function Module() {
         RGBLED: 12,
         DCMOTOR: 13,
         OLED: 14,
+        PIR : 15,
+        FND : 16,
+        DHT : 12,        
     };
 
     this.actionTypes = {
@@ -73,8 +76,6 @@ function Module() {
     this.lastTime = 0;
     this.lastSendTime = 0;
     this.isDraing = false;
-
-    this._address;
 }
 
 let sensorIdx = 0;
@@ -89,19 +90,11 @@ Module.prototype.setSerialPort = function(sp) {
 
 Module.prototype.requestInitialData = function() {
     return true;
-    // MRT 개선 코드 구성 중 : 주석 처리 시 자사 다른 펌웨어와의 연결 오류 없음
-    //return this.makeSensorReadBuffer(this.sensorTypes.ANALOG, 0);
 };
 
 
 Module.prototype.checkInitialData = function(data, config) {
     return true;
-    // 이후에 체크 로직 개선되면 처리
-    // var datas = this.getDataByBuffer(data);
-    // var isValidData = datas.some(function (data) {
-    //     return (data.length > 4 && data[0] === 255 && data[1] === 85);
-    // });
-    // return isValidData;
 };
 
 Module.prototype.afterConnect = function(that, cb) {
@@ -131,9 +124,7 @@ Module.prototype.requestRemoteData = function(handler) {
 
 
 // Because there are no testino hw code, digitalPin Module wasn't available.
-Module.prototype.handleRemoteData = function(handler) {
-    // 엔트리 브라우저에서 온 데이터를 처리한다. handler.read 로 브라우저의 데이터를 읽어올 수 있다.
-    // handler 의 값은 Entry.hw.sendQueue 에 세팅한 값과 같다.    
+Module.prototype.handleRemoteData = function(handler) {   
     const self = this;
     const getDatas = handler.read('GET');
     const setDatas = handler.read('SET') || this.defaultOutput;
@@ -177,7 +168,6 @@ Module.prototype.handleRemoteData = function(handler) {
         });
     }
 
-    // LCD Address init needed 
     if (setDatas) {
         const setKeys = Object.keys(setDatas);
         setKeys.forEach((port) => {
@@ -217,8 +207,6 @@ Module.prototype.isRecentData = function(port, type, data) {
 };
 
 Module.prototype.requestLocalData = function() {
-    // 디바이스로 데이터를 보내는 로직. control: slave 인 경우 duration 주기에 맞춰 디바이스에 데이터를 보낸다.
-    // return 값으로 버퍼를 반환하면 디바이스로 데이터를 보내나, 아두이노의 경우 레거시 코드를 따르고 있다.
     const self = this;
     if (!this.isDraing && this.sendBuffers.length > 0) {
         this.isDraing = true;
@@ -308,7 +296,7 @@ Module.prototype.handleLocalData = function(data) {
 ff 55 len idx action device port  slot  data a
 0  1  2   3   4      5      6     7     8
 */
-
+// readBuffer Access Point
 Module.prototype.makeSensorReadBuffer = function(device, port, data) {
     let buffer;
     let value;
@@ -327,6 +315,8 @@ Module.prototype.makeSensorReadBuffer = function(device, port, data) {
         } else {
             buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port, data, 10]);
         }
+    } else if (device == this.sensorTypes.DHT) {
+        buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port, 10]);
     } else if (device == this.sensorTypes.ULTRASONIC) {
         buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port[0], port[1], 10]);
     } else if (device == this.sensorTypes.READ_BLUETOOTH) {
@@ -347,6 +337,7 @@ Module.prototype.makeSensorReadBuffer = function(device, port, data) {
 
 // 255 85   36  0   1   10  9   0    0  10
 //0xff 0x55 0x6 0x0 0x1 0xa 0x9 0x0 0x0 0xa
+// data.type(device), port, data
 Module.prototype.makeOutputBuffer = function(device, port, data) {
     let buffer;
     const value = new Buffer(2);
@@ -376,7 +367,7 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
             buffer = new Buffer([255, 85, 10, sensorIdx, this.actionTypes.SET, device, port]);
             buffer = Buffer.concat([buffer, redValue, greenValue, blueValue, dummy]);
             break;
-        }
+        }   
         case this.sensorTypes.TONE: {
             const time = new Buffer(2);
             if ($.isPlainObject(data)) {
@@ -408,7 +399,7 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
             }
             buffer = new Buffer([255, 85, 12, sensorIdx, this.actionTypes.SET, device, port]);
             buffer = Buffer.concat([buffer, directionPort, speedPort, directionValue, speedValue, dummy]);
-            break;
+            break;    
         }
         case this.sensorTypes.WRITE_BLUETOOTH:
         case this.sensorTypes.LCD: {
@@ -465,19 +456,15 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
                 text15.writeInt16LE(0);
             }
 
+            /* Only device address value need to set.
+            Added By Remoted 2020-12-17
+            */
+            buffer = new Buffer([255, 85, 36, sensorIdx, this.actionTypes.MODULE, device, port]);
+            buffer = Buffer.concat([buffer, text0, text1, text2, text3, text4, text5, text6, text7, text8, text9, text10, text11, text12, text13, text14, text15, dummy]);
 
-            if (data.length === 2) {
-                let address = new Uint8Array();
-                address = text1;
-                
-                buffer = new Buffer([255, 85, 36, sensorIdx, this.actionTypes.MODULE, device, port]);
-                buffer = Buffer.concat([buffer, text0, text1, dummy]);    
-            } else {
-                buffer = new Buffer([255, 85, 36, sensorIdx, this.actionTypes.MODULE, device, port]);
-                buffer = Buffer.concat([buffer, text0, text1, text2, text3, text4, text5, text6, text7, text8, text9, text10, text11, text12, text13, text14, text15, dummy]);
-            }
             break;
         }
+        
         case this.sensorTypes.OLED: {
             const coodinateX = new Buffer(2);
             const coodinateY = new Buffer(2);
@@ -519,7 +506,7 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
             } else {
                 coodinateX.writeInt16LE(0);
                 coodinateY.writeInt16LE(0);
-                text0.writeInt16LE(0);
+                text0.writeInt16LE(0); 
                 text1.writeInt16LE(0);
                 text2.writeInt16LE(0);
                 text3.writeInt16LE(0);
@@ -538,10 +525,88 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
             }
             buffer = new Buffer([255, 85, 40, sensorIdx, this.actionTypes.MODULE, device, port]);
             buffer = Buffer.concat([buffer, coodinateX, coodinateY, text0, text1, text2, text3, text4, text5, text6, text7, text8, text9, text10, text11, text12, text13, text14, text15, dummy]);
+
             break;
         }
-    }
+        case this.sensorTypes.FND: {
+            const fndClk = Buffer.alloc(2);
+            const fndDio = Buffer.alloc(2);            
+            const fndBrightnessLev =  Buffer.alloc(2);
+            const fndOnOff =  Buffer.alloc(2);
+            const fndBlockIndex = Buffer.alloc(2);
+            const fndDelayMs = Buffer.alloc(2);
+            const fndDisplayStrLength = Buffer.alloc(2);
+            const fndDisplayStr0 = Buffer.alloc(2);    
+            const fndDisplayStr1 = Buffer.alloc(2);
+            const fndDisplayStr2 = Buffer.alloc(2);
+            const fndDisplayStr3 = Buffer.alloc(2);
 
+            if ($.isPlainObject(data)) {
+                fndClk.writeInt16LE(data.clk_pin);
+                fndDio.writeInt16LE(data.dio_pin);
+                // FND Init Block Area Above
+
+                fndBrightnessLev.writeInt16LE(data.level_val);
+                fndBlockIndex.writeInt16LE(data.block_index);                
+                // FND Display Block Area Above
+
+                fndOnOff.writeInt16LE(data.onoff);                
+                fndDelayMs.writeInt16LE(data.delay_ms);
+
+                fndDisplayStrLength.writeInt16LE(data.str_length);
+                fndDisplayStr0.writeInt16LE(data.data_0);
+                fndDisplayStr1.writeInt16LE(data.data_1);
+                fndDisplayStr2.writeInt16LE(data.data_2);
+                fndDisplayStr3.writeInt16LE(data.data_3);
+            } else {
+                fndClk.writeInt16LE(0);
+                fndDio.writeInt16LE(0);    
+                // FND Init Block Area Above   
+
+                fndBrightnessLev.writeInt16LE(0);
+                fndBlockIndex.writeInt16LE(0);
+                // FND Display Block Area Above
+
+                fndOnOff.writeInt16LE(0);            
+                fndDelayMs.writeInt16LE(0);         
+
+                fndDisplayStrLength.writeInt16LE(0);
+                fndDisplayStr0.writeInt16LE(0);
+                fndDisplayStr1.writeInt16LE(0);
+                fndDisplayStr2.writeInt16LE(0);
+                fndDisplayStr3.writeInt16LE(0);        
+            }
+
+            buffer = Buffer.from([255, 85, 26, sensorIdx, this.actionTypes.MODULE, device, port]);
+            buffer = Buffer.concat([buffer, fndBlockIndex, fndClk, fndDio, fndBrightnessLev, fndOnOff, fndDisplayStrLength, fndDisplayStr0, fndDisplayStr1, fndDisplayStr2, fndDisplayStr3, fndDelayMs, dummy]);
+            break;  
+        }
+        case this.sensorTypes.DHT: { 
+            const dhtPin = Buffer.alloc(2);
+            const dhtVerInfo = Buffer.alloc(2);
+            const dhtBlockIndex = Buffer.alloc(2);
+            const dhtTempMode = Buffer.alloc(2);
+
+            if ($.isPlainObject(data)) {
+                dhtPin.writeInt16LE(data.dht_pin);
+                dhtVerInfo.writeInt16LE(data.ver_info);
+                dhtBlockIndex.writeInt16LE(data.dht_block_index);
+
+                dhtTempMode.writeInt16LE(data.tempMode);
+            } else {
+                dhtPin.writeInt16LE(0);
+                dhtVerInfo.writeInt16LE(0);
+                dhtBlockIndex.writeInt16LE(0);    
+
+                dhtTempMode.writeInt16LE(0);      
+            }
+
+            buffer = Buffer.from([255, 85, 12, sensorIdx, this.actionTypes.MODULE, device, port]);
+            buffer = Buffer.concat([buffer, dhtBlockIndex, dhtPin, dhtVerInfo, dhtTempMode, dummy]);
+            break;  
+        }
+    }
+    
     return buffer;
 };
 
