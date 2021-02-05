@@ -626,7 +626,6 @@ Module.prototype.getDataByBuffer = function(buffer) {
     return datas;
 };
 
-
 Module.prototype.disconnect = function(connect) {
     const self = this;
     connect.close();
