@@ -122,7 +122,6 @@ Module.prototype.requestRemoteData = function(handler) {
     });
 };
 
-
 // Because there are no testino hw code, digitalPin Module wasn't available.
 Module.prototype.handleRemoteData = function(handler) {   
     const self = this;
