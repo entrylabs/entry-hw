@@ -205,6 +205,7 @@ Module.prototype.isRecentData = function(port, type, data) {
     return isRecent;
 };
 
+
 Module.prototype.requestLocalData = function() {
     const self = this;
     if (!this.isDraing && this.sendBuffers.length > 0) {
@@ -220,6 +221,7 @@ Module.prototype.requestLocalData = function() {
 
     return null;
 };
+
 
 /*
 ff 55 idx size data a
@@ -290,6 +292,7 @@ Module.prototype.handleLocalData = function(data) {
         }
     });
 };
+
 
 /*
 ff 55 len idx action device port  slot  data a
@@ -522,6 +525,7 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
                 text14.writeInt16LE(0);
                 text15.writeInt16LE(0);
             }
+
             buffer = new Buffer([255, 85, 40, sensorIdx, this.actionTypes.MODULE, device, port]);
             buffer = Buffer.concat([buffer, coodinateX, coodinateY, text0, text1, text2, text3, text4, text5, text6, text7, text8, text9, text10, text11, text12, text13, text14, text15, dummy]);
 
