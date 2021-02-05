@@ -525,7 +525,7 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
             }
             buffer = new Buffer([255, 85, 40, sensorIdx, this.actionTypes.MODULE, device, port]);
             buffer = Buffer.concat([buffer, coodinateX, coodinateY, text0, text1, text2, text3, text4, text5, text6, text7, text8, text9, text10, text11, text12, text13, text14, text15, dummy]);
-
+            
             break;
         }
         case this.sensorTypes.FND: {
