@@ -1,0 +1,28 @@
+{
+    "id": "FFFF01",
+    "name": {
+        "en": "Jikko",
+        "ko": "직코"
+    },
+    "category": "board",
+    "platform": ["win32", "darwin"],
+    "icon": "jikko.png",
+    "module": "jikko.js",
+    "url": "http://playentry.org",
+    "driver": {
+        "win32-ia32": "arduino/dpinst-x86.exe",
+        "win32-x64": "arduino/dpinst-amd64.exe"
+    },
+    "selectPort": true,
+    "reconnect": true,
+    "firmware": "jikko",
+    "hardware": {
+        "type": "serial",
+        "control": "slave",
+        "duration": 32,
+        "vendor": ["Arduino", "wch.cn", "FTDI"],
+        "baudRate": 115200,
+        "firmwarecheck": false,
+        "byteDelimiter": [13, 10]
+    }
+}
