@@ -20,11 +20,7 @@ function Module() {
         FND : 16,
         DHT : 12,        
     };
-<<<<<<< HEAD
     
-=======
-
->>>>>>> 5692b757... # test
     this.actionTypes = {
         GET: 1,
         SET: 2,
@@ -126,10 +122,6 @@ Module.prototype.requestRemoteData = function(handler) {
     });
 };
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 5692b757... # test
 // Because there are no testino hw code, digitalPin Module wasn't available.
 Module.prototype.handleRemoteData = function(handler) {   
     const self = this;
@@ -299,10 +291,6 @@ Module.prototype.handleLocalData = function(data) {
     });
 };
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 5692b757... # test
 /*
 ff 55 len idx action device port  slot  data a
 0  1  2   3   4      5      6     7     8
