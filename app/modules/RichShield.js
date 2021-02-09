@@ -295,12 +295,20 @@ Module.prototype.handleLocalData = function(data) {
 ff 55 len idx action device port  slot  data a
 0  1  2   3   4      5      6     7     8
 */
+<<<<<<< HEAD
 // key port data 
+=======
+// readBuffer Access Point
+>>>>>>> 42b9b08c060c22ec53698d003fd8729a18d7a19a
 Module.prototype.makeSensorReadBuffer = function(device, port, data) {
     let buffer;
     let value;
     const dummy = new Buffer([10]);
+<<<<<<< HEAD
     if ((device == this.sensorTypes.DIGITAL) || (device == this.sensorTypes.DHT)) {
+=======
+    if (device == this.sensorTypes.DIGITAL) {
+>>>>>>> 42b9b08c060c22ec53698d003fd8729a18d7a19a
         // data  PullDown 0 or Pullup 2
         if (!data) {
             buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port, 0, 10]);
@@ -314,6 +322,11 @@ Module.prototype.makeSensorReadBuffer = function(device, port, data) {
         } else {
             buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port, data, 10]);
         }
+<<<<<<< HEAD
+=======
+    } else if (device == this.sensorTypes.DHT) {
+        buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port, 10]);
+>>>>>>> 42b9b08c060c22ec53698d003fd8729a18d7a19a
     } else if (device == this.sensorTypes.ULTRASONIC) {
         buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port[0], port[1], 10]);
     } else if (device == this.sensorTypes.READ_BLUETOOTH) {

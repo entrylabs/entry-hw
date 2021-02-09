@@ -476,7 +476,11 @@ class Choco extends BaseModule {
                 break;
 
             case 'move_forward':
-                data = Buffer.from([0x05, seqNo, 0, 0, 0, 0]);
+                if (args.param2 === 'cm') {
+                    data = Buffer.from([0x19, seqNo, 0, 0, 0, 0]);
+                } else {
+                    data = Buffer.from([0x05, seqNo, 0, 0, 0, 0]);
+                }
                 data.writeUInt32LE(this.calMoveVal(args), 2);
                 crc = this.calCrc16(data);
                 encodedCmd = this.escapeEncode(Buffer.concat([data, 
@@ -484,7 +488,11 @@ class Choco extends BaseModule {
                 break;
 
             case 'move_backward':
-                data = Buffer.from([0x06, seqNo, 0, 0, 0, 0]);
+                if (args.param2 === 'cm') {
+                    data = Buffer.from([0x1A, seqNo, 0, 0, 0, 0]);
+                } else {
+                    data = Buffer.from([0x06, seqNo, 0, 0, 0, 0]);
+                }
                 data.writeUInt32LE(this.calMoveVal(args), 2);
                 crc = this.calCrc16(data);
                 encodedCmd = this.escapeEncode(Buffer.concat([data, 
