@@ -1,5 +1,5 @@
 function Module() {
-    this.tx_max_len = 35;
+    this.tx_max_len = 36;
     this.tx_data = new Array(this.tx_max_len);
 
     this.sensor_data = {
@@ -63,7 +63,8 @@ function Module() {
                 b: 0,
             },
         },
-        outer_motor: 0,
+        outer_left_motor: 0,
+        outer_right_motor: 0,
     };
 
     this.sensorValueSize = {
@@ -88,7 +89,8 @@ const NEOSPIDER = {
     ULTRASONIC: 'ultrasonic',
     MOTION: 'motion',
     NEOPIXEL: 'neopixel',
-    OUTER_MOTOR: 'outerMotor',
+    OUTER_LEFT_MOTOR: 'outerLeftMotor',
+    OUTER_RIGHT_MOTOR: 'outerRightMotor',
 };
 
 Module.prototype.init = function(handler, config) {};
@@ -100,12 +102,12 @@ Module.prototype.setSerialPort = function(sp) {
 Module.prototype.requestInitialData = function() {
     const txData = this.tx_data;
     txData[0] = 0xff; // 시작 255
-    txData[1] = 0x23; // 길이 35
+    txData[1] = 0x24; // 길이 36
     for (let i = 2; i < this.tx_max_len - 2; i++) {
         txData[i] = 0;
     }
-    txData[33] = 0x0;
-    txData[34] = 0xa;
+    txData[34] = 0x0;
+    txData[35] = 0xa;
     return txData;
 };
 
@@ -233,9 +235,14 @@ Module.prototype.handleRemoteData = function(handler) {
         }
     }
 
-    if (handler.e(NEOSPIDER.OUTER_MOTOR)) {
-        newValue = handler.read(NEOSPIDER.OUTER_MOTOR);
-        workerData.outer_motor = newValue;
+    if (handler.e(NEOSPIDER.OUTER_LEFT_MOTOR)) {
+        newValue = handler.read(NEOSPIDER.OUTER_LEFT_MOTOR);
+        workerData.outer_left_motor = newValue;
+    }
+
+    if (handler.e(NEOSPIDER.OUTER_RIGHT_MOTOR)) {
+        newValue = handler.read(NEOSPIDER.OUTER_RIGHT_MOTOR);
+        workerData.outer_right_motor = newValue;
     }
 
     this.worker_data = workerData;
@@ -247,10 +254,10 @@ Module.prototype.requestLocalData = function() {
     const workerData = this.worker_data;
     const txData = this.tx_data;
     let checkSum = 0;
-    const dataLen = 35;
+    const dataLen = 36;
 
     txData[0] = 0xff;
-    txData[1] = 0x23;
+    txData[1] = 0x24;
     txData[2] = workerData.buz_octave;
     txData[3] = workerData.buz_note;
     txData[4] = workerData.ultrasonic;
@@ -281,8 +288,9 @@ Module.prototype.requestLocalData = function() {
     txData[29] = workerData.neopixel.eighth.r;
     txData[30] = workerData.neopixel.eighth.g;
     txData[31] = workerData.neopixel.eighth.b;
-    txData[32] = workerData.outer_motor;
-    txData[34] = 0xa;
+    txData[32] = workerData.outer_left_motor;
+    txData[33] = workerData.outer_right_motor;
+    txData[35] = 0xa;
 
     for (let i = 2; i < dataLen - 2; i++) {
         checkSum += txData[i];
@@ -290,6 +298,8 @@ Module.prototype.requestLocalData = function() {
     txData[dataLen - 2] = checkSum & 255;
 
     this.tx_data = txData;
+
+    console.log(txData);
 
     return txData;
 };
