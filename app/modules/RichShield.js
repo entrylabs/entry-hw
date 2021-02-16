@@ -13,7 +13,7 @@ function Module() {
         READ_BLUETOOTH: 9,
         WRITE_BLUETOOTH: 10,
         LCD: 11,
-        RGBLED: 12,
+        //RGBLED: 12,
         DCMOTOR: 13,
         OLED: 14,
         PIR : 15,
@@ -65,6 +65,7 @@ function Module() {
         PULSEIN: {},
         TIMER: 0,
         READ_BLUETOOTH: 0,
+        DHT: 0,                 // DHT Added
     };
 
     this.defaultOutput = {};
@@ -191,6 +192,8 @@ Module.prototype.handleRemoteData = function(handler) {
     if (buffer.length) {
         this.sendBuffers.push(buffer);
     }
+
+    // Anyway, Data was sent to Device, dosen't matter whether set or get data.
 };
 
 Module.prototype.isRecentData = function(port, type, data) {
@@ -284,6 +287,11 @@ Module.prototype.handleLocalData = function(data) {
                 self.sensorData.READ_BLUETOOTH = value;
                 break;
             }
+            case self.sensorTypes.DHT: {
+                self.sensorData.DHT = value;
+                break;
+                // DHT SensorData-Type Added By Remoted 2021-02-25
+            }
             default: {
                 break;
             }
@@ -295,20 +303,12 @@ Module.prototype.handleLocalData = function(data) {
 ff 55 len idx action device port  slot  data a
 0  1  2   3   4      5      6     7     8
 */
-<<<<<<< HEAD
 // key port data 
-=======
-// readBuffer Access Point
->>>>>>> 42b9b08c060c22ec53698d003fd8729a18d7a19a
 Module.prototype.makeSensorReadBuffer = function(device, port, data) {
     let buffer;
     let value;
     const dummy = new Buffer([10]);
-<<<<<<< HEAD
     if ((device == this.sensorTypes.DIGITAL) || (device == this.sensorTypes.DHT)) {
-=======
-    if (device == this.sensorTypes.DIGITAL) {
->>>>>>> 42b9b08c060c22ec53698d003fd8729a18d7a19a
         // data  PullDown 0 or Pullup 2
         if (!data) {
             buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port, 0, 10]);
@@ -322,11 +322,6 @@ Module.prototype.makeSensorReadBuffer = function(device, port, data) {
         } else {
             buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port, data, 10]);
         }
-<<<<<<< HEAD
-=======
-    } else if (device == this.sensorTypes.DHT) {
-        buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port, 10]);
->>>>>>> 42b9b08c060c22ec53698d003fd8729a18d7a19a
     } else if (device == this.sensorTypes.ULTRASONIC) {
         buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port[0], port[1], 10]);
     } else if (device == this.sensorTypes.READ_BLUETOOTH) {
