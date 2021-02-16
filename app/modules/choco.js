@@ -516,17 +516,21 @@ class Choco extends BaseModule {
                 break;
 
             case 'move_right_left': {
-                data = Buffer.from([0x0D, seqNo, 0, 0, 0, 0, 0, 0, 0, 0]);
+                if (args.param3 === 'cm') {
+                    data = Buffer.from([0x1B, seqNo, 0, 0, 0, 0, 0, 0, 0, 0]);
+                } else {
+                    data = Buffer.from([0x0D, seqNo, 0, 0, 0, 0, 0, 0, 0, 0]);
+                }
                 const args1 = {
                     param1: args.param1,
-                    param2: args.param2,
+                    param2: args.param3,
                 };
                 const args2 = {
-                    param1: args.param3,
-                    param2: args.param4,
+                    param1: args.param2,
+                    param2: args.param3,
                 };
                 data.writeUInt32LE(this.calMoveVal(args1), 2);
-                data.writeUInt32LE(this.calMoveVal(args2), 6);
+                data.writeUInt32LE(this.calMoveVal(args2), 6);                
                 crc = this.calCrc16(data);
                 encodedCmd = this.escapeEncode(Buffer.concat([data, 
                     Buffer.from([crc & 0xFF, (crc >> 8) & 0xFF])]));
