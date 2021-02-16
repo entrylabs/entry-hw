@@ -368,7 +368,7 @@ class Choco extends BaseModule {
     calMoveVal(args) {
         let retval = 0;
         if (args.param2 === 'cm') {
-            retval = parseInt(args.param1 * 10 / 15, 10);
+            retval = parseInt(args.param1 * 10, 10);
             if (args.param1 > 0 && retval === 0) {
                 retval = 1;
             }
