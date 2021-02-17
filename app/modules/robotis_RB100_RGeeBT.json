@@ -1,15 +1,15 @@
 {
-	"id": "070202",
+	"id": "070601",
 	"name": {
-		"en": "ROBOTIS IoT(무선연결)",
-		"ko": "로보티즈 IoT(무선연결)"
+		"en": "ROBOTIS RGee(무선연결)",
+		"ko": "로보티즈 알쥐(무선연결)"
 	},
 	"category": "module",
 	"platform": ["win32"],
-	"icon" : "robotis_openCM70.png",
-	"module": "robotis_openCM70.js",
+	"icon" : "robotis_RB100im_RGee.png",
+	"module": "robotis_RB100.js",
 	"url": "http://www.robotis.com",
-	"email": "kigate@robotis.com",
+	"email": "khg@robotis.com",
 	"reconnect" : true,
 	"driver": {
         "win32-ia32": "ROBOTIS/ROBOTIS CDC Driver.bat",
@@ -20,7 +20,7 @@
 		"type": "serial",
 		"control": "slave",
 		"vendor": "ROBOTIS",
-		"duration": 50,
+		"duration": 15,
 		"baudRate": 57600
 	}
 }

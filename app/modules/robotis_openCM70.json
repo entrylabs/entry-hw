@@ -1,12 +1,12 @@
 {
 	"id": "070201",
 	"name": {
-		"en": "ROBOTIS RB100",
-		"ko": "로보티즈 RB100"
+		"en": "ROBOTIS IoT",
+		"ko": "로보티즈 IoT"
 	},
 	"category": "module",
 	"platform": ["win32"],
-	"icon" : "robotis_RB100_tmp.png",
+	"icon" : "robotis_openCM70.png",
 	"module": "robotis_openCM70.js",
 	"url": "http://www.robotis.com",
 	"email": "kjw@robotis.com",
