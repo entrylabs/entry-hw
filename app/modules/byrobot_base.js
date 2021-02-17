@@ -63,7 +63,7 @@ class byrobot_base extends BaseModule
             // BATTLE_IR_MESSAGE
             BATTLE_IR_MESSAGE           : 'battle_ir_message',
 
-            // Light Manaul
+            // Light Manual
             LIGHT_MANUAL_FLAGS          : 'light_manual_flags',
             LIGHT_MANUAL_BRIGHTNESS     : 'light_manual_brightness',
 
