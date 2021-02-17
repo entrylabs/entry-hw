@@ -1,0 +1,35 @@
+{
+	"id": "011201",
+	"name": {
+		"en": "CodeWiz",
+		"ko": "코드위즈"
+	},
+	"category": "board",
+	"platform": ["win32"],
+	"icon" : "codewiz.png",
+	"module": "codewiz.js",
+	"url": "http://www.codable.co.kr",
+	"email": "kgb612@codable.co.kr",
+	"video": "https://youtu.be/FvxYhMH5xnM",
+	"driver": {
+        "win32-ia32": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
+        "win32-x64": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE"
+    },
+	"reconnect" : true,
+	"selectPort": true,
+	"firmware": {
+        "type": "esp32",
+        "offset": "0x10000",
+        "name": "codewiz"
+    },
+	"firmwareBaudRate": 921600,
+	"hardware": {
+		"type": "serial",
+		"control": "slave",
+		"duration": 32,
+		"vendor": ["wch.cn"],
+		"baudRate": 115200,
+		"firmwarecheck" : false,
+		"advertise": 2000
+	}
+}
