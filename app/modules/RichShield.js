@@ -13,12 +13,12 @@ function Module() {
         READ_BLUETOOTH: 9,
         WRITE_BLUETOOTH: 10,
         LCD: 11,
+        DHT : 12,
         //RGBLED: 12,
         DCMOTOR: 13,
         OLED: 14,
         PIR : 15,
-        FND : 16,
-        DHT : 12,        
+        FND : 16,   
     };
     
     this.actionTypes = {
@@ -32,6 +32,7 @@ function Module() {
         FLOAT: 2,
         SHORT: 3,
         STRING: 4,
+        FLOATEXT:6,
     };
 
     this.digitalPortTimeList = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
@@ -230,7 +231,7 @@ ff 55 idx size data a
 Module.prototype.handleLocalData = function(data) {
     const self = this;
     const datas = this.getDataByBuffer(data);
-
+    //  unit from device data processing
     datas.forEach((data) => {
         if (data.length <= 4 || data[0] !== 255 || data[1] !== 85) {
             return;
@@ -252,6 +253,11 @@ Module.prototype.handleLocalData = function(data) {
                 value = readData.slice(2, readData[1] + 3);
                 value = value.toString('ascii', 0, value.length);
                 break;
+            }
+            case self.sensorValueSize.FLOATEXT: {
+                value = new Buffer(readData.subarray(1, 9)).readFloatLE();
+                value = Math.round(value * 100) / 100;
+                break;              
             }
             default: {
                 value = 0;
