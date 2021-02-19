@@ -99,7 +99,7 @@ var DashActionCmd_Sound = {MY_SOUNDS:1, SAY:2};
 var DashParamCmd_Sound_Say =
 {
   //말
-  HI:0, HUH:1, UHOH:2, OKAY:3, SIGHT:4, TADA:5, WEE:6, BYE:7,
+  HI:0, HUH:1, UHOH:2, OKAY:3, SIGHT:4, START: 31, TADA:5, WEE:6, BYE:7,
   //동물
   HORSE:8, CAT:9, DOG:10, DINOSAUR:11, LION:12, GOAT:13, CROCODILE:14, ELEPHANT:15,
   //이동
@@ -523,6 +523,7 @@ Module.prototype.getDashCommand = function(c, a, cnt, pa, pb, pc, pd)
             case DashParamCmd_Sound_Say.UHOH:           buffer.push(0x57, 0x48, 0x55, 0x48, 0x5f, 0x4f, 0x48, 0x5f, 0x32, 0x30);  break;
             case DashParamCmd_Sound_Say.OKAY:           buffer.push(0x42, 0x4f, 0x5f, 0x4f, 0x4b, 0x41, 0x59, 0x5f, 0x30, 0x33);  break;
             case DashParamCmd_Sound_Say.SIGHT:          buffer.push(0x42, 0x4f, 0x5f, 0x56, 0x37, 0x5f, 0x59, 0x41, 0x57, 0x4e);  break;
+            case DashParamCmd_Sound_Say.START:          buffer.push(0x4C, 0x45, 0x54, 0x53, 0x47, 0x4F, 0x5F, 0x30, 0x32, 0x00);  break;
             case DashParamCmd_Sound_Say.TADA:           buffer.push(0x54, 0x41, 0x48, 0x5f, 0x44, 0x41, 0x48, 0x5f, 0x30, 0x31);  break;
             case DashParamCmd_Sound_Say.WEE:            buffer.push(0x45, 0x58, 0x43, 0x49, 0x54, 0x45, 0x44, 0x5f, 0x30, 0x31);  break;
             case DashParamCmd_Sound_Say.BYE:            buffer.push(0x42, 0x4f, 0x5f, 0x56, 0x37, 0x5f, 0x56, 0x41, 0x52, 0x49);  break;
