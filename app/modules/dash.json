@@ -9,6 +9,7 @@
     "icon": "dash.png",
     "module": "dash.js",
     "url": "https://clevermate.kr",
+    "video": "https://www.youtube.com/MARUSYSedu",
     "driver": {
         "win32-ia32": "DASH/PL2303_Prolific_DriverInstaller_v1190.exe",
         "win32-x64": "DASH/PL2303_Prolific_DriverInstaller_v1190.exe"
@@ -19,7 +20,7 @@
 	"control": "master",
 	"scanType": "data",
 	"bufferSize" : "32",
-	"vendor": ["SEGGER", "Prolific"],
+	"vendor": ["Prolific"],
 	"baudRate": 115200,
 	"lostTimer": 1000,
 	"firmwarecheck": false
