@@ -1,13 +1,13 @@
 {
-	"id": "030101",
+	"id": "FFFF01",
 	"name": {
-		"en": "bitBrick",
-		"ko": "비트브릭"
+		"en": "DIA Board",
+		"ko": "다이아보드"
 	},
 	"category": "module",
 	"platform": ["win32", "darwin"],
-	"icon" : "bitbrick.png",
-	"module": "bitbrick.js",
+	"icon" : "diaboard.png",
+	"module": "diaboard.js",
 	"url": "http://bitbrick.cc/",
 	"email": "info@hellogeeks.kr",
 	"driver": {
@@ -22,6 +22,8 @@
 		"duration": 20,
 		"scanType": "data",
 		"vendor": "Silicon Lab",
-		"baudRate": 38400
+		"baudRate": 115200,
+		"dataBits" : 8,
+        "stopBits" : 1
 	}
 }
