@@ -14,6 +14,8 @@ function Module() {
         LCD_COMMAND: 10,
         BLE_WRITE: 11,
         BLE_READ: 12,
+        ARM_XYZ: 13,
+        ARM_WG: 14,
     };
 
     this.actionTypes = {
@@ -458,7 +460,41 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
     const text14 = new Buffer(2);
     const text15 = new Buffer(2);
 
-    switch (device) {
+    switch (device) {  
+        case this.sensorTypes.ARM_XYZ:
+            const value_x = new Buffer(2);
+            const value_y = new Buffer(2);
+            const value_z = new Buffer(2);
+            value_x.writeInt16LE(data.value_x);
+            value_y.writeInt16LE(data.value_y);
+            value_z.writeInt16LE(data.value_z);
+            buffer = new Buffer([
+                255,
+                85,
+                10,
+                sensorIdx,
+                this.actionTypes.SET,
+                device,
+                port,
+            ]);
+            buffer = Buffer.concat([buffer, value_x,value_y,value_z, dummy]);
+            break;
+        case this.sensorTypes.ARM_WG:
+            const value_w = new Buffer(2);
+            const value_g = new Buffer(2);
+            value_w.writeInt16LE(data.value_w);
+            value_g.writeInt16LE(data.value_g);
+            buffer = new Buffer([
+                255,
+                85,
+                8,
+                sensorIdx,
+                this.actionTypes.SET,
+                device,
+                port,
+            ]);
+            buffer = Buffer.concat([buffer, value_w,value_g, dummy]);
+            break;
         case this.sensorTypes.SERVO_PIN:
         case this.sensorTypes.DIGITAL:
         case this.sensorTypes.PWM: {
