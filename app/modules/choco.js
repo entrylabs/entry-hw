@@ -250,6 +250,40 @@ class Choco extends BaseModule {
                         (this.sensorData.bottom_sensor > this.sensorInit.sensor1.threshold);
                     this.sensorData.is_light_sensor = 
                         (this.sensorData.light_sensor < this.sensorInit.sensor2.threshold);
+
+                    let fVal = this.sensorData.front_sensor;
+                    const fMin = this.sensorInit.sensor0.min;
+                    const fMmax = this.sensorInit.sensor0.max;
+                    fVal = (fVal - fMin) * 100 / (fMmax - fMin);
+
+                    let bVal = this.sensorData.bottom_sensor;
+                    const bMin = this.sensorInit.sensor1.min;
+                    const bMmax = this.sensorInit.sensor1.max;
+                    bVal = (bVal - bMin) * 100 / (bMmax - bMin);
+
+                    let lVal = this.sensorData.light_sensor;
+                    const lMin = this.sensorInit.sensor2.min;
+                    const lMmax = this.sensorInit.sensor2.max;
+                    lVal = (lVal - lMin) * 100 / (lMmax - lMin);
+
+                    this.sensorData.front_sensor = parseInt(fVal, 10);
+                    if (this.sensorData.front_sensor < 0) {
+                        this.sensorData.front_sensor = 0;
+                    } else if (this.sensorData.front_sensor > 100) {
+                        this.sensorData.front_sensor = 100;
+                    }
+                    this.sensorData.bottom_sensor = parseInt(bVal, 10);
+                    if (this.sensorData.bottom_sensor < 0) {
+                        this.sensorData.bottom_sensor = 0;
+                    } else if (this.sensorData.bottom_sensor > 100) {
+                        this.sensorData.bottom_sensor = 100;
+                    }
+                    this.sensorData.light_sensor = parseInt(lVal, 10);
+                    if (this.sensorData.light_sensor < 0) {
+                        this.sensorData.light_sensor = 0;
+                    } else if (this.sensorData.light_sensor > 100) {
+                        this.sensorData.light_sensor = 100;
+                    }
                 }
 
                 //  console.log(`command:${command}, len: ${decodedData.length}`, 
