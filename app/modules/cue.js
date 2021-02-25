@@ -246,9 +246,9 @@ Module.prototype.handleRemoteData = function (handler) {
 		entry_controller.seq = handler.read(CueCmd.CMD_SEQ);
 		if (entry_controller.seq == 0) {
 			if (nowSeq != 0) {
-				// sendBuffers.push([0xFF, 0x55, 0x01, 0x07, 0x0A]);
-				// this.sendSerialData(sendBuffers)
-				// sendBuffers = []
+				sendBuffers.push([0xFF, 0x55, 0x01, 0x07, 0x0A]);
+				this.sendSerialData(sendBuffers)
+				sendBuffers = []
 			}
 			nowSeq = 0;
 		}
