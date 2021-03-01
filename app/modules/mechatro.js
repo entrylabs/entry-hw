@@ -23,7 +23,7 @@ class mechatro extends BaseModule {
         //     3        하드웨어 블록 사용            requestRemoteData() 사용하지 않는 아날로그 인풋값 "0"으로 초기화 (하드웨어 모니터에 0 표시됨)
         //     4        아날로그 인풋값 초기화        handleRemoteData()  엔트리 정지(수신 데이터 없음)시 EntryHW 초기화 
 
-        this.remainmode = 0;
+        this.remainData = 0;
 
         this.dataFromEntry = {};
         //형식
@@ -72,6 +72,7 @@ class mechatro extends BaseModule {
         };
 
         this.getMode = {
+            COM_: 0x80,
             COM_BLUETOOTH_PW_OK: 0x81,
             COM_BLUETOOTH_PW_ERR: 0x82,
             GET_DIGITAL_IN: 0x88,
@@ -166,18 +167,17 @@ class mechatro extends BaseModule {
     연결 후 초기에 송신할 데이터가 필요한 경우 사용합니다.
     requestInitialData 를 사용한 경우 checkInitialData 가 필수입니다.
     이 두 함수가 정의되어있어야 로직이 동작합니다. 필요없으면 작성하지 않아도 됩니다.
-    고 했지만 없으면 연결이 안되어 null과 true 값을 리턴함
     */
-    requestInitialData() {
-        //console.log("requestInitialData");
-        return null;
-    }
+    //requestInitialData() {
+    //    //console.log("requestInitialData");
+    //    return null;
+    //}
 
     // 연결 후 초기에 수신받아서 정상연결인지를 확인해야하는 경우 사용합니다.
-    checkInitialData(data, config) {
-        //console.log("checkInitialData");
-        return true;
-    }
+    //checkInitialData(data, config) {
+    //   console.log("checkInitialData");
+    //    return true;
+    //}
 
     // 주기적으로 하드웨어에서 받은 데이터의 검증이 필요한 경우 사용합니다.
     //validateLocalData(data) {
@@ -350,7 +350,7 @@ class mechatro extends BaseModule {
 
     // 하드웨어에서 온 데이터 처리, 하드웨어 연결되면 주기적인 실행.
     handleLocalData(data) {
-        //console.log("                 ■ <<-- Device");
+        console.log("                 ■ <<-- Device");
         this.dataFromDevice = {};
         let modeGroup;
         let portkey;
@@ -358,13 +358,10 @@ class mechatro extends BaseModule {
         let data2;
 
         //console.log(data);
-        if (this.remainmode) {
+        if (this.remainData) {
             data2 = data[0];
-            if (this.remainmode > this.getMode.GET_DIGITAL_IN) {
-                modeGroup = this.getMode.GET_ANALOG_IN;
-            } else {
-                modeGroup = this.remainmode & 0xf8; // b1111 1000
-            }
+
+            modeGroup = this.remainData & 0xf8; // b1111 1000
 
             switch (modeGroup) {
                 case this.getMode.GET_DIGITAL_IN:
@@ -376,33 +373,39 @@ class mechatro extends BaseModule {
                         }
                     }
                     break;
-                case this.getMode.GET_ANALOG_IN:
-                    portkey = (this.remainmode >>> 3) & 0x0F;
+                default: // this.getMode.GET_ANALOG_IN:
+                    portkey = (this.remainData >>> 3) & 0x0F;
                     portNo = this.portMapToEntry.ANALOG[portkey];
-                    //b0011 1000 0000 = 0x380
-                    this.dataFromDevice[portNo] = ((this.remainmode << 7) & 0x380) | data[0];
-                    break;
+                    this.dataFromDevice[portNo] = ((this.remainData << 7) & 0x380) | data[0];
             }
-            this.remainmode = 0;
+            this.remainData = 0;
         }
 
         data.forEach((value, idx) => {
             if (value & 0x80) { // b1000 0000 DATA1 일 때 실행
-                if (value > this.getMode.GET_DIGITAL_IN) {
-                    modeGroup = this.getMode.GET_ANALOG_IN;
-                } else {
-                    modeGroup = value & 0xf8; // b1111 1000
-                }
+
+                modeGroup = value & 0xf8; // b1111 1000
 
                 switch (modeGroup) {
+
+                    case this.getMode.COM_:
+                        switch (value) {
+                            case this.getMode.COM_BLUETOOTH_PW_OK:
+                                this.dataFromDevice[14] = '0K';
+                                break;
+                            case this.getMode.COM_BLUETOOTH_PW_ERR:
+                                this.dataFromDevice[14] = 'FAIL';
+                                break;
+                        }
+                        break;
+
                     case this.getMode.GET_DIGITAL_IN:
                         if (data[idx + 1] === undefined) {
-                            this.remainmode = value;
+                            this.remainData = value;
                             //console.log( "     ■ <-- Rmode_D: ", value);
                         } else {
-                            this.remainmode = 0;
+                            this.remainData = 0;
                             data2 = data[idx + 1];
-
                             for (portkey = 0; portkey < 6; portkey++) {
                                 portNo = this.portMapToEntry.DIGITAL[portkey];
                                 // 초음파 센서 echo 핀 업데이트 정지.
@@ -411,26 +414,19 @@ class mechatro extends BaseModule {
                                     //console.log( "     ■ <-- [",portNo,"]: ", this.dataFromDevice[portNo]);
                                 }
                             }
-                            
                         }
                         break;
-                    case this.getMode.GET_ANALOG_IN:
+
+                    default: // this.getMode.GET_ANALOG_IN:
                         if (data[idx + 1] === undefined) {
-                            this.remainmode = value;
+                            this.remainData = value;
                         } else {
-                            this.remainmode = 0;
+                            this.remainData = 0;
                             portkey = (value >>> 3) & 0x0F;
                             portNo = this.portMapToEntry.ANALOG[portkey];
                             //b0011 1000 0000 = 0x380
                             this.dataFromDevice[portNo] = ((value << 7) & 0x380) | data[idx + 1];
                         }
-                        break;
-                    case this.getMode.COM_BLUETOOTH_PW_OK:
-                        this.dataFromDevice[2] = '0K';
-                        break;
-                    case this.getMode.COM_BLUETOOTH_PW_ERR:
-                        this.dataFromDevice[2] = 'FAIL';
-                        break;
                 }
             }
         });
