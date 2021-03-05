@@ -414,22 +414,25 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
         }
         case this.sensorTypes.WRITE_BLUETOOTH:
         case this.sensorTypes.LCD: {
-            const text0 = new Buffer(2);
-            const text1 = new Buffer(2);
-            const text2 = new Buffer(2);
-            const text3 = new Buffer(2);
-            const text4 = new Buffer(2);
-            const text5 = new Buffer(2);
-            const text6 = new Buffer(2);
-            const text7 = new Buffer(2);
-            const text8 = new Buffer(2);
-            const text9 = new Buffer(2);
-            const text10 = new Buffer(2);
-            const text11 = new Buffer(2);
-            const text12 = new Buffer(2);
-            const text13 = new Buffer(2);
-            const text14 = new Buffer(2);
-            const text15 = new Buffer(2);
+            const text0 = Buffer.alloc(2);
+            const text1 = Buffer.alloc(2);
+            const text2 = Buffer.alloc(2);
+            const text3 = Buffer.alloc(2);
+            const text4 = Buffer.alloc(2);
+            const text5 = Buffer.alloc(2);
+            const text6 = Buffer.alloc(2);
+            const text7 = Buffer.alloc(2);
+            const text8 = Buffer.alloc(2);
+            const text9 = Buffer.alloc(2);
+            const text10 = Buffer.alloc(2);
+            const text11 = Buffer.alloc(2);
+            const text12 = Buffer.alloc(2);
+            const text13 = Buffer.alloc(2);
+            const text14 = Buffer.alloc(2);
+            const text15 = Buffer.alloc(2);
+            const displayRow = Buffer.alloc(2);
+            const displayCol = Buffer.alloc(2);
+            const lcdBlockIndex = Buffer.alloc(2);
 
             if ($.isPlainObject(data)) {
                 text0.writeInt16LE(data.text0);
@@ -448,6 +451,9 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
                 text13.writeInt16LE(data.text13);
                 text14.writeInt16LE(data.text14);
                 text15.writeInt16LE(data.text15);
+                displayRow.writeInt16LE(data.displayRow);
+                displayCol.writeInt16LE(data.displayCol);
+                lcdBlockIndex.writeInt16LE(data.block_index);
             } else {
                 text0.writeInt16LE(0);
                 text1.writeInt16LE(0);
@@ -465,14 +471,19 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
                 text13.writeInt16LE(0);
                 text14.writeInt16LE(0);
                 text15.writeInt16LE(0);
+                displayRow.writeInt16LE(0);
+                displayCol.writeInt16LE(0);
+                lcdBlockIndex.writeInt16LE(0);
             }
 
-            /* Only device address value need to set.
-            Added By Remoted 2020-12-17
+            /* 
+            Only device address value need to set.
+            Writed By Remoted 2020-12-17
+            Row and Col variable added for using new block structure.
+            Writed By Remoted 2021-03-01
             */
-            buffer = new Buffer([255, 85, 36, sensorIdx, this.actionTypes.MODULE, device, port]);
-            buffer = Buffer.concat([buffer, text0, text1, text2, text3, text4, text5, text6, text7, text8, text9, text10, text11, text12, text13, text14, text15, dummy]);
-
+            buffer = Buffer.from([255, 85, 36, sensorIdx, this.actionTypes.MODULE, device, port]);
+            buffer = Buffer.concat([buffer, lcdBlockIndex, displayRow, displayCol, text0, text1, text2, text3, text4, text5, text6, text7, text8, text9, text10, text11, text12, text13, text14, text15, dummy]);
             break;
         }
         
