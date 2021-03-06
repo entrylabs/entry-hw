@@ -141,8 +141,8 @@ class mechatro extends BaseModule {
                 '5': 6,
                 '6': 7,
                 '7': 10,
-                '8': 14,
-                '9': 15,
+                '8': 14,    //  MA motor current
+                '9': 15,    //  MB motor current
                 '10': 16,
                 '11': 17,
                 '12': 18,
@@ -348,35 +348,48 @@ class mechatro extends BaseModule {
         }
     }
 
+    getAnalogData(portNo, data1, data2) {
+        //b0011 1000 0000 = 0x380
+        if (portNo == 14 || portNo == 15) {
+            this.dataFromDevice[portNo] = (((data1 << 7) & 0x380) | data2) * 10.0; // [cA] → [mA]
+        } else {
+            this.dataFromDevice[portNo] = ((data1 << 7) & 0x380) | data2;
+        }
+    }
+
+    getDigitalData(data2) {
+        let portNo;
+        let portkey;
+        for (portkey = 0; portkey < 6; portkey++) {
+            portNo = this.portMapToEntry.DIGITAL[portkey];
+            // 초음파 센서 echo 핀 업데이트 정지.
+            if (this.isUltraEchoPort[portNo] === undefined) {
+                this.dataFromDevice[portNo] = (data2 >> portkey) & 0x01;
+                //console.log( "     ■ <-- [",portNo,"]: ", this.dataFromDevice[portNo]);
+            }
+        }
+    }
+
+
     // 하드웨어에서 온 데이터 처리, 하드웨어 연결되면 주기적인 실행.
     handleLocalData(data) {
         console.log("                 ■ <<-- Device");
         this.dataFromDevice = {};
         let modeGroup;
         let portkey;
-        let portNo;
-        let data2;
 
         //console.log(data);
         if (this.remainData) {
-            data2 = data[0];
 
             modeGroup = this.remainData & 0xf8; // b1111 1000
 
             switch (modeGroup) {
                 case this.getMode.GET_DIGITAL_IN:
-                    for (portkey = 0; portkey < 6; portkey++) {
-                        portNo = this.portMapToEntry.DIGITAL[portkey];
-                        // 초음파 센서 echo 핀 업데이트 정지.
-                        if (this.isUltraEchoPort[portNo] === undefined) {
-                            this.dataFromDevice[portNo] = (data2 >> portkey) & 0x01;
-                        }
-                    }
+                    this.getDigitalData(data[0]);
                     break;
                 default: // this.getMode.GET_ANALOG_IN:
                     portkey = (this.remainData >>> 3) & 0x0F;
-                    portNo = this.portMapToEntry.ANALOG[portkey];
-                    this.dataFromDevice[portNo] = ((this.remainData << 7) & 0x380) | data[0];
+                    this.getAnalogData(this.portMapToEntry.ANALOG[portkey], this.remainData, data[0]);
             }
             this.remainData = 0;
         }
@@ -391,10 +404,10 @@ class mechatro extends BaseModule {
                     case this.getMode.COM_:
                         switch (value) {
                             case this.getMode.COM_BLUETOOTH_PW_OK:
-                                this.dataFromDevice[14] = '0K';
+                                this.dataFromDevice['com'] = '0K';
                                 break;
                             case this.getMode.COM_BLUETOOTH_PW_ERR:
-                                this.dataFromDevice[14] = 'FAIL';
+                                this.dataFromDevice['com'] = 'FAIL';
                                 break;
                         }
                         break;
@@ -405,15 +418,7 @@ class mechatro extends BaseModule {
                             //console.log( "     ■ <-- Rmode_D: ", value);
                         } else {
                             this.remainData = 0;
-                            data2 = data[idx + 1];
-                            for (portkey = 0; portkey < 6; portkey++) {
-                                portNo = this.portMapToEntry.DIGITAL[portkey];
-                                // 초음파 센서 echo 핀 업데이트 정지.
-                                if (this.isUltraEchoPort[portNo] === undefined) {
-                                    this.dataFromDevice[portNo] = (data2 >> portkey) & 0x01;
-                                    //console.log( "     ■ <-- [",portNo,"]: ", this.dataFromDevice[portNo]);
-                                }
-                            }
+                            this.getDigitalData(data[idx + 1]);
                         }
                         break;
 
@@ -423,9 +428,7 @@ class mechatro extends BaseModule {
                         } else {
                             this.remainData = 0;
                             portkey = (value >>> 3) & 0x0F;
-                            portNo = this.portMapToEntry.ANALOG[portkey];
-                            //b0011 1000 0000 = 0x380
-                            this.dataFromDevice[portNo] = ((value << 7) & 0x380) | data[idx + 1];
+                            this.getAnalogData(this.portMapToEntry.ANALOG[portkey], value, data[idx + 1]);
                         }
                 }
             }
