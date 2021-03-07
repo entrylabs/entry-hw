@@ -373,7 +373,7 @@ class mechatro extends BaseModule {
 
     // 하드웨어에서 온 데이터 처리, 하드웨어 연결되면 주기적인 실행.
     handleLocalData(data) {
-        console.log("                 ■ <<-- Device");
+        //console.log("                 ■ <<-- Device");
         this.dataFromDevice = {};
         let modeGroup;
         let portkey;
