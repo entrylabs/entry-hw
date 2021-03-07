@@ -382,7 +382,6 @@ class mechatro extends BaseModule {
         if (this.remainData) {
 
             modeGroup = this.remainData & 0xf8; // b1111 1000
-
             switch (modeGroup) {
                 case this.getMode.GET_DIGITAL_IN:
                     this.getDigitalData(data[0]);
@@ -392,6 +391,7 @@ class mechatro extends BaseModule {
                     this.getAnalogData(this.portMapToEntry.ANALOG[portkey], this.remainData, data[0]);
             }
             this.remainData = 0;
+
         }
 
         data.forEach((value, idx) => {
@@ -404,10 +404,10 @@ class mechatro extends BaseModule {
                     case this.getMode.COM_:
                         switch (value) {
                             case this.getMode.COM_BLUETOOTH_PW_OK:
-                                this.dataFromDevice['com'] = '0K';
+                                this.dataFromDevice["com"] = '0K';
                                 break;
                             case this.getMode.COM_BLUETOOTH_PW_ERR:
-                                this.dataFromDevice['com'] = 'FAIL';
+                                this.dataFromDevice["com"] = 'FAIL';
                                 break;
                         }
                         break;
