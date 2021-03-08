@@ -136,7 +136,7 @@ Module.prototype.requestInitialData = function() {
     // else
     //     this.robotisBuffer.push([INST_WRITE, 20, 1, 0]);
 
-    this.robotisBuffer.push([INST_WRITE, 20, 1, 0]);
+    this.robotisBuffer.push([INST_WRITE, 20, 1, 1]);
     
     return this.readPacket(200, 0, 2);
 };

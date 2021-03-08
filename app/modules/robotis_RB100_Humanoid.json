@@ -7,7 +7,7 @@
 	"category": "module",
 	"platform": ["win32"],
 	"icon" : "robotis_RB100im_Humanoid.png",
-	"module": "robotis_RB100.js",
+	"module": "robotis_RB100_usb.js",
 	"url": "http://www.robotis.com",
 	"email": "khg@robotis.com",
 	"reconnect" : true,
