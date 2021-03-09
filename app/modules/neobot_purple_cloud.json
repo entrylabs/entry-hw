@@ -5,8 +5,11 @@
         "ko": "NEW 네오봇(for Cloud PC)"
     },
     "category": "module",
-    "platform": ["win32", "darwin"],
-    "icon" : "neobot_purple.png",
+    "platform": [
+        "win32",
+        "darwin"
+    ],
+    "icon": "neobot_purple.png",
     "module": "neobot.js",
     "url": "http://neobot.co.kr/",
     "email": "neobot@neobot.co.kr",
@@ -15,13 +18,17 @@
         "win32-x64": "CP210x_VCP_Windows/CP210xVCPInstaller_x64.exe",
         "darwin-x64": "Mac_OSX_VCP_Driver/SiLabsUSBDriverDisk.dmg"
     },
-    "reconnect" : true,
+    "reconnect": true,
+    "selectPort": true,
     "hardware": {
-        "pnpId" : "PID",
-        "type": "serial",
+        "pnpId": "PID",
+        "type": "bluetooth",
         "control": "master",
-        "vendor": "Silicon Labs",
-        "duration": 32,
+        "vendor": [
+            "neobot",
+            "Silicon Labs",
+            "Microsoft"
+        ],
         "baudRate": 115200
     }
 }
