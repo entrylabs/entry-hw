@@ -1,5 +1,3 @@
-const { dataBlock } = require("./byrobot_drone_8");
-
 function Module() {
   this.OUTPUT_INST = {
     MOTOR: 0x05,
