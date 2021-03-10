@@ -131,7 +131,6 @@ Module.prototype.requestRemoteData = function(handler) {
     const sensorData = this.sensor_data;
     for (const key in sensorData) {
         handler.write(key, sensorData[key]);
-        console.log(key, sensorData[key])
     }
 };
 
@@ -243,7 +242,6 @@ Module.prototype.handleRemoteData = function(handler) {
 
     if (handler.e(NEOSPIDER.OUTER_RIGHT_MOTOR)) {
         newValue = handler.read(NEOSPIDER.OUTER_RIGHT_MOTOR);
-        console.log(newValue)
         workerData.outer_right_motor = newValue;
     }
 
