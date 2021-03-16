@@ -334,9 +334,15 @@ Module.prototype.handleLocalData = function(data) {
             if (checkSum != readData[11]) {
                 return;
             }
+
+            let tempValue = (analogL2 << 8) + analogS2;
+            tempValue = Math.log((10240000 / tempValue) - 10000);
+            tempValue = 1 / (0.001129148 + (0.000234125 * tempValue) + (0.0000000876741 * tempValue * tempValue * tempValue));
+            tempValue = tempValue - 273.15;
+            
             sensorData.gas = (analogL0 << 8) + analogS0;
             sensorData.cds = (analogL1 << 8) + analogS1;
-            sensorData.tmp = (((analogL2 << 8) + analogS2) * 5.0 / 1024.0 / 0.01).toFixed(2);
+            sensorData.tmp = (tempValue).toFixed(2);
             sensorData.vibe = (analogL3 << 8) + analogS3;
             sensorData.left_infared = infaredLv;
             sensorData.right_infared = infaredRv;
