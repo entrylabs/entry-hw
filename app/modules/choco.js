@@ -250,6 +250,40 @@ class Choco extends BaseModule {
                         (this.sensorData.bottom_sensor > this.sensorInit.sensor1.threshold);
                     this.sensorData.is_light_sensor = 
                         (this.sensorData.light_sensor < this.sensorInit.sensor2.threshold);
+
+                    let fVal = this.sensorData.front_sensor;
+                    const fMin = this.sensorInit.sensor0.min;
+                    const fMmax = this.sensorInit.sensor0.max;
+                    fVal = (fVal - fMin) * 100 / (fMmax - fMin);
+
+                    let bVal = this.sensorData.bottom_sensor;
+                    const bMin = this.sensorInit.sensor1.min;
+                    const bMmax = this.sensorInit.sensor1.max;
+                    bVal = (bVal - bMin) * 100 / (bMmax - bMin);
+
+                    let lVal = this.sensorData.light_sensor;
+                    const lMin = this.sensorInit.sensor2.min;
+                    const lMmax = this.sensorInit.sensor2.max;
+                    lVal = (lVal - lMin) * 100 / (lMmax - lMin);
+
+                    this.sensorData.front_sensor = parseInt(fVal, 10);
+                    if (this.sensorData.front_sensor < 0) {
+                        this.sensorData.front_sensor = 0;
+                    } else if (this.sensorData.front_sensor > 100) {
+                        this.sensorData.front_sensor = 100;
+                    }
+                    this.sensorData.bottom_sensor = parseInt(bVal, 10);
+                    if (this.sensorData.bottom_sensor < 0) {
+                        this.sensorData.bottom_sensor = 0;
+                    } else if (this.sensorData.bottom_sensor > 100) {
+                        this.sensorData.bottom_sensor = 100;
+                    }
+                    this.sensorData.light_sensor = parseInt(lVal, 10);
+                    if (this.sensorData.light_sensor < 0) {
+                        this.sensorData.light_sensor = 0;
+                    } else if (this.sensorData.light_sensor > 100) {
+                        this.sensorData.light_sensor = 100;
+                    }
                 }
 
                 //  console.log(`command:${command}, len: ${decodedData.length}`, 
@@ -516,17 +550,21 @@ class Choco extends BaseModule {
                 break;
 
             case 'move_right_left': {
-                data = Buffer.from([0x0D, seqNo, 0, 0, 0, 0, 0, 0, 0, 0]);
+                if (args.param3 === 'cm') {
+                    data = Buffer.from([0x1B, seqNo, 0, 0, 0, 0, 0, 0, 0, 0]);
+                } else {
+                    data = Buffer.from([0x0D, seqNo, 0, 0, 0, 0, 0, 0, 0, 0]);
+                }
                 const args1 = {
                     param1: args.param1,
-                    param2: args.param2,
+                    param2: args.param3,
                 };
                 const args2 = {
-                    param1: args.param3,
-                    param2: args.param4,
+                    param1: args.param2,
+                    param2: args.param3,
                 };
                 data.writeUInt32LE(this.calMoveVal(args1), 2);
-                data.writeUInt32LE(this.calMoveVal(args2), 6);
+                data.writeUInt32LE(this.calMoveVal(args2), 6);                
                 crc = this.calCrc16(data);
                 encodedCmd = this.escapeEncode(Buffer.concat([data, 
                     Buffer.from([crc & 0xFF, (crc >> 8) & 0xFF])]));
