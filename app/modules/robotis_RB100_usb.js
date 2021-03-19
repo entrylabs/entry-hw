@@ -129,8 +129,6 @@ Module.prototype.requestInitialData = function() {
 };
 
 Module.prototype.checkInitialData = function(data, config) {
-    console.log("######### checkInitialData");
-
     return true;
 };
 
@@ -139,7 +137,6 @@ Module.prototype.validateLocalData = function(data) {
 };
 
 Module.prototype.requestRemoteData = function(handler) {
-
     for (var indexA = 0; indexA < this.dataBuffer.length; indexA++) { // 일반형
         if (this.dataBuffer[indexA] != undefined) {
             handler.write(indexA, this.dataBuffer[indexA]);
@@ -289,7 +286,7 @@ Module.prototype.requestLocalData = function() {
         return this.readPacket(200, 0, 2);
     }
 
-        if (!isTemp) { // add by kjs 20170824
+    if (!isTemp) { // add by kjs 20170824
             sendBuffer = this.writeBytePacket(200, 21, 8);
 
         dataLength = this.makeWord(sendBuffer[5], sendBuffer[6]);
@@ -308,78 +305,77 @@ Module.prototype.requestLocalData = function() {
             }, 100);
         }
         isTemp = true;
-    } else {
-
-            var data = this.robotisBuffer.shift();
-        if (data == null) {
-            return sendBuffer;
-        }
-        var instruction = data[0];
-        var address = data[1];
-        var length = data[2];
-        var value = data[3];
-        if (instruction == INST_WRITE) {
-            if (length == 1) {
-                sendBuffer = this.writeBytePacket(200, address, value);
-            } else if (length == 2) {
-                sendBuffer = this.writeWordPacket(200, address, value);
-            } else if (length == 4 && address == 136) {
-                var value2;
-                if (value < 1024)
-                    value2 = value + 1024;
-                else
-                    value2 = value - 1024;
-                sendBuffer = this.writeDWordPacket2(200, address, value, value2);
-            } else {
-                sendBuffer = this.writeDWordPacket(200, address, value);
+        } else {
+                var data = this.robotisBuffer.shift();
+            if (data == null) {
+                return sendBuffer;
             }
-
-        } else if (instruction == INST_READ) {
-            this.addressToRead[address] = 0;
-            sendBuffer = this.readPacket(200, address, length);
-        } else if (instruction == INST_DXL_SYNCWRITE) { 
-            var ids = data[4];
-            value = data[5];
-            var tmpSendBuffer = this.dxlSyncWritePacket(ids, address, length, value);
-            var tmp = [];
-            for(let j = 0; j < tmpSendBuffer / 20; j++){
-                for(let i = j*20; i < j*20+20; i++) {
-                    tmp.push(tmpSendBuffer[i]);
-                }
-                sendBuffer.push(tmp);
-            }
-            
-            sendBuffer = this.dxlSyncWritePacket(ids, address, length, value);
-        } else if(instruction == INST_DXL_REGWRITE) {
-            var ids = data[4];
-
-            sendBuffer = this.dxlRegWritePacket(ids[0], address, length, value);
-        } else if(instruction == INST_DXL_ACTION) {
-            sendBuffer = this.dxlActionWrite();
-        }
-    
-        console.log("send buffer : " + sendBuffer)
-        if (sendBuffer[0] == 0xFF &&
-            sendBuffer[1] == 0xFF &&
-            sendBuffer[2] == 0xFD &&
-            sendBuffer[3] == 0x00 &&
-            sendBuffer[4] == 0xC8) {
-            dataLength = this.makeWord(sendBuffer[5], sendBuffer[6]);
-
-            if (sendBuffer[7] == 0x02) {
-                this.receiveAddress = address;
-                this.receiveLength = length;
-                this.defaultLength = data[2];
-                isReadDataArrived = false;                
-                if (this.varTimeout != null) {
-                    clearTimeout(this.varTimeout);
+            var instruction = data[0];
+            var address = data[1];
+            var length = data[2];
+            var value = data[3];
+            if (instruction == INST_WRITE) {
+                if (length == 1) {
+                    sendBuffer = this.writeBytePacket(200, address, value);
+                } else if (length == 2) {
+                    sendBuffer = this.writeWordPacket(200, address, value);
+                } else if (length == 4 && address == 136) {
+                    var value2;
+                    if (value < 1024)
+                        value2 = value + 1024;
+                    else
+                        value2 = value - 1024;
+                    sendBuffer = this.writeDWordPacket2(200, address, value, value2);
+                } else {
+                    sendBuffer = this.writeDWordPacket(200, address, value);
                 }
 
-                this.varTimeout = setTimeout(function () {
-                    isReadDataArrived = true;
-                }, 100);
+            } else if (instruction == INST_READ) {
+                this.addressToRead[address] = 0;
+                sendBuffer = this.readPacket(200, address, length);
+            } else if (instruction == INST_DXL_SYNCWRITE) { 
+                var ids = data[4];
+                value = data[5];
+                var tmpSendBuffer = this.dxlSyncWritePacket(ids, address, length, value);
+                var tmp = [];
+                for(let j = 0; j < tmpSendBuffer / 20; j++){
+                    for(let i = j*20; i < j*20+20; i++) {
+                        tmp.push(tmpSendBuffer[i]);
+                    }
+                    sendBuffer.push(tmp);
+                }
+                
+                sendBuffer = this.dxlSyncWritePacket(ids, address, length, value);
+            } else if(instruction == INST_DXL_REGWRITE) {
+                var ids = data[4];
+
+                sendBuffer = this.dxlRegWritePacket(ids[0], address, length, value);
+            } else if(instruction == INST_DXL_ACTION) {
+                sendBuffer = this.dxlActionWrite();
             }
-        }
+        
+            console.log("send buffer : " + sendBuffer)
+            if (sendBuffer[0] == 0xFF &&
+                sendBuffer[1] == 0xFF &&
+                sendBuffer[2] == 0xFD &&
+                sendBuffer[3] == 0x00 &&
+                sendBuffer[4] == 0xC8) {
+                dataLength = this.makeWord(sendBuffer[5], sendBuffer[6]);
+
+                if (sendBuffer[7] == 0x02) {
+                    this.receiveAddress = address;
+                    this.receiveLength = length;
+                    this.defaultLength = data[2];
+                    isReadDataArrived = false;                
+                    if (this.varTimeout != null) {
+                        clearTimeout(this.varTimeout);
+                    }
+
+                    this.varTimeout = setTimeout(function () {
+                        isReadDataArrived = true;
+                    }, 100);
+                }
+            }
     }
     return sendBuffer;
 };

@@ -95,7 +95,7 @@ Module.prototype.requestInitialData = function() {
     this.receiveLength = -1;
     this.defaultLength = -1;
 
-    var sendbuffer = null;
+    
 
     //this.touchSensor = 0;
     this.colorSensor = [];
@@ -131,8 +131,6 @@ Module.prototype.requestInitialData = function() {
 };
 
 Module.prototype.checkInitialData = function(data, config) {
-    console.log("######### checkInitialData");
-
     return true;
 };
 
@@ -141,7 +139,6 @@ Module.prototype.validateLocalData = function(data) {
 };
 
 Module.prototype.requestRemoteData = function(handler) {
-
     for (var indexA = 0; indexA < this.dataBuffer.length; indexA++) { // 일반형
         if (this.dataBuffer[indexA] != undefined) {
             handler.write(indexA, this.dataBuffer[indexA]);
@@ -149,7 +146,7 @@ Module.prototype.requestRemoteData = function(handler) {
     }
     //실과형
     //console.log("###### value : " + this.detectedSound);
-    for (var i = 0; i < 4; i++) {        
+    for (let i = 0; i < 4; i++) {        
         handler.write('TOUCH' + i, this.touchSensor[i]); // 접촉 센서
         handler.write('IR' + i, this.irSensor[i]); // 적외선 센서
         handler.write('LIGHT' + i, this.lightSensor[i]); // 조도 센서
@@ -293,8 +290,8 @@ Module.prototype.requestLocalData = function() {
         return this.readPacket(200, 0, 2);
     }
 
-        if (!isTemp) { // add by kjs 20170824
-            sendBuffer = this.writeBytePacket(200, 21, 8);
+    if (!isTemp) { // add by kjs 20170824
+        sendBuffer = this.writeBytePacket(200, 21, 8);
 
         dataLength = this.makeWord(sendBuffer[5], sendBuffer[6]);
         if (sendBuffer[7] == 0x02) {
@@ -314,7 +311,7 @@ Module.prototype.requestLocalData = function() {
         isTemp = true;
     } else {
 
-            var data = this.robotisBuffer.shift();
+        var data = this.robotisBuffer.shift();
         if (data == null) {
             return sendBuffer;
         }
