@@ -1,7 +1,7 @@
 function Module() {
     isReadDataArrived = true;
     isConnected = true;
-    isTemp = true; // add by kjs 20170824 // is address 21 value 8?
+    var isTemp = true; // add by kjs 20170824 // is address 21 value 8?
     this.addressToRead = [];
     this.varTimeout = null;
 
