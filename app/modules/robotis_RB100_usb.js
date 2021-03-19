@@ -1,7 +1,6 @@
 function Module() {
     isReadDataArrived = true;
     isConnected = true;
-    isTemp = true; // add by kjs 20170824 // is address 21 value 8?
     this.addressToRead = [];
     this.varTimeout = null;
 
@@ -74,7 +73,6 @@ Module.prototype.requestInitialData = function() {
     //console.log("######### requestInitialData");
     isReadDataArrived = true;
     isConnected = true;
-    isTemp = true; // add by kjs 20170824
     this.addressToRead = [];
     this.varTimeout = null;
 

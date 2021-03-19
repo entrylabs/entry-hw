@@ -1,7 +1,6 @@
 function Module() {
     isReadDataArrived = true;
     isConnected = true;
-    isTemp = true; // add by kjs 20170824 // is address 21 value 8?
     this.addressToRead = [];
     this.varTimeout = null;
 
@@ -50,8 +49,6 @@ function Module() {
 }
 
 Module.prototype.init = function(handler, config) {
-    //console.log("######### init");
-
 };
 
 Module.prototype.lostController = function(self, callback) {
@@ -75,27 +72,21 @@ Module.prototype.requestInitialData = function() {
     //console.log("######### requestInitialData");
     isReadDataArrived = true;
     isConnected = true;
-    isTemp = true; // add by kjs 20170824
     this.addressToRead = [];
     this.varTimeout = null;
-
     this.prevInstruction = 0;
     this.prevAddress = [];
     this.prevLength = [];
     this.prevValue = [];
-
     this.servoPrevAddres = [];
     this.servoPrevLength = [];
     this.servoPrevValue = [];
-
     this.receiveBuffer = [];
     this.dataBuffer = [];
     this.robotisBuffer = [];
     this.receiveAddress = -1;
     this.receiveLength = -1;
     this.defaultLength = -1;
-
-    //this.touchSensor = 0;
     this.colorSensor = [];
     this.temperature = [];
     this.humidity = [];
@@ -105,7 +96,6 @@ Module.prototype.requestInitialData = function() {
     this.detectedSound = 0;
     this.detectringSound = 0;
     this.userButtonState = 0;
-
     this.servoPrevAddres = []; // add by kjs 20170627 
     this.servoPrevLength = []; // add by kjs 20170627 
     this.servoPrevValue = [];  // add by kjs 20170627 
@@ -118,13 +108,8 @@ Module.prototype.requestInitialData = function() {
     this.servoPrevAddres4 = []; // add by kjs 20170627 
     this.servoPrevLength4 = []; // add by kjs 20170627 
     this.servoPrevValue4 = [];  // add by kjs 20170627 
-    
     this.robotisBuffer.push([INST_WRITE, 21, 2, 20]);
-    
-    
-
     this.robotisBuffer.push([INST_WRITE, 20, 1, 0]);
-    
     return this.readPacket(200, 0, 2);
 };
 
@@ -147,10 +132,9 @@ Module.prototype.requestRemoteData = function(handler) {
 Module.prototype.handleRemoteData = function(handler) {
     var data = handler.read('ROBOTIS_DATA');
 
-    var setZero = handler.read('setZero');
+    let setZero = handler.read('setZero');
     if (setZero[0] == 1) {
         this.robotisBuffer = [];
-
         this.servoPrevAddres = []; // add by kjs 20170627 
         this.servoPrevLength = []; // add by kjs 20170627 
         this.servoPrevValue = [];  // add by kjs 20170627 
@@ -163,15 +147,13 @@ Module.prototype.handleRemoteData = function(handler) {
         this.servoPrevAddres4 = []; // add by kjs 20170627 
         this.servoPrevLength4 = []; // add by kjs 20170627 
         this.servoPrevValue4 = [];  // add by kjs 20170627 
-
     }
     for (let index = 0; index < data.length; index++) {
-        let instruction = data[index][0];
-        let address = data[index][1];
-        let length = data[index][2];
-        let value = data[index][3];
+        const instruction = data[index][0];
+        const address = data[index][1];
+        const length = data[index][2];
+        const value = data[index][3];
         let doSend = false;
-        //console.log("###2 : " + address + " and : " + value + " instruction : " + instruction + " length : " + length);
         if (instruction == INST_NONE) {
             doSend = false;
         } else if (instruction == INST_READ) {
