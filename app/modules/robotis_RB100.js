@@ -130,7 +130,7 @@ Module.prototype.requestRemoteData = function(handler) {
 };
 
 Module.prototype.handleRemoteData = function(handler) {
-    var data = handler.read('ROBOTIS_DATA');
+    let data = handler.read('ROBOTIS_DATA');
 
     const setZero = handler.read('setZero');
     if (setZero[0] == 1) {
@@ -225,7 +225,8 @@ Module.prototype.handleRemoteData = function(handler) {
             this.prevServoSet(address, value, length);
         }
 
-        if (instruction == INST_WRITE || instruction == INST_DXL_SYNCWRITE || instruction == INST_DXL_REGWRITE || instruction == INST_DXL_ACTION) {
+        if (instruction == INST_WRITE || instruction == INST_DXL_SYNCWRITE ||
+            instruction == INST_DXL_REGWRITE || instruction == INST_DXL_ACTION) {
             this.robotisBuffer.push(data[index]);
         } else if (instruction == INST_READ) {
             if (this.addressToRead[address] == undefined || this.addressToRead[address] == 0) {
@@ -241,10 +242,11 @@ Module.prototype.handleRemoteData = function(handler) {
         }
     }
 };
-
+let isTemp = false;
 Module.prototype.requestLocalData = function() {
     let sendBuffer = null;
     let dataLength = 0;
+
     if (isReadDataArrived == false) {
         //console.log("######## 1");
         return sendBuffer;

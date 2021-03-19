@@ -68,7 +68,7 @@ Module.prototype.lostController = function(self, callback) {
         }
     }, 1000);
 };
-
+let isTemp = false;
 Module.prototype.requestInitialData = function() {
     //console.log("######### requestInitialData");
     isReadDataArrived = true;
