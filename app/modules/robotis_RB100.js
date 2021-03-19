@@ -95,7 +95,11 @@ Module.prototype.requestInitialData = function() {
     this.receiveLength = -1;
     this.defaultLength = -1;
 
+<<<<<<< HEAD
     
+=======
+    let sendbuffer = null;
+>>>>>>> 77fd3e8771ad9d0d55068a55d7c2c8c3eabd186b
 
     //this.touchSensor = 0;
     this.colorSensor = [];
@@ -139,25 +143,11 @@ Module.prototype.validateLocalData = function(data) {
 };
 
 Module.prototype.requestRemoteData = function(handler) {
-    for (var indexA = 0; indexA < this.dataBuffer.length; indexA++) { // 일반형
+    for (let indexA = 0; indexA < this.dataBuffer.length; indexA++) { // 일반형
         if (this.dataBuffer[indexA] != undefined) {
             handler.write(indexA, this.dataBuffer[indexA]);
         }
     }
-    //실과형
-    //console.log("###### value : " + this.detectedSound);
-    for (let i = 0; i < 4; i++) {        
-        handler.write('TOUCH' + i, this.touchSensor[i]); // 접촉 센서
-        handler.write('IR' + i, this.irSensor[i]); // 적외선 센서
-        handler.write('LIGHT' + i, this.lightSensor[i]); // 조도 센서
-        handler.write('COLOR' + i, this.colorSensor[i]); // 칼라 센서
-        handler.write('HUMIDTY' + i, this.humidity[i]); // 습도 센서
-        handler.write('TEMPERATURE' + i, this.temperature[i]); // 온도 센서
-    }
-    handler.write('DETECTEDSOUNDE', this.detectedSound); // 최종 소리 감지 횟수
-    handler.write('DETECTINGSOUNDE1', this.detectringSound); // 실시간 소리 감지 횟수
-    handler.write('USERBUTTONSTATE', this.userButtonState);
-
 };
 
 Module.prototype.handleRemoteData = function(handler) {
@@ -181,12 +171,12 @@ Module.prototype.handleRemoteData = function(handler) {
         this.servoPrevValue4 = [];  // add by kjs 20170627 
 
     }
-    for (var index = 0; index < data.length; index++) {
-        var instruction = data[index][0];
-        var address = data[index][1];
-        var length = data[index][2];
-        var value = data[index][3];
-        var doSend = false;
+    for (let index = 0; index < data.length; index++) {
+        let instruction = data[index][0];
+        let address = data[index][1];
+        let length = data[index][2];
+        let value = data[index][3];
+        let doSend = false;
         //console.log("###2 : " + address + " and : " + value + " instruction : " + instruction + " length : " + length);
         if (instruction == INST_NONE) {
             doSend = false;
