@@ -95,12 +95,6 @@ Module.prototype.requestInitialData = function() {
     this.receiveLength = -1;
     this.defaultLength = -1;
 
-<<<<<<< HEAD
-    
-=======
-    let sendbuffer = null;
->>>>>>> 77fd3e8771ad9d0d55068a55d7c2c8c3eabd186b
-
     //this.touchSensor = 0;
     this.colorSensor = [];
     this.temperature = [];
