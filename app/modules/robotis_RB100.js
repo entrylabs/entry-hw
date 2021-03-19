@@ -1,6 +1,7 @@
 function Module() {
     isReadDataArrived = true;
     isConnected = true;
+    isTemp = true; // add by kjs 20170824 // is address 21 value 8?
     this.addressToRead = [];
     this.varTimeout = null;
 
@@ -49,6 +50,8 @@ function Module() {
 }
 
 Module.prototype.init = function(handler, config) {
+    //console.log("######### init");
+
 };
 
 Module.prototype.lostController = function(self, callback) {
@@ -72,21 +75,29 @@ Module.prototype.requestInitialData = function() {
     //console.log("######### requestInitialData");
     isReadDataArrived = true;
     isConnected = true;
+    isTemp = true; // add by kjs 20170824
     this.addressToRead = [];
     this.varTimeout = null;
+
     this.prevInstruction = 0;
     this.prevAddress = [];
     this.prevLength = [];
     this.prevValue = [];
+
     this.servoPrevAddres = [];
     this.servoPrevLength = [];
     this.servoPrevValue = [];
+
     this.receiveBuffer = [];
     this.dataBuffer = [];
     this.robotisBuffer = [];
     this.receiveAddress = -1;
     this.receiveLength = -1;
     this.defaultLength = -1;
+
+    var sendbuffer = null;
+
+    //this.touchSensor = 0;
     this.colorSensor = [];
     this.temperature = [];
     this.humidity = [];
@@ -96,6 +107,7 @@ Module.prototype.requestInitialData = function() {
     this.detectedSound = 0;
     this.detectringSound = 0;
     this.userButtonState = 0;
+
     this.servoPrevAddres = []; // add by kjs 20170627 
     this.servoPrevLength = []; // add by kjs 20170627 
     this.servoPrevValue = [];  // add by kjs 20170627 
@@ -108,12 +120,16 @@ Module.prototype.requestInitialData = function() {
     this.servoPrevAddres4 = []; // add by kjs 20170627 
     this.servoPrevLength4 = []; // add by kjs 20170627 
     this.servoPrevValue4 = [];  // add by kjs 20170627 
+
     this.robotisBuffer.push([INST_WRITE, 21, 2, 20]);
     this.robotisBuffer.push([INST_WRITE, 20, 1, 0]);
+    
     return this.readPacket(200, 0, 2);
 };
 
 Module.prototype.checkInitialData = function(data, config) {
+    console.log("######### checkInitialData");
+
     return true;
 };
 
@@ -122,19 +138,35 @@ Module.prototype.validateLocalData = function(data) {
 };
 
 Module.prototype.requestRemoteData = function(handler) {
-    for (let indexA = 0; indexA < this.dataBuffer.length; indexA++) { // 일반형
+
+    for (var indexA = 0; indexA < this.dataBuffer.length; indexA++) { // 일반형
         if (this.dataBuffer[indexA] != undefined) {
             handler.write(indexA, this.dataBuffer[indexA]);
         }
     }
+    //실과형
+    //console.log("###### value : " + this.detectedSound);
+    for (var i = 0; i < 4; i++) {        
+        handler.write('TOUCH' + i, this.touchSensor[i]); // 접촉 센서
+        handler.write('IR' + i, this.irSensor[i]); // 적외선 센서
+        handler.write('LIGHT' + i, this.lightSensor[i]); // 조도 센서
+        handler.write('COLOR' + i, this.colorSensor[i]); // 칼라 센서
+        handler.write('HUMIDTY' + i, this.humidity[i]); // 습도 센서
+        handler.write('TEMPERATURE' + i, this.temperature[i]); // 온도 센서
+    }
+    handler.write('DETECTEDSOUNDE', this.detectedSound); // 최종 소리 감지 횟수
+    handler.write('DETECTINGSOUNDE1', this.detectringSound); // 실시간 소리 감지 횟수
+    handler.write('USERBUTTONSTATE', this.userButtonState);
+
 };
 
 Module.prototype.handleRemoteData = function(handler) {
-    const data = handler.read('ROBOTIS_DATA');
+    var data = handler.read('ROBOTIS_DATA');
 
-    const setZero = handler.read('setZero');
+    var setZero = handler.read('setZero');
     if (setZero[0] == 1) {
         this.robotisBuffer = [];
+
         this.servoPrevAddres = []; // add by kjs 20170627 
         this.servoPrevLength = []; // add by kjs 20170627 
         this.servoPrevValue = [];  // add by kjs 20170627 
@@ -147,13 +179,15 @@ Module.prototype.handleRemoteData = function(handler) {
         this.servoPrevAddres4 = []; // add by kjs 20170627 
         this.servoPrevLength4 = []; // add by kjs 20170627 
         this.servoPrevValue4 = [];  // add by kjs 20170627 
+
     }
-    for (let index = 0; index < data.length; index++) {
-        const instruction = data[index][0];
-        const address = data[index][1];
-        const length = data[index][2];
-        const value = data[index][3];
-        let doSend = false;
+    for (var index = 0; index < data.length; index++) {
+        var instruction = data[index][0];
+        var address = data[index][1];
+        var length = data[index][2];
+        var value = data[index][3];
+        var doSend = false;
+        //console.log("###2 : " + address + " and : " + value + " instruction : " + instruction + " length : " + length);
         if (instruction == INST_NONE) {
             doSend = false;
         } else if (instruction == INST_READ) {
@@ -182,7 +216,7 @@ Module.prototype.handleRemoteData = function(handler) {
         }
         //console.log("dosend : " + doSend);
         if (doSend) {
-            for (let indexA = 0; indexA < this.robotisBuffer.length; indexA++) {
+            for (var indexA = 0; indexA < this.robotisBuffer.length; indexA++) {
                 if (data[index][0] == this.robotisBuffer[indexA][0] &&
                     data[index][1] == this.robotisBuffer[indexA][1] &&
                     data[index][2] == this.robotisBuffer[indexA][2] &&
@@ -192,9 +226,9 @@ Module.prototype.handleRemoteData = function(handler) {
                 }
             }
         }
-        if (instruction == 4 || instruction == 5 || instruction == 6) {
-            doSend = true;
-        }
+        if(instruction == 4 || instruction == 5 || instruction == 6) {
+			doSend = true;
+		}
         if (!doSend) {
             continue;
         }
@@ -225,8 +259,7 @@ Module.prototype.handleRemoteData = function(handler) {
             this.prevServoSet(address, value, length);
         }
 
-        if (instruction == INST_WRITE || instruction == INST_DXL_SYNCWRITE ||
-            instruction == INST_DXL_REGWRITE || instruction == INST_DXL_ACTION) {
+        if (instruction == INST_WRITE || instruction == INST_DXL_SYNCWRITE || instruction == INST_DXL_REGWRITE || instruction == INST_DXL_ACTION) {
             this.robotisBuffer.push(data[index]);
         } else if (instruction == INST_READ) {
             if (this.addressToRead[address] == undefined || this.addressToRead[address] == 0) {
@@ -242,11 +275,10 @@ Module.prototype.handleRemoteData = function(handler) {
         }
     }
 };
-let isTemp = false;
-Module.prototype.requestLocalData = function() {
-    let sendBuffer = null;
-    let dataLength = 0;
 
+Module.prototype.requestLocalData = function() {
+    var sendBuffer = null;
+    var dataLength = 0;
     if (isReadDataArrived == false) {
         //console.log("######## 1");
         return sendBuffer;
@@ -258,8 +290,8 @@ Module.prototype.requestLocalData = function() {
         return this.readPacket(200, 0, 2);
     }
 
-    if (!isTemp) { // add by kjs 20170824
-        sendBuffer = this.writeBytePacket(200, 21, 8);
+        if (!isTemp) { // add by kjs 20170824
+            sendBuffer = this.writeBytePacket(200, 21, 8);
 
         dataLength = this.makeWord(sendBuffer[5], sendBuffer[6]);
         if (sendBuffer[7] == 0x02) {
@@ -271,20 +303,22 @@ Module.prototype.requestLocalData = function() {
             if (this.varTimeout != null) {
                 clearTimeout(this.varTimeout);
             }
+
             this.varTimeout = setTimeout(function() {
                 isReadDataArrived = true;
             }, 100);
         }
         isTemp = true;
     } else {
-        const data = this.robotisBuffer.shift();
+
+            var data = this.robotisBuffer.shift();
         if (data == null) {
             return sendBuffer;
         }
-        const instruction = data[0];
-        const address = data[1];
-        const length = data[2];
-        let value = data[3];
+        var instruction = data[0];
+        var address = data[1];
+        var length = data[2];
+        var value = data[3];
         //console.log('send address : ' + address + ', ' + value + ", " + length); // add by kjs 170426
         if (instruction == INST_WRITE) {
             if (length == 1) {
@@ -292,17 +326,16 @@ Module.prototype.requestLocalData = function() {
             } else if (length == 2) {
                 sendBuffer = this.writeWordPacket(200, address, value);
             } else if (length == 4 && address == 136) {
-                let value2 = 0;
-                if (value < 1024) {
+                var value2;
+                if (value < 1024)
                     value2 = value + 1024;
-                }
-                else {
+                else
                     value2 = value - 1024;
-                }
                 sendBuffer = this.writeDWordPacket2(200, address, value, value2);
             } else {
                 sendBuffer = this.writeDWordPacket(200, address, value);
             }
+
         } else if (instruction == INST_READ) {
             this.addressToRead[address] = 0;
             sendBuffer = this.readPacket(200, address, length);
@@ -351,7 +384,6 @@ Module.prototype.requestLocalData = function() {
             }
         }
     }
-    
     return sendBuffer;
 };
 Module.prototype.packetChecker = function (data) {
@@ -371,7 +403,9 @@ Module.prototype.handleLocalData = function(data) { // data: Native Buffer
 
 	if (this.receiveBuffer.length >= 11 + this.receiveLength) {
 		isConnected = true;
-		
+		// console.log('<< 1 : ' + this.receiveLength + ' : ' + this.receiveBuffer);
+
+		// while (this.receiveBuffer.length > 0) {
 		while (this.receiveBuffer.length >= 11 + this.receiveLength) {
 			if (this.receiveBuffer.shift() == 0xFF) {
 				if (this.receiveBuffer.shift() == 0xFF) {
@@ -379,7 +413,8 @@ Module.prototype.handleLocalData = function(data) { // data: Native Buffer
 						if (this.receiveBuffer.shift() == 0x00) {
 							if (this.receiveBuffer.shift() == 0xC8) {
 								var packetLength = this.makeWord(this.receiveBuffer.shift(), this.receiveBuffer.shift());
-								
+								// if (packetLength > 4) {
+								// console.log("?? : " + this.receiveLength + ' / ' + (packetLength - 4));
 								if (this.receiveLength == (packetLength - 4)) {
 									this.receiveBuffer.shift(); // take 0x55 - status check byte
 									this.receiveBuffer.shift(); // take 0x00 - error check byte
@@ -403,6 +438,7 @@ Module.prototype.handleLocalData = function(data) { // data: Native Buffer
                                             tmpValue = this.receiveBuffer.shift() | (this.receiveBuffer.shift() << 8) | (this.receiveBuffer.shift() << 16) | (this.receiveBuffer.shift() << 24);
                                             
                                             returnValue.push(tmpValue);
+											// returnValue.push(this.receiveBuffer.shift() | (this.receiveBuffer.shift() << 8) | (this.receiveBuffer.shift() << 16) | (this.receiveBuffer.shift() << 24));
 										}
 									}
 
@@ -416,9 +452,10 @@ Module.prototype.handleLocalData = function(data) { // data: Native Buffer
 										}
 
 										isReadDataArrived = true;
-										
+										// console.log('<- ' + new Date().getHours() + ':' + new Date().getMinutes() + ':' + new Date().getMilliseconds() + '\n'
+										 // + this.receiveAddress + ' : ' + returnValue);
 									} else {
-										
+										// console.log('<- ' + new Date().getHours() + ':' + new Date().getMinutes() + ':' + new Date().getMilliseconds() + '\n' + '-1');
 									}
 
 									this.receiveBuffer.shift(); // take crc check byte
@@ -518,7 +555,7 @@ Module.prototype.writeWordPacket = function(id, address, value) {
     packet.push(this.getHighByte(address));
     packet.push(this.getLowByte(value));
     packet.push(this.getHighByte(value));
-    let crc = this.updateCRC(0, packet, packet.length);
+    var crc = this.updateCRC(0, packet, packet.length);
     packet.push(this.getLowByte(crc));
     packet.push(this.getHighByte(crc));
     return packet;
@@ -526,7 +563,7 @@ Module.prototype.writeWordPacket = function(id, address, value) {
 
 Module.prototype.writeDWordPacket = function(id, address, value) {
     console.log("######### writeDWordPacket");
-    let packet = [];
+    var packet = [];
     packet.push(0xff);
     packet.push(0xff);
     packet.push(0xfd);
@@ -542,7 +579,7 @@ Module.prototype.writeDWordPacket = function(id, address, value) {
     packet.push(this.getLowByte(this.getHighWord(value)));
     packet.push(this.getHighByte(this.getHighWord(value)));
     console.log("packet : " + packet);
-    let crc = this.updateCRC(0, packet, packet.length);
+    var crc = this.updateCRC(0, packet, packet.length);
     packet.push(this.getLowByte(crc));
     packet.push(this.getHighByte(crc));
     return packet;
@@ -550,7 +587,7 @@ Module.prototype.writeDWordPacket = function(id, address, value) {
 
 Module.prototype.writeDWordPacket2 = function(id, address, value, value2) {
     //console.log("######### writeDWordPacket2");
-    let packet = [];
+    var packet = [];
     packet.push(0xff);
     packet.push(0xff);
     packet.push(0xfd);
@@ -566,15 +603,15 @@ Module.prototype.writeDWordPacket2 = function(id, address, value, value2) {
     packet.push(this.getLowByte(this.getLowWord(value2)));
     packet.push(this.getHighByte(this.getLowWord(value2)));
     //console.log("packet : " + packet);
-    let crc = this.updateCRC(0, packet, packet.length);
+    var crc = this.updateCRC(0, packet, packet.length);
     packet.push(this.getLowByte(crc));
     packet.push(this.getHighByte(crc));
     return packet;
 };
 
 Module.prototype.dxlRegWritePacket = function(id, address, length, value) {
-    let packet = [];
-    let paramLength = length + 5;
+    var packet = [];
+    var paramLength = length + 5;
 
     packet.push(0xff);
 	packet.push(0xff);
@@ -603,8 +640,8 @@ Module.prototype.dxlRegWritePacket = function(id, address, length, value) {
             packet.push(this.getHighByte(this.getHighWord(value)));
             break;
         case 8:
-            let tmpV_1 = value / 4294967296;
-            let tmpV_2 = value % 4294967296;
+            var tmpV_1 = value / 4294967296;
+            var tmpV_2 = value % 4294967296;
 
             packet.push(this.getLowByte(this.getLowWord(tmpV_1)));
             packet.push(this.getHighByte(this.getLowWord(tmpV_1)));
@@ -618,14 +655,14 @@ Module.prototype.dxlRegWritePacket = function(id, address, length, value) {
             break;
     }
 
-    let crc = this.updateCRC(0, packet, packet.length);
+    var crc = this.updateCRC(0, packet, packet.length);
     packet.push(this.getLowByte(crc));
     packet.push(this.getHighByte(crc));
 	return packet;
 }
 
 Module.prototype.dxlActionWrite = function() {
-    let packet = [];
+    var packet = [];
     packet.push(0xff);
     packet.push(0xff);
     packet.push(0xfd);
@@ -638,15 +675,15 @@ Module.prototype.dxlActionWrite = function() {
 
     packet.push(0x05);
 
-    let crc = this.updateCRC(0, packet, packet.length);
+    var crc = this.updateCRC(0, packet, packet.length);
     packet.push(this.getLowByte(crc));
     packet.push(this.getHighByte(crc));
 	return packet;
 }
 
 Module.prototype.dxlSyncWritePacket = function(ids, address, rLength, values) {
-	let packet = [];
-	let paramLength = 7 + ids.length * (rLength + 1);
+	var packet = [];
+	var paramLength = 7 + ids.length * (rLength + 1);
 
 	packet.push(0xff);
 	packet.push(0xff);
@@ -684,7 +721,7 @@ Module.prototype.dxlSyncWritePacket = function(ids, address, rLength, values) {
         
 	}
 
-	let crc = this.updateCRC(0, packet, packet.length);
+	var crc = this.updateCRC(0, packet, packet.length);
     packet.push(this.getLowByte(crc));
     packet.push(this.getHighByte(crc));
 	return packet;
@@ -762,7 +799,7 @@ Module.prototype.prevServoSet = function(address, value, length) {
 
 Module.prototype.readPacket = function(id, address, lengthToRead) {
     //console.log("######### readPacket");
-    let packet = [];
+    var packet = [];
     packet.push(0xff);
     packet.push(0xff);
     packet.push(0xfd);
@@ -775,7 +812,7 @@ Module.prototype.readPacket = function(id, address, lengthToRead) {
     packet.push(this.getHighByte(address));
     packet.push(this.getLowByte(lengthToRead));
     packet.push(this.getHighByte(lengthToRead));
-    let crc = this.updateCRC(0, packet, packet.length);
+    var crc = this.updateCRC(0, packet, packet.length);
     packet.push(this.getLowByte(crc));
     packet.push(this.getHighByte(crc));
     return packet;
@@ -842,7 +879,7 @@ Module.prototype.getHighWord = function(a) {
 };
 
 Module.prototype.updateCRC = function(crc_accum, data_blk_ptr, data_blk_size) {
-    let i, j;
+    var i, j;
 
     for (j = 0; j < data_blk_size; j++) {
         i = ((crc_accum >> 8) ^ data_blk_ptr[j]) & 0xff;

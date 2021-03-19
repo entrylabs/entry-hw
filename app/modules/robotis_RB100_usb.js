@@ -1,6 +1,7 @@
 function Module() {
     isReadDataArrived = true;
     isConnected = true;
+    isTemp = true; // add by kjs 20170824 // is address 21 value 8?
     this.addressToRead = [];
     this.varTimeout = null;
 
@@ -49,6 +50,7 @@ function Module() {
 }
 
 Module.prototype.init = function(handler, config) {
+    //console.log("######### init");
 
 };
 
@@ -68,11 +70,12 @@ Module.prototype.lostController = function(self, callback) {
         }
     }, 1000);
 };
-let isTemp = false;
+
 Module.prototype.requestInitialData = function() {
     //console.log("######### requestInitialData");
     isReadDataArrived = true;
     isConnected = true;
+    isTemp = true; // add by kjs 20170824
     this.addressToRead = [];
     this.varTimeout = null;
 
@@ -119,14 +122,14 @@ Module.prototype.requestInitialData = function() {
     this.servoPrevValue4 = [];  // add by kjs 20170627 
     
     this.robotisBuffer.push([INST_WRITE, 21, 2, 20]);
-    
-
     this.robotisBuffer.push([INST_WRITE, 20, 1, 1]);
     
     return this.readPacket(200, 0, 2);
 };
 
 Module.prototype.checkInitialData = function(data, config) {
+    console.log("######### checkInitialData");
+
     return true;
 };
 
@@ -135,6 +138,7 @@ Module.prototype.validateLocalData = function(data) {
 };
 
 Module.prototype.requestRemoteData = function(handler) {
+
     for (var indexA = 0; indexA < this.dataBuffer.length; indexA++) { // 일반형
         if (this.dataBuffer[indexA] != undefined) {
             handler.write(indexA, this.dataBuffer[indexA]);
@@ -183,6 +187,7 @@ Module.prototype.handleRemoteData = function(handler) {
         var length = data[index][2];
         var value = data[index][3];
         var doSend = false;
+        //console.log("###2 : " + address + " and : " + value + " instruction : " + instruction + " length : " + length);
         if (instruction == INST_NONE) {
             doSend = false;
         } else if (instruction == INST_READ) {
@@ -234,18 +239,18 @@ Module.prototype.handleRemoteData = function(handler) {
             this.prevLength = [];
             this.prevValue = [];
 
-            this.servoPrevAddres = []; 
-            this.servoPrevLength = [];  
-            this.servoPrevValue = [];   
-            this.servoPrevAddres2 = []; 
-            this.servoPrevLength2 = [];  
-            this.servoPrevValue2 = [];   
-            this.servoPrevAddres3 = [];  
-            this.servoPrevLength3 = [];  
-            this.servoPrevValue3 = [];   
-            this.servoPrevAddres4 = [];  
-            this.servoPrevLength4 = [];  
-            this.servoPrevValue4 = [];   
+            this.servoPrevAddres = []; // add by kjs 20170627 
+            this.servoPrevLength = []; // add by kjs 20170627 
+            this.servoPrevValue = [];  // add by kjs 20170627 
+            this.servoPrevAddres2 = []; // add by kjs 20170627 
+            this.servoPrevLength2 = []; // add by kjs 20170627 
+            this.servoPrevValue2 = [];  // add by kjs 20170627 
+            this.servoPrevAddres3 = []; // add by kjs 20170627 
+            this.servoPrevLength3 = []; // add by kjs 20170627 
+            this.servoPrevValue3 = [];  // add by kjs 20170627 
+            this.servoPrevAddres4 = []; // add by kjs 20170627 
+            this.servoPrevLength4 = []; // add by kjs 20170627 
+            this.servoPrevValue4 = [];  // add by kjs 20170627 
         } else {
             this.prevInstruction = instruction;
             this.prevAddress = address;
@@ -275,16 +280,17 @@ Module.prototype.requestLocalData = function() {
     var sendBuffer = null;
     var dataLength = 0;
     if (isReadDataArrived == false) {
+        //console.log("######## 1");
         return sendBuffer;
     }
-    
+    /////////////////
     isConnected  = true;
     if (!isConnected) {
         this.receiveAddress = -1;        
         return this.readPacket(200, 0, 2);
     }
 
-    if (!isTemp) { // add by kjs 20170824
+        if (!isTemp) { // add by kjs 20170824
             sendBuffer = this.writeBytePacket(200, 21, 8);
 
         dataLength = this.makeWord(sendBuffer[5], sendBuffer[6]);
@@ -303,77 +309,80 @@ Module.prototype.requestLocalData = function() {
             }, 100);
         }
         isTemp = true;
-        } else {
-                var data = this.robotisBuffer.shift();
-            if (data == null) {
-                return sendBuffer;
+    } else {
+
+            var data = this.robotisBuffer.shift();
+        if (data == null) {
+            return sendBuffer;
+        }
+        var instruction = data[0];
+        var address = data[1];
+        var length = data[2];
+        var value = data[3];
+        //console.log('send address : ' + address + ', ' + value + ", " + length); // add by kjs 170426
+        if (instruction == INST_WRITE) {
+            if (length == 1) {
+                sendBuffer = this.writeBytePacket(200, address, value);
+            } else if (length == 2) {
+                sendBuffer = this.writeWordPacket(200, address, value);
+            } else if (length == 4 && address == 136) {
+                var value2;
+                if (value < 1024)
+                    value2 = value + 1024;
+                else
+                    value2 = value - 1024;
+                sendBuffer = this.writeDWordPacket2(200, address, value, value2);
+            } else {
+                sendBuffer = this.writeDWordPacket(200, address, value);
             }
-            var instruction = data[0];
-            var address = data[1];
-            var length = data[2];
-            var value = data[3];
-            if (instruction == INST_WRITE) {
-                if (length == 1) {
-                    sendBuffer = this.writeBytePacket(200, address, value);
-                } else if (length == 2) {
-                    sendBuffer = this.writeWordPacket(200, address, value);
-                } else if (length == 4 && address == 136) {
-                    var value2;
-                    if (value < 1024)
-                        value2 = value + 1024;
-                    else
-                        value2 = value - 1024;
-                    sendBuffer = this.writeDWordPacket2(200, address, value, value2);
-                } else {
-                    sendBuffer = this.writeDWordPacket(200, address, value);
+
+        } else if (instruction == INST_READ) {
+            this.addressToRead[address] = 0;
+            sendBuffer = this.readPacket(200, address, length);
+        } else if (instruction == INST_DXL_SYNCWRITE) { //function(ids, address, rLength, values)
+            //isReadDataArrived = true;
+            var ids = data[4];
+            value = data[5];
+            var tmpSendBuffer = this.dxlSyncWritePacket(ids, address, length, value);
+            var tmp = [];
+            for(let j = 0; j < tmpSendBuffer / 20; j++){
+                for(let i = j*20; i < j*20+20; i++) {
+                    tmp.push(tmpSendBuffer[i]);
+                }
+                sendBuffer.push(tmp);
+            }
+            
+            sendBuffer = this.dxlSyncWritePacket(ids, address, length, value);
+        } else if(instruction == INST_DXL_REGWRITE) {
+            var ids = data[4];
+
+            sendBuffer = this.dxlRegWritePacket(ids[0], address, length, value);
+        } else if(instruction == INST_DXL_ACTION) {
+            sendBuffer = this.dxlActionWrite();
+        }
+    
+        console.log("send buffer : " + sendBuffer)
+        if (sendBuffer[0] == 0xFF &&
+            sendBuffer[1] == 0xFF &&
+            sendBuffer[2] == 0xFD &&
+            sendBuffer[3] == 0x00 &&
+            sendBuffer[4] == 0xC8) {
+            dataLength = this.makeWord(sendBuffer[5], sendBuffer[6]);
+
+            if (sendBuffer[7] == 0x02) {
+                this.receiveAddress = address;
+                this.receiveLength = length;
+                this.defaultLength = data[2];
+                isReadDataArrived = false;                
+                if (this.varTimeout != null) {
+                    clearTimeout(this.varTimeout);
                 }
 
-            } else if (instruction == INST_READ) {
-                this.addressToRead[address] = 0;
-                sendBuffer = this.readPacket(200, address, length);
-            } else if (instruction == INST_DXL_SYNCWRITE) { 
-                var ids = data[4];
-                value = data[5];
-                var tmpSendBuffer = this.dxlSyncWritePacket(ids, address, length, value);
-                var tmp = [];
-                for(let j = 0; j < tmpSendBuffer / 20; j++){
-                    for(let i = j*20; i < j*20+20; i++) {
-                        tmp.push(tmpSendBuffer[i]);
-                    }
-                    sendBuffer.push(tmp);
-                }
-                
-                sendBuffer = this.dxlSyncWritePacket(ids, address, length, value);
-            } else if(instruction == INST_DXL_REGWRITE) {
-                var ids = data[4];
-
-                sendBuffer = this.dxlRegWritePacket(ids[0], address, length, value);
-            } else if(instruction == INST_DXL_ACTION) {
-                sendBuffer = this.dxlActionWrite();
+                this.varTimeout = setTimeout(function () {
+                    isReadDataArrived = true;
+                }, 100);
             }
-        
-            console.log("send buffer : " + sendBuffer)
-            if (sendBuffer[0] == 0xFF &&
-                sendBuffer[1] == 0xFF &&
-                sendBuffer[2] == 0xFD &&
-                sendBuffer[3] == 0x00 &&
-                sendBuffer[4] == 0xC8) {
-                dataLength = this.makeWord(sendBuffer[5], sendBuffer[6]);
-
-                if (sendBuffer[7] == 0x02) {
-                    this.receiveAddress = address;
-                    this.receiveLength = length;
-                    this.defaultLength = data[2];
-                    isReadDataArrived = false;                
-                    if (this.varTimeout != null) {
-                        clearTimeout(this.varTimeout);
-                    }
-
-                    this.varTimeout = setTimeout(function () {
-                        isReadDataArrived = true;
-                    }, 100);
-                }
-            }
+        }
     }
     return sendBuffer;
 };
@@ -394,6 +403,9 @@ Module.prototype.handleLocalData = function(data) { // data: Native Buffer
 
 	if (this.receiveBuffer.length >= 11 + this.receiveLength) {
 		isConnected = true;
+		// console.log('<< 1 : ' + this.receiveLength + ' : ' + this.receiveBuffer);
+
+		// while (this.receiveBuffer.length > 0) {
 		while (this.receiveBuffer.length >= 11 + this.receiveLength) {
 			if (this.receiveBuffer.shift() == 0xFF) {
 				if (this.receiveBuffer.shift() == 0xFF) {
@@ -440,8 +452,10 @@ Module.prototype.handleLocalData = function(data) { // data: Native Buffer
 										}
 
 										isReadDataArrived = true;
-										
+										// console.log('<- ' + new Date().getHours() + ':' + new Date().getMinutes() + ':' + new Date().getMilliseconds() + '\n'
+										 // + this.receiveAddress + ' : ' + returnValue);
 									} else {
+										// console.log('<- ' + new Date().getHours() + ':' + new Date().getMinutes() + ':' + new Date().getMilliseconds() + '\n' + '-1');
 									}
 
 									this.receiveBuffer.shift(); // take crc check byte
