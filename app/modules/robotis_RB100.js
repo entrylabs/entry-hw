@@ -284,7 +284,7 @@ Module.prototype.requestLocalData = function() {
         const instruction = data[0];
         const address = data[1];
         const length = data[2];
-        const value = data[3];
+        let value = data[3];
         //console.log('send address : ' + address + ', ' + value + ", " + length); // add by kjs 170426
         if (instruction == INST_WRITE) {
             if (length == 1) {
