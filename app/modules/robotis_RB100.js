@@ -132,7 +132,7 @@ Module.prototype.requestRemoteData = function(handler) {
 Module.prototype.handleRemoteData = function(handler) {
     var data = handler.read('ROBOTIS_DATA');
 
-    let setZero = handler.read('setZero');
+    const setZero = handler.read('setZero');
     if (setZero[0] == 1) {
         this.robotisBuffer = [];
         this.servoPrevAddres = []; // add by kjs 20170627 
@@ -182,7 +182,7 @@ Module.prototype.handleRemoteData = function(handler) {
         }
         //console.log("dosend : " + doSend);
         if (doSend) {
-            for (var indexA = 0; indexA < this.robotisBuffer.length; indexA++) {
+            for (let indexA = 0; indexA < this.robotisBuffer.length; indexA++) {
                 if (data[index][0] == this.robotisBuffer[indexA][0] &&
                     data[index][1] == this.robotisBuffer[indexA][1] &&
                     data[index][2] == this.robotisBuffer[indexA][2] &&
@@ -192,9 +192,9 @@ Module.prototype.handleRemoteData = function(handler) {
                 }
             }
         }
-        if(instruction == 4 || instruction == 5 || instruction == 6) {
-			doSend = true;
-		}
+        if (instruction == 4 || instruction == 5 || instruction == 6) {
+            doSend = true;
+        }
         if (!doSend) {
             continue;
         }
@@ -243,8 +243,8 @@ Module.prototype.handleRemoteData = function(handler) {
 };
 
 Module.prototype.requestLocalData = function() {
-    var sendBuffer = null;
-    var dataLength = 0;
+    let sendBuffer = null;
+    let dataLength = 0;
     if (isReadDataArrived == false) {
         //console.log("######## 1");
         return sendBuffer;
@@ -269,22 +269,20 @@ Module.prototype.requestLocalData = function() {
             if (this.varTimeout != null) {
                 clearTimeout(this.varTimeout);
             }
-
             this.varTimeout = setTimeout(function() {
                 isReadDataArrived = true;
             }, 100);
         }
         isTemp = true;
     } else {
-
-        var data = this.robotisBuffer.shift();
+        let data = this.robotisBuffer.shift();
         if (data == null) {
             return sendBuffer;
         }
-        var instruction = data[0];
-        var address = data[1];
-        var length = data[2];
-        var value = data[3];
+        let instruction = data[0];
+        let address = data[1];
+        let length = data[2];
+        let value = data[3];
         //console.log('send address : ' + address + ', ' + value + ", " + length); // add by kjs 170426
         if (instruction == INST_WRITE) {
             if (length == 1) {
@@ -292,7 +290,7 @@ Module.prototype.requestLocalData = function() {
             } else if (length == 2) {
                 sendBuffer = this.writeWordPacket(200, address, value);
             } else if (length == 4 && address == 136) {
-                var value2;
+                let value2 = 0;
                 if (value < 1024)
                     value2 = value + 1024;
                 else
@@ -517,7 +515,7 @@ Module.prototype.writeWordPacket = function(id, address, value) {
     packet.push(this.getHighByte(address));
     packet.push(this.getLowByte(value));
     packet.push(this.getHighByte(value));
-    var crc = this.updateCRC(0, packet, packet.length);
+    let crc = this.updateCRC(0, packet, packet.length);
     packet.push(this.getLowByte(crc));
     packet.push(this.getHighByte(crc));
     return packet;
@@ -525,7 +523,7 @@ Module.prototype.writeWordPacket = function(id, address, value) {
 
 Module.prototype.writeDWordPacket = function(id, address, value) {
     console.log("######### writeDWordPacket");
-    var packet = [];
+    let packet = [];
     packet.push(0xff);
     packet.push(0xff);
     packet.push(0xfd);
@@ -541,7 +539,7 @@ Module.prototype.writeDWordPacket = function(id, address, value) {
     packet.push(this.getLowByte(this.getHighWord(value)));
     packet.push(this.getHighByte(this.getHighWord(value)));
     console.log("packet : " + packet);
-    var crc = this.updateCRC(0, packet, packet.length);
+    let crc = this.updateCRC(0, packet, packet.length);
     packet.push(this.getLowByte(crc));
     packet.push(this.getHighByte(crc));
     return packet;
@@ -549,7 +547,7 @@ Module.prototype.writeDWordPacket = function(id, address, value) {
 
 Module.prototype.writeDWordPacket2 = function(id, address, value, value2) {
     //console.log("######### writeDWordPacket2");
-    var packet = [];
+    let packet = [];
     packet.push(0xff);
     packet.push(0xff);
     packet.push(0xfd);
@@ -565,15 +563,15 @@ Module.prototype.writeDWordPacket2 = function(id, address, value, value2) {
     packet.push(this.getLowByte(this.getLowWord(value2)));
     packet.push(this.getHighByte(this.getLowWord(value2)));
     //console.log("packet : " + packet);
-    var crc = this.updateCRC(0, packet, packet.length);
+    let crc = this.updateCRC(0, packet, packet.length);
     packet.push(this.getLowByte(crc));
     packet.push(this.getHighByte(crc));
     return packet;
 };
 
 Module.prototype.dxlRegWritePacket = function(id, address, length, value) {
-    var packet = [];
-    var paramLength = length + 5;
+    let packet = [];
+    let paramLength = length + 5;
 
     packet.push(0xff);
 	packet.push(0xff);
@@ -602,8 +600,8 @@ Module.prototype.dxlRegWritePacket = function(id, address, length, value) {
             packet.push(this.getHighByte(this.getHighWord(value)));
             break;
         case 8:
-            var tmpV_1 = value / 4294967296;
-            var tmpV_2 = value % 4294967296;
+            let tmpV_1 = value / 4294967296;
+            let tmpV_2 = value % 4294967296;
 
             packet.push(this.getLowByte(this.getLowWord(tmpV_1)));
             packet.push(this.getHighByte(this.getLowWord(tmpV_1)));
@@ -617,14 +615,14 @@ Module.prototype.dxlRegWritePacket = function(id, address, length, value) {
             break;
     }
 
-    var crc = this.updateCRC(0, packet, packet.length);
+    let crc = this.updateCRC(0, packet, packet.length);
     packet.push(this.getLowByte(crc));
     packet.push(this.getHighByte(crc));
 	return packet;
 }
 
 Module.prototype.dxlActionWrite = function() {
-    var packet = [];
+    let packet = [];
     packet.push(0xff);
     packet.push(0xff);
     packet.push(0xfd);
@@ -637,15 +635,15 @@ Module.prototype.dxlActionWrite = function() {
 
     packet.push(0x05);
 
-    var crc = this.updateCRC(0, packet, packet.length);
+    let crc = this.updateCRC(0, packet, packet.length);
     packet.push(this.getLowByte(crc));
     packet.push(this.getHighByte(crc));
 	return packet;
 }
 
 Module.prototype.dxlSyncWritePacket = function(ids, address, rLength, values) {
-	var packet = [];
-	var paramLength = 7 + ids.length * (rLength + 1);
+	let packet = [];
+	let paramLength = 7 + ids.length * (rLength + 1);
 
 	packet.push(0xff);
 	packet.push(0xff);
@@ -683,7 +681,7 @@ Module.prototype.dxlSyncWritePacket = function(ids, address, rLength, values) {
         
 	}
 
-	var crc = this.updateCRC(0, packet, packet.length);
+	let crc = this.updateCRC(0, packet, packet.length);
     packet.push(this.getLowByte(crc));
     packet.push(this.getHighByte(crc));
 	return packet;
@@ -761,7 +759,7 @@ Module.prototype.prevServoSet = function(address, value, length) {
 
 Module.prototype.readPacket = function(id, address, lengthToRead) {
     //console.log("######### readPacket");
-    var packet = [];
+    let packet = [];
     packet.push(0xff);
     packet.push(0xff);
     packet.push(0xfd);
@@ -774,7 +772,7 @@ Module.prototype.readPacket = function(id, address, lengthToRead) {
     packet.push(this.getHighByte(address));
     packet.push(this.getLowByte(lengthToRead));
     packet.push(this.getHighByte(lengthToRead));
-    var crc = this.updateCRC(0, packet, packet.length);
+    let crc = this.updateCRC(0, packet, packet.length);
     packet.push(this.getLowByte(crc));
     packet.push(this.getHighByte(crc));
     return packet;
@@ -841,7 +839,7 @@ Module.prototype.getHighWord = function(a) {
 };
 
 Module.prototype.updateCRC = function(crc_accum, data_blk_ptr, data_blk_size) {
-    var i, j;
+    let i, j;
 
     for (j = 0; j < data_blk_size; j++) {
         i = ((crc_accum >> 8) ^ data_blk_ptr[j]) & 0xff;
