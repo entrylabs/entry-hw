@@ -130,7 +130,7 @@ Module.prototype.requestRemoteData = function(handler) {
 };
 
 Module.prototype.handleRemoteData = function(handler) {
-    let data = handler.read('ROBOTIS_DATA');
+    const data = handler.read('ROBOTIS_DATA');
 
     const setZero = handler.read('setZero');
     if (setZero[0] == 1) {
@@ -277,14 +277,14 @@ Module.prototype.requestLocalData = function() {
         }
         isTemp = true;
     } else {
-        let data = this.robotisBuffer.shift();
+        const data = this.robotisBuffer.shift();
         if (data == null) {
             return sendBuffer;
         }
-        let instruction = data[0];
-        let address = data[1];
-        let length = data[2];
-        let value = data[3];
+        const instruction = data[0];
+        const address = data[1];
+        const length = data[2];
+        const value = data[3];
         //console.log('send address : ' + address + ', ' + value + ", " + length); // add by kjs 170426
         if (instruction == INST_WRITE) {
             if (length == 1) {
@@ -293,15 +293,16 @@ Module.prototype.requestLocalData = function() {
                 sendBuffer = this.writeWordPacket(200, address, value);
             } else if (length == 4 && address == 136) {
                 let value2 = 0;
-                if (value < 1024)
+                if (value < 1024) {
                     value2 = value + 1024;
-                else
+                }
+                else {
                     value2 = value - 1024;
+                }
                 sendBuffer = this.writeDWordPacket2(200, address, value, value2);
             } else {
                 sendBuffer = this.writeDWordPacket(200, address, value);
             }
-
         } else if (instruction == INST_READ) {
             this.addressToRead[address] = 0;
             sendBuffer = this.readPacket(200, address, length);
