@@ -1,13 +1,13 @@
 {
-    "id": "240101",
+    "id": "240301",
     "name": {
-        "en": "Dash",
-        "ko": "대시"
+        "en": "Cue",
+        "ko": "큐"
     },
     "category": "robot",
     "platform": "win32",
-    "icon": "dash.png",
-    "module": "dash.js",
+    "icon": "cue.png",
+    "module": "cue.js",
     "url": "https://clevermate.kr",
     "video": "https://www.youtube.com/MARUSYSedu",
     "driver": {
@@ -16,13 +16,13 @@
     },
     "reconnect": true,
     "hardware": {
-	"type": "serial",
-	"control": "master",
-	"scanType": "data",
-	"bufferSize" : "32",
-	"vendor": ["Prolific"],
-	"baudRate": 115200,
-	"lostTimer": 1000,
-	"firmwarecheck": false
+        "type": "serial",
+        "control": "master",
+        "scanType": "data",
+        "bufferSize" : "64",
+        "vendor": ["Prolific"],
+        "baudRate": 115200,
+        "lostTimer": 1000,
+        "firmwarecheck": false
     }
 }

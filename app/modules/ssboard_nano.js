@@ -576,13 +576,6 @@ Module.prototype.disconnect = function(connect) {
     }
 };
 
-Module.prototype.disconnect = function(connect) {
-    const self = this;
-    connect.close();
-    if (self.sp) {
-        delete self.sp;
-    }
-};
 
 // ���� Connect ����� �� ����
 Module.prototype.reset = function() {
