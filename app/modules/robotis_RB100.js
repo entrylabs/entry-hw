@@ -147,19 +147,7 @@ Module.prototype.requestRemoteData = function(handler) {
             handler.write(indexA, this.dataBuffer[indexA]);
         }
     }
-    //실과형
-    //console.log("###### value : " + this.detectedSound);
-    for (let i = 0; i < 4; i++) {        
-        handler.write('TOUCH' + i, this.touchSensor[i]); // 접촉 센서
-        handler.write('IR' + i, this.irSensor[i]); // 적외선 센서
-        handler.write('LIGHT' + i, this.lightSensor[i]); // 조도 센서
-        handler.write('COLOR' + i, this.colorSensor[i]); // 칼라 센서
-        handler.write('HUMIDTY' + i, this.humidity[i]); // 습도 센서
-        handler.write('TEMPERATURE' + i, this.temperature[i]); // 온도 센서
-    }
-    handler.write('DETECTEDSOUNDE', this.detectedSound); // 최종 소리 감지 횟수
-    handler.write('DETECTINGSOUNDE1', this.detectringSound); // 실시간 소리 감지 횟수
-    handler.write('USERBUTTONSTATE', this.userButtonState);
+    
 
 };
 
