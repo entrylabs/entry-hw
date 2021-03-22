@@ -1,0 +1,26 @@
+{
+	"id": "070601",
+	"name": {
+		"en": "ROBOTIS RGee(무선연결)",
+		"ko": "로보티즈 알쥐(무선연결)"
+	},
+	"category": "module",
+	"platform": ["win32"],
+	"icon" : "robotis_RB100im_RGee.png",
+	"module": "robotis_RB100.js",
+	"url": "http://www.robotis.com",
+	"email": "khg@robotis.com",
+	"reconnect" : true,
+	"driver": {
+        "win32-ia32": "ROBOTIS/ROBOTIS CDC Driver.bat",
+        "win32-x64": "ROBOTIS/ROBOTIS CDC Driver.bat"
+	},
+	"selectPort" : true,
+	"hardware": {
+		"type": "serial",
+		"control": "slave",
+		"vendor": "ROBOTIS",
+		"duration": 15,
+		"baudRate": 57600
+	}
+}
