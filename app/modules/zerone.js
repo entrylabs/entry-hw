@@ -155,7 +155,7 @@ Module.prototype.requestInitialData = function() {
 };
 
 Module.prototype.checkInitialData = function(data, config) {
-	if(data.slice(0, 2) == 'FF') {
+	if(data && data.slice(0, 2) == 'FF') {
 		var info = data.split(/[,\n]+/);
 		if(info && info.length >= 5) {
 			if(info[1] == 'Zerone' && info[2] == '0F' && info[4].length >= 12) {
@@ -276,7 +276,7 @@ Module.prototype.handleLocalData = function(data) { // data: string
 		sensory.rearProximity = 0;
 	}
 	
-	// clicked
+	// click, long touch
 	str = data.slice(26, 28);
 	id = parseInt(str, 16);
 	if(id != event.touchId) {
@@ -620,7 +620,7 @@ Module.prototype.requestLocalData = function() {
 					leftWheel = 0;
 					rightWheel = 0;
 					wheel.event = -1;
-					motion.type = 0
+					motion.type = 0;
 				}
 			}
 		}
