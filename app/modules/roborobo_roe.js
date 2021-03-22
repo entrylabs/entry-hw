@@ -1,12 +1,12 @@
 function Module() {
     this.OUTPUT_INST = {
         MOTOR: 0x05,
-        OUTPUT: 0x0a
+        OUTPUT: 0x0a,
     };
 
     this.OUTPUT_TYPE = {
         LED: 0,
-        MELODY: 1
+        MELODY: 1,
     };
 
     this.INPUT_INST = 0x02;
@@ -14,8 +14,8 @@ function Module() {
         LEFT_COLOR: 0,
         RIGHT_COLOR: 1,
         IR: 2,
-        SWITCH: 3
-    }
+        SWITCH: 3,
+    };
 
     this.MOTOR_DATA = {
         RUN: 0b01000000,
@@ -24,15 +24,15 @@ function Module() {
         CCW: 0b00010000,
         CHANNEL: {
             MOTOR1: 0b00000000,
-            MOTOR2: 0b00000100
-        }
+            MOTOR2: 0b00000100,
+        },
     };
 
     this.MOTOR_MOVEMENT = {
         STOP: 0,
         CW: 1,
-        CCW: 2
-    }
+        CCW: 2,
+    };
 
     this.LED_COLOR = {
         0: [ 0x00, 0x00, 0x00, 0x00 ],  // off
@@ -52,37 +52,37 @@ function Module() {
         1: [ 261, 293, 329, 349, 392, 440, 493 ],
         2: [ 523, 587, 659, 698, 783, 880, 987 ],
         3: [ 1046, 1175, 1319, 1397, 1568, 1760, 1976 ],
-        4: [ 2093, 2349, 2637, 2794, 3136, 3520, 3951 ]
-    }
+        4: [ 2093, 2349, 2637, 2794, 3136, 3520, 3951 ],
+    };
 
     this.sensorData = {
         LeftColor: 0,
         RightColor: 0,
         IR: 0,
-        Switch : 0
+        Switch : 0,
     };
 
     this.outputData = {
         LED: {
             value: 0,
-            isChange: false
+            isChange: false,
         },
         Melody: {
             octave: 0,
             note: 0,
             duration: 0,
-            isChange: false
+            isChange: false,
         },
         LeftMotor: {
             value: 0,
             direction: 0,
-            isChange: false
+            isChange: false,
         },
         RightMotor: {
             value: 0,
             direction: 0,
-            isChange: false
-        }
+            isChange: false,
+        },
     };
 
     this.VERSION_CHECK = [ 0xf0, 0x01, 0x7f, 0x00, 0xf7 ];
@@ -211,7 +211,7 @@ Module.prototype.checkConnect = function (data) {
     } else {
         return false;
     }
-}
+};
 
 Module.prototype.parsingData = function(data) {
     var count = 0;
@@ -239,7 +239,7 @@ Module.prototype.parsingData = function(data) {
             }
         }
     }
-}
+};
 
 Module.prototype.makeSendData = function() {
     var buffer = [];  
@@ -364,6 +364,6 @@ Module.prototype.makeSendData = function() {
         }
     }
     return buffer;
-}
+};
 
 module.exports = new Module();
