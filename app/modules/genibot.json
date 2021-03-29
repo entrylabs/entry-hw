@@ -1,0 +1,27 @@
+{
+    "id": "FFFF02",
+    "name": {
+        "en": "Genibot",
+        "ko": "지니봇"
+    },
+    "category": "robot", 
+    "platform": ["win32", "darwin"],
+    "icon": "genibot.png",
+    "module": "genibot.js",
+    "url": "http://genirobot.com",
+
+    "reconnect": true,
+    "select_com_port" : true,
+    "hardware": {
+		"pnpId" : "PID",
+		"type": "serial",
+		"control": "slave",
+		"vendor": ["genibot", "Silicon Labs", "Microsoft"],
+        "baudRate": 406800,
+        "parity" : "none",
+        "dataBits" : 8,
+        "stopBits" : 1,
+        "flowControl": "hardware"
+
+    }
+}
