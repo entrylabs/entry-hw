@@ -1,5 +1,6 @@
 /* eslint-disable brace-style */
 /* eslint-disable max-len */
+/*jshint esversion: 6 */
 const BaseModule = require('./baseModule');
 
 
@@ -549,7 +550,7 @@ class byrobot_base extends BaseModule
             const view  = new DataView(array.buffer);
 
             this.ack._updated       = true;
-            this.ack.ack_systemTime = this.getUint64(view, 0, true);
+            this.ack.ack_systemTime = view.getBigUint64(0, true);
             this.ack.ack_dataType   = view.getUint8(8);
             this.ack.ack_crc16      = view.getUint16(9, true);
 
@@ -1801,7 +1802,7 @@ class byrobot_base extends BaseModule
             else
             {
                 const index = (this.countReqeustDevice % ((this.arrayRequestData.length + 1) * 4));   // +1은 자주 갱신되는 데이터 요청, *4는 예약된 요청 데이터
-                const indexArray = (index / 4).toFixed(0);;
+                const indexArray = (index / 4).toFixed(0);
 
                 if ((index & 0x03) == 0)
                 {
@@ -2298,24 +2299,6 @@ class byrobot_base extends BaseModule
     getByte(value, index)
     {
         return ((value >> (index << 3)) & 0xff);
-    }
-
-
-    getUint64(dataview, byteOffset, littleEndian)
-    {
-        // split 64-bit number into two 32-bit (4-byte) parts
-        const left =  dataview.getUint32(byteOffset, littleEndian);
-        const right = dataview.getUint32(byteOffset + 4, littleEndian);
-
-        // combine the two 32-bit values
-        const combined = (littleEndian) ? (left + 2 ** 32 * right) : (2 ** 32 * left + right);
-
-        if (!Number.isSafeInteger(combined))
-        {
-            console.warn(combined, 'exceeds MAX_SAFE_INTEGER. Precision may be lost');
-        }
-
-        return combined;
     }
 
 
