@@ -1,29 +1,9 @@
 const BaseModule = require('./baseModule');
-// const atob = require('atob');
-
 const atob = (str) => {
     return Buffer.from(str, 'base64').toString('binary');
 }
 
-//const fs = require('fs');
 const { result } = require('lodash');
-const log = (val) => {
-    // if (Array.isArray(val)) {
-    //     fs.appendFile('C:\\Users\\Desktop\\0318_Entry\\log\\message.txt', `[${val.toString()}]\n`, function(err) {
-    //         if (err) {
-    //             throw err;
-    //         }
-    //         // log('Saved!');/
-    //     });
-    // } else {
-    //     fs.appendFile('C:\\Users\\Desktop\\0318_Entry\\log\\message.txt', `${val}\n`, function(err) {
-    //         if (err) {
-    //             throw err;
-    //         }
-    //         // log('Saved!');/
-    //     });
-    // }
-};
 
 /**
  * Icon png to be displayed at the left edge of each extension block, encoded as a data URI.
@@ -57,7 +37,7 @@ const GenibotBleUUID = {
     rxChar: '6e400003-b5a3-f393-e0a9-e50e24dcca9e',
 };
 const GenibotReboot = Buffer.from([0xA6,0x00,0x00,0xA8,0x00,0x07,0x00]);
-//const logger = createLogger('module/genibot.js');
+
 /**
  * Enum for message op code assigned to GeniBot
  * Peripherals to read or write message
@@ -202,23 +182,8 @@ const convertHexToSignedInt = hex => {
     return hex;
 };
 
-const base64ToUint8Array = (base64) => {
-    log('base64ToUint8Array');
-    const binaryString = atob(base64);
-    log(binaryString);
-    const len = binaryString.length;
-    const array = new Uint8Array(len);
-    for (let i = 0; i < len; i++) {
-        array[i] = binaryString.charCodeAt(i);
-    }
-    return array;
-};
-
 class Module extends BaseModule {
     constructor() {
-        // process.exit();
-        log('constructor');
-        //logger.info('constructor');
         super();
         this.isSendInitData = false;
         this.isConnect = false;
@@ -233,13 +198,9 @@ class Module extends BaseModule {
         this.sendBuffers = [];
         this.receiveBuffers = [];
 
-        ////
         this.cmd = {};
-
-        /////////////////////////////////
         this._busy = false;
         this.isDraing = false;
-        // this.countButton = 0;
         this.data = [];
         this.logger= [];
         this.next_ack = 0;
@@ -268,14 +229,11 @@ class Module extends BaseModule {
          * Sampling period 250ms, it is avaiable from 10 (0.1ms) to 100 (1.0s)
          */
         this.robot = { version: 8, id: 0x0, samplingPeriods: 0x19 };
-        // this.robot = { version: 1, id: 0x0, samplingPeriods: 0x19 };
         this.music = {
             instrument: 'piano', // Default instrument 'piano'
             tempo: 120,
         };
 
-
-        ////// GENI BLOCK CLASS CONSTRUCTOR
         const distanceError = (2 * 1000 * 0.81) / (3.141592 * 3.2 * 1.25);
         this.motion = {
             stepRate: STEPPER_RATE.NORMAL,
@@ -286,7 +244,6 @@ class Module extends BaseModule {
     }
 
     init(handler, config) {
-        log('init genibot');
         this.handler = handler;
         this.config = config;
     }
@@ -320,21 +277,17 @@ class Module extends BaseModule {
      * Returned Value :
      *************************************************************************/
     validateLocalData(data) {
-        log("validateLocalData:"+data.byteLength);
         if(!this.isConnect){
             if(data.byteLength == 13 && data[3] == 0xA9 && data[6] == 0x01){
                 this.isConnect = true;
-                log("validateLocalData OFF");
                 setTimeout(() => {
-                    log("SendSensor");
                     const sensorCmd = this.getSensors(this.robot.samplingPeriods);
-                    this.sp.write(sensorCmd, (err) => {log(error);});
+                    this.sp.write(sensorCmd, (err) => {});
                 }, 500);
 
                 setTimeout(() => {
-                    log("SendSensor2");
                     const sensorCmd = this.getVersion();
-                    this.sp.write(sensorCmd, (err) => {log(error);});
+                    this.sp.write(sensorCmd, (err) => {});
                 }, 1500);
                 this.next_ack = 0;
 
@@ -377,9 +330,6 @@ class Module extends BaseModule {
     isValidACK(ack) {
         if (ack && this.next_ack <= ack) {
             this.next_ack = ack + 1;
-            console.log('ACK' + ack);
-            console.log('next_ACK' + this.next_ack);
-
             return true;
         }
         return false;
@@ -398,11 +348,6 @@ class Module extends BaseModule {
             if (this.isValidACK(set_led['ACK'])) {
                 const ledColor = set_led['COLOR'];
                 const side = set_led['SIDE'];
-                log('LEDCOLOR');
-
-                log(ledColor);
-                log('side', side);
-
                 this.setLED(ledColor, side);
             }
         }
@@ -475,7 +420,6 @@ class Module extends BaseModule {
         if (handler.e('SET_SPEAKER_VOLUME')) {
             const args = handler.read('SET_SPEAKER_VOLUME');
             if (this.isValidACK(args['ACK'])) {
-                log('SET_SPEAKER_VOLUME');
                 this.setSpeakerVolume(args);
             }
         }
@@ -484,7 +428,6 @@ class Module extends BaseModule {
         if (handler.e('SET_TEMPO')) {
             const args = handler.read('SET_TEMPO');
             if (this.isValidACK(args['ACK'])) {
-                log('SET_TEMPO');
                 this.setTempo(args);
             }
         }
@@ -492,7 +435,6 @@ class Module extends BaseModule {
         if (handler.e('SET_INSTRUMENT')) {
             const args = handler.read('SET_INSTRUMENT');
             if (this.isValidACK(args['ACK'])) {
-                log('SET_INSTRUMENT');
                 this.setInstrument(args);
             }
         }
@@ -501,19 +443,9 @@ class Module extends BaseModule {
         if (handler.e('PLAY_NOTE')) {
             const args = handler.read('PLAY_NOTE');
             if (this.isValidACK(args['ACK'])) {
-                log('PLAY_NOTE');
                 this.playNote(args);
             }
         }
-    }
-
-    /**
-     * delay
-     * @param {*} ms
-     */
-    resolveTimePromise(milliseconds) {
-        // return false
-        return new Promise(resolve => setTimeout(resolve, milliseconds));
     }
 
     /*************************************************************************
@@ -598,10 +530,7 @@ class Module extends BaseModule {
      * Returned Value :
      *************************************************************************/
     connect() {
-        //this.writeDebug('info', 'connect');
         this.isConnect = false;
-        log("connect");
-        
     }   
 
     /*************************************************************************
@@ -613,14 +542,10 @@ class Module extends BaseModule {
      *************************************************************************/
 
     disconnect(connector) {
-        //logger.info('checkInitialData genibot');
-        // 커넥터가 연결해제될 때 호출되는 로직, 스캔 정지 혹은 디바이스 연결 해제시 호출된다.
         if(this.sp){
-            log("disconnect");
             this.isConnect = false;
             this.sp.write(GenibotReboot, err => {
                 if (this.sp.isOpen) {
-                    console.log('Disconnect');
                     connector.close();
                 }
                 this.sp = null;
@@ -647,10 +572,7 @@ class Module extends BaseModule {
         this.arduino = { ain: 0 };
     }
 
-    // 이 아래로는 자유롭게 선언하여 사용한 함수입니다.
     makeOutputBuffer(device, port, data) {
-        //logger.info('checkInitialData genibot');
-        log('makeOutputBuffer genibot');
         let buffer;
         const value = new Buffer(2);
         const dummy = new Buffer([10]);
@@ -660,7 +582,7 @@ class Module extends BaseModule {
             255,
             85,
             6,
-            0, // sensorIdx
+            0, 
             2,
             device,
             port,
@@ -671,8 +593,6 @@ class Module extends BaseModule {
     };
 
     getDataByBuffer(buffer) {
-        //logger.info('checkInitialData genibot');
-        log('getDataByBuffer genibot');
         const datas = [];
         let lastIndex = 0;
         buffer.forEach((value, idx) => {
@@ -724,37 +644,6 @@ class Module extends BaseModule {
         return command;
     }
 
-    sendInit(command) {
-        if (!this.isConnected()) {
-            return;
-        }
-        if (this._busy) {
-            return;
-        }
-        this._busy = true;
-        log('send');
-        log(command);
-        this.sp.write(command, (val) => {
-            this._busy = false;
-        });
-    }
-
-    send(command) {
-        if (!this.isConnected()) {
-            return;
-        }
-        // this.sendBuffers.push(...Array(10).fill(command));
-        this.sendBuffers.push(command);
-    }
-
-    send2(command,stepTime) {
-        if (!this.isConnected()) {
-            return;
-        }
-        // this.sendBuffers.push(...Array(10).fill(command));
-        this.sendBuffers.push([command,stepTime]);
-    }
-
     /**
      * Return true if connected to the robot.
      * @return {boolean} - whether the robot is connected.
@@ -768,13 +657,11 @@ class Module extends BaseModule {
      * setRobotSpeedItem
      * @param {*} args
      */
-    async setRobotSpeedItem(args) {
+    setRobotSpeedItem(args) {
         if(!args.SPEED)
             return
 
         let speed = STEPPER_RATE.NORMAL;
-        // let speed = STEPPER_RATE.FAST;
-        // let speed = null;
 
         switch (args.SPEED) {
         case 'slow':
@@ -787,7 +674,6 @@ class Module extends BaseModule {
             speed = STEPPER_RATE.FAST;
             break;
         }
-        // if(speed !=null)
         this.motion.stepRate = speed;
 
         return this.motion.stepRate
@@ -798,8 +684,6 @@ class Module extends BaseModule {
      * @param {*} args
      */
     moveDistance(args) {
-        // console.log('HELLO');
-        // let stepRate = this.motion.stepRate;
         let stepRate =  this.motion.stepRate;
         if (args.DIRECTION == 'front') {
             stepRate *= 1;
@@ -866,7 +750,6 @@ class Module extends BaseModule {
         let velocity2 = parseInt(args.VELOCITY2, 10) * 30;
         if (this.linefollower.action > ACTION_STATE.PAUSE) {
             this.setLineFollower(false);
-            //return this.resolveTimePromise(BLESendInterval);
         } else {
             if (velocity1 != 0) {
                 if (velocity1 < 0) {
@@ -908,9 +791,6 @@ class Module extends BaseModule {
      * @param {*} args
      */
     setLedColorName(args) {
-        // console.log("colorNameIndex" +colorNameIndex);
-        log('args.COLOR_NAME' + args.COLOR_NAME);
-
         const indexOfColorName = {
             'white': 0x0E,
             'red': 0x0,
@@ -926,16 +806,12 @@ class Module extends BaseModule {
         };
         const ledIdIndex = { 'left': 0x02, 'right': 0x00, 'front': 0x03, 'back': 0x01, 'all': 0xFF };
         let colorNameIndex = indexOfColorName[args.COLOR_NAME];
-        // let colorNameIndex = indexOfColorName[args.COLOR_NAME];
-        // let colorNameIndex = 0x0E;
-        // log('colorNameIndex'+colorNameIndex)
         let ledId = ledIdIndex[args.LED];
         let brightness = MathUtil.clamp(Number(args.COLOR_BRIGHTNESS), 1, 100);
         this.setLEDName(colorNameIndex, ledId, brightness);
         if (ledId != 0xFF && this.robot.version < 7) {
             return this.resolveVersionError();
         }
-        //return this.resolveTimePromise(BLESendInterval);
     }
 
     /**
@@ -951,7 +827,6 @@ class Module extends BaseModule {
             this.linefollower.action = ACTION_STATE.PAUSE;
             this.setLineFollower(false);
         }
-        //return this.resolveTimePromise(BLESendInterval);
     }
 
     /**
@@ -960,7 +835,6 @@ class Module extends BaseModule {
      */
     setInstrument(args) {
         this.setInstrumentCMD(args.INSTRUMENT);
-        //return this.resolveTimePromise(BLESendInterval);
     }
 
     /**
@@ -971,7 +845,6 @@ class Module extends BaseModule {
     setTempo(args) {
         const tempo = MathUtil.clamp(args.TEMPO, 88, 140);
         this.setTempoCMD(tempo);
-        //return this.resolveTimePromise(BLESendInterval);
     }
 
     /**
@@ -981,11 +854,8 @@ class Module extends BaseModule {
     playNote(args) {
         const noteLabel = ['whole', 'half', 'dottedHalf', 'quarter', 'dottedQuarter', 'eight', 'dottedEight', 'sixteenth'];
         const noteId = noteLabel.findIndex(element => element === args.BEATS);
-        // log('noteId' + noteId);
-        // log('args.NOTE' + args.NOTE);
+ 
         this.setMusicNotes(args.NOTE, noteId, -1);
-        // TODO try to remove line under
-        // return this.resolveTimePromise((this.countNoteLength(noteId) * 1000) + 500);
     }
 
     /**
@@ -1053,16 +923,7 @@ class Module extends BaseModule {
             ...motionProperty,
             ...steppers,
         ];
-        // return this.send(command);
-        // let stepTime = (distance * this.motion.distanceMultiplier / (Math.abs(stepRate) / (Math.abs(stepRate) * -0.01 + 11)))  * 1000;
-        // return this.send2(command,stepTime);
-        // let today = new Date();   
-        // let hours = today.getHours(); // 시
-        // let minutes = today.getMinutes();  // 분
-        // let seconds = today.getSeconds();  // 초
-        // let milliseconds = today.getMilliseconds();
-        // log("setMotionStepsDistance:"+ minutes + ':' + seconds + ':' + milliseconds);
-        log("distanceCommand ["+command+"]");
+
         this.sp.write(command);
     }
 
@@ -1088,13 +949,6 @@ class Module extends BaseModule {
             ...motionProperty,
             ...steppers,
         ];
-        log("angleCommand ["+command+"]");
-        // let today = new Date();   
-        // let hours = today.getHours(); // 시
-        // let minutes = today.getMinutes();  // 분
-        // let seconds = today.getSeconds();  // 초
-        // let milliseconds = today.getMilliseconds();
-        // log("setMotionStepsAngle:"+ minutes + ':' + seconds + ':' + milliseconds);
 
         return this.sp.write(command);
     }
@@ -1122,8 +976,6 @@ class Module extends BaseModule {
             ...colorRGB,
             ...setLedId,
         ];
-        log('setLED');
-        log(command);
         return this.sp.write(command);
     }
 
@@ -1141,8 +993,6 @@ class Module extends BaseModule {
         const packageSize = [0x00, 0x0B];
         const colorSpace = [0x02];
         const colorRGB = [0x0, colorNameIndex, brightness];
-        log('brightness' + brightness);
-        log('colorRGB' + colorRGB);
         const setLedId = [(this.robot.version < 7) ? 0xFF : ledId];
         const command = [
             ...virtualId,
@@ -1260,9 +1110,7 @@ class Module extends BaseModule {
             ...actionState,
             ...musicNotes,
         ];
-        // const resolveTime =  (this.countNoteLength(beatId) * 1000) + BLESendInterval;
-        // return this.send2(command,resolveTime);
-        // this.sp.write(command);
+ 
         this.sp.write(command);
     }
 
@@ -1293,33 +1141,7 @@ class Module extends BaseModule {
         return noteBPM[noteId] ? (noteBPM[noteId] / this.music.tempo) : 2.4; // Duration in seconds
     }
 
-    // /**
-    //  * countNoteLength
-    //  * @param {*} noteId
-    //  */
-    // countNoteLength(noteId) {
-    //     const noteBPM = [240, 120, 180, 60, 90, 30, 45, 15]; // Beat per miniutes
-    //     return noteBPM[noteId] ? (noteBPM[noteId] / this.music.tempo) : 2.4; // Duration in seconds
-    // }
-
-
-    /////GENI BLOCK CLASS
-
-    /**
-     * resolveVersionError
-     */
     resolveVersionError() {
-        // return new Promise((resolve, reject) => {
-        //     this.timer =   setTimeout(() => {
-        //         // alert(message);
-        //         let message = "GeniBot firmware verion is " + this.peripheral.robot.version+ ". Please update the robot to run this block.";
-        //         switch(formatMessage.setup().locale) {
-        //             case 'ko' : message= "지니봇 펌웨어 버전 (" + this.peripheral.robot.version + ") 입니다. 올바른 작동을 위해 새 펌웨어로 업데이트하세요."; break;
-        //         }
-        //         resolve(message);
-        //     }, BLESendInterval);
-        // });
-        log('GeniBot firmware verion is ' + this.robot.version + '. Please update the robot to run this block.');
         return false;
     }
 
@@ -1332,8 +1154,6 @@ class Module extends BaseModule {
         let volume = args.VOLUME;
         volume = (volume == '10') ? '0' : volume;
         this.setSpeakerVolumeCMD(volume);
-        console.log('Speaker volume', volume);
-        //return this.resolveTimePromise(BLESendInterval);
     }
 
     /**
@@ -1348,20 +1168,9 @@ class Module extends BaseModule {
         if (this.linefollower.action > ACTION_STATE.PAUSE) {
             this.setLineFollower(false);
         } else {
-            log('setMotionStepsDistance'+distance);
             distance = MathUtil.clamp(distance, GenibotDistanceLimit.MIN, GenibotDistanceLimit.MAX);
             this.setMotionStepsDistance(stepRate, distance);
-            // this.setMotionStepsDistance(stepRate, distance, stepTime);
         }
-
-        // Stepping time rate = -0.01 * stepRate + 11, refer to Stepper gear ratio 1:50 at 1000sps
-        // let stepTime = (distance * this.motion.distanceMultiplier / (Math.abs(stepRate) / (Math.abs(stepRate) * -0.01 + 11))) * 1000;
-        //console.log('Stepping time in ms', stepTime);
-        /*if (this.robot.version < 7) {
-            return this.resolveVersionError();
-        }*/
-
-        // return this.resolveTimePromise(stepTime);
     }
 
     /**
@@ -1374,17 +1183,9 @@ class Module extends BaseModule {
         if (this.linefollower.action > ACTION_STATE.PAUSE) {
             this.setLineFollower(false);
         } else {
-            log('setMotionStepsAngle'+angle);
             angle = MathUtil.clamp(angle, GenibotAngleLimit.MIN, GenibotAngleLimit.MAX);
             this.setMotionStepsAngle(stepRate, angle);
         }
-        // Stepping time rate = -0.01 * stepRate + 11, refer to Stepper gear ratio 1:50 at 1000sps
-        //let stepTime = (angle * this.motion.angleMultiplier / (Math.abs(stepRate) / (Math.abs(stepRate) * -0.01 + 11))) * 1000;
-        //console.log('Stepping time in ms', stepTime);
-        /*if(this.robot.version < 7) {
-            return this.resolveVersionError();
-        }*/
-        //return this.resolveTimePromise(stepTime);
     }
 
 }
@@ -1511,5 +1312,3 @@ class MathUtil {
         return (p * (oMax - oMin)) + oMin;
     }
 }
-
-// module.exports = MathUtil;
