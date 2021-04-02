@@ -9,14 +9,14 @@ const atob = (str) => {
 const { result } = require('lodash');
 const log = (val) => {
     // if (Array.isArray(val)) {
-    //     fs.appendFile('D:\\entryCodes\\log\\message.txt', `[${val.toString()}]\n`, function(err) {
+    //     fs.appendFile('C:\\Users\\Desktop\\0318_Entry\\log\\message.txt', `[${val.toString()}]\n`, function(err) {
     //         if (err) {
     //             throw err;
     //         }
     //         // log('Saved!');/
     //     });
     // } else {
-    //     fs.appendFile('D:\\entryCodes\\log\\message.txt', `${val}\n`, function(err) {
+    //     fs.appendFile('C:\\Users\\Desktop\\0318_Entry\\log\\message.txt', `${val}\n`, function(err) {
     //         if (err) {
     //             throw err;
     //         }
@@ -24,22 +24,6 @@ const log = (val) => {
     //     });
     // }
 };
-const log2 = (val) => {
-    // fs.appendFile('C:\\Users\\GyeDan\\Documents\\CPY_SAVES\\message.txt', `${val},`, function(err) {
-    //     if (err) {
-    //         throw err;
-    //     }
-    //     // log('Saved!');/
-    // });
-};
-// import rendererConsole from './core/rendererConsole';
-// import rendererConsole from '../src/main/core/rendererConsole';
-// import WindowManager from'../src/main/electron/windowManager'; //'./windowManager';
-
-// let mainWindow = WindowManager.mainWindow;
-// import createLogger from '../src/main/electron/functions/createLogger'//'./functions/createLogger';
-// const logger = createLogger('../src/main/electron/windowManager');
-
 
 /**
  * Icon png to be displayed at the left edge of each extension block, encoded as a data URI.
@@ -72,7 +56,7 @@ const GenibotBleUUID = {
     txChar: '6e400002-b5a3-f393-e0a9-e50e24dcca9e',
     rxChar: '6e400003-b5a3-f393-e0a9-e50e24dcca9e',
 };
-
+const GenibotReboot = Buffer.from([0xA6,0x00,0x00,0xA8,0x00,0x07,0x00]);
 //const logger = createLogger('module/genibot.js');
 /**
  * Enum for message op code assigned to GeniBot
@@ -293,7 +277,6 @@ class Module extends BaseModule {
 
         ////// GENI BLOCK CLASS CONSTRUCTOR
         const distanceError = (2 * 1000 * 0.81) / (3.141592 * 3.2 * 1.25);
-        // this.runtime = runtime;
         this.motion = {
             stepRate: STEPPER_RATE.NORMAL,
             distanceMultiplier: distanceError,
@@ -303,73 +286,16 @@ class Module extends BaseModule {
     }
 
     init(handler, config) {
-        //process.exit();
-        // 엔트리 브라우저와 연결되었을때 호출됨
         log('init genibot');
-        //logger.info('init genibot');
         this.handler = handler;
         this.config = config;
     }
-
-    // deprecated
-    // afterConnect(connector, cb) {
-    //     log('afterConnect genibot');
-    //     // handshake 종료 후 정상 연결상태로 진입전에 호출됨. connector 와 UI state 를 강제변경할 수 있으나 비추천
-    //     connector.connected = true;
-    //     this.isConnect = true;
-    //     if (cb) {
-    //         cb('connected'); // 해당 string state 로 UI state 를 강제변경하나 문제를 일으킬 수 있습니다.
-    //     }
-    // }
 
     setSerialPort(sp) {
         this.sp = sp;
     }
 
     requestInitialData(sp) {
-        // if(mainWindow){
-        //     mainWindow?.webContents.send('console','dddd');
-        // }
-        // log('requestInitialData');
-        // if (!this.sp) {
-        //     this.sp = sp;
-        // }
-        // if (!this.isSendInitData) {
-        //     this.isConnect = true;
-
-        //     const startRobot = new Promise(resolve => {
-        //         // rendererConsole.log(`I am finally connected`);
-        //         console.log('Start the robot.');
-        //         // const sensorCmd = this.getSensors(this.robot.samplingPeriods);
-        //         const sensorCmd = new Buffer([0xA2, 0x00, 0xBF, 0xA9, 0x00, 0x07, 0x00])
-        //         this.sendInit(sensorCmd);
-
-        //         setTimeout(() => {
-        //             log('setTimeout');
-        //             resolve();
-        //         }, BLETimeout);
-        //     });
-        //     startRobot.finally(() => {
-        //         log('finally');
-        //         const sensorCmd = this.getSensors(this.robot.samplingPeriods);
-        //         this.sendInit(sensorCmd);
-        //         // this.isSendInitData = true;
-        //         /*const verCmd = this.getVersion();
-        //         this.send(verCmd);*/
-        //     }).then(() => {
-        //         new Promise(resolve => {
-        //             setTimeout(() => {
-        //                 log('getSensors');
-        //                 const sensorCmd = this.getSensors(this.robot.samplingPeriods);
-        //                 this.sendInit(sensorCmd);
-        //                 resolve();
-        //             }, 1000);
-        //         })
-        //     });
-
-        // }
-        //
-        
         return this.connectGeniBot();
     }
 
@@ -379,7 +305,6 @@ class Module extends BaseModule {
     }
 
     checkInitialData(data, config) {
-        
         return true;
     }
 
@@ -395,13 +320,32 @@ class Module extends BaseModule {
      * Returned Value :
      *************************************************************************/
     validateLocalData(data) {
-        //logger.info('checkInitialData genibot');
-        // log('validateLocalData genibot');
-        // log(data);
-        // 해당 함수가 존재하면, 디바이스에서 데이터를 받아온 후 validate 를 거친다. 없으면 그대로 처리로직으로 진행한다.
-        //return (data.byteLength == 25 || data.byteLength == 29 || data.byteLength == 9)
+        log("validateLocalData:"+data.byteLength);
+        if(!this.isConnect){
+            if(data.byteLength == 13 && data[3] == 0xA9 && data[6] == 0x01){
+                this.isConnect = true;
+                log("validateLocalData OFF");
+                setTimeout(() => {
+                    log("SendSensor");
+                    const sensorCmd = this.getSensors(this.robot.samplingPeriods);
+                    this.sp.write(sensorCmd, (err) => {log(error);});
+                }, 500);
 
-        return true;
+                setTimeout(() => {
+                    log("SendSensor2");
+                    const sensorCmd = this.getVersion();
+                    this.sp.write(sensorCmd, (err) => {log(error);});
+                }, 1500);
+                this.next_ack = 0;
+
+                return true;
+            }else{
+                return false;
+            }
+        }else{
+            return true;
+        }
+                
     }
 
     /*************************************************************************
@@ -415,20 +359,11 @@ class Module extends BaseModule {
          handler.write('OIDCODE', this.oidCode.decimal);
          handler.write('ACC_TILT', this.accelerationSensor);
          handler.write('ROBOT_VERSION',this.robot.version);
-        // const val = this.buttonStatus.status > 0 ? "1":"0";
-        // this.buttonStatus.status = 0;
-        // handler.write("BUTTON", val);
-        // const val = this.buttonStatus.status > 0 ? '1' : '0';
-        // handler.write("log",this.data);
-        // if (this.buttonStatus.status > 0) {
+ 
         if (this.buttonStatus.status > 0) {
             this.buttonStatus.status = -1;
-            // handler.write("log",this.data);
-            // handler.write('BUTTON', this.data);
             handler.write('BUTTON', true);
-            // this.data = [];
-            // this.countButton = 0;
-            // await this.sleep(100);
+ 
         }else{
             handler.write('BUTTON', false);
         }
@@ -437,49 +372,6 @@ class Module extends BaseModule {
             handler.write('LOGGER', {list:this.logger});
             this.logger =[];
         }
-
-
-        // this.countButton++;{
-        /*
-        if (this.first) {
-            this.first = false;
-            /!*setInterval(function() {
-                handler.write('OIDCODE', this.oidCode.decimal);
-            }, 250);*!/
-            /!*setInterval(function() {
-                handler.write('ACC_TILT', this.accelerationSensor);
-            }, 1000);*!/
-
-            setInterval(function() {
-                if (this.buttonStatus == undefined) {
-                    this.buttonStatus = { status: 0 };
-                }
-                const val = this.buttonStatus.status > 0 ? '1' : '0';
-                this.buttonStatus.status = 0;
-                handler.write('BUTTON', val);
-            }, 2000);
-        }*/
-
-
-        //logger.info('checkInitialData genibot');
-        // log('requestRemoteData genibot');
-        // handler.write("BUTTON", "1")
-        // log(this.buttonStatus.status.toString())
-        // console.log('HELLOWORLD');
-        /*if (this.buttonStatus.status > 0) { // button pressed
-            this.buttonStatus.status = 0;
-            handler.write("BUTTON", "1")
-            log('Button 1');
-
-        } else {
-            handler.write("BUTTON", "0")
-            // log("Button 0")
-
-        }*/
-
-        // 디바이스에서 데이터를 받아온 후, 브라우저로 데이터를 보내기 위해 호출되는 로직. handler 를 세팅하는 것으로 값을 보낼 수 있다.
-        // handler.write(key, value) 로 세팅한 값은 Entry.hw.portData 에서 받아볼 수 있다.
-
     };
 
     isValidACK(ack) {
@@ -501,13 +393,8 @@ class Module extends BaseModule {
      * Returned Value :
      *************************************************************************/
     handleRemoteData(handler) {
-
-        //logger.info('checkInitialData genibot');
-        // log('handleRemoteData genibot');
-
         const set_led = handler.read('SET_LED_COLOR');
         if (set_led) {
-            // this.logger.push(set_led['ACK']);
             if (this.isValidACK(set_led['ACK'])) {
                 const ledColor = set_led['COLOR'];
                 const side = set_led['SIDE'];
@@ -520,24 +407,14 @@ class Module extends BaseModule {
             }
         }
         const slcn = handler.read('SET_LED_COLOR_NAME');
-        // log('slcn', slcn['ACK']);
+
         if (handler.e('SET_LED_COLOR_NAME')) {
             const args = handler.read('SET_LED_COLOR_NAME');
             if (this.isValidACK(args['ACK'])) {
-                // log('setLedColorName');
-                // this.logger.push(`set ledColorName ${args.LED} -${args.COLOR_NAME} -${args.COLOR_BRIGHTNESS} -`)
                 this.setLedColorName(args);
             }
         }
 
-
-        // const setRSI = handler.read('SET_ROBOT_SPEED_ITEM')
-        // const setRSI = handler.e('SET_ROBOT_SPEED_ITEM')
-        // if (handler.e('SET_ROBOT_SPEED_ITEM')) {
-        //     const setRSI = handler.read('SET_ROBOT_SPEED_ITEM');
-        //
-        //     log(`setRSI${setRSI.SPEED}`);
-        // }
         if (handler.e('TURN_ANGLE')) {
             const args = handler.read('TURN_ANGLE');
             if (this.isValidACK(args['ACK'])) {
@@ -548,17 +425,12 @@ class Module extends BaseModule {
         if (handler.e('MOVE_DISTANCE')) {
             const args = handler.read('MOVE_DISTANCE');
             if (this.isValidACK(args['ACK'])) {
-                // const direction = handler.read('DIRECTION')
-                //console.log('args MOVE_DISTANCE');
-                //this.logger.push('args MOVE_DISTANCE '+this.motion.stepRate);
-                //this.cmd = { 'MOVE_DISTANCE': args };
                 this.moveDistance(args);
             }
         }
         if (handler.e('START_MOVING')) {
             const args = handler.read('START_MOVING');
             if (this.isValidACK(args['ACK'])) {
-                // const direction = handler.read('DIRECTION')
                 this.cmd = { 'START_MOVING': args };
                 this.startMoving(args);
             }
@@ -566,7 +438,6 @@ class Module extends BaseModule {
         if (handler.e('STOP_MOVING')) {
             const args = handler.read('STOP_MOVING');
             if (this.isValidACK(args['ACK'])) {
-                // const direction = handler.read('DIRECTION')
                 this.cmd = { 'STOP_MOVING': args };
                 this.stopMoving();
             }
@@ -574,10 +445,8 @@ class Module extends BaseModule {
 
         if (handler.e('SET_ROBOT_SPEED_ITEM')) {
             const args = handler.read('SET_ROBOT_SPEED_ITEM');
-            //this.logger.push('args SET_ROBOT_SPEED_ITEM '+args['ACK'] +' hw ack: '+this.next_ack);
             if (this.isValidACK(args['ACK'])) {
                 let a =  this.setRobotSpeedItem(args);
-                // this.logger.push('args SET_ROBOT_SPEED_ITEM2 - '+ a);
             }
         }
 
@@ -591,7 +460,6 @@ class Module extends BaseModule {
         if (handler.e('MOTION_ROTATE_ANGLE')) {
             const args = handler.read('MOTION_ROTATE_ANGLE');
             if (this.isValidACK(args['ACK'])) {
-                // this.logger.push('args MOVE_DISTANCE '+args.VELOCITY +' '+args.ANGLE);
                 this.motionRotateAngle(args);
             }
         }
@@ -637,25 +505,6 @@ class Module extends BaseModule {
                 this.playNote(args);
             }
         }
-
-
-        // 엔트리 브라우저에서 온 데이터를 처리한다. handler.read 로 브라우저의 데이터를 읽어올 수 있다.
-        // handler 의 값은 Entry.hw.sendQueue 에 세팅한 값과 같다.
-        // let buffer = new Buffer([]);
-        // const digitalPin = this.digitalPin;
-
-        // for (let i = 0 ; i < 14 ; i++) {
-        //     digitalPin[i] = handler.read(i);
-
-        //     buffer = Buffer.concat([
-        //         buffer,
-        //         this.makeOutputBuffer(1, i, digitalPin[i] === 1 ? 255 : 0),
-        //     ]);
-        // }
-
-        // if (buffer.length) {
-        //     this.sendBuffers.push(buffer);
-        // }
     }
 
     /**
@@ -676,81 +525,7 @@ class Module extends BaseModule {
      *
      * Returned Value :
      *************************************************************************/
-    requestLocalData() { //sendToGENI
-        //logger.info('checkInitialData genibot');
-        // log('requestLocalData genibot');
-        // 디바이스로 데이터를 보내는 로직. control: slave 인 경우 duration 주기에 맞춰 디바이스에 데이터를 보낸다.
-        // return 값으로 버퍼를 반환하면 디바이스로 데이터를 보내나, 아두이노의 경우 레거시 코드를 따르고 있다.
-
-        // if (this.sendBuffers.length > 0) {
-        //     this.sp.write(this.sendBuffers.shift(), () => {
-        //         if (this.sp) {
-        //             this.sp.drain(() => {
-        //                 this.isDraing = false;
-        //             });
-        //         }
-        //     });
-        // }
-        //* const self = this;
-        // if (this.sendBuffers.length > 0 && !self.isDraing) {
-        //     // this.sp.write(this.sendBuffers.shift());
-        //     // this.sendBuffers =[]
-        //     self.isDraing = true;
-
-        //     const top = this.sendBuffers.shift();
-        //     let cmd = [];
-        //     let timeout = BLESendInterval;
-        //     if (Array.isArray(top[0])){
-        //         cmd = top[0];
-        //         timeout = top[1];
-        //     }else{
-        //         cmd = top;
-        //     }
-        //     // this.logger.push(cmd)
-        //     setTimeout(function() {
-        //         self.isDraing = false;
-        //     },timeout);
-        //*     return cmd;
-            // this.sp.write(this.sendBuffers.shift(), () => {
-            //     if (this.sp) {
-            //         this.isDraing = false;
-            //         // this.sp.drain(() => {
-            //         //     this.isDraing = false;
-            //         // });
-            //     }
-            // });
-        //*}
-        // if (!this.isDraing && this.sendBuffers.length > 0) {
-        //     this.isDraing = true;
-        //     const cmd = this.sendBuffers.shift();
-            // const list = this.sendBuffers.shift();
-            // const cmd = list[0]
-            // const timeout = list[1]
-            // log('isDraing[' + cmd + '] left:' + this.sendBuffers.length);
-            // this.sp.write(cmd, function() {
-            //     if (self.sp) {
-            //         self.sp.drain(function() {
-            //             self.isDraing = false;
-            //             // setTimeout(function() {
-            //             //     self.isDraing = false;
-            //             //     // log('DRAINING FALSE');
-            //             // }, 2);
-            //         });
-            //     }
-            // });
-            // if (this.sendBuffers.length > 0) {
-            //     this.sp.write(this.sendBuffers.shift(), () => {
-            //         if (this.sp) {
-            //             this.sp.drain(() => {
-            //                 this.isDraing = false;
-            //             });
-            //         }
-            //     });
-            // }
-        // }
-        // this.sp.write(new Buffer([0xC1, 0xFF, 0x00, 0xC2, 0x00, 0x0B, 0x02, 0xFF, 0xFF, 0x32, 0xFF]))
-
-
+    requestLocalData() { 
         return null;
     }
 
@@ -765,11 +540,6 @@ class Module extends BaseModule {
             return false;
         }
 
-        // If you don't care about the order of the elements inside
-        // the array, you should sort both arrays here.
-        // Please note that calling sort on an array will modify that array.
-        // you might want to clone your array first.
-
         for (var i = 0; i < a.length; ++i) {
             if (a[i] !== b[i]) {
                 return false;
@@ -779,25 +549,10 @@ class Module extends BaseModule {
     }
 
     _onMessage(data) {
-        
+
         if (data.byteLength == 25 || data.byteLength == 29) {
-            
-            // if(this.arraysEqual(data,this.data)){
-            //     this.data = []
-            // }else{
             this.data = data;
-            // }
-
-            /* log(data.byteLength);
-             log(data.length);
-             for (let i = 0; i < data.length; i++) {
-                 log2(data[i]);
-             }*/
-
-            /* log(' ');*/
-            // if(data[7] >0)
             this.buttonStatus.status = data[7];
-            // log('BUTTON' + data[7]);
             this.lightSensor = {
                 R2: (data[9] << 8 | data[8]),
                 R1: (data[11] << 8 | data[10]),
@@ -832,24 +587,7 @@ class Module extends BaseModule {
      * Returned Value :
      *************************************************************************/
     handleLocalData(data) {
-        //logger.info('checkInitialData genibot');
-        // log('handleLocalData genibot');
-        // log(data.byteLength)
-
         this._onMessage(data);
-        // await this.sleep(10000);
-
-        // this.setLED([255,51,153],0xff)
-
-        // const startRobotCMD = new Buffer([0xA3, 0x00, 0x00, 0xC1, 0x0, 0x37, 0x01, 0x04, 0x4D, 0x0, 0x28, 0x3, 0x64, 0x04, 0x4F, 0x0, 0x28, 0x3, 0x64, 0x04, 0x51, 0x0, 0x28, 0x3, 0x64, 0x04, 0x52, 0x0, 0x28, 0x3, 0x64, 0x04, 0x54, 0x0, 0x28, 0x3, 0x64, 0x04, 0x56, 0x0, 0x28, 0x3, 0x64, 0x04, 0x58, 0x0, 0x28, 0x3, 0x64, 0x04, 0x59, 0x0, 0x28, 0x3, 0x64])
-        // this.send(startRobotCMD)
-
-        // window.clearTimeout(this._timeoutID);
-        // this._timeoutID = window.setTimeout(
-        //     () => this._ble.handleDisconnectError(BLEDataStoppedError),
-        //     BLETimeout);
-
-
     }
 
     /*************************************************************************
@@ -861,20 +599,9 @@ class Module extends BaseModule {
      *************************************************************************/
     connect() {
         //this.writeDebug('info', 'connect');
-        this.isConnect = true;
-        log("Connect");
-        setTimeout(() => {
-            log("SendSensor");
-            const sensorCmd = this.getSensors(this.robot.samplingPeriods);
-            this.sp.write(sensorCmd, (err) => {log(error);});
-        }, 500);
-
-        setTimeout(() => {
-            log("SendSensor2");
-            const sensorCmd = this.getVersion();
-            this.sp.write(sensorCmd, (err) => {log(error);});
-        }, 1500);
-        this.next_ack = 0;
+        this.isConnect = false;
+        log("connect");
+        
     }   
 
     /*************************************************************************
@@ -887,23 +614,20 @@ class Module extends BaseModule {
 
     disconnect(connector) {
         //logger.info('checkInitialData genibot');
-        log('disconnect genibot');
         // 커넥터가 연결해제될 때 호출되는 로직, 스캔 정지 혹은 디바이스 연결 해제시 호출된다.
         if(this.sp){
+            log("disconnect");
             this.isConnect = false;
-            if (this.sp.isOpen) {
-                console.log('Disconnect');
-                connector.close();
-            }
-            this.sp = null;
+            this.sp.write(GenibotReboot, err => {
+                if (this.sp.isOpen) {
+                    console.log('Disconnect');
+                    connector.close();
+                }
+                this.sp = null;
+            });
         }else{
             connector.close();
         }
-        
-        // if (this.sp) {
-        //     delete this.sp;
-        // }
-        //logger.info("disconnect")
     };
 
     /*************************************************************************
@@ -914,22 +638,13 @@ class Module extends BaseModule {
      * Returned Value :
      *************************************************************************/
     reset() {
-        //logger.info('checkInitialData genibot');
-        log('reset genibot');
         this.isDraing = false;
-        // this.data = [];
         this.logger= [];
         this.next_ack = 0;
-        // 엔트리 브라우저와의 소켓 연결이 끊어졌을 때 발생하는 로직.
         this.buttonStatus = { status: 0 };
         this.accelerationSensor = { aX: 0, aY: 0, aZ: 0, tilt: 0 };
         this.lightSensor = { R2: 0, R1: 0, L1: 0, L2: 0 };
         this.arduino = { ain: 0 };
-
-        // if (this._timeoutID) {
-        //             window.clearTimeout(this._timeoutID);
-        //             this._timeoutID = null;
-        // }
     }
 
     // 이 아래로는 자유롭게 선언하여 사용한 함수입니다.
