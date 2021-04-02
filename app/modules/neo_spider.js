@@ -299,8 +299,6 @@ Module.prototype.requestLocalData = function() {
 
     this.tx_data = txData;
 
-    console.log(txData);
-
     return txData;
 };
 
@@ -310,107 +308,66 @@ Module.prototype.handleLocalData = function(data) {
     const sensorData = this.sensor_data;
 
     datas.forEach((data) => {
-        if (data.length <= 4 || data[0] !== 255 || data[1] !== 12) {
+        if (data.length <= 4 || data[0] !== 255 || data[1] !== 16) {
             return;
         }
         const readData = data.subarray(2, data.length);
         let value;
+        let checkSum;
 
-        if (readData.length != 8) {
-            return;
-        }
+        const idx = readData[0];
+        if (idx == 1) {
+            if (readData.length != 12) {
+                return;
+            }
+            const analogL0 = readData[1];
+            const analogS0 = readData[2];
+            const analogL1 = readData[3];
+            const analogS1 = readData[4];
+            const analogL2 = readData[5];
+            const analogS2 = readData[6];
+            const analogL3 = readData[7];
+            const analogS3 = readData[8];
+            const infaredLv = readData[9];
+            const infaredRv = readData[10];
+            checkSum = (idx + analogL0 + analogS0 + analogL1 + analogS1 + analogL2 + analogS2 + analogL3 + analogS3 + infaredLv + infaredRv) & 0xff;
+            if (checkSum != readData[11]) {
+                return;
+            }
 
-        switch (readData[0]) {
-            case this.sensorValueSize.FLOAT: {
-                value = new Buffer.from(readData.subarray(2, 6)).readFloatLE();
-                value = Math.round(value * 100) / 100;
-                break;
+            let tempValue = (analogL2 << 8) + analogS2;
+            tempValue = Math.log((10240000 / tempValue) - 10000);
+            tempValue = 1 / (0.001129148 + (0.000234125 * tempValue) + (0.0000000876741 * tempValue * tempValue * tempValue));
+            tempValue = tempValue - 273.15;
+            
+            sensorData.gas = (analogL0 << 8) + analogS0;
+            sensorData.cds = (analogL1 << 8) + analogS1;
+            sensorData.tmp = (tempValue).toFixed(2);
+            sensorData.vibe = (analogL3 << 8) + analogS3;
+            sensorData.left_infared = infaredLv;
+            sensorData.right_infared = infaredRv;
+        } else if (idx == 2) {
+            if (readData.length != 6) {
+                return;
             }
-            case this.sensorValueSize.SHORT: {
-                value = new Buffer.from(readData.subarray(2, 4)).readInt16LE();
-                break;
+            value = new Buffer.from(readData.subarray(1, 5)).readFloatLE();
+            value = Math.round(value * 100) / 100;
+            checkSum = (idx + value) & 0xff;
+            if (checkSum != readData[5]) {
+                return;
             }
-            default: {
-                value = 0;
-                break;
+            sensorData.ultrasonic = value;
+        } else if (idx == 3) {
+            if (readData.length != 6) {
+                return;
             }
-        }
-
-        
-        let checkSum = 0;
-        checkSum += readData[0];
-        checkSum += readData[1];
-        checkSum += parseInt(value, 10);
-        checkSum += readData[readData.length - 2];
-        checkSum = checkSum & 255;
-
-        if (readData[readData.length - 1] != checkSum) {
-            return;
-        }
-
-        const type = readData[readData.length - 2];
-        const port = readData[1];
-
-        switch (type) {
-            case this.sensorTypes.DIGITAL: {
-                switch (port) {
-                    case 5: {
-                        sensorData.left_infared = value;
-                        break;
-                    }
-                    case 6: {
-                        sensorData.right_infared = value;
-                        break;
-                    }
-                    case 11: {
-                        sensorData.motion = value;
-                        break;
-                    }
-                    default: {
-                        break;
-                    }
-                }
-                break;
+            value = new Buffer.from(readData.subarray(1, 5)).readFloatLE();
+            value = Math.round(value * 100) / 100;
+            checkSum = (idx + value) & 0xff;
+            if (checkSum != readData[5]) {
+                return;
             }
-            case this.sensorTypes.ANALOG: {
-                switch (port) {
-                    case 0: {
-                        sensorData.gas = value;
-                        break;
-                    }
-                    case 1: {
-                        sensorData.cds = value;
-                        break;
-                    }
-                    case 2: {
-                        sensorData.tmp = (value * 5.0 / 1024.0 / 0.01).toFixed(2);
-                        break;
-                    }
-                    case 3: {
-                        sensorData.vibe = value;
-                        break;
-                    }
-                    default: {
-                        break;
-                    }
-                }
-                break;
-            }
-            case this.sensorTypes.ULTRASONIC: {
-                switch (port) {
-                    case 13: {
-                        sensorData.ultrasonic = value;
-                        break;
-                    }
-                    default: {
-                        break;
-                    }
-                }
-                break;
-            }
-            default: {
-                break;
-            }
+            sensorData.motion = value;
         }
     });
     this.sensor_data = sensorData;

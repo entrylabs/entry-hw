@@ -1,20 +1,22 @@
 {
-    "id": "470101",
+    "id": "470201",
     "name": {
-        "en": "Jikko",
-        "ko": "직코"
+        "en": "Jikko_lidoc",
+        "ko": "직코&리닥 CPR"
     },
     "category": "board",
     "platform": ["win32", "darwin"],
-    "icon": "jikko.png",
+    "icon": "jikko_lidoc.png",
     "module": "jikko.js",
-    "url": "http://www.makeitall.co.kr",
+    "url": "https://lifedoctor1.imweb.me/",
+    "email": "makeitall018@naver.com",
     "driver": {
         "win32-ia32": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
         "win32-x64": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
         "darwin-x64": "CH34x_Install_MAC_10_9_AND_ABOVE/CH34x_Install_V1.3.pkg"
     },
     "selectPort": true,
+    "firmwareBaudRate": 115200,
     "reconnect": true,
     "firmware": "jikko",
     "hardware": {

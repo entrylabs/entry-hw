@@ -13,12 +13,12 @@ function Module() {
         READ_BLUETOOTH: 9,
         WRITE_BLUETOOTH: 10,
         LCD: 11,
-        RGBLED: 12,
+        DHT : 12,
+        //RGBLED: 12,
         DCMOTOR: 13,
         OLED: 14,
         PIR : 15,
-        FND : 16,
-        DHT : 12,        
+        FND : 16,   
     };
     
     this.actionTypes = {
@@ -32,6 +32,7 @@ function Module() {
         FLOAT: 2,
         SHORT: 3,
         STRING: 4,
+        FLOATEXT:6,
     };
 
     this.digitalPortTimeList = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
@@ -65,6 +66,7 @@ function Module() {
         PULSEIN: {},
         TIMER: 0,
         READ_BLUETOOTH: 0,
+        DHT: 0,                 // DHT Added
     };
 
     this.defaultOutput = {};
@@ -191,6 +193,8 @@ Module.prototype.handleRemoteData = function(handler) {
     if (buffer.length) {
         this.sendBuffers.push(buffer);
     }
+
+    // Anyway, Data was sent to Device, dosen't matter whether set or get data.
 };
 
 Module.prototype.isRecentData = function(port, type, data) {
@@ -227,7 +231,7 @@ ff 55 idx size data a
 Module.prototype.handleLocalData = function(data) {
     const self = this;
     const datas = this.getDataByBuffer(data);
-
+    //  unit from device data processing
     datas.forEach((data) => {
         if (data.length <= 4 || data[0] !== 255 || data[1] !== 85) {
             return;
@@ -249,6 +253,11 @@ Module.prototype.handleLocalData = function(data) {
                 value = readData.slice(2, readData[1] + 3);
                 value = value.toString('ascii', 0, value.length);
                 break;
+            }
+            case self.sensorValueSize.FLOATEXT: {
+                value = new Buffer(readData.subarray(1, 9)).readFloatLE();
+                value = Math.round(value * 100) / 100;
+                break;              
             }
             default: {
                 value = 0;
@@ -284,6 +293,11 @@ Module.prototype.handleLocalData = function(data) {
                 self.sensorData.READ_BLUETOOTH = value;
                 break;
             }
+            case self.sensorTypes.DHT: {
+                self.sensorData.DHT = value;
+                break;
+                // DHT SensorData-Type Added By Remoted 2021-02-25
+            }
             default: {
                 break;
             }
@@ -295,12 +309,12 @@ Module.prototype.handleLocalData = function(data) {
 ff 55 len idx action device port  slot  data a
 0  1  2   3   4      5      6     7     8
 */
-// readBuffer Access Point
+// key port data 
 Module.prototype.makeSensorReadBuffer = function(device, port, data) {
     let buffer;
     let value;
     const dummy = new Buffer([10]);
-    if (device == this.sensorTypes.DIGITAL) {
+    if ((device == this.sensorTypes.DIGITAL) || (device == this.sensorTypes.DHT)) {
         // data  PullDown 0 or Pullup 2
         if (!data) {
             buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port, 0, 10]);
@@ -314,8 +328,6 @@ Module.prototype.makeSensorReadBuffer = function(device, port, data) {
         } else {
             buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port, data, 10]);
         }
-    } else if (device == this.sensorTypes.DHT) {
-        buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port, 10]);
     } else if (device == this.sensorTypes.ULTRASONIC) {
         buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port[0], port[1], 10]);
     } else if (device == this.sensorTypes.READ_BLUETOOTH) {
@@ -402,22 +414,26 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
         }
         case this.sensorTypes.WRITE_BLUETOOTH:
         case this.sensorTypes.LCD: {
-            const text0 = new Buffer(2);
-            const text1 = new Buffer(2);
-            const text2 = new Buffer(2);
-            const text3 = new Buffer(2);
-            const text4 = new Buffer(2);
-            const text5 = new Buffer(2);
-            const text6 = new Buffer(2);
-            const text7 = new Buffer(2);
-            const text8 = new Buffer(2);
-            const text9 = new Buffer(2);
-            const text10 = new Buffer(2);
-            const text11 = new Buffer(2);
-            const text12 = new Buffer(2);
-            const text13 = new Buffer(2);
-            const text14 = new Buffer(2);
-            const text15 = new Buffer(2);
+            const text0 = Buffer.alloc(2);
+            const text1 = Buffer.alloc(2);
+            const text2 = Buffer.alloc(2);
+            const text3 = Buffer.alloc(2);
+            const text4 = Buffer.alloc(2);
+            const text5 = Buffer.alloc(2);
+            const text6 = Buffer.alloc(2);
+            const text7 = Buffer.alloc(2);
+            const text8 = Buffer.alloc(2);
+            const text9 = Buffer.alloc(2);
+            const text10 = Buffer.alloc(2);
+            const text11 = Buffer.alloc(2);
+            const text12 = Buffer.alloc(2);
+            const text13 = Buffer.alloc(2);
+            const text14 = Buffer.alloc(2);
+            const text15 = Buffer.alloc(2);
+            const displayRow = Buffer.alloc(2);
+            const displayCol = Buffer.alloc(2);
+            const lcdBlockIndex = Buffer.alloc(2);
+            const direction = Buffer.alloc(2);
 
             if ($.isPlainObject(data)) {
                 text0.writeInt16LE(data.text0);
@@ -436,6 +452,10 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
                 text13.writeInt16LE(data.text13);
                 text14.writeInt16LE(data.text14);
                 text15.writeInt16LE(data.text15);
+                displayRow.writeInt16LE(data.displayRow);
+                displayCol.writeInt16LE(data.displayCol);
+                lcdBlockIndex.writeInt16LE(data.block_index);
+                direction.writeInt16LE(data.direction);
             } else {
                 text0.writeInt16LE(0);
                 text1.writeInt16LE(0);
@@ -453,14 +473,20 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
                 text13.writeInt16LE(0);
                 text14.writeInt16LE(0);
                 text15.writeInt16LE(0);
+                displayRow.writeInt16LE(0);
+                displayCol.writeInt16LE(0);
+                lcdBlockIndex.writeInt16LE(0);
+                direction.writeInt16LE(0);
             }
 
-            /* Only device address value need to set.
-            Added By Remoted 2020-12-17
+            /* 
+            Only device address value need to set.
+            Writed By Remoted 2020-12-17
+            Row and Col variable added for using new block structure.
+            Writed By Remoted 2021-03-01
             */
-            buffer = new Buffer([255, 85, 36, sensorIdx, this.actionTypes.MODULE, device, port]);
-            buffer = Buffer.concat([buffer, text0, text1, text2, text3, text4, text5, text6, text7, text8, text9, text10, text11, text12, text13, text14, text15, dummy]);
-
+            buffer = Buffer.from([255, 85, 36, sensorIdx, this.actionTypes.MODULE, device, port]);
+            buffer = Buffer.concat([buffer, lcdBlockIndex, displayRow, displayCol, direction, text0, text1, text2, text3, text4, text5, text6, text7, text8, text9, text10, text11, text12, text13, text14, text15, dummy]);
             break;
         }
         

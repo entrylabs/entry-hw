@@ -37,7 +37,7 @@
         "control": "slave",
         "duration": 32,
         "vendor": ["Arduino", "wch.cn", "FTDI"],
-        "baudRate": 9600,
+        "baudRate": 115200,
         "firmwarecheck": false
     }
 }
