@@ -1,10 +1,4 @@
 const BaseModule = require('./baseModule');
-const atob = (str) => {
-    return Buffer.from(str, 'base64').toString('binary');
-}
-
-const { result } = require('lodash');
-
 /**
  * Icon png to be displayed at the left edge of each extension block, encoded as a data URI.
  * @type {string}
@@ -25,17 +19,7 @@ const BLESendInterval = 100; // Minimum interval, refer to Bluetooth LE latency 
  * @type {string}
  */
 const BLEDataStoppedError = 'GeniBot extension stopped receiving data';
-/**
- * Enum for genibot protocol.
- * @readonly
- * @enum {string}
- */
-const GenibotBleUUID = {
-    discoveryNameFilter: 'GENI',
-    service: '6e400001-b5a3-f393-e0a9-e50e24dcca9e',
-    txChar: '6e400002-b5a3-f393-e0a9-e50e24dcca9e',
-    rxChar: '6e400003-b5a3-f393-e0a9-e50e24dcca9e',
-};
+
 const GenibotReboot = Buffer.from([0xA6,0x00,0x00,0xA8,0x00,0x07,0x00]);
 
 /**
@@ -262,8 +246,6 @@ class Module extends BaseModule {
     checkInitialData(data, config) {
         return true;
     }
-
-
     /*************************************************************************
      * Name: validateLocalData
      *
@@ -298,7 +280,6 @@ class Module extends BaseModule {
         }
                 
     }
-
     /*************************************************************************
      * Name: requestRemoteData
      *
@@ -324,7 +305,6 @@ class Module extends BaseModule {
             this.logger =[];
         }
     };
-
     isValidACK(ack) {
         if (ack && this.next_ack <= ack) {
             this.next_ack = ack + 1;
@@ -332,7 +312,6 @@ class Module extends BaseModule {
         }
         return false;
     }
-
     /*************************************************************************
      * Name: handleRemoteData
      *
@@ -602,8 +581,6 @@ class Module extends BaseModule {
 
         return datas;
     };
-
-
     /**
      * getVersion
      * Use version control to add a new funtion block
@@ -1208,7 +1185,6 @@ class MathUtil {
     static radToDeg(rad) {
         return rad * 180 / Math.PI;
     }
-
     /**
      * Clamp a number between two limits.
      * If n < min, return min. If n > max, return max. Else, return n.
@@ -1220,7 +1196,6 @@ class MathUtil {
     static clamp(n, min, max) {
         return Math.min(Math.max(n, min), max);
     }
-
     /**
      * Keep a number between two limits, wrapping "extra" into the range.
      * e.g., wrapClamp(7, 1, 5) == 2
@@ -1235,8 +1210,6 @@ class MathUtil {
         const range = (max - min) + 1;
         return n - (Math.floor((n - min) / range) * range);
     }
-
-
     /**
      * Convert a value from tan function in degrees.
      * @param {!number} angle in degrees
@@ -1255,7 +1228,6 @@ class MathUtil {
             return parseFloat(Math.tan((Math.PI * angle) / 180).toFixed(10));
         }
     }
-
     /**
      * Given an array of unique numbers,
      * returns a reduced array such that each element of the reduced array
@@ -1269,7 +1241,6 @@ class MathUtil {
         const sorted = elts.slice(0).sort((a, b) => a - b);
         return elts.map(e => sorted.indexOf(e));
     }
-
     /**
      * Return a random number given an inclusive range and a number in that
      * range that should be excluded.
@@ -1295,7 +1266,6 @@ class MathUtil {
 
         return randInt;
     }
-
     /**
      * Scales a number from one range to another.
      * @param {number} i number to be scaled
