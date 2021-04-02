@@ -35,19 +35,19 @@ const TASK_ID = {
     },
     ROBOT: {
         GET_VERSION: 0xA1,
-    }
+    },
 };
 
 const ACTION_STATE = {
     PAUSE: 0x00,
     START: 0x01,
-    RESUME: 0x02
+    RESUME: 0x02,
 };
 
 const STEPPER_RATE = {
     SLOW: 900,
     NORMAL: 950,
-    FAST: 1000
+    FAST: 1000,
 };
 
 const NOTES_CODES = {
@@ -69,17 +69,17 @@ const NOTES_CODES = {
     highRe: 15,
     highReSharp: 16,
     highMi: 17,
-    highFa: 18
+    highFa: 18,
 };
 
 const GenibotDistanceLimit = {
     MIN: 1,
-    MAX: 30
+    MAX: 30,
 };
 
 const GenibotAngleLimit = {
     MIN: 0,
-    MAX: 360
+    MAX: 360,
 };
 
 const convertIntToUint8Array = (value, length) => {
@@ -96,12 +96,13 @@ const convertIntToUint8Array = (value, length) => {
     return new Uint8Array(array, length);
 };
 
-const convertHexToSignedInt = hex => {
+const convertHexToSignedInt = ( hex => {
     if ((hex & 0x8000) > 0) {
         hex = 0xFFFF0000 | hex;
     }
-    return hex;
-};
+        return hex;
+    }
+);
 
 class Module extends BaseModule {
     constructor() {
@@ -123,7 +124,7 @@ class Module extends BaseModule {
         this._busy = false;
         this.isDraing = false;
         this.data = [];
-        this.logger= [];
+        this.logger = [];
         this.next_ack = 0;
         this._timeoutID = null;
         this._busyTimeoutID = null;
@@ -135,7 +136,7 @@ class Module extends BaseModule {
         this.robot = { version: 8, id: 0x0, samplingPeriods: 0x19 };
         this.music = {
             instrument: 'piano',
-            tempo: 120
+            tempo: 120,
         };
 
         const distanceError = (2 * 1000 * 0.81) / (3.141592 * 3.2 * 1.25);
