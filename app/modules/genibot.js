@@ -83,8 +83,7 @@ const TASK_ID = {
     },
     ROBOT: {
         GET_VERSION: 0xA1,
-        // GET_VERSION: 0x00,
-    },
+    }
 };
 /**
  * Enum for action property assigned to GeniBot
@@ -94,7 +93,7 @@ const TASK_ID = {
 const ACTION_STATE = {
     PAUSE: 0x00,
     START: 0x01,
-    RESUME: 0x02,
+    RESUME: 0x02
 };
 /**
  * Enum for step rate in samples per seconds assigned to GeniBot
@@ -108,7 +107,7 @@ const ACTION_STATE = {
 const STEPPER_RATE = {
     SLOW: 900,
     NORMAL: 950,
-    FAST: 1000,
+    FAST: 1000
 };
 /**
  * Enum for music notes assigned to GeniBot
@@ -134,7 +133,7 @@ const NOTES_CODES = {
     highRe: 15,
     highReSharp: 16,
     highMi: 17,
-    highFa: 18,
+    highFa: 18
 };
 /**
  * Enum for moving distance limit in cm
@@ -143,7 +142,7 @@ const NOTES_CODES = {
  */
 const GenibotDistanceLimit = {
     MIN: 1,
-    MAX: 30,
+    MAX: 30
 };
 /**
  * Enum for rotational angle limit in cm
@@ -152,7 +151,7 @@ const GenibotDistanceLimit = {
  */
 const GenibotAngleLimit = {
     MIN: 0,
-    MAX: 360,
+    MAX: 360
 };
 /**
  * @param {int} value - value
@@ -257,8 +256,7 @@ class Module extends BaseModule {
     }
 
     connectGeniBot() {
-        const result = Buffer.from([0xA2, 0x00, 0xBF, 0xA9, 0x00, 0x07, 0x00]);
-        return result;
+        return Buffer.from([0xA2, 0x00, 0xBF, 0xA9, 0x00, 0x07, 0x00]);
     }
 
     checkInitialData(data, config) {
@@ -585,7 +583,7 @@ class Module extends BaseModule {
             0, 
             2,
             device,
-            port,
+            port
         ]);
         buffer = Buffer.concat([buffer, value, dummy]);
 
@@ -639,7 +637,7 @@ class Module extends BaseModule {
             ...virtualId,
             ...opCode,
             ...packageSize,
-            ...samplingPeriods,
+            ...samplingPeriods
         ];
         return command;
     }
@@ -802,7 +800,7 @@ class Module extends BaseModule {
             'violet': 0x6,
             'orange': 0x7,
             'spring green': 0x8,
-            'light pink': 0x9,
+            'light pink': 0x9
         };
         const ledIdIndex = { 'left': 0x02, 'right': 0x00, 'front': 0x03, 'back': 0x01, 'all': 0xFF };
         let colorNameIndex = indexOfColorName[args.COLOR_NAME];
@@ -947,7 +945,7 @@ class Module extends BaseModule {
             ...packageSize,
             ...actionState,
             ...motionProperty,
-            ...steppers,
+            ...steppers
         ];
 
         return this.sp.write(command);
@@ -974,7 +972,7 @@ class Module extends BaseModule {
             ...packageSize,
             ...colorSpace,
             ...colorRGB,
-            ...setLedId,
+            ...setLedId
         ];
         return this.sp.write(command);
     }
@@ -1000,7 +998,7 @@ class Module extends BaseModule {
             ...packageSize,
             ...colorSpace,
             ...colorRGB,
-            ...setLedId,
+            ...setLedId
         ];
         return this.sp.write(command);
     }
@@ -1026,7 +1024,7 @@ class Module extends BaseModule {
             ...opCode,
             ...packageSize,
             ...actionState,
-            ...steppers,
+            ...steppers
         ];
         return this.sp.write(command);
     }
@@ -1045,7 +1043,7 @@ class Module extends BaseModule {
             ...virtualId,
             ...opCode,
             ...packageSize,
-            ...actionState,
+            ...actionState
         ];
         return this.sp.write(command);
     }
@@ -1101,14 +1099,14 @@ class Module extends BaseModule {
             instrumentId,
             0x00,
             beatId,
-            parseInt(this.music.tempo, 10),
+            parseInt(this.music.tempo, 10)
         ];
         const command = [
             ...virtualId,
             ...opCode,
             ...packageSize,
             ...actionState,
-            ...musicNotes,
+            ...musicNotes
         ];
  
         this.sp.write(command);
@@ -1127,7 +1125,7 @@ class Module extends BaseModule {
             ...virtualId,
             ...opCode,
             ...packageSize,
-            ...setVolume,
+            ...setVolume
         ];
         return this.sp.write(command);
     }
