@@ -1,54 +1,22 @@
 const BaseModule = require('./baseModule');
-/**
- * Icon png to be displayed at the left edge of each extension block, encoded as a data URI.
- * @type {string}
- */
+
 const blockIconURI = 'data:image/png;base64,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';
-/**
- * A time interval to wait (in milliseconds) before reporting to the BLE socket
- * that data has stopped coming from the peripheral.
- */
-const BLETimeout = 4000; // Timout, ble Connection supervisory timeout
-/**
- * A time interval to wait (in milliseconds) in between send messages.
- * @type {number}
- */
-const BLESendInterval = 100; // Minimum interval, refer to Bluetooth LE latency time, MTU & PHY parameters,
-/**
- * A string to report to the BLE socket when the robot has stopped receiving data.
- * @type {string}
- */
+
+const BLETimeout = 4000;
+
+const BLESendInterval = 100;
+
 const BLEDataStoppedError = 'GeniBot extension stopped receiving data';
 
 const GenibotReboot = Buffer.from([0xA6,0x00,0x00,0xA8,0x00,0x07,0x00]);
 
-/**
- * Enum for message op code assigned to GeniBot
- * Peripherals to read or write message
- * Steppers to control motors
- * Cards to run unplugged actvity
- * Robot
- * @readonly
- * @enum {number}
- */
 const OP_CODE = {
     STEPPERS: 0xC0,
     CARDS: 0xC1,
     PERIPHERALS: { SET: 0xC2, GET: 0xB1 },
     ROBOT: 0xB0,
 };
-/**
- * Enum for message task id assigned to GeniBot such as steppers, cards, peripherals, and etc,
- * Stepper functions for direct control,  see Programmer's guide.
- * Unplugged functions, you can create multiple data set with unplugged cards,
- * When you start line follwer, illumination leds will be turned on,
- * SetLedColor: led color in HSV color space,
- * SetSpeakerVolume: Set speakcer loudness from 1 to 9, set zero to maximum volume (default),
- * GetSensors: Read button status, acceleration and tilt status
- * GetVersion: Read build version of the robot,
- * @readonly
- * @enum {number}
- */
+
 const TASK_ID = {
     STEPPERS: {
         SET_PAUSE_STEPS: 0xA0,
@@ -69,35 +37,19 @@ const TASK_ID = {
         GET_VERSION: 0xA1,
     }
 };
-/**
- * Enum for action property assigned to GeniBot
- * @readonly
- * @enum {number}
- */
+
 const ACTION_STATE = {
     PAUSE: 0x00,
     START: 0x01,
     RESUME: 0x02
 };
-/**
- * Enum for step rate in samples per seconds assigned to GeniBot
- * StepRate is from 100 to 1000, Stepping time rate = -0.01 * StepRate + 11
- * Slow: Lower limit of 'slow', time is twice longer than 'fast' by the equation of Stepping time
- * Normal: To configure the default value, normal stepper rate is 950
- * Fast: Upper limit of 'fast'
- * @readonly
- * @enum {number}
- */
+
 const STEPPER_RATE = {
     SLOW: 900,
     NORMAL: 950,
     FAST: 1000
 };
-/**
- * Enum for music notes assigned to GeniBot
- * @readonly
- * @enum {number}
- */
+
 const NOTES_CODES = {
     lowTi: 0,
     do: 1,
@@ -119,29 +71,17 @@ const NOTES_CODES = {
     highMi: 17,
     highFa: 18
 };
-/**
- * Enum for moving distance limit in cm
- * @readonly
- * @enum {number}
- */
+
 const GenibotDistanceLimit = {
     MIN: 1,
     MAX: 30
 };
-/**
- * Enum for rotational angle limit in cm
- * @readonly
- * @enum {number}
- */
+
 const GenibotAngleLimit = {
     MIN: 0,
     MAX: 360
 };
-/**
- * @param {int} value - value
- * @param {int} length - array length
- * @returns {Uint8Array} - uint8 array
- */
+
 const convertIntToUint8Array = (value, length) => {
     let hexString = (value >>> 0).toString(16).substr(-4)
         .toUpperCase()
@@ -155,9 +95,7 @@ const convertIntToUint8Array = (value, length) => {
     }
     return new Uint8Array(array, length);
 };
-/**
- * @returns {hex} - 32bit negative bit conversion in java script
- */
+
 const convertHexToSignedInt = hex => {
     if ((hex & 0x8000) > 0) {
         hex = 0xFFFF0000 | hex;
@@ -187,34 +125,17 @@ class Module extends BaseModule {
         this.data = [];
         this.logger= [];
         this.next_ack = 0;
-        /**
-         * ID for a timeout which is used to clear the busy flag if it has been
-         * true for a long time.
-         */
         this._timeoutID = null;
         this._busyTimeoutID = null;
-        /**
-         * Speficy each robot id from 0 to 7 in Star network, or ffh to broadcast a message to robots that are connected to Star robot.
-         * Star network can be available by using "GeniBot Star Network" extention,
-         * accelerationSensor: The state-art of 3-axis acceleration, from -1.00g to +1.00g @ 2g scale
-         * lightSensor: Reading brightness of ambient light
-         * buttonStatus: Button status as latched, pressed or normal state
-         * arduino: Reading data from arduino sensors
-         * ledColor: To store present four led colors in RGB space,
-         */
         this.accelerationSensor = { aX: 0, aY: 0, aZ: 0, tilt: 0, tiltStatus: '' };
         this.lightSensor = { R2: 0, R1: 0, L1: 0, L2: 0 };
         this.buttonStatus = { status: 0 };
         this.arduino = { ain: 0 };
         this.oidCode = { decimal: 65535 };
-        /**
-         * Robot property as:
-         * Sampling period 250ms, it is avaiable from 10 (0.1ms) to 100 (1.0s)
-         */
         this.robot = { version: 8, id: 0x0, samplingPeriods: 0x19 };
         this.music = {
-            instrument: 'piano', // Default instrument 'piano'
-            tempo: 120,
+            instrument: 'piano',
+            tempo: 120
         };
 
         const distanceError = (2 * 1000 * 0.81) / (3.141592 * 3.2 * 1.25);
@@ -246,16 +167,7 @@ class Module extends BaseModule {
     checkInitialData(data, config) {
         return true;
     }
-    /*************************************************************************
-     * Name: validateLocalData
-     *
-     * Description: Use when you need to verify data received
-     *              from hardware periodically.
-     *
-     * data -
-     *
-     * Returned Value :
-     *************************************************************************/
+
     validateLocalData(data) {
         if(!this.isConnect){
             if(data.byteLength == 13 && data[3] == 0xA9 && data[6] == 0x01){
@@ -280,14 +192,8 @@ class Module extends BaseModule {
         }
                 
     }
-    /*************************************************************************
-     * Name: requestRemoteData
-     *
-     * Description: Send data to Entry
-     *
-     * Returned Value :
-     *************************************************************************/
-    requestRemoteData(handler) { //sendtobrowser
+
+    requestRemoteData(handler) { 
          handler.write('OIDCODE', this.oidCode.decimal);
          handler.write('ACC_TILT', this.accelerationSensor);
          handler.write('ROBOT_VERSION',this.robot.version);
@@ -312,13 +218,7 @@ class Module extends BaseModule {
         }
         return false;
     }
-    /*************************************************************************
-     * Name: handleRemoteData
-     *
-     * Description: Handle received data from Entry
-     *
-     * Returned Value :
-     *************************************************************************/
+
     handleRemoteData(handler) {
         const set_led = handler.read('SET_LED_COLOR');
         if (set_led) {
@@ -425,15 +325,6 @@ class Module extends BaseModule {
         }
     }
 
-    /*************************************************************************
-     * Name: requestLocalData
-     *
-     * Description: Returns the data to pass to the hardware device.
-     *              In case of slave mode, requests are made to the device
-     *              continuously at intervals of the duration attribute.
-     *
-     * Returned Value :
-     *************************************************************************/
     requestLocalData() { 
         return null;
     }
@@ -488,35 +379,13 @@ class Module extends BaseModule {
         }
     }
 
-    /*************************************************************************
-     * Name: handleLocalData
-     *
-     * Description: Handle data from H/W device
-     *
-     * Returned Value :
-     *************************************************************************/
     handleLocalData(data) {
         this._onMessage(data);
     }
 
-    /*************************************************************************
-     * Name: connect
-     *
-     * Description:
-     *
-     * Returned Value :
-     *************************************************************************/
     connect() {
         this.isConnect = false;
     }   
-
-    /*************************************************************************
-     * Name: disconnect
-     *
-     * Description:
-     *
-     * Returned Value :
-     *************************************************************************/
 
     disconnect(connector) {
         if(this.sp){
@@ -532,13 +401,6 @@ class Module extends BaseModule {
         }
     };
 
-    /*************************************************************************
-     * Name: reset
-     *
-     * Description:
-     *
-     * Returned Value :
-     *************************************************************************/
     reset() {
         this.isDraing = false;
         this.logger= [];
@@ -581,10 +443,7 @@ class Module extends BaseModule {
 
         return datas;
     };
-    /**
-     * getVersion
-     * Use version control to add a new funtion block
-     */
+
     getVersion() {
         const virtualId = [TASK_ID.ROBOT.GET_VERSION, 0x00, this.robot.id];
         const opCode = [OP_CODE.ROBOT];
@@ -599,12 +458,6 @@ class Module extends BaseModule {
         return command;
     }
 
-    /**
-     * getSensors
-     * samplingPeriods: 10 to 100 that is mached to 0.1s to 1.0s
-     * virtualId 0x10: read Oid, turn off Green led
-     * @param {*} periods
-     */
     getSensors(periods) {
         const virtualId = [TASK_ID.PERIPHERALS.GET_SENSORS, 0x10, this.robot.id];
         const opCode = [OP_CODE.PERIPHERALS.GET];
@@ -619,19 +472,10 @@ class Module extends BaseModule {
         return command;
     }
 
-    /**
-     * Return true if connected to the robot.
-     * @return {boolean} - whether the robot is connected.
-     */
     isConnected() {
-        //should add other logic if using ble later
         return this.isConnect;
     }
 
-    /**
-     * setRobotSpeedItem
-     * @param {*} args
-     */
     setRobotSpeedItem(args) {
         if(!args.SPEED)
             return
@@ -654,10 +498,6 @@ class Module extends BaseModule {
         return this.motion.stepRate
     }
 
-    /**
-     * moveDistance
-     * @param {*} args
-     */
     moveDistance(args) {
         let stepRate =  this.motion.stepRate;
         if (args.DIRECTION == 'front') {
@@ -668,10 +508,6 @@ class Module extends BaseModule {
         return this.startMotionStepsDistance(stepRate, parseInt(args.DISTANCE, 10));
     }
 
-    /**
-     * turnAngle
-     * @param {*} args
-     */
     turnAngle(args) {
         let stepRate = this.motion.stepRate;
         if (args.DIRECTION === 'left') {
@@ -682,11 +518,6 @@ class Module extends BaseModule {
         return this.startMotionStepsAngle(stepRate, parseInt(args.ANGLE, 10));
     }
 
-    /**
-     * motionGoDistance
-     * Added SetMotionSteps, a value of positive or negative StepRate is from 850 to 1000
-     * @param {*} args
-     */
     motionGoDistance(args) {
         let velocity = parseInt(args.VELOCITY, 10) * 30;
         if (velocity != 0) {
@@ -699,11 +530,6 @@ class Module extends BaseModule {
         return this.startMotionStepsDistance(velocity, args.DISTANCE);
     }
 
-    /**
-     * motionRotateAngle
-     * Added SetMotionSteps,  positive or negative sps (steps per seconds) is from 850 to 1000
-     * @param {*} args
-     */
     motionRotateAngle(args) {
         let velocity = parseInt(args.VELOCITY, 10) * 30;
         if (velocity != 0) {
@@ -716,10 +542,6 @@ class Module extends BaseModule {
         return this.startMotionStepsAngle(velocity, args.ANGLE);
     }
 
-    /**
-     * startMoving
-     * Added SetMotionSteps,  positive or negative sps (steps per seconds)  is from 850 to 1000
-     */
     startMoving(args) {
         let velocity1 = parseInt(args.VELOCITY1, 10) * 30;
         let velocity2 = parseInt(args.VELOCITY2, 10) * 30;
@@ -757,14 +579,6 @@ class Module extends BaseModule {
         }
     }
 
-
-    /**
-     * setLedColor
-     * Set 03h to Front LED, 01h to Back LED, 02h to Left LED, 00h to Right LED or FFh to four LEDs.
-     * Color nmae {RED 0, GREEN 1, BLUE 2, CYAN 3, MAGENTA 4, YELLOW 5, VIOLET 6, ORANGE 7, SPRINGGREEN 8,  LIGHTPINK 9, WHITE E}
-     * Brighness is 0 to 100 in percentage
-     * @param {*} args
-     */
     setLedColorName(args) {
         const indexOfColorName = {
             'white': 0x0E,
@@ -789,11 +603,6 @@ class Module extends BaseModule {
         }
     }
 
-    /**
-     * startLineFollower
-     * Check stop message not to conflit another stop command
-     * @param {*} args
-     */
     startLineFollower(args) {
         if (args.ACTION == 'start') {
             this.linefollower.action = ACTION_STATE.START;
@@ -804,28 +613,15 @@ class Module extends BaseModule {
         }
     }
 
-    /**
-     * setInstrument
-     * @param {*} args
-     */
     setInstrument(args) {
         this.setInstrumentCMD(args.INSTRUMENT);
     }
 
-    /**
-     * setTempo
-     * Tempo is from 88 to 140
-     * @param {*} args
-     */
     setTempo(args) {
         const tempo = MathUtil.clamp(args.TEMPO, 88, 140);
         this.setTempoCMD(tempo);
     }
 
-    /**
-     * playNote
-     * @param {*} args
-     */
     playNote(args) {
         const noteLabel = ['whole', 'half', 'dottedHalf', 'quarter', 'dottedQuarter', 'eight', 'dottedEight', 'sixteenth'];
         const noteId = noteLabel.findIndex(element => element === args.BEATS);
@@ -833,23 +629,6 @@ class Module extends BaseModule {
         this.setMusicNotes(args.NOTE, noteId, -1);
     }
 
-    /**
-     * Mandatory field data format is described as {VirtualId:OpCode:PacketSize:Property}.
-     * Data format of VirtualId is described as {TaskId:Reserved:robotId}.
-     * Set 00h or FFh to Reserved and robotId field.
-     * When you make GeniBot star network define robotId from 00h to 07h according to the connection link order.
-     * {None} means that you don’t add a value or some data set in the excluded fields.
-     * To set some parameters such as OidCode, VirtualCode, NoteId, Tempo or more, see GeniBot Oid code reference document.
-     *
-     * Client robot will immediately send a response with the mandatory field data set to host robot.
-     */
-
-
-    /**
-     * @param {number} StepRate - steps per seconds
-     * @param {number} Steps - steps
-     * @return {Promise} - a Promise that resolves when writing to peripheral.
-     */
     setSingleSteps(StepRate1, Steps1, StepRate2, Steps2) {
         const virtualId = [TASK_ID.STEPPERS.SET_SINGLE_STEPS, 0x00, this.robot.id];
         const opCode = [OP_CODE.STEPPERS];
@@ -871,15 +650,6 @@ class Module extends BaseModule {
         return this.sp.write(command);
     }
 
-    /**
-     * @param {*} stepRate
-     * @param {*} distance
-     * Added SetMotionSteps, see Programmer's guide.
-     * a. VirtualId{TaskId:Reserved:robotId}:OpCode:PacketSize:ActionState:MotionType:{StepRate:Distance}
-     * b. VirtualId{TaskId:Reserved:robotId}:OpCode:PacketSize:ActionState:MotionType:{StepRate:Angle}
-     * setMotionStepsDistance: to go forward or backward, back and forth motion,
-     * setMotionStepsAngle: to rotate left or right, see Programmer's guide.
-     */
     setMotionStepsDistance(stepRate, distance) {
         const virtualId = [TASK_ID.STEPPERS.SET_MOTION_STEPS, 0x00, this.robot.id];
         const opCode = [OP_CODE.STEPPERS];
@@ -902,10 +672,6 @@ class Module extends BaseModule {
         this.sp.write(command);
     }
 
-    /**
-     * @param {*} stepRate
-     * @param {*} angle
-     */
     setMotionStepsAngle(stepRate, angle) {
         const virtualId = [TASK_ID.STEPPERS.SET_MOTION_STEPS, 0x00, this.robot.id];
         const opCode = [OP_CODE.STEPPERS];
@@ -928,14 +694,6 @@ class Module extends BaseModule {
         return this.sp.write(command);
     }
 
-    /**
-     * setLED:
-     * Each color in rgb space,  see Programmer's guide.
-     * colorSpace: rgb space
-     * setLedId: Set 03h to Front LED, 01h to Back LED, 02h to Left LED, 00h to Right LED or FFh to four LEDs
-     * @param {*} color
-     * @param {*} ledId
-     */
     setLED(color, ledId) {
         const virtualId = [TASK_ID.PERIPHERALS.SET_COLOR_LED, 0xFF, this.robot.id];
         const opCode = [OP_CODE.PERIPHERALS.SET];
@@ -954,14 +712,6 @@ class Module extends BaseModule {
         return this.sp.write(command);
     }
 
-    /**
-     * setLED:
-     * Each color in rgb space,  see Programmer's guide.
-     * colorSpace: rgb space
-     * setLedId: Set 03h to Front LED, 01h to Back LED, 02h to Left LED, 00h to Right LED or FFh to four LEDs
-     * @param {*} color
-     * @param {*} ledId
-     */
     setLEDName(colorNameIndex, ledId, brightness) {
         const virtualId = [TASK_ID.PERIPHERALS.SET_COLOR_LED, 0x00, this.robot.id];
         const opCode = [OP_CODE.PERIPHERALS.SET];
@@ -980,13 +730,6 @@ class Module extends BaseModule {
         return this.sp.write(command);
     }
 
-    /**
-     * @param {*} stepperActionState
-     * @param {*} speed1
-     * @param {*} speed2
-     * setContinuousSteps:
-     * To make a contiuous linear or rotational motion,
-     */
     setContinuousSteps(stepperActionState, speed1, speed2) {
         const virtualId = [TASK_ID.STEPPERS.SET_CONTINUOUS_STEPS, 0x00, this.robot.id];
         const opCode = [OP_CODE.STEPPERS];
@@ -1006,11 +749,6 @@ class Module extends BaseModule {
         return this.sp.write(command);
     }
 
-    /**
-     * @param {*} isStartAction
-     * setLineFollower:
-     * Start line follower with pid motion control in the robot,
-     */
     setLineFollower(isStartAction) {
         const virtualId = [TASK_ID.CARDS.SET_LINE_FOLLOWER, 0x00, this.robot.id];
         const opCode = [OP_CODE.CARDS];
@@ -1025,34 +763,14 @@ class Module extends BaseModule {
         return this.sp.write(command);
     }
 
-    /**
-     * @param {*} instrument
-     * setInstrument:
-     * Configure piano, flute or strting
-     */
     setInstrumentCMD(instrument) {
         this.music.instrument = instrument;
     }
 
-    /**
-     * setTempo :
-     * Configure tempo from 88 to 140
-     * @param {*} tempo
-     */
     setTempoCMD(tempo) {
         this.music.tempo = tempo;
     }
 
-    /**
-     * @param {*} note
-     * @param {*} beatId
-     * setMusicNotes :
-     * Music notes can be constructed in array set as {{NoteCode:InstruementId:Reserved:NoteId:Tempo}, {}, {}  ...}
-     * musicNotes: it is spefified with instrument address of which is from 1100 to 1600
-     * instrumentId: piano, flute, string
-     * beatId: NoteId from whole to sixteenth
-     * tempo: it is from 88 to 140
-     */
     setMusicNotes(note, beatId, key) {
         let instrumentId = 0x00;
         let noteIndex = (key >= 0) ? key : NOTES_CODES[note];
@@ -1089,10 +807,6 @@ class Module extends BaseModule {
         this.sp.write(command);
     }
 
-    /**
-     * setSpeakerVolume: from 1 (minimum) to 10 (maximum)
-     * @param {*} volume
-     */
     setSpeakerVolumeCMD(volume) {
         const virtualId = [TASK_ID.PERIPHERALS.SET_SPEAKER_VOLUME, 0x00, this.robot.id];
         const opCode = [OP_CODE.PERIPHERALS.SET];
@@ -1107,10 +821,6 @@ class Module extends BaseModule {
         return this.sp.write(command);
     }
 
-    /**
-     * countNoteLength
-     * @param {*} noteId
-     */
     countNoteLength(noteId) {
         const noteBPM = [240, 120, 180, 60, 90, 30, 45, 15]; // Beat per miniutes
         return noteBPM[noteId] ? (noteBPM[noteId] / this.music.tempo) : 2.4; // Duration in seconds
@@ -1120,23 +830,12 @@ class Module extends BaseModule {
         return false;
     }
 
-    /**
-     * setSpeakerVolume
-     * Default volume is 0 (maximunm loudness), the loudness is from 1 to 9
-     * @param {*} args
-     */
     setSpeakerVolume(args) {
         let volume = args.VOLUME;
         volume = (volume == '10') ? '0' : volume;
         this.setSpeakerVolumeCMD(volume);
     }
 
-    /**
-     * startMotionStepsDistance
-     * Added SetMotionSteps{linear motion}, see Programmer's guide
-     * @param {*} stepRate
-     * @param {*} distance
-     */
     startMotionStepsDistance(stepRate, distance) {
         let stepTime = (distance * this.motion.distanceMultiplier / (Math.abs(stepRate) / (Math.abs(stepRate) * -0.01 + 11))) * 1000;
 
@@ -1148,12 +847,6 @@ class Module extends BaseModule {
         }
     }
 
-    /**
-     * startMotionStepsAngle
-     * Added SetMotionSteps{rotation}, see Programmer's guide
-     * @param {*} stepRate
-     * @param {*} angle
-     */
     startMotionStepsAngle(stepRate, angle) {
         if (this.linefollower.action > ACTION_STATE.PAUSE) {
             this.setLineFollower(false);
@@ -1168,53 +861,20 @@ class Module extends BaseModule {
 module.exports = new Module();
 
 class MathUtil {
-    /**
-     * Convert a value from degrees to radians.
-     * @param {!number} deg Value in degrees.
-     * @return {!number} Equivalent value in radians.
-     */
     static degToRad(deg) {
         return deg * Math.PI / 180;
     }
-
-    /**
-     * Convert a value from radians to degrees.
-     * @param {!number} rad Value in radians.
-     * @return {!number} Equivalent value in degrees.
-     */
     static radToDeg(rad) {
         return rad * 180 / Math.PI;
     }
-    /**
-     * Clamp a number between two limits.
-     * If n < min, return min. If n > max, return max. Else, return n.
-     * @param {!number} n Number to clamp.
-     * @param {!number} min Minimum limit.
-     * @param {!number} max Maximum limit.
-     * @return {!number} Value of n clamped to min and max.
-     */
     static clamp(n, min, max) {
         return Math.min(Math.max(n, min), max);
     }
-    /**
-     * Keep a number between two limits, wrapping "extra" into the range.
-     * e.g., wrapClamp(7, 1, 5) == 2
-     * wrapClamp(0, 1, 5) == 5
-     * wrapClamp(-11, -10, 6) == 6, etc.
-     * @param {!number} n Number to wrap.
-     * @param {!number} min Minimum limit.
-     * @param {!number} max Maximum limit.
-     * @return {!number} Value of n wrapped between min and max.
-     */
     static wrapClamp(n, min, max) {
         const range = (max - min) + 1;
         return n - (Math.floor((n - min) / range) * range);
     }
-    /**
-     * Convert a value from tan function in degrees.
-     * @param {!number} angle in degrees
-     * @return {!number} Correct tan value
-     */
+   
     static tan(angle) {
         angle = angle % 360;
         switch (angle) {
@@ -1228,35 +888,14 @@ class MathUtil {
             return parseFloat(Math.tan((Math.PI * angle) / 180).toFixed(10));
         }
     }
-    /**
-     * Given an array of unique numbers,
-     * returns a reduced array such that each element of the reduced array
-     * represents the position of that element in a sorted version of the
-     * original array.
-     * E.g. [5, 19. 13, 1] => [1, 3, 2, 0]
-     * @param {Array<number>} elts The elements to sort and reduce
-     * @return {Array<number>} The array of reduced orderings
-     */
+    
     static reducedSortOrdering(elts) {
         const sorted = elts.slice(0).sort((a, b) => a - b);
         return elts.map(e => sorted.indexOf(e));
     }
-    /**
-     * Return a random number given an inclusive range and a number in that
-     * range that should be excluded.
-     *
-     * For instance, (1, 5, 3) will only pick 1, 2, 4, or 5 (with equal
-     * probability)
-     *
-     * @param {number} lower - The lower bound (inlcusive)
-     * @param {number} upper - The upper bound (inclusive), such that lower <= upper
-     * @param {number} excluded - The number to exclude (MUST be in the range)
-     * @return {number} A random integer in the range [lower, upper] that is not "excluded"
-     */
+    
     static inclusiveRandIntWithout(lower, upper, excluded) {
-        // Note that subtraction is the number of items in the
-        // inclusive range [lower, upper] minus 1 already
-        // (e.g. in the set {3, 4, 5}, 5 - 3 = 2).
+
         const possibleOptions = upper - lower;
 
         const randInt = lower + Math.floor(Math.random() * possibleOptions);
@@ -1266,15 +905,6 @@ class MathUtil {
 
         return randInt;
     }
-    /**
-     * Scales a number from one range to another.
-     * @param {number} i number to be scaled
-     * @param {number} iMin input range minimum
-     * @param {number} iMax input range maximum
-     * @param {number} oMin output range minimum
-     * @param {number} oMax output range maximum
-     * @return {number} scaled number
-     */
     static scale(i, iMin, iMax, oMin, oMax) {
         const p = (i - iMin) / (iMax - iMin);
         return (p * (oMax - oMin)) + oMin;
