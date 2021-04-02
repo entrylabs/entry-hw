@@ -96,13 +96,13 @@ const convertIntToUint8Array = (value, length) => {
     return new Uint8Array(array, length);
 };
 
-const convertHexToSignedInt = ( hex => {
+const convertHexToSignedInt = (hex => {
+    var hexString = hex;
     if ((hex & 0x8000) > 0) {
-        hex = 0xFFFF0000 | hex;
+        hexString = 0xFFFF0000 | hex;
     }
-        return hex;
-    }
-);
+    return hexString;
+});
 
 class Module extends BaseModule {
     constructor() {
@@ -185,7 +185,7 @@ class Module extends BaseModule {
                 this.next_ack = 0;
 
                 return true;
-            }else{
+            }else {
                 return false;
             }
         }else{
