@@ -35,6 +35,7 @@ declare interface IHardwareModuleConfig {
     control: IHardwareControlType;
     duration: number;
     baudRate: number;
+    commType: 'ascii' | 'utf8' | 'utf16le' | 'ucs2' | 'base64' | 'binary' | 'hex' | undefined;
 
     firmwarecheck?: boolean;
 
