@@ -11,7 +11,7 @@
     "url": "https://microbit.org/ko/",
     "selectPort": true,
     "reconnect": true,
-    "tryFlasherNumber": 1,
+    "tryFlasherNumber": 2,
     "firmware": {
         "type": "copy",
         "name": "microbit2",
@@ -25,7 +25,7 @@
         "type": "serial",
         "control": "slave",
         "delimiter": "\r\n",
-        "duration": 100,
+        "duration": 200,
         "vendor": "",
         "baudRate": 115200,
         "commType": "ascii"

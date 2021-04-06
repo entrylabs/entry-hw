@@ -105,7 +105,7 @@ class SerialConnector extends BaseConnector {
                 ? this.serialPortParser
                 : this.serialPort;
 
-            const runAsMaster = () => {
+            const runAsMaster = (resolve: any) => {
                 logger.verbose('hardware handShake as Master mode');
                 serialPortReadStream.on('data', (data) => {
                     logger.verbose(`handShake data ${data.toString()}`);
@@ -133,7 +133,7 @@ class SerialConnector extends BaseConnector {
                 });
             };
 
-            const runAsSlave = () => {
+            const runAsSlave = (resolve: any) => {
                 logger.verbose('hardware handShake as Slave mode');
 
                 // 최소 한번은 requestInitialData 전송을 강제
@@ -153,7 +153,6 @@ class SerialConnector extends BaseConnector {
 
                 // control type is slave
                 serialPortReadStream.on('data', (data) => {
-                    console.log('Received :', data);
                     logger.verbose(`handShake response data ${data}`);
                     const result = hwModule.checkInitialData(data, this.options);
 
@@ -190,18 +189,14 @@ class SerialConnector extends BaseConnector {
                         this.serialPort.removeAllListeners('data');
                         this.executeFlash = true;
                     }
-                    resolve();
+                    resolve('');
                 }, 3000);
             }
 
-            if (hwModule.checkInitialData && hwModule.requestInitialData) {
-                if (control === 'master') {
-                    runAsMaster();
-                } else {
-                    runAsSlave();
-                }
+            if (control === 'master') {
+                runAsMaster(resolve);
             } else {
-                resolve();
+                runAsSlave(resolve);
             }
         });
     }
