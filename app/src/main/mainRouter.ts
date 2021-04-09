@@ -341,6 +341,10 @@ class MainRouter {
             hwModule.setSocket(server);
         }
 
+        if (hwModule.setHandler) {
+            hwModule.setHandler(this.handler);
+        }
+
         this.handleServerSocketConnected();
     }
 
