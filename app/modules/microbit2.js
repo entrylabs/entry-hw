@@ -80,7 +80,7 @@ class Microbit2 extends BaseModule {
         if (this.microbitCommands.length > 0) {
             return this.microbitCommands.shift();
         }
-        return '\r\nlocaldata\r\n';
+        return 'localdata';
     }
 }
 
