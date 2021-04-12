@@ -10,6 +10,7 @@ class Microbit2 extends BaseModule {
         this.executeCheckList = [];
         // 실제 마이크로비트에 전송될 명령어 queue.
         this.microbitCommands = [];
+        this.currentCommand;
     }
 
     // entryjs 에서 오는 데이터 처리
@@ -22,6 +23,16 @@ class Microbit2 extends BaseModule {
         }
         // 명령어 프로세스 후에 queue에 넣기
         const microbitCommand = `${command};${payload}`;
+        if (this.microbitCommands.indexOf(microbitCommand) > -1) {
+            return;
+        }
+        if (command === 'reset') {
+            this.executeCheckList = [];
+            this.microbitCommands = [];
+            this.currentCommand = null;
+            this.serialport.write(microbitCommand);
+            return;
+        }
         this.microbitCommands.push(microbitCommand);
     }
 
@@ -34,9 +45,15 @@ class Microbit2 extends BaseModule {
         if (parsedResponse[0] !== 'localdata') {
             if (this.executeCheckList.length > 0) {
                 const { codeId, command } = this.executeCheckList.shift();
+                if (this.currentCommand == this.microbitCommands[0]) {
+                    this.microbitCommands.shift();
+                    this.currentCommand = null;
+                }
+
                 if (command.indexOf('reset') > -1) {
                     this.executeCheckList = [];
                     this.microbitCommands = [];
+                    this.currentCommand = null;
                     return;
                 }
                 console.log('FROM MICROBIT : ', data, '/', codeId, '/', command);
@@ -82,8 +99,13 @@ class Microbit2 extends BaseModule {
     requestLocalData() {
         // 프로세스된 명령어가 있다면 전송하기 또는 handshake명령어 전달
         if (this.microbitCommands.length > 0) {
-            const command = this.microbitCommands.shift();
+            const command = this.microbitCommands[0];
+            console.log(this.currentCommand, this.microbitCommands);
+            if (this.currentCommand == command) {
+                return 'localdata;';
+            }
             console.log('TO MICROBIT : ', command);
+            this.currentCommand = command;
             return command;
         }
         return 'localdata;';
