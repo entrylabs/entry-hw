@@ -25,7 +25,7 @@
         "type": "serial",
         "control": "slave",
         "delimiter": "\r\n",
-        "duration": 16,
+        "duration": 96,
         "vendor": "",
         "baudRate": 115200,
         "commType": "ascii"

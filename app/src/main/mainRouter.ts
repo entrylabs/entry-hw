@@ -331,14 +331,13 @@ class MainRouter {
         }
 
         const hwModule = this.hwModule;
-        const server = this.server;
 
         if (hwModule.init) {
             hwModule.init(this.handler, this.config);
         }
 
         if (hwModule.setSocket) {
-            hwModule.setSocket(server);
+            hwModule.setSocket(this.server);
         }
 
         if (hwModule.setHandler) {

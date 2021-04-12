@@ -32,14 +32,22 @@ class Microbit2 extends BaseModule {
     handleLocalData(data) {
         const parsedResponse = data.split(';');
         if (parsedResponse[0] !== 'localdata') {
-            const { codeId, command } = this.executeCheckList.shift() || {};
-            console.log('FROM MICROBIT : ', data, '/', codeId, '/', command);
-            if (parsedResponse.length > 1) {
-                const payload = {
+            if (this.executeCheckList.length > 0) {
+                const { codeId, command } = this.executeCheckList.shift();
+                if (command.indexOf('reset') > -1) {
+                    this.executeCheckList = [];
+                    this.microbitCommands = [];
+                    return;
+                }
+                console.log('FROM MICROBIT : ', data, '/', codeId, '/', command);
+                console.log('sendToEntry:', {
                     recentlyWaitDone: codeId,
                     result: data,
-                };
-                this.handler.write('payload', payload);
+                });
+                this.socket.send({
+                    recentlyWaitDone: codeId,
+                    result: data,
+                });
             }
         }
     }
@@ -53,10 +61,6 @@ class Microbit2 extends BaseModule {
         this.socket = socket;
     }
 
-    setHandler(handler) {
-        this.handler = handler;
-    }
-
     disconnect(connect) {
         if (this.serialport) {
             this.serialport.write('reset;\r\n');
@@ -66,7 +70,7 @@ class Microbit2 extends BaseModule {
 
     // initial connection 체크
     requestInitialData() {
-        return 'localdata';
+        return 'localdata;';
     }
 
     checkInitialData(data, config) {
@@ -78,9 +82,11 @@ class Microbit2 extends BaseModule {
     requestLocalData() {
         // 프로세스된 명령어가 있다면 전송하기 또는 handshake명령어 전달
         if (this.microbitCommands.length > 0) {
-            return this.microbitCommands.shift();
+            const command = this.microbitCommands.shift();
+            console.log('TO MICROBIT : ', command);
+            return command;
         }
-        return 'localdata';
+        return 'localdata;';
     }
 }
 
