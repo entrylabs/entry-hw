@@ -56,11 +56,7 @@ class Microbit2 extends BaseModule {
                     this.currentCommand = null;
                     return;
                 }
-                console.log('FROM MICROBIT : ', data, '/', codeId, '/', command);
-                console.log('sendToEntry:', {
-                    recentlyWaitDone: codeId,
-                    result: data,
-                });
+
                 this.socket.send({
                     recentlyWaitDone: codeId,
                     result: data,
@@ -100,11 +96,9 @@ class Microbit2 extends BaseModule {
         // 프로세스된 명령어가 있다면 전송하기 또는 handshake명령어 전달
         if (this.microbitCommands.length > 0) {
             const command = this.microbitCommands[0];
-            console.log(this.currentCommand, this.microbitCommands);
             if (this.currentCommand == command) {
                 return 'localdata;';
             }
-            console.log('TO MICROBIT : ', command);
             this.currentCommand = command;
             return command;
         }
