@@ -17,9 +17,11 @@ const BaseModule = require('./baseModule');
  *   - E-DRONE
  *   - Coding Drone
  *   - Battle Drone
+ *   - Codrone Mini
+ *   - Codrone DIY
  *
  * - 마지막 업데이트
- *   - 2020.6.10
+ *   - 2021.4.19
  *
  ***************************************************************************************/
 
@@ -231,19 +233,51 @@ class byrobot_base extends BaseModule
         };
 
 
+        // Altitude
+        this.altitude = 
+        {
+            _updated            : 1,
+            altitude_temperature: 0,   // f32
+            altitude_pressure   : 0,   // f32
+            altitude_altitude   : 0,   // f32
+            altitude_rangeHeight: 0,   // f32
+        };
+
+
+        // Position
+        this.position = 
+        {
+            _updated  : 1,
+            position_x: 0,   // f32
+            position_y: 0,   // f32
+            position_z: 0,   // f32
+        };
+
+
         // Motion
         this.motion =
         {
             _updated            : 1,
-            motion_accelX       : 0,    // u16
-            motion_accelY       : 0,    // u16
-            motion_accelZ       : 0,    // u16
-            motion_gyroRoll     : 0,    // u16
-            motion_gyroPitch    : 0,    // u16
-            motion_gyroYaw      : 0,    // u16
-            motion_angleRoll    : 0,    // u16
-            motion_anglePitch   : 0,    // u16
-            motion_angleYaw     : 0,    // u16
+            motion_accelX       : 0,    // s16
+            motion_accelY       : 0,    // s16
+            motion_accelZ       : 0,    // s16
+            motion_gyroRoll     : 0,    // s16
+            motion_gyroPitch    : 0,    // s16
+            motion_gyroYaw      : 0,    // s16
+            motion_angleRoll    : 0,    // s16
+            motion_anglePitch   : 0,    // s16
+            motion_angleYaw     : 0,    // s16
+        };
+
+
+        // Trim
+        this.trim =
+        {
+            _updated      : 1,
+            trim_roll     : 0,    // s16
+            trim_pitch    : 0,    // s16
+            trim_yaw      : 0,    // s16
+            trim_throttle : 0,    // s16
         };
 
 
@@ -461,6 +495,12 @@ class byrobot_base extends BaseModule
         // State
         this.clearState();
 
+        // Altitude
+        this.clearAltitude();
+
+        // Position
+        this.clearPosition();
+
         // Joystick
         this.clearJoystick();
 
@@ -469,6 +509,9 @@ class byrobot_base extends BaseModule
 
         // Motion
         this.clearMotion();
+
+        // Trim
+        this.clearTrim();
 
         // Range
         this.clearRange();
@@ -600,6 +643,66 @@ class byrobot_base extends BaseModule
     }
 
 
+    clearAltitude()
+    {
+        this.altitude._updated             = false;
+        this.altitude.altitude_temperature = 0;
+        this.altitude.altitude_pressure    = 0;
+        this.altitude.altitude_altitude    = 0;
+        this.altitude.altitude_rangeHeight = 0;
+    }
+
+    updateAltitude()
+    {
+        //this.log(`BASE - updateAltitude() - length : ${this.dataBlock.length}`);
+
+        if (this.dataBlock != undefined && this.dataBlock.length == 16)
+        {
+            const array = Uint8Array.from(this.dataBlock);
+            const view  = new DataView(array.buffer);
+
+            this.altitude._updated             = true;
+            this.altitude.altitude_temperature = view.getFloat32(0, true);
+            this.altitude.altitude_pressure    = view.getFloat32(4, true);
+            this.altitude.altitude_altitude    = view.getFloat32(8, true);
+            this.altitude.altitude_rangeHeight = view.getFloat32(12, true);
+
+            return true;
+        }
+
+        return false;
+    }
+
+
+    clearPosition()
+    {
+        this.position._updated   = false;
+        this.position.position_x = 0;
+        this.position.position_y = 0;
+        this.position.position_z = 0;
+    }
+
+    updatePosition()
+    {
+        //this.log(`BASE - updatePosition() - length : ${this.dataBlock.length}`);
+
+        if (this.dataBlock != undefined && this.dataBlock.length == 12)
+        {
+            const array = Uint8Array.from(this.dataBlock);
+            const view  = new DataView(array.buffer);
+
+            this.position._updated   = true;
+            this.position.position_x = view.getFloat32(0, true);
+            this.position.position_y = view.getFloat32(4, true);
+            this.position.position_z = view.getFloat32(8, true);
+
+            return true;
+        }
+
+        return false;
+    }
+
+
     clearButton()
     {
         this.button._updated           = false;
@@ -680,6 +783,7 @@ class byrobot_base extends BaseModule
         this.motion.motion_angleYaw     = 0;
     }
 
+
     updateMotion()
     {
         this.log(`BASE - updateMotion() - length : ${this.dataBlock.length}`);
@@ -717,6 +821,38 @@ class byrobot_base extends BaseModule
             this.motion.motion_anglePitch   = view.getInt16(14, true);
             this.motion.motion_angleYaw     = view.getInt16(16, true);
             // */
+
+            return true;
+        }
+
+        return false;
+    }
+
+
+    clearTrim()
+    {
+        this.trim._updated          = false;
+        this.trim.trim_roll         = 0;
+        this.trim.trim_pitch        = 0;
+        this.trim.trim_yaw          = 0;
+        this.trim.trim_throttle     = 0;
+    }
+
+
+    updateTrim()
+    {
+        this.log(`BASE - updateTrim() - length : ${this.dataBlock.length}`);
+
+        if (this.dataBlock != undefined && this.dataBlock.length == 8)
+        {
+            const array = Uint8Array.from(this.dataBlock);
+            const view  = new DataView(array.buffer);
+
+            this.trim._updated          = true;
+            this.trim.trim_roll         = view.getInt16(0, true);
+            this.trim.trim_pitch        = view.getInt16(2, true);
+            this.trim.trim_yaw          = view.getInt16(4, true);
+            this.trim.trim_throttle     = view.getInt16(6, true);
 
             return true;
         }
@@ -1334,6 +1470,32 @@ class byrobot_base extends BaseModule
             }
         }
 
+        // Altitude
+        {
+            if (this.altitude._updated)
+            {
+                for (const key in this.altitude)
+                {
+                    handler.write(key, this.altitude[key]);
+                }
+
+                this.altitude._updated = false;
+            }
+        }
+
+        // Position
+        {
+            if (this.position._updated)
+            {
+                for (const key in this.position)
+                {
+                    handler.write(key, this.position[key]);
+                }
+
+                this.position._updated = false;
+            }
+        }
+
         // Motion
         {
             if (this.motion._updated)
@@ -1344,6 +1506,19 @@ class byrobot_base extends BaseModule
                 }
 
                 this.motion._updated = false;
+            }
+        }
+
+        // Trim
+        {
+            if (this.trim._updated)
+            {
+                for (const key in this.trim)
+                {
+                    handler.write(key, this.trim[key]);
+                }
+
+                this.trim._updated = false;
             }
         }
 
@@ -1678,18 +1853,18 @@ class byrobot_base extends BaseModule
             break;
 
 
-        case 0x70:  // Button
+        case 0x41:  // Altitude
             {
-                //this.log("BASE - handlerForDevice() - Received - Button - 0x70");
-                this.updateButton();
+                //this.log("BASE - handlerForDevice() - Received - Altitude - 0x41");
+                this.updateAltitude();
             }
             break;
 
 
-        case 0x71:  // Joystick
+        case 0x42:  // Position
             {
-                //this.log("BASE - handlerForDevice() - Received - Joystick - 0x71");
-                this.updateJoystick();
+                //this.log("BASE - handlerForDevice() - Received - Position - 0x42");
+                this.updatePosition();
             }
             break;
 
@@ -1706,6 +1881,30 @@ class byrobot_base extends BaseModule
             {
                 //this.log("BASE - handlerForDevice() - Received - Range - 0x45");
                 this.updateRange();
+            }
+            break;
+
+
+        case 0x52:  // Trim
+            {
+                //this.log("BASE - handlerForDevice() - Received - Trim - 0x52");
+                this.updateTrim();
+            }
+            break;
+
+
+        case 0x70:  // Button
+            {
+                //this.log("BASE - handlerForDevice() - Received - Button - 0x70");
+                this.updateButton();
+            }
+            break;
+
+
+        case 0x71:  // Joystick
+            {
+                //this.log("BASE - handlerForDevice() - Received - Joystick - 0x71");
+                this.updateJoystick();
             }
             break;
 
