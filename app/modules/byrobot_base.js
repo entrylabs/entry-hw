@@ -2375,10 +2375,10 @@ class byrobot_base extends BaseModule
         const dataArray   = new ArrayBuffer(8);
         const view        = new DataView(dataArray);
 
-        view.setInt16   (0, this.fit(-100, roll, 100));
-        view.setInt16   (2, this.fit(-100, pitch, 100));
-        view.setInt16   (4, this.fit(-100, yaw, 100));
-        view.setInt16   (6, this.fit(-100, throttle, 100));
+        view.setInt16   (0, this.fit(-100, roll, 100), true);
+        view.setInt16   (2, this.fit(-100, pitch, 100), true);
+        view.setInt16   (4, this.fit(-100, yaw, 100), true);
+        view.setInt16   (6, this.fit(-100, throttle, 100), true);
 
         this.log(`BASE - reserveTrim() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x52, target, dataArray);
