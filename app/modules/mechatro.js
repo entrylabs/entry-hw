@@ -15,13 +15,13 @@ class mechatro extends BaseModule {
     constructor() {
         super();
         this.entryJS_State = 0;
-        //entryJS_State            상태                 작동 함수        작업 내용
-        //     0        하드웨어 연결 or 엔트리 정지  requestLocalData()  하드웨어 2회 초기화    
-        //     2        하드웨어 초기화 후            handleRemoteData()  블록 사용 여부 확인
-        //                                                               데이터가 있으면(블록을 사용하면), 다음 단계로 넘어감 
-        //                                                               데이터가 없으면(블록을 사용하지 않으면), 하드웨어가 초기화(모든 포트입력)된 상태를 계속 유지함.
-        //     3        하드웨어 블록 사용            requestRemoteData() 사용하지 않는 아날로그 인풋값 "0"으로 초기화 (하드웨어 모니터에 0 표시됨)
-        //     4        아날로그 인풋값 초기화        handleRemoteData()  엔트리 정지(수신 데이터 없음)시 EntryHW 초기화 
+        // 데이터   entryJS_State            상태                 작동 함수        작업 내용
+        //   없음      0        하드웨어 연결 or 엔트리 정지  requestLocalData()  하드웨어 2회 초기화    
+        //   없음      2        하드웨어 초기화 후            handleRemoteData()  블록 사용 여부 확인
+        //                                                                  데이터가 없으면(블록을 사용하지 않으면), 하드웨어가 초기화(모든 포트입력)된 상태를 계속 유지함.
+        //   있음                                                           데이터가 있으면(블록을 사용하면), 다음 단계로 넘어감 
+        //   있음      3        하드웨어 블록 사용            requestRemoteData() 사용하지 않는 아날로그 인풋값 "0"으로 초기화 (하드웨어 모니터에 0 표시됨)
+        //   없음      4        아날로그 인풋값 초기화        handleRemoteData()  엔트리 정지(수신 데이터 없음)시 EntryHW 초기화 
 
         this.remainData = 0;
 
@@ -44,20 +44,19 @@ class mechatro extends BaseModule {
         //};
 
         this.haveToUpdateHW = {};
-        this.isUltraEchoPort = {};
 
         this.setMode = {
-
-            SET_GROUP_DEVICE: 0x80,
+            SET_GROUP_COMMAND: 0x80,
             SET_INIT_DEVICE: 0x80,
-            SET_STANDBY_DEVICE: 0x81, // SET_AD_PORT_DISABLE 이름 변경 필요.
+            SET_PORT_DISABLE: 0x81,
             SET_BLUE_PW: 0x82,
             SET_NO_TONE: 0x83,
-            SET_DIGITAL_OUT: 0x90,
+            SET_MOTOR_SPEED: 0x90,
+            SET_MOTOR_CURRENT: 0x98,
 
-            SET_GROUP_MOTOR: 0xa0,
-            SET_MOTOR_SPEED: 0xa0,
-            SET_MOTOR_CURRENT: 0xb0,
+            SET_GROUP_D_OUT: 0xa0,
+            SET_DIGITAL_OUT_L: 0xa0,
+            SET_DIGITAL_OUT_H: 0xb0,
 
             SET_GROUP_SERVO_PWM_TON: 0xc0,
             SET_SERVO_POSITION: 0xc0,
@@ -67,39 +66,42 @@ class mechatro extends BaseModule {
 
             SET_GROUP_INPUT: 0xe0,
             SET_ANALOG_IN: 0xe0,
-            SET_DIGITAL_IN: 0xe8,
-            SET_ULTRASONIC: 0xf0,
+            SET_DIGITAL_IN_L: 0xe8,
+            SET_DIGITAL_IN_H: 0xf0,
+            SET_ULTRASONIC: 0xf1,
         };
 
         this.getMode = {
-            COM_: 0x80,
-            COM_BLUETOOTH_PW_OK: 0x81,
-            COM_BLUETOOTH_PW_ERR: 0x82,
+            COM_GROUP: 0x80,
+            COM_INIT_DEVICE: 0x81,
+            COM_PORT_DISABLED: 0x82,
+            COM_BLUETOOTH_PW_OK: 0x83,
+            COM_BLUETOOTH_PW_ERR: 0x84,
+
             GET_DIGITAL_IN: 0x88,
+            // getDigitalData 에서 처리
+            // GET_DIGITAL_IN_L: 0x88
+            // GET_DIGITAL_IN_H: 0x8C
             GET_ANALOG_IN: 0x90,
         };
 
         this.portMapToDevice = {
-            DIGITAL: {
+            INOUT_L_H: {
                 //IN/OUT, ULTRASONIC, TON
-                '2': 0,
+                '2': 0, // Start L Bit
                 '4': 1,
                 '5': 2,
                 '6': 3,
                 '7': 4,
-                '8': 5,
-                '9': 6,
-                '10': 7,
-            },
-            ANALOG: {
-                '14': 0,
+                '10': 5, // END L Bit
+                '14': 0,// Start H Bit
                 '15': 1,
                 '16': 2,
                 '17': 3,
                 '18': 4,
                 '19': 5,
                 '20': 6,
-                '21': 7,
+                '21': 7, // End H Bit
             },
             SERVO: {
                 '2': 0,
@@ -120,19 +122,29 @@ class mechatro extends BaseModule {
             MOTOR: {
                 '3': 0,
                 '11': 1,
-                '14': 0,
-                '15': 1,
+                '14': 0,  // Current 
+                '15': 1,  // Current 
             },
         };
 
         this.portMapToEntry = {
-            DIGITAL: {
+            DIGITAL_L: {
                 '0': 2,
                 '1': 4,
                 '2': 5,
                 '3': 6,
                 '4': 7,
                 '5': 10,
+            },
+            DIGITAL_H: {
+                '0': 14,
+                '1': 15,
+                '2': 16,
+                '3': 17,
+                '4': 18,
+                '5': 19,
+                '6': 20,
+                '7': 21,
             },
             ANALOG: {
                 '2': 2,
@@ -153,6 +165,116 @@ class mechatro extends BaseModule {
         };
     }
 
+    init_dataFromEntry_StopState() {
+        console.log("init_dataFromEntry_StopState()");
+        this.dataFromEntry = {
+            '2': {
+                MODE: this.setMode.SET_DIGITAL_IN_L,
+            },
+            '4': {
+                MODE: this.setMode.SET_DIGITAL_IN_L,
+            },
+            '5': {
+                MODE: this.setMode.SET_DIGITAL_IN_L,
+            },
+            '6': {
+                MODE: this.setMode.SET_DIGITAL_IN_L,
+            },
+            '7': {
+                MODE: this.setMode.SET_DIGITAL_IN_L,
+            },
+            '10': {
+                MODE: this.setMode.SET_DIGITAL_IN_L,
+            },
+            '14': {
+                MODE: this.setMode.SET_PORT_DISABLE,
+            },
+            '15': {
+                MODE: this.setMode.SET_PORT_DISABLE,
+            },
+            '16': {
+                MODE: this.setMode.SET_ANALOG_IN,
+            },
+            '17': {
+                MODE: this.setMode.SET_ANALOG_IN,
+            },
+            '18': {
+                MODE: this.setMode.SET_ANALOG_IN,
+            },
+            '19': {
+                MODE: this.setMode.SET_ANALOG_IN,
+            },
+            '20': {
+                MODE: this.setMode.SET_ANALOG_IN,
+            },
+            '21': {
+                MODE: this.setMode.SET_ANALOG_IN,
+            },
+        };
+    }
+
+    init_dataFromEntry_Run() {
+        console.log("init_dataFromEntry_Run()");
+        this.dataFromEntry = {
+            '2': {
+                MODE: this.setMode.SET_DIGITAL_IN_L,
+            },
+            '4': {
+                MODE: this.setMode.SET_DIGITAL_IN_L,
+            },
+            '5': {
+                MODE: this.setMode.SET_DIGITAL_IN_L,
+            },
+            '6': {
+                MODE: this.setMode.SET_DIGITAL_IN_L,
+            },
+            '7': {
+                MODE: this.setMode.SET_DIGITAL_IN_L,
+            },
+            '10': {
+                MODE: this.setMode.SET_DIGITAL_IN_L,
+            },
+            '14': {
+                MODE: this.setMode.SET_PORT_DISABLE,
+            },
+            '15': {
+                MODE: this.setMode.SET_PORT_DISABLE,
+            },
+            '16': {
+                MODE: this.setMode.SET_PORT_DISABLE,
+            },
+            '17': {
+                MODE: this.setMode.SET_PORT_DISABLE,
+            },
+            '18': {
+                MODE: this.setMode.SET_PORT_DISABLE,
+            },
+            '19': {
+                MODE: this.setMode.SET_PORT_DISABLE,
+            },
+            '20': {
+                MODE: this.setMode.SET_PORT_DISABLE,
+            },
+            '21': {
+                MODE: this.setMode.SET_PORT_DISABLE,
+            },
+        };
+        //console.log("init_dataFromEntry_Run()");
+    }
+
+    init_dataFromDevice_value() {
+        this.dataFromDevice = {
+            '14': 0,// Start H Bit
+            '15': 0,
+            '16': 0,
+            '17': 0,
+            '18': 0,
+            '19': 0,
+            '20': 0,
+            '21': 0, // End H Bit
+            'com': '',
+        };
+    }
     /*
     최초에 커넥션이 이루어진 후의 초기 설정.
     handler 는 워크스페이스와 통신하 데이터를 json 화 하는 오브젝트입니다. (datahandler/json 참고)
@@ -164,72 +286,64 @@ class mechatro extends BaseModule {
     }
 
     /*
-    연결 후 초기에 송신할 데이터가 필요한 경우 사용합니다.
-    requestInitialData 를 사용한 경우 checkInitialData 가 필수입니다.
-    이 두 함수가 정의되어있어야 로직이 동작합니다. 필요없으면 작성하지 않아도 됩니다.
-    */
-    //requestInitialData() {
-    //    //console.log("requestInitialData");
-    //    return null;
-    //}
-
-    // 연결 후 초기에 수신받아서 정상연결인지를 확인해야하는 경우 사용합니다.
-    //checkInitialData(data, config) {
-    //   console.log("checkInitialData");
-    //    return true;
-    //}
-
-    // 주기적으로 하드웨어에서 받은 데이터의 검증이 필요한 경우 사용합니다.
-    //validateLocalData(data) {
-    //    return true;
-    //}
-
-    /*
     하드웨어 기기에 전달할 데이터를 반환합니다.
     하드웨어 연결되면 계속 실행
     slave 모드인 경우 duration 속성 간격으로 지속적으로 기기에 요청을 보냅니다.
-    //형식
-    //this.dataFromEntry = {
-    //    portNo:{
-    //        MODE : 0,
-    //        VALUE: 0,
-    //    },
-    //};
+    형식
+    this.dataFromEntry = {
+        portNo:{
+            MODE : 0,
+            VALUE: 0,
+        },
+    };
     */
     requestLocalData() {
-        //console.log('     ■ -->> Device');
-        const queryString = [];
+        //console.log("        ■ -->> Device: ");
+        let queryString = [];
         let query;
-        const portkeys = Object.keys(this.dataFromEntry);
         let mode;
         let value;
         let modeGroup;
         let idx;
-
-        if (this.entryJS_State < 2) {  // 하드웨어 연결 or 엔트리 stop시, 초기화 명령 2회 전송
+        //console.log("dataFromEntry : ", this.dataFromEntry);
+        //console.log("set 4 entryJS_State ", this.entryJS_State);
+        if (this.entryJS_State < 2) {  // 하드웨어 연결 or 엔트리 stop시, 초기화 , 포트 모드 초기화
             this.entryJS_State++;
+            this.init_dataFromEntry_StopState();
             queryString.push(this.setMode.SET_INIT_DEVICE);
-            return queryString;
         }
 
-        portkeys.forEach((portNo) => {
-            //console.log( 'portkeys.forEach ');
+        if (this.entryJS_State === 3) { // 블록 사용 시작
+            this.entryJS_State++;
+            this.init_dataFromEntry_Run();
+            queryString.push(this.setMode.SET_PORT_DISABLE);
+            queryString.push(this.setMode.SET_PORT_DISABLE);
+        }
+
+        Object.keys(this.dataFromEntry).forEach((portNo) => {
+            //console.log('portkeys.forEach ');
             if (this.haveToUpdateHW[portNo]) {
-                if (portNo == 3 || portNo == 11) {
-                    mode = this.setMode.SET_MOTOR_SPEED;  //모터는 모드를 직접 지정
-                } else {
-                    mode = this.dataFromEntry[portNo].MODE;
-                }
+
+                mode = this.dataFromEntry[portNo].MODE;
                 modeGroup = mode & 0xe0;
                 value = this.dataFromEntry[portNo].VALUE;
                 this.haveToUpdateHW[portNo]--;
-
+                //console.log('haveToUpdateHW');
                 switch (modeGroup) {
-                    case this.setMode.SET_GROUP_DEVICE:
+                    case this.setMode.SET_GROUP_COMMAND:
                         switch (mode) {
-                            case this.setMode.SET_DIGITAL_OUT:
-                                idx = this.portMapToDevice.DIGITAL[portNo];
-                                query = mode + (value << 3) + idx;
+                            case this.setMode.SET_MOTOR_SPEED:
+                                //Data1
+                                idx = this.portMapToDevice.MOTOR[portNo];
+                                query = mode + ((value >> 6) & 0x02) + idx;
+                                queryString.push(query);
+                                //Data2
+                                query = value & 0x7f;
+                                queryString.push(query);
+                                break;
+                            case this.setMode.SET_MOTOR_CURRENT:
+                                idx = this.portMapToDevice.MOTOR[portNo];
+                                query = mode + idx;
                                 queryString.push(query);
                                 break;
                             case this.setMode.SET_NO_TONE:
@@ -248,20 +362,16 @@ class mechatro extends BaseModule {
                                 break;
                         }
                         break;
-                    case this.setMode.SET_GROUP_MOTOR:
+                    case this.setMode.SET_GROUP_D_OUT:
                         switch (mode) {
-                            case this.setMode.SET_MOTOR_SPEED:
-                                //Data1
-                                idx = this.portMapToDevice.MOTOR[portNo];
-                                query = mode + ((value >> 6) & 0x02) + idx;
-                                queryString.push(query);
-                                //Data2
-                                query = value & 0x7f;
+                            case this.setMode.SET_DIGITAL_OUT_L:
+                                idx = this.portMapToDevice.INOUT_L_H[portNo];
+                                query = mode + (value << 3) + idx;
                                 queryString.push(query);
                                 break;
-                            case this.setMode.SET_MOTOR_CURRENT:
-                                idx = this.portMapToDevice.MOTOR[portNo];
-                                query = mode + idx;
+                            case this.setMode.SET_DIGITAL_OUT_H:
+                                idx = this.portMapToDevice.INOUT_L_H[portNo];
+                                query = mode + (value << 3) + idx;
                                 queryString.push(query);
                                 break;
                         }
@@ -296,8 +406,9 @@ class mechatro extends BaseModule {
                                 queryString.push(query);
                                 break;
                             case this.setMode.SET_TONE:
+
                                 //Data1
-                                idx = this.portMapToDevice.DIGITAL[portNo];
+                                idx = this.portMapToDevice.INOUT_L_H[portNo];
                                 query = mode + idx;
                                 queryString.push(query);
                                 //Data2
@@ -306,25 +417,34 @@ class mechatro extends BaseModule {
                         }
                         break;
                     case this.setMode.SET_GROUP_INPUT:
+                        //console.log('SET_GROUP_INPUT');
                         switch (mode) {
-                            case this.setMode.SET_ANALOG_IN:
-                                idx = this.portMapToDevice.ANALOG[portNo];
+                            case this.setMode.SET_ANALOG_IN: {
+                                idx = this.portMapToDevice.INOUT_L_H[portNo];
                                 query = mode + idx;
                                 queryString.push(query);
                                 break;
-                            case this.setMode.SET_DIGITAL_IN:
-                                idx = this.portMapToDevice.DIGITAL[portNo];
+                            }
+                            case this.setMode.SET_DIGITAL_IN_L: {
+
+                                idx = this.portMapToDevice.INOUT_L_H[portNo];
                                 query = mode + idx;
                                 queryString.push(query);
+                                //console.log("SET_DIGITAL_IN_L : ", portNo, " data:", query);
                                 break;
+                            }
+                            case this.setMode.SET_DIGITAL_IN_H: {
+
+                                idx = this.portMapToDevice.INOUT_L_H[portNo];
+                                query = mode + idx;
+                                queryString.push(query);
+                                //console.log("SET_DIGITAL_IN_H : ", portNo, " data:", query);
+                                break;
+                            }
                             case this.setMode.SET_ULTRASONIC:
-
-                                // 초음파 센서 echo 핀 목록 저장
-                                this.isUltraEchoPort[value] = true;
-
                                 //Data1
-                                idx = this.portMapToDevice.DIGITAL[portNo]; //trig pin
-                                value = this.portMapToDevice.DIGITAL[value]; // [value] is echo portNo
+                                idx = this.portMapToDevice.INOUT_L_H[portNo]; //trig pin
+                                value = this.portMapToDevice.INOUT_L_H[value]; // the original value is echo portNo
 
                                 query = mode + idx;
                                 queryString.push(query);
@@ -340,7 +460,7 @@ class mechatro extends BaseModule {
         });
 
         if (queryString.length > 0) {
-            queryString.unshift(this.setMode.SET_STANDBY_DEVICE);
+            //queryString.unshift(this.setMode.SET_PORT_DISABLE);
             //console.log("    ■ --> Data to Device: ", queryString);
             return queryString;
         } else {
@@ -357,19 +477,23 @@ class mechatro extends BaseModule {
         }
     }
 
-    getDigitalData(data2) {
-        let portNo;
-        let portkey;
-        for (portkey = 0; portkey < 6; portkey++) {
-            portNo = this.portMapToEntry.DIGITAL[portkey];
-            // 초음파 센서 echo 핀 업데이트 정지.
-            if (this.isUltraEchoPort[portNo] === undefined) {
-                this.dataFromDevice[portNo] = (data2 >> portkey) & 0x01;
-                //console.log( "     ■ <-- [",portNo,"]: ", this.dataFromDevice[portNo]);
-            }
+    getDigitalData(data1, data2) {
+        let map;
+        // L Bit : b10001 0dd  0ddd ddd   
+        // H Bit : b10001 1dd  0ddd ddd   
+        if (data1 & 0x40) { //H Bit
+            map = this.portMapToEntry.DIGITAL_H;
+        } else {  // L Bit
+            map = this.portMapToEntry.DIGITAL_L;
         }
-    }
 
+        Object.entries(map).forEach(([key, portNo]) => {
+            if (this.dataFromEntry[portNo].MODE == this.setMode.SET_DIGITAL_IN_L || this.dataFromEntry[portNo].MODE == this.setMode.SET_DIGITAL_IN_H) {
+                this.dataFromDevice[portNo] = (data2 >> key) & 0x01;
+                //console.log("     ■ <-- [", key, ":", portNo, "] ", this.dataFromDevice[portNo]);
+            }
+        });
+    }
 
     // 하드웨어에서 온 데이터 처리, 하드웨어 연결되면 주기적인 실행.
     handleLocalData(data) {
@@ -384,14 +508,13 @@ class mechatro extends BaseModule {
             modeGroup = this.remainData & 0xf8; // b1111 1000
             switch (modeGroup) {
                 case this.getMode.GET_DIGITAL_IN:
-                    this.getDigitalData(data[0]);
+                    this.getDigitalData(this.remainData, data[0]);
                     break;
                 default: // this.getMode.GET_ANALOG_IN:
                     portkey = (this.remainData >>> 3) & 0x0F;
                     this.getAnalogData(this.portMapToEntry.ANALOG[portkey], this.remainData, data[0]);
             }
             this.remainData = 0;
-
         }
 
         data.forEach((value, idx) => {
@@ -401,32 +524,40 @@ class mechatro extends BaseModule {
 
                 switch (modeGroup) {
 
-                    case this.getMode.COM_:
-                        switch (value) {
-                            case this.getMode.COM_BLUETOOTH_PW_OK:
-                                this.dataFromDevice["com"] = '0K';
-                                break;
-                            case this.getMode.COM_BLUETOOTH_PW_ERR:
-                                this.dataFromDevice["com"] = 'FAIL';
-                                break;
+                    case this.getMode.COM_GROUP:
+                        {
+                            switch (value) {
+                                case this.getMode.COM_INIT_DEVICE:
+                                //console.log("     <- COM_INIT_DEVICE");
+                                case this.getMode.COM_PORT_DISABLED:
+                                    this.init_dataFromDevice_value();
+                                    //console.log("     <- COM_PORT_DISABLED");
+                                    break;
+                                case this.getMode.COM_BLUETOOTH_PW_OK:
+                                    this.dataFromDevice["com"] = '0K';
+                                    break;
+                                case this.getMode.COM_BLUETOOTH_PW_ERR:
+                                    this.dataFromDevice["com"] = 'FAIL';
+                                    break;
+                            }
+                            break;
                         }
-                        break;
-
                     case this.getMode.GET_DIGITAL_IN:
-                        if (data[idx + 1] === undefined) {
-                            this.remainData = value;
-                            //console.log( "     ■ <-- Rmode_D: ", value);
-                        } else {
-                            this.remainData = 0;
-                            this.getDigitalData(data[idx + 1]);
+                        {
+                            if (data[idx + 1] === undefined) {
+                                this.remainData = value;
+                                //console.log( "     ■ <-- Rmode_D: ", value);
+                            } else {
+                                //    this.remainData = 0;
+                                this.getDigitalData(value, data[idx + 1]);
+                            }
+                            break;
                         }
-                        break;
-
                     default: // this.getMode.GET_ANALOG_IN:
                         if (data[idx + 1] === undefined) {
                             this.remainData = value;
                         } else {
-                            this.remainData = 0;
+                            //this.remainData = 0;
                             portkey = (value >>> 3) & 0x0F;
                             this.getAnalogData(this.portMapToEntry.ANALOG[portkey], value, data[idx + 1]);
                         }
@@ -437,16 +568,8 @@ class mechatro extends BaseModule {
 
     // 엔트리로 전달할 데이터, 하드웨어 연결되면 주기적인 실행.
     requestRemoteData(handler) {
-        //console.log("                 ■ <<-- Entry");
-        if (this.entryJS_State === 3) {
-            this.entryJS_State++;
-            //console.log("set 4 entryJS_State ", this.entryJS_State);
-            Object.keys(this.portMapToEntry.ANALOG).forEach((key) => {
-                if (key >= 8) {  // 아날로그 포트만 초기화
-                    this.dataFromDevice[this.portMapToEntry.ANALOG[key]] = 0;
-                }
-            });
-        }
+        //console.log("Entry <<-- ■");
+
         //console.log("dataFromDevice data: ", this.dataFromDevice );
         Object.keys(this.dataFromDevice).forEach((key) => {  // key.length ===0 이면 실행 되지 않음.
             handler.write(key, this.dataFromDevice[key]);
@@ -464,19 +587,29 @@ class mechatro extends BaseModule {
     //    },
     //};
     handleRemoteData(handler) {
-        //console.log("Entry -->> ■");
+        console.log("Entry Start -->> ■", this.entryJS_State);
         const getData = handler.read('SEND_DATA');
         const getkeys = Object.keys(getData);
-        //console.log("SEND_DATA    =", getData);
+        console.log("SEND_DATA    =", getData);
+
+        if (getkeys.length) {
+            if (this.entryJS_State == 2) {
+                this.entryJS_State++;
+            }
+        }
+        else if (this.entryJS_State === 4) {   // 엔트리 정지
+            this.entryJS_State = 0;
+            this.haveToUpdateHW = {};
+        }
 
         getkeys.forEach((portNo) => {
             if (!this.dataFromEntry.hasOwnProperty(portNo)) {
-                //console.log( "this.dataFromEntry[",portNo,"]:",this.dataFromEntry[portNo] );
+                //console.log("this.dataFromEntry[", portNo, "]:", this.dataFromEntry[portNo]);
                 this.dataFromEntry[portNo] = {};
             }
             Object.keys(getData[portNo]).forEach((key) => {
                 if (!this.dataFromEntry[portNo].hasOwnProperty(key)) {
-                    //console.log( "this.dataFromEntry[",portNo,"][",key,"]:", this.dataFromEntry[portNo][key] );
+                    //console.log("this.dataFromEntry[", portNo, "][", key, "]:", this.dataFromEntry[portNo][key]);
                     this.dataFromEntry[portNo][key] = undefined;
                 }
                 if (this.dataFromEntry[portNo][key] != getData[portNo][key]) {
@@ -487,20 +620,30 @@ class mechatro extends BaseModule {
             });
         });
         //console.log("dataFromEntry = ", this.dataFromEntry);
-
-        if (getkeys.length) {
-            if (this.entryJS_State === 2) {
-                this.entryJS_State++;
-                //console.log("set 3 entryJS_State ", this.entryJS_State);
-            }
-        }
-        else if (this.entryJS_State === 4) {   // 엔트리 정지
-            this.entryJS_State = 0;
-            this.dataFromEntry = {};
-            this.haveToUpdateHW = {};
-            this.isUltraEchoPort = {};
-        }
+        //console.log("Entry END -->> ■");
     }
+
+    /*
+    연결 후 초기에 송신할 데이터가 필요한 경우 사용합니다.
+    requestInitialData 를 사용한 경우 checkInitialData 가 필수입니다.
+    이 두 함수가 정의되어있어야 로직이 동작합니다. 필요없으면 작성하지 않아도 됩니다.
+    */
+    //requestInitialData() {
+    //    //console.log("requestInitialData");
+    //    return null;
+    //}
+
+    // 연결 후 초기에 수신받아서 정상연결인지를 확인해야하는 경우 사용합니다.
+    //checkInitialData(data, config) {
+    //   //console.log("checkInitialData");
+    //    return true;
+    //}
+
+    // 주기적으로 하드웨어에서 받은 데이터의 검증이 필요한 경우 사용합니다.
+    //validateLocalData(data) {
+    //    return true;
+    //}
+
 }
 
 module.exports = new mechatro();
