@@ -805,7 +805,7 @@ class Module extends BaseModule {
             ...musicNotes
         ];
  
-        this.sp.write(command);
+        return this.sp.write(command);
     }
 
     setSpeakerVolumeCMD(volume) {
