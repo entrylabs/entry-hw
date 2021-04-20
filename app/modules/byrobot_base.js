@@ -58,126 +58,132 @@ class byrobot_base extends BaseModule
         this.DataType =
         {
             // 전송 버퍼
-            BUFFER_CLEAR                : 'buffer_clear',
+            BUFFER_CLEAR: 'buffer_clear',
 
             // 전송 대상
-            TARGET                      : 'target',
+            TARGET: 'target',
 
             // BATTLE_IR_MESSAGE
-            BATTLE_IR_MESSAGE           : 'battle_ir_message',
+            BATTLE_IR_MESSAGE: 'battle_ir_message',
 
             // Light Manual
-            LIGHT_MANUAL_FLAGS          : 'light_manual_flags',
-            LIGHT_MANUAL_BRIGHTNESS     : 'light_manual_brightness',
+            LIGHT_MANUAL_FLAGS     : 'light_manual_flags',
+            LIGHT_MANUAL_BRIGHTNESS: 'light_manual_brightness',
 
             // Light Mode
-            LIGHT_MODE_MODE             : 'light_mode_mode',
-            LIGHT_MODE_INTERVAL         : 'light_mode_interval',
+            LIGHT_MODE_MODE    : 'light_mode_mode',
+            LIGHT_MODE_INTERVAL: 'light_mode_interval',
 
             // Light Event
-            LIGHT_EVENT_EVENT           : 'light_event_event',
-            LIGHT_EVENT_INTERVAL        : 'light_event_interval',
-            LIGHT_EVENT_REPEAT          : 'light_event_repeat',
+            LIGHT_EVENT_EVENT   : 'light_event_event',
+            LIGHT_EVENT_INTERVAL: 'light_event_interval',
+            LIGHT_EVENT_REPEAT  : 'light_event_repeat',
 
             // Light Color
-            LIGHT_COLOR_R               : 'light_color_r',
-            LIGHT_COLOR_G               : 'light_color_g',
-            LIGHT_COLOR_B               : 'light_color_b',
+            LIGHT_COLOR_R: 'light_color_r',
+            LIGHT_COLOR_G: 'light_color_g',
+            LIGHT_COLOR_B: 'light_color_b',
 
             // 화면 전체 지우기
-            DISPLAY_CLEAR_ALL_PIXEL     : 'display_clear_all_pixel',
+            DISPLAY_CLEAR_ALL_PIXEL: 'display_clear_all_pixel',
 
             // 선택 영역 지우기
-            DISPLAY_CLEAR_X             : 'display_clear_x',
-            DISPLAY_CLEAR_Y             : 'display_clear_y',
-            DISPLAY_CLEAR_WIDTH         : 'display_clear_width',
-            DISPLAY_CLEAR_HEIGHT        : 'display_clear_height',
-            DISPLAY_CLEAR_PIXEL         : 'display_clear_pixel',
+            DISPLAY_CLEAR_X     : 'display_clear_x',
+            DISPLAY_CLEAR_Y     : 'display_clear_y',
+            DISPLAY_CLEAR_WIDTH : 'display_clear_width',
+            DISPLAY_CLEAR_HEIGHT: 'display_clear_height',
+            DISPLAY_CLEAR_PIXEL : 'display_clear_pixel',
 
             // 선택 영역 반전
-            DISPLAY_INVERT_X            : 'display_invert_x',
-            DISPLAY_INVERT_Y            : 'display_invert_y',
-            DISPLAY_INVERT_WIDTH        : 'display_invert_width',
-            DISPLAY_INVERT_HEIGHT       : 'display_invert_height',
+            DISPLAY_INVERT_X     : 'display_invert_x',
+            DISPLAY_INVERT_Y     : 'display_invert_y',
+            DISPLAY_INVERT_WIDTH : 'display_invert_width',
+            DISPLAY_INVERT_HEIGHT: 'display_invert_height',
 
             // 화면에 점 찍기
-            DISPLAY_DRAW_POINT_X        : 'display_draw_point_x',
-            DISPLAY_DRAW_POINT_Y        : 'display_draw_point_y',
-            DISPLAY_DRAW_POINT_PIXEL    : 'display_draw_point_pixel',
+            DISPLAY_DRAW_POINT_X    : 'display_draw_point_x',
+            DISPLAY_DRAW_POINT_Y    : 'display_draw_point_y',
+            DISPLAY_DRAW_POINT_PIXEL: 'display_draw_point_pixel',
 
             // 화면에 선 그리기
-            DISPLAY_DRAW_LINE_X1        : 'display_draw_line_x1',
-            DISPLAY_DRAW_LINE_Y1        : 'display_draw_line_y1',
-            DISPLAY_DRAW_LINE_X2        : 'display_draw_line_x2',
-            DISPLAY_DRAW_LINE_Y2        : 'display_draw_line_y2',
-            DISPLAY_DRAW_LINE_PIXEL     : 'display_draw_line_pixel',
-            DISPLAY_DRAW_LINE_LINE      : 'display_draw_line_line',
+            DISPLAY_DRAW_LINE_X1   : 'display_draw_line_x1',
+            DISPLAY_DRAW_LINE_Y1   : 'display_draw_line_y1',
+            DISPLAY_DRAW_LINE_X2   : 'display_draw_line_x2',
+            DISPLAY_DRAW_LINE_Y2   : 'display_draw_line_y2',
+            DISPLAY_DRAW_LINE_PIXEL: 'display_draw_line_pixel',
+            DISPLAY_DRAW_LINE_LINE : 'display_draw_line_line',
 
             // 화면에 사각형 그리기
-            DISPLAY_DRAW_RECT_X         : 'display_draw_rect_x',
-            DISPLAY_DRAW_RECT_Y         : 'display_draw_rect_y',
-            DISPLAY_DRAW_RECT_WIDTH     : 'display_draw_rect_width',
-            DISPLAY_DRAW_RECT_HEIGHT    : 'display_draw_rect_height',
-            DISPLAY_DRAW_RECT_PIXEL     : 'display_draw_rect_pixel',
-            DISPLAY_DRAW_RECT_FLAGFILL  : 'display_draw_rect_flagfill',
-            DISPLAY_DRAW_RECT_LINE      : 'display_draw_rect_line',
+            DISPLAY_DRAW_RECT_X       : 'display_draw_rect_x',
+            DISPLAY_DRAW_RECT_Y       : 'display_draw_rect_y',
+            DISPLAY_DRAW_RECT_WIDTH   : 'display_draw_rect_width',
+            DISPLAY_DRAW_RECT_HEIGHT  : 'display_draw_rect_height',
+            DISPLAY_DRAW_RECT_PIXEL   : 'display_draw_rect_pixel',
+            DISPLAY_DRAW_RECT_FLAGFILL: 'display_draw_rect_flagfill',
+            DISPLAY_DRAW_RECT_LINE    : 'display_draw_rect_line',
 
             // 화면에 원 그리기
-            DISPLAY_DRAW_CIRCLE_X           : 'display_draw_circle_x',
-            DISPLAY_DRAW_CIRCLE_Y           : 'display_draw_circle_y',
-            DISPLAY_DRAW_CIRCLE_RADIUS      : 'display_draw_circle_radius',
-            DISPLAY_DRAW_CIRCLE_PIXEL       : 'display_draw_circle_pixel',
-            DISPLAY_DRAW_CIRCLE_FLAGFILL    : 'display_draw_circle_flagfill',
+            DISPLAY_DRAW_CIRCLE_X       : 'display_draw_circle_x',
+            DISPLAY_DRAW_CIRCLE_Y       : 'display_draw_circle_y',
+            DISPLAY_DRAW_CIRCLE_RADIUS  : 'display_draw_circle_radius',
+            DISPLAY_DRAW_CIRCLE_PIXEL   : 'display_draw_circle_pixel',
+            DISPLAY_DRAW_CIRCLE_FLAGFILL: 'display_draw_circle_flagfill',
 
             // 화면에 문자열 쓰기
-            DISPLAY_DRAW_STRING_X           : 'display_draw_string_x',
-            DISPLAY_DRAW_STRING_Y           : 'display_draw_string_y',
-            DISPLAY_DRAW_STRING_FONT        : 'display_draw_string_font',
-            DISPLAY_DRAW_STRING_PIXEL       : 'display_draw_string_pixel',
-            DISPLAY_DRAW_STRING_STRING      : 'display_draw_string_string',
+            DISPLAY_DRAW_STRING_X     : 'display_draw_string_x',
+            DISPLAY_DRAW_STRING_Y     : 'display_draw_string_y',
+            DISPLAY_DRAW_STRING_FONT  : 'display_draw_string_font',
+            DISPLAY_DRAW_STRING_PIXEL : 'display_draw_string_pixel',
+            DISPLAY_DRAW_STRING_STRING: 'display_draw_string_string',
 
             // 화면에 문자열 정렬하여 그리기
-            DISPLAY_DRAW_STRING_ALIGN_X_START   : 'display_draw_string_align_x_start',
-            DISPLAY_DRAW_STRING_ALIGN_X_END     : 'display_draw_string_align_x_end',
-            DISPLAY_DRAW_STRING_ALIGN_Y         : 'display_draw_string_align_y',
-            DISPLAY_DRAW_STRING_ALIGN_ALIGN     : 'display_draw_string_align_align',
-            DISPLAY_DRAW_STRING_ALIGN_FONT      : 'display_draw_string_align_font',
-            DISPLAY_DRAW_STRING_ALIGN_PIXEL     : 'display_draw_string_align_pixel',
-            DISPLAY_DRAW_STRING_ALIGN_STRING    : 'display_draw_string_align_string',
+            DISPLAY_DRAW_STRING_ALIGN_X_START: 'display_draw_string_align_x_start',
+            DISPLAY_DRAW_STRING_ALIGN_X_END  : 'display_draw_string_align_x_end',
+            DISPLAY_DRAW_STRING_ALIGN_Y      : 'display_draw_string_align_y',
+            DISPLAY_DRAW_STRING_ALIGN_ALIGN  : 'display_draw_string_align_align',
+            DISPLAY_DRAW_STRING_ALIGN_FONT   : 'display_draw_string_align_font',
+            DISPLAY_DRAW_STRING_ALIGN_PIXEL  : 'display_draw_string_align_pixel',
+            DISPLAY_DRAW_STRING_ALIGN_STRING : 'display_draw_string_align_string',
 
             // Buzzer
-            BUZZER_MODE             : 'buzzer_mode',
-            BUZZER_VALUE            : 'buzzer_value',
-            BUZZER_TIME             : 'buzzer_time',
+            BUZZER_MODE : 'buzzer_mode',
+            BUZZER_VALUE: 'buzzer_value',
+            BUZZER_TIME : 'buzzer_time',
 
             // Vibrator
-            VIBRATOR_MODE           : 'vibrator_mode',
-            VIBRATOR_ON             : 'vibrator_on',
-            VIBRATOR_OFF            : 'vibrator_off',
-            VIBRATOR_TOTAL          : 'vibrator_total',
+            VIBRATOR_MODE : 'vibrator_mode',
+            VIBRATOR_ON   : 'vibrator_on',
+            VIBRATOR_OFF  : 'vibrator_off',
+            VIBRATOR_TOTAL: 'vibrator_total',
 
             // Control::Quad8
-            CONTROL_QUAD8_ROLL      : 'control_quad8_roll',
-            CONTROL_QUAD8_PITCH     : 'control_quad8_pitch',
-            CONTROL_QUAD8_YAW       : 'control_quad8_yaw',
-            CONTROL_QUAD8_THROTTLE  : 'control_quad8_throttle',
+            CONTROL_QUAD8_ROLL    : 'control_quad8_roll',
+            CONTROL_QUAD8_PITCH   : 'control_quad8_pitch',
+            CONTROL_QUAD8_YAW     : 'control_quad8_yaw',
+            CONTROL_QUAD8_THROTTLE: 'control_quad8_throttle',
 
             // Control::Position
-            CONTROL_POSITION_X                   : 'control_position_x',
-            CONTROL_POSITION_Y                   : 'control_position_y',
-            CONTROL_POSITION_Z                   : 'control_position_z',
-            CONTROL_POSITION_VELOCITY            : 'control_position_velocity',
-            CONTROL_POSITION_HEADING             : 'control_position_heading',
-            CONTROL_POSITION_ROTATIONAL_VELOCITY : 'control_position_rotational_velocity',
+            CONTROL_POSITION_X                  : 'control_position_x',
+            CONTROL_POSITION_Y                  : 'control_position_y',
+            CONTROL_POSITION_Z                  : 'control_position_z',
+            CONTROL_POSITION_VELOCITY           : 'control_position_velocity',
+            CONTROL_POSITION_HEADING            : 'control_position_heading',
+            CONTROL_POSITION_ROTATIONAL_VELOCITY: 'control_position_rotational_velocity',
 
             // Command
-            COMMAND_COMMAND         : 'command_command',
-            COMMAND_OPTION          : 'command_option',
+            COMMAND_COMMAND: 'command_command',
+            COMMAND_OPTION : 'command_option',
+
+            // Trim
+            TRIM_ROLL    : 'trim_roll',
+            TRIM_PITCH   : 'trim_pitch',
+            TRIM_YAW     : 'trim_yaw',
+            TRIM_THROTTLE: 'trim_throttle',
 
             // Motor
-            MOTORSINGLE_TARGET      : 'motorsingle_target',
-            MOTORSINGLE_ROTATION    : 'motorsingle_rotation',     // direction -> rotation
-            MOTORSINGLE_VALUE       : 'motorsingle_value',
+            MOTORSINGLE_TARGET  : 'motorsingle_target',
+            MOTORSINGLE_ROTATION: 'motorsingle_rotation',   // direction -> rotation
+            MOTORSINGLE_VALUE   : 'motorsingle_value',
         };
 
 
@@ -1331,6 +1337,23 @@ class byrobot_base extends BaseModule
         }
 
 
+        // Trim
+        if (handler.e(this.DataType.TRIM_ROLL)     ||
+            handler.e(this.DataType.TRIM_PITCH)    ||
+            handler.e(this.DataType.TRIM_YAW)      ||
+            handler.e(this.DataType.TRIM_THROTTLE))
+        {
+            const trimRoll     = this.read(handler, this.DataType.TRIM_ROLL);
+            const trimPitch    = this.read(handler, this.DataType.TRIM_PITCH);
+            const trimYaw      = this.read(handler, this.DataType.TRIM_YAW);
+            const trimThrottle = this.read(handler, this.DataType.TRIM_THROTTLE);
+
+            const dataArray = this.reserveTrim(target, trimRoll, trimPitch, trimYaw, trimThrottle);
+            this.bufferTransfer.push(dataArray);
+            this.log('BASE - Transfer_To_Device - Trim', dataArray);
+        }
+
+
         // Control
         if (handler.e(this.DataType.CONTROL_QUAD8_ROLL)     ||
             handler.e(this.DataType.CONTROL_QUAD8_PITCH)    ||
@@ -2343,6 +2366,22 @@ class byrobot_base extends BaseModule
 
         this.log(`BASE - reserveDisplayDrawStringAlign() - Target: 0x${target.toString(16).toUpperCase()}`);
         return this.createTransferBlock(0x87, target, dataArray);
+    }
+
+
+    // Trim
+    reserveTrim(target, roll, pitch, yaw, throttle)
+    {
+        const dataArray   = new ArrayBuffer(8);
+        const view        = new DataView(dataArray);
+
+        view.setInt16   (0, this.fit(-100, roll, 100));
+        view.setInt16   (2, this.fit(-100, pitch, 100));
+        view.setInt16   (4, this.fit(-100, yaw, 100));
+        view.setInt16   (6, this.fit(-100, throttle, 100));
+
+        this.log(`BASE - reserveTrim() - Target: 0x${target.toString(16).toUpperCase()}`);
+        return this.createTransferBlock(0x52, target, dataArray);
     }
 
 
