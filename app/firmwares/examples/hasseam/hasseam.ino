@@ -64,7 +64,7 @@ union {
   2:Input_Pullup
 */
 int analogs[6] = {0, 0, 0, 0, 0, 0};
-int digitals[14] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+int digitals[20] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 int servo_pins[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 
 // Ultrasonic             //초음파 센서
@@ -472,6 +472,9 @@ void setBluetoothMode(boolean mode) {
 }
 
 void sendUltrasonic() {
+  pinMode(trigPin,OUTPUT); //sendAnalogValue와 중복으로 한번더 초기화
+  pinMode(echoPin,INPUT);
+
   digitalWrite(trigPin, LOW);
   delayMicroseconds(2);
   digitalWrite(trigPin, HIGH);
