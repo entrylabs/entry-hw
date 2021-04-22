@@ -52,5 +52,3 @@ npm install --global node-gyp
 
 [The MIT License (MIT)](https://github.com/entrylabs/entry-hw/blob/master/LICENSE)
 
-## History
-2020-09-26 Gorilla-Cell HW branch forked from origin, writed by Remoted
