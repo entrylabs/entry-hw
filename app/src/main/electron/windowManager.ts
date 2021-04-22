@@ -5,14 +5,14 @@ import directoryPaths from './electronDirectoryPaths';
 
 const viewDirectoryPath = directoryPaths.views;
 const logger = createLogger('electron/windowManager.ts');
-export default new class {
+export default new (class {
     /*
     하드웨어 메인 윈도우는 하드웨어 연결중인 경우는 꺼지지 않도록 기획되었다.
     그러므로 close native event 가 발생했을 때, 렌더러에 다시 물어본 후
     해당 값을 세팅 한 뒤 다시 close 를 호출 하는 식으로 종료한다.
      */
     public mainWindowCloseConfirmed = false;
-    public aboutWindow ?: BrowserWindow = undefined;
+    public aboutWindow?: BrowserWindow = undefined;
     public mainWindow?: BrowserWindow = undefined;
 
     createAboutWindow(parent?: BrowserWindow) {
@@ -29,6 +29,7 @@ export default new class {
             show: false,
             webPreferences: {
                 nodeIntegration: true,
+                contextIsolation: false,
                 preload: path.join(viewDirectoryPath, '..', 'preload', 'preload.bundle.js'),
             },
         });
@@ -52,6 +53,7 @@ export default new class {
             webPreferences: {
                 backgroundThrottling: false,
                 nodeIntegration: false,
+                contextIsolation: false,
                 preload: path.join(viewDirectoryPath, '..', 'preload', 'preload.bundle.js'),
             },
         });
@@ -77,4 +79,4 @@ export default new class {
         });
         logger.verbose(`main window created. title: ${title + hardwareVersion}`);
     }
-}();
+})();
