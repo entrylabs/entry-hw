@@ -467,7 +467,7 @@ class MainRouter {
 
         const driverFullPath = path.join(directoryPaths.driver(), driverPath);
         logger.info(`execute driver requested. filePath : ${driverFullPath}`);
-        shell.openItem(driverFullPath);
+        shell.openPath(driverFullPath);
     }
 
     /**
@@ -535,6 +535,9 @@ class MainRouter {
             await this.flashFirmware(firmwareName);
             this.flasher.kill();
             this.config && this.startScan(this.config);
+        });
+        ipcMain.on('getSharedObject', (e) => {
+            e.returnValue = global.sharedObject;
         });
 
         logger.verbose('EntryHW ipc event registered');
