@@ -33,8 +33,7 @@ class SerialConnector extends BaseConnector {
         this.connected = false;
         this.received = false;
 
-        this.lostTimer =
-            hardwareOptions.lostTimer || SerialConnector.DEFAULT_CONNECT_LOST_MILLS;
+        this.lostTimer = hardwareOptions.lostTimer || SerialConnector.DEFAULT_CONNECT_LOST_MILLS;
         this.serialPort = undefined;
     }
 
@@ -49,7 +48,8 @@ class SerialConnector extends BaseConnector {
     open(port: string) {
         return new Promise((resolve, reject) => {
             const hardwareOptions = this.options;
-            this.lostTimer = hardwareOptions.lostTimer || SerialConnector.DEFAULT_CONNECT_LOST_MILLS;
+            this.lostTimer =
+                hardwareOptions.lostTimer || SerialConnector.DEFAULT_CONNECT_LOST_MILLS;
 
             const serialPort = new SerialPort(port, this._makeSerialPortOptions(hardwareOptions));
             this.serialPort = serialPort;
@@ -58,10 +58,12 @@ class SerialConnector extends BaseConnector {
             if (delimiter) {
                 this.serialPortParser = serialPort.pipe(new Readline({ delimiter }));
             } else if (byteDelimiter) {
-                this.serialPortParser = serialPort.pipe(new Delimiter({
-                    delimiter: byteDelimiter,
-                    includeDelimiter: true,
-                }));
+                this.serialPortParser = serialPort.pipe(
+                    new Delimiter({
+                        delimiter: byteDelimiter,
+                        includeDelimiter: true,
+                    })
+                );
             }
             logger.info(`serialport try to open with ${delimiter || byteDelimiter || 'no parser'}`);
 
@@ -103,7 +105,7 @@ class SerialConnector extends BaseConnector {
                 ? this.serialPortParser
                 : this.serialPort;
 
-            const runAsMaster = () => {
+            const runAsMaster = (resolve: any) => {
                 logger.verbose('hardware handShake as Master mode');
                 serialPortReadStream.on('data', (data) => {
                     logger.verbose(`handShake data ${data.toString()}`);
@@ -131,18 +133,20 @@ class SerialConnector extends BaseConnector {
                 });
             };
 
-            const runAsSlave = () => {
+            const runAsSlave = (resolve: any) => {
                 logger.verbose('hardware handShake as Slave mode');
 
                 // 최소 한번은 requestInitialData 전송을 강제
                 const firstRequestData = hwModule.requestInitialData(
-                    this.serialPort, handshakePayload && handshakePayload(),
+                    this.serialPort,
+                    handshakePayload && handshakePayload()
                 );
                 this.send(firstRequestData);
                 logger.verbose(`[repeat..]handShake request data ${firstRequestData}`);
                 this.slaveInitRequestInterval = setInterval(() => {
                     const requestData = hwModule.requestInitialData(
-                        this.serialPort, handshakePayload && handshakePayload(),
+                        this.serialPort,
+                        handshakePayload && handshakePayload()
                     );
                     this.send(requestData);
                 }, duration);
@@ -155,7 +159,8 @@ class SerialConnector extends BaseConnector {
                     if (result !== undefined) {
                         serialPortReadStream.removeAllListeners('data');
                         this.flashFirmware && clearTimeout(this.flashFirmware);
-                        this.slaveInitRequestInterval && clearInterval(this.slaveInitRequestInterval);
+                        this.slaveInitRequestInterval &&
+                            clearInterval(this.slaveInitRequestInterval);
 
                         logger.verbose(`handShake: result is ${result}`);
                         if (result) {
@@ -184,18 +189,14 @@ class SerialConnector extends BaseConnector {
                         this.serialPort.removeAllListeners('data');
                         this.executeFlash = true;
                     }
-                    resolve();
+                    resolve('');
                 }, 3000);
             }
 
-            if (hwModule.checkInitialData && hwModule.requestInitialData) {
-                if (control === 'master') {
-                    runAsMaster();
-                } else {
-                    runAsSlave();
-                }
+            if (control === 'master') {
+                runAsMaster(resolve);
             } else {
-                resolve();
+                runAsSlave(resolve);
             }
         });
     }
@@ -217,6 +218,7 @@ class SerialConnector extends BaseConnector {
             duration = SerialConnector.DEFAULT_SLAVE_DURATION,
             advertise,
             softwareReset,
+            commType,
         } = this.options;
 
         this.connected = false;
@@ -245,15 +247,10 @@ class SerialConnector extends BaseConnector {
             ? this.serialPortParser
             : this.serialPort;
 
-
         logger.info('connected successfully. device start normal data exchange');
-
         // 기기와의 데이터 통신 수립
         serialPortReadStream.on('data', (data) => {
-            if (
-                !hwModule.validateLocalData ||
-                hwModule.validateLocalData(data)
-            ) {
+            if (!hwModule.validateLocalData || hwModule.validateLocalData(data)) {
                 if (!this.connected) {
                     this._sendState('connected');
                 }
@@ -275,7 +272,6 @@ class SerialConnector extends BaseConnector {
                 }
             }
         });
-
         serialPort.on('disconnect', () => {
             logger.info('device serial disconnected');
             this.close();
@@ -300,7 +296,6 @@ class SerialConnector extends BaseConnector {
                 }
             }, this.lostTimer);
         }
-
         if (duration && control !== 'master') {
             this.requestLocalDataInterval = setInterval(() => {
                 if (hwModule.requestLocalData) {
@@ -375,18 +370,16 @@ class SerialConnector extends BaseConnector {
      * @param callback
      */
     send(data: any, callback?: () => void) {
-        if (
-            this.serialPort &&
-            this.serialPort.isOpen &&
-            data &&
-            !this.isSending
-        ) {
+        if (this.serialPort && this.serialPort.isOpen && data && !this.isSending) {
             this.isSending = true;
             let resultData = data;
-            if (this.options.stream === 'string') {
-                resultData = Buffer.from(data, 'utf8');
+            if (this.options.commType !== 'ascii') {
+                if (this.options.stream === 'string') {
+                    resultData = Buffer.from(data, 'utf8');
+                }
             }
-            this.serialPort.write(resultData, () => {
+
+            this.serialPort.write(resultData, this.options.commType, () => {
                 if (this.serialPort) {
                     this.serialPort.drain(() => {
                         this.received = true;
@@ -398,7 +391,9 @@ class SerialConnector extends BaseConnector {
         }
     }
 
-    private _makeSerialPortOptions(serialPortOptions: IHardwareModuleConfig): SerialPort.OpenOptions {
+    private _makeSerialPortOptions(
+        serialPortOptions: IHardwareModuleConfig
+    ): SerialPort.OpenOptions {
         const _options: Partial<SerialPort.OpenOptions> = {
             autoOpen: true,
             baudRate: 9600,
