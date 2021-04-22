@@ -1,0 +1,32 @@
+{
+    "id": "490101",
+    "name": {
+        "en": "G.Bot",
+        "ko": "G.Bot"
+    },
+    "category": "board",
+    "platform": ["win32", "darwin"],
+    "icon": "Gbot.png",
+    "module": "Gbot.js",
+    "url": "https://www.gbot123.com",
+	"email": "mars7765@naver.com",
+	"video": "http://bit.ly/3llVwTT",
+    "driver": {
+        "win32-ia32": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
+        "win32-x64": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
+        "darwin-x64": "https://entrylabs.github.io/docs/files/drivers/CH34x_Install_MAC_10_9_AND_ABOVE/CH34x_Install_V1.3.pkg"
+    },
+    "reconnect": true,
+    "firmwareBaudRate": 57600,
+    "firmware": "gbot",
+    "hardware": {
+        "type": "serial",
+        "control": "slave",
+        "duration": 32,
+        "vendor": ["Arduino", "wch.cn", "FTDI"],
+        "baudRate": 57600,
+        "lostTimer": 1000,
+        "byteDelimiter": [13, 10],
+        "firmwarecheck": false
+    }
+}
