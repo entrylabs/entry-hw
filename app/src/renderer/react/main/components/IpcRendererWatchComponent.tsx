@@ -46,61 +46,59 @@ class IpcRendererWatchComponent extends React.PureComponent<IProps> {
             console.log('state changed: ', state);
 
             switch (state) {
-            case HardwareStatement.disconnected: {
-                if (props.currentPageState === HardwarePageStateEnum.list) {
-                    applyTitle('Select hardware');
-                } else {
-                    applyTitle('hardware > disconnected');
+                case HardwareStatement.disconnected: {
+                    if (props.currentPageState === HardwarePageStateEnum.list) {
+                        applyTitle('Select hardware');
+                    } else {
+                        applyTitle('hardware > disconnected');
+                        props.changeAlertMessage({
+                            message: translator.translate(
+                                'Hardware device is disconnected. Please restart this program.'
+                            ),
+                        });
+                    }
+                    break;
+                }
+                case HardwareStatement.connected: {
+                    applyTitle('hardware > connected');
+                    props.changeAlertMessage({
+                        message: translator.translate('Connected to hardware device.'),
+                        duration: 2000,
+                    });
+                    break;
+                }
+                case HardwareStatement.scan:
+                case HardwareStatement.lost: {
+                    applyTitle('hardware > connecting');
+                    props.changeAlertMessage({
+                        message: translator.translate('Connecting to hardware device.'),
+                    });
+                    break;
+                }
+                case HardwareStatement.beforeConnect: {
+                    applyTitle('hardware > connecting');
+                    const beforeConnectMessage = `${translator.translate(
+                        'Connecting to hardware device.'
+                    )} ${translator.translate('Please select the firmware.')}`;
+                    props.changeAlertMessage({
+                        message: beforeConnectMessage,
+                    });
+                    break;
+                }
+                case HardwareStatement.scanFailed: {
+                    applyTitle('hardware > connection failed');
                     props.changeAlertMessage({
                         message: translator.translate(
-                            'Hardware device is disconnected. Please restart this program.',
+                            'Connection failed. please restart application or reconnect manually.'
                         ),
                     });
+                    break;
                 }
-                break;
-            }
-            case HardwareStatement.connected: {
-                applyTitle('hardware > connected');
-                props.changeAlertMessage({
-                    message: translator.translate('Connected to hardware device.'),
-                    duration: 2000,
-                });
-                break;
-            }
-            case HardwareStatement.scan:
-            case HardwareStatement.lost: {
-                applyTitle('hardware > connecting');
-                props.changeAlertMessage({
-                    message: translator.translate('Connecting to hardware device.'),
-                });
-                break;
-            }
-            case HardwareStatement.beforeConnect: {
-                applyTitle('hardware > connecting');
-                const beforeConnectMessage = `${
-                    translator.translate('Connecting to hardware device.')
-                } ${
-                    translator.translate('Please select the firmware.')
-                }`;
-                props.changeAlertMessage({
-                    message: beforeConnectMessage,
-                });
-                break;
-            }
-            case HardwareStatement.scanFailed: {
-                applyTitle('hardware > connection failed');
-                props.changeAlertMessage({
-                    message: translator.translate(
-                        'Connection failed. please restart application or reconnect manually.',
-                    ),
-                });
-                break;
-            }
-            case HardwareStatement.flash: {
-                props.changeAlertMessage({
-                    message: translator.translate('Firmware Uploading...'),
-                });
-            }
+                case HardwareStatement.flash: {
+                    props.changeAlertMessage({
+                        message: translator.translate('Firmware Uploading...'),
+                    });
+                }
             }
         });
         ipcRenderer.on('portListScanned', (event, data: ISerialPortScanData[]) => {
@@ -120,8 +118,8 @@ class IpcRendererWatchComponent extends React.PureComponent<IProps> {
 }
 
 interface IStateProps {
-    currentPageState: HardwarePageStateEnum,
-    currentModuleState: HardwareStatement,
+    currentPageState: HardwarePageStateEnum;
+    currentModuleState: HardwareStatement;
 }
 
 const mapStateToProps: IMapStateToProps<IStateProps> = (state) => ({

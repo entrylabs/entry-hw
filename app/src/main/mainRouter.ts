@@ -331,14 +331,17 @@ class MainRouter {
         }
 
         const hwModule = this.hwModule;
-        const server = this.server;
 
         if (hwModule.init) {
             hwModule.init(this.handler, this.config);
         }
 
         if (hwModule.setSocket) {
-            hwModule.setSocket(server);
+            hwModule.setSocket(this.server);
+        }
+
+        if (hwModule.setHandler) {
+            hwModule.setHandler(this.handler);
         }
 
         this.handleServerSocketConnected();
@@ -464,7 +467,7 @@ class MainRouter {
 
         const driverFullPath = path.join(directoryPaths.driver(), driverPath);
         logger.info(`execute driver requested. filePath : ${driverFullPath}`);
-        shell.openItem(driverFullPath);
+        shell.openPath(driverFullPath);
     }
 
     /**
@@ -532,6 +535,9 @@ class MainRouter {
             await this.flashFirmware(firmwareName);
             this.flasher.kill();
             this.config && this.startScan(this.config);
+        });
+        ipcMain.on('getSharedObject', (e) => {
+            e.returnValue = global.sharedObject;
         });
 
         logger.verbose('EntryHW ipc event registered');

@@ -1,4 +1,4 @@
-import { ipcRenderer, remote, shell, webFrame } from 'electron';
+import { ipcRenderer, remote, ipcMain, webFrame, shell } from 'electron';
 import { HardwareStatement, RunningModeTypes } from '../common/constants';
 
 /**
@@ -24,7 +24,7 @@ class RendererRouter {
     }
 
     get sharedObject(): ISharedObject {
-        return remote.getGlobal('sharedObject');
+        return ipcRenderer.sendSync('getSharedObject');
     }
 
     get currentWindow() {

@@ -24,6 +24,7 @@
 		"control": "slave",
 		"duration": 32,
 		"vendor": "wch.cn",
+		"pnpId": "0226",
 		"baudRate": 19200,
 		"firmwarecheck": false
 	}

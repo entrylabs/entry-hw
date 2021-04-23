@@ -56,7 +56,7 @@ const functionKeys = {
 
 const EXCEPTION_COMMAND_CODE = [170, 171, 172];
 
-class Microbit extends BaseModule {
+class MicrobitExt extends BaseModule {
     constructor() {
         super();
         this.sendBuffers = [];
@@ -500,4 +500,4 @@ class Microbit extends BaseModule {
     }
 }
 
-module.exports = new Microbit();
+module.exports = new MicrobitExt();

@@ -22,6 +22,7 @@ declare interface IHardwareModule {
     // 기타 최초 연결 수립시 사용되는 함수. 사용처가 통일되지 않아 정리 대상
     init?: (handler: any, config: any) => void; // deprecate into hook
     setSocket?: (server: any) => void; // deprecate into hook
+    setHandler?: (handler: any) => void; // not recommended to use
     setSerialPort?: (serialPort: any) => void; // deprecate
     resetProperty?: () => any; // after init, send to device
     getProperty?: () => any; // using master device. after requestLocalData send to device
