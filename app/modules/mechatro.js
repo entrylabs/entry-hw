@@ -166,7 +166,7 @@ class mechatro extends BaseModule {
     }
 
     init_dataFromEntry_StopState() {
-        console.log("init_dataFromEntry_StopState()");
+        //console.log("init_dataFromEntry_StopState()");
         this.dataFromEntry = {
             '2': {
                 MODE: this.setMode.SET_DIGITAL_IN_L,
@@ -214,7 +214,7 @@ class mechatro extends BaseModule {
     }
 
     init_dataFromEntry_Run() {
-        console.log("init_dataFromEntry_Run()");
+        //console.log("init_dataFromEntry_Run()");
         this.dataFromEntry = {
             '2': {
                 MODE: this.setMode.SET_DIGITAL_IN_L,
@@ -461,7 +461,7 @@ class mechatro extends BaseModule {
 
         if (queryString.length > 0) {
             //queryString.unshift(this.setMode.SET_PORT_DISABLE); // Disable 명령 별도 송부로 삭제
-            console.log("    ■ --> Data to Device: ", queryString);
+            //console.log("    ■ --> Data to Device: ", queryString);
             return queryString;
         } else {
             return null;
@@ -498,7 +498,7 @@ class mechatro extends BaseModule {
         let modeGroup;
         let portkey;
 
-        console.log(data);
+        //console.log(data);
         if (this.remainData) {
 
             modeGroup = this.remainData & 0xf8; // b1111 1000
