@@ -406,13 +406,13 @@ class mechatro extends BaseModule {
                                 queryString.push(query);
                                 break;
                             case this.setMode.SET_TONE:
-
                                 //Data1
                                 idx = this.portMapToDevice.INOUT_L_H[portNo];
                                 query = mode + idx;
                                 queryString.push(query);
                                 //Data2
                                 queryString.push(value);
+                                //console.log("SET_TONE[",portNo,"]",query," - ", value);
                                 break;
                         }
                         break;
@@ -460,8 +460,8 @@ class mechatro extends BaseModule {
         });
 
         if (queryString.length > 0) {
-            //queryString.unshift(this.setMode.SET_PORT_DISABLE);
-            //console.log("    ■ --> Data to Device: ", queryString);
+            //queryString.unshift(this.setMode.SET_PORT_DISABLE); // Disable 명령 별도 송부로 삭제
+            console.log("    ■ --> Data to Device: ", queryString);
             return queryString;
         } else {
             return null;
@@ -470,11 +470,7 @@ class mechatro extends BaseModule {
 
     getAnalogData(portNo, data1, data2) {
         //b0011 1000 0000 = 0x380
-        if (portNo == 14 || portNo == 15) {
-            this.dataFromDevice[portNo] = (((data1 << 7) & 0x380) | data2) * 10.0; // [cA] → [mA]
-        } else {
-            this.dataFromDevice[portNo] = ((data1 << 7) & 0x380) | data2;
-        }
+        this.dataFromDevice[portNo] = ((data1 << 7) & 0x380) | data2;
     }
 
     getDigitalData(data1, data2) {
@@ -502,7 +498,7 @@ class mechatro extends BaseModule {
         let modeGroup;
         let portkey;
 
-        //console.log(data);
+        console.log(data);
         if (this.remainData) {
 
             modeGroup = this.remainData & 0xf8; // b1111 1000
@@ -523,7 +519,6 @@ class mechatro extends BaseModule {
                 modeGroup = value & 0xf8; // b1111 1000
 
                 switch (modeGroup) {
-
                     case this.getMode.COM_GROUP:
                         {
                             switch (value) {
@@ -587,10 +582,10 @@ class mechatro extends BaseModule {
     //    },
     //};
     handleRemoteData(handler) {
-        console.log("Entry Start -->> ■", this.entryJS_State);
+
         const getData = handler.read('SEND_DATA');
         const getkeys = Object.keys(getData);
-        console.log("SEND_DATA    =", getData);
+        //console.log("GET_DATA_From_Entry =", getData);
 
         if (getkeys.length) {
             if (this.entryJS_State == 2) {
@@ -620,7 +615,6 @@ class mechatro extends BaseModule {
             });
         });
         //console.log("dataFromEntry = ", this.dataFromEntry);
-        //console.log("Entry END -->> ■");
     }
 
     /*
