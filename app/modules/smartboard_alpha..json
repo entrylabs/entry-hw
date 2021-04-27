@@ -1,0 +1,37 @@
+{
+	"id": "0A0103",
+	"name": {
+		"en": "Sciencebox Codingboard +α",
+		"ko": "과학상자 코딩보드 +α"
+	},
+	"category": "board",
+	"platform": ["win32"],
+	"icon" : "smartboard.png",
+	"module": "smartboard_alpha.js",
+	"url": "http://www.sciencebox.co.kr",
+	"video": "https://goo.gl/Gyh5Yx",
+	"email": "mail@sciencebox.co.kr",
+	"reconnect" : true,
+	"driver": [{
+		"win32-ia32": "CDM21226_Setup/CDM21226_Setup.exe",
+		"win32-x64": "CDM21226_Setup/CDM21226_Setup.exe",
+		"translate": "스마트보드 드라이버"
+	}, {
+		"win32-ia32": "esensorbt/CP210xVCPInstaller_x86.exe",
+        "win32-x64": "esensorbt/CP210xVCPInstaller_x64.exe",
+		"translate": "블루투스 동글 드라이버"
+	}],
+    "firmware": [{
+        "name": "smartboard_alpha",
+        "translate": "펌웨어"
+    }
+],
+	"hardware": {
+		"type": "serial",
+		"control": "slave",
+		"duration": 32,
+		"vendor": "FTDI",
+		"baudRate": 57600,
+		"firmwarecheck" : true
+	}
+}
