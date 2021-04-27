@@ -19,7 +19,8 @@
         "dist:mac": "cross-env BUILD_MODE=STANDALONE npm run webpack:prod && cross-env NOTARIZE=false CSC_NAME=\"Connect Foundation (DLFUSDA3L5)\" electron-builder",
         "dist:offline": "cross-env BUILD_MODE=OFFLINE npm run webpack:prod",
         "rebuild": "electron-rebuild -f -w serialport,node-hid",
-        "setting": "npm run rebuild && npm run webpack:dev"
+        "setting": "npm run rebuild && npm run webpack:dev",
+        "postinstall": "electron-builder install-app-deps"
     },
     "devDependencies": {
         "@types/cross-spawn": "^6.0.1",
