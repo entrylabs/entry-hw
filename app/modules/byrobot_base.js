@@ -1876,18 +1876,18 @@ class byrobot_base extends BaseModule
             break;
 
 
-        case 0x41:  // Altitude
-            {
-                //this.log("BASE - handlerForDevice() - Received - Altitude - 0x41");
-                this.updateAltitude();
-            }
-            break;
-
-
         case 0x42:  // Position
             {
                 //this.log("BASE - handlerForDevice() - Received - Position - 0x42");
                 this.updatePosition();
+            }
+            break;
+
+
+        case 0x43:  // Altitude
+            {
+                //this.log("BASE - handlerForDevice() - Received - Altitude - 0x43");
+                this.updateAltitude();
             }
             break;
 
