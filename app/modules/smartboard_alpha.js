@@ -510,7 +510,6 @@ class smartboard_alpha extends BaseModule {
 					break;
 				default: // this.getMode.GET_ANALOG_IN:
 					portkey = (this.remainData >>> 3) & 0x0F;
-					console.log(portkey);
 					this.getAnalogData(this.portMapToEntry.ANALOG[portkey], this.remainData, data[0]);
 			}
 			this.remainData = 0;
@@ -557,7 +556,6 @@ class smartboard_alpha extends BaseModule {
 						} else {
 							this.remainData = 0;
 							portkey = (value >>> 3) & 0x0F;
-							console.log(portkey);
 							this.getAnalogData(this.portMapToEntry.ANALOG[portkey], value, data[idx + 1]);
 						}
 				}

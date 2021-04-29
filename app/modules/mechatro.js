@@ -477,12 +477,11 @@ class mechatro extends BaseModule {
         let map;
         // L Bit : b10001 0dd  0ddd ddd   
         // H Bit : b10001 1dd  0ddd ddd   
-        if (data1 & 0x40) { //H Bit
+        if (data1 & 0x04) { //H Bit
             map = this.portMapToEntry.DIGITAL_H;
         } else {  // L Bit
             map = this.portMapToEntry.DIGITAL_L;
         }
-
         Object.entries(map).forEach(([key, portNo]) => {
             if (this.dataFromEntry[portNo].MODE == this.setMode.SET_DIGITAL_IN_L || this.dataFromEntry[portNo].MODE == this.setMode.SET_DIGITAL_IN_H) {
                 this.dataFromDevice[portNo] = (data2 >> key) & 0x01;
@@ -564,7 +563,6 @@ class mechatro extends BaseModule {
     // 엔트리로 전달할 데이터, 하드웨어 연결되면 주기적인 실행.
     requestRemoteData(handler) {
         //console.log("Entry <<-- ■");
-
         //console.log("dataFromDevice data: ", this.dataFromDevice );
         Object.keys(this.dataFromDevice).forEach((key) => {  // key.length ===0 이면 실행 되지 않음.
             handler.write(key, this.dataFromDevice[key]);
