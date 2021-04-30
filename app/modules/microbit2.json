@@ -16,7 +16,7 @@
         {
             "type": "copy",
             "name": "microbit_compatible",
-            "afterDelay": 7000,
+            "afterDelay": 12000,
             "translate": "Microbit v1"
         },
         {
