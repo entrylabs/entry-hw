@@ -2,7 +2,7 @@
     "id": "220301",
     "name": {
         "en": "Microbit v2",
-        "ko": "마이크로빗 v2"
+        "ko": "마이크로비트 v2"
     },
     "category": "board",
     "platform": ["win32", "darwin"],
@@ -12,11 +12,20 @@
     "selectPort": true,
     "reconnect": true,
     "tryFlasherNumber": 2,
-    "firmware": {
-        "type": "copy",
-        "name": "microbit2",
-        "afterDelay": 3000
-    },
+    "firmware": [
+        {
+            "type": "copy",
+            "name": "microbit_compatible",
+            "afterDelay": 7000,
+            "translate": "Microbit v1"
+        },
+        {
+            "type": "copy",
+            "name": "microbit2",
+            "afterDelay": 7000,
+            "translate": "Microbit v2"
+        }
+    ],
     "driver": {
         "win32-ia32": "mbedWinSerial/mbedWinSerial_16466.exe",
         "win32-x64": "mbedWinSerial/mbedWinSerial_16466.exe"

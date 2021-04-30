@@ -2,7 +2,7 @@
     "id": "220101",
     "name": {
         "en": "Microbit",
-        "ko": "마이크로빗"
+        "ko": "마이크로비트"
     },
     "category": "board",
     "platform": ["win32", "darwin"],
