@@ -165,6 +165,23 @@ class smartboard_alpha extends BaseModule {
 				//'15': 21,
 			},
 		};
+
+		this.inversionPort = {
+			'2': false, //GS2
+			'3': false, //GS1
+			'8': false, //Relay
+			'9': false, //SM3
+			'10': false, //SM2
+			'11': false, //SM1
+			'12': true, //S4
+			'13': true, //S3
+			'14': true, //S2
+			'15': true, //S1
+			'16': false, //A2 (SEN1)
+			'17': false, //A3 (SEN2)
+			'18': false, //A4 (SEN3)
+			'19': false, //A5 (SEN4)
+		}
 	}
 
 	init_dataFromEntry_StopState() {
@@ -428,15 +445,13 @@ class smartboard_alpha extends BaseModule {
 								break;
 							}
 							case this.setMode.SET_DIGITAL_IN_L: {
-
 								idx = this.portMapToDevice.INOUT_L_H[portNo];
 								query = mode + idx;
 								queryString.push(query);
-								console.log("SET_DIGITAL_IN_L : ", portNo, " data:", query);
+								//console.log("SET_DIGITAL_IN_L : ", portNo, " data:", query);
 								break;
 							}
 							case this.setMode.SET_DIGITAL_IN_H: {
-
 								idx = this.portMapToDevice.INOUT_L_H[portNo];
 								query = mode + idx;
 								queryString.push(query);
@@ -567,8 +582,11 @@ class smartboard_alpha extends BaseModule {
 	requestRemoteData(handler) {
 		//console.log("Entry <<-- ■");
 		//console.log("dataFromDevice data: ", this.dataFromDevice );
-		Object.keys(this.dataFromDevice).forEach((key) => {  // key.length ===0 이면 실행 되지 않음.
-			handler.write(key, this.dataFromDevice[key]);
+		Object.keys(this.dataFromDevice).forEach((portNo) => {  // key.length ===0 이면 실행 되지 않음.
+			if (this.inversionPort[portNo]) {
+				this.dataFromDevice[portNo] = this.dataFromDevice[portNo] ? 0 : 1;
+			}
+			handler.write(portNo, this.dataFromDevice[portNo]);
 		});
 	}
 
