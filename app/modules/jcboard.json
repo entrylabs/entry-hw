@@ -1,0 +1,31 @@
+{
+	"id": "1D04",
+	"name": {
+		"en": "JCBoard",
+		"ko": "제이씨보드"
+	},
+	"category": "robot",
+	"platform": ["win32", "darwin"],
+	"icon" : "jcboard.png",
+	"module": "jcboard.js",
+	"url": "http://www.junilab.co.kr/sub/jcboard.php",
+	"driver": {
+		"win32-ia32": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
+		"win32-x64": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
+		"darwin-x64": "https://entrylabs.github.io/docs/files/drivers/CH34x_Install_MAC_10_9_AND_ABOVE/CH34x_Install_V1.3.pkg"
+	},
+	"reconnect" : true,
+	"selectPort": {
+		"win32": false,
+		"darwin": true
+	},
+	"hardware": {
+		"type": "serial",
+		"control": "slave",
+		"duration": 32,
+		"vendor": "wch.cn",
+		"pnpId": "0226",
+		"baudRate": 19200,
+		"firmwarecheck": false
+	}
+}
