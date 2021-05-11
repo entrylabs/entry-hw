@@ -2,7 +2,7 @@
     "id": "220201",
     "name": {
         "en": "MicrobitExt",
-        "ko": "마이크로빗 확장"
+        "ko": "마이크로비트 확장"
     },
     "category": "board",
     "platform": ["win32", "darwin"],

@@ -24,6 +24,9 @@ class RendererRouter {
     }
 
     get sharedObject(): ISharedObject {
+        if (remote?.getGlobal) {
+            return remote.getGlobal('sharedObject');
+        }
         return ipcRenderer.sendSync('getSharedObject');
     }
 
