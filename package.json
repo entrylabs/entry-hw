@@ -71,7 +71,7 @@
     "dependencies": {
         "cross-spawn": "^7.0.0",
         "fs-extra": "^8.1.0",
-        "lodash": "^4.17.19",
+        "lodash": "^4.17.21",
         "node-hid": "2.1.1",
         "rimraf": "^3.0.2",
         "semver": "^7.1.1",
