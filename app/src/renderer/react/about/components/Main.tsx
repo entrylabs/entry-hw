@@ -65,19 +65,17 @@ const HomepageLinkAnchor = Styled.a`
 `;
 
 const hideWindow = () => {
-    rendererRouter.currentWindow.hide();
+    rendererRouter.closeAboutWindow();
 };
 
 const Main: React.FC = () => {
     const [hasNewVersion, toggleNewVersion] = useState(false);
     const [currentVersion, setCurrentVersion] = useState('0.0.0');
     useEffect(() => {
-        ipcRenderer
-            .invoke('checkUpdate')
-            .then((result) => {
-                setCurrentVersion(result.currentVersion || '0.0.0');
-                toggleNewVersion(result.hasNewVersion || false);
-            });
+        ipcRenderer.invoke('checkUpdate').then((result) => {
+            setCurrentVersion(result.currentVersion || '0.0.0');
+            toggleNewVersion(result.hasNewVersion || false);
+        });
     }, []);
 
     useEffect(() => {
@@ -91,34 +89,39 @@ const Main: React.FC = () => {
         <MainContainer>
             <InnerContainer>
                 <LogoWrapper className={'logo_wrapper'}>
-                    <LogoImage src={Logo} className={'logo'} alt="logo"/>
+                    <LogoImage src={Logo} className={'logo'} alt="logo" />
                 </LogoWrapper>
                 <div>
                     <VersionNotifyContainer>
                         {/* TODO 만약 오프라인에서도 하드웨어의 버전을 알아야 한다면 이부분은 다른 로직이 되어야한다. */}
                         {`Version ${currentVersion}`}
-                        <br/>
-                        <HomepageLinkAnchor href="#" onClick={(e) => {
-                            e.preventDefault();
-                            rendererRouter.openExternalUrl('https://playentry.org');
-                        }}>
+                        <br />
+                        <HomepageLinkAnchor
+                            href="#"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                rendererRouter.openExternalUrl('https://playentry.org');
+                            }}
+                        >
                             https://playentry.org
                         </HomepageLinkAnchor>
                     </VersionNotifyContainer>
                     <div>
-                        {
-                            hasNewVersion
-                                ? <VersionUpdateButton
-                                    onClick={() => {
-                                        rendererRouter.openExternalUrl('https://playentry.org/#!/offlineEditor');
-                                    }}
-                                >
-                                    {translator.translate('Download the latest version')}
-                                </VersionUpdateButton>
-                                : <LatestVersionNotifyText>
-                                    {translator.translate('You are running the latest version.')}
-                                </LatestVersionNotifyText>
-                        }
+                        {hasNewVersion ? (
+                            <VersionUpdateButton
+                                onClick={() => {
+                                    rendererRouter.openExternalUrl(
+                                        'https://playentry.org/#!/offlineEditor'
+                                    );
+                                }}
+                            >
+                                {translator.translate('Download the latest version')}
+                            </VersionUpdateButton>
+                        ) : (
+                            <LatestVersionNotifyText>
+                                {translator.translate('You are running the latest version.')}
+                            </LatestVersionNotifyText>
+                        )}
                     </div>
                 </div>
             </InnerContainer>
