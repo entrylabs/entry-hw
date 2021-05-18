@@ -12,6 +12,7 @@ function Module() {
     TIMER: 8,
     LCD: 11,
     LCDCLEAR: 12,
+    RGBLED: 13,
     DCMOTOR: 14,
     PIR: 16,
     LCDINIT: 17,
@@ -48,6 +49,13 @@ function Module() {
     STEPROTATE: 49,
     STEPROTATE2: 50,
     STEPROTATE3: 51,
+    MLXOBJ: 52,
+    MLXAMB: 53,
+    SERVO2: 54,
+    GYROX: 55,
+    GYROY: 56,
+    GYROZ: 57,
+    PULLUP: 58,
   };
 
   this.actionTypes = {
@@ -91,7 +99,28 @@ function Module() {
     JOYX: 0,
     JOYY: 0,
     JOYZ: 0,
+    MLXOBJ: 0,
+    MLXAMB: 0,
+    GYROX: 0,
+    GYROY: 0,
+    GYROZ: 0,
     DIGITAL: {
+      0: 0,
+      1: 0,
+      2: 0,
+      3: 0,
+      4: 0,
+      5: 0,
+      6: 0,
+      7: 0,
+      8: 0,
+      9: 0,
+      10: 0,
+      11: 0,
+      12: 0,
+      13: 0,
+    },
+    PULLUP: {
       0: 0,
       1: 0,
       2: 0,
@@ -290,7 +319,7 @@ Module.prototype.isRecentData = function (port, type, data) {
   return isRecent;
 };
 
-Module.prototype.requestLocalData = function () {
+Module.prototype.requestLocalData = function () { 
   const self = this;
 
   if (!this.isDraing && this.sendBuffers.length > 0) {
@@ -351,6 +380,10 @@ Module.prototype.handleLocalData = function (data) {
         self.sensorData.DIGITAL[port] = value;
         break;
       }
+      case self.sensorTypes.PULLUP: {
+        self.sensorData.PULLUP[port] = value;
+        break;
+      }
       case self.sensorTypes.ANALOG: {
         self.sensorData.ANALOG[port] = value;
         break;
@@ -397,6 +430,14 @@ Module.prototype.handleLocalData = function (data) {
         // console.log(value);
         break;
       }
+      case self.sensorTypes.MLXOBJ: {
+        self.sensorData.MLXOBJ = value;
+        break;
+      }
+      case self.sensorTypes.MLXAMB: {
+        self.sensorData.MLXAMB = value;
+        break;
+      }
       default: {
         break;
       }
@@ -414,32 +455,33 @@ Module.prototype.makeSensorReadBuffer = function (device, port, data) {
   const dummy = new Buffer([10]);
   if (device == this.sensorTypes.DIGITAL) {
     //data 2: pull up, 0: normal
-    if (!data) {
-      buffer = new Buffer([
-        255,
-        85,
-        6,
-        sensorIdx,
-        this.actionTypes.GET,
-        device,
-        port,
-        0,
-        10,
-      ]);
-    } else {
-      //pullup인 경우
-      buffer = new Buffer([
-        255,
-        85,
-        6,
-        sensorIdx,
-        this.actionTypes.GET,
-        device,
-        port,
-        data,
-        10,
-      ]);
-    }
+    //console.log(data)
+    buffer = new Buffer([
+      255,
+      85,
+      6,
+      sensorIdx,
+      this.actionTypes.GET,
+      device,
+      port,
+      0,
+      10,
+    ]);
+  } else if (device == this.sensorTypes.PULLUP) {
+    //data 2: pull up, 0: normal
+    //console.log(data)
+    //pullup인 경우
+    buffer = new Buffer([
+      255,
+      85,
+      6,
+      sensorIdx,
+      this.actionTypes.GET,
+      device,
+      port,
+      2,
+      10,
+    ]);
     //console.log(buffer);
   } else if (device == this.sensorTypes.RFIDTAP) {
     buffer = new Buffer([
@@ -520,6 +562,28 @@ Module.prototype.makeSensorReadBuffer = function (device, port, data) {
       port,
       10,
     ]);
+  } else if (device == this.sensorTypes.MLXOBJ) {
+    buffer = new Buffer([
+      255,
+      85,
+      5,
+      sensorIdx,
+      this.actionTypes.GET,
+      device,
+      port,
+      10,
+    ]);
+  } else if (device == this.sensorTypes.MLXAMB) {
+    buffer = new Buffer([
+      255,
+      85,
+      5,
+      sensorIdx,
+      this.actionTypes.GET,
+      device,
+      port,
+      10,
+    ]);
   } else if (!data) {
     buffer = new Buffer([
       255,
@@ -574,6 +638,26 @@ Module.prototype.makeOutputBuffer = function (device, port, data) {
       buffer = Buffer.concat([buffer, value, dummy]);
       break;
     }
+    case this.sensorTypes.SERVO2: {
+      const value1 = new Buffer(2);
+      const value2 = new Buffer(2);
+      const stime = new Buffer(2);
+      value1.writeInt16LE(data.value1);
+      value2.writeInt16LE(data.value2);
+      stime.writeInt16LE(data.stime);
+
+      buffer = new Buffer([
+        255,
+        85,
+        10,
+        sensorIdx,
+        this.actionTypes.SET,
+        device,
+        port,
+      ]);
+      buffer = Buffer.concat([buffer, value1, value2, stime, dummy]);
+      break;
+    }
     case this.sensorTypes.DIGITAL:
     case this.sensorTypes.PWM: {
       value.writeInt16LE(data);
@@ -621,6 +705,46 @@ Module.prototype.makeOutputBuffer = function (device, port, data) {
         port,
       ]);
       buffer = Buffer.concat([buffer, value, time, dummy]);
+      break;
+    }
+    case this.sensorTypes.RGBLED: {
+      const port1 = new Buffer(2);
+      const port2 = new Buffer(2);
+      const port3 = new Buffer(2);
+      const value1 = new Buffer(2);
+      const value2 = new Buffer(2);
+      const value3 = new Buffer(2);
+      port1.writeInt16LE(data.port1);
+      port2.writeInt16LE(data.port2);
+      port3.writeInt16LE(data.port3);
+      value1.writeInt16LE(data.value1);
+      value2.writeInt16LE(data.value2);
+      value3.writeInt16LE(data.value3);
+      // if ($.isPlainObject(data)) {
+      //   port1.writeInt16LE(data.port1);
+      //   port2.writeInt16LE(data.port2);
+      //   port3.writeInt16LE(data.port3);
+      //   value1.writeInt16LE(data.value1);
+      //   value2.writeInt16LE(data.value2);
+      //   value3.writeInt16LE(data.value3);
+      // } else {
+      //   port1.writeInt16LE(data.port1);
+      //   port2.writeInt16LE(data.port2);
+      //   port3.writeInt16LE(data.port3);
+      //   value1.writeInt16LE(0);
+      //   value2.writeInt16LE(0);
+      //   value3.writeInt16LE(0);
+      // }
+      buffer = new Buffer([
+        255,
+        85,
+        16,
+        sensorIdx,
+        this.actionTypes.SET,
+        device,
+        port,
+      ]);
+      buffer = Buffer.concat([buffer, port1, port2, port3, value1, value2, value3, dummy]);
       break;
     }
     case this.sensorTypes.DCMOTOR: {
