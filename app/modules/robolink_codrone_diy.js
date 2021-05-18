@@ -5,10 +5,10 @@ const byrobot_base = require('./byrobot_base');
 
 
 /***************************************************************************************
- *  BYROBOT Battle Drone
+ *  ROBOLINK CODRONE DIY
  ***************************************************************************************/
 
-class byrobot_drone_3_10 extends byrobot_base
+class robolink_codrone_diy extends byrobot_base
 {
     /*
         생성자
@@ -17,12 +17,12 @@ class byrobot_drone_3_10 extends byrobot_base
     {
         super();
 
-        this.log('BYROBOT_BATTLE_DRONE - constructor()');
+        this.log('ROBOLINK_CODRONE_DIY - constructor()');
 
         this.targetDevice     = 0x10;
-        this.targetDeviceID   = '0F0D01';
-        this.arrayRequestData = [0x40, 0x44]; // State, Motion
+        this.targetDeviceID   = '4A0101';
+        this.arrayRequestData = [0x40, 0x42, 0x43, 0x44, 0x52]; // State, Position, Altitude, Motion(+ Attitude), Trim
     }
 }
 
-module.exports = new byrobot_drone_3_10();
+module.exports = new robolink_codrone_diy();
