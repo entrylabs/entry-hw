@@ -464,7 +464,7 @@ Module.prototype.makeSensorReadBuffer = function (device, port, data) {
       this.actionTypes.GET,
       device,
       port,
-      0,
+      data,
       10,
     ]);
   } else if (device == this.sensorTypes.PULLUP) {
@@ -479,7 +479,7 @@ Module.prototype.makeSensorReadBuffer = function (device, port, data) {
       this.actionTypes.GET,
       device,
       port,
-      2,
+      data,
       10,
     ]);
     //console.log(buffer);
