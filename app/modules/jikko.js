@@ -308,7 +308,7 @@ Module.prototype.isRecentData = function (port, type, data) {
     // }
 
     // return isRecent;
-    var isRecent = false;
+    let isRecent = false;
 
     if (port in this.recentCheckData) {
         if (
@@ -508,7 +508,7 @@ Module.prototype.makeSensorReadBuffer = function (device, port, data) {
     } else if (!data) {
         buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.GET, device, port, 10]);
     } else {
-        value = new Buffer(2);
+        let value = new Buffer(2);
         value.writeInt16LE(data);
         buffer = new Buffer([255, 85, 7, sensorIdx, this.actionTypes.GET, device, port, 10]);
         buffer = Buffer.concat([buffer, value, dummy]);
@@ -818,9 +818,9 @@ Module.prototype.makeOutputBuffer = function (device, port, data) {
             break;
         }
         case this.sensorTypes.DOTMATRIX: {
-            var text;
-            var textLen = 0;
-            var textLenBuf = new Buffer(2);
+            let text;
+            let textLen = 0;
+            let textLenBuf = new Buffer(2);
             if ($.isPlainObject(data)) {
                 textLen = data.text.length;
                 text = Buffer.from(data.text);
@@ -854,9 +854,9 @@ Module.prototype.makeOutputBuffer = function (device, port, data) {
             break;
         }
         case this.sensorTypes.LCDINIT: {
-            var list = new Buffer(2);
-            var line = new Buffer(2);
-            var col = new Buffer(2);
+            let list = new Buffer(2);
+            let line = new Buffer(2);
+            let col = new Buffer(2);
             if ($.isPlainObject(data)) {
                 list.writeInt16LE(data.list);
                 line.writeInt16LE(data.line);
