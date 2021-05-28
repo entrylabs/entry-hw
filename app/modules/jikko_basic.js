@@ -397,7 +397,7 @@ Module.prototype.makeSensorReadBuffer = function (device, port, data) {
       this.actionTypes.GET,
       device,
       port,
-      data,
+      0,
       10,
     ]);
   } 
@@ -413,7 +413,7 @@ Module.prototype.makeSensorReadBuffer = function (device, port, data) {
       this.actionTypes.GET,
       device,
       port,
-      data,
+      2,
       10,
     ]);
     //console.log(buffer);
