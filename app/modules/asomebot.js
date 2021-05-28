@@ -142,7 +142,6 @@ class AsomeBot extends BaseModule {
 
     reset() {
         this.sp = null;
-        this.isPlaying.set(0);
         this.sendBuffer = [];
         this.receivedText = "";
     }

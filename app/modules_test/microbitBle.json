@@ -2,13 +2,10 @@
     "id": "FFFF05",
     "name": {
         "en": "Microbit BLE",
-        "ko": "마이크로빗 무선"
+        "ko": "마이크로비트 무선"
     },
     "category": "board",
-    "platform": [
-        "win32",
-        "darwin"
-    ],
+    "platform": ["win32", "darwin"],
     "icon": "microbitBle.png",
     "module": "microbitBle.js",
     "firmware": {

@@ -374,14 +374,17 @@ class MainRouter {
         }
 
         const hwModule = this.hwModule;
-        const server = this.server;
 
         if (hwModule.init) {
             hwModule.init(this.handler, this.config);
         }
 
         if (hwModule.setSocket) {
-            hwModule.setSocket(server);
+            hwModule.setSocket(this.server);
+        }
+
+        if (hwModule.setHandler) {
+            hwModule.setHandler(this.handler);
         }
 
         this.handleServerSocketConnected();
@@ -523,7 +526,7 @@ class MainRouter {
 
         const driverFullPath = path.join(directoryPaths.driver(), driverPath);
         logger.info(`execute driver requested. filePath : ${driverFullPath}`);
-        shell.openItem(driverFullPath);
+        shell.openPath(driverFullPath);
     }
 
     /**
@@ -595,6 +598,7 @@ class MainRouter {
             this.flasher.kill();
             this.config && this.startScan(this.config);
         });
+
         ipcMain.handle('uploadPack', async () => {
             const pathToPack = dialog.showOpenDialogSync(this.browser, {
                 filters: [
@@ -610,6 +614,10 @@ class MainRouter {
                 return;
             }
             this.hardwareListManager.updateHardwareListWithPack(pathToPack[0]);
+        });
+
+        ipcMain.on('getSharedObject', (e) => {
+            e.returnValue = global.sharedObject;
         });
 
         logger.verbose('EntryHW ipc event registered');

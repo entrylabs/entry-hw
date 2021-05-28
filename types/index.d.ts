@@ -16,11 +16,18 @@ declare type ObjectLike = { [key: string]: string };
 
 declare type IDriverInfo = ObjectLike | [{ translate: string } & ObjectLike];
 
-declare type ICopyTypeFirmware = { type: 'copy'; afterDelay?: number; name: string };
+declare type ICopyTypeFirmware = {
+    type: 'copy';
+    name: string;
+    afterDelay?: number;
+    translate?: string;
+};
 declare type IESP32TypeFirmware = {
     type: string;
     offset: string;
     name: string;
+    afterDelay?: number;
+    translate?: string;
 };
 declare type IFirmwareInfo =
     | string
@@ -35,6 +42,7 @@ declare interface IHardwareModuleConfig {
     control: IHardwareControlType;
     duration: number;
     baudRate: number;
+    commType: 'ascii' | 'utf8' | 'utf16le' | 'ucs2' | 'base64' | 'binary' | 'hex' | undefined;
 
     firmwarecheck?: boolean;
 

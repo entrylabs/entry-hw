@@ -1,5 +1,6 @@
 ![Entry Logo](app/src/renderer/images/about/logo.png)
 
+
 [![Action Build Status](https://github.com/entrylabs/entry-hw/workflows/Build%20%26%20Deploy/badge.svg)](https://github.com/entrylabs/entry-hw/actions?query=workflow%3A"Build+%26+Deploy")
 ---
 
@@ -50,3 +51,4 @@ npm install --global node-gyp
 ## Copyright and License
 
 [The MIT License (MIT)](https://github.com/entrylabs/entry-hw/blob/master/LICENSE)
+

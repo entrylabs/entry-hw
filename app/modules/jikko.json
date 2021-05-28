@@ -1,0 +1,29 @@
+{
+    "id": "470101",
+    "name": {
+        "en": "Jikko",
+        "ko": "직코"
+    },
+    "category": "board",
+    "platform": ["win32", "darwin"],
+    "icon": "jikko.png",
+    "module": "jikko.js",
+    "url": "http://www.makeitall.co.kr",
+    "driver": {
+        "win32-ia32": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
+        "win32-x64": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
+        "darwin-x64": "CH34x_Install_MAC_10_9_AND_ABOVE/CH34x_Install_V1.3.pkg"
+    },
+    "selectPort": true,
+    "reconnect": true,
+    "firmware": "jikko",
+    "hardware": {
+        "type": "serial",
+        "control": "slave",
+        "duration": 32,
+        "vendor": ["Arduino", "wch.cn", "FTDI"],
+        "baudRate": 115200,
+        "firmwarecheck": false,
+        "byteDelimiter": [13, 10]
+    }
+}
