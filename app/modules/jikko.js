@@ -822,8 +822,8 @@ Module.prototype.makeOutputBuffer = function (device, port, data) {
             var textLen = 0;
             var textLenBuf = new Buffer(2);
             if ($.isPlainObject(data)) {
-                textLen = ('' + data.text).length;
-                text = Buffer.from('' + data.text);
+                textLen = data.text.length;
+                text = Buffer.from(data.text);
                 textLenBuf.writeInt16LE(textLen);
             } else {
                 textLen = 0;
