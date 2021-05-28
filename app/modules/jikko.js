@@ -820,7 +820,7 @@ Module.prototype.makeOutputBuffer = function (device, port, data) {
         case this.sensorTypes.DOTMATRIX: {
             var text;
             var textLen = 0;
-            var textLenBuf = Buffer(2);
+            var textLenBuf = new Buffer(2);
             if ($.isPlainObject(data)) {
                 textLen = ('' + data.text).length;
                 text = Buffer.from('' + data.text);
