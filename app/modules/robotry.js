@@ -7,18 +7,6 @@ class robotry {
         this.handler = null;
         this.config = null;
         this.isDraing = false;
-        this.sensorTypes = {
-            ALIVE: 0,
-            DIGITAL: 1,
-            ANALOG: 2,
-            PWM: 3,
-            SERVO_PIN: 4,
-            TONE: 5,
-            PULSEIN: 6,
-            ULTRASONIC: 7,
-            TIMER: 8,
-        };
-    
         this.actionTypes = {
             GET: 1,
             SET: 2,

@@ -6,6 +6,17 @@ class robitStage extends BaseModule {
     constructor() {
         super();
         this.sp = null;
+        this.sensorTypes = {
+            ALIVE: 0,
+            DIGITAL: 1,
+            ANALOG: 2,
+            PWM: 3,
+            SERVO_PIN: 4,
+            TONE: 5,
+            PULSEIN: 6,
+            ULTRASONIC: 7,
+            TIMER: 8,
+        };
     }
 
     setSerialPort(sp){
