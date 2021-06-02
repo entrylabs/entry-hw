@@ -30,6 +30,9 @@ class robitStage extends BaseModule {
             cb('connected');
         }
     }
+    requestInitialData() {
+        return this.makeSensorReadBuffer(this.sensorTypes.ANALOG, 0);
+    }
     
     /*
     하드웨어 기기에 전달할 데이터를 반환합니다.
