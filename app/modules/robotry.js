@@ -79,7 +79,6 @@ class robotry {
     */
     requestInitialData() {
         // return true;
-        return this.makeSensorReadBuffer(this.sensorTypes.ANALOG, 0);
     }
 
     // 연결 후 초기에 수신받아서 정상연결인지를 확인해야하는 경우 사용합니다.
