@@ -1,15 +1,15 @@
 {
     "id": "4B0101",
     "name": {
-        "en": "Robotry Robit Stage",
-        "ko": "로보트리 로빗 무대"
+        "en": "Robit Stage",
+        "ko": "로빗 무대"
     },
     "category": "board",
     "platform": ["win32", "darwin"],
-    "icon": "arduino.png",
+    "icon": "robotry.png",
     "module": "robotry_robitStage.js",
     "url": "http://robotry.co.kr",
-    "email": "hee.kim6133@gmail.com",
+    "email": "hee.kim6133@robotry.co.kr",
     "driver": [{
         "win32-ia32": "arduino/dpinst-x86.exe",
         "win32-x64": "arduino/dpinst-amd64.exe",
@@ -25,7 +25,7 @@
         "duration": 32,
         "vendor": "",
         "baudRate": 115200,
-        "lostTimer": 1000,
+        "lostTimer": 5000,
         "byteDelimiter": [13, 10],
         "firmwarecheck": false
     }
