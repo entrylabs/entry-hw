@@ -1,0 +1,36 @@
+{
+  "id": "4A0303",
+  "name": {
+      "en": "Robolink wearable kit",
+      "ko": "로보링크 웨어러블 키트"
+  },
+  "category": "module",
+  "platform": ["win32"],
+  "icon" : "robolink_wearable.png",
+  "module": "robolink_wearable.js",
+  "driver": {
+        "win32-ia32": "CP210x_VCP_Windows/CP210xVCPInstaller_x32.exe",
+        "win32-x64": "CP210x_VCP_Windows/CP210xVCPInstaller_x86.exe"
+  },
+  "url": "https://www.robolink.co.kr/",
+  "email": "asteam@robolink.co.kr",
+  "reconnect": true,
+  "firmware": "wearableFirmware",
+  "firmwareBaudRate" : 115200,
+  "firmwareMCUType" : "m328p",
+  "selectPort": true,
+  "hardware": {
+    "type": "serial",
+    "control": "slave",
+    "duration": 50,
+    "baudRate": 115200,
+    "parity" : "none",
+    "dataBits" : 8,
+    "stopBits" : 1,
+    "vendor": "robolink",
+    "firmwarecheck": false,   
+    "bufferSize" : 1024,
+    "byteDelimiter": [255, 255],
+    "flowControl" : "none"
+  }
+}
