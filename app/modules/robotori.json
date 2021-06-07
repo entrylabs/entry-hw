@@ -19,7 +19,7 @@
         "type": "serial",
         "control": "slave",
         "duration": 32,
-        "vendor": "Prolific",
+        "vendor": ["Prolific","Silicon Lab"],
         "baudRate": 38400,
         "firmwarecheck": false
     }
