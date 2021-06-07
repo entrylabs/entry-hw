@@ -5,57 +5,36 @@ function Module() {
         DIGITAL: 1,
         ANALOG: 2,
         PWM: 3,
-        SERVO: 4,
-        TONE: 5,
-        PULSEIN: 6,
-        ULTRASONIC: 7,
-        TIMER: 8,
-        LCD: 11,
-        LCDCLEAR: 12,
-        RGBLED: 13,
+        PULLUP: 4,
+        SERVO: 5,
+        SERVO2: 6,
+        TONE: 7,
+        ULTRASONIC: 8,
+        READ_BLUETOOTH: 9,
+        WRITE_BLUETOOTH: 10,
+        LCDINIT: 11,
+        LCD: 12,
+        LCDCLEAR: 13,
         DCMOTOR: 14,
-        PIR: 16,
-        LCDINIT: 17,
-        DHTHUMI: 18,
-        DHTTEMP: 19,
-        NEOPIXELINIT: 20,
-        NEOPIXELBRIGHT: 21,
-        NEOPIXEL: 22,
-        NEOPIXELALL: 23,
-        NEOPIXELCLEAR: 24,
-        DOTMATRIXINIT: 25,
-        DOTMATRIXBRIGHT: 26,
-        DOTMATRIX: 27,
-        DOTMATRIXEMOJI: 28,
-        DOTMATRIXCLEAR: 29,
-        MP3INIT: 30,
-        MP3PLAY1: 31,
-        MP3PLAY2: 32,
-        MP3VOL: 33,
-        LOADINIT: 35,
-        LOADSCALE: 36,
-        LOADVALUE: 37,
-        DUST: 38,
-        JOYINIT: 39,
-        JOYX: 40,
-        JOYY: 41,
-        JOYZ: 42,
-        JOYMOVE: 43,
-        RFIDINIT: 44,
-        RFIDTAP: 45,
-        RFIDVALUE: 46,
-        STEPINIT: 47,
-        STEPSPEED: 48,
-        STEPROTATE: 49,
-        STEPROTATE2: 50,
-        STEPROTATE3: 51,
-        MLXOBJ: 52,
-        MLXAMB: 53,
-        SERVO2: 54,
-        GYROX: 55,
-        GYROY: 56,
-        GYROZ: 57,
-        PULLUP: 58,
+        DHTHUMI: 15,
+        DHTTEMP: 16,
+        NEOPIXELINIT: 17,
+        NEOPIXELBRIGHT: 18,
+        NEOPIXEL: 19,
+        NEOPIXELALL: 20,
+        NEOPIXELCLEAR: 21,
+        DOTMATRIXINIT: 22,
+        DOTMATRIXBRIGHT: 23,
+        DOTMATRIX: 24,
+        DOTMATRIXEMOJI: 25,
+        DOTMATRIXCLEAR: 26,
+        MP3INIT: 27,
+        MP3PLAY1: 28,
+        MP3PLAY2: 29,
+        MP3VOL: 30,
+        TIMER: 31,
+        RESET_: 32,
+        PULSEIN: 33,
     };
 
     this.actionTypes = {
@@ -92,18 +71,6 @@ function Module() {
         },
         DHTTEMP: 0,
         DHTHUMI: 0,
-        LOADVALUE: 0,
-        RFIDTAP: 0,
-        RFIDVALUE: 0,
-        DUST: 0,
-        JOYX: 0,
-        JOYY: 0,
-        JOYZ: 0,
-        MLXOBJ: 0,
-        MLXAMB: 0,
-        GYROX: 0,
-        GYROY: 0,
-        GYROZ: 0,
         DIGITAL: {
             0: 0,
             1: 0,
@@ -284,29 +251,31 @@ Module.prototype.isRecentData = function (port, type, data) {
     // var isRecent = false;
 
     // if (type == this.sensorTypes.ULTRASONIC) {
-    //     var portString = port.toString();
-    //     var isGarbageClear = false;
-    //     Object.keys(this.recentCheckData).forEach(function (key) {
-    //         var recent = that.recentCheckData[key];
-    //         if (key === portString) {
-    //         }
-    //         if (key !== portString && recent.type == that.sensorTypes.ULTRASONIC) {
-    //             delete that.recentCheckData[key];
-    //             isGarbageClear = true;
-    //         }
-    //     });
+    //   var portString = port.toString();
+    //   var isGarbageClear = false;
+    //   Object.keys(this.recentCheckData).forEach(function (key) {
+    //     var recent = that.recentCheckData[key];
+    //     if (key === portString) {
+    //     }
+    //     if (key !== portString && recent.type == that.sensorTypes.ULTRASONIC) {
+    //       delete that.recentCheckData[key];
+    //       isGarbageClear = true;
+    //     }
+    //   });
 
-    //     if ((port in this.recentCheckData && isGarbageClear) || !(port in this.recentCheckData)) {
-    //         isRecent = false;
-    //     } else {
-    //         isRecent = true;
-    //     }
-    // } else if (port in this.recentCheckData && type != this.sensorTypes.TONE) {
-    //     if (this.recentCheckData[port].type === type && this.recentCheckData[port].data === data) {
-    //         isRecent = true;
-    //     }
+    //   if ((port in this.recentCheckData && isGarbageClear) || !(port in this.recentCheckData)) {
+    //     isRecent = false;
+    //   }
+    //   else {
+    //     isRecent = true;
+    //   }
     // }
 
+    // else if (port in this.recentCheckData && type != this.sensorTypes.TONE) {
+    //   if (this.recentCheckData[port].type === type && this.recentCheckData[port].data === data) {
+    //     isRecent = true;
+    //   }
+    // }
     // return isRecent;
     let isRecent = false;
 
@@ -336,13 +305,12 @@ Module.prototype.requestLocalData = function () {
             }
         });
     }
-
     return null;
 };
 
 /*
-  ff 55 idx size data a
-  */
+ff 55 idx size data a
+*/
 Module.prototype.handleLocalData = function (data) {
     const self = this;
     const datas = this.getDataByBuffer(data);
@@ -410,36 +378,8 @@ Module.prototype.handleLocalData = function (data) {
                 //      console.log(self.sensorData.ULTRASONIC[port]);
                 break;
             }
-            case self.sensorTypes.DUST: {
-                self.sensorData.DUST = value;
-                break;
-            }
             case self.sensorTypes.TIMER: {
                 self.sensorData.TIMER = value;
-                break;
-            }
-            case self.sensorTypes.LOADVALUE: {
-                self.sensorData.LOADVALUE = value;
-                break;
-            }
-            case self.sensorTypes.RFIDTAP: {
-                self.sensorData.RFIDTAP = value;
-                // console.log('RFIDTAP');
-                // console.log(value);
-                break;
-            }
-            case self.sensorTypes.RFIDVALUE: {
-                value = value.substring(0, value.length - 1); //마지막에 쓰레기값 출력X
-                self.sensorData.RFIDVALUE = value;
-                // console.log(value);
-                break;
-            }
-            case self.sensorTypes.MLXOBJ: {
-                self.sensorData.MLXOBJ = value;
-                break;
-            }
-            case self.sensorTypes.MLXAMB: {
-                self.sensorData.MLXAMB = value;
                 break;
             }
             default: {
@@ -450,38 +390,25 @@ Module.prototype.handleLocalData = function (data) {
 };
 
 /*
-  ff 55 len idx action device port  slot  data a
-  0  1  2   3   4      5      6     7     8
-  */
+ff 55 len idx action device port  slot  data a
+0  1  2   3   4      5      6     7     8
+*/
 
+// GET
 Module.prototype.makeSensorReadBuffer = function (device, port, data) {
     let buffer;
     const dummy = new Buffer([10]);
     if (device == this.sensorTypes.DIGITAL) {
         //data 2: pull up, 0: normal
         //console.log(data)
-        buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port, data, 10]);
+        buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port, 0, 10]);
     } else if (device == this.sensorTypes.PULLUP) {
         //data 2: pull up, 0: normal
         //console.log(data)
         //pullup인 경우
-        buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port, data, 10]);
+        buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port, 2, 10]);
         //console.log(buffer);
-    } else if (device == this.sensorTypes.RFIDTAP) {
-        buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.GET, device, port, 10]);
     } else if (device == this.sensorTypes.ULTRASONIC) {
-        buffer = new Buffer([
-            255,
-            85,
-            6,
-            sensorIdx,
-            this.actionTypes.GET,
-            device,
-            port[0],
-            port[1],
-            10,
-        ]);
-    } else if (device == this.sensorTypes.DUST) {
         buffer = new Buffer([
             255,
             85,
@@ -497,18 +424,10 @@ Module.prototype.makeSensorReadBuffer = function (device, port, data) {
         buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.GET, device, port, 10]);
     } else if (device == this.sensorTypes.DHTHUMI) {
         buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.GET, device, port, 10]);
-    } else if (device == this.sensorTypes.LOADVALUE) {
-        buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.GET, device, port, 10]);
-    } else if (device == this.sensorTypes.RFIDVALUE) {
-        buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.GET, device, port, 10]);
-    } else if (device == this.sensorTypes.MLXOBJ) {
-        buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.GET, device, port, 10]);
-    } else if (device == this.sensorTypes.MLXAMB) {
-        buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.GET, device, port, 10]);
     } else if (!data) {
         buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.GET, device, port, 10]);
     } else {
-        let value = new Buffer(2);
+        value = new Buffer(2);
         value.writeInt16LE(data);
         buffer = new Buffer([255, 85, 7, sensorIdx, this.actionTypes.GET, device, port, 10]);
         buffer = Buffer.concat([buffer, value, dummy]);
@@ -522,6 +441,7 @@ Module.prototype.makeSensorReadBuffer = function (device, port, data) {
 };
 
 //0xff 0x55 0x6 0x0 0x1 0xa 0x9 0x0 0x0 0xa
+// SET
 Module.prototype.makeOutputBuffer = function (device, port, data) {
     let buffer;
     const value = new Buffer(2);
@@ -568,38 +488,6 @@ Module.prototype.makeOutputBuffer = function (device, port, data) {
             }
             buffer = new Buffer([255, 85, 8, sensorIdx, this.actionTypes.SET, device, port]);
             buffer = Buffer.concat([buffer, value, time, dummy]);
-            break;
-        }
-        case this.sensorTypes.RGBLED: {
-            const port1 = new Buffer(2);
-            const port2 = new Buffer(2);
-            const port3 = new Buffer(2);
-            const value1 = new Buffer(2);
-            const value2 = new Buffer(2);
-            const value3 = new Buffer(2);
-            port1.writeInt16LE(data.port1);
-            port2.writeInt16LE(data.port2);
-            port3.writeInt16LE(data.port3);
-            value1.writeInt16LE(data.value1);
-            value2.writeInt16LE(data.value2);
-            value3.writeInt16LE(data.value3);
-            // if ($.isPlainObject(data)) {
-            //   port1.writeInt16LE(data.port1);
-            //   port2.writeInt16LE(data.port2);
-            //   port3.writeInt16LE(data.port3);
-            //   value1.writeInt16LE(data.value1);
-            //   value2.writeInt16LE(data.value2);
-            //   value3.writeInt16LE(data.value3);
-            // } else {
-            //   port1.writeInt16LE(data.port1);
-            //   port2.writeInt16LE(data.port2);
-            //   port3.writeInt16LE(data.port3);
-            //   value1.writeInt16LE(0);
-            //   value2.writeInt16LE(0);
-            //   value3.writeInt16LE(0);
-            // }
-            buffer = new Buffer([255, 85, 16, sensorIdx, this.actionTypes.SET, device, port]);
-            buffer = Buffer.concat([buffer, port1, port2, port3, value1, value2, value3, dummy]);
             break;
         }
         case this.sensorTypes.DCMOTOR: {
@@ -684,116 +572,6 @@ Module.prototype.makeOutputBuffer = function (device, port, data) {
             buffer = Buffer.concat([buffer, dummy]);
             break;
         }
-        case this.sensorTypes.JOYINIT: {
-            const port1 = new Buffer(2);
-            const port2 = new Buffer(2);
-            const port3 = new Buffer(2);
-            if ($.isPlainObject(data)) {
-                port1.writeInt16LE(data.port1);
-                port2.writeInt16LE(data.port2);
-                port3.writeInt16LE(data.port3);
-            } else {
-                port1.writeInt16LE(0);
-                port2.writeInt16LE(0);
-                port3.writeInt16LE(0);
-            }
-            buffer = new Buffer([255, 85, 10, sensorIdx, this.actionTypes.SET, device, port]);
-            buffer = Buffer.concat([buffer, port1, port2, port3, dummy]);
-            break;
-        }
-        case this.sensorTypes.STEPINIT: {
-            const num = new Buffer(2);
-            const port1 = new Buffer(2);
-            const port2 = new Buffer(2);
-            const port3 = new Buffer(2);
-            const port4 = new Buffer(2);
-            if ($.isPlainObject(data)) {
-                num.writeInt16LE(data.num);
-                port1.writeInt16LE(data.port1);
-                port2.writeInt16LE(data.port2);
-                port3.writeInt16LE(data.port3);
-                port4.writeInt16LE(data.port4);
-            } else {
-                num.writeInt16LE(0);
-                port1.writeInt16LE(0);
-                port2.writeInt16LE(0);
-                port3.writeInt16LE(0);
-                port4.writeInt16LE(0);
-            }
-            buffer = new Buffer([255, 85, 14, sensorIdx, this.actionTypes.SET, device, port]);
-            buffer = Buffer.concat([buffer, num, port1, port2, port3, port4, dummy]);
-            break;
-        }
-        case this.sensorTypes.STEPSPEED: {
-            const num = new Buffer(2);
-            const speed = new Buffer(2);
-            if ($.isPlainObject(data)) {
-                num.writeInt16LE(data.num);
-                speed.writeInt16LE(data.speed);
-            } else {
-                num.writeInt16LE(0);
-                speed.writeInt16LE(0);
-            }
-            buffer = new Buffer([255, 85, 8, sensorIdx, this.actionTypes.SET, device, port]);
-            buffer = Buffer.concat([buffer, num, speed, dummy]);
-            break;
-        }
-        case this.sensorTypes.STEPROTATE: {
-            const num = new Buffer(2);
-            const dir = new Buffer(2);
-            const val = new Buffer(4);
-            if ($.isPlainObject(data)) {
-                num.writeInt16LE(data.num);
-                dir.writeInt16LE(data.dir);
-                val.writeFloatLE(data.val);
-            } else {
-                num.writeInt16LE(0);
-                dir.writeInt16LE(0);
-                val.writeFloatLE(0);
-            }
-            buffer = new Buffer([255, 85, 12, sensorIdx, this.actionTypes.SET, device, port]);
-            buffer = Buffer.concat([buffer, num, dir, val, dummy]);
-            break;
-        }
-        case this.sensorTypes.STEPROTATE2: {
-            const num = new Buffer(2);
-            const dir = new Buffer(2);
-            const val = new Buffer(4);
-            if ($.isPlainObject(data)) {
-                num.writeInt16LE(data.num);
-                dir.writeInt16LE(data.dir);
-                val.writeFloatLE(data.val);
-            } else {
-                num.writeInt16LE(0);
-                dir.writeInt16LE(0);
-                val.writeFloatLE(0);
-            }
-            buffer = new Buffer([255, 85, 12, sensorIdx, this.actionTypes.SET, device, port]);
-            buffer = Buffer.concat([buffer, num, dir, val, dummy]);
-            break;
-        }
-        case this.sensorTypes.STEPROTATE3: {
-            const num = new Buffer(2);
-            const dir = new Buffer(2);
-            const sec = new Buffer(2);
-            if ($.isPlainObject(data)) {
-                num.writeInt16LE(data.num);
-                dir.writeInt16LE(data.dir);
-                sec.writeInt16LE(data.sec);
-            } else {
-                num.writeInt16LE(0);
-                dir.writeInt16LE(0);
-                sec.writeInt16LE(0);
-            }
-            buffer = new Buffer([255, 85, 10, sensorIdx, this.actionTypes.SET, device, port]);
-            buffer = Buffer.concat([buffer, num, dir, sec, dummy]);
-            break;
-        }
-        case this.sensorTypes.STEPSTOP: {
-            buffer = new Buffer([255, 85, 4, sensorIdx, this.actionTypes.SET, device, port]);
-            buffer = Buffer.concat([buffer, dummy]);
-            break;
-        }
         case this.sensorTypes.DOTMATRIXINIT: {
             const port1 = new Buffer(2);
             const port2 = new Buffer(2);
@@ -818,12 +596,12 @@ Module.prototype.makeOutputBuffer = function (device, port, data) {
             break;
         }
         case this.sensorTypes.DOTMATRIX: {
-            let text;
-            let textLen = 0;
-            let textLenBuf = new Buffer(2);
+            var text;
+            var textLen = 0;
+            var textLenBuf = Buffer(2);
             if ($.isPlainObject(data)) {
-                textLen = data.text.length;
-                text = Buffer.from(data.text);
+                textLen = ('' + data.text).length;
+                text = Buffer.from('' + data.text);
                 textLenBuf.writeInt16LE(textLen);
             } else {
                 textLen = 0;
@@ -854,9 +632,9 @@ Module.prototype.makeOutputBuffer = function (device, port, data) {
             break;
         }
         case this.sensorTypes.LCDINIT: {
-            let list = new Buffer(2);
-            let line = new Buffer(2);
-            let col = new Buffer(2);
+            var list = new Buffer(2);
+            var line = new Buffer(2);
+            var col = new Buffer(2);
             if ($.isPlainObject(data)) {
                 list.writeInt16LE(data.list);
                 line.writeInt16LE(data.line);
@@ -873,7 +651,6 @@ Module.prototype.makeOutputBuffer = function (device, port, data) {
             break;
         }
         case this.sensorTypes.LCD: {
-            // var text;
             var text;
             var line = new Buffer(2);
             var col = new Buffer(2);
@@ -979,49 +756,7 @@ Module.prototype.makeOutputBuffer = function (device, port, data) {
             buffer = Buffer.concat([buffer, tx, vol, dummy]);
             break;
         }
-        case this.sensorTypes.LOADINIT: {
-            const port1 = new Buffer(2);
-            const port2 = new Buffer(2);
-            if ($.isPlainObject(data)) {
-                port1.writeInt16LE(data.port1);
-                port2.writeInt16LE(data.port2);
-            } else {
-                port1.writeInt16LE(0);
-                port2.writeInt16LE(0);
-            }
-            buffer = new Buffer([255, 85, 8, sensorIdx, this.actionTypes.SET, device, port]);
-            buffer = Buffer.concat([buffer, port1, port2, dummy]);
-            break;
-        }
-        case this.sensorTypes.LOADSCALE: {
-            const num = new Buffer(4);
-            if ($.isPlainObject(data)) {
-                num.writeFloatLE(data.num);
-            } else {
-                num.writeFloatLE(0);
-            }
-            console.log(num);
-            buffer = new Buffer([255, 85, 8, sensorIdx, this.actionTypes.SET, device, port]);
-            buffer = Buffer.concat([buffer, num, dummy]);
-
-            break;
-        }
-        case this.sensorTypes.RFIDINIT: {
-            const port1 = new Buffer(2);
-            const port2 = new Buffer(2);
-            if ($.isPlainObject(data)) {
-                port1.writeInt16LE(data.port1);
-                port2.writeInt16LE(data.port2);
-            } else {
-                port1.writeInt16LE(0);
-                port2.writeInt16LE(0);
-            }
-            buffer = new Buffer([255, 85, 8, sensorIdx, this.actionTypes.SET, device, port]);
-            buffer = Buffer.concat([buffer, port1, port2, dummy]);
-            break;
-        }
     }
-
     return buffer;
 };
 
