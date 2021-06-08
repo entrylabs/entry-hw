@@ -5,10 +5,7 @@
         "ko": "에듀래빗 클로버"
     },
     "category": "board",
-    "platform": [
-        "win32",
-        "darwin"
-    ],
+    "platform": ["win32", "darwin"],
     "icon": "CloverSEntry1.png",
     "module": "CloverSEntry1.js",
     "url": "http://edu-rabbit.com",
@@ -16,7 +13,7 @@
     "driver": {
         "win32-ia32": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
         "win32-x64": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
-        "darwin-x64": "https://entrylabs.github.io/docs/files/drivers/CH34x_Install_MAC_10_9_AND_ABOVE/CH34x_Install_V1.3.pkg"
+        "darwin-x64": "CH34x_Install_MAC_10_9_AND_ABOVE/CH34x_Install_V1.3.pkg"
     },
     "reconnect": true,
     "firmware": "CloverSEntry1",
