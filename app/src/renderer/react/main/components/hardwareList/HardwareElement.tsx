@@ -87,13 +87,16 @@ const HardwareElement: React.FC<{ hardware: IHardwareConfig }> = (props) => {
     const dispatch = useDispatch();
     const { hardware } = props;
     const { availableType } = hardware;
-    const [currVersion, setCurrVersion] = useState(hardware.version || '1.0.0');
+    const [currVersion, setCurrVersion] = useState(hardware.version);
     const [showVerDropdown, setShowVerDropdown] = useState(false);
     // imageStatus = error counter;
     const [imageStatus, setImageStatus] = useState(0);
     const langType = useMemo(() => translator.currentLanguage, [translator]);
     const onElementClick = useCallback(() => {
-        if (!hardware.version || hardware.version === currVersion) {
+        if (
+            hardware.version === currVersion &&
+            hardware.availableType !== HardwareAvailableTypeEnum.needDownload
+        ) {
             selectHardware(dispatch)(hardware);
             changeCurrentPageState(dispatch)(HardwarePageStateEnum.connection);
         } else {
@@ -200,7 +203,7 @@ const HardwareElement: React.FC<{ hardware: IHardwareConfig }> = (props) => {
             <HardwareThumbnailContainer onClick={onElementClick}>
                 <HardwareThumbnailImg
                     src={getImageBaseSrc}
-                    isGray={hardware.version ? hardware.version !== currVersion : false}
+                    isGray={hardware.availableType !== HardwareAvailableTypeEnum.available}
                     alt=""
                     onError={() => {
                         setImageStatus(imageStatus + 1);

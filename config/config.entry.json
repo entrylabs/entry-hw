@@ -1,4 +1,4 @@
 {
     "updateCheckUrl": "https://playentry.org/api/checkVersion",
-    "moduleResourceUrl": "http://local.playentry.org/modules"
+    "moduleResourceUrl": "https://entry2-hw.playentry.org/modules"
 }
