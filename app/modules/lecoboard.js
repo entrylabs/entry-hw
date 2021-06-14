@@ -100,14 +100,15 @@ let sensorIdx = 0;
 
 Module.prototype.init = function(handler, config) {
 
-    //console.log('init......');
+    console.log('init......');
 
 };
 
 Module.prototype.setSerialPort = function(sp) {
     const self = this;
     this.sp = sp;
-    //console.log('setSerialPort');
+    console.log('setSerialPort');  
+
 };
 
 Module.prototype.requestInitialData = function() {
