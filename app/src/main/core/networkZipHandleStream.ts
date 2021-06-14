@@ -22,7 +22,7 @@ export default class NetworkZipHandleStream extends Stream.PassThrough {
 
         // eslint-disable-next-line new-cap
         // @ts-ignore
-        const tarParse: ParseStream = new tar.Parse({ onentry: true });
+        const tarParse: ParseStream = new tar.Parse();
 
         tarParse.on('error', (e) => {
             throw e;
