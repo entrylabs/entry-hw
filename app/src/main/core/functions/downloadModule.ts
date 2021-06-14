@@ -99,7 +99,7 @@ const downloadBlockFile = async (
                                 path.join(blockPath, 'block'),
                                 await server.requestEncryption(data)
                             );
-                            resolve();
+                            resolve(null);
                         });
                     });
                     request.end();
@@ -112,6 +112,7 @@ const downloadBlockFile = async (
 };
 
 const moveFirmwareAndDriverDirectory = async () => {
+    console.log('MOVE PATH');
     const appDirPath = path.join(directoryPaths.moduleRoot());
     const moduleDirPath = path.join(appDirPath, 'modules');
     const srcDriverDirPath = path.join(moduleDirPath, 'drivers');
@@ -127,7 +128,7 @@ const moveFirmwareAndDriverDirectory = async () => {
                     await fileUtils.moveFileOrDirectory(srcDriverDirPath, destDriverDirPath);
                     await fileUtils.rmdir(srcDriverDirPath);
                 }
-                resolve();
+                resolve(null);
             }),
             new Promise(async (resolve) => {
                 if (fs.pathExistsSync(srcFirmwaresDirPath)) {
@@ -137,7 +138,7 @@ const moveFirmwareAndDriverDirectory = async () => {
                     await fileUtils.moveFileOrDirectory(srcFirmwaresDirPath, destFirmwareDirPath);
                     await fileUtils.rmdir(srcFirmwaresDirPath);
                 }
-                resolve();
+                resolve(null);
             }),
         ]);
         logger.info('driver, firmware file move success');

@@ -22,41 +22,34 @@ export default class NetworkZipHandleStream extends Stream.PassThrough {
 
         // eslint-disable-next-line new-cap
         // @ts-ignore
-        const tarParse: ParseStream = new tar.Parse();
+        const tarParse: ParseStream = new tar.Parse({ onentry: true });
 
         tarParse.on('error', (e) => {
             throw e;
         });
-        this.on('error', (e) => {
-            throw e;
-        });
 
-        tarParse.on('entry', (entry) => {
+        tarParse.on('entry', async (entry) => {
             const type = entry.type;
             const fileName = entry.path;
-            if (type === 'File') {
-                const filePath = path.join(targetPath, fileName);
+            const filePath = path.join(targetPath, fileName);
 
-                // 경로가 1depth 이상의 디렉토리로 구성되어있는 경우
-                if (fileName.indexOf('/') >= 0) {
-                    fs.ensureDirSync(path.dirname(filePath));
-                }
-                const fileWriteStream = fs.createWriteStream(filePath);
-
-                fileList.push(path.basename(filePath));
-                fileWriteStreamPromises.push(new Promise((resolve, reject) => {
-                    fileWriteStream.on('error', reject);
-                    fileWriteStream.on('finish', resolve);
-                }));
-                entry.pipe(fileWriteStream);
-            } else if (type === 'Directory') {
-                const fileWriteStream = fs.createWriteStream(path.join(targetPath, fileName));
-                fileWriteStreamPromises.push(new Promise((resolve, reject) => {
-                    fileWriteStream.on('error', reject);
-                    fileWriteStream.on('finish', resolve);
-                }));
-                entry.pipe(fileWriteStream);
-            }
+            fs.ensureDirSync(path.dirname(filePath));
+            const writeStream = fs.createWriteStream(filePath);
+            fileList.push(path.basename(filePath));
+            fileWriteStreamPromises.push(
+                // @ts-ignore
+                new Promise((resolve, reject) => {
+                    try {
+                        writeStream.on('error', reject);
+                        writeStream.on('finish', resolve);
+                    } catch (err) {
+                        console.log(err);
+                    }
+                }).catch((err) => {
+                    console.log(err);
+                })
+            );
+            entry.pipe(writeStream);
         });
         tarParse.on('close', () => {
             Promise.all(fileWriteStreamPromises)
@@ -72,4 +65,4 @@ export default class NetworkZipHandleStream extends Stream.PassThrough {
 
         this.pipe(tarParse);
     }
-};
+}
