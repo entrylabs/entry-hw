@@ -28,14 +28,7 @@ class RendererRouter {
     }
 
     get sharedObject(): ISharedObject {
-        if (remote?.getGlobal) {
-            return remote.getGlobal('sharedObject');
-        }
         return ipcRenderer.sendSync('getSharedObject');
-    }
-
-    get currentWindow() {
-        return remote.getCurrentWindow();
     }
 
     constructor() {
@@ -51,6 +44,10 @@ class RendererRouter {
             this.consoleWriteServerMode(mode);
         });
         webFrame.setZoomFactor(1.0);
+    }
+
+    closeAboutWindow() {
+        ipcRenderer.sendSync('closeAboutWindow');
     }
 
     startScan(hardware: IHardwareConfig) {

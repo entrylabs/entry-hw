@@ -147,6 +147,10 @@ if (!app.requestSingleInstanceLock()) {
         mainWindow?.close();
     });
 
+    ipcMain.on('closeAboutWindow', () => {
+        WindowManager.aboutWindow && WindowManager.aboutWindow.hide();
+    });
+
     ipcMain.on('showMessageBox', (e, msg) => {
         dialog.showMessageBoxSync({
             type: 'none',
