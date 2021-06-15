@@ -14,6 +14,8 @@ function Module() {
         LCD_COMMAND: 10,
         BLE_WRITE: 11,
         BLE_READ: 12,
+        ARM_XYZ: 13,
+        ARM_WG: 14,
     };
 
     this.actionTypes = {
@@ -98,14 +100,15 @@ let sensorIdx = 0;
 
 Module.prototype.init = function(handler, config) {
 
-    //console.log('init......');
+    console.log('init......');
 
 };
 
 Module.prototype.setSerialPort = function(sp) {
     const self = this;
     this.sp = sp;
-    //console.log('setSerialPort');
+    console.log('setSerialPort');  
+
 };
 
 Module.prototype.requestInitialData = function() {
@@ -458,7 +461,41 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
     const text14 = new Buffer(2);
     const text15 = new Buffer(2);
 
-    switch (device) {
+    switch (device) {  
+        case this.sensorTypes.ARM_XYZ:
+            const ARM_value_x = new Buffer(2);
+            const ARM_value_y = new Buffer(2);
+            const ARM_value_z = new Buffer(2);
+            ARM_value_x.writeInt16LE(data.value_x);
+            ARM_value_y.writeInt16LE(data.value_y);
+            ARM_value_z.writeInt16LE(data.value_z);
+            buffer = new Buffer([
+                255,
+                85,
+                10,
+                sensorIdx,
+                this.actionTypes.SET,
+                device,
+                port,
+            ]);
+            buffer = Buffer.concat([buffer, ARM_value_x,ARM_value_y,ARM_value_z, dummy]);
+            break;
+        case this.sensorTypes.ARM_WG:
+            const ARM_value_w = new Buffer(2);
+            const ARM_value_g = new Buffer(2);
+            ARM_value_w.writeInt16LE(data.value_w);
+            ARM_value_g.writeInt16LE(data.value_g);
+            buffer = new Buffer([
+                255,
+                85,
+                8,
+                sensorIdx,
+                this.actionTypes.SET,
+                device,
+                port,
+            ]);
+            buffer = Buffer.concat([buffer, ARM_value_w,ARM_value_g, dummy]);
+            break;
         case this.sensorTypes.SERVO_PIN:
         case this.sensorTypes.DIGITAL:
         case this.sensorTypes.PWM: {

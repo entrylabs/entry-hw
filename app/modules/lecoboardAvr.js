@@ -463,12 +463,12 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
 
     switch (device) {  
         case this.sensorTypes.ARM_XYZ:
-            const value_x = new Buffer(2);
-            const value_y = new Buffer(2);
-            const value_z = new Buffer(2);
-            value_x.writeInt16LE(data.value_x);
-            value_y.writeInt16LE(data.value_y);
-            value_z.writeInt16LE(data.value_z);
+            const ARM_value_x = new Buffer(2);
+            const ARM_value_y = new Buffer(2);
+            const ARM_value_z = new Buffer(2);
+            ARM_value_x.writeInt16LE(data.value_x);
+            ARM_value_y.writeInt16LE(data.value_y);
+            ARM_value_z.writeInt16LE(data.value_z);
             buffer = new Buffer([
                 255,
                 85,
@@ -478,13 +478,13 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
                 device,
                 port,
             ]);
-            buffer = Buffer.concat([buffer, value_x,value_y,value_z, dummy]);
+            buffer = Buffer.concat([buffer, ARM_value_x,ARM_value_y,ARM_value_z, dummy]);
             break;
         case this.sensorTypes.ARM_WG:
-            const value_w = new Buffer(2);
-            const value_g = new Buffer(2);
-            value_w.writeInt16LE(data.value_w);
-            value_g.writeInt16LE(data.value_g);
+            const ARM_value_w = new Buffer(2);
+            const ARM_value_g = new Buffer(2);
+            ARM_value_w.writeInt16LE(data.value_w);
+            ARM_value_g.writeInt16LE(data.value_g);
             buffer = new Buffer([
                 255,
                 85,
@@ -494,7 +494,7 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
                 device,
                 port,
             ]);
-            buffer = Buffer.concat([buffer, value_w,value_g, dummy]);
+            buffer = Buffer.concat([buffer, ARM_value_w,ARM_value_g, dummy]);
             break;
         case this.sensorTypes.SERVO_PIN:
         case this.sensorTypes.DIGITAL:
