@@ -312,15 +312,18 @@ class parodule extends BaseModule {
                 var r = new Buffer(3);
                 var g = new Buffer(3);
                 var b = new Buffer(3);
+                var n = new Buffer(3);
                 if ($.isPlainObject(data)) {
                     r.writeInt16LE(data.r);
                     g.writeInt16LE(data.g);
                     b.writeInt16LE(data.b);
+                    n.writeInt16LE(data.n);
                 }
                 else {
                     r.writeInt16LE(0);
                     g.writeInt16LE(0);
                     b.writeInt16LE(0);
+                    n.writeInt16LE(1000);
                 }
                 buffer = new Buffer([
                     255,
@@ -331,7 +334,7 @@ class parodule extends BaseModule {
                     device,
                     port,
                 ]);
-                buffer = Buffer.concat([buffer, r, g, b, dummy]);
+                buffer = Buffer.concat([buffer,n, r, g, b, dummy]);
                 break;
             }
         }
