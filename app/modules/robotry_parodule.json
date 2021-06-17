@@ -1,0 +1,32 @@
+{
+    "id": "440201",
+    "name": {
+        "en": "Parodule",
+        "ko": "파로듈"
+    },
+    "category": "board",
+    "platform": ["win32", "darwin"],
+    "icon": "robotry_parodule.png",
+    "module": "robotry_parodule.js",
+    "url": "http://robotry.co.kr",
+    "email": "hee.kim6133@gmail.com",
+    "driver": [{
+        "win32-ia32": "arduino/dpinst-x86.exe",
+        "win32-x64": "arduino/dpinst-amd64.exe",
+		"translate": "드라이버 설치"
+    }],
+    "firmwareBaudRate": 115200,
+    "selectPort": true,
+    "reconnect": true,  
+    "firmware": "parodule",
+    "hardware": {
+        "type": "serial",
+        "control": "slave",
+        "duration": 32,
+        "vendor": "",
+        "baudRate": 115200,
+        "lostTimer": 10000,
+        "byteDelimiter": [13, 10],
+        "firmwarecheck": false
+    }
+}
