@@ -6,7 +6,7 @@
     },
     "category": "board",
     "platform": ["win32", "darwin"],
-    "icon": "robotry.png",
+    "icon": "robotry_robitStage.png",
     "module": "robotry_robitStage.js",
     "url": "http://robotry.co.kr",
     "email": "hee.kim6133@robotry.co.kr",
