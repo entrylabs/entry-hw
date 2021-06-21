@@ -87,6 +87,7 @@ class ServerProcessManager {
                 this.childProcess.on('message', (message: { key: string; value: any }) => {
                     const { key, value } = message;
                     if (key === methodName) {
+                        this.childProcess.removeAllListeners('message');
                         this._receiveFromChildEventRegister();
                         resolve(value);
                     }
