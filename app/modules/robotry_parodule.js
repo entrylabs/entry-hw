@@ -309,21 +309,23 @@ class parodule extends BaseModule {
                 break;
             }
             case this.sensorTypes.NEO_LED: {
-                var r = new Buffer(3);
-                var g = new Buffer(3);
-                var b = new Buffer(3);
-                var n = new Buffer(3);
+                
+                var m = new Buffer(2);
+                var n = new Buffer(2);
+                var h1 = new Buffer(2);
+                var h2 = new Buffer(3);
+                
+                
                 if ($.isPlainObject(data)) {
-                    r.writeInt16LE(data.r);
-                    g.writeInt16LE(data.g);
-                    b.writeInt16LE(data.b);
-                    n.writeInt16LE(data.n);
+                    m.writeInt16LE(data.m);     // buffer  7
+                    n.writeInt16LE(data.n);     // buffer  9
+                    h1.writeInt16LE(data.h1);   // buffer 11
+                    h2.writeInt16LE(data.h2);   // buffer 13
                 }
                 else {
-                    r.writeInt16LE(0);
-                    g.writeInt16LE(0);
-                    b.writeInt16LE(0);
-                    n.writeInt16LE(1000);
+                    m.writeInt16LE(0);   // mode 상태 0
+                    n.writeInt16LE(255); // 최대 연결가능한 LED 수
+                    //h.writeInt16LE(0);
                 }
                 buffer = new Buffer([
                     255,
@@ -332,9 +334,14 @@ class parodule extends BaseModule {
                     sensorIdx,
                     this.actionTypes.SET,
                     device,
-                    port,
+                    port, 
                 ]);
-                buffer = Buffer.concat([buffer,n, r, g, b, dummy]);
+                buffer = Buffer.concat([buffer, m, n, h1, h2, dummy]);
+                /*
+                for (var i = 0; i < buffer.length; i++){
+                    console.log(buffer[i]);
+                }
+                */
                 break;
             }
         }
