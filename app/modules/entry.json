@@ -6,34 +6,40 @@
     },
     "category": "board",
     "platform": ["win32", "darwin"],
-    "icon" : "entry.png",
+    "icon": "entry.png",
     "module": "entry.js",
     "url": "http://www.neweducation.co.kr",
     "email": "join@neweducation.co.kr",
     "video": "https://goo.gl/qSKsVi",
-    "driver": [{
-        "win32-ia32": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
-        "win32-x64": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
-        "darwin-x64": "https://entrylabs.github.io/docs/files/drivers/CH34x_Install_MAC_10_9_AND_ABOVE/CH34x_Install_V1.3.pkg",
-        "translate": "Arduino compatible driver"
-    }, {
-        "win32-ia32": "esensorbt/CP210xVCPInstaller_x86.exe",
-        "win32-x64": "esensorbt/CP210xVCPInstaller_x64.exe",
-        "darwin-x64": "Mac_OSX_VCP_Driver/SiLabsUSBDriverDisk.dmg",
-        "translate": "Bluetooth driver"
-    }],
-    "reconnect" : true,
+    "driver": [
+        {
+            "win32-ia32": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
+            "win32-x64": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
+            "darwin-x64": "CH34x_Install_MAC_10_9_AND_ABOVE/CH34x_Install_V1.3.pkg",
+            "translate": "Arduino compatible driver"
+        },
+        {
+            "win32-ia32": "esensorbt/CP210xVCPInstaller_x86.exe",
+            "win32-x64": "esensorbt/CP210xVCPInstaller_x64.exe",
+            "darwin-x64": "Mac_OSX_VCP_Driver/SiLabsUSBDriverDisk.dmg",
+            "translate": "Bluetooth driver"
+        }
+    ],
+    "reconnect": true,
     "selectPort": {
         "win32": false,
         "darwin": true
     },
-    "firmware": [{
-        "name": "entry",
-        "translate": "Install Firmware(Sensor Board)"
-    }, {
-        "name": "entrybt",
-        "translate": "Install Firmware(Sensor Board Bluetooth)"
-    }],
+    "firmware": [
+        {
+            "name": "entry",
+            "translate": "Install Firmware(Sensor Board)"
+        },
+        {
+            "name": "entrybt",
+            "translate": "Install Firmware(Sensor Board Bluetooth)"
+        }
+    ],
 
     "hardware": {
         "type": "serial",
