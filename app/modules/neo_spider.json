@@ -1,0 +1,23 @@
+{
+    "id": "410101",
+    "name": {
+        "en": "NeoSpider",
+        "ko": "네오스파이더"
+    },
+    "category": "robot",
+    "platform": ["win32", "darwin"],
+    "icon": "neo_spider.png",
+    "url": "http://www.neo3ds.com",
+    "email": "neo3ds@gmail.com",
+    "module": "neo_spider.js",
+    "reconnect": true,
+    "selectPort": true,
+    "hardware": {
+        "type": "bluetooth",
+        "control": "slave",
+        "duration": 32,
+        "vendor": "",
+        "baudRate": 115200,
+        "byteDelimiter": [13, 10]
+    }
+}
