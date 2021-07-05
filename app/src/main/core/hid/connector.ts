@@ -24,11 +24,12 @@ class HidConnector extends BaseConnector {
                         this.send(hwModule.requestInitialData());
                     } else {
                         this.device!.removeAllListeners('data');
-                        this.requestInitialDataInterval && clearInterval(this.requestInitialDataInterval);
+                        this.requestInitialDataInterval &&
+                            clearInterval(this.requestInitialDataInterval);
                         if (result) {
                             if (hwModule.registerIntervalSend) {
                                 hwModule.registerIntervalSend(
-                                    this._registerIntervalSend.bind(this),
+                                    this._registerIntervalSend.bind(this)
                                 );
                             }
                             resolve();
@@ -56,6 +57,9 @@ class HidConnector extends BaseConnector {
      */
     send(data: any) {
         if (this.device && data) {
+            if (typeof data === 'boolean') {
+                data = new Buffer([1]);
+            }
             try {
                 // TODO 현재는 EV3 만 쓰고 이는 featureReport 가 따로 없기 때문에 보류.
                 // const writer =
@@ -92,10 +96,7 @@ class HidConnector extends BaseConnector {
         }
 
         this.device.on('data', (data) => {
-            if (
-                !hwModule.validateLocalData ||
-                hwModule.validateLocalData(data)
-            ) {
+            if (!hwModule.validateLocalData || hwModule.validateLocalData(data)) {
                 if (!this.connected) {
                     this.connected = true;
                     this._sendState('connected');
@@ -137,10 +138,12 @@ class HidConnector extends BaseConnector {
     }
 
     private _registerIntervalSend(sendDataFunction: () => any, interval: number) {
-        this.registeredIntervals.push(setInterval(() => {
-            const data = sendDataFunction();
-            data && this.send(data);
-        }, interval));
+        this.registeredIntervals.push(
+            setInterval(() => {
+                const data = sendDataFunction();
+                data && this.send(data);
+            }, interval)
+        );
     }
 }
 
