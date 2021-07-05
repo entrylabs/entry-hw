@@ -1,3 +1,6 @@
+/* eslint-disable brace-style */
+/*jshint esversion: 6 */
+
 const byrobot_base = require('./byrobot_base');
 
 

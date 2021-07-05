@@ -1,3 +1,6 @@
+/* eslint-disable brace-style */
+/*jshint esversion: 6 */
+
 const BaseModule = require('./baseModule');
 
 
@@ -321,7 +324,7 @@ class byrobot_petrone_v2_drive extends BaseModule
         this.timeTransferNext       = 0;        // 전송 가능한 다음 시간
         this.timeTransferInterval   = 30;       // 최소 전송 시간 간격
 
-        this.countReqeustDevice     = 0;        // 장치에 데이터를 요청한 횟수 카운트
+        this.countRequestDevice     = 0;        // 장치에 데이터를 요청한 횟수 카운트
     }
 
     /*
@@ -554,7 +557,7 @@ class byrobot_petrone_v2_drive extends BaseModule
         this.timeTransferNext               = 0;        // 전송 가능한 다음 시간
         this.timeTransferInterval           = 30;       // 최소 전송 시간 간격
 
-        this.countReqeustDevice             = 0;        // 장치에 데이터를 요청한 횟수 카운트
+        this.countRequestDevice             = 0;        // 장치에 데이터를 요청한 횟수 카운트
     }
 
 
@@ -1554,7 +1557,7 @@ class byrobot_petrone_v2_drive extends BaseModule
                     handler.write(key, state[key]);
                 }
 
-                state._updated == false;
+                state._updated = false;
                 //this.log("transferForEntry() / state", "");
             }
         }
@@ -1569,7 +1572,7 @@ class byrobot_petrone_v2_drive extends BaseModule
                     handler.write(key, imu[key]);
                 }
 
-                imu._updated == false;
+                imu._updated = false;
                 //this.log("transferForEntry() / imu", "");
             }
         }
@@ -1584,7 +1587,7 @@ class byrobot_petrone_v2_drive extends BaseModule
                     handler.write(key, pressure[key]);
                 }
 
-                pressure._updated == false;
+                pressure._updated = false;
                 //this.log("transferForEntry() / pressure", "");
             }
         }
@@ -1599,7 +1602,7 @@ class byrobot_petrone_v2_drive extends BaseModule
                     handler.write(key, imageflow[key]);
                 }
 
-                imageflow._updated == false;
+                imageflow._updated = false;
                 //this.log("transferForEntry() / imageflow", "");
             }
         }
@@ -1614,7 +1617,7 @@ class byrobot_petrone_v2_drive extends BaseModule
                     handler.write(key, range[key]);
                 }
 
-                range._updated == false;
+                range._updated = false;
                 //this.log("transferForEntry() / range", "");
             }
         }
@@ -1629,7 +1632,7 @@ class byrobot_petrone_v2_drive extends BaseModule
                     handler.write(key, irmessage[key]);
                 }
 
-                irmessage._updated == false;
+                irmessage._updated = false;
                 //this.log("transferForEntry() / irmessage", "");
             }
         }
@@ -2120,7 +2123,7 @@ class byrobot_petrone_v2_drive extends BaseModule
         {
             let buffer = new ArrayBuffer(4);
             let float32View = new Float32Array(buffer, 0, 1);
-            let uint8View = new Uint8Array(buffer, 0, 4)
+            let uint8View = new Uint8Array(buffer, 0, 4);
             uint8View[0] = dataArray[startIndex];
             uint8View[1] = dataArray[startIndex + 1];
             uint8View[2] = dataArray[startIndex + 2];
@@ -2139,22 +2142,22 @@ class byrobot_petrone_v2_drive extends BaseModule
     getByte0(b)
     {
         return (b & 0xff);
-    };
+    }
 
     getByte1(b)
     {
         return ((b >> 8) & 0xff);
-    };
+    }
 
     getByte2(b)
     {
         return ((b >> 16) & 0xff);
-    };
+    }
 
     getByte3(b)
     {
         return ((b >> 24) & 0xff);
-    };
+    }
 
 
     // 장치에 데이터 전송
@@ -2174,12 +2177,12 @@ class byrobot_petrone_v2_drive extends BaseModule
             this.bufferTransfer = [];
         }
 
-        this.countReqeustDevice++;
+        this.countRequestDevice++;
 
         if( this.bufferTransfer.length == 0 )
         {
             // 예약된 요청이 없는 경우 데이터 요청 등록(현재는 자세 데이터 요청)
-            switch( this.countReqeustDevice % 14 )
+            switch( this.countRequestDevice % 14 )
             {
             case 0:
                 return this.ping(0x30);                     // 페트론V2 드론
@@ -2210,7 +2213,7 @@ class byrobot_petrone_v2_drive extends BaseModule
         {
             /*
             // 예약된 요청이 있는 경우에도 간헐적으로 장치 검색(연결 유지를 위해)
-            switch( this.countReqeustDevice % 24 )
+            switch( this.countRequestDevice % 24 )
             {
             case 3:
                 return this.ping(0x30);
@@ -2238,7 +2241,7 @@ class byrobot_petrone_v2_drive extends BaseModule
             }
             // */
             // 예약된 요청이 없는 경우 데이터 요청 등록(현재는 자세 데이터 요청)
-            switch (this.countReqeustDevice % 3)
+            switch (this.countRequestDevice % 3)
             {
                 case 1:
                     return this.reserveRequest(0x30, 0xD1);     // 페트론V2 드론, 자주 갱신되는 데이터 모음(엔트리)
