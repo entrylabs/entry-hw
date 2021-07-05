@@ -5,8 +5,11 @@
         "ko": "네오봇(전용 동글)"
     },
     "category": "module",
-    "platform": ["win32", "darwin"],
-    "icon" : "neobot.png",
+    "platform": [
+        "win32",
+        "darwin"
+    ],
+    "icon": "neobot.png",
     "module": "neobot.js",
     "url": "http://neobot.co.kr/",
     "email": "neobot@neobot.co.kr",
@@ -15,15 +18,16 @@
         "win32-x64": "CP210x_VCP_Windows/CP210xVCPInstaller_x64.exe",
         "darwin-x64": "Mac_OSX_VCP_Driver/SiLabsUSBDriverDisk.dmg"
     },
-    "reconnect" : true,
-    "entry": {
-        "protocol": "json"
-    },
+    "reconnect": true,
     "hardware": {
-        "pnpId" : "PID",
+        "pnpId": "PID",
         "type": "serial",
         "control": "master",
-        "vendor": "Silicon Labs",
+        "vendor": [
+            "neobot",
+            "Silicon Labs",
+            "Microsoft"
+        ],
         "duration": 32,
         "baudRate": 115200
     }
