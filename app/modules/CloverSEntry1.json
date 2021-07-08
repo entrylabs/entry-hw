@@ -5,10 +5,7 @@
         "ko": "에듀래빗 클로버"
     },
     "category": "board",
-    "platform": [
-        "win32",
-        "darwin"
-    ],
+    "platform": ["win32", "darwin"],
     "icon": "CloverSEntry1.png",
     "module": "CloverSEntry1.js",
     "url": "http://edu-rabbit.com",

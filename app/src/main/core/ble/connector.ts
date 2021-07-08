@@ -1,7 +1,7 @@
 import BaseConnector from '../baseConnector';
 import IpcMainManager from '../ipcMainManager';
 
-type IBLECommandMessage = { key: string, value: string, callback?: () => void | Promise<void>; }
+type IBLECommandMessage = { key: string; value: string; callback?: () => void | Promise<void> };
 
 class BleConnector extends BaseConnector {
     get commandQueueCheckDuration() {
@@ -71,7 +71,6 @@ class BleConnector extends BaseConnector {
         this._checkCommandQueue();
         this._sendState('connected');
     }
-
 
     async send(data: any) {
         if (this.connected) {

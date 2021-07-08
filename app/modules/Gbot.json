@@ -9,8 +9,8 @@
     "icon": "Gbot.png",
     "module": "Gbot.js",
     "url": "https://www.gbot123.com",
-	"email": "mars7765@naver.com",
-	"video": "http://bit.ly/3llVwTT",
+    "email": "mars7765@naver.com",
+    "video": "http://bit.ly/3llVwTT",
     "driver": {
         "win32-ia32": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
         "win32-x64": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",

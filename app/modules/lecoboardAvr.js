@@ -14,6 +14,8 @@ function Module() {
         LCD_COMMAND: 10,
         BLE_WRITE: 11,
         BLE_READ: 12,
+        ARM_XYZ: 13,
+        ARM_WG: 14,
     };
 
     this.actionTypes = {
@@ -98,14 +100,15 @@ let sensorIdx = 0;
 
 Module.prototype.init = function(handler, config) {
 
-    //console.log('init......');
+    console.log('init......');
 
 };
 
 Module.prototype.setSerialPort = function(sp) {
     const self = this;
     this.sp = sp;
-    //console.log('setSerialPort');
+    console.log('setSerialPort');  
+
 };
 
 Module.prototype.requestInitialData = function() {
@@ -114,14 +117,7 @@ Module.prototype.requestInitialData = function() {
 };
 
 Module.prototype.checkInitialData = function(data, config) {
-    //console.log('checkInitialData');
     return true;
-    // 이후에 체크 로직 개선되면 처리
-    //var datas = this.getDataByBuffer(data);
-    //var isValidData = datas.some(function (data) {
-    //    return (data.length > 4 && data[0] === 255 && data[1] === 85);
-    //});
-    //return isValidData;
 };
 
 Module.prototype.afterConnect = function(that, cb) {
@@ -458,7 +454,47 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
     const text14 = new Buffer(2);
     const text15 = new Buffer(2);
 
-    switch (device) {
+    
+    const ARM_value_x = new Buffer(2);
+    const ARM_value_y = new Buffer(2);
+    const ARM_value_z = new Buffer(2);
+    const ARM_value_w = new Buffer(2);
+    const ARM_value_g = new Buffer(2);    
+
+    const line = new Buffer(2);
+    const column = new Buffer(2);
+    
+    const time = new Buffer(2);
+    switch (device) {  
+        case this.sensorTypes.ARM_XYZ:
+            ARM_value_x.writeInt16LE(data.value_x);
+            ARM_value_y.writeInt16LE(data.value_y);
+            ARM_value_z.writeInt16LE(data.value_z);
+            buffer = new Buffer([
+                255,
+                85,
+                10,
+                sensorIdx,
+                this.actionTypes.SET,
+                device,
+                port,
+            ]);
+            buffer = Buffer.concat([buffer, ARM_value_x,ARM_value_y,ARM_value_z, dummy]);
+            break;
+        case this.sensorTypes.ARM_WG:            
+            ARM_value_w.writeInt16LE(data.value_w);
+            ARM_value_g.writeInt16LE(data.value_g);
+            buffer = new Buffer([
+                255,
+                85,
+                8,
+                sensorIdx,
+                this.actionTypes.SET,
+                device,
+                port,
+            ]);
+            buffer = Buffer.concat([buffer, ARM_value_w,ARM_value_g, dummy]);
+            break;
         case this.sensorTypes.SERVO_PIN:
         case this.sensorTypes.DIGITAL:
         case this.sensorTypes.PWM: {
@@ -476,7 +512,6 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
             break;
         }
         case this.sensorTypes.TONE: {
-            const time = new Buffer(2);
             if ($.isPlainObject(data)) {
                 value.writeInt16LE(data.value);
                 time.writeInt16LE(data.duration);
@@ -497,11 +532,6 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
             break;
         }
         case this.sensorTypes.LCD: {
-            //console.log("LCD");
-
-            const line = new Buffer(2);
-            const column = new Buffer(2);
-
             if ($.isPlainObject(data)) {
                 line.writeInt16LE(data.line);
                 column.writeInt16LE(data.column);
@@ -509,7 +539,6 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
                 line.writeInt16LE(0);
                 column.writeInt16LE(0);
             }
-            //if (true) {
             if ($.isPlainObject(data)) {
                 text0.writeInt16LE(data.text0);
                 text1.writeInt16LE(data.text1);
@@ -545,22 +574,12 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
                 text14.writeInt16LE(0);
                 text15.writeInt16LE(0);
             }
-
-
-            //buffer = new Buffer([255, 85, 8, sensorIdx, this.actionTypes.SET, device, port]);
-            //buffer = Buffer.concat([buffer, line, column, dummy]);
-
             buffer = new Buffer([255, 85, 40, sensorIdx, this.actionTypes.SET, device, port]);
             buffer = Buffer.concat([buffer, line, column, text0, text1, text2, text3, text4, text5, text6, text7, text8, text9, text10, text11, text12, text13, text14, text15, dummy]);
-
-            //console.log(buffer);
 
             break;
         }
         case this.sensorTypes.LCD_COMMAND: {
-            //console.log("LCD_COMMAND");
-
-
             const command = new Buffer(2);
             if ($.isPlainObject(data)) {
                 value.writeInt16LE(data.value);
@@ -578,15 +597,9 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
             buffer = new Buffer([255, 85, 7, sensorIdx, this.actionTypes.SET, device, port]);
             buffer = Buffer.concat([buffer, value, command, dummy]);
 
-
-            //console.log(buffer);
-
             break;
         }
         case this.sensorTypes.BLE_WRITE: {
-            //console.log("BLE_WRITE");
-
-            //if (true) {
             if ($.isPlainObject(data)) {
                 text0.writeInt16LE(data.text0);
                 text1.writeInt16LE(data.text1);
@@ -623,13 +636,8 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
                 text15.writeInt16LE(0);
             }
 
-            //buffer = new Buffer([255, 85, 8, sensorIdx, this.actionTypes.SET, device, port]);
-            //buffer = Buffer.concat([buffer, line, column, dummy]);
-
             buffer = new Buffer([255, 85, 36, sensorIdx, this.actionTypes.SET, device, port]);
             buffer = Buffer.concat([buffer, text0, text1, text2, text3, text4, text5, text6, text7, text8, text9, text10, text11, text12, text13, text14, text15, dummy]);
-
-            //console.log(buffer);
 
             break;
         }
