@@ -18,7 +18,7 @@
     "firmwareBaudRate": 115200,
     "selectPort": true,
     "reconnect": true,  
-    "firmware": "parodule",
+    "firmware": "parodule_nRF",
     "hardware": {
         "type": "serial",
         "control": "slave",

@@ -285,6 +285,7 @@ class parodule extends BaseModule {
                     port,
                 ]);
                 buffer = Buffer.concat([buffer, value, dummy]);
+                    console.log(buffer);
                 break;
             }
             case this.sensorTypes.TONE: {
@@ -337,11 +338,8 @@ class parodule extends BaseModule {
                     port, 
                 ]);
                 buffer = Buffer.concat([buffer, m, n, h1, h2, dummy]);
-                /*
-                for (var i = 0; i < buffer.length; i++){
-                    console.log(buffer[i]);
-                }
-                */
+                console.log(buffer);
+                
                 break;
             }
         }
