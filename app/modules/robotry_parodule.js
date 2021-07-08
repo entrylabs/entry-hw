@@ -1,5 +1,5 @@
 const BaseModule = require('./robotry');
-var sensorIdx = 0;
+var sensorIdx = 1; // 무선 통신시 버퍼에 중간에 NULL 있으면 데이터가 짤리는 문제가 발생함
 class parodule extends BaseModule {
 
     // 클래스 내부에서 사용될 필드들을 이곳에서 선언합니다.
