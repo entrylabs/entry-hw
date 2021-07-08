@@ -7,11 +7,12 @@ function Module() {
         PWM: 3,
         SERVO_PIN: 4,
         TONE: 5,
-        PULSEIN: 6, 
+        PULSEIN: 6,
         ULTRASONIC: 7,
         TIMER: 8,
         OLED: 241,
-        COM: 242
+        COM: 242,
+        NEOPIXEL: 243
     }
 
     this.actionTypes = {
@@ -120,12 +121,12 @@ Module.prototype.requestRemoteData = function(handler) {
     Object.keys(this.sensorData).forEach(function (key) {
         if(self.sensorData[key] != undefined) {
             handler.write(key, self.sensorData[key]);
-			if (key == "DIGITAL")
-			{
-				var dObj = self.sensorData["DIGITAL"];
-				//console.log("send : sensorData = " + dObj[6]);
+      			if (key == "DIGITAL")
+      			{
+      				var dObj = self.sensorData["DIGITAL"];
+      				//console.log("send : sensorData = " + dObj[6]);
             }
-            
+
         }
     })
 };
@@ -170,7 +171,7 @@ Module.prototype.handleRemoteData = function(handler) {
                     buffer = Buffer.concat([buffer, self.makeSensorReadBuffer(key, dataObj.port, dataObj.data)]);
                 }
             }
-        });        
+        });
     }
 
     if(setDatas) {
@@ -187,6 +188,7 @@ Module.prototype.handleRemoteData = function(handler) {
                             data: data.data
                         }
                         buffer = Buffer.concat([buffer, self.makeOutputBuffer(data.type, port, data.data)]);
+                        console.log(buffer);
                     }
                 }
             }
@@ -200,14 +202,14 @@ Module.prototype.handleRemoteData = function(handler) {
 
 Module.prototype.isRecentData = function(port, type, data) {
     var isRecent = false;
-    /*    
-    if(type == this.sensorTypes.ULTRASONIC) 
+    /*
+    if(type == this.sensorTypes.ULTRASONIC)
     {
         isRecent = false;
         return isRecent;
     }
     */
-    if(type == this.sensorTypes.COM) 
+    if(type == this.sensorTypes.COM)
     {
         isRecent = false;
         return isRecent;
@@ -224,7 +226,7 @@ Module.prototype.isRecentData = function(port, type, data) {
 
 Module.prototype.requestLocalData = function() {
     var self = this;
-    
+
      if(!this.isDraing && this.sendBuffers.length > 0) {
         this.isDraing = true;
         this.sp.write(this.sendBuffers.shift(), function () {
@@ -233,7 +235,7 @@ Module.prototype.requestLocalData = function() {
                     self.isDraing = false;
                 });
             }
-        });        
+        });
     }
 
     return null;
@@ -248,7 +250,7 @@ Module.prototype.handleLocalData = function(data) {
 
     datas.forEach(function (data) {
         if(data.length <= 4) {// || data[0] === 255 && data[1] === 86 ) {
-            return;        
+            return;
         }
 
         if(data[0] === 255 && data[1] === 85) {
@@ -258,22 +260,22 @@ Module.prototype.handleLocalData = function(data) {
         } else {
             return;
         }
-        
+
     });
 
-    
+
 };
 
 
 /* Original Parsing FF 55 ~ */
 Module.prototype.originParsing = function(data) {
 	var self = this;
-    var readData = data.subarray(2, data.length);      
+    var readData = data.subarray(2, data.length);
     var value;
     switch(readData[0]) {
         case self.sensorValueSize.FLOAT: {
             value = new Buffer(readData.subarray(1, 5)).readFloatLE();
-            value = Math.round(value * 100) / 100;                    
+            value = Math.round(value * 100) / 100;
             break;
         }
         case self.sensorValueSize.SHORT: {
@@ -291,11 +293,11 @@ Module.prototype.originParsing = function(data) {
 
     switch(type) {
         case self.sensorTypes.DIGITAL: {
-            self.sensorData.DIGITAL[port] = value;                
+            self.sensorData.DIGITAL[port] = value;
             break;
         }
         case self.sensorTypes.ANALOG: {
-            self.sensorData.ANALOG[port] = value;                
+            self.sensorData.ANALOG[port] = value;
             break;
         }
         case self.sensorTypes.PULSEIN: {
@@ -310,6 +312,10 @@ Module.prototype.originParsing = function(data) {
             self.sensorData.TIMER = value;
             break;
         }
+        case self.sensorTypes.NEOPIXEL: {
+            self.sensorData.NEOPIXEL = value;
+            break;
+        }
         default: {
             break;
         }
@@ -319,28 +325,28 @@ Module.prototype.originParsing = function(data) {
 /* K-Board Parsing FF 56 ~ */
 Module.prototype.kParsing = function(data) {
     var self = this;
-	var readData = data.subarray(2, data.length);    
+	var readData = data.subarray(2, data.length);
 	var value;
-	
-	
-	
+
+
+
 	for(var i = 0; i<8; i++) {
 		if(bit_test(readData[0], i))
 		{
-		    self.sensorData.DIGITAL[i + 2] = 1;   			
+		    self.sensorData.DIGITAL[i + 2] = 1;
 		} else {
-		    self.sensorData.DIGITAL[i + 2] = 0;   			
+		    self.sensorData.DIGITAL[i + 2] = 0;
 		}
 	}
 
 	var index = 0;
 	for(var i = 1; i<19; i = i + 2){
 		value = new Buffer(readData.subarray(i, i+2)).readInt16LE();
-        value = Math.round(value * 100) / 100;   
+        value = Math.round(value * 100) / 100;
 
 		if(	value > 1023 || value < 0)
 			value = 0;
-		
+
 		if(index != 8)
 		{
             if(index == 0)
@@ -348,13 +354,13 @@ Module.prototype.kParsing = function(data) {
                 if((1023 - (value * 1.72)) > 0)
                     self.sensorData.ANALOG[index] = parseInt(Math.abs(1023 - (value * 1.72)));
                 else
-                self.sensorData.ANALOG[index] = 0;	
+                self.sensorData.ANALOG[index] = 0;
             }
             else
-                self.sensorData.ANALOG[index] = value;   			    
+                self.sensorData.ANALOG[index] = value;
 			//console.log("self.sensorData.ANALOG" + index + " = " + self.sensorData.ANALOG[index]);
 		} else	{
-			self.sensorData.ULTRASONIC = value;   			
+			self.sensorData.ULTRASONIC = value;
 			//console.log("self.sensorData.ULTRASONIC" + index + " = " + self.sensorData.ULTRASONIC);
 		}
 
@@ -362,10 +368,10 @@ Module.prototype.kParsing = function(data) {
 
 		index = index + 1;
 	}
-	
 
-	
-    
+
+
+
 };
 
 function bit_test(num, bit){
@@ -410,7 +416,6 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
             value.writeInt16LE(data);
             buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.SET, device, port]);
             buffer = Buffer.concat([buffer, value, dummy]);
-            console.log(buffer);
             break;
         }
         case this.sensorTypes.TONE: {
@@ -431,7 +436,7 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
         case this.sensorTypes.OLED: {
             var arr = [];
             var i;
-           data = data.toString();
+            data = data.toString();
 
             for(i=0; i<data.length; i++)
             {
@@ -444,10 +449,52 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
             break;
         }
         case this.sensorTypes.COM: {
-            value.writeInt16LE(data);
-            buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.SET, device, port]);
-            buffer = Buffer.concat([buffer, value, dummy]);
-            break;
+          value.writeInt16LE(data);
+
+          buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.SET, device, port]);
+          buffer = Buffer.concat([buffer, value, dummy]);
+          break;
+        }
+        case this.sensorTypes.NEOPIXEL: {
+
+          var mode = new Buffer(1);
+          var index = new Buffer(1);
+          var value = new Buffer(1);
+          var pos = new Buffer(1);
+          var red = new Buffer(1);
+          var green = new Buffer(1);
+          var blue = new Buffer(1);
+          var brig = new Buffer(1);
+
+          //var msgLength = data.length + 3;
+          mode[0] = data.mode;    //네오픽셀 모드
+          index[0] = data.index;  //네오픽셀 인덱스
+          value[0] = data.value;  //갯수
+          pos[0] = data.pos;      //위치
+          red[0] = data.red;      //빨강
+          blue[0] = data.blue;    //파랑
+          green[0] = data.green;  //녹색
+          brig[0] = data.brig;    //밝기
+
+          if(mode[0] == 1)
+          {
+            buffer = new Buffer([255, 85, 7, sensorIdx, this.actionTypes.SET, device, port]);
+            buffer = Buffer.concat([buffer, mode, index, value, dummy]);
+          }
+
+          else if (mode[0] ==2) {
+            buffer = new Buffer([255, 85, 11, sensorIdx, this.actionTypes.SET, device, 0]);
+            buffer = Buffer.concat([buffer, mode, index, pos, red, green, blue, brig, dummy]);
+
+          } else if (mode[0] == 3) {
+            buffer = new Buffer([255, 85, 10, sensorIdx, this.actionTypes.SET, device, 0]);
+            buffer = Buffer.concat([buffer, mode, index, red, green, blue, brig, dummy]);
+          } else {
+            buffer = new Buffer([255, 85, 06, sensorIdx, this.actionTypes.SET, device, 0, 4, 1]);
+          }
+          //
+          //buffer = new Buffer([255, 85, 11, sensorIdx, this.actionTypes.SET, device, 0, 2, 1, 5, 255, 1, 1, 55]);
+          break;
         }
     }
 
@@ -460,10 +507,10 @@ Module.prototype.getDataByBuffer = function(buffer) {
 	var tempData;
 	 buffer.forEach(function (value, idx) {
         if(value == 13 && buffer[idx + 1] == 10) {
-            datas.push(buffer.subarray(lastIndex, idx));				
+            datas.push(buffer.subarray(lastIndex, idx));
             lastIndex = idx + 2;
         }
-    });	
+    });
     return datas;
 };
 
