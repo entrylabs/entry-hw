@@ -338,7 +338,7 @@ class parodule extends BaseModule {
                     port, 
                 ]);
                 buffer = Buffer.concat([buffer, m, n, h1, h2, dummy]);
-                console.log(buffer);
+                //console.log(buffer);
                 
                 break;
             }
