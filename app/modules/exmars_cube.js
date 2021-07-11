@@ -1,4 +1,5 @@
 const BaseModule = require('./baseModule');
+const { Index } = require('./magkinder');
 
 class ExMarsCube extends BaseModule {
     // 클래스 내부에서 사용될 필드들을 이곳에서 선언합니다.
@@ -6,10 +7,11 @@ class ExMarsCube extends BaseModule {
         super();
         this.sp = null;
         this.packetType = 11;
-        this.cubeData = new Array(15);
+        this.cubeData = new Array(17);
         this.faceCell = new Array(6);
         this.faceDir = new Array(6);
         this.record = new Array(8);
+        this.currentMode = new Array(2);
         this.received = new Buffer(21);
         this.transmit = new Buffer(11);
         this.doubleTransmit = new Buffer(22);
@@ -84,6 +86,10 @@ class ExMarsCube extends BaseModule {
                 transmitByte: 7,
                 received: 7,
             },
+            mode: {
+                main: 0,
+                sub: 1,
+            },
         };
     }
 
@@ -116,6 +122,9 @@ class ExMarsCube extends BaseModule {
                 this.record[i][j] = 0;
                 this.cubeData[i + 7][j] = 0;
             }
+        }
+        for (let i = 0; i < 2; i++) {
+            this.cubeData[i + 16] = 0;
         }
 
         this.faceCell[0][8] = this.protocols.cellColor.white;
@@ -206,6 +215,9 @@ class ExMarsCube extends BaseModule {
             for (let j = 0; j < 6; j++) {
                 this.cubeData[i + 7][j] = String(this.record[i][j]);
             }            
+        }
+        for (let i = 0; i < 2; i++) {
+            this.cubeData[i + 16] = String(this.currentMode[i]);
         }
         for (const face in this.cubeData) {
             handler.write(face, this.cubeData[face]);
@@ -703,8 +715,14 @@ class ExMarsCube extends BaseModule {
 
     decodingPacket(packet) {
         let face;
+        var index = packet[1] & 31;
 
-        if ((packet[1] & 31) == this.protocols.index.sensingResponse) {
+        if (index == this.protocols.index.menu)
+        {
+            this.currentMode[0] = packet[3];
+            this.currentMode[1] = packet[4];
+        }
+        else if (index == this.protocols.index.sensingResponse) {
             face = (packet[1] >> 5) & 15;
 
             if (0 <= face && face <= 5) {
@@ -818,7 +836,7 @@ class ExMarsCube extends BaseModule {
                 this.faceCell[5][6] = (((packet[17] & 3) << 1) | (packet[18] >> 7) & 1) & 7;
                 this.faceCell[5][7] = (packet[18] >> 4) & 7;            
             }
-        } else if ((packet[1] & 31) == this.protocols.index.faceDirection) {
+        } else if (index == this.protocols.index.faceDirection) {
             if (packet[2] == 1) {
                 this.faceDir[0] = (packet[3] >> 4) & 15; // 흰
                 this.faceDir[1] = packet[3] & 15;        // 노
@@ -827,7 +845,7 @@ class ExMarsCube extends BaseModule {
                 this.faceDir[4] = (packet[5] >> 4) & 15; // 빨
                 this.faceDir[5] = packet[5] & 15;        // 보
             }
-        } else if ((packet[1] & 31) == this.protocols.index.recordResponse) {
+        } else if (index == this.protocols.index.recordResponse) {
             // 0 : 최신
             // 1 : 차순
             // ---
