@@ -21,13 +21,15 @@ var Zerone = {
 	SOUND: 'sound',
 	SOUND_REPEAT: 'soundRepeat',
 	SOUND_ID: 'soundId',
+	LINE_TRACER_MODE: 'lineTracerMode',
+	LINE_TRACER_MODE_ID: 'lineTracerModeId',
+	LINE_TRACER_SPEED: 'lineTracerSpeed',
 	MOTION_ID: 'motionId',
 	MOTION_TYPE: 'motionType',
 	MOTION_UNIT: 'motionUnit',
 	MOTION_SPEED: 'motionSpeed',
 	MOTION_VALUE: 'motionValue',
 	MOTION_RADIUS: 'motionRadius',
-	SENSOR_MODE: 'sensorMode',
 	CM_TO_PULSE: 642.0 / 7,
 	DEG_TO_PULSE: 1122.0 / 360,
 	DEFAULT_SPEED: 50
@@ -43,15 +45,26 @@ function Module() {
 		colorRed: 0,
 		colorGreen: 0,
 		colorBlue: 0,
-		colorClear: 0,
+		floor: 0,
+		button: 0,
+		clicked: 0,
+		clickedId: 0,
+		doubleClicked: 0,
+		doubleClickedId: 0,
+		longPressed: 0,
+		longPressedId: 0,
 		gesture: -1,
 		gestureId: 0,
 		colorNumber: -1,
+		colorPattern: -1,
+		colorPatternId: 0,
 		pulseCount: 0,
 		wheelState: -1,
 		wheelStateId: 0,
 		soundState: -1,
 		soundStateId: 0,
+		lineTracerState: 0,
+		lineTracerStateId: 0,
 		batteryState: 2
 	};
 	this.motoring = {
@@ -76,21 +89,28 @@ function Module() {
 		sound: 0,
 		soundRepeat: 1,
 		soundId: 0,
+		lineTracerMode: 0,
+		lineTracerModeId: 0,
+		lineTracerSpeed: 4,
 		motionId: 0,
 		motionType: 0,
 		motionUnit: 0,
 		motionSpeed: 0,
 		motionValue: 0,
-		motionRadius: 0,
-		sensorMode: 0,
+		motionRadius: 0
 	};
 	this.motion = {
 		written: false,
 		type: 0,
 		speed: 0
 	};
+	this.button = {
+		clickId: -1,
+		longPressId: -1
+	};
 	this.wheel = {
 		written: false,
+		mode: 0,
 		id: 0,
 		pulse: 0,
 		pulsePrev: -1,
@@ -103,12 +123,15 @@ function Module() {
 		event: 0,
 		stateId: -1
 	};
+	this.lineTracer = {
+		written: false,
+		event: 0,
+		stateId: -1
+	};
 	this.event = {
 		gestureId: -1,
 		colorNumberId: -1,
-		pulseCount: -1,
-		batteryState: -1,
-		touchId: -1
+		colorPatternId: -1
 	};
 	this.timerId = undefined;
 }
@@ -182,116 +205,121 @@ Module.prototype.handleLocalData = function(data) { // data: string
 	
 	var sensory = this.sensory;
 	var event = this.event;
-	var id;
-	// mode
-	str = data.slice(1, 2);
-	value = parseInt(str, 16);
-	if((value & 0x01) == 0) { // gesture mode
-		// gesture id
-		str = data.slice(2, 4);
-		id = parseInt(str, 16);
-		if(id != event.gestureId) {
-			if(event.gestureId != -1) {
-				// gesture
-				str = data.slice(4, 6);
-				value = parseInt(str, 16);
-				switch(value) {
-					case 1: sensory.gesture = 1; break;
-					case 2: sensory.gesture = 0; break;
-					case 3: sensory.gesture = 3; break;
-					case 4: sensory.gesture = 2; break;
-					case 5: sensory.gesture = 4; break;
-					case 6: sensory.gesture = 5; break;
-					default: sensory.gesture = -1; break;
-				}
-				sensory.gestureId = (sensory.gestureId % 255) + 1;
+	
+	// gesture id
+	str = data.slice(2, 4);
+	var id = parseInt(str, 16);
+	if(id != event.gestureId) {
+		if(event.gestureId != -1) {
+			// gesture
+			str = data.slice(4, 6);
+			value = parseInt(str, 16);
+			switch(value) {
+				case 1: sensory.gesture = 1; break;
+				case 2: sensory.gesture = 0; break;
+				case 3: sensory.gesture = 3; break;
+				case 4: sensory.gesture = 2; break;
+				case 5: sensory.gesture = 4; break;
+				case 6: sensory.gesture = 5; break;
+				case 7: sensory.gesture = 6; break;
+				default: sensory.gesture = -1; break;
 			}
-			event.gestureId = id;
+			sensory.gestureId = (sensory.gestureId % 255) + 1;
 		}
-		
-		// proximity
-		str = data.slice(6, 8);
-		sensory.rightProximity = parseInt(str, 16);
-		str = data.slice(8, 10);
-		sensory.leftProximity = parseInt(str, 16);
-		str = data.slice(10, 12);
-		sensory.rearProximity = parseInt(str, 16);
-		str = data.slice(12, 14);
-		sensory.frontProximity = parseInt(str, 16);
-		
-		sensory.colorNumber = -1;
-		sensory.colorRed = 0;
-		sensory.colorGreen = 0;
-		sensory.colorBlue = 0;
-		sensory.colorClear = 0;
-	} else { // color mode
-		// color number id
-		str = data.slice(2, 4);
-		id = parseInt(str, 16);
-		// color number
-		str = data.slice(4, 6);
-		value = parseInt(str, 16);
+		event.gestureId = id;
+	}
+	
+	// proximity
+	str = data.slice(6, 8);
+	sensory.rightProximity = parseInt(str, 16);
+	str = data.slice(8, 10);
+	sensory.leftProximity = parseInt(str, 16);
+	str = data.slice(10, 12);
+	sensory.rearProximity = parseInt(str, 16);
+	str = data.slice(12, 14);
+	sensory.frontProximity = parseInt(str, 16);
+	
+	// r, g, b
+	str = data.slice(14, 16);
+	var r = parseInt(str, 16);
+	str = data.slice(16, 18);
+	var g = parseInt(str, 16);
+	str = data.slice(18, 20);
+	var b = parseInt(str, 16);
+	
+	sensory.colorRed = r;
+	sensory.colorGreen = g;
+	sensory.colorBlue = b;
+	
+	// color number id
+	str = data.slice(20, 22);
+	value = parseInt(str, 16);
+	id = (value >> 4) & 0x0f;
+	if(id != event.colorNumberId) {
+		value = value & 0x0f;
 		switch(value) {
-			case 0: sensory.colorNumber = -1; break;
+			case 0: sensory.colorNumber = 0; break;
 			case 1: sensory.colorNumber = 1; break;
 			case 2: sensory.colorNumber = 2; break;
 			case 3: sensory.colorNumber = 3; break;
 			case 4: sensory.colorNumber = 4; break;
 			case 5: sensory.colorNumber = 5; break;
 			case 6: sensory.colorNumber = 6; break;
+			case 7: sensory.colorNumber = 7; break;
+			case 8: sensory.colorNumber = 8; break;
+			case 15: sensory.colorNumber = -2; break;
 			default: sensory.colorNumber = -1; break;
 		}
-		// r, g, b, c
-		str = data.slice(6, 10);
-		var r = parseInt(str, 16);
-		str = data.slice(10, 14);
-		var g = parseInt(str, 16);
-		str = data.slice(14, 18);
-		var b = parseInt(str, 16);
-		str = data.slice(18, 22);
-		value = parseInt(str, 16);
-		
-		r = parseInt(r * 255 / 1023);
-		g = parseInt(g * 255 / 1023);
-		b = parseInt(b * 255 / 1023);
-		value = parseInt(value * 255 / 1023);
-		if(r > 255) r = 255;
-		else if(r < 0) r = 0;
-		if(g > 255) g = 255;
-		else if(g < 0) g = 0;
-		if(b > 255) b = 255;
-		else if(b < 0) b = 0;
-		if(value > 255) value = 255;
-		else if(value < 0) value = 0;
-		
-		sensory.colorRed = r;
-		sensory.colorGreen = g;
-		sensory.colorBlue = b;
-		sensory.colorClear = value;
-		
-		sensory.gesture = -1;
-		sensory.leftProximity = 0;
-		sensory.rightProximity = 0;
-		sensory.frontProximity = 0;
-		sensory.rearProximity = 0;
+		event.colorNumberId = id;
 	}
 	
-	// click, long touch
-	str = data.slice(26, 28);
+	// color pattern
+	str = data.slice(22, 24);
 	id = parseInt(str, 16);
-	if(id != event.touchId) {
-		if(event.touchId != -1) {
-			str = data.slice(28, 30);
-			value = parseInt(str, 16);
-			if(value == 6) {
-				sensory.gesture = 6;
-				sensory.gestureId = (sensory.gestureId % 255) + 1;
-			} else if(value == 4) {
-				sensory.gesture = 7;
-				sensory.gestureId = (sensory.gestureId % 255) + 1;
-			}
+	if(id != event.colorPatternId) {
+		str = data.slice(24, 26);
+		value = parseInt(str, 16);
+		sensory.colorPattern = ((value >> 4) & 0x0f) * 10 + (value & 0x0f);
+		if(sensory.colorPattern < 0) sensory.colorPattern = -1;
+		if(event.colorPatternId != -1) {
+			sensory.colorPatternId = (sensory.colorPatternId % 255) + 1;
 		}
-		event.touchId = id;
+		event.colorPatternId = id;
+	}
+	
+	// floor
+	str = data.slice(26, 28);
+	value = parseInt(str, 16);
+	sensory.floor = value;
+	
+	// button
+	str = data.slice(28, 30);
+	value = parseInt(str, 16);
+	sensory.button = value & 0x01;
+	
+	// clicked / double clicked / long pressed
+	var clickId = (value >> 4) & 0x03;
+	var longPressId = (value >> 6) & 0x03;
+	var button = this.button;
+	if(button.clickId < 0) {
+		button.clickId = clickId;
+	} else if(clickId != button.clickId) {
+		button.clickId = clickId;
+		value = (value >> 1) & 0x07;
+		if(value == 1) {
+			sensory.clicked = 1;
+			sensory.clickedId = (sensory.clickedId % 255) + 1;
+		} else if(value == 2) {
+			sensory.doubleClicked = 1;
+			sensory.doubleClickedId = (sensory.doubleClickedId % 255) + 1;
+		}
+	}
+	if(button.longPressId < 0) {
+		button.longPressId = longPressId;
+	} else if(longPressId != button.longPressId) {
+		button.longPressId = longPressId;
+		sensory.longPressed = 1;
+		sensory.longPressedId = (sensory.longPressedId % 255) + 1;
 	}
 	
 	// pulse count
@@ -320,13 +348,26 @@ Module.prototype.handleLocalData = function(data) { // data: string
 		}
 	}
 	wheel.stateId = id;
-	// sound state
+	
+	// linetracer state
 	id = (value >> 4) & 0x03;
+	var lineTracer = this.lineTracer;
+	if(lineTracer.event == 1) {
+		if((id != lineTracer.stateId) && (lineTracer.stateId != -1)) {
+			sensory.lineTracerState = 0x02;
+			sensory.lineTracerStateId = (sensory.lineTracerStateId % 255) + 1;
+			lineTracer.event = 0;
+		}
+	}
+	lineTracer.stateId = id;
+	
+	// sound state
+	id = (value >> 2) & 0x03;
 	var sound = this.sound;
 	if(sound.event == 1) {
 		if((id != sound.stateId) && (sound.stateId != -1)) {
-			var motoring = this.motoring;
 			sound.event = 0;
+			var motoring = this.motoring;
 			if(motoring.sound > 0) {
 				if(motoring.soundRepeat < 0) {
 					this.runSound(motoring.sound, -1);
@@ -348,19 +389,14 @@ Module.prototype.handleLocalData = function(data) { // data: string
 		}
 	}
 	sound.stateId = id;
+	
 	// battery state
-	var state = value & 0x01;
-	// battery
-	str = data.slice(38, 40);
-	value = parseInt(str, 16);
-	value = (value + 200) / 100.0;
-	if(state == 0) {
-		if(value < 3.65) state = 1;
-		else state = 2;
-	} else {
-		state = 0;
-	}
+	var state = value & 0x03;
+	if(state == 0) state = 2; // normal
+	else if(state == 2) state = 1;
+	else if(state > 2) state = 0; // empty
 	sensory.batteryState = state;
+	
 	// signal strength
 	str = data.slice(36, 38);
 	value = parseInt(str, 16);
@@ -373,9 +409,14 @@ Module.prototype.requestRemoteData = function(handler) {
 	for(var key in sensory) {
 		handler.write(key, sensory[key]);
 	}
+	sensory.clicked = 0;
+	sensory.doubleClicked = 0;
+	sensory.longPressed = 0;
 	sensory.gesture = -1;
+	sensory.colorPattern = -1;
 	sensory.wheelState = -1;
 	sensory.soundState = -1;
+	sensory.lineTracerState = 0;
 };
 
 Module.prototype.handleRemoteData = function(handler) {
@@ -513,6 +554,27 @@ Module.prototype.handleRemoteData = function(handler) {
 			}
 		}
 	}
+	// line tracer mode
+	if(handler.e(Zerone.LINE_TRACER_MODE_ID)) {
+		t = handler.read(Zerone.LINE_TRACER_MODE_ID);
+		if(t != motoring.lineTracerModeId) {
+			motoring.lineTracerModeId = t;
+			if(handler.e(Zerone.LINE_TRACER_MODE)) {
+				t = handler.read(Zerone.LINE_TRACER_MODE);
+				if(t < 0) t = 0;
+				else if(t > 15) t = 15;
+				motoring.lineTracerMode = t;
+				this.lineTracer.written = true;
+			}
+		}
+	}
+	// line tracer speed
+	if(handler.e(Zerone.LINE_TRACER_SPEED)) {
+		t = handler.read(Zerone.LINE_TRACER_SPEED);
+		if(t < 1) t = 1;
+		else if(t > 8) t = 8;
+		motoring.lineTracerSpeed = t;
+	}
 	// motion
 	if(handler.e(Zerone.MOTION_ID)) {
 		t = handler.read(Zerone.MOTION_ID);
@@ -550,13 +612,6 @@ Module.prototype.handleRemoteData = function(handler) {
 				this.motion.written = true;
 			}
 		}
-	}
-	// sensor mode
-	if(handler.e(Zerone.SENSOR_MODE)) {
-		t = handler.read(Zerone.SENSOR_MODE);
-		if(t < 0) t = 0;
-		else if(t > 1) t = 1;
-		motoring.sensorMode = t;
 	}
 };
 
@@ -664,9 +719,7 @@ Module.prototype.requestLocalData = function() {
 			break;
 	}
 	
-	var str = '1';
-	if(motoring.sensorMode == 1) str += '1';
-	else str += '0';
+	var str = '10';
 	str += self.toHex(leftWheel);
 	str += self.toHex(rightWheel);
 	
@@ -674,17 +727,37 @@ Module.prototype.requestLocalData = function() {
 		motion.written = false;
 		wheel.written = false;
 		if(wheel.pulse != 0 || wheel.pulsePrev != 0) {
-			wheel.id = (wheel.id % 255) + 1;
+			wheel.id = (wheel.id % 127) + 1;
 		}
 		if(wheel.pulse > 0) {
+			wheel.mode = 0;
 			wheel.event = 1;
 		} else if(wheel.event != -1) {
 			wheel.event = 0;
 		}
 		wheel.pulsePrev = wheel.pulse;
 	}
-	str += self.toHex(wheel.id);
-	str += self.toHex2(wheel.pulse);
+	
+	var lineTracer = self.lineTracer;
+	var tmp = motoring.lineTracerMode;
+	if(lineTracer.written) {
+		lineTracer.written = false;
+		if(tmp > 0) {
+			wheel.mode = 0x80;
+			wheel.id = (wheel.id % 127) + 1;
+			lineTracer.event = 1;
+		} else {
+			lineTracer.event = 0;
+		}
+	}
+	
+	str += self.toHex(wheel.mode | (wheel.id & 0x7f));
+	if(wheel.mode == 0) {
+		str += self.toHex2(wheel.pulse);
+	} else {
+		str += self.toHex(motoring.lineTracerMode & 0x0f);
+		str += self.toHex((motoring.lineTracerSpeed - 1) & 0x07);
+	}
 	
 	str += self.toHex(motoring.leftHeadRed);
 	str += self.toHex(motoring.leftHeadGreen);
@@ -736,7 +809,7 @@ Module.prototype.requestLocalData = function() {
 		str += '01';
 		str += self.toHex(motoring.note);
 	} else { // buzzer
-		var tmp = parseInt(motoring.buzzer * 10) + 512;
+		tmp = parseInt(motoring.buzzer * 10) + 512;
 		str += self.toHex2(tmp);
 	}
 	str += '-';
@@ -769,32 +842,50 @@ Module.prototype.reset = function() {
 	motoring.sound = 0;
 	motoring.soundRepeat = 1;
 	motoring.soundId = 0;
+	motoring.lineTracerMode = 0;
+	motoring.lineTracerModeId = 0;
+	motoring.lineTracerSpeed = 4;
 	motoring.motionId = 0;
 	motoring.motionType = 0;
 	motoring.motionUnit = 0;
 	motoring.motionSpeed = 0;
 	motoring.motionValue = 0;
 	motoring.motionRadius = 0;
-	motoring.sensorMode = 0;
 
 	var sensory = this.sensory;
+	sensory.button = 0;
+	sensory.clicked = 0;
+	sensory.clickedId = 0;
+	sensory.doubleClicked = 0;
+	sensory.doubleClickedId = 0;
+	sensory.longPressed = 0;
+	sensory.longPressedId = 0;
 	sensory.gesture = -1;
 	sensory.gestureId = 0;
 	sensory.colorNumber = -1;
+	sensory.colorPattern = -1;
+	sensory.colorPatternId = 0;
 	sensory.pulseCount = 0;
 	sensory.wheelState = -1;
 	sensory.wheelStateId = 0;
 	sensory.soundState = -1;
 	sensory.soundStateId = 0;
+	sensory.lineTracerState = 0;
+	sensory.lineTracerStateId = 0;
 	sensory.batteryState = 2;
 
 	var motion = this.motion;
 	motion.written = false;
 	motion.type = 0;
 	motion.speed = 0;
+	
+	var button = this.button;
+	button.clickId = -1;
+	button.longPressId = -1;
 
 	var wheel = this.wheel;
 	wheel.written = false;
+	wheel.mode = 0;
 	wheel.pulse = 0;
 	wheel.pulsePrev = -1;
 	wheel.event = 0;
@@ -804,13 +895,16 @@ Module.prototype.reset = function() {
 	sound.written = false;
 	sound.event = 0;
 	sound.stateId = -1;
+	
+	var lineTracer = this.lineTracer;
+	lineTracer.written = false;
+	lineTracer.event = 0;
+	lineTracer.stateId = -1;
 
 	var event = this.event;
 	event.gestureId = -1;
 	event.colorNumberId = -1;
-	event.pulseCount = -1;
-	event.batteryState = -1;
-	event.touchId = -1;
+	event.colorPatternId = -1;
 };
 
 module.exports = new Module();
