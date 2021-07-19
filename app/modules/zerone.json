@@ -1,9 +1,9 @@
 {
-    "id": "020F01",
+    "id": "020F02",
     "name": {
         "en": "Zerone",
-        "ko": "제로원",
-        "jp": "ゼロワン"
+        "ko": "제론",
+        "jp": "ゼロン"
     },
     "category": "robot",
     "platform": ["win32", "darwin"],
