@@ -16,6 +16,21 @@ function Module() {
         BLE_READ: 12,
         ARM_XYZ: 13,
         ARM_WG: 14,
+        HUSKY: 15,
+        HUSKY_GET: 16,
+        HUSKY_GET_LEARNED_ID_CNT: 17,
+        HUSKY_GET_BLOCK_CNT: 18,
+        HUSKY_GET_ARROW_CNT: 19,
+        HUSKY_GET_ID: 20,
+        HUSKY_GET_XD: 21,
+        HUSKY_GET_YD: 22,
+        HUSKY_GET_WD: 23,
+        HUSKY_GET_HT: 24,
+        HUSKY_GET_ID_BL_EXIST: 25,
+        HUSKY_GET_ID_AR_EXIST: 26,
+        HUSKY_GET_BLOCK_INFO: 27,
+        HUSKY_GET_ARROW_INFO: 28,
+        HUSKY_GET_ID_LEARNED: 29,
     };
 
     this.actionTypes = {
@@ -83,31 +98,46 @@ function Module() {
         PULSEIN: {},
         TIMER: 0,
         BLE_READ: 0,
+        HUSKYLENS_LEARNED_CNT: 0,
+        HUSKYLENS_MODE: 0,
+        HUSKYLENS_ID_LEARNED: 0,
+        HUSKYLENS_BL_EXIST: 0,
+        HUSKYLENS_AR_EXIST: 0,
+        HUSKYLENS_ID_EXIST: 0,
+        HUSKYLENS_BLID_EXIST: 0,
+        HUSKYLENS_ARID_EXIST: 0,
+        HUSKYLENS_BLID_CLOSEST: 0,
+        HUSKYLENS_ARID_CLOSEST: 0,
+        HUSKYLENS_RESULT: [ 0,0,0,0,0 ],
+        
+
     };
 
     this.defaultOutput = {};
 
     this.recentCheckData = {};
+    this.recentCheckDataHuskylens = {};
 
     this.sendBuffers = [];
 
     this.lastTime = 0;
     this.lastSendTime = 0;
     this.isDraing = false;
+    this.sensorIdx = 0;
 }
 
-let sensorIdx = 0;
+
 
 Module.prototype.init = function(handler, config) {
 
-    console.log('init......');
+    //console.log('init......');
 
 };
 
 Module.prototype.setSerialPort = function(sp) {
     const self = this;
     this.sp = sp;
-    console.log('setSerialPort');  
+    //console.log('setSerialPort');  
 
 };
 
@@ -210,6 +240,7 @@ Module.prototype.handleRemoteData = function(handler) {
                             dataObj.data,
                         ),
                     ]);
+
                 }
             }
         });
@@ -246,7 +277,7 @@ Module.prototype.handleRemoteData = function(handler) {
 Module.prototype.isRecentData = function(port, type, data) {
     const that = this;
     let isRecent = false;
-
+    
     if (type == this.sensorTypes.ULTRASONIC) {
         const portString = port.toString();
         let isGarbageClear = false;
@@ -270,9 +301,24 @@ Module.prototype.isRecentData = function(port, type, data) {
         if (
             this.recentCheckData[port].type === type &&
             this.recentCheckData[port].data === data
+
         ) {
             isRecent = true;
         }
+    }
+    if (type == 15 || type == 16) {
+        isRecent = false;   
+        if(this.recentCheckDataHuskylens[0] == type 
+            && this.recentCheckDataHuskylens[1] == port 
+            && this.recentCheckDataHuskylens[2] == data)
+            {
+                isRecent = true;    
+            } 
+            this.recentCheckDataHuskylens[0] = type;
+            this.recentCheckDataHuskylens[1] = port;
+            this.recentCheckDataHuskylens[2] = data;
+
+
     }
 
     return isRecent;
@@ -319,10 +365,9 @@ Module.prototype.handleLocalData = function(data) {
                 break;
             }
             case self.sensorValueSize.STRING: {
-                value = new Buffer(readData[1] + 3);
+                value = new Buffer(readData[1] + 3);                
                 value = readData.slice(2, readData[1] + 3);
                 value = value.toString('ascii', 0, value.length);
-
                 break;
             }
             default: {
@@ -336,16 +381,10 @@ Module.prototype.handleLocalData = function(data) {
 
         switch (type) {
             case self.sensorTypes.DIGITAL: {
-                if (port == 4) {
-                    //console.log('port=%d, value=%d', port, value);
-                }
                 self.sensorData.DIGITAL[port] = value;
                 break;
             }
             case self.sensorTypes.ANALOG: {
-                if (port == 1) {
-                    //console.log('port=%d, value=%d', port, value);
-                }
                 self.sensorData.ANALOG[port] = value;
                 break;
             }
@@ -365,9 +404,92 @@ Module.prototype.handleLocalData = function(data) {
                 self.sensorData.BLE_READ = value;
                 break;
             }
+            case self.sensorTypes.HUSKY: {   
+                break;
+            }
+            case self.sensorTypes.HUSKY_GET_LEARNED_ID_CNT: {
+                self.sensorData.HUSKYLENS_LEARNED_CNT = value;
+                break;
+            }
+            case self.sensorTypes.HUSKY_GET_ID_LEARNED: {
+                self.sensorData.HUSKYLENS_ID_LEARNED = value;
+                //console.log("id learned = %d",value);
+                break;
+            }
+            case self.sensorTypes.HUSKY_GET_BLOCK_CNT: {
+                self.sensorData.HUSKYLENS_BL_EXIST = value;
+                //console.log("block count = %d",value);
+                break;
+            }
+            case self.sensorTypes.HUSKY_GET_ARROW_CNT: {
+                self.sensorData.HUSKYLENS_AR_EXIST = value;
+                //console.log("arrow count = %d",value);
+                break;
+            }
+            case self.sensorTypes.HUSKY_GET_ID_BL_EXIST: {
+                self.sensorData.HUSKYLENS_BLID_EXIST = value;
+                //console.log("exist block id number = %d",value);
+                break;
+            }
+            case self.sensorTypes.HUSKY_GET_ID_AR_EXIST: {
+                self.sensorData.HUSKYLENS_ARID_EXIST = value;
+                //console.log("exist arrow id number = %d",value);
+                break;
+            }         
+            case self.sensorTypes.HUSKY_GET_ID: {
+                self.sensorData.HUSKYLENS_RESULT[0] = value;
+                //console.log("[ID:%d]%d,%d,%d,%d"
+                //              ,self.sensorData.HUSKYLENS_RESULT[0]
+                //              ,self.sensorData.HUSKYLENS_RESULT[1]
+                //              ,self.sensorData.HUSKYLENS_RESULT[2]
+                //              ,self.sensorData.HUSKYLENS_RESULT[3]
+                //              ,self.sensorData.HUSKYLENS_RESULT[4]);
+                break;
+            }
+            case self.sensorTypes.HUSKY_GET_XD: {
+                self.sensorData.HUSKYLENS_RESULT[1] = value;
+                break;
+            }
+            case self.sensorTypes.HUSKY_GET_YD: {
+                self.sensorData.HUSKYLENS_RESULT[2] = value;
+                break;
+            }
+            case self.sensorTypes.HUSKY_GET_WD: {
+                self.sensorData.HUSKYLENS_RESULT[3] = value;
+                break;
+            }
+            case self.sensorTypes.HUSKY_GET_HT: {
+                self.sensorData.HUSKYLENS_RESULT[4] = value;
+                break;
+            }
             default: {
                 break;
             }
+
+            /*
+            HUSKY: 15,
+            HUSKY_GET: 16,
+            HUSKY_GET_LEARNED_ID_CNT: 17,
+            HUSKY_GET_BLOCK_CNT: 18,
+            HUSKY_GET_ARROW_CNT: 19,
+            HUSKY_GET_ID: 20,
+            HUSKY_GET_XD: 21,
+            HUSKY_GET_YD: 22,
+            HUSKY_GET_WD: 23,
+            HUSKY_GET_HT: 24,
+            HUSKY_GET_ID_BL_EXIST: 25,
+            HUSKY_GET_ID_AR_EXIST: 26,
+            HUSKY_GET_ID_BL_CLOSEST: 27,
+            HUSKY_GET_ID_AR_CLOSEST: 28,
+
+            HUSKYLENS_LEARNED_CNT: 0,
+            HUSKYLENS_MODE: 0,
+            HUSKYLENS_BLID_EXIST: 0,
+            HUSKYLENS_ARID_EXIST: 0,
+            HUSKYLENS_BLID_CLOSEST: 0,
+            HUSKYLENS_ARID_CLOSEST: 0,
+            HUSKYLENS_RESULT: [ 0,0,0,0,0 ],
+            */
         }
     });
 };
@@ -378,7 +500,6 @@ ff 55 len idx action device port  slot  data a
 */
 
 Module.prototype.makeSensorReadBuffer = function(device, port, data) {
-    //console.log('makeSensorReadBuffer');
     let buffer;
     const dummy = new Buffer([10]);
     if (device == this.sensorTypes.ULTRASONIC) {
@@ -386,28 +507,33 @@ Module.prototype.makeSensorReadBuffer = function(device, port, data) {
             255,
             85,
             6,
-            sensorIdx,
+            this.sensorIdx,
             this.actionTypes.GET,
             device,
             port[0],
             port[1],
             10,
         ]);
-    } else if (!data) {
+    }/*else if (!data) {
         buffer = new Buffer([
             255,
             85,
             5,
-            sensorIdx,
+            this.sensorIdx,
             this.actionTypes.GET,
             device,
             port,
             10,
         ]);
-    } else if (device == this.sensorTypes.LCD || device == this.sensorTypes.LCD_COMMAND) {
-        buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port[0], port[1], 10]);
-    } else if (device == this.sensorTypes.BLE_READ) {
-        buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.GET, device, port, 10]);
+
+        console.log("none data readbuffer...");
+
+    }   */
+    else if (device == this.sensorTypes.BLE_READ) {
+        buffer = new Buffer([255, 85, 5, this.sensorIdx, this.actionTypes.GET, device, port, 10]);        
+    } else if (device == 16/*this.sensorTypes.HUSKY*/) {
+        buffer = new Buffer([255, 85, 6, this.sensorIdx, this.actionTypes.GET, 16, port,data, 10]); 
+        
     } else {
         value = new Buffer(2);
         value.writeInt16LE(data);
@@ -415,7 +541,7 @@ Module.prototype.makeSensorReadBuffer = function(device, port, data) {
             255,
             85,
             7,
-            sensorIdx,
+            this.sensorIdx,
             this.actionTypes.GET,
             device,
             port,
@@ -423,9 +549,9 @@ Module.prototype.makeSensorReadBuffer = function(device, port, data) {
         ]);
         buffer = Buffer.concat([buffer, value, dummy]);
     }
-    sensorIdx++;
-    if (sensorIdx > 254) {
-        sensorIdx = 0;
+    this.sensorIdx++;
+    if (this.sensorIdx > 254) {
+        this.sensorIdx = 0;
     }
 
     return buffer;
@@ -436,7 +562,6 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
     let buffer;
     const value = new Buffer(2);
     const dummy = new Buffer([10]);
-
     const text0 = new Buffer(2);
     const text1 = new Buffer(2);
     const text2 = new Buffer(2);
@@ -453,7 +578,6 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
     const text13 = new Buffer(2);
     const text14 = new Buffer(2);
     const text15 = new Buffer(2);
-
     
     const ARM_value_x = new Buffer(2);
     const ARM_value_y = new Buffer(2);
@@ -461,11 +585,32 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
     const ARM_value_w = new Buffer(2);
     const ARM_value_g = new Buffer(2);    
 
+    const huskyitem = new Buffer(2);
+    const huskyset = new Buffer(2);
+    const huskydata = new Buffer(2);
+
     const line = new Buffer(2);
     const column = new Buffer(2);
     
     const time = new Buffer(2);
-    switch (device) {  
+
+    switch (device) {          
+        case this.sensorTypes.HUSKY:{
+            huskyitem.writeInt16LE(data.huskyitem);
+            huskyset.writeInt16LE(data.huskyset);
+            buffer = new Buffer([
+                255,
+                85,
+                7,
+                this.sensorIdx,
+                this.actionTypes.SET,
+                15,
+                port,
+            ]);
+            buffer = Buffer.concat([buffer, huskyitem,huskyset, dummy]);
+            //console.log('set huskylens algorithm......'); 
+            break;
+        }           
         case this.sensorTypes.ARM_XYZ:
             ARM_value_x.writeInt16LE(data.value_x);
             ARM_value_y.writeInt16LE(data.value_y);
@@ -474,7 +619,7 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
                 255,
                 85,
                 10,
-                sensorIdx,
+                this.sensorIdx,
                 this.actionTypes.SET,
                 device,
                 port,
@@ -488,7 +633,7 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
                 255,
                 85,
                 8,
-                sensorIdx,
+                this.sensorIdx,
                 this.actionTypes.SET,
                 device,
                 port,
@@ -503,7 +648,7 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
                 255,
                 85,
                 6,
-                sensorIdx,
+                this.sensorIdx,
                 this.actionTypes.SET,
                 device,
                 port,
@@ -523,7 +668,7 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
                 255,
                 85,
                 8,
-                sensorIdx,
+                this.sensorIdx,
                 this.actionTypes.SET,
                 device,
                 port,
@@ -574,7 +719,7 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
                 text14.writeInt16LE(0);
                 text15.writeInt16LE(0);
             }
-            buffer = new Buffer([255, 85, 40, sensorIdx, this.actionTypes.SET, device, port]);
+            buffer = new Buffer([255, 85, 40, this.sensorIdx, this.actionTypes.SET, device, port]);
             buffer = Buffer.concat([buffer, line, column, text0, text1, text2, text3, text4, text5, text6, text7, text8, text9, text10, text11, text12, text13, text14, text15, dummy]);
 
             break;
@@ -594,7 +739,7 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
             }
 
 
-            buffer = new Buffer([255, 85, 7, sensorIdx, this.actionTypes.SET, device, port]);
+            buffer = new Buffer([255, 85, 7, this.sensorIdx, this.actionTypes.SET, device, port]);
             buffer = Buffer.concat([buffer, value, command, dummy]);
 
             break;
@@ -636,9 +781,13 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
                 text15.writeInt16LE(0);
             }
 
-            buffer = new Buffer([255, 85, 36, sensorIdx, this.actionTypes.SET, device, port]);
+            buffer = new Buffer([255, 85, 36, this.sensorIdx, this.actionTypes.SET, device, port]);
             buffer = Buffer.concat([buffer, text0, text1, text2, text3, text4, text5, text6, text7, text8, text9, text10, text11, text12, text13, text14, text15, dummy]);
 
+            break;
+        }
+        default: {
+            buffer = new Buffer([255, 85, 4, 0, 0, 0, 0,dummy]); 
             break;
         }
     }
