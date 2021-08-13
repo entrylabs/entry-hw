@@ -8,6 +8,9 @@ class PingpongG1 extends BaseModule {
         this.send_cmd = {};
         this.cmd_seq = 0;
 
+        this.isDraing = false;
+        this.sendBuffer = [];
+
         this.sp = null;
         this.isCubeConnecting = false;
         this.isCheckConnecting = false;
@@ -155,48 +158,34 @@ class PingpongG1 extends BaseModule {
 
         this.send_cmd = handler.read('COMMAND');
         if (this.send_cmd) {
-            if (this.send_cmd.id > this.cmd_seq) {
-                this.cmd_seq = this.send_cmd.id;
-                const sendBuffer = Buffer.from(this.send_cmd.data);
-                this.sp.write(sendBuffer);
-                //console.log('D:send PACKET: %s ', this.dbgHexstr(sendBuffer));
-            } else if (this.send_cmd.id == -1) {
+            if (this.send_cmd.id == -1) {
                 this.cmd_seq = 0;
                 //console.log('P:handle RD: CLEAR');
+			} else if (this.send_cmd.id != this.cmd_seq) {
+                this.cmd_seq = this.send_cmd.id;
+                this.sendBuffer.push(Buffer.from(this.send_cmd.data));
+                //console.log('D:send PACKET: %s ', this.dbgHexstr(sendBuffer));
             }
         }
     }
 
     // 하드웨어 기기에 전달할 데이터
     requestLocalData() {
-        /*
-		var isSendData = false;
-		var sendBuffer;
-
-		if (this.send_cmd && this.send_cmd.id > this.cmd_seq) {
-			isSendData = true;
-			//console.log('P:request LD: ', this.send_cmd);
-			this.cmd_seq = this.send_cmd.id;
-			sendBuffer = Buffer.from(this.send_cmd.data);
-		}
-
-		if (isSendData) {
-			console.log('P:request LD: ');
-			return sendBuffer;
-		}
-		*/
+        var self = this;
+        if (!this.isDraing && this.sendBuffer.length > 0) {
+            this.isDraing = true;
+            var msg = this.sendBuffer.shift();
+            //console.log('P:requestLocalData() : ', msg, this.sendBuffer.length);
+            this.sp.write(msg, function () {
+                if (self.sp) {
+                    self.sp.drain(function () {
+                        self.isDraing = false;
+                    });
+                }
+            });
+        }
 
         return null;
-
-        /*
-		const header = new Buffer([0xff, 0xff, 0xff]);
-		const position = new Buffer([0xff]);
-		const data = new Buffer([0x00, 0xc8, 0xb8, 0x00, 0x0b]);
-		const interval = new Buffer([10]);
-		const tail = new Buffer([0x01]);
-
-        return Buffer.concat([header, position, data, interval, tail]);
-		*/
     }
 
     // 하드웨어에서 온 데이터 처리
