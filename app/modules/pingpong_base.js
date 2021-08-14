@@ -98,12 +98,12 @@ class PingpongBase extends BaseModule {
     // 연결 후 초기에 송신할 데이터가 필요한 경우 사용합니다.
     requestInitialData(sp, payload) {
         //console.log('P:requestInitialData: ');
-        let grpid = payload.match(/[0-7]{1,2}$/g);
+        const grpid = payload.match(/[0-7]{1,2}$/g);
         if (grpid == null) {
             console.warn('Wrong group id inputted', payload);
             return null;
         }
-        let grpno = parseInt(grpid[0], 16);
+        const grpno = parseInt(grpid[0], 16);
         return this.makePackets('setMultirole', grpno);
     }
 
@@ -129,7 +129,7 @@ class PingpongBase extends BaseModule {
             this.checkBuffer = Buffer.from(data);
         }
 
-        let payload = this.checkBuffer;
+        const payload = this.checkBuffer;
 
         if (payload.length >= 9) {
             const packetSize = payload.readInt16BE(7);
@@ -174,14 +174,14 @@ class PingpongBase extends BaseModule {
 
     // 하드웨어 기기에 전달할 데이터
     requestLocalData() {
-        var self = this;
+        const self = this;
         if (!this.isDraing && this.sendBuffer.length > 0) {
             this.isDraing = true;
-            var msg = this.sendBuffer.shift();
+            const msg = this.sendBuffer.shift();
             //console.log('P:requestLocalData() : ', msg, this.sendBuffer.length);
-            this.sp.write(msg, function () {
+            this.sp.write(msg, () => {
                 if (self.sp) {
-                    self.sp.drain(function () {
+                    self.sp.drain(() => {
                         self.isDraing = false;
                     });
                 }

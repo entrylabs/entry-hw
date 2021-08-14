@@ -44,27 +44,32 @@ class PingpongG1 extends BaseModule {
 
         let result = null;
         if (method === 'connect') {
-            result = Buffer.from([0xdd, 0xdd, grpid, 0x00, 0x00, 0x00, 0xda, 0x00, 0x0b, 0x00, 0x00]);
+            result = Buffer.from([
+                0xdd,
+                0xdd,
+                grpid,
+                0x00,
+                0x00,
+                0x00,
+                0xda,
+                0x00,
+                0x0b,
+                0x00,
+                0x00,
+            ]);
             //result[2] = this.groupId;
         } else if (method === 'disconnect') {
             result = Buffer.from([0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0xa8, 0x00, 0x0a, 0x01]);
             //result = Buffer.from('ffffffff0000a8000a01', 'hex');
         } else if (method === 'checkdongle') {
-            result = Buffer.from([0xdd, 0xdd, 0xdd, 0xdd, 0x00, 0x01, 0xda, 0x00, 0x0b, 0x00, 0x0d]);
+            result = Buffer.from([
+                0xdd, 0xdd, 0xdd, 0xdd, 0x00, 0x01, 0xda, 0x00, 0x0b, 0x00, 0x0d,
+            ]);
         } else if (method === 'setColorLed') {
             result = Buffer.from('ffff00070000ce000e0200000750', 'hex');
         } else if (method === 'getSensorData') {
             result = Buffer.from([
-                0xff,
-                0xff,
-                0xff,
-                0xff,
-                0x00,
-                0xc8 /* continuous sampling*/,
-                0xb8,
-                0x00,
-                0x0b,
-                20,
+                0xff, 0xff, 0xff, 0xff, 0x00, 0xc8 /* continuous sampling*/, 0xb8, 0x00, 0x0b, 20,
                 0x01,
             ]);
         }
@@ -117,18 +122,18 @@ class PingpongG1 extends BaseModule {
     // 연결 후 초기에 송신할 데이터가 필요한 경우 사용합니다.
     requestInitialData(sp, payload) {
         //console.log('P:requestInitialData: ');
-        let grpid = payload.match(/[0-7]{1,2}$/g);
+        const grpid = payload.match(/[0-7]{1,2}$/g);
         if (grpid == null) {
             console.warn('Wrong group id inputted', payload);
             return null;
         }
-        let grpno = parseInt(grpid[0], 16);
+        const grpno = parseInt(grpid[0], 16);
         return this.makePackets('connect', grpno);
     }
 
     dbgHexstr(data) {
         let output = '';
-        data.map(item => {
+        data.map((item) => {
             let number = item.toString(16);
             if (number.length < 2) {
                 number = `0${number}`;
@@ -161,7 +166,7 @@ class PingpongG1 extends BaseModule {
             if (this.send_cmd.id == -1) {
                 this.cmd_seq = 0;
                 //console.log('P:handle RD: CLEAR');
-			} else if (this.send_cmd.id != this.cmd_seq) {
+            } else if (this.send_cmd.id != this.cmd_seq) {
                 this.cmd_seq = this.send_cmd.id;
                 this.sendBuffer.push(Buffer.from(this.send_cmd.data));
                 //console.log('D:send PACKET: %s ', this.dbgHexstr(sendBuffer));
@@ -171,14 +176,14 @@ class PingpongG1 extends BaseModule {
 
     // 하드웨어 기기에 전달할 데이터
     requestLocalData() {
-        var self = this;
+        const self = this;
         if (!this.isDraing && this.sendBuffer.length > 0) {
             this.isDraing = true;
-            var msg = this.sendBuffer.shift();
+            const msg = this.sendBuffer.shift();
             //console.log('P:requestLocalData() : ', msg, this.sendBuffer.length);
-            this.sp.write(msg, function () {
+            this.sp.write(msg, () => {
                 if (self.sp) {
-                    self.sp.drain(function () {
+                    self.sp.drain(() => {
                         self.isDraing = false;
                     });
                 }
@@ -243,14 +248,14 @@ class PingpongG1 extends BaseModule {
     requestRemoteData(handler) {
         //console.log('P:request RD: ');
         const self = this;
-        Object.keys(this.readValue).forEach(key => {
+        Object.keys(this.readValue).forEach((key) => {
             if (self.readValue[key] !== undefined) {
                 handler.write(key, self.readValue[key]);
             }
         });
 
         //XXX: entryjs의 monitorTemplate 사용하려면 트리상단에 PORT 정보 보내야함
-        Object.keys(this._sensorData).forEach(key => {
+        Object.keys(this._sensorData).forEach((key) => {
             if (self._sensorData[key] !== undefined) {
                 //console.log(" --handler.write (%s) = %j ", key, self._sensorData[key]);
                 handler.write(key, self._sensorData[key]);
@@ -266,7 +271,7 @@ class PingpongG1 extends BaseModule {
         }, 500);
 
         setTimeout(() => {
-            this.sp.write(this.makePackets('getSensorData'), err => {
+            this.sp.write(this.makePackets('getSensorData'), (err) => {
                 console.log('done.........');
             });
         }, 1000);
@@ -283,7 +288,7 @@ class PingpongG1 extends BaseModule {
             // getSensor disable
             //this.sp.write( Buffer.from('ffffffff00c8b8000b0001', 'hex') );
 
-            this.sp.write(this.makePackets('disconnect'), err => {
+            this.sp.write(this.makePackets('disconnect'), (err) => {
                 if (this.sp.isOpen) {
                     console.log('Disconnect');
                     connect.close();
