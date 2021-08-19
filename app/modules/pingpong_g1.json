@@ -28,7 +28,7 @@
     "hardware": {
         "type": "bluetooth",
         "control": "slave",
-        "duration": 10000,
+        "duration": 50,
         "vendor": "Microsoft",
         "lostTimer": 5000,
         "firmwarecheck": false,
