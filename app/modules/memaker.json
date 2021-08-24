@@ -16,9 +16,6 @@
 	},
     "reconnect" : true,
     "firmware": "memaker",
-	"entry": {
-		"protocol": "json"
-	},
 	"hardware": {
 		"type": "serial",
 		"control": "slave",
