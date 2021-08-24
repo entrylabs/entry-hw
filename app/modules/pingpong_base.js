@@ -8,6 +8,9 @@ class PingpongBase extends BaseModule {
         this.send_cmd = {};
         this.cmd_seq = 0;
 
+        this.isDraing = false;
+        this.sendBuffer = [];
+
         this.sp = null;
         this.isCubeConnecting = false;
         this.isCheckConnecting = false;
@@ -28,15 +31,41 @@ class PingpongBase extends BaseModule {
 
         let result = null;
         if (method === 'connect') {
-            result = Buffer.from([0xdd, 0xdd, grpid, 0x00, 0x00, 0x00, 0xda, 0x00, 0x0b, 0x00, 0x00]);
+            result = Buffer.from([
+                0xdd,
+                0xdd,
+                grpid,
+                0x00,
+                0x00,
+                0x00,
+                0xda,
+                0x00,
+                0x0b,
+                0x00,
+                0x00,
+            ]);
             //result[2] = this.groupId;
         } else if (method === 'disconnect') {
             result = Buffer.from([0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0xa8, 0x00, 0x0a, 0x01]);
             //result = Buffer.from('ffffffff0000a8000a01', 'hex');
         } else if (method === 'checkdongle') {
-            result = Buffer.from([0xdd, 0xdd, 0xdd, 0xdd, 0x00, 0x01, 0xda, 0x00, 0x0b, 0x00, 0x0d]);
+            result = Buffer.from([
+                0xdd, 0xdd, 0xdd, 0xdd, 0x00, 0x01, 0xda, 0x00, 0x0b, 0x00, 0x0d,
+            ]);
         } else if (method === 'setMultirole') {
-            result = Buffer.from([0xff, 0xff, 0x00, 0xff, this.cubeCount << 4, 0x00, 0xad, 0x00, 0x0b, 0x0a, 0x00]);
+            result = Buffer.from([
+                0xff,
+                0xff,
+                0x00,
+                0xff,
+                this.cubeCount << 4,
+                0x00,
+                0xad,
+                0x00,
+                0x0b,
+                0x0a,
+                0x00,
+            ]);
             if (grpid > 0) {
                 result[2] = grpid;
                 result[9] = 0x1a;
@@ -69,12 +98,12 @@ class PingpongBase extends BaseModule {
     // 연결 후 초기에 송신할 데이터가 필요한 경우 사용합니다.
     requestInitialData(sp, payload) {
         //console.log('P:requestInitialData: ');
-        let grpid = payload.match(/[0-7]{1,2}$/g);
+        const grpid = payload.match(/[0-7]{1,2}$/g);
         if (grpid == null) {
             console.warn('Wrong group id inputted', payload);
             return null;
         }
-        let grpno = parseInt(grpid[0], 16);
+        const grpno = parseInt(grpid[0], 16);
         return this.makePackets('setMultirole', grpno);
     }
 
@@ -100,7 +129,7 @@ class PingpongBase extends BaseModule {
             this.checkBuffer = Buffer.from(data);
         }
 
-        let payload = this.checkBuffer;
+        const payload = this.checkBuffer;
 
         if (payload.length >= 9) {
             const packetSize = payload.readInt16BE(7);
@@ -129,24 +158,36 @@ class PingpongBase extends BaseModule {
 
     // 엔트리에서 받은 데이터에 대한 처리
     handleRemoteData(handler) {
-        //console.log('P:handle RemoteData: ', handler);
-
         this.send_cmd = handler.read('COMMAND');
         if (this.send_cmd) {
-            if (this.send_cmd.id > this.cmd_seq) {
-                this.cmd_seq = this.send_cmd.id;
-                const sendBuffer = Buffer.from(this.send_cmd.data);
-                this.sp.write(sendBuffer);
-                //console.log('D:send PACKET: %s ', this.dbgHexstr(sendBuffer));
-            } else if (this.send_cmd.id == -1) {
+            //console.log('P:handleRemoteData: ', this.send_cmd);
+            if (this.send_cmd.id == -1) {
                 this.cmd_seq = 0;
-                //console.log('P:handle RD: CLEAR');
+                //console.log('P:handleRemoteData RD: CLEAR');
+            } else if (this.send_cmd.id != this.cmd_seq) {
+                this.cmd_seq = this.send_cmd.id;
+                this.sendBuffer.push(Buffer.from(this.send_cmd.data));
+                //const sendBuffer = Buffer.from(this.send_cmd.data);
             }
         }
     }
 
     // 하드웨어 기기에 전달할 데이터
     requestLocalData() {
+        const self = this;
+        if (!this.isDraing && this.sendBuffer.length > 0) {
+            this.isDraing = true;
+            const msg = this.sendBuffer.shift();
+            //console.log('P:requestLocalData() : ', msg, this.sendBuffer.length);
+            this.sp.write(msg, () => {
+                if (self.sp) {
+                    self.sp.drain(() => {
+                        self.isDraing = false;
+                    });
+                }
+            });
+        }
+
         return null;
     }
 
