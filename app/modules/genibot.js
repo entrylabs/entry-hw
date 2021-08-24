@@ -104,8 +104,6 @@ const convertHexToSignedInt = (hex => {
     return hexString;
 });
 
-var isButtonPressed = false;
-
 class Module extends BaseModule {
     constructor() {
         super();
@@ -202,16 +200,9 @@ class Module extends BaseModule {
          handler.write('ROBOT_VERSION',this.robot.version);
  
         if (this.buttonStatus.status > 0) {
-            if(!isButtonPressed){
-                isButtonPressed = true;
-                this.buttonStatus.status = -1;
-                handler.write('BUTTON', true);
-                setTimeout(()=>{
-                    isButtonPressed = false;
-                },3000);
-            }else{
-                handler.write('BUTTON', false);
-            }
+            this.buttonStatus.status = -1;
+            handler.write('BUTTON', true);
+ 
         }else{
             handler.write('BUTTON', false);
         }
