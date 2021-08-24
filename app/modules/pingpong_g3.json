@@ -28,7 +28,7 @@
     "hardware": {
         "type": "bluetooth",
         "control": "slave",
-        "duration": 50,
+        "duration": 10000,
         "lostTimer": 5000,
         "vendor": "Microsoft",
         "baudRate": 115200
