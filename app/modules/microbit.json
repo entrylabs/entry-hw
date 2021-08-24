@@ -2,23 +2,20 @@
     "id": "220101",
     "name": {
         "en": "Microbit",
-        "ko": "마이크로빗"
+        "ko": "마이크로비트"
     },
     "category": "board",
     "platform": ["win32", "darwin"],
     "icon": "microbit.png",
     "module": "microbit.js",
     "url": "https://microbit.org/ko/",
-    "select_com_port": true,
+    "selectPort": true,
     "reconnect": true,
     "tryFlasherNumber": 1,
     "firmware": {
         "type": "copy",
         "name": "microbit",
         "afterDelay": 3000
-    },
-    "entry": {
-        "protocol": "json"
     },
     "driver": {
         "win32-ia32": "mbedWinSerial/mbedWinSerial_16466.exe",
