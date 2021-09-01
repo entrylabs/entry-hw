@@ -371,11 +371,8 @@ Module.prototype.makeSensorReadBuffer = function(device, port, data) {
 //0xff 0x55 0x6 0x0 0x1 0xa 0x9 0x0 0x0 0xa
 Module.prototype.makeOutputBuffer = function(device, port, data) {
     var buffer;
-    console.log('come');
     var value = new Buffer(2);
     var dummy = new Buffer([10]);
-
-    console.log(device);
 
     switch (device) {
         case this.sensorTypes.SERVO_PIN:
@@ -388,8 +385,6 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
         {
             value.writeInt16LE(data);
 
-            console.log(data);
-            console.log(value);
             buffer = new Buffer([
                 255,
                 85,
@@ -400,7 +395,6 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
                 port,
             ]);
             buffer = Buffer.concat([buffer, value, dummy]);
-            console.log(buffer);
             break;
         }
         case this.sensorTypes.METRIX: 
@@ -415,9 +409,6 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
                 value2.writeInt16LE(0);
             }
 
-            console.log(data);
-            console.log(value);
-            console.log(value2);
             buffer = new Buffer([
                 255,
                 85,
@@ -428,7 +419,6 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
                 port,
             ]);
             buffer = Buffer.concat([buffer, value, value2, dummy]);
-            console.log(buffer);
             break;
         }
         case this.sensorTypes.NEOPIXELINIT:{
@@ -443,9 +433,6 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
                 bright.writeInt16LE(0);
             }
 
-            console.log(data);
-            console.log(neo_count);
-            console.log(bright);
             buffer = new Buffer([
                 255,
                 85,
@@ -456,7 +443,6 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
                 port,
             ]);
             buffer = Buffer.concat([buffer, neo_count, bright, dummy]);
-            console.log(buffer);
             break;
         }
         case this.sensorTypes.NEOPIXEL:{
@@ -477,7 +463,6 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
                 b_value.writeInt16LE(0);
             }
 
-            console.log(data);
             buffer = new Buffer([
                 255,
                 85,
@@ -488,7 +473,6 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
                 port,
             ]);
             buffer = Buffer.concat([buffer, r_value, g_value, b_value, dummy]);
-            console.log(buffer);
             break;
         }
         case this.sensorTypes.TONE: {
