@@ -48,7 +48,7 @@
         "electron-rebuild": "2.3.5",
         "eslint": "^6.8.0",
         "file-loader": "^5.0.2",
-        "immer": "^4.0.2",
+        "immer": "^9.0.6",
         "inquirer": "^7.0.3",
         "lcdoc": "^0.0.2",
         "react": "^16.10.2",
