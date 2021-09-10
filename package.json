@@ -1,6 +1,6 @@
 {
     "name": "entry-hw",
-    "version": "1.9.20",
+    "version": "1.9.21",
     "description": "엔트리 하드웨어 연결 프로그램",
     "author": "EntryLabs",
     "main": "./app/src/index.bundle.js",
