@@ -1,4 +1,3 @@
-const { keys } = require('lodash');
 const BaseModule = require('./baseModule');
 
 class Wearable extends BaseModule {
