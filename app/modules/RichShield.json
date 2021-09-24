@@ -9,7 +9,7 @@
     "icon": "RichShield.png",
     "module": "RichShield.js",
     "url": "https://www.gorillacell.kr/",
-    "email": "35mwlee@naver.com",
+    "email": "saysaysay1234@nate.com",
     "driver": [
         {
             "win32-ia32": "arduino/dpinst-x86.exe",
