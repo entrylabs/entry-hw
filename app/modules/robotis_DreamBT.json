@@ -1,26 +1,25 @@
 {
-	"id": "070401",
+	"id": "070402",
 	"name": {
-		"en": "ROBOTIS DREAM",
-		"ko": "로보티즈 드림"
+		"en": "ROBOTIS DREAM(무선연결)",
+		"ko": "로보티즈 DREAM(무선연결)"
 	},
-	"category": "robot",
+	"category": "module",
 	"platform": ["win32"],
 	"icon" : "robotis_Dream.png",
 	"module": "robotis_Dream.js",
 	"url": "http://www.robotis.com",
-	"email": "kjw@robotis.com",
+	"email": "khg@robotis.com",
 	"reconnect" : true,
 	"driver": {
         "win32-ia32": "ROBOTIS/ROBOTIS CDC Driver.bat",
         "win32-x64": "ROBOTIS/ROBOTIS CDC Driver.bat"
 	},
-	"selectPort" : false,
+	"selectPort" : true,
 	"hardware": {
 		"type": "serial",
 		"control": "slave",
-		"vendor": ["ROBOTIS","FTDI"],
-		"pnpId": "6001",
+		"vendor": "ROBOTIS",
 		"duration": 50,
 		"baudRate": 57600
 	}
