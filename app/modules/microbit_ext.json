@@ -2,23 +2,20 @@
     "id": "220201",
     "name": {
         "en": "MicrobitExt",
-        "ko": "마이크로빗 확장"
+        "ko": "마이크로비트 확장"
     },
     "category": "board",
     "platform": ["win32", "darwin"],
     "icon": "microbit_ext.png",
     "module": "microbit_ext.js",
     "url": "https://microbit.org/ko/",
-    "select_com_port": true,
+    "selectPort": true,
     "reconnect": true,
     "tryFlasherNumber": 1,
     "firmware": {
         "type": "copy",
         "name": "microbit_ext",
         "afterDelay": 3000
-    },
-    "entry": {
-        "protocol": "json"
     },
     "driver": {
         "win32-ia32": "mbedWinSerial/mbedWinSerial_16466.exe",

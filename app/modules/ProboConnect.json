@@ -15,10 +15,7 @@
     "url": "https://www.probo.kr/",
     "email": "alswn5609@naver.com",
     "reconnect": true,
-    "select_com_port": true,
-      "entry": {
-          "protocol": "json"
-      },
+    "selectPort": true,
     "hardware": {
       "type": "serial",
       "control": "slave",

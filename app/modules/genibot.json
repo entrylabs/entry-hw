@@ -1,0 +1,26 @@
+{
+    "id": "440101",
+    "name": {
+        "en": "Genibot",
+        "ko": "지니봇"
+    },
+    "category": "robot", 
+    "platform": ["win32", "darwin"],
+    "icon": "genibot.png",
+    "module": "genibot.js",
+    "url": "https://genirobot.com",
+
+    "reconnect": true,
+    "selectPort" : false,
+    "hardware": {
+		"pnpId" : "C00A",
+		"type": "serial",
+		"control": "slave",
+		"vendor": ["1915"],
+        "baudRate": 406800,
+        "parity" : "none",
+        "dataBits" : 8,
+        "stopBits" : 1,
+        "flowControl": "hardware"
+    }
+}
