@@ -2,7 +2,7 @@
     "id": "4B0101",
     "name": {
         "en": "Robit Stage",
-        "ko": "로빗 무대"
+        "ko": "로빗무대"
     },
     "category": "board",
     "platform": ["win32", "darwin"],
