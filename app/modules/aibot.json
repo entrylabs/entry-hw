@@ -14,7 +14,7 @@
     },
     "reconnect": true,
     "firmwareBaudRate": 57600,
-    "firmware": "aibot",
+    "firmware": "",
     "hardware": {
         "type": "serial",
         "control": "slave",
