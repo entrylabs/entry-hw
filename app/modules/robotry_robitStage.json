@@ -2,7 +2,7 @@
     "id": "4B0101",
     "name": {
         "en": "Robit Stage",
-        "ko": "로빗 무대"
+        "ko": "로빗무대"
     },
     "category": "board",
     "platform": ["win32", "darwin"],
@@ -11,8 +11,8 @@
     "url": "http://robotry.co.kr",
     "email": "hee.kim6133@robotry.co.kr",
     "driver": [{
-        "win32-ia32": "arduino/dpinst-x86.exe",
-        "win32-x64": "arduino/dpinst-amd64.exe",
+        "win32-ia32": "robotry/CH34x_Install_Windows_v3_4.exe",
+        "win32-x64": "robotry/CH34x_Install_Windows_v3_4.exe",
 		"translate": "드라이버 설치"
     }],
     "firmwareBaudRate": 115200,
