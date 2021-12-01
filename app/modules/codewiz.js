@@ -102,6 +102,14 @@ class CodeWiz extends BaseModule {
         return true;
     }
 
+    // afterConnect(that, cb) {
+    //     console.log('call afterConnect');
+    //     that.connected = true;
+    //     if (cb) {
+    //         cb('connected');
+    //     }
+    // }
+    lostController(self, callback) {}
     /**
      * 엔트리에서 받은 데이터에 대한 처리
      * @param {*} handler
