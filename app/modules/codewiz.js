@@ -1,3 +1,5 @@
+'use strict';
+const { slice } = require('../../webpack.config');
 const BaseModule = require('./baseModule');
 
 class CodeWiz extends BaseModule {
@@ -6,22 +8,15 @@ class CodeWiz extends BaseModule {
         this.receiveType = {
             SENSOR_TYPE1: 0,
             SENSOR_TYPE2: 1,
-            RUN_OK: 2,
+
             BOOLEAN: 3,
-            UNSIGNED_INT: 4,
+            INT: 4,
             FLOAT: 5,
+            RUN_OK: 6,
         };
-        this.orderTypes = {
-            BUZZER: 1,
-            NEOPIXEL: 2,
-            OLED: 3,
-            DIGITAL_OUTPUT: 4,
-        };
-        this.actionTypes = {
-            READ: 1,
-            RUN: 0,
-        };
+
         this.sendBuffers = [];
+        this.recvBuffers = [];
 
         this.defaultSensorList = ['SOUND', 'LIGHT', 'DIST', 'HALL'];
         this.defaultSensorList2 = [
@@ -55,9 +50,6 @@ class CodeWiz extends BaseModule {
             GYRO_X: 0,
             GYRO_Y: 0,
             GYRO_Z: 0,
-
-            TIMER: 0,
-            //ISRUN:1,
         };
         this.isDraing = false;
     }
@@ -79,9 +71,25 @@ class CodeWiz extends BaseModule {
     */
     requestInitialData(sp) {
         this.sp = sp;
+        // reset
         sp.set({ dtr: false, rts: true });
         sp.set({ dtr: false, rts: false });
+
+        // Enter Factory App
+        // sp.set({ dtr: false, rts: true });
+        // await this._sleep(200);
+        // sp.set({ dtr: true, rts: false });
+        // await this._sleep(800);
+        // sp.set({ dtr: false, rts: false });
+        // await this._sleep(1000);
+        // sp.write([0xc0, 0x00, 0xe0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xc0]);
+        // await this.__sleep(500);
+        // sp.write([254, 255, 3, 1, 0]);
         return true;
+    }
+
+    _sleep(ms) {
+        return new Promise((resolve) => setTimeout(resolve, ms));
     }
 
     // 연결 후 초기에 수신받아서 정상연결인지를 확인해야하는 경우 사용합니다.
@@ -94,26 +102,6 @@ class CodeWiz extends BaseModule {
         return true;
     }
 
-    // afterConnect(that, cb) {
-    //     that.connected = true;
-    //     if (cb) {
-    //         cb('connected');
-    //     }
-    // }
-    // lostController(self, cb) {
-    //     // console.log(this.sp);
-    // }
-    // setSerialPort(sp) {
-    //     this.sp = sp;
-    //     sp.set({ dtr: false, rts: true });
-    //     sp.set({ dtr: false, rts: false });
-    // }
-    // disconnect(connect) {
-    //     connect.close();
-    //     if (this.sp) {
-    //         delete this.sp;
-    //     }
-    // }
     /**
      * 엔트리에서 받은 데이터에 대한 처리
      * @param {*} handler
@@ -122,35 +110,24 @@ class CodeWiz extends BaseModule {
         const isReset = handler.serverData.RESET;
         if (isReset === 1) {
             this.sp.write([254, 255, 3, 1, 0]);
-            // this.handler.write('RESET', 0);
             return;
         }
-        const getData = handler.serverData.GET;
-        const setData = handler.serverData.SET;
-        let buffer = null;
-        if (getData) {
-            this.handler.write('runOK', false);
-            const keys = Object.keys(getData);
-            keys.forEach((id) => {
-                const data = getData[id];
-                if (data) {
-                    buffer = this.makeSendMessage(this.actionTypes.READ, data.value);
-                }
-            });
-        } else if (setData) {
-            this.handler.write('runOK', false);
-            const keys = Object.keys(setData);
-            keys.forEach((id) => {
-                const data = setData[id];
-                if (data) {
-                    buffer = this.makeSendMessage(this.actionTypes.RUN, data.value);
-                }
-            });
-        }
+        const orderData = handler.serverData.ORDER;
 
-        if (buffer?.length > 0) {
-            this.sendBuffers.push(buffer);
-            console.log('this.sendBuffers', this.sendBuffers);
+        let buffer = null;
+        if (orderData) {
+            this.handler.write('runOK', false);
+            const keys = Object.keys(orderData);
+            keys.forEach((id) => {
+                const data = orderData[id];
+                if (data) {
+                    buffer = this.makeSendMessage(data.type, data.value);
+                    if (buffer?.length > 0) {
+                        this.sendBuffers.push(buffer);
+                        console.log('this.sendBuffers', this.sendBuffers);
+                    }
+                }
+            });
         }
     }
     processData(dataArr) {
@@ -199,18 +176,19 @@ class CodeWiz extends BaseModule {
                 }
             });
         }
-
         return null;
     }
     getDataByBuffer(buffer) {
+        this.recvBuffers.push(...buffer);
         let datas = [];
-        let lastIndex = 0;
-        buffer.forEach((value, idx) => {
-            if (value == 13 && buffer[idx + 1] == 10) {
-                datas.push(buffer.subarray(lastIndex, idx));
-                lastIndex = idx + 2;
+        let lastIdx = 0;
+        this.recvBuffers.forEach((value, idx, d) => {
+            if (value === 0xff && d[idx + 1] === 0xfe) {
+                lastIdx = idx + 2 + d[idx + 2];
+                datas.push(d.slice(idx + 2, lastIdx));
             }
         });
+        this.recvBuffers.splice(0, lastIdx);
         return datas;
     }
     /**
@@ -220,24 +198,20 @@ class CodeWiz extends BaseModule {
     handleLocalData(data) {
         const datas = this.getDataByBuffer(data);
 
-        datas.forEach((data) => {
-            if (data.length < 4 || data[0] !== 0xff || data[1] !== 0x55) {
-                return;
-            }
-            const readData = data.subarray(2, data.length);
+        datas.forEach((readData) => {
             let value;
-            switch (readData[0]) {
+            switch (readData[1]) {
                 case this.receiveType.SENSOR_TYPE1: {
-                    for (let i = 0; 2 * i < readData.length; ++i) {
-                        value = (readData[i * 2 + 1] << 8) | readData[i * 2 + 2];
-                        if (i === 2) {
+                    for (let i = 1; 2 * i < readData.length; ++i) {
+                        value = (readData[i * 2] << 8) | readData[i * 2 + 1];
+                        if (i === 3) {
                             if (value < 3000) {
                                 this.sensorData.DIST = value;
                             }
-                        } else if (i === 3) {
-                            this.sensorData[this.defaultSensorList[i]] = value - 300;
+                        } else if (i === 4) {
+                            this.sensorData.HALL = value - 300;
                         } else {
-                            this.sensorData[this.defaultSensorList[i]] = value;
+                            this.sensorData[this.defaultSensorList[i - 1]] = value;
                         }
                     }
                     this.shouldUpdateSensor1 = true;
@@ -246,17 +220,17 @@ class CodeWiz extends BaseModule {
                 case this.receiveType.SENSOR_TYPE2: {
                     let _value;
                     for (let i = 0; i < 8; ++i) {
-                        _value = (readData[1] >> (i - 4)) & 1; //===0? 0:1;
+                        _value = (readData[2] >> i) & 1; //===0? 0:1;
                         this.sensorData[this.defaultSensorList2[i]] = _value === 1;
                     }
                     for (let i = 8; i < 8 + 3; ++i) {
-                        _value = readData[i - 6];
+                        _value = readData[i - 5];
                         if (_value <= 180) {
                             this.sensorData[this.defaultSensorList2[i]] = _value - 90;
                         }
                     }
                     //temperature
-                    _value = (readData[5] << 8) | readData[6];
+                    _value = (readData[6] << 8) | readData[7];
                     _value -= 400;
                     _value /= 10.0;
                     if (_value < 81) {
@@ -265,26 +239,36 @@ class CodeWiz extends BaseModule {
                     this.shouldUpdateSensor2 = true;
                     return;
                 }
-                // this.handler 쟁여둠
-                // 펌웨어 바뀌어야함(?) 길이부분이 없다
                 case this.receiveType.RUN_OK: {
-                    if (readData[1] === 6) {
-                        // 리턴값이 있는건 밸류에 다른 값을 넣자
-                        this.handler.write('runOK', { value: 'runOK' });
-                    }
-                    break;
+                    this.handler.write('runOK', { value: 'runOK' });
+                    return;
                 }
                 case this.receiveType.BOOLEAN: {
-                    this.handler.write('runOK', { value: readData[1] === 1 });
-                    break;
+                    this.handler.write('runOK', { value: readData[2] === 1 });
+                    return;
                 }
-                case this.receiveType.UNSIGNED_INT: {
-                    let _value = (readData[1] << 8) | readData[2];
+                case this.receiveType.INT: {
+                    let _sign = readData[2] === 1;
+                    let _value = (readData[3] << 8) | readData[4];
+                    if (_sign) {
+                        _value *= -1;
+                    }
                     this.handler.write('runOK', { value: _value });
-                    break;
+                    return;
+                }
+                case this.receiveType.FLOAT: {
+                    let _sign = readData[2] & 0x80; // -: 1, +:0
+                    let firstData = readData[2] & 0x7f;
+                    let _value = (firstData << 8) | readData[3];
+                    if (_sign === 1) {
+                        _value *= -1;
+                    }
+                    _value /= 10;
+                    this.handler.write('runOK', { value: _value });
+                    return;
                 }
                 default: {
-                    break;
+                    return;
                 }
             }
         });
@@ -295,6 +279,8 @@ class CodeWiz extends BaseModule {
      * @param {*} handler
      */
     requestRemoteData(handler) {
+        // sensorTest
+        // console.log('this.sensorData:', this.sensorData);
         if (this.shouldUpdateSensor1) {
             this.defaultSensorList.forEach((value, index, arr) => {
                 handler.write(value, this.sensorData[value]);
