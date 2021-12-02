@@ -102,14 +102,36 @@ class CodeWiz extends BaseModule {
         return true;
     }
 
-    // afterConnect(that, cb) {
-    //     console.log('call afterConnect');
-    //     that.connected = true;
-    //     if (cb) {
-    //         cb('connected');
-    //     }
-    // }
-    lostController(self, callback) {}
+    // 연결이 끊겼을 때, 핸들러
+    // self에는 SerialConnector가 있음
+    // self.hwModule 은 this와 같은?듯
+    lostController(self, callback) {
+        if (this.timer) {
+            clearInterval(this.timer);
+            this.timer = null;
+        }
+        this.timer = setInterval(() => {
+            if (this.sp?.isOpen === false) {
+                callback('lost');
+                clearInterval(this.timer);
+            }
+        }, 1122);
+    }
+
+    // 펌웨어 업로드시 lostController에서 체크하는게 안불리려면
+    // 업로드 전에 mainRouter.stopScan이 불리므로 거기서 disconnect를 호출하니까
+    // 여기서 타이머를 초기화해주면 될?듯
+    disconnect(connect) {
+        connect.close();
+        this.sendBuffers = [];
+        this.recvBuffers = [];
+        this.isDraing = false;
+        this.sp = null;
+        if (this.timer) {
+            clearInterval(this.timer);
+            this.timer = null;
+        }
+    }
     /**
      * 엔트리에서 받은 데이터에 대한 처리
      * @param {*} handler
