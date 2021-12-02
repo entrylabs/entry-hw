@@ -11,14 +11,11 @@
 	"url": "http://www.robotis.com",
 	"email": "kigate@robotis.com",
 	"reconnect" : true,
-	"entry": {
-		"protocol": "json"
-	},
 	"driver": {
         "win32-ia32": "ROBOTIS/ROBOTIS CDC Driver.bat",
         "win32-x64": "ROBOTIS/ROBOTIS CDC Driver.bat"
 	},
-	"select_com_port" : true,
+	"selectPort" : true,
 	"hardware": {
 		"type": "serial",
 		"control": "slave",
