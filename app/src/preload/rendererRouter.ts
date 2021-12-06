@@ -108,17 +108,17 @@ class RendererRouter {
         if (appName === 'hardware' && navigator.onLine) {
             await ipcRenderer
                 .invoke('checkUpdate')
-                .then(({ hasNewVersion, version: latestVersion }) => {
+                .then(({ hasNewVersion, recentVersion }) => {
                     const lastDontCheckedVersion = localStorage.getItem('lastDontCheckedVersion');
                     if (
                         hasNewVersion &&
-                        (!lastDontCheckedVersion || lastDontCheckedVersion < latestVersion)
+                        (!lastDontCheckedVersion || lastDontCheckedVersion < recentVersion)
                     ) {
                         modal
                             .alert(
                                 translate(
                                     'You can use the latest Entry Hardware version(%1).'
-                                ).replace(/%1/gi, latestVersion),
+                                ).replace(/%1/gi, recentVersion),
                                 translate('Alert'),
                                 {
                                     positiveButtonText: translate('Download'),
@@ -136,13 +136,13 @@ class RendererRouter {
                                 (event: any, { dontShowChecked }: { dontShowChecked: boolean }) => {
                                     if (event === 'ok') {
                                         shell.openExternal(
-                                            'https://playentry.org/#!/offlineEditor'
+                                            'https://playentry.org/download/hardware'
                                         );
                                     }
                                     if (dontShowChecked) {
                                         localStorage.setItem(
                                             'lastDontCheckedVersion',
-                                            latestVersion
+                                            recentVersion
                                         );
                                     }
                                 }
