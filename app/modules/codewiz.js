@@ -154,7 +154,7 @@ class CodeWiz extends BaseModule {
                     buffer = this.makeSendMessage(data.type, data.value);
                     if (buffer?.length > 0) {
                         this.sendBuffers.push(buffer);
-                        console.log('this.sendBuffers', this.sendBuffers);
+                        // console.log('this.sendBuffers', this.sendBuffers);
                     }
                 }
             });
@@ -162,7 +162,6 @@ class CodeWiz extends BaseModule {
     }
     processData(dataArr) {
         let retVal = [];
-        // console.log('dataArr:', dataArr);
         for (let i = 0; i < dataArr.length; ++i) {
             retVal.push(...this.strToAscii('' + dataArr[i]));
         }
@@ -309,8 +308,6 @@ class CodeWiz extends BaseModule {
      * @param {*} handler
      */
     requestRemoteData(handler) {
-        // sensorTest
-        // console.log('this.sensorData:', this.sensorData);
         if (this.shouldUpdateSensor1) {
             this.defaultSensorList.forEach((value, index, arr) => {
                 handler.write(value, this.sensorData[value]);
