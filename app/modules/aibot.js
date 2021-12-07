@@ -19,6 +19,8 @@ function Module() {
 
 	this.firstConnect = false;
 	this.connectingCnt = 0;
+
+	this.sendAliveIntervalCnt=0;
 	
 	this.prevBuffer = [];
 	this.servoValues= [];
@@ -205,16 +207,8 @@ Module.prototype.handleRemoteData = function(handler) {
 		val  = getData[array.PORT_CONTROL].mode;
 		checkTime = getData[array.PORT_CONTROL].Time;
 		remote = getData[array.PORT_CONTROL].remote;
-        address = array.PORT_CONTROL;				
-		
-		//console.log(this.prevSendBuffer[array.PORT_CONTROL]);
-		this.sendBuffer[array.PORT_CONTROL] = this.makeSendBuffPort(80,remote,port,val,255,255,255,255,255,255,255,255,255,255);
-		/*
-		if(  this.checkBuffer(this.sendBuffer[array.PORT_CONTROL],this.prevSendBuffer[array.PORT_CONTROL],5) == false){
-			this.sendBuffer[array.PORT_CONTROL] = [];
-			this.prevSendBuffer[array.PORT_CONTROL] = this.sendBuffer[array.PORT_CONTROL];	
-		}				*/
-		//console.log(this.sendBuffer[array.PORT_CONTROL]);	
+        address = array.PORT_CONTROL;	
+		this.sendBuffer[array.PORT_CONTROL] = this.makeSendBuffPort(80,remote,port,val,255,255,255,255,255,255,255,255,255,255);		
 	}	
 	if(getData[array.PORT_OUT_CONTROL])
 	{
@@ -320,6 +314,10 @@ Module.prototype.requestLocalData = function() {
 		//console.log("send to hw");console.log(sendToHardware);
 		return sendToHardware;
 	}	
+	else{
+
+	}
+
 	
 };
 
@@ -399,13 +397,12 @@ Module.prototype.handleLocalData = function(data) { // data: Native Buffer
 	var ad = this.sensorData.AIDESK;
     var val = 0;
 	
-	if(this.firstConnect && this.connectingCnt > 5){	
+	if(this.firstConnect && this.connectingCnt > 10){	
 		this.connectingCnt=0;
 		this.lastTime=0;this.checkTime=1;
 		this.address = this.array.CONNECT_DEVICE;
 		this.sendBuffer[this.array.CONNECT_DEVICE] = this.makeSendBuffShort(65,1,0,0,0);
 		this.firstConnect = false;
-
 		return;				
 	}
 
@@ -456,18 +453,18 @@ Module.prototype.handleLocalData = function(data) { // data: Native Buffer
 Module.prototype.requestRemoteData = function(handler) {
 	
 	const self = this;
-/*
+
 	for(var key in this.sensorData)
 	{
-		handler.write(key, this.sensorData[key]);
+			handler.write(key, this.sensorData[key]);
 	}
-*/
 
+/*
     Object.keys(this.sensorData).forEach((key) => {
         if (self.sensorData[key] != undefined) {
             handler.write(key, self.sensorData[key]);
         }
-    });
+    });*/
 	
 	for (var i = 0; i < 20; i++) {
 		var value = this.sensorData.SENSOR[i];

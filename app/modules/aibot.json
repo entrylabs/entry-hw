@@ -21,7 +21,7 @@
     "hardware": {
         "type": "serial",
         "control": "slave",
-        "duration": 70,
+        "duration": 50,
         "vendor": [],
         "baudRate": 57600,
         "lostTimer": 3000,
