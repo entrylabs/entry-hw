@@ -27,6 +27,8 @@ function Module() {
 	this.portOutValues= [];
 	this.portModeValues= [];
 
+	this.aliveCnt = 0;
+
 	this.sendBuffer = new Array(13);
 	this.prevSendBuffer = new Array(13);
 	this.array = {
@@ -311,11 +313,15 @@ Module.prototype.requestLocalData = function() {
 		sendToHardware = this.sendBuffer[address];
 		this.lastTime = currentTime;
 		this.sendBuffer[address] = [];	
-		//console.log("send to hw");console.log(sendToHardware);
+		this.aliveCnt = 0;
+		console.log("control send to hw");console.log(sendToHardware);
 		return sendToHardware;
 	}	
-	else{
-
+	else if(this.aliveCnt++>20){
+		this.aliveCnt = 0;
+		sendToHardware = this.makeSendBuffShort(65,1,0,0,0);
+		console.log("alive send to hw");console.log(sendToHardware);
+		return sendToHardware;
 	}
 
 	
@@ -396,7 +402,7 @@ Module.prototype.handleLocalData = function(data) { // data: Native Buffer
 	var sd = this.sensorData.SENSOR;
 	var ad = this.sensorData.AIDESK;
     var val = 0;
-	
+	/*
 	if(this.firstConnect && this.connectingCnt > 10){	
 		this.connectingCnt=0;
 		this.lastTime=0;this.checkTime=1;
@@ -404,7 +410,7 @@ Module.prototype.handleLocalData = function(data) { // data: Native Buffer
 		this.sendBuffer[this.array.CONNECT_DEVICE] = this.makeSendBuffShort(65,1,0,0,0);
 		this.firstConnect = false;
 		return;				
-	}
+	}*/
 
 	if(data[0]==73 && data[1]==1){  //'I'
 		for (var i = 0; i < 4; i++) {
