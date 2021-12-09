@@ -75,21 +75,7 @@ class CodeWiz extends BaseModule {
         sp.set({ dtr: false, rts: true });
         sp.set({ dtr: false, rts: false });
 
-        // Enter Factory App
-        // sp.set({ dtr: false, rts: true });
-        // await this._sleep(200);
-        // sp.set({ dtr: true, rts: false });
-        // await this._sleep(800);
-        // sp.set({ dtr: false, rts: false });
-        // await this._sleep(1000);
-        // sp.write([0xc0, 0x00, 0xe0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xc0]);
-        // await this.__sleep(500);
-        // sp.write([254, 255, 3, 1, 0]);
         return true;
-    }
-
-    _sleep(ms) {
-        return new Promise((resolve) => setTimeout(resolve, ms));
     }
 
     // 연결 후 초기에 수신받아서 정상연결인지를 확인해야하는 경우 사용합니다.
@@ -101,6 +87,13 @@ class CodeWiz extends BaseModule {
     validateLocalData(data) {
         return true;
     }
+
+    // afterConnect(that, cb) {
+    //     that.connected = true;
+    //     if (cb) {
+    //         cb('connected');
+    //     }
+    // }
 
     // 연결이 끊겼을 때, 핸들러
     // self에는 SerialConnector가 있음
