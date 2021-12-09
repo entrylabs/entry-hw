@@ -123,12 +123,29 @@ class RendererRouter {
                                 {
                                     positiveButtonText: translate('Download'),
                                     positiveButtonStyle: {
-                                        marginTop: '16px',
+                                        marginTop: '30px',
                                         marginBottom: '16px',
                                         width: '180px',
+                                        backgroundColor: '#4F80FF',
+                                        borderColor: '#4F80FF',
+                                        borderRadius: '7px',
                                     },
-                                    parentClassName: 'versionAlert',
+                                    containerStyle: {
+                                        overflow: 'hidden',
+                                        borderRadius: '7px',
+                                        boxShadow: 'none',
+                                        width: '388px'
+                                    },
+                                    contentStyle: {
+                                        fontSize: '18px',
+                                        color: '#2C313D',
+                                        lineHeight: '24px',
+                                        fontWeight: 'bolder',
+                                    },
                                     withDontShowAgain: true,
+                                }
+                                ,{
+                                    className: 'hideShadow',
                                 }
                             )
                             .one(
