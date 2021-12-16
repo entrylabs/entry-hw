@@ -17,11 +17,18 @@
     },
 	"reconnect" : true,
 	"selectPort": true,
-	"firmware": {
+	"firmware": [{
         "type": "esp32",
         "offset": "0x10000",
-        "name": "codewiz"
+        "name": "codewiz",
+		"translate" : "코드위즈 펌웨어"
     },
+	{
+        "type": "esp32",
+        "offset": "0x10000",
+        "name": "codewizTooth",
+		"translate" : "동글 코드위즈 펌웨어"
+    }],
 	"firmwareBaudRate": 921600,
 	"hardware": {
 		"type": "serial",
