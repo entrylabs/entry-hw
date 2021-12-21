@@ -111,7 +111,11 @@ Module.prototype.setSerialPort = function(sp) {
 	this.sp = sp;
 }
 Module.prototype.connect = function() {	
-	
+	var ad = this.sensorData.AIDESK;
+	for(var i = 0; i < 6; i++)
+	{
+		ad[i] = 0;
+	}
 }
 
 // 하드웨어 연결 해제 시 호출
@@ -271,13 +275,15 @@ Module.prototype.handleRemoteData = function(handler) {
 		var var1 = getData[array.AIDESK_CONTROL].var1;
 		var var2 = getData[array.AIDESK_CONTROL].var2;
 		var var3 = getData[array.AIDESK_CONTROL].var3;
+		var var4 = getData[array.AIDESK_CONTROL].var4;
 		checkTime = getData[array.AIDESK_CONTROL].Time;
         address = array.AIDESK_CONTROL;
 		if(var1<0)var1=65536+var1;
 		if(var2<0)var2=65536+var2;
 		if(var3<0)var3=65536+var3;
+		if(var4<0)var4=65536+var4;
 		
-		this.sendBuffer[array.AIDESK_CONTROL] = this.makeSendBuffAIDesk(75,remote,func,var1,var2,var3);
+		this.sendBuffer[array.AIDESK_CONTROL] = this.makeSendBuffAIDesk(75,remote,func,var1,var2,var3,var4);
 	}	
 	if(getData[array.REMOTE_DEVICE])
 	{		
@@ -314,13 +320,13 @@ Module.prototype.requestLocalData = function() {
 		this.lastTime = currentTime;
 		this.sendBuffer[address] = [];	
 		this.aliveCnt = 0;
-		console.log("control send to hw");console.log(sendToHardware);
+		//console.log("control send to hw");console.log(sendToHardware);
 		return sendToHardware;
 	}	
 	else if(this.aliveCnt++>20){
 		this.aliveCnt = 0;
 		sendToHardware = this.makeSendBuffShort(65,1,0,0,0);
-		console.log("alive send to hw");console.log(sendToHardware);
+		//console.log("alive send to hw");console.log(sendToHardware);
 		return sendToHardware;
 	}
 
@@ -343,7 +349,7 @@ Module.prototype.makeSendBuffPort = function(cmd, id , p0, v0, p1, v1, p2, v2, p
 Module.prototype.makeSendBuffShort = function(cmd, id , d0, d1, d2) {	
 	return this.cmdBuildShort(cmd,id,d0,d1,d2);
 };
-Module.prototype.makeSendBuffAIDesk = function(cmd, id , d0, d1, d2, d3) {	
+Module.prototype.makeSendBuffAIDesk = function(cmd, id , d0, d1, d2, d3, d4) {	
 	var tbuff = new Array(14);	
 	tbuff[0] = cmd; // header1
 	tbuff[1] = id; // header2
@@ -352,7 +358,7 @@ Module.prototype.makeSendBuffAIDesk = function(cmd, id , d0, d1, d2, d3) {
 	tbuff[4] = d1>>8;	tbuff[5] = d1&0xff;
 	tbuff[6] = d2>>8;	tbuff[7] = d2&0xff;
 	tbuff[8] = d3>>8;	tbuff[9] = d3&0xff;
-    tbuff[10] = 255;	tbuff[11] = 255;
+    tbuff[10] = d4>>8;	tbuff[11] = d4&0xff;
 	tbuff[12] = 255;	tbuff[13] = 255;
 	//console.log(tbuff);
 	return tbuff;
@@ -402,15 +408,6 @@ Module.prototype.handleLocalData = function(data) { // data: Native Buffer
 	var sd = this.sensorData.SENSOR;
 	var ad = this.sensorData.AIDESK;
     var val = 0;
-	/*
-	if(this.firstConnect && this.connectingCnt > 10){	
-		this.connectingCnt=0;
-		this.lastTime=0;this.checkTime=1;
-		this.address = this.array.CONNECT_DEVICE;
-		this.sendBuffer[this.array.CONNECT_DEVICE] = this.makeSendBuffShort(65,1,0,0,0);
-		this.firstConnect = false;
-		return;				
-	}*/
 
 	if(data[0]==73 && data[1]==1){  //'I'
 		for (var i = 0; i < 4; i++) {
@@ -421,7 +418,8 @@ Module.prototype.handleLocalData = function(data) { // data: Native Buffer
 			sd[4+i] = val;  	
 		}
 	}
-	if(data[14+0]==73 && data[14+1]==2){//'I'
+	
+	if(data.length > 14 && data[14+0]==73 && data[14+1]==2){//'I'
 		for (var i = 0; i < 4; i++) {
 			sd[8+i] = data[14+2+i];	
 		}
@@ -429,8 +427,9 @@ Module.prototype.handleLocalData = function(data) { // data: Native Buffer
 			val = (((data[14+6+i*2] & 0xFF) << 8) | (data[14+6+i*2+1] & 0xFF));
 			sd[8+4+i] = val;  	
 		}
-		this.connectingCnt++;
+		//console.log(data);
 	}	
+
 	var s = 0;
 	if(data[s]==88 && data[s+1]==1){//'X'
 		for (var i = 0; i < 6; i++) {
@@ -439,7 +438,6 @@ Module.prototype.handleLocalData = function(data) { // data: Native Buffer
 			if(val>-2000 && val<2000)ad[i] = val;  	
 			
 		}
-		this.connectingCnt++;
 	}	
 	/*
 	if(data[s+4]==88 && data[s+5]==2){//'X'		

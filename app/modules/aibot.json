@@ -15,7 +15,7 @@
     "url": "https://www.jinirobot.com/",
     "email": "jinirobot@naver.com",
     "reconnect": true,
-    "firmwareBaudRate": 57600,
+    "firmwareBaudRate": 115200,
     "firmware": "",
     "selectPort": true,
     "hardware": {
