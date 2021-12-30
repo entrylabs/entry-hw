@@ -1,5 +1,4 @@
 'use strict';
-const { slice } = require('../../webpack.config');
 const BaseModule = require('./baseModule');
 
 class CodeWiz extends BaseModule {
