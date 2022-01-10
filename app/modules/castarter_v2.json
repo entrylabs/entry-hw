@@ -10,7 +10,7 @@
 	"module": "castarter_v2.js",
 	"url": "https://cafe.naver.com/arduinostory",
 	"email": "we@codingarray.cc",
-	"video": "https://youtu.be/R6nYA4AOn8w",
+	"video": "https://youtu.be/DYTYEcSIFKY",
 	"driver": {
         "win32-ia32": "arduino/dpinst-x86.exe",
         "win32-x64": "arduino/dpinst-amd64.exe"
