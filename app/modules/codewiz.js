@@ -1,5 +1,3 @@
-'use strict';
-const { slice } = require('../../webpack.config');
 const BaseModule = require('./baseModule');
 
 class CodeWiz extends BaseModule {
@@ -164,10 +162,18 @@ class CodeWiz extends BaseModule {
         if (!str) {
             return [];
         }
-        let ret = [str.length];
+        // let ret = [str.length];
+        let ret = [];
         for (let i = 0; i < str.length; ++i) {
-            ret.push(str[i].charCodeAt());
+            // ret.push(str[i].charCodeAt());
+            let c = str[i].charCodeAt();
+            if (c > 0xff) {
+                ret.push(0x08, c >> 8, c & 0xff);
+            } else {
+                ret.push(c);
+            }
         }
+        ret.unshift(ret.length);
         return ret;
     }
 
