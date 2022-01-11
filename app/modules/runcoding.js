@@ -18,6 +18,7 @@ function Module() {
         NEOPIXELCLEAR: 15,
         NEOPIXELINIT : 16,
         NEOPIXELRAINBOW : 17,
+        NEOPIXELEACH : 18,
     };
 
     this.actionTypes = {
@@ -473,6 +474,36 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
                 port,
             ]);
             buffer = Buffer.concat([buffer, r_value, g_value, b_value, dummy]);
+            break;
+        }
+        case this.sensorTypes.NEOPIXELEACH:{
+            var cnt_value = new Buffer(2);
+            var r_value = new Buffer(2);
+            var g_value = new Buffer(2);
+            var b_value = new Buffer(2);
+            
+            if ($.isPlainObject(data)) {
+                cnt_value.writeInt16LE(data.CNT_val);
+                r_value.writeInt16LE(data.R_val);
+                g_value.writeInt16LE(data.G_val);
+                b_value.writeInt16LE(data.B_val);
+            } else {
+                cnt_value.writeInt16LE(0);
+                r_value.writeInt16LE(0);
+                g_value.writeInt16LE(0);
+                b_value.writeInt16LE(0);
+            }
+
+            buffer = new Buffer([
+                255,
+                85,
+                10,
+                sensorIdx,
+                this.actionTypes.SET,
+                device,
+                port,
+            ]);
+            buffer = Buffer.concat([buffer, cnt_value, r_value, g_value, b_value, dummy]);
             break;
         }
         case this.sensorTypes.TONE: {
