@@ -19,6 +19,9 @@ function Module() {
         NEOPIXELINIT : 16,
         NEOPIXELRAINBOW : 17,
         NEOPIXELEACH : 18,
+        LCDINIT: 19,
+        LCD: 20,
+        LCDCLEAR: 21,
     };
 
     this.actionTypes = {
@@ -383,6 +386,7 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
         case this.sensorTypes.METRIXDRAW:
         case this.sensorTypes.NEOPIXELCLEAR:
         case this.sensorTypes.NEOPIXELRAINBOW:
+        case this.sensorTypes.LCDCLEAR:
         {
             value.writeInt16LE(data);
 
@@ -423,15 +427,15 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
             break;
         }
         case this.sensorTypes.NEOPIXELINIT:{
-            var bright = new Buffer(2);
-            var neo_count = new Buffer(2);
+            var value1 = new Buffer(2);
+            var value2 = new Buffer(2);
             
             if ($.isPlainObject(data)) {
-                neo_count.writeInt16LE(data.value1);
-                bright.writeInt16LE(data.value2);
+                value1.writeInt16LE(data.value1);
+                value2.writeInt16LE(data.value2);
             } else {
-                neo_count.writeInt16LE(0);
-                bright.writeInt16LE(0);
+                value1.writeInt16LE(0);
+                value2.writeInt16LE(0);
             }
 
             buffer = new Buffer([
@@ -443,7 +447,7 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
                 device,
                 port,
             ]);
-            buffer = Buffer.concat([buffer, neo_count, bright, dummy]);
+            buffer = Buffer.concat([buffer, value1, value2, dummy]);
             break;
         }
         case this.sensorTypes.NEOPIXEL:{
@@ -504,6 +508,64 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
                 port,
             ]);
             buffer = Buffer.concat([buffer, cnt_value, r_value, g_value, b_value, dummy]);
+            break;
+        }
+        case this.sensorTypes.LCDINIT:{
+            var list_val = new Buffer(2);
+
+            if ($.isPlainObject(data)) {
+                list_val.writeInt16LE(data.list);
+            } else {
+                list_val.writeInt16LE(0);
+            }
+
+            buffer = new Buffer([
+                255,
+                85,
+                6,
+                sensorIdx,
+                this.actionTypes.SET,
+                device,
+                port,
+            ]);
+
+            buffer = Buffer.concat([buffer, list_val, dummy]);
+           
+            break;
+        }
+        case this.sensorTypes.LCD:{
+            var row_value = new Buffer(2);
+            var col_value = new Buffer(2);
+            var val = new Buffer(2);
+            var textLen = 0;
+            var text;
+            
+            if ($.isPlainObject(data)) {
+                textLen = ('' + data.value).length;
+                text = Buffer.from('' + data.value, 'ascii');
+                row_value.writeInt16LE(data.row);
+                col_value.writeInt16LE(data.col);
+                val.writeInt16LE(textLen);
+            } else {
+                row_value.writeInt16LE(0);
+                col_value.writeInt16LE(0);
+
+                textLen = 0;
+                text = Buffer.from('', 'ascii');
+                val.writeInt16LE(textLen);
+            }
+
+            buffer = new Buffer([
+                255,
+                85,
+                10 + textLen,
+                sensorIdx,
+                this.actionTypes.SET,
+                device,
+                port,
+            ]);
+            
+            buffer = Buffer.concat([buffer, row_value, col_value, val, text, dummy]);
             break;
         }
         case this.sensorTypes.TONE: {
