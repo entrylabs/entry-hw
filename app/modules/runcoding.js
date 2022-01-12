@@ -405,31 +405,8 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
         case this.sensorTypes.METRIX: 
         case this.sensorTypes.METRIXROWCOLCLEAR:
         {
-            var value2 = new Buffer(2);
-            if ($.isPlainObject(data)) {
-                value.writeInt16LE(data.value1);
-                value2.writeInt16LE(data.value2);
-            } else {
-                value.writeInt16LE(0);
-                value2.writeInt16LE(0);
-            }
-
-            buffer = new Buffer([
-                255,
-                85,
-                8,
-                sensorIdx,
-                this.actionTypes.SET,
-                device,
-                port,
-            ]);
-            buffer = Buffer.concat([buffer, value, value2, dummy]);
-            break;
-        }
-        case this.sensorTypes.NEOPIXELINIT:{
             var value1 = new Buffer(2);
             var value2 = new Buffer(2);
-            
             if ($.isPlainObject(data)) {
                 value1.writeInt16LE(data.value1);
                 value2.writeInt16LE(data.value2);
@@ -448,6 +425,30 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
                 port,
             ]);
             buffer = Buffer.concat([buffer, value1, value2, dummy]);
+            break;
+        }
+        case this.sensorTypes.NEOPIXELINIT:{
+            var neo_count = new Buffer(2);
+            var bright = new Buffer(2);
+            
+            if ($.isPlainObject(data)) {
+                neo_count.writeInt16LE(data.value1);
+                bright.writeInt16LE(data.value2);
+            } else {
+                neo_count.writeInt16LE(0);
+                bright.writeInt16LE(0);
+            }
+
+            buffer = new Buffer([
+                255,
+                85,
+                8,
+                sensorIdx,
+                this.actionTypes.SET,
+                device,
+                port,
+            ]);
+            buffer = Buffer.concat([buffer, neo_count, bright, dummy]);
             break;
         }
         case this.sensorTypes.NEOPIXEL:{
