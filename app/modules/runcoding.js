@@ -427,7 +427,8 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
             buffer = Buffer.concat([buffer, value1, value2, dummy]);
             break;
         }
-        case this.sensorTypes.NEOPIXELINIT:{
+        case this.sensorTypes.NEOPIXELINIT:
+        {
             var neo_count = new Buffer(2);
             var bright = new Buffer(2);
             
@@ -451,7 +452,8 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
             buffer = Buffer.concat([buffer, neo_count, bright, dummy]);
             break;
         }
-        case this.sensorTypes.NEOPIXEL:{
+        case this.sensorTypes.NEOPIXEL:
+        {
             //var count_value = new Buffer(2);
             var r_value = new Buffer(2);
             var g_value = new Buffer(2);
@@ -481,7 +483,8 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
             buffer = Buffer.concat([buffer, r_value, g_value, b_value, dummy]);
             break;
         }
-        case this.sensorTypes.NEOPIXELEACH:{
+        case this.sensorTypes.NEOPIXELEACH:
+        {
             var cnt_value = new Buffer(2);
             var r_value = new Buffer(2);
             var g_value = new Buffer(2);
@@ -511,7 +514,8 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
             buffer = Buffer.concat([buffer, cnt_value, r_value, g_value, b_value, dummy]);
             break;
         }
-        case this.sensorTypes.LCDINIT:{
+        case this.sensorTypes.LCDINIT:
+        {
             var list_val = new Buffer(2);
 
             if ($.isPlainObject(data)) {
@@ -534,7 +538,8 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
            
             break;
         }
-        case this.sensorTypes.LCD:{
+        case this.sensorTypes.LCD:
+        {
             var row_value = new Buffer(2);
             var col_value = new Buffer(2);
             var val = new Buffer(2);
