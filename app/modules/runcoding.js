@@ -542,7 +542,7 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
         {
             var rowValue = new Buffer(2);
             var colValue = new Buffer(2);
-            var val = new Buffer(2);
+            let val = new Buffer(2);
             var textLen = 0;
             let text;
             
