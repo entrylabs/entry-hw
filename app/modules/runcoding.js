@@ -405,8 +405,8 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
         case this.sensorTypes.METRIX: 
         case this.sensorTypes.METRIXROWCOLCLEAR:
         {
-            let value1 = new Buffer(2);
-            let value2 = new Buffer(2);
+            const value1 = new Buffer(2);
+            const value2 = new Buffer(2);
             if ($.isPlainObject(data)) {
                 value1.writeInt16LE(data.value1);
                 value2.writeInt16LE(data.value2);
@@ -429,8 +429,8 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
         }
         case this.sensorTypes.NEOPIXELINIT:
         {
-            let neoCount = new Buffer(2);
-            let bright = new Buffer(2);
+            const neoCount = new Buffer(2);
+            const bright = new Buffer(2);
             
             if ($.isPlainObject(data)) {
                 neoCount.writeInt16LE(data.value1);
@@ -455,9 +455,9 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
         case this.sensorTypes.NEOPIXEL:
         {
             //var count_value = new Buffer(2);
-            let rValue = new Buffer(2);
-            let gValue = new Buffer(2);
-            let bValue = new Buffer(2);
+            const rValue = new Buffer(2);
+            const gValue = new Buffer(2);
+            const bValue = new Buffer(2);
             
             if ($.isPlainObject(data)) {
                // count_value.writeInt16LE(data.count);
@@ -485,21 +485,21 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
         }
         case this.sensorTypes.NEOPIXELEACH:
         {
-            let cntValue = new Buffer(2);
-            let rValue = new Buffer(2);
-            let gValue = new Buffer(2);
-            let bValue = new Buffer(2);
+            const cntValue = new Buffer(2);
+            const rVal = new Buffer(2);
+            const gVal = new Buffer(2);
+            const bVal = new Buffer(2);
             
             if ($.isPlainObject(data)) {
                 cntValue.writeInt16LE(data.CNT_val);
-                rValue.writeInt16LE(data.R_val);
-                gValue.writeInt16LE(data.G_val);
-                bValue.writeInt16LE(data.B_val);
+                rVal.writeInt16LE(data.R_val);
+                gVal.writeInt16LE(data.G_val);
+                bVal.writeInt16LE(data.B_val);
             } else {
                 cntValue.writeInt16LE(0);
-                rValue.writeInt16LE(0);
-                gValue.writeInt16LE(0);
-                bValue.writeInt16LE(0);
+                rVal.writeInt16LE(0);
+                gVal.writeInt16LE(0);
+                bVal.writeInt16LE(0);
             }
 
             buffer = new Buffer([
@@ -511,12 +511,12 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
                 device,
                 port,
             ]);
-            buffer = Buffer.concat([buffer, cntValue, rValue, gValue, bValue, dummy]);
+            buffer = Buffer.concat([buffer, cntValue, rVal, gVal, bVal, dummy]);
             break;
         }
         case this.sensorTypes.LCDINIT:
         {
-            var listVal = new Buffer(2);
+            const listVal = new Buffer(2);
 
             if ($.isPlainObject(data)) {
                 listVal.writeInt16LE(data.list);
@@ -540,15 +540,15 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
         }
         case this.sensorTypes.LCD:
         {
-            var rowValue = new Buffer(2);
-            var colValue = new Buffer(2);
-            let val = new Buffer(2);
-            var textLen = 0;
-            let text;
+            const rowValue = new Buffer(2);
+            const colValue = new Buffer(2);
+            const val = new Buffer(2);
+            const textLen = 0;
+            const text;
             
             if ($.isPlainObject(data)) {
-                textLen = ('' + data.value).length;
-                text = Buffer.from('' + data.value, 'ascii');
+                textLen = ('' + `${  data.value}`).length;
+                text = Buffer.from('' + `${  data.value}`, 'ascii');
                 rowValue.writeInt16LE(data.row);
                 colValue.writeInt16LE(data.col);
                 val.writeInt16LE(textLen);
