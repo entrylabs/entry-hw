@@ -488,7 +488,7 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
             var cntValue = new Buffer(2);
             var rVal = new Buffer(2);
             var gVal = new Buffer(2);
-            let bVal = new Buffer(2);
+            var bVal = new Buffer(2);
             
             if ($.isPlainObject(data)) {
                 cntValue.writeInt16LE(data.CNT_val);
@@ -544,7 +544,7 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
             var colValue = new Buffer(2);
             var val = new Buffer(2);
             var textLen = 0;
-            var text;
+            let text;
             
             if ($.isPlainObject(data)) {
                 textLen = ('' + `${data.value}`).length;
