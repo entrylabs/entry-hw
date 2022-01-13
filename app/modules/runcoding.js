@@ -405,8 +405,8 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
         case this.sensorTypes.METRIX: 
         case this.sensorTypes.METRIXROWCOLCLEAR:
         {
-            const value1 = new Buffer(2);
-            const value2 = new Buffer(2);
+            var value1 = new Buffer(2);
+            var value2 = new Buffer(2);
             if ($.isPlainObject(data)) {
                 value1.writeInt16LE(data.value1);
                 value2.writeInt16LE(data.value2);
@@ -429,8 +429,8 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
         }
         case this.sensorTypes.NEOPIXELINIT:
         {
-            const neoCount = new Buffer(2);
-            const bright = new Buffer(2);
+            var neoCount = new Buffer(2);
+            var bright = new Buffer(2);
             
             if ($.isPlainObject(data)) {
                 neoCount.writeInt16LE(data.value1);
@@ -455,9 +455,9 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
         case this.sensorTypes.NEOPIXEL:
         {
             //var count_value = new Buffer(2);
-            const rValue = new Buffer(2);
-            const gValue = new Buffer(2);
-            const bValue = new Buffer(2);
+            var rValue = new Buffer(2);
+            var gValue = new Buffer(2);
+            var bValue = new Buffer(2);
             
             if ($.isPlainObject(data)) {
                // count_value.writeInt16LE(data.count);
@@ -485,10 +485,10 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
         }
         case this.sensorTypes.NEOPIXELEACH:
         {
-            const cntValue = new Buffer(2);
-            const rVal = new Buffer(2);
-            const gVal = new Buffer(2);
-            const bVal = new Buffer(2);
+            var cntValue = new Buffer(2);
+            var rVal = new Buffer(2);
+            var gVal = new Buffer(2);
+            var bVal = new Buffer(2);
             
             if ($.isPlainObject(data)) {
                 cntValue.writeInt16LE(data.CNT_val);
@@ -516,7 +516,7 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
         }
         case this.sensorTypes.LCDINIT:
         {
-            const listVal = new Buffer(2);
+            var listVal = new Buffer(2);
 
             if ($.isPlainObject(data)) {
                 listVal.writeInt16LE(data.list);
@@ -540,11 +540,11 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
         }
         case this.sensorTypes.LCD:
         {
-            const rowValue = new Buffer(2);
-            const colValue = new Buffer(2);
-            const val = new Buffer(2);
-            const textLen = 0;
-            const text;
+            var rowValue = new Buffer(2);
+            var colValue = new Buffer(2);
+            var val = new Buffer(2);
+            var textLen = 0;
+            var text;
             
             if ($.isPlainObject(data)) {
                 textLen = ('' + `${  data.value}`).length;
