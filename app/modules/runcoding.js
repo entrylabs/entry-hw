@@ -405,8 +405,8 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
         case this.sensorTypes.METRIX: 
         case this.sensorTypes.METRIXROWCOLCLEAR:
         {
-            var value1 = new Buffer(2);
-            var value2 = new Buffer(2);
+            let value1 = new Buffer(2);
+            let value2 = new Buffer(2);
             if ($.isPlainObject(data)) {
                 value1.writeInt16LE(data.value1);
                 value2.writeInt16LE(data.value2);
@@ -429,8 +429,8 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
         }
         case this.sensorTypes.NEOPIXELINIT:
         {
-            var neoCount = new Buffer(2);
-            var bright = new Buffer(2);
+            let neoCount = new Buffer(2);
+            let bright = new Buffer(2);
             
             if ($.isPlainObject(data)) {
                 neoCount.writeInt16LE(data.value1);
@@ -455,15 +455,15 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
         case this.sensorTypes.NEOPIXEL:
         {
             //var count_value = new Buffer(2);
-            var rValue = new Buffer(2);
-            var gValue = new Buffer(2);
-            var bValue = new Buffer(2);
+            let rValue = new Buffer(2);
+            let gValue = new Buffer(2);
+            let bValue = new Buffer(2);
             
             if ($.isPlainObject(data)) {
                // count_value.writeInt16LE(data.count);
-               rValue.writeInt16LE(data.R_val);
-               gValue.writeInt16LE(data.G_val);
-               bValue.writeInt16LE(data.B_val);
+                rValue.writeInt16LE(data.R_val);
+                gValue.writeInt16LE(data.G_val);
+                bValue.writeInt16LE(data.B_val);
             } else {
                 //count_value.writeInt16LE(0);
                 rValue.writeInt16LE(0);
@@ -485,10 +485,10 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
         }
         case this.sensorTypes.NEOPIXELEACH:
         {
-            var cntValue = new Buffer(2);
-            var rValue = new Buffer(2);
-            var gValue = new Buffer(2);
-            var bValue = new Buffer(2);
+            let cntValue = new Buffer(2);
+            let rValue = new Buffer(2);
+            let gValue = new Buffer(2);
+            let bValue = new Buffer(2);
             
             if ($.isPlainObject(data)) {
                 cntValue.writeInt16LE(data.CNT_val);
