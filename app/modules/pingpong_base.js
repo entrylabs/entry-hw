@@ -1,4 +1,8 @@
 const BaseModule = require('./baseModule');
+const { app } = require('electron');
+
+//1.9.19 이후 여러번 패킷 전송을 막기 위한 변수
+var checkMultiroleAction = false;
 
 class PingpongBase extends BaseModule {
     constructor(cubeCnt) {
@@ -104,7 +108,14 @@ class PingpongBase extends BaseModule {
             return null;
         }
         const grpno = parseInt(grpid[0], 16);
-        return this.makePackets('setMultirole', grpno);
+
+        if(checkMultiroleAction==false){
+            checkMultiroleAction=true;
+            return this.makePackets('setMultirole', grpno);
+        } else {
+            return null;
+        }  
+
     }
 
     dbgHexstr(data) {
@@ -284,6 +295,8 @@ class PingpongBase extends BaseModule {
     disconnect(connect) {
         console.log('P:disconnect: ');
 
+        checkMultiroleAction = false;
+        
         //console.log('.. ', this.sp.isOpen);
         if (this.sp) {
             // set led
@@ -301,6 +314,10 @@ class PingpongBase extends BaseModule {
         } else {
             connect.close();
         }
+
+        app.relaunch();
+        app.exit(0);
+
     }
 
     // 엔트리와의 연결 종료 후 처리 코드입니다.

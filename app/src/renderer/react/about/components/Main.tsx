@@ -111,7 +111,7 @@ const Main: React.FC = () => {
                             <VersionUpdateButton
                                 onClick={() => {
                                     rendererRouter.openExternalUrl(
-                                        'https://playentry.org/#!/offlineEditor'
+                                        'https://playentry.org/download/hardware'
                                     );
                                 }}
                             >
