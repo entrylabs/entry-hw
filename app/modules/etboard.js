@@ -12,7 +12,8 @@ function Module() {
         TIMER: 8,
         OLED: 241,
         COM: 242,
-        NEOPIXEL: 243
+        NEOPIXEL: 243,
+        ULTRASONIC_COUNTER: 244
     }
 
     this.actionTypes = {
@@ -74,6 +75,7 @@ function Module() {
     this.lastTime = 0;
     this.lastSendTime = 0;
     this.isDraing = false;
+    this.isStartUltrasonic = false;
 }
 
 var sensorIdx = 0;
@@ -93,6 +95,8 @@ Module.prototype.requestInitialData = function() {
 };
 
 Module.prototype.checkInitialData = function(data, config) {
+    this.isDraing = false;  //갑자기 전송이 중단됐을때 전송상태 초기화
+    this.isStartUltrasonic = false; //초음파 센서 전역 변수
     return true;
     // 이후에 체크 로직 개선되면 처리
     // var datas = this.getDataByBuffer(data);
@@ -144,7 +148,7 @@ Module.prototype.handleRemoteData = function(handler) {
             var isSend = false;
             var dataObj = getDatas[key];
             if(typeof dataObj.port === 'string' || typeof dataObj.port === 'number') {
-                var time = self.digitalPortTimeList[dataObj.port];
+              var time = self.digitalPortTimeList[dataObj.port];
                 if(dataObj.time > time) {
                     isSend = true;
                     self.digitalPortTimeList[dataObj.port] = dataObj.time;
@@ -169,6 +173,7 @@ Module.prototype.handleRemoteData = function(handler) {
                         data: dataObj.data
                     }
                     buffer = Buffer.concat([buffer, self.makeSensorReadBuffer(key, dataObj.port, dataObj.data)]);
+                    //console.log(dataObj.port);
                 }
             }
         });
@@ -188,7 +193,6 @@ Module.prototype.handleRemoteData = function(handler) {
                             data: data.data
                         }
                         buffer = Buffer.concat([buffer, self.makeOutputBuffer(data.type, port, data.data)]);
-                        console.log(buffer);
                     }
                 }
             }
@@ -202,13 +206,18 @@ Module.prototype.handleRemoteData = function(handler) {
 
 Module.prototype.isRecentData = function(port, type, data) {
     var isRecent = false;
-    /*
-    if(type == this.sensorTypes.ULTRASONIC)
-    {
+
+    if(type == this.sensorTypes.ULTRASONIC_COUNTER)    {
         isRecent = false;
         return isRecent;
     }
-    */
+
+    if(type == this.sensorTypes.ULTRASONIC && !this.isStartUltrasonic)
+    {
+        isRecent = false;
+        this.isStartUltrasonic = true;
+        return isRecent;
+    }
     if(type == this.sensorTypes.COM)
     {
         isRecent = false;
@@ -226,6 +235,9 @@ Module.prototype.isRecentData = function(port, type, data) {
 
 Module.prototype.requestLocalData = function() {
     var self = this;
+
+      //console.log(this.sendBuffers.length);
+      //console.log(this.isDraing);
 
      if(!this.isDraing && this.sendBuffers.length > 0) {
         this.isDraing = true;
@@ -324,11 +336,9 @@ Module.prototype.originParsing = function(data) {
 
 /* K-Board Parsing FF 56 ~ */
 Module.prototype.kParsing = function(data) {
-    var self = this;
+  var self = this;
 	var readData = data.subarray(2, data.length);
 	var value;
-
-
 
 	for(var i = 0; i<8; i++) {
 		if(bit_test(readData[0], i))
@@ -384,10 +394,17 @@ ff 55 len idx action device port  slot  data a
 */
 
 Module.prototype.makeSensorReadBuffer = function(device, port, data) {
+
     var buffer;
     var dummy = new Buffer([10]);
+
     if(device == this.sensorTypes.ULTRASONIC) {
         buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port[0], port[1], 10]);
+
+        /*
+    } else if(device == this.sensorTypes.ULTRASONIC_COUNTER) {
+        buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port[0], port[1], 10]);
+        */
     } else if(!data) {
         buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.GET, device, port, 10]);
     } else {
@@ -400,7 +417,7 @@ Module.prototype.makeSensorReadBuffer = function(device, port, data) {
     if(sensorIdx > 254) {
         sensorIdx = 0;
     }
-
+    //console.log(buffer);
     return buffer;
 };
 
@@ -409,7 +426,10 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
     var buffer;
     var value = new Buffer(2);
     var dummy = new Buffer([10]);
+
+
     switch(device) {
+
         case this.sensorTypes.SERVO_PIN:
         case this.sensorTypes.DIGITAL:
         case this.sensorTypes.PWM: {
@@ -431,8 +451,6 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
             buffer = Buffer.concat([buffer, value, time, dummy]);
             break;
         }
-        case this.sensorTypes.TONE: {
-        }
         case this.sensorTypes.OLED: {
             var arr = [];
             var i;
@@ -453,6 +471,31 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
 
           buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.SET, device, port]);
           buffer = Buffer.concat([buffer, value, dummy]);
+          break;
+        }
+        case this.sensorTypes.ULTRASONIC_COUNTER: { //초음파 카운터 초기화
+
+          var port1 = new Buffer(1);
+          var port2 = new Buffer(1);
+          var minLen = new Buffer(1);
+          var maxLen = new Buffer(1);
+
+          port1[0] = data.port1;
+          port2[0] = data.port2;
+          minLen[0] = data.len1;
+          maxLen[0] = data.len2;
+
+          if(port1[0] == 0 || port2[0] == 0)
+          {
+            buffer = new Buffer([255, 85, 8, sensorIdx, this.actionTypes.SET, device, 1]);
+            buffer = Buffer.concat([buffer]);
+            console.log('stop');
+            break;
+          }
+
+          buffer = new Buffer([255, 85, 8, sensorIdx, this.actionTypes.SET, device, 1]);
+          buffer = Buffer.concat([buffer, port1, port2, minLen, maxLen]);
+          console.log(buffer);
           break;
         }
         case this.sensorTypes.NEOPIXEL: {
@@ -526,9 +569,10 @@ Module.prototype.disconnect = function(connect) {
 Module.prototype.reset = function() {
     this.lastTime = 0;
     this.lastSendTime = 0;
-
+    this.sendBuffers = [];
      this.sensorData.PULSEIN = {
     }
+    this.isDraing = false;
 };
 
 module.exports = new Module();
