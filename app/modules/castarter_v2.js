@@ -16,16 +16,12 @@ class castarter_v2 extends BaseModule {
             PULSEIN: 6,
             ULTRASONIC: 7,
             TIMER: 8,
-            SW_RESET: 9,
-            RGBLED: 10,
             NEOPIXELINIT: 11,
             NEOPIXELDIS: 12,
-            SERVO_DETACH: 13,
             LCDINIT: 14,
             LCD_DIS: 15,
             LCDCLEAR: 16,
             LCDOPTION: 17,
-            DHTINIT: 25,
             DHTTEMP: 26,
             DHTHUMI: 27,
         };
@@ -44,7 +40,6 @@ class castarter_v2 extends BaseModule {
             ULTRASONIC: 0,
             DHTTEMP: 0,
             DHTHUMI: 0,
-            PMVALUE: 0,
             DIGITAL: {
                 '0': 0,
                 '1': 0,
@@ -87,6 +82,7 @@ class castarter_v2 extends BaseModule {
         this.isDraing = false;
         this.sensorIdx = 0;
     };
+    // 초기 설정
     init(handler, config) {
         this.handler = handler;
         this.config = config;
@@ -95,9 +91,11 @@ class castarter_v2 extends BaseModule {
         const self = this;
         this.sp = sp;
     };
+    // 연결 후 초기에 송신할 데이터가 필요한 경우 사용합니다.(필수)
     requestInitialData = function() {
         return this.makeSensorReadBuffer(this.sensorTypes.ANALOG, 0);
     };
+    // 연결 후 초기에 수신받아서 정상연결인지를 확인해야하는 경우 사용합니다.(필수)
     checkInitialData = function(data, config) {
         return true;
         // 이후에 체크 로직 개선되면 처리
@@ -113,9 +111,14 @@ class castarter_v2 extends BaseModule {
             cb('connected');
         }
     };
+    // optional. 하드웨어에서 받은 데이터의 검증이 필요한 경우 사용합니다.
     validateLocalData = function(data) {
         return true;
     };
+    /** 엔트리에 데이터 전송하기
+     * Web Socket(엔트리)에 아날로그, 디지털등 데이터 전송
+     * @param handler
+     */
     requestRemoteData = function(handler) {
         const self = this;
         if (!self.sensorData) {
@@ -127,6 +130,7 @@ class castarter_v2 extends BaseModule {
             }
         });
     };
+    // 엔트리에서 받은 데이터에 대한 처리
     handleRemoteData = function(handler) {
         const self = this;
         const getDatas = handler.read('GET');
@@ -149,7 +153,6 @@ class castarter_v2 extends BaseModule {
                         const time = self.digitalPortTimeList[port];
                         return dataObj.time > time;
                     });
-
                     if (isSend) {
                         dataObj.port.forEach((port) => {
                             self.digitalPortTimeList[port] = dataObj.time;
@@ -190,42 +193,33 @@ class castarter_v2 extends BaseModule {
             this.sendBuffers.push(buffer);
         }
     };
+    /**
+     * 기존에 수신했던 데이터인가
+     * 기존에 수신했던 데이터인지 확인합니다. 예를들어 LED ON/OFF의 경우 무한루프에서 상태가 변하지 않을 경우 추가로 신호를 하드웨어에 보내서 불필요한 오버헤드를
+     * 발생시킬 필요가 없으므로, 같은 신호에 대해서는 중복으로 보내지 않도록 만듭니다.
+     * 하지만, Tone과 같이 같은 신호라도 출력데이터를 보내야하므로 별도의 예외처리가 필요합니다.
+     * @param port
+     * @param type
+     * @param data
+     * @returns {boolean}
+     */
     isRecentData = function(port, type, data) {
-        const that = this;
         let isRecent = false;
-        if (type == this.sensorTypes.ULTRASONIC) {
-            const portString = port.toString();
-            let isGarbageClear = false;
-            Object.keys(this.recentCheckData).forEach((key) => {
-                const recent = that.recentCheckData[key];
-                if (key === portString) {
-                }
-                if (key !== portString && 
-                    (recent.type == that.sensorTypes.ULTRASONIC || 
-                        recent.type == that.sensorTypes.DHTTEMP || 
-                        recent.type == this.sensorTypes.DHTHUMI)) {
-                    delete that.recentCheckData[key];
-                    isGarbageClear = true;
-                }
-            });
-            if ((port in this.recentCheckData && isGarbageClear) || !(port in this.recentCheckData)) {
-                isRecent = false;
-            } else {
-                isRecent = true;
-            }
-        } else if (port in this.recentCheckData && type == this.sensorTypes.TONE) { 
-            if (
-                this.recentCheckData[port].type === type &&
-                this.recentCheckData[port].data === data
-            ) {
+        if (port in this.recentCheckData) {
+            if (type != this.sensorTypes.TONE && this.recentCheckData[port].type === type &&
+                this.recentCheckData[port].data === data) {
                 isRecent = true;
             }
         }
         return isRecent;
     };
+    /**
+     * 송신(PC->하드웨어) 데이터
+     * 시리얼통신으로 버퍼에 쌓아놓은 데이터를 전송합니다.
+     * @returns {null}
+     */
     requestLocalData = function() {
         const self = this;
-
         if (!this.isDraing && this.sendBuffers.length > 0) {
             this.isDraing = true;
             this.sp.write(this.sendBuffers.shift(), () => {
@@ -236,11 +230,14 @@ class castarter_v2 extends BaseModule {
                 }
             });
         }
+        return null;
     };
+    /** 수신(하드웨어->PC) 데이터 처리
+     *ff 55 idx size data a
+    */
     handleLocalData = function(data) {
         const self = this;
         const datas = this.getDataByBuffer(data);
-
         datas.forEach((data) => {
             if (data.length <= 4 || data[0] !== 255 || data[1] !== 85) {
                 return;
@@ -305,8 +302,12 @@ class castarter_v2 extends BaseModule {
             }
         });
     };
+    /*
+    ff 55 len idx action device port  slot  data a
+    0  1  2   3   4      5      6     7     8
+    */
     makeSensorReadBuffer = function(device, port, data) {
-        let buffer;
+        let buffer; 
         const dummy = new Buffer([10]);
         if (device == this.sensorTypes.ULTRASONIC) {
             buffer = new Buffer([
@@ -361,8 +362,12 @@ class castarter_v2 extends BaseModule {
         if (this.sensorIdx > 254) {
             this.sensorIdx = 0;
         }
+        //console.log(buffer); ////////////////////////////////////////
         return buffer;
     };
+    /** 전송(PC->하드웨어) 버퍼 만들기
+     * 0xff 0x55 0x6 0x0 0x1 0xa 0x9 0x0 0x0 0xa
+     */
     makeOutputBuffer = function(device, port, data) {
         let buffer;
         const value = new Buffer(2);
@@ -385,20 +390,6 @@ class castarter_v2 extends BaseModule {
                 buffer = Buffer.concat([buffer, value, dummy]);           
                 break;
             }
-            case this.sensorTypes.SERVO_DETACH: {
-                value.writeInt16LE(data);
-                buffer = new Buffer([
-                    255,
-                    85,
-                    6,
-                    this.sensorIdx,
-                    this.actionTypes.SET,
-                    device,
-                    port,
-                ]);
-                buffer = Buffer.concat([buffer, value, dummy]);
-                break;
-            }
             case this.sensorTypes.TONE: {
                 const time = new Buffer(2);
                 if ($.isPlainObject(data)) {
@@ -418,34 +409,6 @@ class castarter_v2 extends BaseModule {
                     port,
                 ]);
                 buffer = Buffer.concat([buffer, value, time, dummy]);
-                break;
-            }
-            case this.sensorTypes.SW_RESET: {
-                value.writeInt16LE(data);
-                buffer = new Buffer([
-                    255,
-                    85,
-                    6,
-                    this.sensorIdx,
-                    this.actionTypes.SET,
-                    device,
-                    port,
-                ]);
-                buffer = Buffer.concat([buffer, value, dummy]);
-                break;
-            }
-            case this.sensorTypes.RGBLED: {
-                value.writeInt16LE(data);
-                buffer = new Buffer([
-                    255,
-                    85,
-                    6,
-                    this.sensorIdx,
-                    this.actionTypes.SET,
-                    device,
-                    port,
-                ]);
-                buffer = Buffer.concat([buffer, value, dummy]);
                 break;
             }
             case this.sensorTypes.NEOPIXELINIT: {
@@ -491,9 +454,8 @@ class castarter_v2 extends BaseModule {
                 buffer = Buffer.concat([buffer, num, r, g, b, dummy]);
                 break;
             }
-            case this.sensorTypes.DHTINIT:  {
+            case this.sensorTypes.ULTRASONIC:  {
                 value.writeInt16LE(data);
-                
                 buffer = new Buffer([
                     255,
                     85,
@@ -600,7 +562,7 @@ class castarter_v2 extends BaseModule {
                 break;
             }
         }
-        //console.log(buffer); 
+        //console.log(buffer); ////////////////////////////////////////
         return buffer;
     };
     getDataByBuffer = function(buffer) {
@@ -614,6 +576,7 @@ class castarter_v2 extends BaseModule {
         });
         return datas;
     };
+    // 하드웨어 연결 해제 시 호출됩니다.
     disconnect = function(connect) {
         const self = this;
         connect.close();
@@ -621,6 +584,7 @@ class castarter_v2 extends BaseModule {
             delete self.sp;
         }
     };
+    // 엔트리와의 연결 종료 후 처리 코드입니다.
     reset = function() {
         this.lastTime = 0;
         this.lastSendTime = 0;
