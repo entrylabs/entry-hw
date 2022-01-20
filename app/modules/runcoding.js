@@ -19,6 +19,9 @@ function Module() {
         NEOPIXELINIT : 16,
         NEOPIXELRAINBOW : 17,
         NEOPIXELEACH : 18,
+        LCDINIT: 19,
+        LCD: 20,
+        LCDCLEAR: 21,
     };
 
     this.actionTypes = {
@@ -383,6 +386,7 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
         case this.sensorTypes.METRIXDRAW:
         case this.sensorTypes.NEOPIXELCLEAR:
         case this.sensorTypes.NEOPIXELRAINBOW:
+        case this.sensorTypes.LCDCLEAR:
         {
             value.writeInt16LE(data);
 
@@ -401,12 +405,13 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
         case this.sensorTypes.METRIX: 
         case this.sensorTypes.METRIXROWCOLCLEAR:
         {
-            var value2 = new Buffer(2);
+            const value1 = new Buffer(2);
+            const value2 = new Buffer(2);
             if ($.isPlainObject(data)) {
-                value.writeInt16LE(data.value1);
+                value1.writeInt16LE(data.value1);
                 value2.writeInt16LE(data.value2);
             } else {
-                value.writeInt16LE(0);
+                value1.writeInt16LE(0);
                 value2.writeInt16LE(0);
             }
 
@@ -419,18 +424,19 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
                 device,
                 port,
             ]);
-            buffer = Buffer.concat([buffer, value, value2, dummy]);
+            buffer = Buffer.concat([buffer, value1, value2, dummy]);
             break;
         }
-        case this.sensorTypes.NEOPIXELINIT:{
+        case this.sensorTypes.NEOPIXELINIT:
+        {
+            const neoCount = new Buffer(2);
             var bright = new Buffer(2);
-            var neo_count = new Buffer(2);
             
             if ($.isPlainObject(data)) {
-                neo_count.writeInt16LE(data.value1);
+                neoCount.writeInt16LE(data.value1);
                 bright.writeInt16LE(data.value2);
             } else {
-                neo_count.writeInt16LE(0);
+                neoCount.writeInt16LE(0);
                 bright.writeInt16LE(0);
             }
 
@@ -443,25 +449,26 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
                 device,
                 port,
             ]);
-            buffer = Buffer.concat([buffer, neo_count, bright, dummy]);
+            buffer = Buffer.concat([buffer, neoCount, bright, dummy]);
             break;
         }
-        case this.sensorTypes.NEOPIXEL:{
+        case this.sensorTypes.NEOPIXEL:
+        {
             //var count_value = new Buffer(2);
-            var r_value = new Buffer(2);
-            var g_value = new Buffer(2);
-            var b_value = new Buffer(2);
+            const rValue = new Buffer(2);
+            const gValue = new Buffer(2);
+            const bValue = new Buffer(2);
             
             if ($.isPlainObject(data)) {
                // count_value.writeInt16LE(data.count);
-                r_value.writeInt16LE(data.R_val);
-                g_value.writeInt16LE(data.G_val);
-                b_value.writeInt16LE(data.B_val);
+                rValue.writeInt16LE(data.R_val);
+                gValue.writeInt16LE(data.G_val);
+                bValue.writeInt16LE(data.B_val);
             } else {
                 //count_value.writeInt16LE(0);
-                r_value.writeInt16LE(0);
-                g_value.writeInt16LE(0);
-                b_value.writeInt16LE(0);
+                rValue.writeInt16LE(0);
+                gValue.writeInt16LE(0);
+                bValue.writeInt16LE(0);
             }
 
             buffer = new Buffer([
@@ -473,7 +480,98 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
                 device,
                 port,
             ]);
-            buffer = Buffer.concat([buffer, r_value, g_value, b_value, dummy]);
+            buffer = Buffer.concat([buffer, rValue, gValue, bValue, dummy]);
+            break;
+        }
+        case this.sensorTypes.NEOPIXELEACH:
+        {
+            const cntValue = new Buffer(2);
+            const rVal = new Buffer(2);
+            const gVal = new Buffer(2);
+            const bVal = new Buffer(2);
+            
+            if ($.isPlainObject(data)) {
+                cntValue.writeInt16LE(data.CNT_val);
+                rVal.writeInt16LE(data.R_val);
+                gVal.writeInt16LE(data.G_val);
+                bVal.writeInt16LE(data.B_val);
+            } else {
+                cntValue.writeInt16LE(0);
+                rVal.writeInt16LE(0);
+                gVal.writeInt16LE(0);
+                bVal.writeInt16LE(0);
+            }
+
+            buffer = new Buffer([
+                255,
+                85,
+                10,
+                sensorIdx,
+                this.actionTypes.SET,
+                device,
+                port,
+            ]);
+            buffer = Buffer.concat([buffer, cntValue, rVal, gVal, bVal, dummy]);
+            break;
+        }
+        case this.sensorTypes.LCDINIT:
+        {
+            const listVal = new Buffer(2);
+
+            if ($.isPlainObject(data)) {
+                listVal.writeInt16LE(data.list);
+            } else {
+                listVal.writeInt16LE(0);
+            }
+
+            buffer = new Buffer([
+                255,
+                85,
+                6,
+                sensorIdx,
+                this.actionTypes.SET,
+                device,
+                port,
+            ]);
+
+            buffer = Buffer.concat([buffer, listVal, dummy]);
+           
+            break;
+        }
+        case this.sensorTypes.LCD:
+        {
+            const rowValue = new Buffer(2);
+            const colValue = new Buffer(2);
+            const val = new Buffer(2);
+            let textLen = 0;
+            let text;
+            
+            if ($.isPlainObject(data)) {
+                textLen = ('' + `${data.value}`).length;
+                text = Buffer.from('' + `${data.value}`, 'ascii');
+                rowValue.writeInt16LE(data.row);
+                colValue.writeInt16LE(data.col);
+                val.writeInt16LE(textLen);
+            } else {
+                rowValue.writeInt16LE(0);
+                colValue.writeInt16LE(0);
+
+                textLen = 0;
+                text = Buffer.from('', 'ascii');
+                val.writeInt16LE(textLen);
+            }
+
+            buffer = new Buffer([
+                255,
+                85,
+                10 + textLen,
+                sensorIdx,
+                this.actionTypes.SET,
+                device,
+                port,
+            ]);
+            
+            buffer = Buffer.concat([buffer, rowValue, colValue, val, text, dummy]);
             break;
         }
         case this.sensorTypes.NEOPIXELEACH:{
