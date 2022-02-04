@@ -1,5 +1,5 @@
 const BaseModule = require('./baseModule');
-const _ = require('lodash');
+const _ = global.$;
 
 class EV3HID extends BaseModule {
     constructor() {
@@ -159,7 +159,7 @@ class EV3HID extends BaseModule {
         data.unshift(0x00);
         return data;
     }
-    
+
     requestInitialData(sp) {
         const initBuf = this._makeInitBuffer([0x00], [0, 0]);
         const motorStop = Buffer.from([0xa3, 0x81, 0, 0x81, 0x0f, 0x81, 0]);
@@ -212,7 +212,7 @@ class EV3HID extends BaseModule {
             this._injectByteSize(sendBuffer);
             console.log('send', sendBuffer);
             return this.getData(sendBuffer);
-        }   
+        }
     }
 
     requestRemoteData(handler) {

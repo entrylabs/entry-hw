@@ -1,0 +1,26 @@
+{
+    "id": "480101",
+    "name": {
+        "en": "Ro-E",
+        "ko": "로이"
+    },
+    "category": "robot",
+    "platform": ["win32", "darwin"],
+    "icon": "roborobo_roe.png",
+    "module": "roborobo_roe.js",
+    "url": "http://www.roborobo.co.kr",
+    "firmware": "roborobo_roe",
+    "driver": {
+        "win32-ia32": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
+        "win32-x64": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE"
+    },
+    "reconnect": true,
+    "selectPort": true,
+    "hardware": {
+        "type": "bluetooth",
+        "control": "slave",
+        "duration": 32,
+        "vendor": ["wch.cn"],
+        "baudRate": 115200
+    }
+}
