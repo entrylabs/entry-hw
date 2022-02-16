@@ -137,7 +137,7 @@ class CodeWiz extends BaseModule {
 
         let buffer = null;
         if (orderData) {
-            this.handler.write('runOK', false);
+            // this.handler.write('runOK', false);
             const keys = Object.keys(orderData);
             keys.forEach((id) => {
                 const data = orderData[id];
@@ -145,6 +145,9 @@ class CodeWiz extends BaseModule {
                     buffer = this.makeSendMessage(data.type, data.value);
                     if (buffer?.length > 0) {
                         this.sendBuffers.push(buffer);
+                        this.curId = id;
+                        // this.handler.write(id, {value:null});
+
                         // console.log('this.sendBuffers', this.sendBuffers);
                     }
                 }
@@ -268,11 +271,13 @@ class CodeWiz extends BaseModule {
                     return;
                 }
                 case this.receiveType.RUN_OK: {
-                    this.handler.write('runOK', { value: 'runOK' });
+                    this.handler.write(this.curId, { value: 'runOK' });
                     return;
                 }
                 case this.receiveType.BOOLEAN: {
-                    this.handler.write('runOK', { value: readData[2] === 1 });
+                    // this.handler.write('runOK', { value: readData[2] === 1 });
+                    
+                    this.handler.write(this.curId, {value: readData[2] === 1});
                     return;
                 }
                 case this.receiveType.INT: {
@@ -281,7 +286,8 @@ class CodeWiz extends BaseModule {
                     if (_sign) {
                         _value *= -1;
                     }
-                    this.handler.write('runOK', { value: _value });
+                    // this.handler.write('runOK', { value: _value });
+                    this.handler.write(this.curId, {value: _value});
                     return;
                 }
                 case this.receiveType.FLOAT: {
@@ -292,7 +298,7 @@ class CodeWiz extends BaseModule {
                         _value *= -1;
                     }
                     _value /= 10;
-                    this.handler.write('runOK', { value: _value });
+                    this.handler.write(this.curId, { value: _value });
                     return;
                 }
                 default: {
