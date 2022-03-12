@@ -13,7 +13,7 @@ interface IProps {
 const FirmwareButtonSetElement: React.FC<IProps> = (props) => {
     const [isElementShow, showElement] = useState(true);
     const { buttonSet } = props;
-    const moduleState = useSelector<IStoreState>(state => state.common.moduleState);
+    const moduleState = useSelector<IStoreState>((state) => state.common.moduleState);
     const { translator } = usePreload();
     const dispatch = useDispatch();
 
@@ -39,22 +39,36 @@ const FirmwareButtonSetElement: React.FC<IProps> = (props) => {
     }
 
     if (buttonSet instanceof Array) {
-        return <>
-            {
-                buttonSet.map((firmware) => <HardwarePanelButton
-                    key={firmware.name}
-                    onClick={() => {
-                        onButtonClicked(firmware.name);
-                    }}
-                >{translator.translate(firmware.translate)}</HardwarePanelButton>)
-            }
-        </>;
+        return (
+            <>
+                {buttonSet.map((firmware) => (
+                    <HardwarePanelButton
+                        key={firmware.name}
+                        onClick={() => {
+                            if ((firmware as IESP32TypeFirmware).offset) {
+                                onButtonClicked(firmware as IESP32TypeFirmware);
+                            } else if ((firmware as ICopyTypeFirmware).type === 'copy') {
+                                onButtonClicked(firmware as ICopyTypeFirmware);
+                            } else {
+                                onButtonClicked(firmware.name);
+                            }
+                        }}
+                    >
+                        {translator.translate(firmware.translate)}
+                    </HardwarePanelButton>
+                ))}
+            </>
+        );
     } else {
-        return <HardwarePanelButton
-            onClick={() => {
-                onButtonClicked(buttonSet);
-            }}
-        >{translator.translate('Install Firmware')}</HardwarePanelButton>;
+        return (
+            <HardwarePanelButton
+                onClick={() => {
+                    onButtonClicked(buttonSet);
+                }}
+            >
+                {translator.translate('Install Firmware')}
+            </HardwarePanelButton>
+        );
     }
 };
 

@@ -7,11 +7,13 @@ function Module() {
         PWM: 3,
         SERVO_PIN: 4,
         TONE: 5,
-        PULSEIN: 6, 
+        PULSEIN: 6,
         ULTRASONIC: 7,
         TIMER: 8,
         OLED: 241,
-        COM: 242
+        COM: 242,
+        NEOPIXEL: 243,
+        ULTRASONIC_COUNTER: 244
     }
 
     this.actionTypes = {
@@ -73,6 +75,7 @@ function Module() {
     this.lastTime = 0;
     this.lastSendTime = 0;
     this.isDraing = false;
+    this.isStartUltrasonic = false;
 }
 
 var sensorIdx = 0;
@@ -92,6 +95,8 @@ Module.prototype.requestInitialData = function() {
 };
 
 Module.prototype.checkInitialData = function(data, config) {
+    this.isDraing = false;  //갑자기 전송이 중단됐을때 전송상태 초기화
+    this.isStartUltrasonic = false; //초음파 센서 전역 변수
     return true;
     // 이후에 체크 로직 개선되면 처리
     // var datas = this.getDataByBuffer(data);
@@ -120,12 +125,12 @@ Module.prototype.requestRemoteData = function(handler) {
     Object.keys(this.sensorData).forEach(function (key) {
         if(self.sensorData[key] != undefined) {
             handler.write(key, self.sensorData[key]);
-			if (key == "DIGITAL")
-			{
-				var dObj = self.sensorData["DIGITAL"];
-				//console.log("send : sensorData = " + dObj[6]);
+      			if (key == "DIGITAL")
+      			{
+      				var dObj = self.sensorData["DIGITAL"];
+      				//console.log("send : sensorData = " + dObj[6]);
             }
-            
+
         }
     })
 };
@@ -143,7 +148,7 @@ Module.prototype.handleRemoteData = function(handler) {
             var isSend = false;
             var dataObj = getDatas[key];
             if(typeof dataObj.port === 'string' || typeof dataObj.port === 'number') {
-                var time = self.digitalPortTimeList[dataObj.port];
+              var time = self.digitalPortTimeList[dataObj.port];
                 if(dataObj.time > time) {
                     isSend = true;
                     self.digitalPortTimeList[dataObj.port] = dataObj.time;
@@ -168,9 +173,10 @@ Module.prototype.handleRemoteData = function(handler) {
                         data: dataObj.data
                     }
                     buffer = Buffer.concat([buffer, self.makeSensorReadBuffer(key, dataObj.port, dataObj.data)]);
+                    //console.log(dataObj.port);
                 }
             }
-        });        
+        });
     }
 
     if(setDatas) {
@@ -200,14 +206,19 @@ Module.prototype.handleRemoteData = function(handler) {
 
 Module.prototype.isRecentData = function(port, type, data) {
     var isRecent = false;
-    /*    
-    if(type == this.sensorTypes.ULTRASONIC) 
-    {
+
+    if(type == this.sensorTypes.ULTRASONIC_COUNTER)    {
         isRecent = false;
         return isRecent;
     }
-    */
-    if(type == this.sensorTypes.COM) 
+
+    if(type == this.sensorTypes.ULTRASONIC && !this.isStartUltrasonic)
+    {
+        isRecent = false;
+        this.isStartUltrasonic = true;
+        return isRecent;
+    }
+    if(type == this.sensorTypes.COM)
     {
         isRecent = false;
         return isRecent;
@@ -224,7 +235,10 @@ Module.prototype.isRecentData = function(port, type, data) {
 
 Module.prototype.requestLocalData = function() {
     var self = this;
-    
+
+      //console.log(this.sendBuffers.length);
+      //console.log(this.isDraing);
+
      if(!this.isDraing && this.sendBuffers.length > 0) {
         this.isDraing = true;
         this.sp.write(this.sendBuffers.shift(), function () {
@@ -233,7 +247,7 @@ Module.prototype.requestLocalData = function() {
                     self.isDraing = false;
                 });
             }
-        });        
+        });
     }
 
     return null;
@@ -248,7 +262,7 @@ Module.prototype.handleLocalData = function(data) {
 
     datas.forEach(function (data) {
         if(data.length <= 4) {// || data[0] === 255 && data[1] === 86 ) {
-            return;        
+            return;
         }
 
         if(data[0] === 255 && data[1] === 85) {
@@ -258,22 +272,22 @@ Module.prototype.handleLocalData = function(data) {
         } else {
             return;
         }
-        
+
     });
 
-    
+
 };
 
 
 /* Original Parsing FF 55 ~ */
 Module.prototype.originParsing = function(data) {
 	var self = this;
-    var readData = data.subarray(2, data.length);      
+    var readData = data.subarray(2, data.length);
     var value;
     switch(readData[0]) {
         case self.sensorValueSize.FLOAT: {
             value = new Buffer(readData.subarray(1, 5)).readFloatLE();
-            value = Math.round(value * 100) / 100;                    
+            value = Math.round(value * 100) / 100;
             break;
         }
         case self.sensorValueSize.SHORT: {
@@ -291,11 +305,11 @@ Module.prototype.originParsing = function(data) {
 
     switch(type) {
         case self.sensorTypes.DIGITAL: {
-            self.sensorData.DIGITAL[port] = value;                
+            self.sensorData.DIGITAL[port] = value;
             break;
         }
         case self.sensorTypes.ANALOG: {
-            self.sensorData.ANALOG[port] = value;                
+            self.sensorData.ANALOG[port] = value;
             break;
         }
         case self.sensorTypes.PULSEIN: {
@@ -310,6 +324,10 @@ Module.prototype.originParsing = function(data) {
             self.sensorData.TIMER = value;
             break;
         }
+        case self.sensorTypes.NEOPIXEL: {
+            self.sensorData.NEOPIXEL = value;
+            break;
+        }
         default: {
             break;
         }
@@ -318,29 +336,27 @@ Module.prototype.originParsing = function(data) {
 
 /* K-Board Parsing FF 56 ~ */
 Module.prototype.kParsing = function(data) {
-    var self = this;
-	var readData = data.subarray(2, data.length);    
+  var self = this;
+	var readData = data.subarray(2, data.length);
 	var value;
-	
-	
-	
+
 	for(var i = 0; i<8; i++) {
 		if(bit_test(readData[0], i))
 		{
-		    self.sensorData.DIGITAL[i + 2] = 1;   			
+		    self.sensorData.DIGITAL[i + 2] = 1;
 		} else {
-		    self.sensorData.DIGITAL[i + 2] = 0;   			
+		    self.sensorData.DIGITAL[i + 2] = 0;
 		}
 	}
 
 	var index = 0;
 	for(var i = 1; i<19; i = i + 2){
 		value = new Buffer(readData.subarray(i, i+2)).readInt16LE();
-        value = Math.round(value * 100) / 100;   
+        value = Math.round(value * 100) / 100;
 
 		if(	value > 1023 || value < 0)
 			value = 0;
-		
+
 		if(index != 8)
 		{
             if(index == 0)
@@ -348,13 +364,13 @@ Module.prototype.kParsing = function(data) {
                 if((1023 - (value * 1.72)) > 0)
                     self.sensorData.ANALOG[index] = parseInt(Math.abs(1023 - (value * 1.72)));
                 else
-                self.sensorData.ANALOG[index] = 0;	
+                self.sensorData.ANALOG[index] = 0;
             }
             else
-                self.sensorData.ANALOG[index] = value;   			    
+                self.sensorData.ANALOG[index] = value;
 			//console.log("self.sensorData.ANALOG" + index + " = " + self.sensorData.ANALOG[index]);
 		} else	{
-			self.sensorData.ULTRASONIC = value;   			
+			self.sensorData.ULTRASONIC = value;
 			//console.log("self.sensorData.ULTRASONIC" + index + " = " + self.sensorData.ULTRASONIC);
 		}
 
@@ -362,10 +378,10 @@ Module.prototype.kParsing = function(data) {
 
 		index = index + 1;
 	}
-	
 
-	
-    
+
+
+
 };
 
 function bit_test(num, bit){
@@ -378,10 +394,17 @@ ff 55 len idx action device port  slot  data a
 */
 
 Module.prototype.makeSensorReadBuffer = function(device, port, data) {
+
     var buffer;
     var dummy = new Buffer([10]);
+
     if(device == this.sensorTypes.ULTRASONIC) {
         buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port[0], port[1], 10]);
+
+        /*
+    } else if(device == this.sensorTypes.ULTRASONIC_COUNTER) {
+        buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port[0], port[1], 10]);
+        */
     } else if(!data) {
         buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.GET, device, port, 10]);
     } else {
@@ -394,7 +417,7 @@ Module.prototype.makeSensorReadBuffer = function(device, port, data) {
     if(sensorIdx > 254) {
         sensorIdx = 0;
     }
-
+    //console.log(buffer);
     return buffer;
 };
 
@@ -403,14 +426,16 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
     var buffer;
     var value = new Buffer(2);
     var dummy = new Buffer([10]);
+
+
     switch(device) {
+
         case this.sensorTypes.SERVO_PIN:
         case this.sensorTypes.DIGITAL:
         case this.sensorTypes.PWM: {
             value.writeInt16LE(data);
             buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.SET, device, port]);
             buffer = Buffer.concat([buffer, value, dummy]);
-            console.log(buffer);
             break;
         }
         case this.sensorTypes.TONE: {
@@ -426,12 +451,10 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
             buffer = Buffer.concat([buffer, value, time, dummy]);
             break;
         }
-        case this.sensorTypes.TONE: {
-        }
         case this.sensorTypes.OLED: {
             var arr = [];
             var i;
-           data = data.toString();
+            data = data.toString();
 
             for(i=0; i<data.length; i++)
             {
@@ -444,10 +467,77 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
             break;
         }
         case this.sensorTypes.COM: {
-            value.writeInt16LE(data);
-            buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.SET, device, port]);
-            buffer = Buffer.concat([buffer, value, dummy]);
+          value.writeInt16LE(data);
+
+          buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.SET, device, port]);
+          buffer = Buffer.concat([buffer, value, dummy]);
+          break;
+        }
+        case this.sensorTypes.ULTRASONIC_COUNTER: { //초음파 카운터 초기화
+
+          var port1 = new Buffer(1);
+          var port2 = new Buffer(1);
+          var minLen = new Buffer(1);
+          var maxLen = new Buffer(1);
+
+          port1[0] = data.port1;
+          port2[0] = data.port2;
+          minLen[0] = data.len1;
+          maxLen[0] = data.len2;
+
+          if(port1[0] == 0 || port2[0] == 0)
+          {
+            buffer = new Buffer([255, 85, 8, sensorIdx, this.actionTypes.SET, device, 1]);
+            buffer = Buffer.concat([buffer]);
+            console.log('stop');
             break;
+          }
+
+          buffer = new Buffer([255, 85, 8, sensorIdx, this.actionTypes.SET, device, 1]);
+          buffer = Buffer.concat([buffer, port1, port2, minLen, maxLen]);
+          console.log(buffer);
+          break;
+        }
+        case this.sensorTypes.NEOPIXEL: {
+
+          var mode = new Buffer(1);
+          var index = new Buffer(1);
+          var value = new Buffer(1);
+          var pos = new Buffer(1);
+          var red = new Buffer(1);
+          var green = new Buffer(1);
+          var blue = new Buffer(1);
+          var brig = new Buffer(1);
+
+          //var msgLength = data.length + 3;
+          mode[0] = data.mode;    //네오픽셀 모드
+          index[0] = data.index;  //네오픽셀 인덱스
+          value[0] = data.value;  //갯수
+          pos[0] = data.pos;      //위치
+          red[0] = data.red;      //빨강
+          blue[0] = data.blue;    //파랑
+          green[0] = data.green;  //녹색
+          brig[0] = data.brig;    //밝기
+
+          if(mode[0] == 1)
+          {
+            buffer = new Buffer([255, 85, 7, sensorIdx, this.actionTypes.SET, device, port]);
+            buffer = Buffer.concat([buffer, mode, index, value, dummy]);
+          }
+
+          else if (mode[0] ==2) {
+            buffer = new Buffer([255, 85, 11, sensorIdx, this.actionTypes.SET, device, 0]);
+            buffer = Buffer.concat([buffer, mode, index, pos, red, green, blue, brig, dummy]);
+
+          } else if (mode[0] == 3) {
+            buffer = new Buffer([255, 85, 10, sensorIdx, this.actionTypes.SET, device, 0]);
+            buffer = Buffer.concat([buffer, mode, index, red, green, blue, brig, dummy]);
+          } else {
+            buffer = new Buffer([255, 85, 06, sensorIdx, this.actionTypes.SET, device, 0, 4, 1]);
+          }
+          //
+          //buffer = new Buffer([255, 85, 11, sensorIdx, this.actionTypes.SET, device, 0, 2, 1, 5, 255, 1, 1, 55]);
+          break;
         }
     }
 
@@ -460,10 +550,10 @@ Module.prototype.getDataByBuffer = function(buffer) {
 	var tempData;
 	 buffer.forEach(function (value, idx) {
         if(value == 13 && buffer[idx + 1] == 10) {
-            datas.push(buffer.subarray(lastIndex, idx));				
+            datas.push(buffer.subarray(lastIndex, idx));
             lastIndex = idx + 2;
         }
-    });	
+    });
     return datas;
 };
 
@@ -479,9 +569,10 @@ Module.prototype.disconnect = function(connect) {
 Module.prototype.reset = function() {
     this.lastTime = 0;
     this.lastSendTime = 0;
-
+    this.sendBuffers = [];
      this.sensorData.PULSEIN = {
     }
+    this.isDraing = false;
 };
 
 module.exports = new Module();

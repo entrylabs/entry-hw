@@ -370,6 +370,9 @@ class SerialConnector extends BaseConnector {
      * @param callback
      */
     send(data: any, callback?: () => void) {
+        if (typeof data === 'boolean') {
+            data = new Buffer([1]);
+        }
         if (this.serialPort && this.serialPort.isOpen && data && !this.isSending) {
             this.isSending = true;
             let resultData = data;

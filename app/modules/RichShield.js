@@ -1,5 +1,5 @@
 function Module() {
-    this.sp = null;
+    this.sp = null; 
     this.sensorTypes = {
         ALIVE: 0, 
         DIGITAL: 1,
@@ -14,11 +14,13 @@ function Module() {
         WRITE_BLUETOOTH: 10,
         LCD: 11,
         DHT : 12,
-        //RGBLED: 12,
         DCMOTOR: 13,
         OLED: 14,
         PIR : 15,
-        FND : 16,   
+        FND : 16,  
+	    IRREMOTE : 19,
+        RGBLED: 18,
+	    DHT2 : 17,
     };
     
     this.actionTypes = {
@@ -39,7 +41,7 @@ function Module() {
 
     this.sensorData = {
         ULTRASONIC: 0,
-        DIGITAL: {
+        DIGITAL: {	
             '0': 0,
             '1': 0,
             '2': 0,
@@ -67,6 +69,7 @@ function Module() {
         TIMER: 0,
         READ_BLUETOOTH: 0,
         DHT: 0,                 // DHT Added
+		IRREMOTE:0
     };
 
     this.defaultOutput = {};
@@ -111,8 +114,6 @@ Module.prototype.validateLocalData = function(data) {
 };
 
 Module.prototype.requestRemoteData = function(handler) {
-    // 디바이스에서 데이터를 받아온 후, 브라우저로 데이터를 보내기 위해 호출되는 로직. handler 를 세팅하는 것으로 값을 보낼 수 있다.
-    // handler.write(key, value) 로 세팅한 값은 Entry.hw.portData 에서 받아볼 수 있다.
     const self = this;
     if (!self.sensorData) {
         return;
@@ -156,7 +157,6 @@ Module.prototype.handleRemoteData = function(handler) {
             }
 
             if (isSend) {
-                // buffer = Buffer.concat([buffer, self.makeSensorReadBuffer(key, dataObj.port, dataObj.data)]);
                 if (!self.isRecentData(dataObj.port, key, dataObj.data)) {
                     self.recentCheckData[dataObj.port] = {
                         type: key,
@@ -225,15 +225,12 @@ Module.prototype.requestLocalData = function() {
     return null;
 };
 
-/*
-ff 55 idx size data a
-*/
 Module.prototype.handleLocalData = function(data) {
     const self = this;
-    const datas = this.getDataByBuffer(data);
+    const datas = this.getDataByBuffer(data);    
     //  unit from device data processing
     datas.forEach((data) => {
-        if (data.length <= 4 || data[0] !== 255 || data[1] !== 85) {
+        if (data.length <= 4 || data[0] !== 255 || data[1] !== 85) {            
             return;
         }
         const readData = data.subarray(2, data.length);
@@ -267,7 +264,7 @@ Module.prototype.handleLocalData = function(data) {
 
         const type = readData[readData.length - 1];
         const port = readData[readData.length - 2];
-
+ 
         switch (type) {
             case self.sensorTypes.DIGITAL: {
                 self.sensorData.DIGITAL[port] = value;
@@ -296,7 +293,14 @@ Module.prototype.handleLocalData = function(data) {
             case self.sensorTypes.DHT: {
                 self.sensorData.DHT = value;
                 break;
-                // DHT SensorData-Type Added By Remoted 2021-02-25
+            }
+            case self.sensorTypes.IRREMOTE: {
+                self.sensorData.IRREMOTE = value;
+                break;
+            }
+            case self.sensorTypes.DHT2: {
+                self.sensorData.DHT2 = value;
+                break;
             }
             default: {
                 break;
@@ -305,10 +309,6 @@ Module.prototype.handleLocalData = function(data) {
     });
 };
 
-/*
-ff 55 len idx action device port  slot  data a
-0  1  2   3   4      5      6     7     8
-*/
 // key port data 
 Module.prototype.makeSensorReadBuffer = function(device, port, data) {
     let buffer;
@@ -332,6 +332,18 @@ Module.prototype.makeSensorReadBuffer = function(device, port, data) {
         buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port[0], port[1], 10]);
     } else if (device == this.sensorTypes.READ_BLUETOOTH) {
         buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.GET, device, port, 10]);
+    } else if (device == this.sensorTypes.IRREMOTE) {
+        if (!data) {
+            buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port, 0, 10]);
+        } else {
+            buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port, data, 10]);
+        }
+    } else if (device == this.sensorTypes.DHT2) {
+        if (!data) {
+            buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port, 0, 10]);
+        } else {
+            buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port, data, 10]);
+        }
     } else {
         value = new Buffer(2);
         value.writeInt16LE(data);
@@ -346,8 +358,6 @@ Module.prototype.makeSensorReadBuffer = function(device, port, data) {
     return buffer;
 };
 
-// 255 85   36  0   1   10  9   0    0  10
-//0xff 0x55 0x6 0x0 0x1 0xa 0x9 0x0 0x0 0xa
 // data.type(device), port, data
 Module.prototype.makeOutputBuffer = function(device, port, data) {
     let buffer;
@@ -362,24 +372,31 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
             buffer = Buffer.concat([buffer, value, dummy]);
             break;
         }
-        case this.sensorTypes.RGBLED: {
+		case this.sensorTypes.RGBLED: {
+            const block_Index = new Buffer(2);
+            const noValue = new Buffer(2);
             const redValue = new Buffer(2);
             const greenValue = new Buffer(2);
             const blueValue = new Buffer(2);
             if ($.isPlainObject(data)) {
+                block_Index.writeInt16LE(data.block_Index);
+                noValue.writeInt16LE(data.noValue);
                 redValue.writeInt16LE(data.redValue);
                 greenValue.writeInt16LE(data.greenValue);
                 blueValue.writeInt16LE(data.blueValue);
             } else {
+				block_Index.writeInt16LE(0);
+                noValue.writeInt16LE(0);
                 redValue.writeInt16LE(0);
                 greenValue.writeInt16LE(0);
                 blueValue.writeInt16LE(0);
             }
-            buffer = new Buffer([255, 85, 10, sensorIdx, this.actionTypes.SET, device, port]);
-            buffer = Buffer.concat([buffer, redValue, greenValue, blueValue, dummy]);
+            buffer = new Buffer([255, 85, 16, sensorIdx, this.actionTypes.SET, device, port]);
+            buffer = Buffer.concat([buffer, block_Index, noValue, redValue, greenValue, blueValue, dummy]);
             break;
-        }   
+        }		
         case this.sensorTypes.TONE: {
+			const value = new Buffer(2);
             const time = new Buffer(2);
             if ($.isPlainObject(data)) {
                 value.writeInt16LE(data.value);
@@ -388,7 +405,7 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
                 value.writeInt16LE(0);
                 time.writeInt16LE(0);
             }
-            buffer = new Buffer([255, 85, 8, sensorIdx, this.actionTypes.SET, device, port]);
+            buffer = new Buffer([255, 85, 10, sensorIdx, this.actionTypes.MODULE, device, port]);
             buffer = Buffer.concat([buffer, value, time, dummy]);
             break;
         }
@@ -452,6 +469,7 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
                 text13.writeInt16LE(data.text13);
                 text14.writeInt16LE(data.text14);
                 text15.writeInt16LE(data.text15);
+
                 displayRow.writeInt16LE(data.displayRow);
                 displayCol.writeInt16LE(data.displayCol);
                 lcdBlockIndex.writeInt16LE(data.block_index);
@@ -510,8 +528,8 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
             const text14 = new Buffer(2);
             const text15 = new Buffer(2);
             if ($.isPlainObject(data)) {
-                coodinateX.writeInt16LE(data.value0);
-                coodinateY.writeInt16LE(data.value1);
+                coodinateX.writeInt16LE(data.displayCol);
+                coodinateY.writeInt16LE(data.displayRow);
                 text0.writeInt16LE(data.text0);
                 text1.writeInt16LE(data.text1);
                 text2.writeInt16LE(data.text2);
@@ -549,7 +567,7 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
                 text15.writeInt16LE(0);
             }
             buffer = new Buffer([255, 85, 40, sensorIdx, this.actionTypes.MODULE, device, port]);
-            buffer = Buffer.concat([buffer, coodinateX, coodinateY, text0, text1, text2, text3, text4, text5, text6, text7, text8, text9, text10, text11, text12, text13, text14, text15, dummy]);
+            buffer = Buffer.concat([buffer, coodinateY, coodinateX, text0, text1, text2, text3, text4, text5, text6, text7, text8, text9, text10, text11, text12, text13, text14, text15, dummy]);
 
             break;
         }
@@ -625,7 +643,7 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
 
                 dhtTempMode.writeInt16LE(0);      
             }
-
+ 
             buffer = Buffer.from([255, 85, 12, sensorIdx, this.actionTypes.MODULE, device, port]);
             buffer = Buffer.concat([buffer, dhtBlockIndex, dhtPin, dhtVerInfo, dhtTempMode, dummy]);
             break;  

@@ -56,12 +56,15 @@ class Microbit2 extends BaseModule {
                     this.currentCommand = null;
                     return;
                 }
-
                 this.socket.send({
                     recentlyWaitDone: codeId,
                     result: data,
                 });
             }
+        } else {
+            this.socket.send({
+                result: data,
+            });
         }
     }
 

@@ -10,7 +10,7 @@ const logger = createLogger('core/SerialFlasher.ts');
 const platform = process.platform;
 
 /**
- * 아두이노 플래싱 및 데이터카피(마이크로빗) 기능을 담당한다.
+ * 아두이노 플래싱 및 데이터카피(마이크로비트) 기능을 담당한다.
  * Flasher 가 기능을 하기전에 SerialPort 의 동작을 끊어야 한다. (COMPort 점유)
  * 아두이노 계열 펌웨어의 hex 파일은 main/firmwares/core 에 있는 파일을 커맨드라인 실행한다.
  *

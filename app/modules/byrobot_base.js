@@ -1,5 +1,6 @@
 /* eslint-disable brace-style */
 /* eslint-disable max-len */
+/*jshint esversion: 6 */
 const BaseModule = require('./baseModule');
 
 
@@ -16,9 +17,11 @@ const BaseModule = require('./baseModule');
  *   - E-DRONE
  *   - Coding Drone
  *   - Battle Drone
+ *   - Codrone Mini
+ *   - Codrone DIY
  *
  * - 마지막 업데이트
- *   - 2020.6.10
+ *   - 2021.4.19
  *
  ***************************************************************************************/
 
@@ -55,126 +58,132 @@ class byrobot_base extends BaseModule
         this.DataType =
         {
             // 전송 버퍼
-            BUFFER_CLEAR                : 'buffer_clear',
+            BUFFER_CLEAR: 'buffer_clear',
 
             // 전송 대상
-            TARGET                      : 'target',
+            TARGET: 'target',
 
             // BATTLE_IR_MESSAGE
-            BATTLE_IR_MESSAGE           : 'battle_ir_message',
+            BATTLE_IR_MESSAGE: 'battle_ir_message',
 
-            // Light Manaul
-            LIGHT_MANUAL_FLAGS          : 'light_manual_flags',
-            LIGHT_MANUAL_BRIGHTNESS     : 'light_manual_brightness',
+            // Light Manual
+            LIGHT_MANUAL_FLAGS     : 'light_manual_flags',
+            LIGHT_MANUAL_BRIGHTNESS: 'light_manual_brightness',
 
             // Light Mode
-            LIGHT_MODE_MODE             : 'light_mode_mode',
-            LIGHT_MODE_INTERVAL         : 'light_mode_interval',
+            LIGHT_MODE_MODE    : 'light_mode_mode',
+            LIGHT_MODE_INTERVAL: 'light_mode_interval',
 
             // Light Event
-            LIGHT_EVENT_EVENT           : 'light_event_event',
-            LIGHT_EVENT_INTERVAL        : 'light_event_interval',
-            LIGHT_EVENT_REPEAT          : 'light_event_repeat',
+            LIGHT_EVENT_EVENT   : 'light_event_event',
+            LIGHT_EVENT_INTERVAL: 'light_event_interval',
+            LIGHT_EVENT_REPEAT  : 'light_event_repeat',
 
             // Light Color
-            LIGHT_COLOR_R               : 'light_color_r',
-            LIGHT_COLOR_G               : 'light_color_g',
-            LIGHT_COLOR_B               : 'light_color_b',
+            LIGHT_COLOR_R: 'light_color_r',
+            LIGHT_COLOR_G: 'light_color_g',
+            LIGHT_COLOR_B: 'light_color_b',
 
             // 화면 전체 지우기
-            DISPLAY_CLEAR_ALL_PIXEL     : 'display_clear_all_pixel',
+            DISPLAY_CLEAR_ALL_PIXEL: 'display_clear_all_pixel',
 
             // 선택 영역 지우기
-            DISPLAY_CLEAR_X             : 'display_clear_x',
-            DISPLAY_CLEAR_Y             : 'display_clear_y',
-            DISPLAY_CLEAR_WIDTH         : 'display_clear_width',
-            DISPLAY_CLEAR_HEIGHT        : 'display_clear_height',
-            DISPLAY_CLEAR_PIXEL         : 'display_clear_pixel',
+            DISPLAY_CLEAR_X     : 'display_clear_x',
+            DISPLAY_CLEAR_Y     : 'display_clear_y',
+            DISPLAY_CLEAR_WIDTH : 'display_clear_width',
+            DISPLAY_CLEAR_HEIGHT: 'display_clear_height',
+            DISPLAY_CLEAR_PIXEL : 'display_clear_pixel',
 
             // 선택 영역 반전
-            DISPLAY_INVERT_X            : 'display_invert_x',
-            DISPLAY_INVERT_Y            : 'display_invert_y',
-            DISPLAY_INVERT_WIDTH        : 'display_invert_width',
-            DISPLAY_INVERT_HEIGHT       : 'display_invert_height',
+            DISPLAY_INVERT_X     : 'display_invert_x',
+            DISPLAY_INVERT_Y     : 'display_invert_y',
+            DISPLAY_INVERT_WIDTH : 'display_invert_width',
+            DISPLAY_INVERT_HEIGHT: 'display_invert_height',
 
             // 화면에 점 찍기
-            DISPLAY_DRAW_POINT_X        : 'display_draw_point_x',
-            DISPLAY_DRAW_POINT_Y        : 'display_draw_point_y',
-            DISPLAY_DRAW_POINT_PIXEL    : 'display_draw_point_pixel',
+            DISPLAY_DRAW_POINT_X    : 'display_draw_point_x',
+            DISPLAY_DRAW_POINT_Y    : 'display_draw_point_y',
+            DISPLAY_DRAW_POINT_PIXEL: 'display_draw_point_pixel',
 
             // 화면에 선 그리기
-            DISPLAY_DRAW_LINE_X1        : 'display_draw_line_x1',
-            DISPLAY_DRAW_LINE_Y1        : 'display_draw_line_y1',
-            DISPLAY_DRAW_LINE_X2        : 'display_draw_line_x2',
-            DISPLAY_DRAW_LINE_Y2        : 'display_draw_line_y2',
-            DISPLAY_DRAW_LINE_PIXEL     : 'display_draw_line_pixel',
-            DISPLAY_DRAW_LINE_LINE      : 'display_draw_line_line',
+            DISPLAY_DRAW_LINE_X1   : 'display_draw_line_x1',
+            DISPLAY_DRAW_LINE_Y1   : 'display_draw_line_y1',
+            DISPLAY_DRAW_LINE_X2   : 'display_draw_line_x2',
+            DISPLAY_DRAW_LINE_Y2   : 'display_draw_line_y2',
+            DISPLAY_DRAW_LINE_PIXEL: 'display_draw_line_pixel',
+            DISPLAY_DRAW_LINE_LINE : 'display_draw_line_line',
 
             // 화면에 사각형 그리기
-            DISPLAY_DRAW_RECT_X         : 'display_draw_rect_x',
-            DISPLAY_DRAW_RECT_Y         : 'display_draw_rect_y',
-            DISPLAY_DRAW_RECT_WIDTH     : 'display_draw_rect_width',
-            DISPLAY_DRAW_RECT_HEIGHT    : 'display_draw_rect_height',
-            DISPLAY_DRAW_RECT_PIXEL     : 'display_draw_rect_pixel',
-            DISPLAY_DRAW_RECT_FLAGFILL  : 'display_draw_rect_flagfill',
-            DISPLAY_DRAW_RECT_LINE      : 'display_draw_rect_line',
+            DISPLAY_DRAW_RECT_X       : 'display_draw_rect_x',
+            DISPLAY_DRAW_RECT_Y       : 'display_draw_rect_y',
+            DISPLAY_DRAW_RECT_WIDTH   : 'display_draw_rect_width',
+            DISPLAY_DRAW_RECT_HEIGHT  : 'display_draw_rect_height',
+            DISPLAY_DRAW_RECT_PIXEL   : 'display_draw_rect_pixel',
+            DISPLAY_DRAW_RECT_FLAGFILL: 'display_draw_rect_flagfill',
+            DISPLAY_DRAW_RECT_LINE    : 'display_draw_rect_line',
 
             // 화면에 원 그리기
-            DISPLAY_DRAW_CIRCLE_X           : 'display_draw_circle_x',
-            DISPLAY_DRAW_CIRCLE_Y           : 'display_draw_circle_y',
-            DISPLAY_DRAW_CIRCLE_RADIUS      : 'display_draw_circle_radius',
-            DISPLAY_DRAW_CIRCLE_PIXEL       : 'display_draw_circle_pixel',
-            DISPLAY_DRAW_CIRCLE_FLAGFILL    : 'display_draw_circle_flagfill',
+            DISPLAY_DRAW_CIRCLE_X       : 'display_draw_circle_x',
+            DISPLAY_DRAW_CIRCLE_Y       : 'display_draw_circle_y',
+            DISPLAY_DRAW_CIRCLE_RADIUS  : 'display_draw_circle_radius',
+            DISPLAY_DRAW_CIRCLE_PIXEL   : 'display_draw_circle_pixel',
+            DISPLAY_DRAW_CIRCLE_FLAGFILL: 'display_draw_circle_flagfill',
 
             // 화면에 문자열 쓰기
-            DISPLAY_DRAW_STRING_X           : 'display_draw_string_x',
-            DISPLAY_DRAW_STRING_Y           : 'display_draw_string_y',
-            DISPLAY_DRAW_STRING_FONT        : 'display_draw_string_font',
-            DISPLAY_DRAW_STRING_PIXEL       : 'display_draw_string_pixel',
-            DISPLAY_DRAW_STRING_STRING      : 'display_draw_string_string',
+            DISPLAY_DRAW_STRING_X     : 'display_draw_string_x',
+            DISPLAY_DRAW_STRING_Y     : 'display_draw_string_y',
+            DISPLAY_DRAW_STRING_FONT  : 'display_draw_string_font',
+            DISPLAY_DRAW_STRING_PIXEL : 'display_draw_string_pixel',
+            DISPLAY_DRAW_STRING_STRING: 'display_draw_string_string',
 
             // 화면에 문자열 정렬하여 그리기
-            DISPLAY_DRAW_STRING_ALIGN_X_START   : 'display_draw_string_align_x_start',
-            DISPLAY_DRAW_STRING_ALIGN_X_END     : 'display_draw_string_align_x_end',
-            DISPLAY_DRAW_STRING_ALIGN_Y         : 'display_draw_string_align_y',
-            DISPLAY_DRAW_STRING_ALIGN_ALIGN     : 'display_draw_string_align_align',
-            DISPLAY_DRAW_STRING_ALIGN_FONT      : 'display_draw_string_align_font',
-            DISPLAY_DRAW_STRING_ALIGN_PIXEL     : 'display_draw_string_align_pixel',
-            DISPLAY_DRAW_STRING_ALIGN_STRING    : 'display_draw_string_align_string',
+            DISPLAY_DRAW_STRING_ALIGN_X_START: 'display_draw_string_align_x_start',
+            DISPLAY_DRAW_STRING_ALIGN_X_END  : 'display_draw_string_align_x_end',
+            DISPLAY_DRAW_STRING_ALIGN_Y      : 'display_draw_string_align_y',
+            DISPLAY_DRAW_STRING_ALIGN_ALIGN  : 'display_draw_string_align_align',
+            DISPLAY_DRAW_STRING_ALIGN_FONT   : 'display_draw_string_align_font',
+            DISPLAY_DRAW_STRING_ALIGN_PIXEL  : 'display_draw_string_align_pixel',
+            DISPLAY_DRAW_STRING_ALIGN_STRING : 'display_draw_string_align_string',
 
             // Buzzer
-            BUZZER_MODE             : 'buzzer_mode',
-            BUZZER_VALUE            : 'buzzer_value',
-            BUZZER_TIME             : 'buzzer_time',
+            BUZZER_MODE : 'buzzer_mode',
+            BUZZER_VALUE: 'buzzer_value',
+            BUZZER_TIME : 'buzzer_time',
 
             // Vibrator
-            VIBRATOR_MODE           : 'vibrator_mode',
-            VIBRATOR_ON             : 'vibrator_on',
-            VIBRATOR_OFF            : 'vibrator_off',
-            VIBRATOR_TOTAL          : 'vibrator_total',
+            VIBRATOR_MODE : 'vibrator_mode',
+            VIBRATOR_ON   : 'vibrator_on',
+            VIBRATOR_OFF  : 'vibrator_off',
+            VIBRATOR_TOTAL: 'vibrator_total',
 
             // Control::Quad8
-            CONTROL_QUAD8_ROLL      : 'control_quad8_roll',
-            CONTROL_QUAD8_PITCH     : 'control_quad8_pitch',
-            CONTROL_QUAD8_YAW       : 'control_quad8_yaw',
-            CONTROL_QUAD8_THROTTLE  : 'control_quad8_throttle',
+            CONTROL_QUAD8_ROLL    : 'control_quad8_roll',
+            CONTROL_QUAD8_PITCH   : 'control_quad8_pitch',
+            CONTROL_QUAD8_YAW     : 'control_quad8_yaw',
+            CONTROL_QUAD8_THROTTLE: 'control_quad8_throttle',
 
             // Control::Position
-            CONTROL_POSITION_X                   : 'control_position_x',
-            CONTROL_POSITION_Y                   : 'control_position_y',
-            CONTROL_POSITION_Z                   : 'control_position_z',
-            CONTROL_POSITION_VELOCITY            : 'control_position_velocity',
-            CONTROL_POSITION_HEADING             : 'control_position_heading',
-            CONTROL_POSITION_ROTATIONAL_VELOCITY : 'control_position_rotational_velocity',
+            CONTROL_POSITION_X                  : 'control_position_x',
+            CONTROL_POSITION_Y                  : 'control_position_y',
+            CONTROL_POSITION_Z                  : 'control_position_z',
+            CONTROL_POSITION_VELOCITY           : 'control_position_velocity',
+            CONTROL_POSITION_HEADING            : 'control_position_heading',
+            CONTROL_POSITION_ROTATIONAL_VELOCITY: 'control_position_rotational_velocity',
 
             // Command
-            COMMAND_COMMAND         : 'command_command',
-            COMMAND_OPTION          : 'command_option',
+            COMMAND_COMMAND: 'command_command',
+            COMMAND_OPTION : 'command_option',
+
+            // Trim
+            TRIM_ROLL    : 'trim_roll',
+            TRIM_PITCH   : 'trim_pitch',
+            TRIM_YAW     : 'trim_yaw',
+            TRIM_THROTTLE: 'trim_throttle',
 
             // Motor
-            MOTORSINGLE_TARGET      : 'motorsingle_target',
-            MOTORSINGLE_ROTATION    : 'motorsingle_rotation',     // direction -> rotation
-            MOTORSINGLE_VALUE       : 'motorsingle_value',
+            MOTORSINGLE_TARGET  : 'motorsingle_target',
+            MOTORSINGLE_ROTATION: 'motorsingle_rotation',   // direction -> rotation
+            MOTORSINGLE_VALUE   : 'motorsingle_value',
         };
 
 
@@ -230,19 +239,51 @@ class byrobot_base extends BaseModule
         };
 
 
+        // Altitude
+        this.altitude = 
+        {
+            _updated            : 1,
+            altitude_temperature: 0,   // f32
+            altitude_pressure   : 0,   // f32
+            altitude_altitude   : 0,   // f32
+            altitude_rangeHeight: 0,   // f32
+        };
+
+
+        // Position
+        this.position = 
+        {
+            _updated  : 1,
+            position_x: 0,   // f32
+            position_y: 0,   // f32
+            position_z: 0,   // f32
+        };
+
+
         // Motion
         this.motion =
         {
             _updated            : 1,
-            motion_accelX       : 0,    // u16
-            motion_accelY       : 0,    // u16
-            motion_accelZ       : 0,    // u16
-            motion_gyroRoll     : 0,    // u16
-            motion_gyroPitch    : 0,    // u16
-            motion_gyroYaw      : 0,    // u16
-            motion_angleRoll    : 0,    // u16
-            motion_anglePitch   : 0,    // u16
-            motion_angleYaw     : 0,    // u16
+            motion_accelX       : 0,    // s16
+            motion_accelY       : 0,    // s16
+            motion_accelZ       : 0,    // s16
+            motion_gyroRoll     : 0,    // s16
+            motion_gyroPitch    : 0,    // s16
+            motion_gyroYaw      : 0,    // s16
+            motion_angleRoll    : 0,    // s16
+            motion_anglePitch   : 0,    // s16
+            motion_angleYaw     : 0,    // s16
+        };
+
+
+        // Trim
+        this.trim =
+        {
+            _updated      : 1,
+            trim_roll     : 0,    // s16
+            trim_pitch    : 0,    // s16
+            trim_yaw      : 0,    // s16
+            trim_throttle : 0,    // s16
         };
 
 
@@ -460,6 +501,12 @@ class byrobot_base extends BaseModule
         // State
         this.clearState();
 
+        // Altitude
+        this.clearAltitude();
+
+        // Position
+        this.clearPosition();
+
         // Joystick
         this.clearJoystick();
 
@@ -468,6 +515,9 @@ class byrobot_base extends BaseModule
 
         // Motion
         this.clearMotion();
+
+        // Trim
+        this.clearTrim();
 
         // Range
         this.clearRange();
@@ -549,7 +599,7 @@ class byrobot_base extends BaseModule
             const view  = new DataView(array.buffer);
 
             this.ack._updated       = true;
-            this.ack.ack_systemTime = this.getUint64(view, 0, true);
+            this.ack.ack_systemTime = view.getBigUint64(0, true);
             this.ack.ack_dataType   = view.getUint8(8);
             this.ack.ack_crc16      = view.getUint16(9, true);
 
@@ -591,6 +641,66 @@ class byrobot_base extends BaseModule
             this.state.state_controlSpeed       = view.getUint8(5);
             this.state.state_sensorOrientation  = view.getUint8(6);
             this.state.state_battery            = view.getUint8(7);
+
+            return true;
+        }
+
+        return false;
+    }
+
+
+    clearAltitude()
+    {
+        this.altitude._updated             = false;
+        this.altitude.altitude_temperature = 0;
+        this.altitude.altitude_pressure    = 0;
+        this.altitude.altitude_altitude    = 0;
+        this.altitude.altitude_rangeHeight = 0;
+    }
+
+    updateAltitude()
+    {
+        //this.log(`BASE - updateAltitude() - length : ${this.dataBlock.length}`);
+
+        if (this.dataBlock != undefined && this.dataBlock.length == 16)
+        {
+            const array = Uint8Array.from(this.dataBlock);
+            const view  = new DataView(array.buffer);
+
+            this.altitude._updated             = true;
+            this.altitude.altitude_temperature = view.getFloat32(0, true);
+            this.altitude.altitude_pressure    = view.getFloat32(4, true);
+            this.altitude.altitude_altitude    = view.getFloat32(8, true);
+            this.altitude.altitude_rangeHeight = view.getFloat32(12, true);
+
+            return true;
+        }
+
+        return false;
+    }
+
+
+    clearPosition()
+    {
+        this.position._updated   = false;
+        this.position.position_x = 0;
+        this.position.position_y = 0;
+        this.position.position_z = 0;
+    }
+
+    updatePosition()
+    {
+        //this.log(`BASE - updatePosition() - length : ${this.dataBlock.length}`);
+
+        if (this.dataBlock != undefined && this.dataBlock.length == 12)
+        {
+            const array = Uint8Array.from(this.dataBlock);
+            const view  = new DataView(array.buffer);
+
+            this.position._updated   = true;
+            this.position.position_x = view.getFloat32(0, true);
+            this.position.position_y = view.getFloat32(4, true);
+            this.position.position_z = view.getFloat32(8, true);
 
             return true;
         }
@@ -679,6 +789,7 @@ class byrobot_base extends BaseModule
         this.motion.motion_angleYaw     = 0;
     }
 
+
     updateMotion()
     {
         this.log(`BASE - updateMotion() - length : ${this.dataBlock.length}`);
@@ -716,6 +827,38 @@ class byrobot_base extends BaseModule
             this.motion.motion_anglePitch   = view.getInt16(14, true);
             this.motion.motion_angleYaw     = view.getInt16(16, true);
             // */
+
+            return true;
+        }
+
+        return false;
+    }
+
+
+    clearTrim()
+    {
+        this.trim._updated          = false;
+        this.trim.trim_roll         = 0;
+        this.trim.trim_pitch        = 0;
+        this.trim.trim_yaw          = 0;
+        this.trim.trim_throttle     = 0;
+    }
+
+
+    updateTrim()
+    {
+        this.log(`BASE - updateTrim() - length : ${this.dataBlock.length}`);
+
+        if (this.dataBlock != undefined && this.dataBlock.length == 8)
+        {
+            const array = Uint8Array.from(this.dataBlock);
+            const view  = new DataView(array.buffer);
+
+            this.trim._updated          = true;
+            this.trim.trim_roll         = view.getInt16(0, true);
+            this.trim.trim_pitch        = view.getInt16(2, true);
+            this.trim.trim_yaw          = view.getInt16(4, true);
+            this.trim.trim_throttle     = view.getInt16(6, true);
 
             return true;
         }
@@ -1194,6 +1337,23 @@ class byrobot_base extends BaseModule
         }
 
 
+        // Trim
+        if (handler.e(this.DataType.TRIM_ROLL)     ||
+            handler.e(this.DataType.TRIM_PITCH)    ||
+            handler.e(this.DataType.TRIM_YAW)      ||
+            handler.e(this.DataType.TRIM_THROTTLE))
+        {
+            const trimRoll     = this.read(handler, this.DataType.TRIM_ROLL);
+            const trimPitch    = this.read(handler, this.DataType.TRIM_PITCH);
+            const trimYaw      = this.read(handler, this.DataType.TRIM_YAW);
+            const trimThrottle = this.read(handler, this.DataType.TRIM_THROTTLE);
+
+            const dataArray = this.reserveTrim(target, trimRoll, trimPitch, trimYaw, trimThrottle);
+            this.bufferTransfer.push(dataArray);
+            this.log('BASE - Transfer_To_Device - Trim', dataArray);
+        }
+
+
         // Control
         if (handler.e(this.DataType.CONTROL_QUAD8_ROLL)     ||
             handler.e(this.DataType.CONTROL_QUAD8_PITCH)    ||
@@ -1333,6 +1493,32 @@ class byrobot_base extends BaseModule
             }
         }
 
+        // Altitude
+        {
+            if (this.altitude._updated)
+            {
+                for (const key in this.altitude)
+                {
+                    handler.write(key, this.altitude[key]);
+                }
+
+                this.altitude._updated = false;
+            }
+        }
+
+        // Position
+        {
+            if (this.position._updated)
+            {
+                for (const key in this.position)
+                {
+                    handler.write(key, this.position[key]);
+                }
+
+                this.position._updated = false;
+            }
+        }
+
         // Motion
         {
             if (this.motion._updated)
@@ -1343,6 +1529,19 @@ class byrobot_base extends BaseModule
                 }
 
                 this.motion._updated = false;
+            }
+        }
+
+        // Trim
+        {
+            if (this.trim._updated)
+            {
+                for (const key in this.trim)
+                {
+                    handler.write(key, this.trim[key]);
+                }
+
+                this.trim._updated = false;
             }
         }
 
@@ -1677,18 +1876,18 @@ class byrobot_base extends BaseModule
             break;
 
 
-        case 0x70:  // Button
+        case 0x42:  // Position
             {
-                //this.log("BASE - handlerForDevice() - Received - Button - 0x70");
-                this.updateButton();
+                //this.log("BASE - handlerForDevice() - Received - Position - 0x42");
+                this.updatePosition();
             }
             break;
 
 
-        case 0x71:  // Joystick
+        case 0x43:  // Altitude
             {
-                //this.log("BASE - handlerForDevice() - Received - Joystick - 0x71");
-                this.updateJoystick();
+                //this.log("BASE - handlerForDevice() - Received - Altitude - 0x43");
+                this.updateAltitude();
             }
             break;
 
@@ -1705,6 +1904,30 @@ class byrobot_base extends BaseModule
             {
                 //this.log("BASE - handlerForDevice() - Received - Range - 0x45");
                 this.updateRange();
+            }
+            break;
+
+
+        case 0x52:  // Trim
+            {
+                //this.log("BASE - handlerForDevice() - Received - Trim - 0x52");
+                this.updateTrim();
+            }
+            break;
+
+
+        case 0x70:  // Button
+            {
+                //this.log("BASE - handlerForDevice() - Received - Button - 0x70");
+                this.updateButton();
+            }
+            break;
+
+
+        case 0x71:  // Joystick
+            {
+                //this.log("BASE - handlerForDevice() - Received - Joystick - 0x71");
+                this.updateJoystick();
             }
             break;
 
@@ -1801,7 +2024,7 @@ class byrobot_base extends BaseModule
             else
             {
                 const index = (this.countReqeustDevice % ((this.arrayRequestData.length + 1) * 4));   // +1은 자주 갱신되는 데이터 요청, *4는 예약된 요청 데이터
-                const indexArray = (index / 4).toFixed(0);;
+                const indexArray = (index / 4).toFixed(0);
 
                 if ((index & 0x03) == 0)
                 {
@@ -2146,6 +2369,22 @@ class byrobot_base extends BaseModule
     }
 
 
+    // Trim
+    reserveTrim(target, roll, pitch, yaw, throttle)
+    {
+        const dataArray   = new ArrayBuffer(8);
+        const view        = new DataView(dataArray);
+
+        view.setInt16   (0, this.fit(-100, roll, 100), true);
+        view.setInt16   (2, this.fit(-100, pitch, 100), true);
+        view.setInt16   (4, this.fit(-100, yaw, 100), true);
+        view.setInt16   (6, this.fit(-100, throttle, 100), true);
+
+        this.log(`BASE - reserveTrim() - Target: 0x${target.toString(16).toUpperCase()}`);
+        return this.createTransferBlock(0x52, target, dataArray);
+    }
+
+
     // ControlQuad8
     reserveControlQuad8(target, roll, pitch, yaw, throttle)
     {
@@ -2298,24 +2537,6 @@ class byrobot_base extends BaseModule
     getByte(value, index)
     {
         return ((value >> (index << 3)) & 0xff);
-    }
-
-
-    getUint64(dataview, byteOffset, littleEndian)
-    {
-        // split 64-bit number into two 32-bit (4-byte) parts
-        const left =  dataview.getUint32(byteOffset, littleEndian);
-        const right = dataview.getUint32(byteOffset + 4, littleEndian);
-
-        // combine the two 32-bit values
-        const combined = (littleEndian) ? (left + 2 ** 32 * right) : (2 ** 32 * left + right);
-
-        if (!Number.isSafeInteger(combined))
-        {
-            console.warn(combined, 'exceeds MAX_SAFE_INTEGER. Precision may be lost');
-        }
-
-        return combined;
     }
 
 
