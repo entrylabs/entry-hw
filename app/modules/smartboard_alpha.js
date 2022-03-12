@@ -51,7 +51,10 @@ class smartboard_alpha extends BaseModule {
 			SET_PORT_DISABLE: 0x81,
 			SET_BLUE_PW: 0x82,
 			SET_NO_TONE: 0x83,
+
+			SET_MOTOR_DIR: 0x88,
 			SET_MOTOR_SPEED: 0x90,
+			SET_MOTOR_SPEED_D: 0x94,
 			SET_MOTOR_CURRENT: 0x98,
 
 			SET_GROUP_D_OUT: 0xa0,
@@ -120,8 +123,10 @@ class smartboard_alpha extends BaseModule {
 				//'10': 3,
 			},
 			MOTOR: {
-				'5': 0,
-				'6': 1,
+				'4': 0, // Dir_M1
+				'7': 1, // Dir_M2
+				'5': 0, // PWM_M1
+				'6': 1, // PWM_M2
 				//'14': 0,  // Current 
 				//'15': 1,  // Current 
 			},
@@ -351,7 +356,8 @@ class smartboard_alpha extends BaseModule {
 				switch (modeGroup) {
 					case this.setMode.SET_GROUP_COMMAND:
 						switch (mode) {
-							case this.setMode.SET_MOTOR_SPEED:
+							case this.setMode.SET_MOTOR_SPEED_D:
+								console.log("SPEED:",value);
 								//Data1
 								idx = this.portMapToDevice.MOTOR[portNo];
 								query = mode + ((value >> 6) & 0x02) + idx;
@@ -359,11 +365,18 @@ class smartboard_alpha extends BaseModule {
 								//Data2
 								query = value & 0x7f;
 								queryString.push(query);
+								
 								break;
 							case this.setMode.SET_MOTOR_CURRENT:
 								idx = this.portMapToDevice.MOTOR[portNo];
 								query = mode + idx;
 								queryString.push(query);
+								break;
+							case this.setMode.SET_MOTOR_DIR:
+								idx = this.portMapToDevice.MOTOR[portNo];
+								query = mode + ((value << 1)) + idx;
+								queryString.push(query);
+								console.log(value, "-", query);
 								break;
 							case this.setMode.SET_NO_TONE:
 								query = mode;
