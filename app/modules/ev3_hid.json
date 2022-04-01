@@ -13,10 +13,7 @@
 	"module": "ev3_hid.js",
 	"url": "http://www.lego.com/ko-kr/mindstorms/about-ev3",
 	"reconnect": true,
-	"select_com_port" : true,
-	"entry": {
-		"protocol": "json"
-	},
+	"selectPort" : true,
 	"hardware": {
 		"type": "hid",
 		"duration": 64
