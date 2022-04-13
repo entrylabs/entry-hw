@@ -296,9 +296,7 @@ class CodeWiz extends BaseModule {
                     this.handler.write(this.curId, { value: 'runOK' });
                     return;
                 }
-                case this.receiveType.BOOLEAN: {
-                    // this.handler.write('runOK', { value: readData[2] === 1 });
-                    
+                case this.receiveType.BOOLEAN: {                    
                     this.handler.write(this.curId, { value: readData[2] === 1 });
                     return;
                 }
@@ -308,7 +306,6 @@ class CodeWiz extends BaseModule {
                     if (_sign) {
                         _value *= -1;
                     }
-                    // this.handler.write('runOK', { value: _value });
                     this.handler.write(this.curId, { value: _value });
                     return;
                 }
