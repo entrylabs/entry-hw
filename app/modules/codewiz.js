@@ -52,7 +52,7 @@ class CodeWiz extends BaseModule {
                 _type:0,
                 _count:0,
                 _list:[],
-            }
+            },
         };
         this.isDraing = false;
         this.isFirst = true;
@@ -277,16 +277,16 @@ class CodeWiz extends BaseModule {
                     return;
                 }
                 case this.receiveType.HUSKY_RESULTS: {
-                    this.sensorData.HUSKY_READ._type=readData[2];
-                    this.sensorData.HUSKY_READ._count=readData[3];
-                    this.sensorData.HUSKY_READ._list=[];
-                    for(let i=0; i<readData[3]; ++i) {
+                    this.sensorData.HUSKY_READ._type = readData[2];
+                    this.sensorData.HUSKY_READ._count = readData[3];
+                    this.sensorData.HUSKY_READ._list = [];
+                    for (let i = 0; i < readData[3]; ++i) {
                         this.sensorData.HUSKY_READ._list.push([
-                            readData[9*i+4],
-                            readData[9*i+5]<<8|readData[9*i+6],
-                            readData[9*i+7]<<8|readData[9*i+8],
-                            readData[9*i+9]<<8|readData[9*i+10],
-                            readData[9*i+11]<<8|readData[9*i+12],
+                            readData[9 * i + 4],
+                            readData[9 * i + 5] << 8 | readData[9 * i + 6],
+                            readData[9 * i + 7] << 8 | readData[9 * i + 8],
+                            readData[9 * i + 9] << 8 | readData[9 * i + 10],
+                            readData[9 * i + 11] << 8 | readData[9 * i + 12],
                         ]);
                     }
                     this.shouldUpdateHusky = true;
@@ -296,7 +296,7 @@ class CodeWiz extends BaseModule {
                     this.handler.write(this.curId, { value: 'runOK' });
                     return;
                 }
-                case this.receiveType.BOOLEAN: {                    
+                case this.receiveType.BOOLEAN: {
                     this.handler.write(this.curId, { value: readData[2] === 1 });
                     return;
                 }
@@ -349,7 +349,7 @@ class CodeWiz extends BaseModule {
             handler.write("HUSKY_READ", this.sensorData.HUSKY_READ);
             this.shouldUpdateHusky = false;
         }
-        this.isFirst=false;
+        this.isFirst = false;
     }
 } // end CodeWiz
 
