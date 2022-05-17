@@ -584,5 +584,5 @@ class castarter_v2_pb extends BaseModule {
         this.lastSendTime = 0;
         this.sensorData.PULSEIN = {};
     };
-}
+} 
 module.exports = new castarter_v2_pb();
