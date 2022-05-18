@@ -1,8 +1,8 @@
 {
     "id": "050102",
     "name": {
-        "en": "NEOBOT-NEW",
-        "ko": "네오봇(전용 동글)"
+        "en": "Neobot",
+        "ko": "네오봇"
     },
     "category": "module",
     "platform": [
