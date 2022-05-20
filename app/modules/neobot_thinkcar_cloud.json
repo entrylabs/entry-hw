@@ -1,15 +1,15 @@
 {
-    "id": "050502",
+    "id": "050702",
     "name": {
-        "en": "NEW Neobot(for Cloud PC)",
-        "ko": "NEW 네오봇(for Cloud PC)"
+        "en": "NEO ThinkCar(for Cloud PC)",
+        "ko": "네오씽카(for Cloud PC)"
     },
     "category": "module",
     "platform": [
         "win32",
         "darwin"
     ],
-    "icon": "neobot_purple.png",
+    "icon": "neobot_thinkcar.png",
     "module": "neobot.js",
     "url": "http://neobot.co.kr/",
     "email": "neobot@neobot.co.kr",
