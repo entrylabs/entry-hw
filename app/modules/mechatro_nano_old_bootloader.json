@@ -1,8 +1,8 @@
 {
-    "id": "1F0110",
+    "id": "1F0111",
     "name": {
-        "en": "Mechatro Nano+",
-        "ko": "메카트로 나노"
+        "en": "Mechatro Nano+ (old bootloader)",
+        "ko": "메카트로 나노 (올드 부트로더)"
     },
     "category": "board",
     "platform": ["win32", "darwin"],
@@ -24,6 +24,7 @@
     "url": "http://cafe.naver.com/easybread",
     "email": "in_school@naver.com",
     "reconnect": true,
+    "firmwareBaudRate": 57600,
     "firmware": "mechatro",
         "hardware": {
         "type": "serial",
