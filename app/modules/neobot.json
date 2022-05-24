@@ -1,8 +1,8 @@
 {
 	"id": "050101",
 	"name": {
-		"en": "NEOBOT",
-		"ko": "네오봇"
+		"en": "Neobot(for Cloud PC)",
+		"ko": "네오봇(for Cloud PC)"
 	},
 	"category": "module",
 	"platform": ["win32", "darwin"],
