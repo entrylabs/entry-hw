@@ -2,14 +2,14 @@
     "id": "1F0101",
     "name": {
         "en": "Mechatro Uno+",
-        "ko": "메카트로 우노+"
+        "ko": "메카트로 우노/나노"
     },
     "category": "board",
     "platform": [
         "win32",
         "darwin"
     ],
-    "icon": "mechatro_uno.png",
+    "icon": "mechatro_uno_nano.png",
     "module": "mechatro.js",
     "url": "http://cafe.naver.com/easybread",
     "email": "in_school@naver.com",

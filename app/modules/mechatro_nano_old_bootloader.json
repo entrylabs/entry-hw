@@ -5,7 +5,10 @@
         "ko": "메카트로 나노 (올드 부트로더)"
     },
     "category": "board",
-    "platform": ["win32", "darwin"],
+    "platform": [
+        "win32",
+        "darwin"
+    ],
     "icon": "mechatro_nano_old_bootloader.png",
     "module": "mechatro.js",
     "driver": [
@@ -26,11 +29,15 @@
     "reconnect": true,
     "firmwareBaudRate": 57600,
     "firmware": "mechatro",
-        "hardware": {
+    "hardware": {
         "type": "serial",
         "control": "slave",
         "duration": 35,
-        "vendor": ["Arduino", "wch.cn", "FTDI"],
+        "vendor": [
+            "Arduino",
+            "wch.cn",
+            "FTDI"
+        ],
         "baudRate": 57600,
         "lostTimer": 1000,
         "firmwarecheck": false
