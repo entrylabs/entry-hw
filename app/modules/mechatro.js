@@ -404,7 +404,7 @@ class mechatro extends BaseModule {
 
         if (queryString.length > 0) {
             //queryString.unshift(this.setMode.SET_PORT_DISABLE); // Disable 명령 별도 송부로 삭제
-            console.log("Data to Device: ", queryString);
+            // console.log("Data to Device: ", queryString);
             return queryString;
         } else {
             return null;
