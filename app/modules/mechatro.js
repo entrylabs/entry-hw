@@ -19,7 +19,7 @@ class mechatro extends BaseModule {
         // 데이터   entryJS_State            상태                 작동 함수        작업 내용
         //   없음      0        하드웨어 연결 or 엔트리 정지  requestLocalData()  하드웨어 2회 초기화    
         //   없음      2        하드웨어 초기화 후            handleRemoteData()  블록 사용 여부 확인
-        //                                                                     데이터가 없으면(블록을 사용하지 않으면), 하드웨어가 초기화(모든 포트입력)된 상태를 계속 유지함.
+        //                                                                      데이터가 없으면(블록을 사용하지 않으면), 하드웨어가 초기화(모든 포트입력)된 상태를 계속 유지함.
         //   있음                                                               데이터가 있으면(블록을 사용하면), 다음 단계로 넘어감 
         //   있음      3        하드웨어 블록 사용            requestRemoteData() 사용하지 않는 아날로그 인풋값 "0"으로 초기화 (하드웨어 모니터에 0 표시됨)
         //   없음      4        아날로그 인풋값 초기화        handleRemoteData()  엔트리 정지(수신 데이터 없음)시 EntryHW 초기화 
@@ -27,24 +27,23 @@ class mechatro extends BaseModule {
         this.remainData = 0;
 
         this.dataFromEntry = {};
-        //형식
-        //this.dataFromEntry = {
-        //    portNo:{
-        //        mode : 0,
-        //        value: 0,
-        //    },
-        //};
+        // 형식
+        // dataFromEntry = {
+        //     portNo: {
+        //         MODE: 0,
+        //         VALUE: 0,
+        //         UPDATE: 2,  // 업데이트 횟수 셋팅
+        //     },
+        // }
 
         this.dataFromDevice = {};
-        //형식
-        //this.dataFromDevice = {
-        //    ULTRASONIC : 0,
-        //    '2' : 0,
-        //
-        //    '21': 0,
-        //};
-
-        //this.haveToUpdateHW = {};
+        // 형식
+        // this.dataFromDevice = {
+        //     ULTRASONIC: 0,
+        //     '2': 0,
+        // 
+        //     '21': 0,
+        // };
 
         this.setMode = {
             SET_GROUP_COMMAND: 0x80,
@@ -234,16 +233,8 @@ class mechatro extends BaseModule {
     /*
     하드웨어 기기에 전달할 데이터를 반환합니다.
     하드웨어 연결되면 계속 실행
-    slave 모드인 경우 duration 속성 간격으로 지속적으로 기기에 요청을 보냅니다.
-    형식
-    this.dataFromEntry = {
-        portNo:{
-            MODE : 0,
-            VALUE: 0,
-            UPDATE : 2 // 업데이트 횟수
-        },
-    };
-    */
+    slave 모드인 경우 duration 속성 간격으로 지속적으로 기기에 요청을 보냅니다.*/
+
     requestLocalData() {
         //console.log("        ■ -->> Device: ");
         let queryString = [];
@@ -324,18 +315,6 @@ class mechatro extends BaseModule {
                         query = mode + (value << 3) + idx;
                         queryString.push(query);
                         this.dataFromDevice[portNo] = value;  // 아웃풋 데이터 모니터링 창에 값  업데이트  되도록 저장
-                        /*switch (mode) {
-                                case this.setMode.SET_DIGITAL_OUT_L:
-                                    idx = this.portMapToDevice.INOUT_L_H[portNo];
-                                    query = mode + (value << 3) + idx;
-                                    queryString.push(query);
-                                    break;
-                                case this.setMode.SET_DIGITAL_OUT_H:
-                                    idx = this.portMapToDevice.INOUT_L_H[portNo];
-                                    query = mode + (value << 3) + idx;
-                                    queryString.push(query);
-                                    break;
-                            }*/
                         break;
                     case this.setMode.SET_GROUP_SERVO_PWM_TON:
                         switch (mode) {
@@ -425,7 +404,7 @@ class mechatro extends BaseModule {
 
         if (queryString.length > 0) {
             //queryString.unshift(this.setMode.SET_PORT_DISABLE); // Disable 명령 별도 송부로 삭제
-            //console.log("Data to Device: ", queryString);
+            console.log("Data to Device: ", queryString);
             return queryString;
         } else {
             return null;
@@ -526,17 +505,9 @@ class mechatro extends BaseModule {
         });
     }
 
-    // 엔트리에서 받은 데이터에 대한 처리
-    // 엔트리 실행 중지시에는 작동 안함
-    // 엔트리가 중지 되면 SetZero 에서 Entry.hw.update() 를 통해 SEND_DATA : {} 값이 들어옴.
-    // 형식
-    //this.dataFromEntry = {
-    // portNo:{
-    // MODE : 0,
-    // VALUE: 0,
-    // UPDATE : 2,  // 업데이트 횟수 셋팅
-    // },
-    //};
+    /* 엔트리에서 받은 데이터에 대한 처리
+       엔트리 실행 중지시에는 작동 안함
+       엔트리가 중지 되면 SetZero 에서 Entry.hw.update() 를 통해 SEND_DATA : {} 값이 들어옴.*/
     handleRemoteData(handler) {
         const getData = handler.read('SEND_DATA');
         const getkeys = Object.keys(getData);
