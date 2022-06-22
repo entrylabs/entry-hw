@@ -27,14 +27,14 @@
   "reconnect": true,
   "selectPort": true,
   "firmware": "castarter_v2_pb",
-  "firmwareBaudRate": 57600,
+  "firmwareBaudRate": 115200,
   "firmwareMCUType": " m328pb",
   "hardware": {
     "type": "serial",
     "control": "slave",
-    "duration": 50,
-    "vendor": [ "Arduino", "wch.cn", "CH340" ],
+    "duration": 32,
+    "vendor": ["Arduino", "wch.cn"],
     "firmwarecheck": false,
-    "baudRate": 57600
+    "baudRate": 115200
   }
 }
