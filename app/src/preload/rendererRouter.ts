@@ -1,4 +1,4 @@
-import { ipcRenderer, remote, ipcMain, webFrame, shell } from 'electron';
+import { ipcRenderer, webFrame, shell } from 'electron';
 import { HardwareStatement, RunningModeTypes } from '../common/constants';
 
 /**
