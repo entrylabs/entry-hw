@@ -1,15 +1,12 @@
 {
     "id": "1F0102",
     "name": {
-        "en": "Mechatro Nano (old bootloader)",
-        "ko": "메카트로 나노 (올드 부트로더)"
+        "en": "Mechatro Nano+",
+        "ko": "메카트로 나노+"
     },
     "category": "board",
-    "platform": [
-        "win32",
-        "darwin"
-    ],
-    "icon": "mechatro_nano_old_bootloader.png",
+    "platform": ["win32", "darwin"],
+    "icon": "mechatro_nano.png",
     "module": "mechatro.js",
     "driver": [
         {
@@ -27,17 +24,13 @@
     "url": "http://cafe.naver.com/easybread",
     "email": "in_school@naver.com",
     "reconnect": true,
-    "firmwareBaudRate": 57600,
     "firmware": "mechatro",
+    "firmwareBaudRate": 57600,
     "hardware": {
         "type": "serial",
         "control": "slave",
         "duration": 35,
-        "vendor": [
-            "Arduino",
-            "wch.cn",
-            "FTDI"
-        ],
+        "vendor": ["Arduino", "wch.cn", "FTDI"],
         "baudRate": 57600,
         "lostTimer": 1000,
         "firmwarecheck": false
