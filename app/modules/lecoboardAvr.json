@@ -19,7 +19,7 @@
     "type": "serial",
     "control": "slave",
     "duration": 50,
-    "vendor": [ "LECOBOARD", "Silicon Lab" ],
+    "vendor": ["Silicon Lab" ,"wch.cn"],    
     "parity": "none",
     "baudRate": 57600,
     "firmwarecheck": false
