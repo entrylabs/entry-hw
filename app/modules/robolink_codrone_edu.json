@@ -6,23 +6,21 @@
     },
     "category": "robot",
     "platform": ["win32", "darwin"],
-    "icon" : "robolink_codrone_edu.png",
+    "icon": "robolink_codrone_edu.png",
     "module": "robolink_codrone_edu.js",
     "driver": {
         "win32-ia32": "BYROBOT/petrone_v2_usb_driver_32.exe",
         "win32-x64": "BYROBOT/petrone_v2_usb_driver_64.exe"
     },
-    "url"      : "http://www.robolink.co.kr/web/cate02/product05.php",
-    "email"    : "asteam@robolink.co.kr",
-    "reconnect" : true,
+    "url": "http://www.robolink.co.kr/web/cate02/product05.php",
+    "email": "asteam@robolink.co.kr",
+    "reconnect": true,
     "hardware": {
         "type": "serial",
         "control": "slave",
         "scanType": "data",
         "duration": 20,
-        "vendor": {
-            "win32": ["Microsoft", "STMicroelectronics", "wch.cn", "Arduino", "BYROBOT"]
-        },
+        "vendor": ["Microsoft", "STMicroelectronics", "wch.cn", "Arduino", "BYROBOT"],
         "baudRate": 57600,
         "flowControl": "none"
     }
