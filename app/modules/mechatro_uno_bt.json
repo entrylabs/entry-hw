@@ -5,7 +5,10 @@
         "ko": "메카트로 우노+블루투스"
     },
     "category": "board",
-    "platform": ["win32", "darwin"],
+    "platform": [
+        "win32",
+        "darwin"
+    ],
     "icon": "mechatro_uno_bt.png",
     "url": "http://cafe.naver.com/easybread",
     "email": "in_school@naver.com",
@@ -20,7 +23,12 @@
         "type": "bluetooth",
         "control": "slave",
         "duration": 32,
-        "vendor": ["Microsoft", "Arduino", "wch.cn", "FTDI"],
+        "vendor": [
+            "Microsoft",
+            "Arduino",
+            "wch.cn",
+            "FTDI"
+        ],
         "baudRate": 57600
     }
 }
