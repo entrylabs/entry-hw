@@ -4,19 +4,12 @@ function Module()
     this.sensorTypes = 
 	{
         ALIVE: 0,
-        DIGITAL: 1,
-        ANALOG: 2,
+        SENSOR: 1,
+        MOTOR: 2,
         BUZZER: 3,
-        SERVO: 4,
+        RGBLED: 4,
         TONE: 5,
         TEMP: 6,
-        USONIC: 7,
-        TIMER: 8,
-        RD_BT: 9,
-        WRT_BT: 10,
-        RGBLED: 11,
-        MOTOR: 12,
-        LASER: 13,
     }
 
     this.actionTypes = 
@@ -38,14 +31,7 @@ function Module()
 
     this.sensorData = 
 	{
-        USONIC: 
-		{
-            '0': 0,
-            '1': 0,	
-            '2': 0,
-            '3': 0,						
-		},
-        DIGITAL: 
+        SENSOR: 
 		{
             '0': 0,
             '1': 0,
@@ -55,42 +41,8 @@ function Module()
             '5': 0,
             '6': 0,
             '7': 0,
-            '8': 0,
-            '9': 0,
-            '10': 0,
-            '11': 0,
-            '12': 0,
-            '13': 0,
         },
-        ANALOG: 
-		{
-            '0': 0,
-            '1': 0,
-            '2': 0,
-            '3': 0,
-            '4': 0,
-            '5': 0,
-        },
-        TEMP: 
-		{
-            '0': 0,
-            '1': 0,			
-            '2': 0,
-            '3': 0,			
-            '4': 0,
-            '5': 0,			
-            '6': 0,
-            '7': 0,			                        
-		},
-        TIMER: 0,
-        SERVO: 
-		{
-            '0': 0,
-            '1': 0,	
-            '2': 0,
-            '3': 0,						
-		},        
-        RD_BT: 0
+        TEMP: 0
     }
 
     this.defaultOutput = {};
@@ -107,29 +59,30 @@ function Module()
 var sensorIdx = 0;
 
 // Handler Data 
-Module.prototype.init = function(handler, config)   /// 초기설정
+Module.prototype.init = function(handler, config)   /// 초기설정, 엔트리 브라우저와 연결되었을 때 호출됨
 {
 
 };
 
 // Serial Port 
-Module.prototype.setSerialPort = function (sp)   /// 시리얼포트 정보를 가지고오기
+Module.prototype.setSerialPort = function (sp)   /// 시리얼포트 정보를 가지고오기, 최초 연결시도 성공 후에 호출
 {
     var self = this;
     this.sp = sp;
 };
 
 // Hardware
-Module.prototype.requestInitialData = function() /// 초기 송신 데이터
+Module.prototype.requestInitialData = function() /// 초기 송신 데이터(최초 연결시 디바이스에 보낼 데이터)
 {
-    // return null;
-    return this.makeSensorReadBuffer(this.sensorTypes.ANALOG, 0);  
-    //                                            2, 0            
+    return null;
+    //return this.makeSensorReadBuffer(this.sensorTypes.ANALOG, 0);  
 };
    
 // Hardware Vaildation
 Module.prototype.checkInitialData = function(data, config)    /// 초기 수신데이터 체크
 {
+    // 최초 연결시도에서 디바이스의 데이터를 받아, 원하는 데이터가 맞는지 판단하는 로직
+    // requestInitialData 가 선언되어있다면 필수
     return true;
 };
 
@@ -157,6 +110,7 @@ Module.prototype.getDataByBuffer = function(buffer)   // 해당 코드 내에서
 	
     buffer.forEach(function (value, idx) 
 	{
+        //console.log(value, "  :  ", idx);	
         if(value == 13 && buffer[idx + 1] == 10) 
 		{
             datas.push(buffer.subarray(lastIndex, idx));
@@ -175,7 +129,7 @@ Module.prototype.handleLocalData = function(data)
 {  
     // 하드웨어에서 보내준 정보를 가공합니다. 여기선 하드웨어에서 정보를 읽어서 처리하지 않습니다.
     var self = this;
-    var datas = this.getDataByBuffer(data);
+    var datas = this.getDataByBuffer(data);	
   
     datas.forEach(function (data) 
 	{
@@ -187,39 +141,14 @@ Module.prototype.handleLocalData = function(data)
         var type = readData[readData.length - 1];
         var port = readData[readData.length - 2];
 		
-        var value;
-
-        // LEEJC added 2020.3.4
-        let rtemp = new Array();
-        let rhumi = new Array();        
+        var value;         
         
         switch(readData[0]) {
             case self.sensorValueSize.FLOAT:   //2
-			{         
-                //
-				if(type === self.sensorTypes.TEMP)  // Add for TEMP Sensor
-                {          
-                    for(let i = 0; i<4; i++)      
-                    {
-                        rhumi[i] = new Buffer(readData.subarray(1+i*10, 5+i*10)).readFloatLE();      
-                        rhumi[i]  = Math.round(rhumi[i] * 100) / 100;                            
-                        rtemp[i] = new Buffer(readData.subarray(6+i*10, 10+i*10)).readFloatLE();       
-                        rtemp[i] = Math.round(rtemp[i] * 100) / 100;  
-                    }                 
-                }		
-                else if(type === self.sensorTypes.USONIC)  // Add for USONIC Sensor
-                {          
-                    for(let i = 0; i<4; i++)      
-                    {
-                        rtemp[i] = new Buffer(readData.subarray(1+i*5, 5+i*5)).readFloatLE();      
-                        rtemp[i]  = Math.round(rtemp[i] * 100) / 100;                          
-                    }                                   
-                }          
-                else
-                {	                       
-                    value = new Buffer(readData.subarray(1, 5)).readFloatLE();
-                    value = Math.round(value * 100) / 100;      
-                }                                         
+			{
+                value = new Buffer(readData.subarray(1, 5)).readFloatLE();
+                value = Math.round(value * 100) / 100;
+                //console.log(value, "  :  ", port);	
                 break;
             }
             case self.sensorValueSize.SHORT: { //3
@@ -239,44 +168,12 @@ Module.prototype.handleLocalData = function(data)
         }
 	
         switch(type) {
-            case self.sensorTypes.DIGITAL: {
-                self.sensorData.DIGITAL[port] = value;	
-                break;
-            }
-            case self.sensorTypes.ANALOG: {
-                self.sensorData.ANALOG[port] = value;
+            case self.sensorTypes.SENSOR: {
+                self.sensorData.SENSOR[port] = value;
                 break;
             }
             case self.sensorTypes.TEMP: {
-                self.sensorData.TEMP[0] = rtemp[0];
-                self.sensorData.TEMP[1] = rhumi[0];     
-                self.sensorData.TEMP[2] = rtemp[1];
-                self.sensorData.TEMP[3] = rhumi[1];         
-                self.sensorData.TEMP[4] = rtemp[2];
-                self.sensorData.TEMP[5] = rhumi[2];     
-                self.sensorData.TEMP[6] = rtemp[3];
-                self.sensorData.TEMP[7] = rhumi[3];                              
-                break;
-            }			
-            case self.sensorTypes.USONIC: {
-                self.sensorData.USONIC[0] = rtemp[0];   
-                self.sensorData.USONIC[1] = rtemp[1];
-                self.sensorData.USONIC[2] = rtemp[2];		     
-                self.sensorData.USONIC[3] = rtemp[3];		                 	
-                break;
-            }
-            case self.sensorTypes.SERVO: {
-                self.sensorData.SERVO[port] = value;     
-                // LEEJC debug
-//                console.log(value);  
-                break;
-            }			
-            case self.sensorTypes.TIMER: {
-                self.sensorData.TIMER = value;
-                break;
-            }
-            case self.sensorTypes.RD_BT: {
-                self.sensorData.RD_BT = value;
+                self.sensorData.TEMP = value;
                 break;
             }
             default: {
@@ -290,6 +187,8 @@ Module.prototype.handleLocalData = function(data)
 // 4. 
 Module.prototype.requestRemoteData = function(handler) 
 {
+    // 디바이스에서 데이터를 받아온 후, 브라우저로 데이터를 보내기 위해 호출되는 로직. handler 를 세팅하는 것으로 값을 보낼 수 있다.
+    // handler.write(key, value) 로 세팅한 값은 Entry.hw.portData 에서 받아볼 수 있다.
     /// 엔트리에 전달할 데이터. 이 코드에서는 하드웨어에서 어떤 정보도 전달하지 않습니다.
     var self = this;
     if(!self.sensorData) return;
@@ -306,6 +205,8 @@ Module.prototype.requestRemoteData = function(handler)
 // 5. 
 Module.prototype.handleRemoteData = function(handler) 
 {
+    // 엔트리 브라우저에서 온 데이터를 처리한다. handler.read 로 브라우저의 데이터를 읽어올 수 있다.
+    // handler 의 값은 Entry.hw.sendQueue 에 세팅한 값과 같다.
     /// 엔트리에서 전달된 데이터 처리(Entry.hw.sendQueue로 보낸 데이터)
     var self = this;
     var getDatas = handler.read('GET');
@@ -317,7 +218,7 @@ Module.prototype.handleRemoteData = function(handler)
 	{			
         var keys = Object.keys(getDatas);         
 
-        keys.forEach(function(key) 
+        keys.forEach(function(key)   /// key에 해당하는 데이터를 분석하여 처리
 		{
             var isSend = false;
             var dataObj = getDatas[key];
@@ -329,7 +230,8 @@ Module.prototype.handleRemoteData = function(handler)
 				{
                     isSend = true;
                     self.digitalPortTimeList[dataObj.port] = dataObj.time;
-                }
+                }         
+
             } 
 			else if(Array.isArray(dataObj.port))
 			{
@@ -357,8 +259,8 @@ Module.prototype.handleRemoteData = function(handler)
                         type: key,
                         data: dataObj.data
                     }                     
-                    buffer = Buffer.concat([buffer, self.makeSensorReadBuffer(key, dataObj.port, dataObj.data)]);	    				
-                }                
+                    buffer = Buffer.concat([buffer, self.makeSensorReadBuffer(key, dataObj.port, dataObj.data)]);	   
+                }     
             }
         });        
     }
@@ -397,11 +299,14 @@ Module.prototype.handleRemoteData = function(handler)
 // 6. Hardware
 Module.prototype.requestLocalData = function()  // 하드웨어에 명령을 전송합니다.
 {
+    // 디바이스로 데이터를 보내는 로직. control: slave 인 경우 duration 주기에 맞춰 디바이스에 데이터를 보낸다.
+    // return 값으로 버퍼를 반환하면 디바이스로 데이터를 보내나, 아두이노의 경우 레거시 코드를 따르고 있다.
     var self = this;
 	
      if(!this.isDraing && this.sendBuffers.length > 0) 
 	 {
         this.isDraing = true;
+        
         this.sp.write(this.sendBuffers.shift(), function () 
 		{
             if(self.sp) 
@@ -431,8 +336,8 @@ Module.prototype.isRecentData = function(port, type, data)
     }
     //   isRecent = true;   참 들어가면 통신 데이터 무조건 안 보냄.
 
-    // Add for TEMP/USONIC/SERVO
-    if ((type === '6')||(type === '7')||(type === '4'))
+    // Add for TEMP
+    if ((type === '6'))
     {
         isRecent = false;
     }
@@ -451,28 +356,15 @@ Module.prototype.makeSensorReadBuffer = function(device, port, data)   // 센서
     var buffer;
     var dummy = new Buffer([10]);      
     
-    if(device == this.sensorTypes.USONIC) 
+    if(device == this.sensorTypes.TEMP) 
 	{
-        buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.GET, device, port, 10]);	
-  //   console.log("%s %s %s %s", sensorIdx, this.actionTypes.GET, device, port);	
-	}
-    else if(device == this.sensorTypes.TEMP) 
-	{
-        buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.GET, device, port, 10]);    
-//        console.log("GET: %s %s %s %s", sensorIdx, this.actionTypes.GET, device, port);	                
-    } 
-    else if(device == this.sensorTypes.SERVO) 
-	{
-        buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.GET, device, port, 10]);	
-//        console.log("GET: %s %s %s %s", sensorIdx, this.actionTypes.GET, device, port);	        
-    } 	
-	else if(device == this.sensorTypes.RD_BT) 
-	{
-        buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.GET, device, port, 10]);	
-    } 
+        buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port, data, 10]);    
+        //console.log("TEMP GET: %s %s %s %s %s", sensorIdx, this.actionTypes.GET, device, port, data);	                
+    }
 	else if(!data) 
 	{
         buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.GET, device, port, 10]);	
+        //console.log("GET: %s %s %s %s", sensorIdx, this.actionTypes.GET, device, port);	            
     } 
 	else 
 	{
@@ -500,38 +392,24 @@ Module.prototype.makeOutputBuffer = function(device, port, data)     /// 출력 
     switch(device) 
 	{    
         case this.sensorTypes.MOTOR:  // 모터제어
-				buffer = new Buffer([255, 85, 7, sensorIdx, this.actionTypes.SET, device, port, data[0], data[1]]);
-                buffer = Buffer.concat([buffer, dummy]);
-    //            console.log("SET: %s %s %s %s %s %s", sensorIdx, this.actionTypes.SET, device, port, data[0], data[1]);	                   
-				break;        
-				
-        case this.sensorTypes.SERVO:    // 서보모터제어
-				buffer = new Buffer([255, 85, 7, sensorIdx, this.actionTypes.SET, device, port, data[0], data[1]]);
-                buffer = Buffer.concat([buffer, dummy]);
-//                console.log("SET: %s %s %s %s %s %s", sensorIdx, this.actionTypes.SET, device, port, data[0], data[1]);	                  
-				break;        
-				
-		case this.sensorTypes.DIGITAL:   //디지털 출력 제어
-                value.writeInt16LE(data);
-				buffer = new Buffer([255, 85, 7, sensorIdx, this.actionTypes.SET, device, port]);
-				buffer = Buffer.concat([buffer, value, dummy]);
-                break;
+                var mode = new Buffer(2);
+                mode.writeInt16LE(data.mode);
+                value.writeInt16LE(data.value);
+				buffer = new Buffer([255, 85, 9, sensorIdx, this.actionTypes.SET, device, port]);
+                buffer = Buffer.concat([buffer, mode, value, dummy]);
+    //            console.log("SET: %s %s %s %s %s %s", sensorIdx, this.actionTypes.SET, device, port, mode, value);	                   
+				break;   
 
         case this.sensorTypes.BUZZER:   // 스피커 제어
 //				value.writeInt16LE(data); //writeFloatLE//!@#$
                 buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.SET, device, port, data]);
                 buffer = Buffer.concat([buffer, dummy]);
                 break;
-            
-        case this.sensorTypes.LASER: 
-                buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.SET, device, port, data]);
-//                console.log("SET: %s %s %s %s %s", sensorIdx, this.actionTypes.GET, device, port, data);	                   
-                buffer = Buffer.concat([buffer, dummy]);                 
-                break;
 
         case this.sensorTypes.RGBLED: 
 				buffer = new Buffer([255, 85, 8, sensorIdx, this.actionTypes.SET, device, port, data.r, data.g, data.b]);
 				buffer = Buffer.concat([buffer, dummy]);
+                //console.log("SET: ", buffer);
 				break;
                                 
         case this.sensorTypes.TONE:           // 스피커 제어 
@@ -546,67 +424,8 @@ Module.prototype.makeOutputBuffer = function(device, port, data)     /// 출력 
 					value.writeInt16LE(0);
 					time.writeInt16LE(0);
 				}
-				buffer = new Buffer([255, 85, 8, sensorIdx, this.actionTypes.SET, device, port]);
-				buffer = Buffer.concat([buffer, value, time, dummy]);
-				break;
-
-        case this.sensorTypes.WRT_BT:
-				var text0 = new Buffer(2);
-				var text1 = new Buffer(2);
-				var text2 = new Buffer(2);
-				var text3 = new Buffer(2);
-				var text4 = new Buffer(2);
-				var text5 = new Buffer(2);
-				var text6 = new Buffer(2);
-				var text7 = new Buffer(2);
-				var text8 = new Buffer(2);
-				var text9 = new Buffer(2);
-				var text10 = new Buffer(2);
-				var text11 = new Buffer(2);
-				var text12 = new Buffer(2);
-				var text13 = new Buffer(2);
-				var text14 = new Buffer(2);
-				var text15 = new Buffer(2);
-				if($.isPlainObject(data))
-				{
-					text0.writeInt16LE(data.text0);
-					text1.writeInt16LE(data.text1);
-					text2.writeInt16LE(data.text2);
-					text3.writeInt16LE(data.text3);
-					text4.writeInt16LE(data.text4);
-					text5.writeInt16LE(data.text5);
-					text6.writeInt16LE(data.text6);
-					text7.writeInt16LE(data.text7);
-					text8.writeInt16LE(data.text8);
-					text9.writeInt16LE(data.text9);
-					text10.writeInt16LE(data.text10);
-					text11.writeInt16LE(data.text11);
-					text12.writeInt16LE(data.text12);
-					text13.writeInt16LE(data.text13);
-					text14.writeInt16LE(data.text14);
-					text15.writeInt16LE(data.text15);
-				} 
-				else 
-				{
-					text0.writeInt16LE(0);
-					text1.writeInt16LE(0);
-					text2.writeInt16LE(0);
-					text3.writeInt16LE(0);
-					text4.writeInt16LE(0);
-					text5.writeInt16LE(0);
-					text6.writeInt16LE(0);
-					text7.writeInt16LE(0);
-					text8.writeInt16LE(0);
-					text9.writeInt16LE(0);
-					text10.writeInt16LE(0);
-					text11.writeInt16LE(0);
-					text12.writeInt16LE(0);
-					text13.writeInt16LE(0);
-					text14.writeInt16LE(0);
-					text15.writeInt16LE(0);
-				}
-				buffer = new Buffer([255, 85, 36, sensorIdx, this.actionTypes.MODULE, device, port]);
-				buffer = Buffer.concat([buffer, text0, text1, text2, text3, text4, text5, text6, text7, text8, text9, text10,text11, text12, text13, text14, text15, dummy]);
+				buffer = new Buffer([255, 85, 9, sensorIdx, this.actionTypes.SET, device, port]);
+				buffer = Buffer.concat([buffer, value, time, dummy]);                   
 				break;
     }
     return buffer;
@@ -614,6 +433,7 @@ Module.prototype.makeOutputBuffer = function(device, port, data)     /// 출력 
 
 Module.prototype.disconnect = function(connect) 
 {
+    // 커넥터가 연결해제될 때 호출되는 로직, 스캔 정지 혹은 디바이스 연결 해제시 호출된다.
     var self = this;
 	
     connect.close();
@@ -625,6 +445,7 @@ Module.prototype.disconnect = function(connect)
 // Connect
 Module.prototype.reset = function() 
 {
+        // 엔트리 브라우저와의 소켓 연결이 끊어졌을 때 발생하는 로직.
     this.lastTime = 0;
     this.lastSendTime = 0;
 };
