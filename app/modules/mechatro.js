@@ -8,7 +8,7 @@
 /* update 내용
    디지털 입력 업데이트 방법 변경 : 코딩에 사용된 디지털 포트만 -> 모두 업데이트
 */
-const { Console } = require('../src/main/mainRouter.build');
+
 const BaseModule = require('./baseModule');
 
 class mechatro extends BaseModule {

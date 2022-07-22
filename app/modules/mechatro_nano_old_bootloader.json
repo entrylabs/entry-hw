@@ -15,13 +15,13 @@
         {
             "win32-ia32": "arduino/dpinst-x86.exe",
             "win32-x64": "arduino/dpinst-amd64.exe",
-            "translate": "나노 보드 드라이버"
+            "translate": "나노 정품 보드 드라이버"
         },
         {
             "win32-ia32": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
             "win32-x64": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
             "darwin-x64": "https://entrylabs.github.io/docs/files/drivers/CH34x_Install_MAC_10_9_AND_ABOVE/CH34x_Install_V1.3.pkg",
-            "translate": "나노 호환 보드 드라이버"
+            "translate": "나노 호환(CH34x) 보드 드라이버"
         }
     ],
     "url": "http://cafe.naver.com/easybread",
