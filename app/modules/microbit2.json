@@ -38,5 +38,15 @@
         "vendor": "",
         "baudRate": 115200,
         "commType": "ascii"
-    }
+    },
+    "customButton": [
+		{
+			"key": "KEYKEYKEY",
+			"translate": {
+				"en": "Test",
+				"ko": "테스트",
+				"jp": "テスト"
+			}
+		}
+	]
 }
