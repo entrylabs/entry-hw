@@ -33,6 +33,10 @@ declare interface IHardwareModule {
     eventController: (state: any) => void;
     lostController?: (connector: any, routerSendStateFunction: (state: string) => void) => void;
 
+    // 커스텀 버튼. 모듈화 적용시 제조사측에서 작성한 커스텀 버튼 코드를 체크할 수 없으므로 추후 개선이 필요
+    canShowCustomButton?: () => boolean;
+    customButtonClicked?: (key: any) => void;
+
     // for HID (modern)
     registerIntervalSend?: (registerFunction: IRegisterIntervalSendArg) => void;
 
