@@ -37,7 +37,7 @@ class Microbit2 extends BaseModule {
     }
 
     // statusMap 사용 해야할까?
-    requestRemoteData(handler) { }
+    requestRemoteData(handler) {}
 
     // 하드웨어 에서 오는 데이터 처리
     handleLocalData(data) {
@@ -106,14 +106,6 @@ class Microbit2 extends BaseModule {
             return command;
         }
         return 'localdata;';
-    }
-
-    canShowCustomButton() {
-        return true;
-    }
-
-    customButtonClicked(key) {
-        console.log('AKAII ' + key);
     }
 }
 
