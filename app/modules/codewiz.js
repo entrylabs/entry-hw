@@ -87,7 +87,7 @@ class CodeWiz extends BaseModule {
     }
     async connectApp0() {
         const runApp0=[0xC0,0x00,0xE0,0x00,0x00,0x00,0x00,0x00,0x00,0xC0];
-        console.log('this.sp:',this.sp);
+        // console.log('this.sp:',this.sp);
         // FactoryApp 진입
         this.sp.set({ dtr: false, rts: true });
         await this.__sleep(200);
