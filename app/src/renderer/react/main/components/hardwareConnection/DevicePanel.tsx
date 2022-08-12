@@ -1,4 +1,5 @@
 import FirmwareButtonSetElement from './FirmwareButtonSetElement';
+import CustomButtonSetElement from './CustomButtonSetElement';
 import React from 'react';
 import styled from 'styled-components';
 import usePreload from '../../hooks/usePreload';
@@ -21,27 +22,28 @@ const SelectedHardwareThumb = styled.img`
 const DevicePanel: React.FC = () => {
     const { rendererRouter } = usePreload();
     const selectedHardware = useSelector<IStoreState, IHardwareConfig | undefined>(
-        state => state.connection.selectedHardware,
+        (state) => state.connection.selectedHardware
     );
 
     if (!selectedHardware) {
         return <React.Fragment />;
     }
 
-    const { icon, firmware } = selectedHardware;
+    const { icon, firmware, customButton } = selectedHardware;
 
     return (
         <HardwareElement>
-            <SelectedHardwareThumb
-                alt={''}
-                src={`${rendererRouter.baseModulePath}/${icon}`}
-            />
-            {
-                firmware &&
+            <SelectedHardwareThumb alt={''} src={`${rendererRouter.baseModulePath}/${icon}`} />
+            {firmware && (
                 <div id="firmwareButtonSet">
-                    <FirmwareButtonSetElement buttonSet={firmware}/>
+                    <FirmwareButtonSetElement buttonSet={firmware} />
                 </div>
-            }
+            )}
+            {customButton && (
+                <div id="customButtonSet">
+                    <CustomButtonSetElement buttonSet={customButton} />
+                </div>
+            )}
         </HardwareElement>
     );
 };
