@@ -1,36 +1,47 @@
 {
-    "id": "1F0102",
+    "id": "1F0101",
     "name": {
-        "en": "Mechatro Nano+",
-        "ko": "메카트로 나노+"
+        "en": "Mechatro Uno/Mano",
+        "ko": "메카트로 우노/나노"
     },
     "category": "board",
-    "platform": ["win32", "darwin"],
-    "icon": "mechatro_nano.png",
+    "platform": [
+        "win32",
+        "darwin"
+    ],
+    "icon": "mechatro_uno_nano.png",
     "module": "mechatro.js",
+    "url": "http://cafe.naver.com/easybread",
+    "email": "in_school@naver.com",
     "driver": [
         {
             "win32-ia32": "arduino/dpinst-x86.exe",
             "win32-x64": "arduino/dpinst-amd64.exe",
-            "translate": "나노 보드 드라이버"
+            "translate": "우노/나노 정품 보드 드라이버"
         },
         {
             "win32-ia32": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
             "win32-x64": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
             "darwin-x64": "https://entrylabs.github.io/docs/files/drivers/CH34x_Install_MAC_10_9_AND_ABOVE/CH34x_Install_V1.3.pkg",
-            "translate": "나노 호환 보드 드라이버"
+            "translate": "나노 호환(CH34x) 보드 드라이버"
         }
     ],
-    "url": "http://cafe.naver.com/easybread",
-    "email": "in_school@naver.com",
     "reconnect": true,
-    "firmware": "mechatro",
-    "firmwareBaudRate": 57600,
+    "firmware": [
+        {
+            "name": "mechatro",
+            "translate": "유/무선 펌웨어"
+        }
+    ],
     "hardware": {
         "type": "serial",
         "control": "slave",
-        "duration": 35,
-        "vendor": ["Arduino", "wch.cn", "FTDI"],
+        "duration": 32,
+        "vendor": [
+            "Arduino",
+            "wch.cn",
+            "FTDI"
+        ],
         "baudRate": 57600,
         "lostTimer": 1000,
         "firmwarecheck": false
