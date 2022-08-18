@@ -218,6 +218,14 @@ class RendererRouter {
             ipcRenderer.send('hardwareForceClose', true);
         }
     }
+
+    canShowCustomButton() : boolean {
+        return ipcRenderer.sendSync('canShowCustomButton');
+    }
+    
+    customButtonClicked(key: string) {
+        ipcRenderer.send('customButtonClicked', key);
+    }
 }
 
 export default RendererRouter;
