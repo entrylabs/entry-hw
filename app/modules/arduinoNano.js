@@ -70,8 +70,7 @@ function Module() {
 
 var sensorIdx = 0;
 
-Module.prototype.init = function(handler, config) {
-};
+Module.prototype.init = function(handler, config) {};
 
 Module.prototype.setSerialPort = function(sp) {
     var self = this;
@@ -341,6 +340,7 @@ Module.prototype.makeSensorReadBuffer = function(device, port, data) {
     if (sensorIdx > 254) {
         sensorIdx = 0;
     }
+    
     return buffer;
 };
 
