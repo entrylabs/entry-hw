@@ -1,11 +1,12 @@
 {
     "name": "entry-hw",
-    "version": "1.9.28",
+    "version": "1.9.33",
     "description": "엔트리 하드웨어 연결 프로그램",
     "author": "EntryLabs",
     "main": "./app/src/index.bundle.js",
     "scripts": {
         "start": "cross-env NODE_ENV=development electron -r source-map-support/register app/src/index.bundle.js",
+        "start:prod": "cross-env NODE_ENV=production electron -r source-map-support/register app/src/index.bundle.js",
         "debug": "cross-env NODE_ENV=development electron -r source-map-support/register --inspect app/src/index.bundle.js",
         "test": "cross-env NODE_NO_WARNINGS=1 ts-node --files ./cli/connectionTest.ts",
         "script:create": "node ./cli/createJson.js",

@@ -18,9 +18,13 @@ class Translator {
         this.data = require('./translations.json');
     }
 
-    translate(str: string) {
-        const value = this.data[str] || [];
-        return value[this.lang] || str;
+    translate(str: any) {
+        if(typeof str == 'string') {
+            const value = this.data[str] || [];
+            return value[this.lang] || str;
+        } else {
+            return str[this.lang];
+        }
     }
 
     private setGlobalLang(lang: string) {

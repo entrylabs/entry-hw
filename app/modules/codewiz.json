@@ -21,7 +21,7 @@
         "type": "esp32",
         "offset": "0x10000",
         "name": "codewiz",
-		"translate" : "코드위즈 펌웨어"
+		"translate" : "코드위즈 펌웨어(E_1.0)"
     },
 	{
         "type": "esp32",

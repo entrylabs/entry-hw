@@ -75,15 +75,32 @@ class CodeWiz extends BaseModule {
     */
     requestInitialData(sp) {
         this.sp = sp;
+        this.sp.binding.openOptions.hupcl=false;
         // reset
-        sp.set({ dtr: false, rts: true });
-        sp.set({ dtr: false, rts: false });
-        
+        // this.sp.set({ dtr: false, rts: true });
+        // this.sp.set({ dtr: false, rts: false });
+        this.connectApp0();
         return true;
     }
+    __sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+    async connectApp0() {
+        const runApp0=[0xC0,0x00,0xE0,0x00,0x00,0x00,0x00,0x00,0x00,0xC0];
+        // console.log('this.sp:',this.sp);
+        // FactoryApp 진입
+        this.sp.set({ dtr: false, rts: true });
+        await this.__sleep(200);
+        this.sp.set({ dtr: true, rts: false });
+        await this.__sleep(800);
+        this.sp.set({ dtr: false, rts: false });
+        await this.__sleep(1000);
 
+        this.sp.write(runApp0);
+    }
     // 연결 후 초기에 수신받아서 정상연결인지를 확인해야하는 경우 사용합니다.
     checkInitialData(data, config) {
+        // this.connectApp0();
         return true;
     }
 
