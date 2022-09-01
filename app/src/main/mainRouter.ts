@@ -539,7 +539,16 @@ class MainRouter {
         ipcMain.on('getSharedObject', (e) => {
             e.returnValue = global.sharedObject;
         });
-
+        ipcMain.on('canShowCustomButton', (e) => {
+            if(this.hwModule && this.hwModule.canShowCustomButton) {
+                e.returnValue = this.hwModule.canShowCustomButton();
+            } else {
+                e.returnValue = false;
+            }
+        });
+        ipcMain.on('customButtonClicked', (e, key) => {
+            this.hwModule && this.hwModule.customButtonClicked && this.hwModule.customButtonClicked(key);
+        });
         logger.verbose('EntryHW ipc event registered');
     }
 

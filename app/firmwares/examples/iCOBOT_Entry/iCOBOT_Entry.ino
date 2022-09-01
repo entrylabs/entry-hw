@@ -1,6 +1,45 @@
+/*
+ 2022.07.20.수요일 14:00:PM Entry Test Ver.1 
+ Entry를 이용하여 i-COBOT을 구동시킬 수 있다.
+ 업로드 후 Entry 하드웨어 연결을 통해 i-COBOT 전용 블럭을 사용할 수 있다.
+ 자세한 내용은 첨부된 pdf 파일을 통해 확인할 수 있다.
+*/
+
+#include "SoftwareSerial.h"
 #include "Adafruit_NeoPixel.h"
 #include "DHT.h"
 #include "AccelStepper.h"
+#include "SimpleTimer.h"
+SimpleTimer timer;
+
+// SENSOR Type
+#define ALIVE       0
+#define SENSOR      1
+#define MOTOR       2
+#define BUZZER      3
+#define RGBLED      4
+#define TONE        5
+#define TEMP        6
+        
+// Control Command
+#define GET         1
+#define SET         2
+#define RESET       3
+
+// val Union
+union
+{
+  byte byteVal[4];
+  float floatVal;
+  long longVal;
+}val;
+
+// valShort Union
+union
+{
+  byte byteVal[2];
+  short shortVal;
+}valShort;
 
 //////////////////Motor 관련 변수///////////////////////////////
 #define Left_Motor_A  4     // IN1 on the ULN2003 driver 1
@@ -13,10 +52,10 @@
 #define Right_Motor_C  14     // IN3 on the ULN2003 driver 2
 #define Right_Motor_D  11     // IN4 on the ULN2003 driver 2
 
-#define LEFT_MOTOR_FWD -100
-#define LEFT_MOTOR_BWD 100
-#define RIGHT_MOTOR_FWD 100
-#define RIGHT_MOTOR_BWD -100
+#define LEFT_MOTOR_FWD -10
+#define LEFT_MOTOR_BWD 10
+#define RIGHT_MOTOR_FWD 10
+#define RIGHT_MOTOR_BWD -10
 
 #define MOTOR_MAX_SPEED 10000.0
 
@@ -28,6 +67,15 @@ int speedRight = 600;       // stop speed
 
 AccelStepper stepper_L(8, Left_Motor_D, Left_Motor_B, Left_Motor_C, Left_Motor_A);
 AccelStepper stepper_R(8, Right_Motor_D, Right_Motor_B, Right_Motor_C, Right_Motor_A);
+
+#define MOTOR_CW        2     // 정방향
+#define MOTOR_CCW       1     // 역방향
+#define MOTOR_STOP      3     // 정지
+int motorSpeed = 600;
+int motor_dir = 0;
+int motor_angle = 0;
+int ControlAngle = 0;
+
 
 //Buzzer Set
 #define BUZ_PORT    6
@@ -56,58 +104,27 @@ int Bottom_Middle_Ir_Value = 0;
 int Bottom_Left_Ir_Value   = 0;
 int Side_Left_Ir_Value     = 0;
 
-// SENSOR Type
-#define ALIVE       0
-#define DIGITAL     1
-#define ANALOG      2
-#define BUZZER      3
-#define SERVO       4
-#define TONE        5
-#define TEMP        6
-#define USONIC      7
-#define TIMER       8
-#define RD_BT       9
-#define WRT_BT      10
-#define RGBLED      11
-#define MOTOR       12
-        
-// Control Command
-#define GET         1
-#define SET         2
-#define RESET       3
+//////////////////조도센서 관련 변수///////////////////////////////
+#define CdsPin A0
+int Cds = 0;
 
-// val Union
-union
-{
-  byte byteVal[4];
-  float floatVal;
-  long longVal;
-}val;
-
-// valShort Union
-union
-{
-  byte byteVal[2];
-  short shortVal;
-}valShort;
-
-// DC Motor
-#define MOTOR_CW        2     // 정방향
-#define MOTOR_CCW       1     // 역방향
-#define MOTOR_STOP      3     // 정지
-int motorSpeed = 600;
-int motor_dir = 0;
+//////////////////Sound센서 관련 변수///////////////////////////////
+#define SoundPin A4
+int Sound = 0;
 
 // Temp Sensor
 int dhtpin = 7;
 int dhtmode = 0;
 
+
+// Sensor State
+int sensorpin = 0;
+
 // Buzzer State
 int BuzzerState = BUZZER_OFF;
+long nowtime = 0;
+long irtime = 0;
 
-// Ultrasonic Sensor
-int trigPin = 6;
-int echoPin = 2;
 
 //////////////////LED 관련 변수///////////////////////////////
 #define PinPix A9 // WS2812에 연결하는데 사용하는 pin 번호
@@ -118,13 +135,6 @@ Adafruit_NeoPixel Icobot_Leds = Adafruit_NeoPixel(NumPix, PinPix, NEO_GRB + NEO_
 int BLED = 0;
 int GLED = 0;
 int RLED = 0;
-
-// Function/Pins
-int analogs[6]={0,0,0,0,0,0};
-int digitals[14]={0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-
-// Variables
-float lastUltrasonic = 0;
 
 // 버퍼
 char buffer[52];
@@ -140,10 +150,11 @@ double currentTime = 0.0;
 
 // Exist flag
 boolean isStart = false;
-boolean isUltrasonic = false;
 boolean isTempSensor = false;
 boolean isLeftMotorMode = false;
 boolean isRightMotorMode = false;
+boolean isAngleLeftMode = false;
+boolean isAngleRightMode = false;
 
 // Comm. buffer
 // buffer[4]   [5]  [6]   [7]   [8]
@@ -151,11 +162,10 @@ int cmdtype, device, port, mode, dir;
 
 //
 void setup()
-{
-  Serial.begin(115200);
+{  
+  Serial.begin(9600);
   Serial1.begin(9600);
-  
-  initPorts();
+  timer.setInterval(50, Timer_Run);
   
   Icobot_Leds.begin(); // Initialize the NeoPixel array in the Arduino's memory,
   Icobot_Leds.show(); // turn all pixels off, and upload to ring or string
@@ -170,39 +180,36 @@ void setup()
 }
 
 //
-void initPorts() 
-{
-  for (int pinNumber = 0; pinNumber < 14; pinNumber++) 
-  {
-    pinMode(pinNumber, OUTPUT);
-    digitalWrite(pinNumber, LOW);
-  }
-}
-
-//
 void loop()
 {
+  timer.run();
   while (Serial.available()) 
   {
     if (Serial.available() > 0) 
     {
       char serialRead = Serial.read();
       setPinValue(serialRead&0xff);
-      //Serial1.print(serialRead&0xff);
+      Serial1.write(serialRead&0xff);
     }
   } 
-  delay(15);
-  sendPinValues();
-  delay(10);
+  delay(1);
   if(isLeftMotorMode == true){
     Left_Motor_run(motor_dirL, speedLeft);
   }
   if(isRightMotorMode == true){
     Right_Motor_run(motor_dirR, speedRight);
   }
+  if(isAngleLeftMode == true){
+    Left_Angle_run(motor_dirL, motor_dirR, speedLeft, ControlAngle);
+  }
+  if(isAngleRightMode == true){
+    Right_Angle_run(motor_dirL, motor_dirR, speedRight, ControlAngle);
+  }
 }
 
-
+void Timer_Run(){
+  sendPinValues();
+}
 void setPinValue(unsigned char c) 
 {
   if(c == 0x55 && isStart == false)
@@ -246,21 +253,6 @@ unsigned char readBuffer(int index)
 }
 
 //
-void setUltrasonicMode(boolean mode) 
-{
-  isUltrasonic = mode;
-  if(!mode) lastUltrasonic = 0;
-}
-
-//
-void setTempHumidityMode(boolean mode) 
-{
-  isTempSensor = mode;
-  if(!mode) isTempSensor = 0;
-}
-
-
-//
 void parseData() 
 {
   isStart = false;
@@ -270,69 +262,29 @@ void parseData()
   port = readBuffer(6);
   mode = readBuffer(7); 
 
-  //             
   switch(cmdtype)
   {
-    case GET:
+    case GET:  
         if(device == TEMP) 
         {
-//          Serial1.print("Start TEMP     ");
-//          Serial1.println(dhtpin);
           setTempHumidityMode(true);                  
-          dhtpin = port;                        
-        }       
-        else if(device == USONIC) 
-        {
-          setTempHumidityMode(false);          
-          if(!isUltrasonic) 
-          {
-            setUltrasonicMode(true);
-            trigPin = readBuffer(6);
-            echoPin = readBuffer(7);
-            digitals[trigPin] = 1;
-            digitals[echoPin] = 1;
-            pinMode(trigPin, OUTPUT);
-            pinMode(echoPin, INPUT);
-            delay(30);
-          } 
-          else 
-          {
-            int trig = readBuffer(6);
-            int echo = readBuffer(7);
-            if(trig != trigPin || echo != echoPin) 
-            {
-              digitals[trigPin] = 0;
-              digitals[echoPin] = 0;
-              trigPin = trig;
-              echoPin = echo;
-              digitals[trigPin] = 1;
-              digitals[echoPin] = 1;
-              pinMode(trigPin, OUTPUT);            
-              pinMode(echoPin, INPUT);
-              delay(30);
-            }
-          }
-        } 
-        else if(port == trigPin || port == echoPin) 
-        {
-          setTempHumidityMode(false);          
-          setUltrasonicMode(false);
-          digitals[port] = 0;
-        } 
+          dhtpin = port;    
+          dhtmode = mode;                   
+        }
         else 
         {
-          setTempHumidityMode(false);              
-          setUltrasonicMode(false);        
-          digitals[port] = 0;
-        }      
+          setTempHumidityMode(false);
+        }
         break;
         
-    case SET:               
+    case SET: 
+        setTempHumidityMode(false);              
         runModule(device);
         callOK();
         break;
     
     case RESET:
+        setTempHumidityMode(false);  
         callOK();
         break;
   }
@@ -343,17 +295,8 @@ void runModule(int device)
 {
   //0xff 0x55 0x6 0x0 0x1 0xa 0x9 0x0 0x0 0xa
   int hz = 0, ms = 0, v = 0;
-  if(port == trigPin || port == echoPin) setUltrasonicMode(false);
-
-//  Serial1.print("device     ");
-//  Serial1.println(device);
   switch(device)
-  {
-    case DIGITAL: 
-      setPortWritable(port);
-      digitalWrite(port, mode);
-      break;
-            
+  { 
     case BUZZER:  
       setPortWritable(BUZ_PORT);
       if((BuzzerState == BUZZER_OFF) && (mode == 1)) 
@@ -372,16 +315,17 @@ void runModule(int device)
       setPortWritable(port);
       hz = readShort(7);
       ms = readShort(9);
-      if(ms > 0) tone(port, hz, ms);
+      if(ms > 0){
+        if(ms == 7)
+        {
+          tone(port, hz);
+        }
+        else{
+          tone(port, hz, ms);
+        }
+      }
       else noTone(port);
-      break;
-            
-    case SERVO:
-      break;
-            
-    case TIMER:
-      lastTime = millis()/1000.0; 
-      break;
+      break;  
             
     case RGBLED: 
       RLED = readBuffer(7);
@@ -391,15 +335,29 @@ void runModule(int device)
       break;   
 
     case MOTOR:
-      mode = readBuffer(7);
+      mode = readShort(7);
       switch(mode)
       {
-        case 1: motor_dir = readBuffer(8);      // DC 모터 방향 설정하기
+        case 0: 
+                isLeftMotorMode = false;
+                isRightMotorMode = false;
+                stepper_L.stop(); //motor stop 
+                stepper_L.disableOutputs(); //motor power disconnect, so motor led will turn off
+                stepper_R.stop();
+                stepper_R.disableOutputs();           
+                break;   
+        case 1: motor_dir = readShort(9);      // DC 모터 방향 설정하기
                 if(motor_dir == MOTOR_CCW)      // 반시계 (역방향) 
                 {
                   if(port == 1){
                     isLeftMotorMode = true;
                     motor_dirL = LEFT_MOTOR_BWD;
+                  }
+                  if(port == 2){
+                    isLeftMotorMode = true;
+                    isRightMotorMode = true;
+                    motor_dirL = LEFT_MOTOR_BWD;
+                    motor_dirR = RIGHT_MOTOR_BWD;   
                   }
                   if(port == 3){
                     isRightMotorMode = true;
@@ -412,19 +370,33 @@ void runModule(int device)
                     isLeftMotorMode = true;
                     motor_dirL = LEFT_MOTOR_FWD;
                   }
+                  if(port == 2){
+                    isLeftMotorMode = true;
+                    isRightMotorMode = true;
+                    motor_dirL = LEFT_MOTOR_FWD;
+                    motor_dirR = RIGHT_MOTOR_FWD;   
+                  }
                   if(port == 3){
                     isRightMotorMode = true;
                     motor_dirR = RIGHT_MOTOR_FWD;                     
                   }  
                 }
                 break;
-        case 2: motorSpeed = readBuffer(8);     // DC 모터 속도 정하기  
+        case 2: motorSpeed = readShort(9);     // DC 모터 속도 정하기  
                 if(motorSpeed == 0) 
                 {
                   if(port == 1){
                     isLeftMotorMode = false;
                     stepper_L.stop(); //motor stop 
                     stepper_L.disableOutputs(); //motor power disconnect, so motor led will turn off
+                  }
+                  if(port == 2){
+                    isLeftMotorMode = false;
+                    isRightMotorMode = false;
+                    stepper_L.stop();
+                    stepper_R.stop();
+                    stepper_L.disableOutputs();
+                    stepper_R.disableOutputs();    
                   }
                   if(port == 3){
                     isRightMotorMode = false;
@@ -435,12 +407,14 @@ void runModule(int device)
                 else 
                 {
                   if(port == 1){
-                    isLeftMotorMode = true;
-                    speedLeft = motorSpeed*16;   
+                    speedLeft = motorSpeed;   
+                  }
+                  if(port == 2){
+                    speedLeft = motorSpeed;  
+                    speedRight = motorSpeed;   
                   }
                   if(port == 3){
-                    isRightMotorMode = true;
-                    speedRight = motorSpeed*16;                     
+                    speedRight = motorSpeed;                     
                   }
                 }
                 break;
@@ -450,15 +424,80 @@ void runModule(int device)
                   stepper_L.stop(); //motor stop 
                   stepper_L.disableOutputs(); //motor power disconnect, so motor led will turn off
                 }
+                  if(port == 2){
+                  isLeftMotorMode = false;
+                  isRightMotorMode = false;
+                  stepper_L.stop();
+                  stepper_R.stop();
+                  stepper_L.disableOutputs();  
+                  stepper_R.disableOutputs();  
+                  }
                 if(port == 3){
                   isRightMotorMode = false;
                   stepper_R.stop();
                   stepper_R.disableOutputs();                          
                 }           
-                break;                    
+                break;    
+        case 4:   
+                motor_angle = readShort(9);      // DC 모터 방향 설정하기
+                isLeftMotorMode = false;
+                isRightMotorMode = false; 
+                stepper_L.setCurrentPosition(0);  
+                stepper_R.setCurrentPosition(0);  
+                switch(motor_angle)
+                {
+                  case 0: 
+                        ControlAngle = 200;           
+                        break;
+                  case 1: 
+                        ControlAngle = 300;          
+                        break;
+                  case 2: 
+                        ControlAngle = 400;           
+                        break;
+                  case 3: 
+                        ControlAngle = 600;          
+                        break;
+                  case 4: 
+                        ControlAngle = 800;           
+                        break;
+                  case 5: 
+                        ControlAngle = 900;          
+                        break;
+                  case 6: 
+                        ControlAngle = 1000;           
+                        break;
+                  case 7: 
+                        ControlAngle = 1200;          
+                        break;
+                }
+                
+                if(port == 1){
+                  isAngleRightMode = true;
+                  motor_dirL = LEFT_MOTOR_BWD;
+                  motor_dirR = RIGHT_MOTOR_FWD;  
+                }
+                if(port == 3){
+                  ControlAngle = 0 - ControlAngle;
+                  motor_dirL = LEFT_MOTOR_FWD;
+                  motor_dirR = RIGHT_MOTOR_BWD;  
+                  isAngleLeftMode = true;
+                }
+                break;                     
       }
-      break;               
+      break;   
   }
+}
+
+void LED_Run(){
+  Icobot_Leds.begin(); // Initialize the NeoPixel array in the Arduino's memory,
+  Icobot_Leds.show(); // turn all pixels off, and upload to ring or string
+
+  Icobot_Leds.setPixelColor(0, RLED, GLED, BLED); 
+  Icobot_Leds.setPixelColor(1, RLED, GLED, BLED); 
+  Icobot_Leds.setPixelColor(2, RLED, GLED, BLED); 
+  Icobot_Leds.setPixelColor(3, RLED, GLED, BLED);   
+  Icobot_Leds.show();
 }
 
 void Left_Motor_run(int Ldir, int Lspeed)
@@ -475,16 +514,43 @@ void Right_Motor_run(int Rdir, int Rspeed)
   stepper_R.runSpeedToPosition();
 }
 
-void LED_Run(){
-  Icobot_Leds.begin(); // Initialize the NeoPixel array in the Arduino's memory,
-  Icobot_Leds.show(); // turn all pixels off, and upload to ring or string
-  
-  Icobot_Leds.setPixelColor(0, RLED, GLED, BLED); 
-  Icobot_Leds.setPixelColor(1, RLED, GLED, BLED); 
-  Icobot_Leds.setPixelColor(2, RLED, GLED, BLED); 
-  Icobot_Leds.setPixelColor(3, RLED, GLED, BLED);   
-  Icobot_Leds.show();
+void Left_Angle_run(int Ldir, int Rdir,int Lspeed, int Angle)
+{
+  stepper_L.move(Ldir);
+  stepper_R.move(Rdir);
+  stepper_L.setSpeed(Lspeed);
+  stepper_R.setSpeed(Lspeed);
+  stepper_L.runSpeedToPosition();
+  stepper_R.runSpeedToPosition();
+  if(stepper_L.currentPosition() == Angle){
+    isAngleLeftMode = false;
+    stepper_L.stop();
+    stepper_L.disableOutputs();  
+  }
 }
+
+void Right_Angle_run(int Ldir, int Rdir,int Rspeed, int Angle)
+{
+  stepper_L.move(Ldir);
+  stepper_R.move(Rdir);
+  stepper_L.setSpeed(Rspeed);
+  stepper_R.setSpeed(Rspeed);
+  stepper_L.runSpeedToPosition();
+  stepper_R.runSpeedToPosition();
+  if(stepper_R.currentPosition() == Angle){
+    isAngleRightMode = false;
+    stepper_R.stop();
+    stepper_R.disableOutputs();  
+  }
+}
+
+//
+void setTempHumidityMode(boolean mode) 
+{
+  isTempSensor = mode;
+  if(!mode) isTempSensor = 0;
+}
+
 //
 void callOK()
 {
@@ -493,83 +559,118 @@ void callOK()
   writeEnd();
 }
 
+int pinNumber = 0;
 //
 void sendPinValues() 
 {  
-  int pinNumber = 0;
-  
-  if(isLeftMotorMode == false && isRightMotorMode == false){
-    for (pinNumber = 0; pinNumber < 12; pinNumber++) 
-    {
-      if(digitals[pinNumber] == 0) 
-      {
-        sendDigitalValue(pinNumber);
-        callOK();
-      }
-    }
-  }
-  for (pinNumber = 0; pinNumber < 6; pinNumber++) 
-  {
-    if(analogs[pinNumber] == 0) 
-    {
-      sendAnalogValue(pinNumber);
-      callOK();
-    }
-  }
-  
-  if(isUltrasonic) 
-  {
-    sendUltrasonic();  
+    sendSensorValue(pinNumber);
     callOK();
-  }
-
+    pinNumber++;
+    if(pinNumber >= 8){
+      pinNumber = 0;
+    }
   if(isTempSensor) 
   {
     sendTempHumidity();  
     callOK();
+  }  
+}
+
+//
+void AnalogValue(){
+  Cds = analogRead(CdsPin);
+  Sound = analogRead(SoundPin);
+}
+//
+void IRValue(){
+  digitalWrite(IrPin, HIGH);
+  if((millis() - irtime) > 100){
+    Front_Ir_Value = analogRead(Front_Ir);
+    Side_Left_Ir_Value = analogRead(Side_Left_Ir);
+    Side_Right_Ir_Value = analogRead(Side_Right_Ir);  
+    Bottom_Right_Ir_Value = analogRead(Bottom_Right_Ir);
+    Bottom_Middle_Ir_Value = analogRead(Bottom_Middle_Ir);
+    Bottom_Left_Ir_Value = analogRead(Bottom_Left_Ir);
+    digitalWrite(IrPin, LOW); 
+    irtime = millis();
   }
 }
 
 //
-void sendUltrasonic() 
+void sendSensorValue(int pinNum) 
 {
-  digitalWrite(trigPin, LOW);
-  delayMicroseconds(2);
-  digitalWrite(trigPin, HIGH);
-  delayMicroseconds(10);
-  digitalWrite(trigPin, LOW);
-
-  float value = pulseIn(echoPin, HIGH, 30000) / 29.0 / 2.0;
-
-  if(value == 0) value = lastUltrasonic;
-  else lastUltrasonic = value;
-
-  writeHead();
-  sendFloat(value);
-  writeSerial(trigPin);
-  writeSerial(echoPin);
-  writeSerial(USONIC);
+  if((millis() - nowtime) > 100){
+    AnalogValue();
+    IRValue();
+    nowtime = millis();
+  }
+    writeHead();
+  switch(pinNum)
+  {
+    case 0: 
+        sendFloat(Cds);
+//        Serial1.print(Cds);
+//        Serial1.print("  :  ");
+        break;
+    case 1: 
+        sendFloat(Bottom_Left_Ir_Value);
+//        Serial1.print(Bottom_Left_Ir_Value);
+//        Serial1.print("  :  ");
+        break;
+    case 2: 
+        sendFloat(Front_Ir_Value);
+//        Serial1.print(Front_Ir_Value);
+//        Serial1.print("  :  ");
+        break;
+    case 3: 
+        sendFloat(Bottom_Right_Ir_Value);
+//        Serial1.print(Bottom_Right_Ir_Value);
+//        Serial1.print("  :  ");
+        break;
+    case 4: 
+        sendFloat(Sound);
+//        Serial1.print(Sound);
+//        Serial1.print("  :  ");
+        break;
+    case 5: 
+        sendFloat(Side_Right_Ir_Value);
+//        Serial1.print(Side_Right_Ir_Value);
+//        Serial1.print("  :  ");
+        break;
+    case 6: 
+        sendFloat(Bottom_Middle_Ir_Value);
+//        Serial1.print(Bottom_Middle_Ir_Value);
+//        Serial1.print("  :  ");
+        break;
+    case 7: 
+        sendFloat(Side_Left_Ir_Value);
+//        Serial1.println(Side_Left_Ir_Value);
+        break;
+  }
+  writeSerial(pinNum);
+  writeSerial(SENSOR);
   writeEnd();
 }
 
 //
 void sendTempHumidity()
 {
-  int value;   
-  
-  if(dhtpin == 4){
-    DHT dht(7, DHTTYPE);  
-    delay(30); 
-    value = dht.readTemperature();    
-//    Serial1.print("Temperature : "); 
-//    Serial1.println(value);
-  }
-  else{
-    DHT dht(7, DHTTYPE);   
-    delay(30);
-    value = dht.readHumidity();
-//    Serial1.print("Humidity : "); 
-//    Serial1.println(value); 
+  int value = 0;
+  DHT dht(dhtpin, DHTTYPE);
+  delay(1);
+
+  switch(dhtmode)
+  {
+    case _HUMID: 
+          value = dht.readHumidity();
+          break;
+    case _TEMP_F:
+          value = dht.readTemperature();  
+          value = value*(9/5)+32;
+          break;
+    case _TEMP_C:
+          value = dht.readTemperature();   
+          break;
   }
 
   writeHead();
@@ -578,39 +679,6 @@ void sendTempHumidity()
   writeSerial(dhtmode);  
   writeSerial(TEMP);
   writeEnd();  
-}
-
-//
-void sendDigitalValue(int pinNumber) 
-{
-  pinMode(pinNumber,INPUT);
-  writeHead();
-  sendFloat(digitalRead(pinNumber));  
-  writeSerial(pinNumber);
-  writeSerial(DIGITAL);
-  writeEnd();
-}
-
-//
-void sendAnalogValue(int pinNumber) 
-{
-  if(pinNumber == 0 || pinNumber == 4){
-    writeHead();
-    sendFloat(analogRead(pinNumber)); 
-    writeSerial(pinNumber);
-    writeSerial(ANALOG);
-    writeEnd();
-  }
-  else{
-    digitalWrite(IrPin, HIGH);
-    delayMicroseconds(100);
-    writeHead();
-    sendFloat(analogRead(pinNumber)); 
-    writeSerial(pinNumber);
-    writeSerial(ANALOG);
-    writeEnd();
-    digitalWrite(IrPin, LOW); 
-  }
 }
 
 //
@@ -696,11 +764,7 @@ long readLong(int idx)
 //
 void setPortWritable(int pin) 
 {
-  if(digitals[pin] == 0) 
-  {
-    digitals[pin] = 1;
-    pinMode(pin, OUTPUT);
-  } 
+  pinMode(pin, OUTPUT);
 }
 
 //
