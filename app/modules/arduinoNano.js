@@ -340,7 +340,7 @@ Module.prototype.makeSensorReadBuffer = function(device, port, data) {
     if (sensorIdx > 254) {
         sensorIdx = 0;
     }
-    
+
     return buffer;
 };
 
