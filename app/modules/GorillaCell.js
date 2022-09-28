@@ -94,7 +94,7 @@ Module.prototype.handleLocalData = function(data) {
 Module.prototype.requestRemoteData = function(handler) {
     for (let i = 0; i < this.analogValue.length; i++) {
         const value = this.analogValue[i];
-        handler.write('a${i}', value);
+        handler.write('a' + i, value);
     }
     for (let i = 0; i < this.digitalValue.length; i++) {
         const value = this.digitalValue[i];
