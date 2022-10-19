@@ -32,16 +32,16 @@ function Module()
 	{
         SENSOR: 
 		{
-            Brightness: 0,
-            BLeft_IR: 0,
-            Front_IR: 0,
-            BRight_IR: 0,
-            Sound: 0,
-            Right_IR: 0,
-            BMid_IR: 0,
-            Left_IR: 0,
-            Real_T: 0,
-            Real_H: 0,
+            '0': 0,
+            '1': 0,
+            '2': 0,
+            '3': 0,
+            '4': 0,
+            '5': 0,
+            '6': 0,
+            '7': 0,
+            '8': 0,
+            '9': 0,
         }
     }
 
