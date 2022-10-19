@@ -499,7 +499,7 @@ Module.prototype.disconnect = function(connect)
 // Connect
 Module.prototype.reset = function() 
 {
-        // 엔트리 브라우저와의 소켓 연결이 끊어졌을 때 발생하는 로직.
+    // 엔트리 브라우저와의 소켓 연결이 끊어졌을 때 발생하는 로직.
     this.lastTime = 0;
     this.lastSendTime = 0;
 };
