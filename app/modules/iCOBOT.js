@@ -9,7 +9,6 @@ function Module()
         BUZZER: 3,
         RGBLED: 4,
         TONE: 5,
-        TEMP: 6,
     }
 
     this.actionTypes = 
@@ -33,18 +32,17 @@ function Module()
 	{
         SENSOR: 
 		{
-            '0': 0,
-            '1': 0,
-            '2': 0,
-            '3': 0,
-            '4': 0,
-            '5': 0,
-            '6': 0,
-            '7': 0,
-            '8': 0,
-            '9': 0,
-        },
-        TEMP: 0
+            Brightness: 0,
+            BLeft_IR: 0,
+            Front_IR: 0,
+            BRight_IR: 0,
+            Sound: 0,
+            Right_IR: 0,
+            BMid_IR: 0,
+            Left_IR: 0,
+            Real_T: 0,
+            Real_H: 0,
+        }
     }
 
     this.defaultOutput = {};
@@ -172,10 +170,7 @@ Module.prototype.handleLocalData = function(data)
         switch(type) {
             case self.sensorTypes.SENSOR: {
                 self.sensorData.SENSOR[port] = value;
-                break;
-            }
-            case self.sensorTypes.TEMP: {
-                self.sensorData.TEMP = value;
+                
                 break;
             }
             default: {
@@ -402,12 +397,6 @@ Module.prototype.isRecentData = function(port, type, data)
         }
     }
     //   isRecent = true;   참 들어가면 통신 데이터 무조건 안 보냄.
-
-    // Add for TEMP
-    if ((type === '6'))
-    {
-        isRecent = false;
-    }
     
     return isRecent;
 }
@@ -423,12 +412,7 @@ Module.prototype.makeSensorReadBuffer = function(device, port, data)   // 센서
     var buffer;
     var dummy = new Buffer([10]);      
     
-    if(device == this.sensorTypes.TEMP) 
-	{
-        buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port, data, 10]);    
-        //console.log("TEMP GET: %s %s %s %s %s", sensorIdx, this.actionTypes.GET, device, port, data);	                
-    }
-	else if(!data) 
+    if(!data) 
 	{
         buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.GET, device, port, 10]);	
         //console.log("GET: %s %s %s %s", sensorIdx, this.actionTypes.GET, device, port);	            
@@ -515,7 +499,7 @@ Module.prototype.disconnect = function(connect)
 // Connect
 Module.prototype.reset = function() 
 {
-        // 엔트리 브라우저와의 소켓 연결이 끊어졌을 때 발생하는 로직.
+    // 엔트리 브라우저와의 소켓 연결이 끊어졌을 때 발생하는 로직.
     this.lastTime = 0;
     this.lastSendTime = 0;
 };
