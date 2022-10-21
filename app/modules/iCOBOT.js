@@ -9,7 +9,6 @@ function Module()
         BUZZER: 3,
         RGBLED: 4,
         TONE: 5,
-        TEMP: 6,
     }
 
     this.actionTypes = 
@@ -33,16 +32,17 @@ function Module()
 	{
         SENSOR: 
 		{
-            '0': 0,
-            '1': 0,
-            '2': 0,
-            '3': 0,
-            '4': 0,
-            '5': 0,
-            '6': 0,
-            '7': 0,
-        },
-        TEMP: 0
+            Brightness: 0,
+            BLeft_IR: 0,
+            Front_IR: 0,
+            BRight_IR: 0,
+            Sound: 0,
+            Right_IR: 0,
+            BMid_IR: 0,
+            Left_IR: 0,
+            Real_T: 0,
+            Real_H: 0,
+        }
     }
 
     this.defaultOutput = {};
@@ -170,10 +170,7 @@ Module.prototype.handleLocalData = function(data)
         switch(type) {
             case self.sensorTypes.SENSOR: {
                 self.sensorData.SENSOR[port] = value;
-                break;
-            }
-            case self.sensorTypes.TEMP: {
-                self.sensorData.TEMP = value;
+                
                 break;
             }
             default: {
@@ -201,6 +198,19 @@ Module.prototype.requestRemoteData = function(handler)
         }
     })
 };
+
+var Motor_loop_turn = true;
+var One_Buzzer_loop_turn = true;
+var One_Tone_loop_turn = true;
+var LED_loop_turn = true;
+var pre_data_time_tone = 0;
+var pre_data_value_tone = 0;
+var pre_data_value_buzzer = 0;
+var pre_data_mode_motor = 0;
+var pre_data_value_motor = 0;
+var pre_data_r_led = 0;
+var pre_data_g_led = 0;
+var pre_data_b_led = 0;
 
 // 5. 
 Module.prototype.handleRemoteData = function(handler) 
@@ -274,17 +284,69 @@ Module.prototype.handleRemoteData = function(handler)
             if(data) 
 			{
                 if(self.digitalPortTimeList[port] < data.time)  // 데이터 생성시간과 현 시간보다 이전 이면 
-				{
+                {
                     self.digitalPortTimeList[port] = data.time;
 
                     if(!self.isRecentData(port, data.type, data.data)) 
-					{
+                    {
                         self.recentCheckData[port] = 
-						{
+                        {
                             type: data.type,
                             data: data.data
                         }
-                        buffer = Buffer.concat([buffer, self.makeOutputBuffer(data.type, port, data.data)]);
+                        //console.log("data.type: ", data.type);
+                        //console.log("loop_turn: ", Motor_loop_turn);
+                        //buffer = Buffer.concat([buffer, self.makeOutputBuffer(data.type, port, data.data)]);
+                        
+                        switch(data.type) 
+                        {
+                            case 2:  // 모터제어
+                                //console.log("모터: ", data.data.value, pre_data_value_motor, data.data.mode, pre_data_mode_motor);
+                                if((data.data.value != pre_data_value_motor) || (data.data.mode != pre_data_mode_motor))
+                                {
+                                    buffer = Buffer.concat([buffer, self.makeOutputBuffer(data.type, port, data.data)]);
+                                    pre_data_mode_motor = data.data.mode;
+                                    pre_data_value_motor = data.data.value;
+                                }
+                                else{}
+                                break;
+                            case 3:  // Buzzer제어
+                                //console.log("Buzzer: ", data.data, pre_data_value_buzzer);
+                                if(!One_Tone_loop_turn || (data.data != pre_data_value_buzzer))
+                                {
+                                    buffer = Buffer.concat([buffer, self.makeOutputBuffer(data.type, port, data.data)]);
+                                    pre_data_value_buzzer = data.data;
+                                    pre_data_value_tone = 0;
+                                    pre_data_time_tone = 0;
+                                    One_Tone_loop_turn = true;
+                                }
+                                else{}
+                                break;
+                            case 4:  // RGB제어
+                                //console.log("LED: ", data.data.r, pre_data_r_led, data.data.g, pre_data_g_led, data.data.b, pre_data_b_led);
+                                if((data.data.r != pre_data_r_led) || (data.data.g != pre_data_g_led) || (data.data.b != pre_data_b_led))
+                                {
+                                    buffer = Buffer.concat([buffer, self.makeOutputBuffer(data.type, port, data.data)]);
+                                    pre_data_r_led = data.data.r;
+                                    pre_data_g_led = data.data.g;
+                                    pre_data_b_led = data.data.b;
+                                }
+                                else{}
+                                break;
+                            case 5:  // Tone 제어
+                                //console.log("Tone: ", data.data.value, pre_data_value_tone, data.data.duration, pre_data_time_tone);
+                                if((data.data.value != pre_data_value_tone) || (data.data.duration != pre_data_time_tone))
+                                {
+                                    buffer = Buffer.concat([buffer, self.makeOutputBuffer(data.type, port, data.data)]);
+                                    pre_data_value_tone = data.data.value;
+                                    pre_data_time_tone = data.data.duration;
+                                }
+                                else{}
+                                break;
+                            default:
+                                buffer = Buffer.concat([buffer, self.makeOutputBuffer(data.type, port, data.data)]);
+                                break;
+                        }
                     }     /// 전송 패킷 생성하여 버퍼에 저장
                 }
             }
@@ -335,12 +397,6 @@ Module.prototype.isRecentData = function(port, type, data)
         }
     }
     //   isRecent = true;   참 들어가면 통신 데이터 무조건 안 보냄.
-
-    // Add for TEMP
-    if ((type === '6'))
-    {
-        isRecent = false;
-    }
     
     return isRecent;
 }
@@ -356,12 +412,7 @@ Module.prototype.makeSensorReadBuffer = function(device, port, data)   // 센서
     var buffer;
     var dummy = new Buffer([10]);      
     
-    if(device == this.sensorTypes.TEMP) 
-	{
-        buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port, data, 10]);    
-        //console.log("TEMP GET: %s %s %s %s %s", sensorIdx, this.actionTypes.GET, device, port, data);	                
-    }
-	else if(!data) 
+    if(!data) 
 	{
         buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.GET, device, port, 10]);	
         //console.log("GET: %s %s %s %s", sensorIdx, this.actionTypes.GET, device, port);	            
@@ -388,45 +439,48 @@ Module.prototype.makeOutputBuffer = function(device, port, data)     /// 출력 
     var buffer;
     var value = new Buffer(2);
     var dummy = new Buffer([10]);
-		
+
     switch(device) 
-	{    
+    {    
         case this.sensorTypes.MOTOR:  // 모터제어
                 var mode = new Buffer(2);
                 mode.writeInt16LE(data.mode);
                 value.writeInt16LE(data.value);
-				buffer = new Buffer([255, 85, 9, sensorIdx, this.actionTypes.SET, device, port]);
+                buffer = new Buffer([255, 85, 9, sensorIdx, this.actionTypes.SET, device, port]);
                 buffer = Buffer.concat([buffer, mode, value, dummy]);
-    //            console.log("SET: %s %s %s %s %s %s", sensorIdx, this.actionTypes.SET, device, port, mode, value);	                   
-				break;   
+                //console.log("MOTOR: ", buffer);                   
+                break;   
 
         case this.sensorTypes.BUZZER:   // 스피커 제어
-//				value.writeInt16LE(data); //writeFloatLE//!@#$
+    //				value.writeInt16LE(data); //writeFloatLE//!@#$
                 buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.SET, device, port, data]);
                 buffer = Buffer.concat([buffer, dummy]);
+                //console.log("Buzzer : ", buffer);	
                 break;
 
         case this.sensorTypes.RGBLED: 
-				buffer = new Buffer([255, 85, 8, sensorIdx, this.actionTypes.SET, device, port, data.r, data.g, data.b]);
-				buffer = Buffer.concat([buffer, dummy]);
-                //console.log("SET: ", buffer);
-				break;
+                buffer = new Buffer([255, 85, 8, sensorIdx, this.actionTypes.SET, device, port, data.r, data.g, data.b]);
+                buffer = Buffer.concat([buffer, dummy]);
+                //console.log("RGBLED: ", buffer);
+                break;
                                 
         case this.sensorTypes.TONE:           // 스피커 제어 
-				var time = new Buffer(2);
-				if($.isPlainObject(data))
-				{
-					value.writeInt16LE(data.value);
-					time.writeInt16LE(data.duration);
-				} 
-				else 
-				{
-					value.writeInt16LE(0);
-					time.writeInt16LE(0);
-				}
-				buffer = new Buffer([255, 85, 9, sensorIdx, this.actionTypes.SET, device, port]);
-				buffer = Buffer.concat([buffer, value, time, dummy]);                   
-				break;
+                var time = new Buffer(2);
+                if($.isPlainObject(data))
+                {
+                    value.writeInt16LE(data.value);
+                    time.writeInt16LE(data.duration);
+                } 
+                else 
+                {
+                    value.writeInt16LE(0);
+                    time.writeInt16LE(0);
+                }
+                buffer = new Buffer([255, 85, 9, sensorIdx, this.actionTypes.SET, device, port]);
+                buffer = Buffer.concat([buffer, value, time, dummy]);    
+                //console.log("Tone : ", buffer);  
+                One_Tone_loop_turn = false;               
+                break;
     }
     return buffer;
 };
@@ -445,7 +499,7 @@ Module.prototype.disconnect = function(connect)
 // Connect
 Module.prototype.reset = function() 
 {
-        // 엔트리 브라우저와의 소켓 연결이 끊어졌을 때 발생하는 로직.
+    // 엔트리 브라우저와의 소켓 연결이 끊어졌을 때 발생하는 로직.
     this.lastTime = 0;
     this.lastSendTime = 0;
 };

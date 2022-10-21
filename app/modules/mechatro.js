@@ -112,6 +112,7 @@ class mechatro extends BaseModule {
             },
             SERVO: {
                 '2': 0,
+<<<<<<< HEAD
                 '4': 1,
                 '5': 2,
                 '6': 3,
@@ -125,6 +126,11 @@ class mechatro extends BaseModule {
                 '26': 4,
                 '27': 5,
                 '28': 6
+=======
+                '5': 1,
+                '6': 2,
+                '10': 3,
+>>>>>>> 86daa0452b3fb584eb27fae29cf42a8cec40d5da
             },
             PWM: {
                 '5': 0,
