@@ -505,7 +505,7 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
             buffer = new Buffer([
                 255,
                 85,
-                10,
+                12,
                 sensorIdx,
                 this.actionTypes.SET,
                 device,
