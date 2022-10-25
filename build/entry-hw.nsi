@@ -11,10 +11,10 @@
 ; MUI Settings / Icons
 !define MUI_ICON "icon.ico"
 !define MUI_UNICON "icon.ico"
-!define PRODUCT_NAME "Entry_HW"
+!define PRODUCT_NAME "LINE_Entry_HW"
 !define PROTOCOL_NAME "entryhw"
-!define APP_NAME "Entry_HW.exe"
-!define PRODUCT_VERSION "1.9.20"
+!define APP_NAME "LINE_Entry_HW.exe"
+!define PRODUCT_VERSION "1.9.19"
 !define PRODUCT_PUBLISHER "EntryLabs"
 !define PRODUCT_WEB_SITE "https://www.playentry.org/"
 
@@ -64,18 +64,31 @@ RequestExecutionLevel admin
 ;--------------------------------
 
 ; 다국어 설정
+!insertmacro MUI_LANGUAGE "Japanese" ;first language is the default language
+
+LangString TEXT_ENTRY ${LANG_JAPANESE} "LINE entry ハードウェア接続ソフト"
+LangString TEXT_ENTRY_DELETE ${LANG_JAPANESE} "LINE entry ハードウェア接続ソフトンインストール"
+LangString TEXT_ENTRY_TITLE ${LANG_JAPANESE} "LINE entry ハードウェア接続ソフト"
+LangString TEXT_START_MENU_TITLE ${LANG_JAPANESE} "スタートメニュー・ショートカット"
+LangString TEXT_DESKTOP_TITLE ${LANG_JAPANESE} "デスクトップ・ショートカット"
+LangString DESC_ENTRY ${LANG_JAPANESE} "LINE entry ハードウェア接続ソフト"
+LangString START_ENTRY ${LANG_JAPANESE} "LINE entry ハードウェア接続ソフトを実行する"
+LangString DESC_START_MENU ${LANG_JAPANESE} "スタートメニューにショートカットを追加します。"
+LangString DESC_DESKTOP ${LANG_JAPANESE} "デスクトップにショートカットを追加します。"
+LangString SETUP_UNINSTALL_MSG ${LANG_JAPANESE} "LINE entry ハードウェア接続ソフトが既にインストールされています。 $\n$\nClick 'OK' ボタンを押すと前のバージョンを削除し、再インストールします。'キャンセル' ボタンを押すとアップグレードを取り消します。"
+
 !insertmacro MUI_LANGUAGE "Korean" ;first language is the default language
 
-LangString TEXT_ENTRY ${LANG_KOREAN} "엔트리 하드웨어"
-LangString TEXT_ENTRY_DELETE ${LANG_KOREAN} "엔트리 하드웨어 제거"
-LangString TEXT_ENTRY_TITLE ${LANG_KOREAN} "엔트리 하드웨어 (필수)"
-LangString TEXT_START_MENU_TITLE ${LANG_KOREAN} "시작메뉴에 바로가기"
-LangString TEXT_DESKTOP_TITLE ${LANG_KOREAN} "바탕화면에 바로가기"
-LangString DESC_ENTRY ${LANG_KOREAN} "엔트리 하드웨어"
-LangString START_ENTRY ${LANG_KOREAN} "엔트리 하드웨어 시작하기"
-LangString DESC_START_MENU ${LANG_KOREAN} "시작메뉴에 바로가기 아이콘이 생성됩니다."
-LangString DESC_DESKTOP ${LANG_KOREAN} "바탕화면에 바로가기 아이콘이 생성됩니다."
-LangString SETUP_UNINSTALL_MSG ${LANG_KOREAN} "엔트리 하드웨어가 이미 설치되어 있습니다. $\n$\r'확인' 버튼을 누르면 이전 버전을 삭제 후 재설치하고 '취소' 버튼을 누르면 업그레이드를 취소합니다."
+LangString TEXT_ENTRY ${LANG_JAPANESE} "LINE entry ハードウェア接続ソフト"
+LangString TEXT_ENTRY_DELETE ${LANG_JAPANESE} "LINE entry ハードウェア接続ソフトンインストール"
+LangString TEXT_ENTRY_TITLE ${LANG_JAPANESE} "LINE entry ハードウェア接続ソフト"
+LangString TEXT_START_MENU_TITLE ${LANG_JAPANESE} "スタートメニュー・ショートカット"
+LangString TEXT_DESKTOP_TITLE ${LANG_JAPANESE} "デスクトップ・ショートカット"
+LangString DESC_ENTRY ${LANG_JAPANESE} "LINE entry ハードウェア接続ソフト"
+LangString START_ENTRY ${LANG_JAPANESE} "LINE entry ハードウェア接続ソフトを実行する"
+LangString DESC_START_MENU ${LANG_JAPANESE} "スタートメニューにショートカットを追加します。"
+LangString DESC_DESKTOP ${LANG_JAPANESE} "デスクトップにショートカットを追加します。"
+LangString SETUP_UNINSTALL_MSG ${LANG_JAPANESE} "LINE entry ハードウェア接続ソフトが既にインストールされています。 $\n$\nClick 'OK' ボタンを押すと前のバージョンを削除し、再インストールします。'キャンセル' ボタンを押すとアップグレードを取り消します。"
 
 
 !insertmacro MUI_LANGUAGE "English"

@@ -7,7 +7,11 @@ import IpcManager from './core/ipcMainManager';
 import HardwareListManager from './core/hardwareListManager';
 import DataHandler from './core/dataHandler';
 import downloadModule from './core/functions/downloadModule';
-import { EntryMessageAction, EntryStatePayload, HardwareStatement } from '../common/constants';
+import {
+    EntryMessageAction,
+    EntryStatePayload,
+    HardwareStatement,
+} from '../common/constants';
 import createLogger from './electron/functions/createLogger';
 import directoryPaths from './core/directoryPaths';
 import BaseScanner from './core/baseScanner';
@@ -102,7 +106,8 @@ class MainRouter {
         // 그러나 config 은 필요하다.
         if (
             this.config &&
-            (connectorSerialPort || (firmwareName as ICopyTypeFirmware).type === 'copy')
+            (connectorSerialPort ||
+                (firmwareName as ICopyTypeFirmware).type === 'copy')
         ) {
             this.sendState(HardwareStatement.flash);
             const firmware = firmwareName;
@@ -111,7 +116,8 @@ class MainRouter {
                 firmwareMCUType: MCUType,
                 tryFlasherNumber: maxFlashTryCount = 10,
             } = this.config;
-            const lastSerialPortCOMPort = connectorSerialPort && connectorSerialPort.path;
+            const lastSerialPortCOMPort =
+                connectorSerialPort && connectorSerialPort.path;
             this.firmwareTryCount = 0;
 
             this.stopScan({ saveSelectedPort: true }); // 서버 통신 중지, 시리얼포트 연결 해제
@@ -120,25 +126,35 @@ class MainRouter {
                 new Promise((resolve, reject) => {
                     setTimeout(() => {
                         if (!lastSerialPortCOMPort) {
-                            return reject(new Error('COM Port is not selected'));
+                            return reject(
+                                new Error('COM Port is not selected')
+                            );
                         }
 
                         //연결 해제 완료시간까지 잠시 대기 후 로직 수행한다.
                         this.flasher
-                            .flash(firmware, lastSerialPortCOMPort, { baudRate, MCUType })
+                            .flash(firmware, lastSerialPortCOMPort, {
+                                baudRate,
+                                MCUType,
+                            })
                             .then(([error, ...args]) => {
                                 if (error) {
                                     rendererConsole.log('flashError', error);
                                     if (error === 'exit') {
                                         // 에러 메세지 없이 프로세스 종료
                                         reject(new Error());
-                                    } else if (++this.firmwareTryCount <= maxFlashTryCount) {
+                                    } else if (
+                                        ++this.firmwareTryCount <=
+                                        maxFlashTryCount
+                                    ) {
                                         setTimeout(() => {
                                             flashFunction().then(resolve);
                                         }, 100);
                                     } else {
                                         console.log(error);
-                                        reject(new Error('Failed Firmware Upload'));
+                                        reject(
+                                            new Error('Failed Firmware Upload')
+                                        );
                                     }
                                 } else {
                                     logger.info('firmware flash success');
@@ -155,7 +171,9 @@ class MainRouter {
             logger.warn(
                 `[${firmwareName}] Hardware Device Is Not Connected. config: ${this.config}`
             );
-            return Promise.reject(new Error('Hardware Device Is Not Connected'));
+            return Promise.reject(
+                new Error('Hardware Device Is Not Connected')
+            );
         }
     }
 
@@ -171,7 +189,9 @@ class MainRouter {
         if (this.config) {
             this.startScan(this.config);
         } else {
-            logger.warn('hardware try to reconnect but hardwareConfig is undefined');
+            logger.warn(
+                'hardware try to reconnect but hardwareConfig is undefined'
+            );
         }
     }
 
@@ -190,10 +210,14 @@ class MainRouter {
                     resultState = HardwareStatement.disconnected;
                     this.close();
                 }
-            } else if (state === HardwareStatement.connected && this.config.moduleName) {
+            } else if (
+                state === HardwareStatement.connected &&
+                this.config.moduleName
+            ) {
                 this.sendActionDataToServer(EntryMessageAction.init, {
                     name: this.config.moduleName,
                 });
+                this.scanner?.stopScan();
             }
         }
 
@@ -235,7 +259,10 @@ class MainRouter {
                 ) as IHardwareModule;
                 this.sendState(HardwareStatement.scan);
                 this.scanner.stopScan();
-                const connector = await this.scanner.startScan(this.hwModule, this.config);
+                const connector = await this.scanner.startScan(
+                    this.hwModule,
+                    this.config
+                );
                 if (connector) {
                     logger.info(
                         `[Device Info] ${config.id} | ${
@@ -267,7 +294,9 @@ class MainRouter {
     stopScan(option?: { saveSelectedPort?: boolean }) {
         const { saveSelectedPort = false } = option || {};
         logger.info(
-            `scan stopped. selectedPort will be ${saveSelectedPort ? 'saved' : 'undefined'}`
+            `scan stopped. selectedPort will be ${
+                saveSelectedPort ? 'saved' : 'undefined'
+            }`
         );
 
         this.server && this.server.disconnectHardware();
@@ -387,7 +416,9 @@ class MainRouter {
     // 엔트리 측에서 데이터를 받아온 경우 전달
     handleServerData({ data }: { data: any }) {
         if (!this.hwModule || !this.handler || !this.config) {
-            logger.warn('hardware is not connected but entry server data is received');
+            logger.warn(
+                'hardware is not connected but entry server data is received'
+            );
             return;
         }
 
@@ -443,7 +474,9 @@ class MainRouter {
     close(option?: { saveSelectedPort?: boolean; saveConfig?: boolean }) {
         const { saveSelectedPort = false, saveConfig = false } = option || {};
         logger.info(
-            `scan stopped. selectedPort will be ${saveSelectedPort ? 'saved' : 'undefined'}`
+            `scan stopped. selectedPort will be ${
+                saveSelectedPort ? 'saved' : 'undefined'
+            }`
         );
 
         this.server?.disconnectHardware();
@@ -481,7 +514,9 @@ class MainRouter {
             }
             const config = this.hardwareListManager.getHardwareById(id);
             if (config) {
-                this.browser.webContents.send('selectHardware', config);
+                this.sendEventToMainWindow('selectHardware', config);
+                this.sendEventToMainWindow('changeCurrentPageState');
+                this.sendEventToMainWindow('hwSelected', config);
             }
         } catch (e) {
             rendererConsole.error('startScan err : ', e);
@@ -491,8 +526,12 @@ class MainRouter {
     private registerIpcEvents() {
         ipcMain.on('startScan', async (e, config) => {
             try {
-                logger.info(`scan started. hardware config: ${JSON.stringify(config)}`);
+                logger.info(
+                    `scan started. hardware config: ${JSON.stringify(config)}`
+                );
                 await this.startScan(config);
+                this.sendEventToMainWindow('changeCurrentPageState');
+                this.sendEventToMainWindow('hwSelected', config);
             } catch (e) {
                 logger.warn(`scan error : ${e.title}, ${e.message}`);
                 rendererConsole.error('startScan err : ', e);
@@ -531,10 +570,17 @@ class MainRouter {
         ipcMain.handle('requestDownloadModule', async (e, moduleName) => {
             await this.requestHardwareModule(moduleName);
         });
-        ipcMain.handle('requestFlash', async (e, firmwareName: IFirmwareInfo) => {
-            await this.flashFirmware(firmwareName);
-            this.flasher.kill();
-            this.config && this.startScan(this.config);
+        ipcMain.handle(
+            'requestFlash',
+            async (e, firmwareName: IFirmwareInfo) => {
+                await this.flashFirmware(firmwareName);
+                this.flasher.kill();
+                this.config && this.startScan(this.config);
+            }
+        );
+        ipcMain.handle('selectHardware', (e, id) => {
+            // offline 용. web 은 ipc process 가 아닌 process.env 로부터 인자 전달받음
+            this.selectHardware(id);
         });
         ipcMain.on('getSharedObject', (e) => {
             e.returnValue = global.sharedObject;
@@ -544,7 +590,9 @@ class MainRouter {
     }
 
     async requestHardwareModule(moduleName: string) {
-        logger.info(`hardware module requested from online, moduleName : ${moduleName}`);
+        logger.info(
+            `hardware module requested from online, moduleName : ${moduleName}`
+        );
         const moduleConfig = await downloadModule(moduleName);
         await this.hardwareListManager.updateHardwareList([moduleConfig]);
     }
@@ -558,8 +606,10 @@ class MainRouter {
         ipcMain.removeAllListeners('getCurrentServerModeSync');
         ipcMain.removeAllListeners('getCurrentCloudModeSync');
         ipcMain.removeAllListeners('requestHardwareListSync');
+        ipcMain.removeAllListeners('getSharedObject');
         ipcMain.removeHandler('requestDownloadModule');
         ipcMain.removeHandler('requestFlash');
+        ipcMain.removeHandler('selectHardware');
         logger.verbose('EntryHW ipc event all cleared');
     }
 }

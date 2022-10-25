@@ -11,17 +11,13 @@
             "URL Types": [
                 {
                     "URL Identifie": "org.playentry.entryhw",
-                    "URL Schemes": [
-                        "entryhw"
-                    ]
+                    "URL Schemes": ["entryhw"]
                 }
             ],
             "CFBundleURLTypes": [
                 {
                     "CFBundleURLName": "org.playentry.entryhw",
-                    "CFBundleURLSchemes": [
-                        "entryhw"
-                    ]
+                    "CFBundleURLSchemes": ["entryhw"]
                 }
             ]
         },
@@ -81,7 +77,7 @@
     "asar": true,
     "compression": "maximum",
     "appId": "org.playentry.entryhw",
-    "productName": "Entry_HW",
+    "productName": "LINE_Entry_HW",
     "afterPack": "scripts/after_pack.js",
     "afterSign": "scripts/notarize_app.js",
     "afterAllArtifactBuild": "scripts/notarize_installer.js"

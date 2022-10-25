@@ -30,11 +30,18 @@ export default new (class {
             webPreferences: {
                 nodeIntegration: true,
                 contextIsolation: false,
-                preload: path.join(viewDirectoryPath, '..', 'preload', 'preload.bundle.js'),
+                preload: path.join(
+                    viewDirectoryPath,
+                    '..',
+                    'preload',
+                    'preload.bundle.js'
+                ),
             },
         });
 
-        this.aboutWindow.loadURL(`file:///${path.resolve(viewDirectoryPath, 'about.html')}`);
+        this.aboutWindow.loadURL(
+            `file:///${path.resolve(viewDirectoryPath, 'about.html')}`
+        );
 
         this.aboutWindow.on('closed', () => {
             this.aboutWindow = undefined;
@@ -43,7 +50,7 @@ export default new (class {
 
     createMainWindow({ debug }: { debug?: boolean }) {
         const { hardwareVersion, language } = global.sharedObject;
-        const title = language === 'ko' ? '엔트리 하드웨어 v' : 'Entry Hardware v';
+        const title = 'LINE entry ハードウェア接続ソフト v';
 
         this.mainWindow = new BrowserWindow({
             width: 800,
@@ -54,11 +61,18 @@ export default new (class {
                 backgroundThrottling: false,
                 nodeIntegration: false,
                 contextIsolation: false,
-                preload: path.join(viewDirectoryPath, '..', 'preload', 'preload.bundle.js'),
+                preload: path.join(
+                    viewDirectoryPath,
+                    '..',
+                    'preload',
+                    'preload.bundle.js'
+                ),
             },
         });
 
-        this.mainWindow.loadURL(`file:///${path.resolve(viewDirectoryPath, 'index.html')}`);
+        this.mainWindow.loadURL(
+            `file:///${path.resolve(viewDirectoryPath, 'index.html')}`
+        );
 
         if (debug) {
             this.mainWindow.webContents.openDevTools();
@@ -69,7 +83,9 @@ export default new (class {
         this.mainWindow.on('close', (e) => {
             if (!this.mainWindowCloseConfirmed) {
                 e.preventDefault();
-                logger.verbose('EntryHW close rejected. confirm connection close');
+                logger.verbose(
+                    'EntryHW close rejected. confirm connection close'
+                );
                 this.mainWindow?.webContents.send('hardwareCloseConfirm');
             }
         });
@@ -77,6 +93,8 @@ export default new (class {
         this.mainWindow.on('closed', () => {
             this.mainWindow = undefined;
         });
-        logger.verbose(`main window created. title: ${title + hardwareVersion}`);
+        logger.verbose(
+            `main window created. title: ${title + hardwareVersion}`
+        );
     }
 })();

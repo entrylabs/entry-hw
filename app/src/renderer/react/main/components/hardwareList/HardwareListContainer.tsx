@@ -1,9 +1,9 @@
-import React, {useEffect} from 'react';
+import React, { useEffect } from 'react';
 import Styled from 'styled-components';
-import {IStoreState} from '../../store';
-import {useDispatch, useSelector} from 'react-redux';
+import { IStoreState } from '../../store';
+import { useDispatch, useSelector } from 'react-redux';
 import HardwareElement from './HardwareElement';
-import {resetHardwareList} from '../../store/modules/hardware';
+import { resetHardwareList } from '../../store/modules/hardware';
 
 const HardwareListContainerRoot = Styled.div`
     padding: 40px;
@@ -11,7 +11,6 @@ const HardwareListContainerRoot = Styled.div`
     height: 100%;
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
-    width: 100%;
     
     &::-webkit-scrollbar {
         -webkit-appearance: none;
@@ -30,7 +29,9 @@ const HardwareListContainerRoot = Styled.div`
 `;
 
 const HardwareListContainer: React.FC = () => {
-    const hardwareList = useSelector<IStoreState, IHardwareConfig[]>(state => state.hardware.hardwareList);
+    const hardwareList = useSelector<IStoreState, IHardwareConfig[]>(
+        (state) => state.hardware.hardwareList
+    );
     const dispatch = useDispatch();
 
     useEffect(() => {
@@ -41,11 +42,9 @@ const HardwareListContainer: React.FC = () => {
 
     return (
         <HardwareListContainerRoot>
-            {
-                hardwareList.map((hardware) => (
-                    <HardwareElement key={hardware.id} hardware={hardware}/>
-                ))
-            }
+            {hardwareList.map((hardware) => (
+                <HardwareElement key={hardware.id} hardware={hardware} />
+            ))}
         </HardwareListContainerRoot>
     );
 };

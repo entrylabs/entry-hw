@@ -1,38 +1,51 @@
 import { createGlobalStyle } from 'styled-components';
-import NanumGothicFont from '../../fonts/NanumGothic.woff';
+// import NanumGothicFont from '../../fonts/NanumGothic.woff';
 
 const GlobalStyle = createGlobalStyle`
+    /* EntryFont-700 - latin_japanese */
     @font-face {
-        font-family: NanumGothic;
-        src: url(${NanumGothicFont});
+        font-family: 'EntryFont';
+        font-style: normal;
+        font-weight: 700;
+        src: local('メイリオ'), local('Meiryo'), local('ヒラギノ角ゴ Pro W3'),
+            local('Hiragino Kaku Gothic Pro'), local('ＭＳ Ｐゴシック'), local('MS PGothic'),
+            local('-apple-system'), local('system'), local('sans-serif');
     }
-    
-    .darwin ::-webkit-scrollbar {
-        -webkit-appearance: none;
-        width: 11px;
+
+    /* EntryFont-700 - latin_japanese */
+    @font-face {
+        font-family: 'EntryFont';
+        font-style: normal;
+        font-weight: bold;
+        src: local('メイリオ'), local('Meiryo'), local('ヒラギノ角ゴ Pro W3'),
+            local('Hiragino Kaku Gothic Pro'), local('ＭＳ Ｐゴシック'), local('MS PGothic'),
+            local('-apple-system'), local('system'), local('sans-serif');
     }
-    
-    .darwin ::-webkit-scrollbar-thumb {
-        border-radius: 8px;
-        border: 2px solid white;
-        /* should match background, can't be transparent */
-        background-color: rgba(0, 0, 0, .5);
+
+    /* EntryFont-regular - latin_japanese */
+    @font-face {
+        font-family: 'EntryFont';
+        font-style: normal;
+        font-weight: 400;
+        src: local('メイリオ'), local('Meiryo'), local('ヒラギノ角ゴ Pro W3'),
+            local('Hiragino Kaku Gothic Pro'), local('ＭＳ Ｐゴシック'), local('MS PGothic'),
+            local('-apple-system'), local('system'), local('sans-serif');
     }
-    
+
+    /* EntryFont-regular - latin_japanese */
+    @font-face {
+        font-family: 'EntryFont';
+        font-style: normal;
+        font-weight: normal;
+        src: local('メイリオ'), local('Meiryo'), local('ヒラギノ角ゴ Pro W3'),
+            local('Hiragino Kaku Gothic Pro'), local('ＭＳ Ｐゴシック'), local('MS PGothic'),
+            local('-apple-system'), local('system'), local('sans-serif');
+    }
+
     * {
-        font-family: NanumGothic, sans-serif !important;
-        box-sizing: border-box;
-        -moz-box-sizing: border-box;
-        -webkit-box-sizing: border-box;
-        -webkit-touch-callout: none;
-        -webkit-user-select: none;
-        -khtml-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
+        font-family: 'EntryFont' !important;
         user-select: none;
         cursor: default;
-        outline: none;
-        -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
     }
     
     html,
@@ -42,7 +55,7 @@ const GlobalStyle = createGlobalStyle`
         padding: 0;
         border: 0;
         outline: 0;
-        font-family: NanumGothic, sans-serif;
+        font-family: Arial, Dotum;
         font-size: 10pt;
         overflow: hidden !important;
         display: flex;

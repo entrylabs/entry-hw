@@ -34,7 +34,7 @@ const ReferenceIconContainer = styled.div`
 
 const ReferenceIcon = styled.img`
     vertical-align: middle;
-`
+`;
 
 const RightBox = styled.div`
     float: right;
@@ -42,9 +42,10 @@ const RightBox = styled.div`
 
 const ReferencePanel: React.FC = () => {
     const { translator, clipboard, rendererRouter } = usePreload();
-    const selectedHardware = useSelector<IStoreState, IHardwareConfig | undefined>(
-        state => state.connection.selectedHardware,
-    );
+    const selectedHardware = useSelector<
+        IStoreState,
+        IHardwareConfig | undefined
+    >((state) => state.connection.selectedHardware);
     const copyString = useCallback((str: string) => {
         clipboard.writeText(str);
         alert(translator.translate('Copied to clipboard'));
@@ -58,54 +59,72 @@ const ReferencePanel: React.FC = () => {
 
     return (
         <ReferenceDiv id="reference">
-            {
-                email &&
+            {email && (
                 <div id="emailArea">
-                    <RightBox onClick={() => {
-                        copyString(email);
-                    }}>
+                    <RightBox
+                        onClick={() => {
+                            copyString(email);
+                        }}
+                    >
                         <ReferenceIconContainer>
-                            <ReferenceIcon src={EmailIcon} alt={'email'}/>
+                            <ReferenceIcon src={EmailIcon} alt={'email'} />
                         </ReferenceIconContainer>
-                        <ReferenceContentSpan id="email">{email}</ReferenceContentSpan>
+                        <ReferenceContentSpan id="email">
+                            {email}
+                        </ReferenceContentSpan>
                     </RightBox>
                 </div>
-            }
-            {
-                url &&
+            )}
+            {url && (
                 <div id="urlArea">
-                    <RightBox onClick={() => rendererRouter.openExternalUrl(url)}>
+                    <RightBox
+                        onClick={() => rendererRouter.openExternalUrl(url)}
+                    >
                         <ReferenceIconContainer>
-                            <ReferenceIcon src={HomepageIcon} alt={'homepage'} />
+                            <ReferenceIcon
+                                src={HomepageIcon}
+                                alt={'homepage'}
+                            />
                         </ReferenceIconContainer>
-                        <ReferenceContentSpan id="url">{url}</ReferenceContentSpan>
+                        <ReferenceContentSpan id="url">
+                            {url}
+                        </ReferenceContentSpan>
                     </RightBox>
                 </div>
-            }
-            {
-                video &&
+            )}
+            {video && (
                 <div id="videoArea">
                     <ReferenceIconContainer>
-                        <ReferenceIcon src={MovieIcon} alt={'movies'}/>
+                        <ReferenceIcon src={MovieIcon} alt={'movies'} />
                     </ReferenceIconContainer>
-                    {
-                        video instanceof Array
-                            ? video.map((videoElement) => (
-                                <React.Fragment key={videoElement}>
-                                    <ReferenceContentSpan
-                                        id="video"
-                                        onClick={() => rendererRouter.openExternalUrl(videoElement)}
-                                    >{videoElement}</ReferenceContentSpan>
-                                    <br/>
-                                </React.Fragment>
-                            ))
-                            : <ReferenceContentSpan
-                                id="video"
-                                onClick={() => rendererRouter.openExternalUrl(video)}
-                            >{video}</ReferenceContentSpan>
-                    }
+                    {video instanceof Array ? (
+                        video.map((videoElement) => (
+                            <React.Fragment key={videoElement}>
+                                <ReferenceContentSpan
+                                    id="video"
+                                    onClick={() =>
+                                        rendererRouter.openExternalUrl(
+                                            videoElement
+                                        )
+                                    }
+                                >
+                                    {videoElement}
+                                </ReferenceContentSpan>
+                                <br />
+                            </React.Fragment>
+                        ))
+                    ) : (
+                        <ReferenceContentSpan
+                            id="video"
+                            onClick={() =>
+                                rendererRouter.openExternalUrl(video)
+                            }
+                        >
+                            {video}
+                        </ReferenceContentSpan>
+                    )}
                 </div>
-            }
+            )}
         </ReferenceDiv>
     );
 };

@@ -16,33 +16,37 @@ const PortBoxContainer = Styled.div`
     height: 100%;
     justify-content: center;
     align-items: center;
+    z-index:1;
 `;
 
 const PortBoxBody = Styled.div`
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width: 360px;
-    height: 379px;
+    width: 400px;
+    height: 450px;
     flex-direction: column;
     button {
         cursor: pointer;
         height: 47px;
-        width: 110px;
+        width: 160px;
     }
 `;
 
 const PortBoxTitle = Styled.div`
-    border-top-left-radius: 3px;
-    border-top-right-radius: 3px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
     height: 57px;
-    padding-left: 20px;
     line-height: 57px;
     color: #fff;
     font-weight: bold;
     font-size: 20px;
     width: 100%;
-    background-color: #2a7def;
+    background-color: rgb(28, 136, 80);
+
+    span{
+        margin-left: 20px
+    }
 `;
 
 const PortBoxCancelIcon = Styled.div`
@@ -59,8 +63,8 @@ const PortBoxCancelIcon = Styled.div`
 `;
 
 const PortBoxContent = Styled.div`
-    border-bottom-left-radius: 3px;
-    border-bottom-right-radius: 3px;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
     background-color: #fff;
     text-align: center;
     flex: 1;
@@ -74,18 +78,19 @@ const PortBoxDescription = Styled.div`
 `;
 
 const PortBoxSelectElement = Styled.select`
-    height: 142px;
-    width: 247px;
+    height: 190px;
+    width: 320px;
     font-size: 16px;
     color: #2c2c2c;
     margin-bottom: 33px;
     option {
-        padding: 8px 20px 8px 20px;
+        padding: 10px 20px 10px 20px;
+        border: solid 0.5px #dddddd;
     }
 `;
 
 const SelectButton = Styled.button`
-    background: #6e5ae6;
+    background: rgb(28, 136, 80);
     font-size: 16px;
     color: #fff;
     border: 0px;
@@ -93,10 +98,11 @@ const SelectButton = Styled.button`
 `;
 
 const CancelButton = Styled.button`
-    background: #dbdbdb;
+    background: white;
     font-size: 16px;
-    color: #9e9e9f;
-    border: 0;
+    color: rgb(28, 136, 80);
+    border: solid 1px;
+    border-color:rgb(28, 136, 80);
     border-radius: 3px;
     margin-right: 11px;
 `;
@@ -106,7 +112,9 @@ type IProps = {
 };
 
 const SelectPortContainer: React.FC<IProps> = (props) => {
-    const portList = useSelector<IStoreState, ISerialPortScanData[]>(state => state.connection.portList);
+    const portList = useSelector<IStoreState, ISerialPortScanData[]>(
+        (state) => state.connection.portList
+    );
     const { translator } = usePreload();
     const dispatch = useDispatch();
     const [selectedPort, changeSelected] = useState<string>('');
@@ -124,9 +132,7 @@ const SelectPortContainer: React.FC<IProps> = (props) => {
         <PortBoxContainer id="select_port_box">
             <PortBoxBody className="select_port_child">
                 <PortBoxTitle>
-                    <span>
-                        {translator.translate('Select')}
-                    </span>
+                    <span>{translator.translate('Select')}</span>
                     <PortBoxCancelIcon
                         className="cancel_icon cancel_event"
                         onClick={onCancelClicked}
@@ -136,12 +142,18 @@ const SelectPortContainer: React.FC<IProps> = (props) => {
                     <PortBoxDescription>
                         {translator.translate('Select the COM PORT to connect')}
                     </PortBoxDescription>
-                    <PortBoxSelectElement size={10} id="select_port" onChange={(e) => {
-                        changeSelected(e.target.value);
-                    }}>
+                    <PortBoxSelectElement
+                        size={10}
+                        id="select_port"
+                        onChange={(e) => {
+                            changeSelected(e.target.value);
+                        }}
+                    >
                         {portList.map((port, index) => (
                             <option
-                                title={port.path} value={port.path} key={`${port.path}-${index}`}
+                                title={port.path}
+                                value={port.path}
+                                key={`${port.path}-${index}`}
                                 onDoubleClick={() => {
                                     onPortSelected(port.path);
                                 }}
@@ -158,13 +170,20 @@ const SelectPortContainer: React.FC<IProps> = (props) => {
                         >
                             {translator.translate('Cancel')}
                         </CancelButton>
-                        <SelectButton id="btn_select_port" onClick={() => {
-                            if (!selectedPort) {
-                                alert(translator.translate('Select the COM PORT to connect'));
-                            } else {
-                                onPortSelected(selectedPort);
-                            }
-                        }}>
+                        <SelectButton
+                            id="btn_select_port"
+                            onClick={() => {
+                                if (!selectedPort) {
+                                    alert(
+                                        translator.translate(
+                                            'Select the COM PORT to connect'
+                                        )
+                                    );
+                                } else {
+                                    onPortSelected(selectedPort);
+                                }
+                            }}
+                        >
                             {translator.translate('Connect')}
                         </SelectButton>
                     </div>

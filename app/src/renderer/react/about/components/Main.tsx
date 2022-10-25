@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import Styled from 'styled-components';
 import Logo from '../../../images/about/logo.png';
-import Fill from '../../../images/about/fill-1.png';
+import remote from '@electron/remote';
 
 const { translator, rendererRouter, ipcRenderer } = window;
 
 const MainContainer = Styled.div`
     height: 100%;
     display: flex;
+    z-index:-1;
 `;
 
 const InnerContainer = Styled.div`
@@ -18,16 +19,17 @@ const InnerContainer = Styled.div`
     text-align: center;
     align-self: center;
     align-items: center;
+    background-color:white;
 `;
 
 const LogoWrapper = Styled.div`
-    background-image: url(${Fill});
     background-repeat: repeat-x;
     width: 100%;
     height: 142px;
     display: flex;
     justify-content: center;
     align-items: center;
+    background-color:rgb(0, 185, 0);
 `;
 
 const LogoImage = Styled.img`
@@ -38,6 +40,7 @@ const LogoImage = Styled.img`
 const VersionNotifyContainer = Styled.div`
     font-size: 16px;
     margin: 16px 0 10px;
+    background-color:white;
 `;
 
 const VersionUpdateButton = Styled.button`
@@ -46,7 +49,7 @@ const VersionUpdateButton = Styled.button`
     padding-right: 14px;
     height: 42px;
     line-height: 42px;
-    background-color: #6e5ae6;
+    background-color: #00b900;
     border-radius: 3px;
     color: #ffffff;
 `;
@@ -60,13 +63,13 @@ const LatestVersionNotifyText = Styled.div`
 
 const HomepageLinkAnchor = Styled.a`
     text-decoration: initial;
-    color: #6e5ae6;
+    color: #00b900;
     cursor: pointer !important;
 `;
 
-const hideWindow = () => {
-    rendererRouter.closeAboutWindow();
-};
+const LowerWrapper = Styled.div`
+    background-color:white;
+`;
 
 const Main: React.FC = () => {
     const [hasNewVersion, toggleNewVersion] = useState(false);
@@ -85,13 +88,17 @@ const Main: React.FC = () => {
         };
     }, []);
 
+    const hideWindow = () => {
+        rendererRouter.closeAboutWindow();
+    };
+
     return (
         <MainContainer>
             <InnerContainer>
                 <LogoWrapper className={'logo_wrapper'}>
                     <LogoImage src={Logo} className={'logo'} alt="logo" />
                 </LogoWrapper>
-                <div>
+                <LowerWrapper>
                     <VersionNotifyContainer>
                         {/* TODO 만약 오프라인에서도 하드웨어의 버전을 알아야 한다면 이부분은 다른 로직이 되어야한다. */}
                         {`Version ${currentVersion}`}
@@ -100,30 +107,38 @@ const Main: React.FC = () => {
                             href="#"
                             onClick={(e) => {
                                 e.preventDefault();
-                                rendererRouter.openExternalUrl('https://playentry.org');
+                                rendererRouter.openExternalUrl(
+                                    'https://entry.line.me'
+                                );
                             }}
                         >
-                            https://playentry.org
+                            https://entry.line.me
                         </HomepageLinkAnchor>
                     </VersionNotifyContainer>
                     <div>
                         {hasNewVersion ? (
                             <VersionUpdateButton
-                                onClick={() => {
+                                onClick={(e) => {
+                                    e.preventDefault();
                                     rendererRouter.openExternalUrl(
-                                        'https://playentry.org/#!/offlineEditor'
+                                        'https://entry.line.me/policy/download'
                                     );
+                                    hideWindow();
                                 }}
                             >
-                                {translator.translate('Download the latest version')}
+                                {translator.translate(
+                                    'Download the latest version'
+                                )}
                             </VersionUpdateButton>
                         ) : (
                             <LatestVersionNotifyText>
-                                {translator.translate('You are running the latest version.')}
+                                {translator.translate(
+                                    'You are running the latest version.'
+                                )}
                             </LatestVersionNotifyText>
                         )}
                     </div>
-                </div>
+                </LowerWrapper>
             </InnerContainer>
         </MainContainer>
     );

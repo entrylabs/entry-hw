@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
-import {useSelector} from 'react-redux';
-import {IStoreState} from '../../store';
+import { useSelector } from 'react-redux';
+import { IStoreState } from '../../store';
 import usePreload from '../../hooks/usePreload';
 
 const IndicatorContainer = styled.div`
@@ -15,21 +15,20 @@ const IndicatorContainer = styled.div`
     font-stretch: normal;
     line-height: normal;
     letter-spacing: -0.5px;
-    color: #b0d2ff;
+    color: #ffffff;
 `;
 
 const SocketConnectionIndicator: React.FC = () => {
-    const isSocketConnected = useSelector<IStoreState>(state => state.common.isSocketConnected);
+    const isSocketConnected = useSelector<IStoreState>(
+        (state) => state.common.isSocketConnected
+    );
     const { translator } = usePreload();
 
     return (
         <IndicatorContainer>
-            {
-                isSocketConnected
-                    ? translator.translate('Connected to the Entry server')
-                    : translator.translate('Disconnected from the Entry server')
-
-            }
+            {isSocketConnected
+                ? translator.translate('Connected to the Entry server')
+                : translator.translate('Disconnected from the Entry server')}
         </IndicatorContainer>
     );
 };

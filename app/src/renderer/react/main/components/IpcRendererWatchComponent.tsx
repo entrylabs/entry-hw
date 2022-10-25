@@ -1,16 +1,20 @@
 import React from 'react';
-import { CloudModeTypesEnum, HardwarePageStateEnum } from '../constants/constants';
+import {
+    CloudModeTypesEnum,
+    HardwarePageStateEnum,
+} from '../constants/constants';
 import { HardwareStatement } from '../../../../common/constants';
 import {
     changeAlertMessage,
     changeCloudMode,
     changeHardwareModuleState,
     changeSocketConnectionState,
+    changeCurrentPageState,
     changeStateTitle,
     invalidateBuild,
     IAlertMessage,
 } from '../store/modules/common';
-import { changePortList } from '../store/modules/connection';
+import { changePortList, selectHardware } from '../store/modules/connection';
 import { connect } from 'react-redux';
 import { IMapDispatchToProps, IMapStateToProps } from '../store';
 
@@ -28,9 +32,17 @@ class IpcRendererWatchComponent extends React.PureComponent<IProps> {
         ipcRenderer.removeAllListeners('cloudMode');
         ipcRenderer.removeAllListeners('socketConnected');
         ipcRenderer.removeAllListeners('invalidAsarFile');
+        ipcRenderer.removeAllListeners('changeCurrentPageState');
+        ipcRenderer.removeAllListeners('hwSelected');
 
         ipcRenderer.on('invalidAsarFile', () => {
             props.invalidateBuild();
+        });
+        ipcRenderer.on('changeCurrentPageState', () => {
+            props.changeCurrentPageState(HardwarePageStateEnum.connection);
+        });
+        ipcRenderer.on('hwSelected', (event, hardware: IHardwareConfig) => {
+            props.selectHardware(hardware);
         });
 
         ipcRenderer.on('console', (event, ...args: any[]) => {
@@ -62,7 +74,9 @@ class IpcRendererWatchComponent extends React.PureComponent<IProps> {
                 case HardwareStatement.connected: {
                     applyTitle('hardware > connected');
                     props.changeAlertMessage({
-                        message: translator.translate('Connected to hardware device.'),
+                        message: translator.translate(
+                            'Connected to hardware device.'
+                        ),
                         duration: 2000,
                     });
                     break;
@@ -71,7 +85,9 @@ class IpcRendererWatchComponent extends React.PureComponent<IProps> {
                 case HardwareStatement.lost: {
                     applyTitle('hardware > connecting');
                     props.changeAlertMessage({
-                        message: translator.translate('Connecting to hardware device.'),
+                        message: translator.translate(
+                            'Connecting to hardware device.'
+                        ),
                     });
                     break;
                 }
@@ -101,9 +117,12 @@ class IpcRendererWatchComponent extends React.PureComponent<IProps> {
                 }
             }
         });
-        ipcRenderer.on('portListScanned', (event, data: ISerialPortScanData[]) => {
-            props.changePortList(data);
-        });
+        ipcRenderer.on(
+            'portListScanned',
+            (event, data: ISerialPortScanData[]) => {
+                props.changePortList(data);
+            }
+        );
         ipcRenderer.on('cloudMode', (event, mode: CloudModeTypesEnum) => {
             props.changeCloudMode(mode);
         });
@@ -134,7 +153,9 @@ interface IDispatchProps {
     changeAlertMessage: (alertMessage: IAlertMessage) => void;
     changeHardwareModuleState: (state: HardwareStatement) => void;
     changeSocketConnectionState: (state: boolean) => void;
+    changeCurrentPageState: (state: HardwarePageStateEnum) => void;
     invalidateBuild: () => void;
+    selectHardware: (config: IHardwareConfig) => void;
 }
 
 const mapDispatchToProps: IMapDispatchToProps<IDispatchProps> = (dispatch) => ({
@@ -144,7 +165,12 @@ const mapDispatchToProps: IMapDispatchToProps<IDispatchProps> = (dispatch) => ({
     changeAlertMessage: changeAlertMessage(dispatch),
     changeHardwareModuleState: changeHardwareModuleState(dispatch),
     changeSocketConnectionState: changeSocketConnectionState(dispatch),
+    changeCurrentPageState: changeCurrentPageState(dispatch),
     invalidateBuild: invalidateBuild(dispatch),
+    selectHardware: selectHardware(dispatch),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(IpcRendererWatchComponent);
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(IpcRendererWatchComponent);

@@ -30,7 +30,11 @@ class BleScanner extends BaseScanner<BleConnector> {
         return await this.intervalScan();
     }
 
-    async selectBluetoothDevice(event: Event, deviceList: any[], callback: (id: string) => void) {
+    async selectBluetoothDevice(
+        event: Event,
+        deviceList: any[],
+        callback: (id: string) => void
+    ) {
         event.preventDefault();
         if (!this.isScanning || !this.config) {
             callback('');
@@ -39,7 +43,7 @@ class BleScanner extends BaseScanner<BleConnector> {
         const { hardware } = this.config;
         const selectedId = this.router.selectedPort;
         const result = deviceList.find(
-            (device) => selectedId && device.deviceName === selectedId,
+            (device) => selectedId && device.deviceName === selectedId
         );
 
         if (result) {
@@ -48,7 +52,12 @@ class BleScanner extends BaseScanner<BleConnector> {
             const scannedDevices = _.filter(deviceList, (device) => {
                 for (const key in device) {
                     // @ts-ignore
-                    if (hardware[key] && device[key].indexOf(hardware[key]) === -1) {
+                    if (
+                        // @ts-ignore
+                        hardware[key] &&
+                        // @ts-ignore
+                        device[key].indexOf(hardware[key]) === -1
+                    ) {
                         return false;
                     }
                 }
@@ -84,7 +93,7 @@ class BleScanner extends BaseScanner<BleConnector> {
         this.isScanning = true;
         this.browser.webContents.on(
             'select-bluetooth-device',
-            this.selectBluetoothDevice,
+            this.selectBluetoothDevice
         );
     }
 
@@ -102,7 +111,10 @@ class BleScanner extends BaseScanner<BleConnector> {
         // scan 이 한번 실행되면 await navigator.bluetooth.requestDevice 가 계속 이벤트를 발생시킴
         // 디바이스 객체는 렌더러에서 다루며, 직접 메인으로 가져와서 다루지 않는다.
         try {
-            const e = await this.ipcManager.invoke<Error>('scanBleDevice', scanOption);
+            const e = await this.ipcManager.invoke<Error>(
+                'scanBleDevice',
+                scanOption
+            );
             if (e) {
                 throw e;
             }
@@ -137,7 +149,7 @@ class BleScanner extends BaseScanner<BleConnector> {
         if (!this.browser.isDestroyed()) {
             this.browser.webContents.removeListener(
                 'select-bluetooth-device',
-                this.selectBluetoothDevice,
+                this.selectBluetoothDevice
             );
         }
 

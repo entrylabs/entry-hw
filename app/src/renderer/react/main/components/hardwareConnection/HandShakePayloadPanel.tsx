@@ -1,12 +1,12 @@
-import React, {useCallback, useRef, useState} from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import styled from 'styled-components';
-import {get} from 'lodash';
-import {useDispatch, useSelector} from 'react-redux';
-import {setHandshakePayload} from '../../store/modules/connection';
+import { get } from 'lodash';
+import { useDispatch, useSelector } from 'react-redux';
+import { setHandshakePayload } from '../../store/modules/connection';
 import RightConnectionArrowImage from '../../../../images/connection-arrow.png';
 import LeftConnectionArrowImage from '../../../../images/connection-arrow-2.png';
 import usePreload from '../../hooks/usePreload';
-import {IStoreState} from '../../store';
+import { IStoreState } from '../../store';
 
 const Container = styled.div`
     width: 240px;
@@ -20,33 +20,40 @@ const IndicateTextDiv = styled.div<{ isValid: boolean }>`
     font-size: 12px;
     font-weight: bold;
     color: ${({ isValid }) => (isValid ? '#979797' : '#fb5533')};
-    
+
     margin-bottom: 25px;
 `;
 
-enum SendButtonState { inactive, active, sending }
+enum SendButtonState {
+    inactive,
+    active,
+    sending,
+}
 
 const SendButton = styled.button<{ state: SendButtonState }>`
     width: 62px;
     height: 40px;
     border-radius: 4px;
-    border: ${({ state }) => (state === SendButtonState.active ? 'none' : 'solid 1px #e2e2e2')}
+    border: ${({ state }) =>
+        state === SendButtonState.active ? 'none' : 'solid 1px #e2e2e2'}
     background-color: ${({ state }) => {
         if (state === SendButtonState.sending) {
-            return '#6e5ae6';
+            return '#00b900';
         } else if (state === SendButtonState.active) {
             return '#4f80ff';
         } else {
             return '#f9f9f9';
         }
     }};
-    cursor: ${({ state }) => (state === SendButtonState.inactive ? 'not-allowed' : 'pointer')}
+    cursor: ${({ state }) =>
+        state === SendButtonState.inactive ? 'not-allowed' : 'pointer'}
     
     letter-spacing: -0.33px;
     text-align: center;
     font-size: 14px;
     font-weight: bold;
-    color: ${({ state }) => (state === SendButtonState.inactive ? '#cbcbcb' : '#ffffff')};
+    color: ${({ state }) =>
+        state === SendButtonState.inactive ? '#cbcbcb' : '#ffffff'};
 `;
 
 const SendInput = styled.input<{ state: SendButtonState }>`
@@ -54,82 +61,101 @@ const SendInput = styled.input<{ state: SendButtonState }>`
     height: 40px;
     border-radius: 4px;
     border: solid 1px #e2e2e2;
-    background-color: ${({ state }) => (state === SendButtonState.sending ? '#f9f9f9' : '#ffffff')};
-    
+    background-color: ${({ state }) =>
+        state === SendButtonState.sending ? '#f9f9f9' : '#ffffff'};
+
     letter-spacing: -0.33px;
     text-align: center;
     font-size: 14px;
     font-weight: bold;
-    color: ${({ state }) => (state === SendButtonState.sending ? '#cbcbcb' : '#2c313d')};
+    color: ${({ state }) =>
+        state === SendButtonState.sending ? '#cbcbcb' : '#2c313d'};
 `;
 
 const ArrowImageDiv = styled.div<{ image: string }>`
     min-height: 40px;
     line-height: 40px;
-    background-image: url(${props => props.image});
+    background-image: url(${(props) => props.image});
     background-repeat: no-repeat;
     background-position: center;
-    
+
     margin-bottom: 16px;
 `;
 
 const makeRegexByHandshakeType = (type?: HandshakeType) => {
     switch (type) {
-    case 'digit':
-        return /^[0-9]+$/;
-    case 'word':
-        return /^[a-zA-Z]+$/;
-    case 'argument':
-    default:
-        return /^[a-zA-Z0-9]+$/;
+        case 'digit':
+            return /^[0-9]+$/;
+        case 'word':
+            return /^[a-zA-Z]+$/;
+        case 'argument':
+        default:
+            return /^[a-zA-Z0-9]+$/;
     }
 };
 
 const HandShakePayloadPanel: React.FC = () => {
     const { translator } = usePreload();
     const selectedHardware = useSelector<IStoreState, IHardwareConfig>(
-        state => state.connection.selectedHardware as IHardwareConfig,
+        (state) => state.connection.selectedHardware as IHardwareConfig
     );
     const inputRef = useRef<HTMLInputElement>(null);
     const dispatch = useDispatch();
     const getCustomTemplate = useCallback(
-        (key: string | LocalizedString | undefined) => get(key, translator.currentLanguage, key), [],
+        (key: string | LocalizedString | undefined) =>
+            get(key, translator.currentLanguage, key),
+        []
     );
     const [isTextShowValid, setTextShowValid] = useState(true);
     const [indicatorText, setIndicatorText] = useState(
         getCustomTemplate(selectedHardware.handshake?.message?.default) ||
-        translator.translate('Please enter a value for hardware connection.'),
+            translator.translate(
+                'Please enter a value for hardware connection.'
+            )
     );
     const [currentState, setButtonState] = useState(SendButtonState.inactive);
 
-
-    const onPayloadChanged = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-        const regex = makeRegexByHandshakeType(selectedHardware.handshake?.type);
-        const isValid = !!regex.exec(e.target.value);
-        if (isValid) {
-            setButtonState(SendButtonState.active);
-            setIndicatorText(
-                getCustomTemplate(selectedHardware.handshake?.message?.default) ||
-                translator.translate('Please enter a value for hardware connection.'),
+    const onPayloadChanged = useCallback(
+        (e: React.ChangeEvent<HTMLInputElement>) => {
+            const regex = makeRegexByHandshakeType(
+                selectedHardware.handshake?.type
             );
-        } else {
-            setButtonState(SendButtonState.inactive);
-            setIndicatorText(
-                getCustomTemplate(selectedHardware.handshake?.message?.invalid) ||
-                translator.translate('Please enter a valid value.'),
-            );
-        }
+            const isValid = !!regex.exec(e.target.value);
+            if (isValid) {
+                setButtonState(SendButtonState.active);
+                setIndicatorText(
+                    getCustomTemplate(
+                        selectedHardware.handshake?.message?.default
+                    ) ||
+                        translator.translate(
+                            'Please enter a value for hardware connection.'
+                        )
+                );
+            } else {
+                setButtonState(SendButtonState.inactive);
+                setIndicatorText(
+                    getCustomTemplate(
+                        selectedHardware.handshake?.message?.invalid
+                    ) || translator.translate('Please enter a valid value.')
+                );
+            }
 
-        setTextShowValid(isValid); // initial state 만 다르고 위와 동일하다
-    }, []);
+            setTextShowValid(isValid); // initial state 만 다르고 위와 동일하다
+        },
+        []
+    );
 
     const onButtonClicked = useCallback(() => {
         const ref = inputRef?.current;
         if (currentState === SendButtonState.active) {
             setButtonState(SendButtonState.sending);
             setIndicatorText(
-                getCustomTemplate(selectedHardware.handshake?.message?.sending) ||
-                translator.translate('Please wait until the hardware is connected.'),
+                getCustomTemplate(
+                    selectedHardware.handshake?.message?.sending
+                ) ||
+                    translator.translate(
+                        'Please wait until the hardware is connected.'
+                    )
             );
             setHandshakePayload(dispatch)(ref?.value);
         } else if (currentState === SendButtonState.sending) {
@@ -142,7 +168,9 @@ const HandShakePayloadPanel: React.FC = () => {
     return (
         <Container>
             <div>
-                <IndicateTextDiv isValid={isTextShowValid}>{indicatorText}</IndicateTextDiv>
+                <IndicateTextDiv isValid={isTextShowValid}>
+                    {indicatorText}
+                </IndicateTextDiv>
                 <ArrowImageDiv image={LeftConnectionArrowImage}>
                     <SendInput
                         onChange={onPayloadChanged}
@@ -152,11 +180,11 @@ const HandShakePayloadPanel: React.FC = () => {
                     />
                 </ArrowImageDiv>
                 <ArrowImageDiv image={RightConnectionArrowImage}>
-                    <SendButton onClick={onButtonClicked} state={currentState}>{
-                        currentState === SendButtonState.sending
+                    <SendButton onClick={onButtonClicked} state={currentState}>
+                        {currentState === SendButtonState.sending
                             ? translator.translate('Reset')
-                            : translator.translate('Set')
-                    }</SendButton>
+                            : translator.translate('Set')}
+                    </SendButton>
                 </ArrowImageDiv>
             </div>
         </Container>

@@ -49,7 +49,9 @@ if (!app.requestSingleInstanceLock()) {
             roomId: '',
             openHardwareId: '',
         };
-        const entryHwCustomSchema = argv.find((arg) => arg.indexOf('entryhw:') > -1);
+        const entryHwCustomSchema = argv.find(
+            (arg) => arg.indexOf('entryhw:') > -1
+        );
         if (entryHwCustomSchema) {
             parseData = CommonUtils.getArgsParseData(entryHwCustomSchema);
         }
@@ -83,7 +85,10 @@ if (!app.requestSingleInstanceLock()) {
         app.exit(0);
     });
 
-    app.commandLine.appendSwitch('enable-experimental-web-platform-features', 'true');
+    app.commandLine.appendSwitch(
+        'enable-experimental-web-platform-features',
+        'true'
+    );
     app.commandLine.appendSwitch('disable-renderer-backgrounding');
     app.commandLine.appendSwitch('enable-web-bluetooth');
     app.setAsDefaultProtocolClient('entryhw');
@@ -120,7 +125,8 @@ if (!app.requestSingleInstanceLock()) {
         // @ts-ignore
         mainRouter = new MainRouter(mainWindow, entryServer, {
             rootAppPath:
-                process.env.NODE_ENV === 'production' && path.join(__dirname, '..', '..', '..'),
+                process.env.NODE_ENV === 'production' &&
+                path.join(__dirname, '..', '..', '..'),
         });
 
         if (autoOpenHardwareId) {
@@ -179,7 +185,11 @@ process.on('uncaughtException', (error) => {
         detail: error.toString(),
         buttons: ['ignore', 'exit'],
     });
-    logger.error('Entry HW uncaughtException occurred', error.message, error.stack);
+    logger.error(
+        'Entry HW uncaughtException occurred',
+        error.message,
+        error.stack
+    );
     if (whichButtonClicked === 1) {
         process.exit(-1);
     }

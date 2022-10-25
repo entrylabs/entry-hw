@@ -1,4 +1,4 @@
-import { ipcRenderer, remote, ipcMain, webFrame, shell } from 'electron';
+import { ipcRenderer, ipcMain, webFrame, shell } from 'electron';
 import { HardwareStatement, RunningModeTypes } from '../common/constants';
 
 /**
@@ -20,7 +20,9 @@ class RendererRouter {
     }
 
     get priorHardwareList(): string[] {
-        return (JSON.parse(localStorage.getItem('hardwareList') as string) || []).reverse();
+        return (
+            JSON.parse(localStorage.getItem('hardwareList') as string) || []
+        ).reverse();
     }
 
     get sharedObject(): ISharedObject {
@@ -29,17 +31,28 @@ class RendererRouter {
 
     constructor() {
         const initialServerMode =
-            ipcRenderer.sendSync('getCurrentServerModeSync') || RunningModeTypes.server;
+            ipcRenderer.sendSync('getCurrentServerModeSync') ||
+            RunningModeTypes.server;
 
         this.consoleWriteServerMode(initialServerMode);
 
         ipcRenderer.removeAllListeners('hardwareListChanged');
         ipcRenderer.removeAllListeners('hardwareCloseConfirm');
         ipcRenderer.removeAllListeners('serverMode');
-        ipcRenderer.on('hardwareListChanged', this.refreshHardwareModules.bind(this));
-        ipcRenderer.on('hardwareCloseConfirm', this.confirmHardwareClose.bind(this));
+        ipcRenderer.removeAllListeners('selectHardware');
+        ipcRenderer.on(
+            'hardwareListChanged',
+            this.refreshHardwareModules.bind(this)
+        );
+        ipcRenderer.on(
+            'hardwareCloseConfirm',
+            this.confirmHardwareClose.bind(this)
+        );
         ipcRenderer.on('serverMode', (event, mode) => {
             this.consoleWriteServerMode(mode);
+        });
+        ipcRenderer.on('selectHardware', (event, hardware) => {
+            this.startScan(hardware);
         });
         webFrame.setZoomFactor(1.0);
     }
@@ -109,10 +122,13 @@ class RendererRouter {
             await ipcRenderer
                 .invoke('checkUpdate')
                 .then(({ hasNewVersion, version: latestVersion }) => {
-                    const lastDontCheckedVersion = localStorage.getItem('lastDontCheckedVersion');
+                    const lastDontCheckedVersion = localStorage.getItem(
+                        'lastDontCheckedVersion'
+                    );
                     if (
                         hasNewVersion &&
-                        (!lastDontCheckedVersion || lastDontCheckedVersion < latestVersion)
+                        (!lastDontCheckedVersion ||
+                            lastDontCheckedVersion < latestVersion)
                     ) {
                         modal
                             .alert(
@@ -133,10 +149,15 @@ class RendererRouter {
                             )
                             .one(
                                 'click',
-                                (event: any, { dontShowChecked }: { dontShowChecked: boolean }) => {
+                                (
+                                    event: any,
+                                    {
+                                        dontShowChecked,
+                                    }: { dontShowChecked: boolean }
+                                ) => {
                                     if (event === 'ok') {
                                         shell.openExternal(
-                                            'https://playentry.org/#!/offlineEditor'
+                                            'https://entry.line.me/policy/download'
                                         );
                                     }
                                     if (dontShowChecked) {
@@ -155,17 +176,18 @@ class RendererRouter {
     private refreshHardwareModules() {
         // configuration
         const routerHardwareList = this.getHardwareListSync();
-        this.priorHardwareList.forEach((target, index) => {
-            const currentIndex = routerHardwareList.findIndex((item) => {
-                const itemName = item.name?.ko || item.name;
-                return itemName === target;
-            });
-            if (currentIndex > -1) {
-                const temp = routerHardwareList[currentIndex];
-                routerHardwareList[currentIndex] = routerHardwareList[index];
-                routerHardwareList[index] = temp;
-            }
-        });
+        // console.log(this.priorHardwareList, routerHardwareList);
+        // this.priorHardwareList.forEach((target, index) => {
+        //     const currentIndex = routerHardwareList.findIndex((item) => {
+        //         const itemName = item.name?.ko || item.name;
+        //         return itemName === target;
+        //     });
+        //     if (currentIndex > -1) {
+        //         const temp = routerHardwareList[currentIndex];
+        //         routerHardwareList[currentIndex] = routerHardwareList[index];
+        //         routerHardwareList[index] = temp;
+        //     }
+        // });
         this._hardwareList = routerHardwareList;
     }
 
@@ -179,7 +201,10 @@ class RendererRouter {
         }
 
         if (mode === RunningModeTypes.client) {
-            console.log('%cI`M CLIENT', 'background:black;color:yellow;font-size: 30px');
+            console.log(
+                '%cI`M CLIENT',
+                'background:black;color:yellow;font-size: 30px'
+            );
         } else if (mode === RunningModeTypes.server) {
             console.log('%cI`M SERVER', 'background:orange; font-size: 30px');
         }
@@ -192,7 +217,9 @@ class RendererRouter {
         let isQuit = true;
         if (this.currentState === 'connected') {
             isQuit = confirm(
-                translate('Connection to the hardware will terminate once program is closed.')
+                translate(
+                    'Connection to the hardware will terminate once program is closed.'
+                )
             );
         }
 

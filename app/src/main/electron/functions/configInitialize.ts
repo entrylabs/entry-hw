@@ -36,8 +36,12 @@ function mergeExistProperties(target: any, src: any) {
 }
 
 function getFileConfig(configName = 'entry') {
-    const getMergedConfig = (target: any) => mergeExistProperties(defaultConfigSchema, target);
-    const configFilePath = path.resolve(directoryPaths.config, `config.${configName}.json`);
+    const getMergedConfig = (target: any) =>
+        mergeExistProperties(defaultConfigSchema, target);
+    const configFilePath = path.resolve(
+        directoryPaths.config,
+        `config.${configName}.json`
+    );
 
     logger.info(`load configuration file ${configFilePath}...`);
 
@@ -48,20 +52,23 @@ function getFileConfig(configName = 'entry') {
 export default (cmdConfig: ICommandLineConfig) => {
     const { config = 'entry', lang } = cmdConfig;
     const externalConfig = getFileConfig(config);
-    let locale = (lang || externalConfig.language || app.getLocale()).substr(0, 2);
+    let locale = 'jp';
 
-    if (locale === 'ja') {
-        locale = 'jp';
-    }
-
-    const mergedConfig = merge({},
-        internalConfig, { language: locale },
-        externalConfig,
+    const mergedConfig = merge(
+        {},
+        internalConfig,
+        { language: locale },
+        externalConfig
     ) as IFileConfig & IInternalConfig;
 
     logger.info('configuration applied');
-    logger.verbose(reduce(toPairs(mergedConfig), (result, [key, value]) =>
-        `${result}\n${key}: ${value}`, 'configuration properties is..'));
+    logger.verbose(
+        reduce(
+            toPairs(mergedConfig),
+            (result, [key, value]) => `${result}\n${key}: ${value}`,
+            'configuration properties is..'
+        )
+    );
     global && (global.sharedObject = mergedConfig);
 
     return mergedConfig;

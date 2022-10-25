@@ -33,14 +33,27 @@ const SearchButton = Styled.button`
     border: none;
 `;
 
+const SearchImage = Styled.img`
+    width: 100%;
+    height:100%;
+    padding-top:4px;
+`;
+
 const SearchArea: React.FC = () => {
-    const hardwareFilterCategory = useSelector<IStoreState>((state) => state.hardware.hardwareFilterCategory);
-    const changeSearchKeywordAction = changeHardwareSearchKeyword(useDispatch());
+    const hardwareFilterCategory = useSelector<IStoreState>(
+        (state) => state.hardware.hardwareFilterCategory
+    );
+    const changeSearchKeywordAction = changeHardwareSearchKeyword(
+        useDispatch()
+    );
 
     const searchBarRef = useRef<HTMLInputElement>(null);
-    const searchBarOnChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-        changeSearchKeywordAction(event.target.value);
-    }, []);
+    const searchBarOnChange = useCallback(
+        (event: React.ChangeEvent<HTMLInputElement>) => {
+            changeSearchKeywordAction(event.target.value);
+        },
+        []
+    );
 
     const searchButtonOnClick = useCallback(() => {
         if (!searchBarRef || !searchBarRef.current) {
@@ -51,7 +64,9 @@ const SearchArea: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        searchBarRef && searchBarRef.current && (searchBarRef.current.value = '');
+        searchBarRef &&
+            searchBarRef.current &&
+            (searchBarRef.current.value = '');
     }, [hardwareFilterCategory]);
 
     return (
@@ -63,7 +78,7 @@ const SearchArea: React.FC = () => {
                 onChange={searchBarOnChange}
             />
             <SearchButton id="search_button" onClick={searchButtonOnClick}>
-                <img src={SearchIcon} alt="검색"/>
+                <SearchImage src={SearchIcon} alt="검색" />
             </SearchButton>
         </SearchContainer>
     );

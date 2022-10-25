@@ -14,22 +14,16 @@ const logger = createLogger('CheckUpdate');
 export default (): Promise<CheckUpdateResult> => new Promise((resolve, reject) => {
     const { updateCheckUrl, hardwareVersion } = global.sharedObject;
     const request = net.request({
-        method: 'POST',
+        method: 'GET',
         url: updateCheckUrl,
     });
-    const params = {
-        category: 'hardware',
-        version: hardwareVersion,
-    };
 
     request.setHeader('content-type', 'application/json; charset=utf-8');
-    request.write(JSON.stringify(params));
 
     logger.info(`entry hw version check.. ${JSON.stringify({
         url: updateCheckUrl,
-        method: 'POST',
+        method: 'GET',
         contentType: 'application/json; charset=utf-8',
-        ...params,
     })}`);
     request.on('response', (response) => {
         let buffer = '';
@@ -41,7 +35,10 @@ export default (): Promise<CheckUpdateResult> => new Promise((resolve, reject) =
             let data: Partial<CheckUpdateResult> = {};
             try {
                 data = JSON.parse(buffer);
-                data.currentVersion = hardwareVersion;
+                if(data.version && data.version > hardwareVersion){
+                    data.hasNewVersion = true;
+                };
+                data.currentVersion = data.version;
                 logger.info(`result: ${JSON.stringify(data)}`);
             } catch (e) {
                 // nothing to do

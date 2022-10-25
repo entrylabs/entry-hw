@@ -29,16 +29,18 @@ const ViewerBody = Styled.div`
 `;
 
 const ViewerTitle = Styled.div`
-    border-top-left-radius: 3px;
-    border-top-right-radius: 3px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
     height: 57px;
-    padding-left: 20px;
     line-height: 57px;
     color: #fff;
     font-weight: bold;
     font-size: 20px;
     width: 100%;
-    background-color: #2a7def;
+    background-color: rgb(0, 185, 0);
+    span{
+        padding-left:20px;
+    }
 `;
 
 const CancelIcon = Styled.div`
@@ -55,8 +57,8 @@ const CancelIcon = Styled.div`
 `;
 
 const ViewerContent = Styled.div`
-    border-bottom-left-radius: 3px;
-    border-bottom-right-radius: 3px;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
     background-color: #fff;
     text-align: center;
     flex: 1;
@@ -66,7 +68,7 @@ const ViewerContent = Styled.div`
 `;
 
 const LicenseTextArea = Styled.textarea`
-    width: 100%;
+    width: 80%;
     flex: 1;
     overflow-x: hidden;
     -webkit-user-select: auto;
@@ -75,6 +77,8 @@ const LicenseTextArea = Styled.textarea`
     -ms-user-select: auto;
     user-select: auto;
     resize: none;
+    padding:10px 10%;
+    border: none;
 `;
 
 const CloseButton = Styled.button`
@@ -82,7 +86,7 @@ const CloseButton = Styled.button`
     height: 47px;
     width: 110px;
     margin: 10px;
-    background: #6e5ae6;
+    background: rgb(28, 136, 80);
     font-size: 16px;
     color: #fff;
     border: 0;
@@ -93,9 +97,12 @@ const LicenseViewerContainer: React.FC = () => {
     const [content, setContent] = useState<string>('Loading...');
     const { translator, rendererRouter } = usePreload();
     const dispatch = useDispatch();
-    const isLicenseShow = useSelector<IStoreState>(state => state.common.isLicenseShow);
+    const isLicenseShow = useSelector<IStoreState>(
+        (state) => state.common.isLicenseShow
+    );
     useEffect(() => {
-        rendererRouter.getOpenSourceContents()
+        rendererRouter
+            .getOpenSourceContents()
             .then((contents: string) => {
                 setContent(contents);
             })
@@ -109,13 +116,17 @@ const LicenseViewerContainer: React.FC = () => {
             <ViewerContainer>
                 <ViewerBody>
                     <ViewerTitle>
-                        {translator.translate('Opensource lincense')}
-                        <CancelIcon onClick={() => {
-                            toggleLicenseView(dispatch)(false);
-                        }}/>
+                        <span>
+                            {translator.translate('Opensource lincense')}
+                        </span>
+                        <CancelIcon
+                            onClick={() => {
+                                toggleLicenseView(dispatch)(false);
+                            }}
+                        />
                     </ViewerTitle>
                     <ViewerContent>
-                        <LicenseTextArea readOnly value={content}/>
+                        <LicenseTextArea readOnly value={content} />
                         <div>
                             <CloseButton
                                 onClick={() => {
@@ -130,7 +141,7 @@ const LicenseViewerContainer: React.FC = () => {
             </ViewerContainer>
         );
     } else {
-        return <div/>;
+        return <div />;
     }
 };
 

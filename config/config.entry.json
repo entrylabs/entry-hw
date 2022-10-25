@@ -1,4 +1,4 @@
 {
-    "updateCheckUrl": "https://playentry.org/api/checkVersion",
+    "updateCheckUrl": "https://entry.line.me/api/version/hardware",
     "moduleResourceUrl": "https://playentry.org/modules"
 }

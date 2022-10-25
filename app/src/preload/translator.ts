@@ -11,7 +11,7 @@ class Translator {
             throw Error('translator must be created on browser environment');
         }
 
-        const selectedLang = lang || 'ko';
+        const selectedLang = 'jp';
 
         this.lang = selectedLang;
         this.setGlobalLang(selectedLang);

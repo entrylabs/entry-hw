@@ -2,7 +2,7 @@ import _ from 'lodash';
 import rendererConsole from '../rendererConsole';
 import SerialPort from 'serialport';
 import electPort from './electPortFunction';
-import {CloudModeTypes} from '../../../common/constants';
+import { CloudModeTypes } from '../../../common/constants';
 import BaseScanner from '../baseScanner';
 import SerialConnector from './connector';
 import createLogger from '../../electron/functions/createLogger';
@@ -27,7 +27,7 @@ class SerialScanner extends BaseScanner<SerialConnector> {
         logger.verbose('scan stopped');
         this.config = undefined;
         this.isScanning = false;
-    };
+    }
 
     protected async intervalScan() {
         this.isScanning = true;
@@ -40,7 +40,9 @@ class SerialScanner extends BaseScanner<SerialConnector> {
                 this.isScanning = false;
                 break;
             }
-            await new Promise((resolve) => setTimeout(resolve, SerialScanner.SCAN_INTERVAL_MILLS));
+            await new Promise((resolve) =>
+                setTimeout(resolve, SerialScanner.SCAN_INTERVAL_MILLS)
+            );
         }
         return scanResult;
     }
@@ -50,7 +52,6 @@ class SerialScanner extends BaseScanner<SerialConnector> {
             logger.warn('config or hwModule is not present');
             return;
         }
-
         const serverMode = this.router.currentCloudMode;
         const selectedComPortName = this.router.selectedPort;
         const { hardware } = this.config;
@@ -77,9 +78,12 @@ class SerialScanner extends BaseScanner<SerialConnector> {
             // 포트가 외부에서 선택되었는가?
             if (selectedComPortName) {
                 // lost 후 reconnect 임시 대응
-                if (comPorts
-                    .map((portData) => portData.path)
-                    .findIndex((path) => path === selectedComPortName) === -1) {
+                if (
+                    comPorts
+                        .map((portData) => portData.path)
+                        .findIndex((path) => path === selectedComPortName) ===
+                    -1
+                ) {
                     return;
                 }
                 selectedPorts.push(selectedComPortName);
@@ -91,7 +95,11 @@ class SerialScanner extends BaseScanner<SerialConnector> {
         } else {
             // 포트 선택을 config 에서 처리해야 하는 경우
             selectedPorts.push(
-                ..._.compact(comPorts.map((port) => this._selectCOMPortUsingProperties(hardware, port))),
+                ..._.compact(
+                    comPorts.map((port) =>
+                        this._selectCOMPortUsingProperties(hardware, port)
+                    )
+                )
             );
         }
 
@@ -100,7 +108,10 @@ class SerialScanner extends BaseScanner<SerialConnector> {
             return;
         }
 
-        const electedConnector = await electPort(selectedPorts, hardware, this.hwModule,
+        const electedConnector = await electPort(
+            selectedPorts,
+            hardware,
+            this.hwModule,
             (connector) => {
                 if (this.config && this.config.firmware) {
                     /*
@@ -113,22 +124,34 @@ class SerialScanner extends BaseScanner<SerialConnector> {
                     this.router.sendState('before_connect');
                 }
             },
-            () => this.router.selectedPayload,
+            () => this.router.selectedPayload
         );
 
         if (electedConnector) {
             logger.info(`${electedConnector.port} is finally connected`);
-            rendererConsole.log(`${electedConnector.port} is finally connected`);
+            rendererConsole.log(
+                `${electedConnector.port} is finally connected`
+            );
             this.stopScan();
             return electedConnector.connector;
         }
-        logger.info(`scan completed but no connected. portList is ${comPorts.map((port) => port.path).join(', ')}`);
-    };
+        logger.info(
+            `scan completed but no connected. portList is ${comPorts
+                .map((port) => port.path)
+                .join(', ')}`
+        );
+    }
 
-    private _selectCOMPortUsingProperties(hardwareConfig: IHardwareModuleConfig, comPort: SerialPort.PortInfo) {
-        const { vendor, pnpId: verifiedPnpId, comName: verifiedComPortNames } = hardwareConfig;
+    private _selectCOMPortUsingProperties(
+        hardwareConfig: IHardwareModuleConfig,
+        comPort: SerialPort.PortInfo
+    ) {
+        const {
+            vendor,
+            pnpId: verifiedPnpId,
+            comName: verifiedComPortNames,
+        } = hardwareConfig;
         const { path, manufacturer, pnpId } = comPort;
-
         const comName = path;
         let platformVendor: string | string[];
 
@@ -140,10 +163,16 @@ class SerialScanner extends BaseScanner<SerialConnector> {
         }
 
         // config 에 입력한 특정 벤더와 겹치는지 여부
-        const isVendor = this._indexOfStringOrArray(platformVendor, manufacturer);
+        const isVendor = this._indexOfStringOrArray(
+            platformVendor,
+            manufacturer
+        );
 
         // config 에 입력한 특정 COMPortName과 겹치는지 여부
-        const isComName = this._indexOfStringOrArray(verifiedComPortNames, comName);
+        const isComName = this._indexOfStringOrArray(
+            verifiedComPortNames,
+            comName
+        );
 
         // config 에 입력한 특정 pnpId와 겹치는지 여부
         const isPnpId = this._indexOfStringOrArray(verifiedPnpId, pnpId);
@@ -156,7 +185,10 @@ class SerialScanner extends BaseScanner<SerialConnector> {
         logger.verbose('not found auto select port');
     }
 
-    private _indexOfStringOrArray(arrayOrString?: string | string[], target?: string): boolean {
+    private _indexOfStringOrArray(
+        arrayOrString?: string | string[],
+        target?: string
+    ): boolean {
         if (!target || !arrayOrString) {
             return false;
         }

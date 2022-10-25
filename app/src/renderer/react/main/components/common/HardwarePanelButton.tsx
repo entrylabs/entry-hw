@@ -6,7 +6,7 @@ const HardwarePanelButton = styled.button`
     width: 210px;
     height: 35px;
     text-align: center;
-    background-color: #6e5ae6;
+    background-color: #00b900;
     color: #fff;
     font-size: 14px;
     border-radius: 4px;

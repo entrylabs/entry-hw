@@ -76,8 +76,8 @@ const entryHardwareMiddleware: Middleware = ({ getState }: { getState: () => ISt
     case HARDWARE_SELECTED: {
         const { payload: hardware } = action;
         // noinspection JSIgnoredPromiseFromCall
-        if (hardware.name && hardware.name.ko) {
-            refreshPriorHardwareList(hardware.name.ko);
+        if (hardware.name && hardware.name.jp) {
+            refreshPriorHardwareList(hardware.name.jp);
         }
 
         rendererRouter.startScan(hardware);

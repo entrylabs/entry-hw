@@ -27,13 +27,18 @@ class SerialConnector extends BaseConnector {
     private requestLocalDataInterval?: number;
     private advertiseInterval?: number;
 
-    constructor(hwModule: IHardwareModule, hardwareOptions: IHardwareModuleConfig) {
+    constructor(
+        hwModule: IHardwareModule,
+        hardwareOptions: IHardwareModuleConfig
+    ) {
         super(hwModule, hardwareOptions);
 
         this.connected = false;
         this.received = false;
 
-        this.lostTimer = hardwareOptions.lostTimer || SerialConnector.DEFAULT_CONNECT_LOST_MILLS;
+        this.lostTimer =
+            hardwareOptions.lostTimer ||
+            SerialConnector.DEFAULT_CONNECT_LOST_MILLS;
         this.serialPort = undefined;
     }
 
@@ -49,14 +54,20 @@ class SerialConnector extends BaseConnector {
         return new Promise((resolve, reject) => {
             const hardwareOptions = this.options;
             this.lostTimer =
-                hardwareOptions.lostTimer || SerialConnector.DEFAULT_CONNECT_LOST_MILLS;
+                hardwareOptions.lostTimer ||
+                SerialConnector.DEFAULT_CONNECT_LOST_MILLS;
 
-            const serialPort = new SerialPort(port, this._makeSerialPortOptions(hardwareOptions));
+            const serialPort = new SerialPort(
+                port,
+                this._makeSerialPortOptions(hardwareOptions)
+            );
             this.serialPort = serialPort;
 
             const { delimiter, byteDelimiter } = hardwareOptions;
             if (delimiter) {
-                this.serialPortParser = serialPort.pipe(new Readline({ delimiter }));
+                this.serialPortParser = serialPort.pipe(
+                    new Readline({ delimiter })
+                );
             } else if (byteDelimiter) {
                 this.serialPortParser = serialPort.pipe(
                     new Delimiter({
@@ -65,9 +76,16 @@ class SerialConnector extends BaseConnector {
                     })
                 );
             }
-            logger.info(`serialport try to open with ${delimiter || byteDelimiter || 'no parser'}`);
+            logger.info(
+                `serialport try to open with ${
+                    delimiter || byteDelimiter || 'no parser'
+                }`
+            );
 
-            serialPort.on('error', reject);
+            serialPort.on('error', (e) => {
+                console.log(e);
+                reject(e);
+            });
             serialPort.on('open', (error) => {
                 logger.info('serialport opened');
                 serialPort.removeAllListeners('open');
@@ -94,7 +112,6 @@ class SerialConnector extends BaseConnector {
                 logger.error('serailport is not found but initialize() opened');
                 return reject(new Error('serialport is not found'));
             }
-
             const {
                 control,
                 duration = SerialConnector.DEFAULT_SLAVE_DURATION,
@@ -107,11 +124,14 @@ class SerialConnector extends BaseConnector {
 
             const runAsMaster = (resolve: any) => {
                 logger.verbose('hardware handShake as Master mode');
+
                 serialPortReadStream.on('data', (data) => {
                     logger.verbose(`handShake data ${data.toString()}`);
-                    const result = hwModule.checkInitialData(data, this.options);
-
-                    if (result === undefined) {
+                    const result = hwModule.checkInitialData(
+                        data,
+                        this.options
+                    );
+                    if (!result) {
                         this.send(hwModule.requestInitialData());
                     } else {
                         serialPortReadStream.removeAllListeners('data');
@@ -142,7 +162,9 @@ class SerialConnector extends BaseConnector {
                     handshakePayload && handshakePayload()
                 );
                 this.send(firstRequestData);
-                logger.verbose(`[repeat..]handShake request data ${firstRequestData}`);
+                logger.verbose(
+                    `[repeat..]handShake request data ${firstRequestData}`
+                );
                 this.slaveInitRequestInterval = setInterval(() => {
                     const requestData = hwModule.requestInitialData(
                         this.serialPort,
@@ -154,7 +176,10 @@ class SerialConnector extends BaseConnector {
                 // control type is slave
                 serialPortReadStream.on('data', (data) => {
                     logger.verbose(`handShake response data ${data}`);
-                    const result = hwModule.checkInitialData(data, this.options);
+                    const result = hwModule.checkInitialData(
+                        data,
+                        this.options
+                    );
 
                     if (result !== undefined) {
                         serialPortReadStream.removeAllListeners('data');
@@ -182,7 +207,9 @@ class SerialConnector extends BaseConnector {
             };
 
             if (firmwarecheck) {
-                logger.info('firmwarcheck property set. will flash firmware soon..');
+                logger.info(
+                    'firmwarcheck property set. will flash firmware soon..'
+                );
                 this.flashFirmware = setTimeout(() => {
                     if (this.serialPort) {
                         this.serialPortParser?.removeAllListeners('data');
@@ -192,7 +219,6 @@ class SerialConnector extends BaseConnector {
                     resolve('');
                 }, 3000);
             }
-
             if (control === 'master') {
                 runAsMaster(resolve);
             } else {
@@ -247,10 +273,15 @@ class SerialConnector extends BaseConnector {
             ? this.serialPortParser
             : this.serialPort;
 
-        logger.info('connected successfully. device start normal data exchange');
+        logger.info(
+            'connected successfully. device start normal data exchange'
+        );
         // 기기와의 데이터 통신 수립
         serialPortReadStream.on('data', (data) => {
-            if (!hwModule.validateLocalData || hwModule.validateLocalData(data)) {
+            if (
+                !hwModule.validateLocalData ||
+                hwModule.validateLocalData(data)
+            ) {
                 if (!this.connected) {
                     this._sendState('connected');
                 }
@@ -370,10 +401,12 @@ class SerialConnector extends BaseConnector {
      * @param callback
      */
     send(data: any, callback?: () => void) {
-        if (typeof data === 'boolean') {
-            data = new Buffer([1]);
-        }
-        if (this.serialPort && this.serialPort.isOpen && data && !this.isSending) {
+        if (
+            this.serialPort &&
+            this.serialPort.isOpen &&
+            data &&
+            !this.isSending
+        ) {
             this.isSending = true;
             let resultData = data;
             if (this.options.commType !== 'ascii') {

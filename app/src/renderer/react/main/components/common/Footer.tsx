@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { toggleLicenseView } from '../../store/modules/common';
 import { useDispatch, useSelector } from 'react-redux';
-import Logo from '../../../../images/logo.png';
+import LogoGray from '../../../../images/logo-gray.png';
 import usePreload from '../../hooks/usePreload';
 import { IStoreState } from '../../store';
 
@@ -11,15 +11,16 @@ const FooterContainer = styled.div`
     flex-direction: row-reverse;
     width: 100%;
     height: 60px;
-    background-position: 30px 15px;
+    background-position: 30px 20px;
     background-repeat: no-repeat;
-    background-image: url(${Logo});
-    background-color: white;
+    background-image: url(${LogoGray});
+    background-color: #515458;
+    background-size: 13%;
 `;
 
 const VersionLabel = styled.div`
     margin: 20px 20px 20px 10px;
-    color: #595757;
+    color: #a8a9ab;
     cursor: pointer;
     font-weight: bold;
     display: flex;
@@ -28,7 +29,7 @@ const VersionLabel = styled.div`
 
 const OpenSourceLabel = styled.div`
     margin: 20px 10px 20px 20px;
-    color: #595757;
+    color: #a8a9ab;
     cursor: pointer;
     font-weight: bold;
     display: flex;
@@ -37,7 +38,7 @@ const OpenSourceLabel = styled.div`
 
 const InvalidatedInformLabel = styled.div`
     margin-top: 20px;
-    color: #979797;
+    color: #a8a9ab;
     padding-bottom: 40px;
     position: absolute;
     left: 35%;
@@ -45,7 +46,9 @@ const InvalidatedInformLabel = styled.div`
 
 const Footer: React.FC = () => {
     const { translator, rendererRouter } = usePreload();
-    const isInvalidBuild = useSelector<IStoreState>((state) => state.common.isInvalidBuild);
+    const isInvalidBuild = useSelector<IStoreState>(
+        (state) => state.common.isInvalidBuild
+    );
     const dispatch = useDispatch();
 
     return (
@@ -66,12 +69,11 @@ const Footer: React.FC = () => {
             >
                 {translator.translate('Opensource lincense')}
             </OpenSourceLabel>
-            {
-                isInvalidBuild &&
+            {isInvalidBuild && (
                 <InvalidatedInformLabel>
                     이 프로그램은 엔트리 공식 빌드가 아닙니다.
                 </InvalidatedInformLabel>
-            }
+            )}
         </FooterContainer>
     );
 };
