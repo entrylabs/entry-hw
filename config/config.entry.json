@@ -1,6 +1,4 @@
 {
-  "baseUrl": "https://playentry.org",
-  "baseResource": "/public/hardware",
-  "versionCheckApi": "/api/checkVersion",
-  "moduleCheckApi": "/api/hardware"
+    "updateCheckUrl": "https://entry.line.me/api/version/hardware",
+    "moduleResourceUrl": "https://playentry.org/modules"
 }
