@@ -1,0 +1,25 @@
+{
+	"id": "070701",
+	"name": {
+		"en": "ROBOTIS Humanoid",
+		"ko": "로보티즈 꼭두"
+	},
+	"category": "module",
+	"platform": ["win32"],
+	"icon" : "robotis_RB100im_Humanoid.png",
+	"module": "robotis_RB100_usb.js",
+	"url": "http://www.robotis.com",
+	"email": "khg@robotis.com",
+	"reconnect" : true,
+	"driver": {
+        "win32-ia32": "ROBOTIS/ROBOTIS CDC Driver.bat",
+        "win32-x64": "ROBOTIS/ROBOTIS CDC Driver.bat"
+	},
+	"hardware": {
+		"type": "serial",
+		"control": "slave",
+		"vendor": "ROBOTIS",
+		"duration": 15,
+		"baudRate": 57600
+	}
+}
