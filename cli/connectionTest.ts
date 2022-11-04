@@ -8,6 +8,7 @@ import SerialConnector from '../app/src/main/core/serial/connector';
 
 const fs = require('fs').promises;
 
+
 const dummyRouter = {
     setHandlerData: () => {},
     sendEncodedDataToServer: () => {},
@@ -75,6 +76,14 @@ const getHardwareConfig = async () => {
 const getHardwareModule = (config: IHardwareConfig) => {
     try {
         if (config) {
+
+            console.log((e, 'config.hardware = %s', ${config.hardware});
+
+            console.log((e, 'config.module = %s', ${config.module});
+
+            console.log((e, 'config.moduleName = %s', ${config.moduleName});
+
+
             return require(`../app/modules/${config.module}`);
         }
     } catch (e) {

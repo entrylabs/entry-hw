@@ -242,6 +242,17 @@ class MainRouter {
                             config?.name?.ko || config?.name?.en || 'noname'
                         }`
                     );
+
+                    logger.info(
+                        `config.hardware =  ${config.hardware}`
+                    );
+                    logger.info(
+                        `config.module =  ${config.module}`
+                    );
+                    logger.info(
+                        `config.moduleName =  ${config.moduleName}`
+                    );
+
                     this.connector = connector;
                     connector.setRouter(this);
                     this._connect(connector);
@@ -359,11 +370,32 @@ class MainRouter {
         if (this.connector?.connected && hwModule?.socketReconnection) {
             hwModule.socketReconnection();
         }
+
+        logger.info(
+            `config.hardware =  ${config.hardware}`
+        );
+        logger.info(
+            `hwModule =  ${hwModule}`
+        );
+        logger.info(
+            `config.module =  ${config.module}`
+        );
+
+        logger.info(
+            `config.moduleName =  ${config.moduleName}`
+        );
+
+
         if (config?.moduleName) {
+
+            logger.info('Yes Config'); 
             this.sendActionDataToServer(EntryMessageAction.state, {
                 statement: EntryStatePayload.connected,
                 name: config.moduleName,
             });
+        }
+        else {
+            logger.info('No Config');
         }
 
         this.sendEventToMainWindow('socketConnected', true);
