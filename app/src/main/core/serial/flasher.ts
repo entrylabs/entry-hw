@@ -65,6 +65,17 @@ class Flasher {
             let avrName;
             let avrConf;
             let portPrefix;
+            let avrConfValue;
+
+            logger.info(`MCUType is ${MCUType}`);
+
+            if(MCUType == ' m328p') {
+                avrConfValue = ' -carduino -D';
+            }
+            else {
+                avrConfValue = ' -cstk500v2 -D';
+            }
+
 
             if (platform === 'darwin') {
                 avrName = './avrdude';
@@ -89,7 +100,7 @@ class Flasher {
                 firmware,
                 '.hex":i -C',
                 avrConf,
-                ' -carduino -D',
+                avrConfValue,
             ].join('');
 
             logger.info(`arduino board firmware requested.\nparameter is ${cmd}`);
