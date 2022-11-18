@@ -656,6 +656,9 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
 Module.prototype.getDataByBuffer = function(buffer) {
     const datas = [];
     let lastIndex = 0;
+
+    //logger.info("getDataByBuffer: \n");
+
     buffer.forEach((value, idx) => {
         if (value == 13 && buffer[idx + 1] == 10) {
             datas.push(buffer.subarray(lastIndex, idx));
