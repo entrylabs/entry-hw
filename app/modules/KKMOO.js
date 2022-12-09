@@ -114,14 +114,14 @@ class KKMOO extends BaseModule {
                     break;
                 case "PM":
                     var msg = "";
-                    const slot = parseInt(this.receiveData.data);
+                    var slot = parseInt(this.receiveData.data);
                     msg = slot.toString(16).padStart(2,'0');
                     var cmd = "$PM"+msg;
                     this.sp.write(Buffer.from(cmd));
                     break;
-                case "PM":
+                case "CM":
                     var msg = "";
-                    const slot = parseInt(this.receiveData.data)+90;
+                    var slot = parseInt(this.receiveData.data)+90;
                     msg = slot.toString(16).padStart(2,'0');
                     var cmd = "$PM"+msg;
                     this.sp.write(Buffer.from(cmd));
