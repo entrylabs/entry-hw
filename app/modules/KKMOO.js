@@ -150,7 +150,13 @@ class KKMOO extends BaseModule {
         
         
     }
-    
+    disconnect(connect){
+        var cmd = "^ce";
+        this.sp.write(Buffer.from(cmd));
+        setTimeout(()=>{
+            connect.close();
+        },500); 
+        }
     lostController() { }
 
   
