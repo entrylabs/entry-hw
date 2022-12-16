@@ -1,9 +1,9 @@
 {
     "id": "330101",
     "name": {
-        "ko": "Smart AI(Xylobot)",
-        "en": "Smart AI(Xylobot)"
-    },
+        "ko": "Smart AI (Xylobot)",
+        "en": "Smart AI (Xylobot)"
+    }, 
     "category": "robot",
     "platform": ["win32", "darwin"],
     "icon": "hyact_xylobot.png",
