@@ -69,7 +69,7 @@ class KKMOO extends BaseModule {
         if(this.isPlaying != this.isPlaying_old){
             this.isPlaying_old = this.isPlaying;
             handler.write("data",this.isPlaying);
-            console.log(this.isPlaying);
+            //console.log(this.isPlaying);
             
         }
     }
