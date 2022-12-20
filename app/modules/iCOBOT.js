@@ -42,7 +42,18 @@ function Module()
             Left_IR: 0,
             Real_T: 0,
             Real_H: 0,
-        }
+        },
+        Brightness: 0,
+        BLeft_IR: 0,
+        Front_IR: 0,
+        BRight_IR: 0,
+        Sound: 0,
+        Right_IR: 0,
+        BMid_IR: 0,
+        Left_IR: 0,
+        Real_T: 0,
+        Real_H: 0,
+
     }
 
     this.defaultOutput = {};
@@ -171,6 +182,51 @@ Module.prototype.handleLocalData = function(data)
             case self.sensorTypes.SENSOR: {
                 self.sensorData.SENSOR[port] = value;
                 
+                switch(port){
+                    case 0: {
+                        self.sensorData.Brightness = value;
+                        break;
+                    }
+                    case 1: {
+                        self.sensorData.BLeft_IR = value;
+                        break;
+                    }
+                    case 2: {
+                        self.sensorData.Front_IR = value;
+                        break;
+                    }
+                    case 3: {
+                        self.sensorData.BRight_IR = value;
+                        break;
+                    }
+                    case 4: {
+                        self.sensorData.Sound = value;
+                        break;
+                    }
+                    case 5: {
+                        self.sensorData.Right_IR = value;
+                        break;
+                    }
+                    case 6: {
+                        self.sensorData.BMid_IR = value;
+                        break;
+                    }
+                    case 7: {
+                        self.sensorData.Left_IR = value;
+                        break;
+                    }
+                    case 8: {
+                        self.sensorData.Real_T = value;
+                        break;
+                    }
+                    case 9: {
+                        self.sensorData.Real_H = value;
+                        break;
+                    }
+                    default: {
+                        break;
+                    }
+                }
                 break;
             }
             default: {
@@ -194,7 +250,7 @@ Module.prototype.requestRemoteData = function(handler)
 	{
         if(self.sensorData[key] != undefined) 
 		{
-            handler.write(key, self.sensorData[key]);           
+            handler.write(key, self.sensorData[key]); 
         }
     })
 };
@@ -206,8 +262,10 @@ var LED_loop_turn = true;
 var pre_data_time_tone = 0;
 var pre_data_value_tone = 0;
 var pre_data_value_buzzer = 0;
+var pre_port_motor = 0;
 var pre_data_mode_motor = 0;
 var pre_data_value_motor = 0;
+var pre_data_n_led = 0;
 var pre_data_r_led = 0;
 var pre_data_g_led = 0;
 var pre_data_b_led = 0;
@@ -295,25 +353,27 @@ Module.prototype.handleRemoteData = function(handler)
                             data: data.data
                         }
                         //console.log("data.type: ", data.type);
+                        //console.log("data.data: ", data.data);
                         //console.log("loop_turn: ", Motor_loop_turn);
                         //buffer = Buffer.concat([buffer, self.makeOutputBuffer(data.type, port, data.data)]);
                         
                         switch(data.type) 
                         {
                             case 2:  // 모터제어
-                                //console.log("모터: ", data.data.value, pre_data_value_motor, data.data.mode, pre_data_mode_motor);
-                                if((data.data.value != pre_data_value_motor) || (data.data.mode != pre_data_mode_motor))
+                                if((port != pre_port_motor) || (data.data.value != pre_data_value_motor) || (data.data.mode != pre_data_mode_motor))
                                 {
+                                    //console.log("Motor: ", port, pre_port_motor, data.data.value, pre_data_value_motor, data.data.mode, pre_data_mode_motor);
                                     buffer = Buffer.concat([buffer, self.makeOutputBuffer(data.type, port, data.data)]);
+                                    pre_port_motor = port;
                                     pre_data_mode_motor = data.data.mode;
                                     pre_data_value_motor = data.data.value;
                                 }
                                 else{}
                                 break;
                             case 3:  // Buzzer제어
-                                //console.log("Buzzer: ", data.data, pre_data_value_buzzer);
                                 if(!One_Tone_loop_turn || (data.data != pre_data_value_buzzer))
                                 {
+                                    //console.log("Buzzer: ", data.data, pre_data_value_buzzer);
                                     buffer = Buffer.concat([buffer, self.makeOutputBuffer(data.type, port, data.data)]);
                                     pre_data_value_buzzer = data.data;
                                     pre_data_value_tone = 0;
@@ -323,10 +383,11 @@ Module.prototype.handleRemoteData = function(handler)
                                 else{}
                                 break;
                             case 4:  // RGB제어
-                                //console.log("LED: ", data.data.r, pre_data_r_led, data.data.g, pre_data_g_led, data.data.b, pre_data_b_led);
-                                if((data.data.r != pre_data_r_led) || (data.data.g != pre_data_g_led) || (data.data.b != pre_data_b_led))
+                                if((data.data.n != pre_data_n_led) || (data.data.r != pre_data_r_led) || (data.data.g != pre_data_g_led) || (data.data.b != pre_data_b_led))
                                 {
+                                    //console.log("LED: ", data.data.n, pre_data_n_led, data.data.r, pre_data_r_led, data.data.g, pre_data_g_led, data.data.b, pre_data_b_led);
                                     buffer = Buffer.concat([buffer, self.makeOutputBuffer(data.type, port, data.data)]);
+                                    pre_data_n_led = data.data.n;
                                     pre_data_r_led = data.data.r;
                                     pre_data_g_led = data.data.g;
                                     pre_data_b_led = data.data.b;
@@ -421,7 +482,7 @@ Module.prototype.makeSensorReadBuffer = function(device, port, data)   // 센서
 	{
         value = new Buffer(2);
         value.writeInt16LE(data);
-        buffer = new Buffer([255, 85, 7, sensorIdx, this.actionTypes.GET, device, port, 10]);
+        buffer = new Buffer([255, 85, 7, sensorIdx, this.actionTypes.GET, device, port]);
         buffer = Buffer.concat([buffer, value, dummy]);
     }
 	
@@ -448,20 +509,20 @@ Module.prototype.makeOutputBuffer = function(device, port, data)     /// 출력 
                 value.writeInt16LE(data.value);
                 buffer = new Buffer([255, 85, 9, sensorIdx, this.actionTypes.SET, device, port]);
                 buffer = Buffer.concat([buffer, mode, value, dummy]);
-                //console.log("MOTOR: ", buffer);                   
+                console.log("MOTOR: ", buffer);                   
                 break;   
 
         case this.sensorTypes.BUZZER:   // 스피커 제어
     //				value.writeInt16LE(data); //writeFloatLE//!@#$
                 buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.SET, device, port, data]);
                 buffer = Buffer.concat([buffer, dummy]);
-                //console.log("Buzzer : ", buffer);	
+                console.log("Buzzer : ", buffer);	
                 break;
 
         case this.sensorTypes.RGBLED: 
-                buffer = new Buffer([255, 85, 8, sensorIdx, this.actionTypes.SET, device, port, data.r, data.g, data.b]);
+                buffer = new Buffer([255, 85, 9, sensorIdx, this.actionTypes.SET, device, port, data.n, data.r, data.g, data.b]);
                 buffer = Buffer.concat([buffer, dummy]);
-                //console.log("RGBLED: ", buffer);
+                console.log("RGBLED: ", buffer);
                 break;
                                 
         case this.sensorTypes.TONE:           // 스피커 제어 
@@ -478,7 +539,7 @@ Module.prototype.makeOutputBuffer = function(device, port, data)     /// 출력 
                 }
                 buffer = new Buffer([255, 85, 9, sensorIdx, this.actionTypes.SET, device, port]);
                 buffer = Buffer.concat([buffer, value, time, dummy]);    
-                //console.log("Tone : ", buffer);  
+                console.log("Tone : ", buffer);  
                 One_Tone_loop_turn = false;               
                 break;
     }
