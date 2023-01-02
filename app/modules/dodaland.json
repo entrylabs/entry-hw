@@ -1,0 +1,20 @@
+{
+    "id": "4F0101",
+    "name": {
+        "en": "Dodaland",
+        "ko": "도다랜드"
+    },
+    "category": "module",
+    "platform": ["win32"],
+    "icon": "dodaland.png",
+    "module": "dodaland.js",
+    "url": "www.iwsolution.co.kr",
+    "selectPort": true,
+    "reconnect": true,
+    "hardware": {
+        "type": "serial",
+        "control": "slave",
+        "duration": 32,
+        "baudRate": 115200
+    }
+}
