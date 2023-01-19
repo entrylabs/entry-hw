@@ -1,15 +1,15 @@
 {
     "id": "330101",
     "name": {
-        "ko": "Xylobot",
-        "en": "Xylobot"
-    },
+        "ko": "Smart AI (Xylobot)",
+        "en": "Smart AI (Xylobot)"
+    }, 
     "category": "robot",
     "platform": ["win32", "darwin"],
     "icon": "hyact_xylobot.png",
     "module": "hyact_xylobot.js",
-    "url": "http://www.hyact.net",
-    "email": "sales@hyact.net",
+    "url": "https://global.luxrobo.com",
+    "email": "connect@luxrobo.com",
     "driver": {
         "win32-ia32": "ftdi/dpinst-x86.exe",
         "win32-x64": "ftdi/dpinst-amd64.exe",
