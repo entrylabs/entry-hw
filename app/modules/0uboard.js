@@ -90,7 +90,11 @@ Module.prototype.setSerialPort = function (sp) {
 
 // Module.prototype.lostController = function () {};
 
-Module.prototype.requestInitialData = function() {
+Module.prototype.requestInitialData = function(sp) {
+    this.sp = sp;
+    this.sp.binding.openOptions.hupcl=false;
+    this.sp.set({ dtr: false, rts: true });
+    this.sp.set({ dtr: false, rts: false });
     return this.makeSensorReadBuffer(this.sensorTypes.ANALOG, 0);
 };
 
