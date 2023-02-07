@@ -537,18 +537,14 @@ class MainRouter {
             this.flasher.kill();
             this.config && this.startScan(this.config);
         });
-        ipcMain.handle('invalidAsarFile', async (event) => {
+        ipcMain.handle('isValidAsarFile', async (event) => {
             try {
                 const result = await isValidAsarFile();
                 console.log("isValidAsarFile : ", result);
-                if (!result) {
-                    return true;
-                } else {
-                    return false;
-                }
+                return result;
             } catch (e) {
                 console.log(e);
-                return true;
+                return false;
             }
         })
         ipcMain.on('getSharedObject', (e) => {
