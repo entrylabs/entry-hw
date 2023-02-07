@@ -29,9 +29,11 @@ class IpcRendererWatchComponent extends React.PureComponent<IProps> {
         ipcRenderer.removeAllListeners('socketConnected');
         ipcRenderer.removeAllListeners('invalidAsarFile');
 
-        ipcRenderer.on('invalidAsarFile', () => {
-            props.invalidateBuild();
-        });
+        ipcRenderer.invoke('invalidAsarFile').then((result: boolean) => {
+            if(result){
+                props.invalidateBuild();
+            }
+        })
 
         ipcRenderer.on('console', (event, ...args: any[]) => {
             console.log(...args);
