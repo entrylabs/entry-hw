@@ -47,7 +47,7 @@
         "electron-builder": "^22.8.0",
         "electron-notarize": "^0.2.1",
         "electron-rebuild": "2.3.5",
-        "eslint": "^6.8.0",
+        "eslint": "^8.32.0",
         "file-loader": "^5.0.2",
         "immer": "^4.0.2",
         "inquirer": "^7.0.3",
