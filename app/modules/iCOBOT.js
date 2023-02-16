@@ -42,6 +42,7 @@ function Module()
             Left_IR: 0,
             Real_T: 0,
             Real_H: 0,
+            Motor_F: 0,
         },
         Brightness: 0,
         BLeft_IR: 0,
@@ -236,7 +237,6 @@ Module.prototype.handleLocalData = function(data)
     });
 };
 
-
 // 4. 
 Module.prototype.requestRemoteData = function(handler) 
 {
@@ -360,7 +360,7 @@ Module.prototype.handleRemoteData = function(handler)
                         switch(data.type) 
                         {
                             case 2:  // 모터제어
-                                if((port != pre_port_motor) || (data.data.value != pre_data_value_motor) || (data.data.mode != pre_data_mode_motor))
+                                if((port != pre_port_motor) || (data.data.value != pre_data_value_motor) || (data.data.mode == 4) || (data.data.mode != pre_data_mode_motor))
                                 {
                                     //console.log("Motor: ", port, pre_port_motor, data.data.value, pre_data_value_motor, data.data.mode, pre_data_mode_motor);
                                     buffer = Buffer.concat([buffer, self.makeOutputBuffer(data.type, port, data.data)]);
@@ -396,7 +396,7 @@ Module.prototype.handleRemoteData = function(handler)
                                 break;
                             case 5:  // Tone 제어
                                 //console.log("Tone: ", data.data.value, pre_data_value_tone, data.data.duration, pre_data_time_tone);
-                                if((data.data.value != pre_data_value_tone) || (data.data.duration != pre_data_time_tone))
+                                if((data.data.value != pre_data_value_tone) || (7 != pre_data_time_tone))
                                 {
                                     buffer = Buffer.concat([buffer, self.makeOutputBuffer(data.type, port, data.data)]);
                                     pre_data_value_tone = data.data.value;
