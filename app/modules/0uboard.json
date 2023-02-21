@@ -29,7 +29,7 @@
         "duration": 32,
         "vendor": ["Arduino", "wch.cn", "FTDI"],
         "baudRate": 57600,
-        "lostTimer": 1000,
+        "lostTimer": 5000,
         "firmwarecheck": false
 	}
 }
