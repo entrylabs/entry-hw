@@ -13,6 +13,7 @@ import directoryPaths from './core/directoryPaths';
 import BaseScanner from './core/baseScanner';
 import BaseConnector from './core/baseConnector';
 import SerialConnector from './core/serial/connector';
+import isValidAsarFile from './electron/modifyValidator';
 
 const nativeNodeRequire = require('./nativeNodeRequire.js');
 const logger = createLogger('core/mainRouter.ts');
@@ -239,7 +240,7 @@ class MainRouter {
                 if (connector) {
                     logger.info(
                         `[Device Info] ${config.id} | ${
-                            config?.name?.ko || config?.name?.en || 'noname'
+                        config?.name?.ko || config?.name?.en || 'noname'
                         }`
                     );
                     this.connector = connector;
@@ -536,11 +537,21 @@ class MainRouter {
             this.flasher.kill();
             this.config && this.startScan(this.config);
         });
+        ipcMain.handle('isValidAsarFile', async (event) => {
+            try {
+                const result = await isValidAsarFile();
+                console.log("isValidAsarFile : ", result);
+                return result;
+            } catch (e) {
+                console.log(e);
+                return false;
+            }
+        })
         ipcMain.on('getSharedObject', (e) => {
             e.returnValue = global.sharedObject;
         });
         ipcMain.on('canShowCustomButton', (e) => {
-            if(this.hwModule && this.hwModule.canShowCustomButton) {
+            if (this.hwModule && this.hwModule.canShowCustomButton) {
                 e.returnValue = this.hwModule.canShowCustomButton();
             } else {
                 e.returnValue = false;
