@@ -1,0 +1,30 @@
+{
+  "id": "4B0201",
+  "name": {
+      "en": "Parodule",
+      "ko": "파로듈"
+  },
+  "category": "board",
+  "platform": ["win32", "darwin"],
+  "icon": "robotry_robitStage.png",
+  "module": "robotry_parodule.js",
+  "url": "http://parob.io",
+  "email": "hee.kim6133@robotry.co.kr",
+  "driver": [{
+      "win32-ia32": "robotry/CH34x_Install_Windows_v3_4.exe",
+      "win32-x64": "robotry/CH34x_Install_Windows_v3_4.exe",
+  "translate": "드라이버 설치"
+  }],
+  "selectPort": true,
+  "reconnect": true,  
+  "hardware": {
+      "type": "serial",
+      "control": "slave",
+      "duration": 1000,
+      "vendor": "",
+      "baudRate": 115200,
+      "lostTimer": 1000,
+      "byteDelimiter": [13, 10],
+      "firmwarecheck": false
+  }
+}
