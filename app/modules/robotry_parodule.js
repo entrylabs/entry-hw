@@ -10,8 +10,9 @@ class Parodule extends BaseModule {
       STRING: 2,
     };
     
-    this.paroduleBuffers = [];
-    this.paroduleInit = new Buffer("entry\r\n");
+    this.paroduleBuffers = [255, 85, 255, 255, 255, 255];
+    this.paroduleEntry = new Buffer("entry\r\n");
+    this.paroduleInit = new Buffer("init\r\n");
     this.paroduleUpdate = new Buffer("update\r\n");
   }
   /*
