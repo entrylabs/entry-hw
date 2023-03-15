@@ -96,8 +96,10 @@ class Parodule extends BaseModule {
 
   // 하드웨어에서 온 데이터 처리
   handleLocalData(data) {
+    var datas = this.getDataByBuffer(data);
     // 데이터 처리 로직
     console.log("handleLocalData");
+    console.log(datas);
   }
 
   // 엔트리로 전달할 데이터
@@ -110,6 +112,19 @@ class Parodule extends BaseModule {
   handleRemoteData(handler) {
     console.log("handleRemoteData");
     // const value = handler.read(key) ...
+  }
+
+  // '\r\n' 을 기준으로 버퍼를 자른다
+  getDataByBuffer(buffer) {
+    var datas = [];
+    var lastIndex = 0;
+    buffer.forEach(function(value, idx) {
+      if (value == 13 && buffer[idx + 1] == 10) {
+          datas.push(buffer.subarray(lastIndex, idx));
+          lastIndex = idx + 2;
+      }
+    });
+    return datas;
   }
 
   // 연결 해제되면 시리얼 포트 제거
