@@ -122,7 +122,7 @@ Module.prototype.handleLocalData = function(data) { // data: Native Buffer
     const buffer = this.remoteBuffer;
     if (data && data.length == 17) {
         if (data[0] === 0xFF && data[1] === 0xFF && data[15] === 0xFE && data[16] === 0xFE) {
-            for (const i = 0; i < 17; ++i) {
+            for (let i = 0; i < 17; ++i) {
                 buffer[i] = data[i];
             }
         }
@@ -131,9 +131,9 @@ Module.prototype.handleLocalData = function(data) { // data: Native Buffer
 
 Module.prototype.requestRemoteData = function(handler) {
     const buffer = this.remoteBuffer;
-    for (const i = 2; i < 17; i += 1) {
+    for (let i = 2; i < 17; i += 1) {
         const value = buffer[i] * Math.pow(2, 8) + buffer[i + 1];
-        const sensorType = this.SENSOR_MAP[buffer[i]];
+        let sensorType = this.SENSOR_MAP[buffer[i]];
         if (i < 10) {
             sensorType = this.SENSOR_MAP[buffer[i] >> 2];
         }
@@ -156,8 +156,7 @@ Module.prototype.requestRemoteData = function(handler) {
         } else {
             if (sensorType) {
                 handler.write((i - 5), { type: sensorType });
-            }
-            else {
+            } else {
                 handler.write((i - 5), null);
             }
         }
@@ -181,22 +180,22 @@ Module.prototype.requestRemoteData = function(handler) {
     const p3 = this._decodeSensorPortNum(buffer[6], buffer[7]);  // port 3, light
     const p4 = this._decodeSensorPortNum(buffer[8], buffer[9]);  // port 4, touch
 
-    let value_UserInput = ' ';
-    let value_potentiometer = ' ';
-    let value_MIC = ' ';
-    let value_IR = ' ';
+    let valueUserInput = ' ';
+    let valuePotentiometer = ' ';
+    let valueMic = ' ';
+    let valueIr = ' ';
 
     if (p1.sensorType == CoalaBoardType.P_NO) {
     } else if (p1.sensorType == CoalaBoardType.P_IRS) {
-        value_IR = p1.sensorValue;
+        valueIr = p1.sensorValue;
     } else if (p1.sensorType == CoalaBoardType.P_POT) {
-        value_potentiometer = p1.sensorValue;
+        valuePotentiometer = p1.sensorValue;
     } else if (p1.sensorType == CoalaBoardType.P_MIC) {
-        value_MIC = p1.sensorValue;
+        valueMic = p1.sensorValue;
     } else if (p1.sensorType == CoalaBoardType.P_ULT) {
     } else if (p1.sensorType == CoalaBoardType.P_VIB) {
     } else if (p1.sensorType == CoalaBoardType.P_USR) {
-        value_UserInput = p1.sensorValue;
+        valueUserInput = p1.sensorValue;
     } else {
     }
 
@@ -221,13 +220,13 @@ Module.prototype.requestRemoteData = function(handler) {
         11: 'UserInput',
         20: 'LED',
         19: 'SERVO',
-        18: 'DC'
+        18: 'DC',
     };
 
-    handler.write(this.SENSOR_MAP[11], { type: this.SENSOR_MAP[11], value: value_UserInput }); // UserInput
-    handler.write(this.SENSOR_MAP[4], { type: this.SENSOR_MAP[4], value: value_potentiometer }); // potentiometer
-    handler.write(this.SENSOR_MAP[5], { type: this.SENSOR_MAP[5], value: value_MIC }); // MIC
-    handler.write(this.SENSOR_MAP[2], { type: this.SENSOR_MAP[2], value: value_IR }); // IR
+    handler.write(this.SENSOR_MAP[11], { type: this.SENSOR_MAP[11], value: valueUserInput }); // UserInput
+    handler.write(this.SENSOR_MAP[4], { type: this.SENSOR_MAP[4], value: valuePotentiometer }); // potentiometer
+    handler.write(this.SENSOR_MAP[5], { type: this.SENSOR_MAP[5], value: valueMic }); // MIC
+    handler.write(this.SENSOR_MAP[2], { type: this.SENSOR_MAP[2], value: valueIr }); // IR
     handler.write(this.SENSOR_MAP[7], { type: this.SENSOR_MAP[7], value: p2.sensorValue }); // temperature
     handler.write(this.SENSOR_MAP[1], { type: this.SENSOR_MAP[1], value: p3.sensorValue }); // light
     handler.write(this.SENSOR_MAP[3], { type: this.SENSOR_MAP[3], value: p4.sensorValue }); // button(touch)
