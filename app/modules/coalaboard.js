@@ -25,30 +25,30 @@ function Module() {
 
 
 Module.prototype.SENSOR_MAP = {
-    1: "light",
-    2: "IR",
-    3: "touch",
-    4: "potentiometer",
-    5: "MIC",
-    6: "ultrasonicSensor",
-    7: "temperature",
-    10: "vibrationSensor",
-    21: "UserSensor",
-    11: "UserInput",
-    20: "LED",
-    19: "SERVO",
-    18: "DC"
+    1: 'light',
+    2: 'IR',
+    3: 'touch',
+    4: 'potentiometer',
+    5: 'MIC',
+    6: 'ultrasonicSensor',
+    7: 'temperature',
+    10: 'vibrationSensor',
+    21: 'UserSensor',
+    11: 'UserInput',
+    20: 'LED',
+    19: 'SERVO',
+    18: 'DC'
 };
 
 Module.prototype.PORT_MAP = {
-    "buzzer": 2,
-    "5": 4,
-    "6": 6,
-    "7": 8,
-    "8": 10,
-    "LEDR": 12,
-    "LEDG": 14,
-    "LEDB": 16
+    'buzzer': 2,
+    '5': 4,
+    '6': 6,
+    '7': 8,
+    '8': 10,
+    'LEDR': 12,
+    'LEDG': 14,
+    'LEDB': 16
 };
 
 const CoalaBoardType = {
@@ -74,9 +74,9 @@ const CoalaBoardType = {
     P_M_DC: 0x12,
     P_LED: 0x14,
 
-    RANGE_SNESOR_PORT: ["1", "2", "3", "4"],
-    RANGE_MOTOR_PORT: ["A", "B", "C", "D"],
-    RANGE_LED_PORT: ["E"],
+    RANGE_SNESOR_PORT: ['1', '2', '3', '4'],
+    RANGE_MOTOR_PORT: ['A', 'B', 'C', 'D'],
+    RANGE_LED_PORT: ['E'],
 
     DC_MOTOR_ADJUSTMENT: 128,
     SERVO_ADJUSTMENT: 1,
@@ -138,7 +138,7 @@ Module.prototype.requestRemoteData = function (handler) {
         let sensorValue = value & (Math.pow(2, 10) - 1);
         if (i < 10) {
             if (sensorType) {
-                if (sensorType == "temperature") {    // 7: 온도센서
+                if (sensorType == 'temperature') {    // 7: 온도센서
                     // [온도센서] 
                     // 1. 코알라에서 PC로 전달하는 값의 범위 : 0 ~ 160
                     // 2. 실제로 엔트리에서 보여줘야 하는 실제 온도 : - 40 ~ 120
@@ -160,70 +160,42 @@ Module.prototype.requestRemoteData = function (handler) {
             }
         }
     }
-    // 1: "light",
-    // 2: "IR", 
-    // 3: "touch", 
-    // 4: "potentiometer",
-    // 5: "MIC",
-    // 6: "ultrasonicSensor",
-    // 7: "temperature",
-    // 10: "vibrationSensor",
-    // 21: "UserSensor",
-    // 11: "UserInput",
-    // 20: "LED",
-    // 19: "SERVO",
-    // 18: "DC"
+    // 1: 'light',
+    // 2: 'IR', 
+    // 3: 'touch', 
+    // 4: 'potentiometer',
+    // 5: 'MIC',
+    // 6: 'ultrasonicSensor',
+    // 7: 'temperature',
+    // 10: 'vibrationSensor',
+    // 21: 'UserSensor',
+    // 11: 'UserInput',
+    // 20: 'LED',
+    // 19: 'SERVO',
+    // 18: 'DC'
 
     let p1 = this._decodeSensorPortNum(buffer[2], buffer[3]);  // port 1
     let p2 = this._decodeSensorPortNum(buffer[4], buffer[5]);  // port 2, temperature
     let p3 = this._decodeSensorPortNum(buffer[6], buffer[7]);  // port 3, light
     let p4 = this._decodeSensorPortNum(buffer[8], buffer[9]);  // port 4, touch
 
-    let value_UserInput = 0;
-    let value_potentiometer = 0;
-    let value_MIC = 0;
-    let value_IR = 0;
+    let value_UserInput = ' ';
+    let value_potentiometer = ' ';
+    let value_MIC = ' ';
+    let value_IR = ' ';
 
     if (p1.sensorType == CoalaBoardType.P_NO) {
-        value_UserInput = " ";
-        value_potentiometer = " ";
-        value_MIC = " ";
-        value_IR = " ";
     } else if (p1.sensorType == CoalaBoardType.P_IRS) {
-        value_UserInput = " ";
-        value_potentiometer = " ";
-        value_MIC = " ";
         value_IR = p1.sensorValue;
     } else if (p1.sensorType == CoalaBoardType.P_POT) {
-        value_UserInput = " ";
         value_potentiometer = p1.sensorValue;
-        value_MIC = " ";
-        value_IR = " ";
     } else if (p1.sensorType == CoalaBoardType.P_MIC) {
-        value_UserInput = " ";
-        value_potentiometer = " ";
         value_MIC = p1.sensorValue;
-        value_IR = " ";
     } else if (p1.sensorType == CoalaBoardType.P_ULT) {
-        value_UserInput = " ";
-        value_potentiometer = " ";
-        value_MIC = " ";
-        value_IR = " ";
     } else if (p1.sensorType == CoalaBoardType.P_VIB) {
-        value_UserInput = " ";
-        value_potentiometer = " ";
-        value_MIC = " ";
-        value_IR = " ";
     } else if (p1.sensorType == CoalaBoardType.P_USR) {
         value_UserInput = p1.sensorValue;
-        value_potentiometer = " ";
-        value_MIC = " ";
-        value_IR = " ";
     } else {
-        value_UserInput = " ";
-        value_potentiometer = " ";
-        value_MIC = " ";
-        value_IR = " ";
     }
 
     // UserInput
