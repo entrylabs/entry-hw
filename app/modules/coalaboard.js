@@ -37,7 +37,7 @@ Module.prototype.SENSOR_MAP = {
     11: 'UserInput',
     20: 'LED',
     19: 'SERVO',
-    18: 'DC'
+    18: 'DC',
 };
 
 Module.prototype.PORT_MAP = {
@@ -48,7 +48,7 @@ Module.prototype.PORT_MAP = {
     '8': 10,
     'LEDR': 12,
     'LEDG': 14,
-    'LEDB': 16
+    'LEDB': 16,
 };
 
 const CoalaBoardType = {
@@ -80,18 +80,18 @@ const CoalaBoardType = {
 
     DC_MOTOR_ADJUSTMENT: 128,
     SERVO_ADJUSTMENT: 1,
-    BUZZER_ADJUSTMENT: 11
+    BUZZER_ADJUSTMENT: 11,
 
-}
-
-Module.prototype.init = function (handler, config) {
 };
 
-Module.prototype.requestInitialData = function () {
+Module.prototype.init = function(handler, config) {
+};
+
+Module.prototype.requestInitialData = function() {
     return this.initialBuffer;
 };
 
-Module.prototype.checkInitialData = function (data, config) {
+Module.prototype.checkInitialData = function(data, config) {
     if (data && data.length == 17) {
         if (data[0] === 0xFF && data[1] === 0xFF && data[15] === 0xFE && data[16] === 0xFE) {
             return true;
@@ -101,9 +101,9 @@ Module.prototype.checkInitialData = function (data, config) {
     }
 };
 
-Module.prototype.handleRemoteData = function (handler) {
-    let buffer = this.localBuffer;
-    for (let key in this.PORT_MAP) {
+Module.prototype.handleRemoteData = function(handler) {
+    const buffer = this.localBuffer;
+    for (const key in this.PORT_MAP) {
         let port = this.PORT_MAP[key];
         let value = handler.read(key);
         if (value === undefined)
@@ -113,11 +113,11 @@ Module.prototype.handleRemoteData = function (handler) {
     }
 };
 
-Module.prototype.requestLocalData = function () {
+Module.prototype.requestLocalData = function() {
     return this.localBuffer;
 };
 
-Module.prototype.handleLocalData = function (data) { // data: Native Buffer
+Module.prototype.handleLocalData = function(data) { // data: Native Buffer
     let buffer = this.remoteBuffer;
     if (data && data.length == 17) {
         if (data[0] === 0xFF && data[1] === 0xFF && data[15] === 0xFE && data[16] === 0xFE) {
@@ -128,7 +128,7 @@ Module.prototype.handleLocalData = function (data) { // data: Native Buffer
     }
 };
 
-Module.prototype.requestRemoteData = function (handler) {
+Module.prototype.requestRemoteData = function(handler) {
     let buffer = this.remoteBuffer;
     for (let i = 2; i < 17; i += 1) {
         let value = buffer[i] * Math.pow(2, 8) + buffer[i + 1];
@@ -232,7 +232,7 @@ Module.prototype.requestRemoteData = function (handler) {
     // ====================================================================
 };
 
-Module.prototype.reset = function () {
+Module.prototype.reset = function() {
     let buffer = this.localBuffer;
     for (let i = 2; i < 18; ++i) {
         buffer[i] = 0;
@@ -244,7 +244,7 @@ Module.prototype.reset = function () {
  * @param number portNum1 
  * @param number portNum2 
  */
-Module.prototype._decodeSensorPortNum = function (portNum1, portNum2) {
+Module.prototype._decodeSensorPortNum = function(portNum1, portNum2) {
     let sP1 = portNum1.toString(2).padStart(8, '0');
     let sMsb = sP1.substr(0, 1);
     let sSensorType = sP1.substr(1, 5);
