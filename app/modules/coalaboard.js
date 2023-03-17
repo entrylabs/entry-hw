@@ -104,10 +104,11 @@ Module.prototype.checkInitialData = function(data, config) {
 Module.prototype.handleRemoteData = function(handler) {
     const buffer = this.localBuffer;
     for (const key in this.PORT_MAP) {
-        let port = this.PORT_MAP[key];
-        let value = handler.read(key);
-        if (value === undefined)
+        const port = this.PORT_MAP[key];
+        const value = handler.read(key);
+        if (value === undefined) {
             continue;
+        }
         buffer[port] = value >> 8;
         buffer[port + 1] = value & (Math.pow(2, 9) - 1);
     }
@@ -118,10 +119,10 @@ Module.prototype.requestLocalData = function() {
 };
 
 Module.prototype.handleLocalData = function(data) { // data: Native Buffer
-    let buffer = this.remoteBuffer;
+    const buffer = this.remoteBuffer;
     if (data && data.length == 17) {
         if (data[0] === 0xFF && data[1] === 0xFF && data[15] === 0xFE && data[16] === 0xFE) {
-            for (let i = 0; i < 17; ++i) {
+            for (const i = 0; i < 17; ++i) {
                 buffer[i] = data[i];
             }
         }
@@ -129,13 +130,14 @@ Module.prototype.handleLocalData = function(data) { // data: Native Buffer
 };
 
 Module.prototype.requestRemoteData = function(handler) {
-    let buffer = this.remoteBuffer;
-    for (let i = 2; i < 17; i += 1) {
-        let value = buffer[i] * Math.pow(2, 8) + buffer[i + 1];
-        let sensorType = this.SENSOR_MAP[buffer[i]];
-        if (i < 10)
+    const buffer = this.remoteBuffer;
+    for (const i = 2; i < 17; i += 1) {
+        const value = buffer[i] * Math.pow(2, 8) + buffer[i + 1];
+        const sensorType = this.SENSOR_MAP[buffer[i]];
+        if (i < 10) {
             sensorType = this.SENSOR_MAP[buffer[i] >> 2];
-        let sensorValue = value & (Math.pow(2, 10) - 1);
+        }
+        const sensorValue = value & (Math.pow(2, 10) - 1);
         if (i < 10) {
             if (sensorType) {
                 if (sensorType == 'temperature') {    // 7: 온도센서
@@ -174,10 +176,10 @@ Module.prototype.requestRemoteData = function(handler) {
     // 19: 'SERVO',
     // 18: 'DC'
 
-    let p1 = this._decodeSensorPortNum(buffer[2], buffer[3]);  // port 1
-    let p2 = this._decodeSensorPortNum(buffer[4], buffer[5]);  // port 2, temperature
-    let p3 = this._decodeSensorPortNum(buffer[6], buffer[7]);  // port 3, light
-    let p4 = this._decodeSensorPortNum(buffer[8], buffer[9]);  // port 4, touch
+    const p1 = this._decodeSensorPortNum(buffer[2], buffer[3]);  // port 1
+    const p2 = this._decodeSensorPortNum(buffer[4], buffer[5]);  // port 2, temperature
+    const p3 = this._decodeSensorPortNum(buffer[6], buffer[7]);  // port 3, light
+    const p4 = this._decodeSensorPortNum(buffer[8], buffer[9]);  // port 4, touch
 
     let value_UserInput = ' ';
     let value_potentiometer = ' ';
