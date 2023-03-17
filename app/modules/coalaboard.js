@@ -1,8 +1,4 @@
 /**
- * 
- * 개발참고 문서
- * https://entrylabs.github.io/docs/guide/entry-hw/2016-05-03-add_module.html#%EB%AA%A8%EB%93%88-%EC%B6%94%EA%B0%80%ED%95%98%EA%B8%B0
- * 
  * Author Kevin Ryu
  */
 function Module() {
@@ -10,11 +6,11 @@ function Module() {
     this.localBuffer = new Array(20);
     this.remoteBuffer = new Array(17);
 
-    for (var i = 0; i < 20; ++i) {
+    for (let i = 0; i < 20; ++i) {
         this.initialBuffer[i] = 0;
         this.localBuffer[i] = 0;
     }
-    for (var i = 0; i < 17; ++i) {
+    for (let i = 0; i < 17; ++i) {
         this.remoteBuffer[i] = 0;
     }
     this.initialBuffer[0] = 0xFF;
@@ -106,10 +102,10 @@ Module.prototype.checkInitialData = function (data, config) {
 };
 
 Module.prototype.handleRemoteData = function (handler) {
-    var buffer = this.localBuffer;
-    for (var key in this.PORT_MAP) {
-        var port = this.PORT_MAP[key];
-        var value = handler.read(key);
+    let buffer = this.localBuffer;
+    for (let key in this.PORT_MAP) {
+        let port = this.PORT_MAP[key];
+        let value = handler.read(key);
         if (value === undefined)
             continue;
         buffer[port] = value >> 8;
@@ -122,10 +118,10 @@ Module.prototype.requestLocalData = function () {
 };
 
 Module.prototype.handleLocalData = function (data) { // data: Native Buffer
-    var buffer = this.remoteBuffer;
+    let buffer = this.remoteBuffer;
     if (data && data.length == 17) {
         if (data[0] === 0xFF && data[1] === 0xFF && data[15] === 0xFE && data[16] === 0xFE) {
-            for (var i = 0; i < 17; ++i) {
+            for (let i = 0; i < 17; ++i) {
                 buffer[i] = data[i];
             }
         }
@@ -133,13 +129,13 @@ Module.prototype.handleLocalData = function (data) { // data: Native Buffer
 };
 
 Module.prototype.requestRemoteData = function (handler) {
-    var buffer = this.remoteBuffer;
-    for (var i = 2; i < 17; i += 1) {
-        var value = buffer[i] * Math.pow(2, 8) + buffer[i + 1];
-        var sensorType = this.SENSOR_MAP[buffer[i]];
+    let buffer = this.remoteBuffer;
+    for (let i = 2; i < 17; i += 1) {
+        let value = buffer[i] * Math.pow(2, 8) + buffer[i + 1];
+        let sensorType = this.SENSOR_MAP[buffer[i]];
         if (i < 10)
             sensorType = this.SENSOR_MAP[buffer[i] >> 2];
-        var sensorValue = value & (Math.pow(2, 10) - 1);
+        let sensorValue = value & (Math.pow(2, 10) - 1);
         if (i < 10) {
             if (sensorType) {
                 if (sensorType == "temperature") {    // 7: 온도센서
@@ -239,19 +235,19 @@ Module.prototype.requestRemoteData = function (handler) {
     // touch
 
     Module.prototype.SENSOR_MAP = {
-        1: "light",
-        2: "IR",
-        3: "touch",
-        4: "potentiometer",
-        5: "MIC",
-        6: "ultrasonicSensor",
-        7: "temperature",
-        10: "vibrationSensor",
-        21: "UserSensor",
-        11: "UserInput",
-        20: "LED",
-        19: "SERVO",
-        18: "DC"
+        1: 'light',
+        2: 'IR',
+        3: 'touch',
+        4: 'potentiometer',
+        5: 'MIC',
+        6: 'ultrasonicSensor',
+        7: 'temperature',
+        10: 'vibrationSensor',
+        21: 'UserSensor',
+        11: 'UserInput',
+        20: 'LED',
+        19: 'SERVO',
+        18: 'DC'
     };
 
     handler.write(this.SENSOR_MAP[11], { type: this.SENSOR_MAP[11], value: value_UserInput }); // UserInput
@@ -265,8 +261,8 @@ Module.prototype.requestRemoteData = function (handler) {
 };
 
 Module.prototype.reset = function () {
-    var buffer = this.localBuffer;
-    for (var i = 2; i < 18; ++i) {
+    let buffer = this.localBuffer;
+    for (let i = 2; i < 18; ++i) {
         buffer[i] = 0;
     }
 };
