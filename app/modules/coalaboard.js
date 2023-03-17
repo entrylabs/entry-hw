@@ -234,7 +234,7 @@ Module.prototype.requestRemoteData = function(handler) {
 };
 
 Module.prototype.reset = function() {
-    let buffer = this.localBuffer;
+    const buffer = this.localBuffer;
     for (let i = 2; i < 18; ++i) {
         buffer[i] = 0;
     }
@@ -246,12 +246,12 @@ Module.prototype.reset = function() {
  * @param number portNum2 
  */
 Module.prototype._decodeSensorPortNum = function(portNum1, portNum2) {
-    let sP1 = portNum1.toString(2).padStart(8, '0');
-    let sMsb = sP1.substr(0, 1);
-    let sSensorType = sP1.substr(1, 5);
-    let sV1 = sP1.substr(6, 2);
-    let sV2 = portNum2.toString(2).padStart(8, '0');
-    let sSensorVal = sV1 + sV2;
+    const sP1 = portNum1.toString(2).padStart(8, '0');
+    const sMsb = sP1.substr(0, 1);
+    const sSensorType = sP1.substr(1, 5);
+    const sV1 = sP1.substr(6, 2);
+    const sV2 = portNum2.toString(2).padStart(8, '0');
+    const sSensorVal = sV1 + sV2;
 
     let iSensorType = parseInt(sSensorType, 2); // 2 => 10
     let iSensorVal = parseInt(sSensorVal, 2); // 2 => 10
