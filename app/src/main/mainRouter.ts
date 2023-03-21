@@ -537,7 +537,7 @@ class MainRouter {
             this.flasher.kill();
             this.config && this.startScan(this.config);
         });
-        ipcMain.handle('isValidAsarFile', async (event) => {
+        ipcMain.handle('isValidAsarFileHW', async (event) => {
             try {
                 const result = await isValidAsarFile();
                 console.log("isValidAsarFile : ", result);
