@@ -233,11 +233,11 @@ Module.prototype.handleLocalData = function(data) { // data: string
 	if(data.length != 53) return;
 
 	this.packetReceived = 0;
+	var sensory = this.sensory;
 	var str = data.slice(0, 1);
 	var value = parseInt(str, 16);
 	if(value == 1) { // normal
 		var motoring = this.motoring;
-		var sensory = this.sensory;
 		var event = this.event;
 		// pulse count
 		str = data.slice(2, 6);
@@ -327,7 +327,7 @@ Module.prototype.handleLocalData = function(data) { // data: string
 		id = (value >> 4) & 0x03;
 		if(event.tapId < 0) {
 			event.tapId = id;
-		} else if(id != event.tapId) {
+		} else if(id != event.tapId && !wheel.move) {
 			event.tapId = id;
 			sensory.tap = 1;
 			sensory.tapId = (sensory.tapId % 255) + 1;
@@ -732,7 +732,7 @@ Module.prototype.requestLocalData = function() {
 					str += '00';
 				}
 				str += '-';
-				str += address;
+				str += self.address;
 				str += '\r';
 				return str;
 			}
