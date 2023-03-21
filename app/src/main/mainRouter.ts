@@ -578,7 +578,7 @@ class MainRouter {
         ipcMain.removeAllListeners('getCurrentServerModeSync');
         ipcMain.removeAllListeners('getCurrentCloudModeSync');
         ipcMain.removeAllListeners('requestHardwareListSync');
-        ipcMain.removeAllListeners('isValidAsarFileHW');
+        ipcMain.removeHandler('isValidAsarFileHW');
         ipcMain.removeHandler('requestDownloadModule');
         ipcMain.removeHandler('requestFlash');
         logger.verbose('EntryHW ipc event all cleared');
