@@ -126,8 +126,16 @@ class Parodule extends BaseModule {
       setKeys.forEach(function(port) {
         var data = setDatas[port];
         if (data) {
-          if (self.terminalTimeList[port] < data.time) {
-            self.
+          if (self.portTimeList[port] < data.time) {
+            self.portTimeList[port] = data.time
+            
+            if (self.isRecentData(port, data.type, data.data)) {
+              self.recentCheckData[port] = {
+                type: data.type,
+                data: data.data
+              }
+              buffer = buffer.concat(buffer, self.makeOutputBuffer(data.type, port, data.data));
+            }
           }
         }
       });
@@ -153,11 +161,11 @@ class Parodule extends BaseModule {
   }
 
   // recentCheckData 리스트에 있는 경우 true 반환 아니면 false
-  isRecentData(terminal, type, data) {
+  isRecentData(port, type, data) {
     var isRecent = false;
 
-    if (terminal in this.recentCheckData) {
-        if (this.recentCheckData[terminal].type === type && this.recentCheckData[terminal].data === data) {
+    if (port in this.recentCheckData) {
+        if (this.recentCheckData[port].type === type && this.recentCheckData[port].data === data) {
             isRecent = true;
         }
     }
