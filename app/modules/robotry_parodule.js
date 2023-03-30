@@ -1,3 +1,4 @@
+const { values } = require('lodash');
 const BaseModule = require('./robotry');
 class Parodule extends BaseModule {
   // 클래스 내부에서 사용될 필드들을 이곳에서 선언합니다.
@@ -10,7 +11,10 @@ class Parodule extends BaseModule {
       STRING: 2,
     };
     
-    this.paroduleBuffers = [255, 85, 255, 255, 255, 255];
+    this.cmdTime = 0;
+    this.portTimeList = [0, 0, 0, 0];
+
+    this.paroduleBuffers = [];
     this.paroduleEntry = new Buffer("entry\r\n");
     this.paroduleInit = new Buffer("init\r\n");
     this.paroduleUpdate = new Buffer("update\r\n");
@@ -21,19 +25,16 @@ class Parodule extends BaseModule {
   config 은 module.json 오브젝트입니다.
   */
   init(handler, config) {
-    console.log("init");
     this.handler = handler;
     this.config = config;
   }
 
   setSerialPort(sp){
-    console.log("setSerialPort");
     var self = this;
     this.sp = sp;
   }
 
   afterConnect(that, cb) {
-    console.log("afterConnect");
     that.connected = true;
     if (cb) {
         cb('connected');
@@ -47,29 +48,29 @@ class Parodule extends BaseModule {
   이 두 함수가 정의되어있어야 로직이 동작합니다. 필요없으면 작성하지 않아도 됩니다.
   */
   requestInitialData() {
-    console.log("requestInitialData");
+    /*
     const loopTime = Date.now() + 250;
     while (Date.now() < loopTime) {
-      // console.log(loopTime-Date.now())
     }
     return this.paroduleInit;
+    */
   }
 
   // 연결 후 초기에 수신받아서 정상연결인지를 확인해야하는 경우 사용합니다.
   checkInitialData(data, config) {
-    console.log(data);
+    /* 동작이 매끄럽지 못해서 보류 
     if (data == "paro\r\n" || data == "1\r\n") {
-      console.log("OK");
       return true;
     }
     else {
       return false;
     }
+    */
+    return true;
   }
 
   // 주기적으로 하드웨어에서 받은 데이터의 검증이 필요한 경우 사용합니다.
   validateLocalData(data) {
-    console.log("validateLocalData");
     return true;
   }
 
@@ -79,40 +80,101 @@ class Parodule extends BaseModule {
   */
   requestLocalData() {
     // 하드웨어로 보낼 데이터 로직
-    console.log("requestLocalData");
     var self = this;
-
-    if (!this.isDraing && this.paroduleBuffers.length > 0) {
-      this.isDraing = true;
-      this.sp.write(this.paroduleBuffers.shift(), function() {
-        if (self.sp) {
-          self.sp.drain(function() {
-            self.isDraing = false;
-          });
-        }
-      });
+    if (!this.isDraing && this.sendBuffers.length > 0) {
+      
+        this.isDraing = true;
+        this.sp.write(this.sendBuffers.shift(), function() {
+            if (self.sp) {
+                self.sp.drain(function() {
+                    self.isDraing = false;
+                });
+            }
+        });
     }
+
     return 0;
-}
+  }
 
   // 하드웨어에서 온 데이터 처리
   handleLocalData(data) {
     var datas = this.getDataByBuffer(data);
     // 데이터 처리 로직
-    console.log("handleLocalData");
-    console.log(datas);
   }
 
   // 엔트리로 전달할 데이터
   requestRemoteData(handler) {
-    console.log("requestRemoteData");
     // handler.write(key, value) ...
   }
 
   // 엔트리에서 받은 데이터에 대한 처리
   handleRemoteData(handler) {
-    console.log("handleRemoteData");
-    // const value = handler.read(key) ...
+    var self = this;
+    var cmdDatas = handler.read('CMD');
+    var getDatas = handler.read('GET');
+    var setDatas = handler.read('SET');
+    var time = handler.read('TIME');
+    var buffer = new Buffer([]);
+
+    // 입력 모듈일 경우
+    if (getDatas) {
+
+    }
+    // 출력 모듈일 경우
+    if (setDatas) {
+      var setKeys = Object.keys(setDatas);
+      setKeys.forEach(function(port) {
+        var data = setDatas[port];
+        if (data) {
+          if (self.terminalTimeList[port] < data.time) {
+            self.
+          }
+        }
+      });
+    }
+    // 커맨드 명령어
+    if (cmdDatas) {
+      if (self.cmdTime < cmdDatas.time) {
+        self.cmdTime = cmdDatas.time;
+
+        if (!self.isRecentData(cmdDatas.data)) {
+          self.recentCheckData = {
+            data: cmdDatas.data
+          }
+          buffer = new Buffer(cmdDatas.data);
+        }
+      }
+    }
+    console.log(buffer);
+    if (buffer.length) {
+      this.sendBuffers.push(buffer);
+      
+    }
+  }
+
+  // recentCheckData 리스트에 있는 경우 true 반환 아니면 false
+  isRecentData(terminal, type, data) {
+    var isRecent = false;
+
+    if (terminal in this.recentCheckData) {
+        if (this.recentCheckData[terminal].type === type && this.recentCheckData[terminal].data === data) {
+            isRecent = true;
+        }
+    }
+
+    return isRecent;
+  }
+
+  makeOutputBuffer(device, terminal, data) {
+    var buffer;
+    var dummy = new Buffer([10]);
+    if (device == this.controlTypes.STRING) {
+      buffer = new Buffer(data);
+    } 
+    else {
+
+    }
+    return buffer;
   }
 
   // '\r\n' 을 기준으로 버퍼를 자른다
@@ -130,7 +192,6 @@ class Parodule extends BaseModule {
 
   // 연결 해제되면 시리얼 포트 제거
   disconnect(connect) {
-    console.log("disconnect");
     var self = this;
     connect.close();
     if(self.sp) {
@@ -140,7 +201,6 @@ class Parodule extends BaseModule {
   
   // 리셋
   reset(){
-    console.log("reset");
     this.lastTime = 0;
     this.lastSendTime = 0;
     this.sensorData.PULSEIN = {}
