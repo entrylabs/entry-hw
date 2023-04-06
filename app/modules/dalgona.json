@@ -1,14 +1,14 @@
 {
     "id": "FFFF01",
     "name": {
-        "en": "Testino",
-        "ko": "테스트이노"
+        "en": "Dalgona Edu",
+        "ko": "달고나 에듀"
     },
     "category": "board",
     "platform": ["win32", "darwin"],
     "icon": "dalgona.png",
     "module": "dalgona.js",
-    "url": "http://playentry.org",
+    "url": "https://dalgonaedu.co.kr/",
     "driver": {
         "win32-ia32": "arduino/dpinst-x86.exe",
         "win32-x64": "arduino/dpinst-amd64.exe"
