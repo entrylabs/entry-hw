@@ -12,9 +12,8 @@ class Parodule extends BaseModule {
     };
     
     this.cmdTime = 0;
-    this.portTimeList = [0, 0, 0, 0];
-
-    this.paroduleBuffers = [];
+    this.portTimeList = [0, 0, 0, 0, 0];
+    this.terminal = [];
     this.paroduleEntry = new Buffer("entry\r\n");
     this.paroduleInit = new Buffer("init\r\n");
     this.paroduleUpdate = new Buffer("update\r\n");
@@ -122,24 +121,27 @@ class Parodule extends BaseModule {
     }
     // 출력 모듈일 경우
     if (setDatas) {
-      var setKeys = Object.keys(setDatas);
-      setKeys.forEach(function(port) {
+      var setKey = Object.keys(setDatas);
+      setKey.forEach(function(port) {
         var data = setDatas[port];
         if (data) {
           if (self.portTimeList[port] < data.time) {
             self.portTimeList[port] = data.time
-            
-            if (self.isRecentData(port, data.type, data.data)) {
+            if (!self.isRecentData(port, data.type, data.data)) {
               self.recentCheckData[port] = {
                 type: data.type,
                 data: data.data
               }
-              buffer = buffer.concat(buffer, self.makeOutputBuffer(data.type, port, data.data));
+              self.updateTerminalBuffer(port);  
+              buffer = Buffer.concat([buffer, self.makeOutputBuffer(data.type, null)]);
             }
           }
         }
       });
+     
     }
+
+
     // 커맨드 명령어
     if (cmdDatas) {
       if (self.cmdTime < cmdDatas.time) {
@@ -153,10 +155,9 @@ class Parodule extends BaseModule {
         }
       }
     }
-    console.log(buffer);
+    
     if (buffer.length) {
       this.sendBuffers.push(buffer);
-      
     }
   }
 
@@ -173,12 +174,32 @@ class Parodule extends BaseModule {
     return isRecent;
   }
 
-  makeOutputBuffer(device, terminal, data) {
+  updateTerminalBuffer (port) {
+    if (this.recentCheckData[port].data === 0) {
+      this.terminal[port] = 238;
+    }
+    else {
+      this.terminal[port] = this.recentCheckData[port].data;
+    }
+    
+  }
+  makeOutputBuffer(dataType, data) {
     var buffer;
-    var dummy = new Buffer([10]);
-    if (device == this.controlTypes.STRING) {
+
+    if (dataType == this.controlTypes.STRING) {
       buffer = new Buffer(data);
     } 
+    else if (dataType == this.controlTypes.DIGITAL) {
+      buffer = new Buffer([
+        255,
+        85,
+        this.terminal[1],
+        this.terminal[2],
+        this.terminal[3],
+        this.terminal[4],
+        10
+      ])
+    }
     else {
 
     }
