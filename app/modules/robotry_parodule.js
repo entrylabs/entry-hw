@@ -13,7 +13,7 @@ class Parodule extends BaseModule {
     
     this.cmdTime = 0;
     this.portTimeList = [0, 0, 0, 0, 0];
-    this.terminal = [];
+    this.terminal = {};
     this.paroduleEntry = new Buffer("entry\r\n");
     this.paroduleInit = new Buffer("init\r\n");
     this.paroduleUpdate = new Buffer("update\r\n");
@@ -197,6 +197,7 @@ class Parodule extends BaseModule {
         this.terminal[2],
         this.terminal[3],
         this.terminal[4],
+        13,
         10
       ])
     }
