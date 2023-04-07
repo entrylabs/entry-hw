@@ -26,7 +26,9 @@ Module.prototype.handleRemoteData = function(handler) {
     var digitalValue = this.remoteDigitalValue;
     for (var port = 0; port < 14; port++) {
         digitalValue[port] = handler.read(port);
+        console.log(port + " : " + digitalValue[port]);
     }
+    console.log("\n");
 };
 
 Module.prototype.requestLocalData = function() {
