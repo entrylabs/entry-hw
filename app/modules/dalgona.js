@@ -84,7 +84,8 @@ Module.prototype.handleLocalData = function(data) {
                     var port = (chunk >> 3) & 7;
                     this.analogValue[port] =
                         ((chunk & 7) << 7) + (nextChunk & 127);
-                }
+                    console.log("Analog Pin " + port + " value: " + this.analogValue[port]);
+                    }
                 i++;
             } else {
                 var port = (chunk >> 2) & 15;
