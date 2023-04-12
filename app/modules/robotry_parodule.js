@@ -13,7 +13,8 @@ class Parodule extends BaseModule {
     
     this.cmdTime = 0;
     this.portTimeList = [0, 0, 0, 0, 0];
-    this.terminal = {};
+    this.terminal = [255, 85, 238, 238, 238, 238, 10];
+    this.moduleOff = [255, 85, 200, 200, 200, 200, 10];
     this.paroduleEntry = new Buffer("entry\r\n");
     this.paroduleInit = new Buffer("init\r\n");
     this.paroduleUpdate = new Buffer("update\r\n");
@@ -80,16 +81,16 @@ class Parodule extends BaseModule {
   requestLocalData() {
     // 하드웨어로 보낼 데이터 로직
     var self = this;
+    
     if (!this.isDraing && this.sendBuffers.length > 0) {
-      
-        this.isDraing = true;
-        this.sp.write(this.sendBuffers.shift(), function() {
-            if (self.sp) {
-                self.sp.drain(function() {
-                    self.isDraing = false;
-                });
-            }
-        });
+      this.isDraing = true;
+      this.sp.write(this.sendBuffers.shift(), function() {
+          if (self.sp) {
+              self.sp.drain(function() {
+                  self.isDraing = false;
+              });
+          }
+      });
     }
 
     return 0;
@@ -114,7 +115,6 @@ class Parodule extends BaseModule {
     var setDatas = handler.read('SET');
     var time = handler.read('TIME');
     var buffer = new Buffer([]);
-
     // 입력 모듈일 경우
     if (getDatas) {
 
@@ -157,6 +157,7 @@ class Parodule extends BaseModule {
     }
     
     if (buffer.length) {
+      console.log(buffer);
       this.sendBuffers.push(buffer);
     }
   }
@@ -185,7 +186,6 @@ class Parodule extends BaseModule {
   }
   makeOutputBuffer(dataType, data) {
     var buffer;
-
     if (dataType == this.controlTypes.STRING) {
       buffer = new Buffer(data);
     } 
@@ -197,9 +197,8 @@ class Parodule extends BaseModule {
         this.terminal[2],
         this.terminal[3],
         this.terminal[4],
-        13,
         10
-      ])
+      ]);
     }
     else {
 
