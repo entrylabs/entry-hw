@@ -133,7 +133,7 @@ class Parodule extends BaseModule {
                 data: data.data
               }
               self.updateTerminalBuffer(port);  
-              buffer = Buffer.concat([buffer, self.makeOutputBuffer(data.type, null)]);
+              buffer = new Buffer(self.makeOutputBuffer(data.type, null));
             }
           }
         }

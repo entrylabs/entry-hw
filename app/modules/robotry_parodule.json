@@ -23,7 +23,7 @@
       "duration": 10,
       "vendor": "",
       "baudRate": 115200,
-      "lostTimer": 1000,
+      "lostTimer": 2000,
       "byteDelimiter": [13, 10],
       "firmwarecheck": false
   }
