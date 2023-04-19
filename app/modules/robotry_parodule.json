@@ -15,13 +15,13 @@
       "win32-x64": "robotry/CH34x_Install_Windows_v3_4.exe",
   "translate": "드라이버 설치"
   }],
-  "selectPort": true,
+
   "reconnect": true,  
   "hardware": {
       "type": "serial",
       "control": "slave",
       "duration": 10,
-      "vendor": "",
+      "pnpId": "1001",
       "baudRate": 115200,
       "lostTimer": 2000,
       "byteDelimiter": [13, 10],
