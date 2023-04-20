@@ -537,10 +537,9 @@ class MainRouter {
             this.flasher.kill();
             this.config && this.startScan(this.config);
         });
-        ipcMain.handle('isValidAsarFile', async (event) => {
+        ipcMain.handle('isValidAsarFileHW', async (event) => {
             try {
                 const result = await isValidAsarFile();
-                console.log("isValidAsarFile : ", result);
                 return result;
             } catch (e) {
                 console.log(e);
@@ -578,6 +577,7 @@ class MainRouter {
         ipcMain.removeAllListeners('getCurrentServerModeSync');
         ipcMain.removeAllListeners('getCurrentCloudModeSync');
         ipcMain.removeAllListeners('requestHardwareListSync');
+        ipcMain.removeHandler('isValidAsarFileHW');
         ipcMain.removeHandler('requestDownloadModule');
         ipcMain.removeHandler('requestFlash');
         logger.verbose('EntryHW ipc event all cleared');
