@@ -22,8 +22,9 @@
       "control": "slave",
       "duration": 10,
       "pnpId": "1001",
+      "flowControl": "hardware",
       "baudRate": 115200,
-      "lostTimer": 2000,
+      "lostTimer": 1500,
       "byteDelimiter": [13, 10],
       "firmwarecheck": false
   }
