@@ -241,7 +241,7 @@ void runModule(int device) {
 
 void sendPinValues() {  
   int pinNumber = 0;
-  for (pinNumber = 0; pinNumber < 12; pinNumber++) {
+  for (pinNumber = 0; pinNumber < 14; pinNumber++) {
     if(digitals[pinNumber] == 0) {
       sendDigitalValue(pinNumber);
       callOK();
