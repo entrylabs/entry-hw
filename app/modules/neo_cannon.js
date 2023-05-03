@@ -40,13 +40,13 @@ const NEOCANNON = {
     ANGLE_STATE: 'angleState',
 };
 
-Module.prototype.init = function (handler, config) {};
+Module.prototype.init = function(handler, config) {};
 
-Module.prototype.setSerialPort = function (sp) {
+Module.prototype.setSerialPort = function(sp) {
     this.sp = sp;
 };
 
-Module.prototype.requestInitialData = function () {
+Module.prototype.requestInitialData = function() {
     const txData = this.tx_data;
     txData[0] = 0xff;
     txData[1] = 0x0e;
@@ -60,23 +60,23 @@ Module.prototype.requestInitialData = function () {
     return txData;
 };
 
-Module.prototype.checkInitialData = function (data, config) {
+Module.prototype.checkInitialData = function(data, config) {
     return true;
 };
 
-Module.prototype.afterConnect = function (that, cb) {
+Module.prototype.afterConnect = function(that, cb) {
     that.connected = true;
     if (cb) {
         cb('connected');
     }
 };
 
-Module.prototype.validateLocalData = function (data) {
+Module.prototype.validateLocalData = function(data) {
     return true;
 };
 
 /* 엔트리HW -> 엔트리JS */
-Module.prototype.requestRemoteData = function (handler) {
+Module.prototype.requestRemoteData = function(handler) {
     const sensorData = this.sensor_data;
     for (const key in sensorData) {
         handler.write(key, sensorData[key]);
@@ -84,7 +84,7 @@ Module.prototype.requestRemoteData = function (handler) {
 };
 
 /** 엔트리JS -> 엔트리HW */
-Module.prototype.handleRemoteData = function (handler) {
+Module.prototype.handleRemoteData = function(handler) {
     const workerData = this.worker_data;
     let newValue;
 
@@ -140,7 +140,7 @@ Module.prototype.handleRemoteData = function (handler) {
 };
 
 /* 엔트리HW -> 교구 */
-Module.prototype.requestLocalData = function () {
+Module.prototype.requestLocalData = function() {
     const workerData = this.worker_data;
     const txData = this.tx_data;
     let checkSum = 0;
@@ -171,7 +171,7 @@ Module.prototype.requestLocalData = function () {
 };
 
 /* 교구 -> 엔트리HW */
-Module.prototype.handleLocalData = function (data) {
+Module.prototype.handleLocalData = function(data) {
     const datas = this.getDataByBuffer(data);
     const sensorData = this.sensor_data;
 
@@ -199,7 +199,7 @@ Module.prototype.handleLocalData = function (data) {
     this.sensor_data = sensorData;
 };
 
-Module.prototype.getDataByBuffer = function (buffer) {
+Module.prototype.getDataByBuffer = function(buffer) {
     const datas = [];
     let lastIndex = 0;
     buffer.forEach((value, idx) => {
@@ -211,14 +211,14 @@ Module.prototype.getDataByBuffer = function (buffer) {
     return datas;
 };
 
-Module.prototype.disconnect = function (connect) {
+Module.prototype.disconnect = function(connect) {
     connect.close();
     if (this.sp) {
         delete this.sp;
     }
 };
 
-Module.prototype.reset = function () {
+Module.prototype.reset = function() {
     this.lastTime = 0;
     this.lastSendTime = 0;
 };
