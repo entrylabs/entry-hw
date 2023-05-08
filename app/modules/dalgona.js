@@ -26,9 +26,9 @@ Module.prototype.handleRemoteData = function(handler) {
     var digitalValue = this.remoteDigitalValue;
     for (var port = 0; port < 14; port++) {
         digitalValue[port] = handler.read(port);
-        // console.log(port + " : " + digitalValue[port]);
+        console.log(port + " : " + digitalValue[port]);
     }
-    // console.log("\n");
+    console.log("\n");
 };
 
 Module.prototype.requestLocalData = function() {
@@ -84,7 +84,7 @@ Module.prototype.handleLocalData = function(data) {
                     var port = (chunk >> 3) & 7;
                     this.analogValue[port] =
                         ((chunk & 7) << 7) + (nextChunk & 127);
-                    // console.log("Analog Pin " + port + " value: " + this.analogValue[port]);
+                    console.log("Analog Pin " + port + " value: " + this.analogValue[port]);
                     }
                 i++;
             } else {
