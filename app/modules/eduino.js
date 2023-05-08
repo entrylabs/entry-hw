@@ -281,11 +281,6 @@ Module.prototype.handleLocalData = function(data) {
         switch (type) {
             case self.sensorTypes.DIGITAL: {
                 self.sensorData.DIGITAL[port] = value;
-                // for(let i = 0; i < 14; i++)
-                // {
-                //     console.log(i + " : " +self.sensorData.DIGITAL[i]);
-                // }
-                // console.log("\n");
                 break;
             }
             case self.sensorTypes.ANALOG: {
