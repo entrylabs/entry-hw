@@ -379,6 +379,7 @@ Module.prototype.sendPacketTooController = function () {
                 sendBuffer = this.writeBytePacket(200, address, value);
             } else if (length == 2) {
                 sendBuffer = this.writeWordPacket(200, address, value);
+                /*
             } else if (length == 4 && address == 136) {
                 var value2;
                 if (value < 1024)
@@ -386,6 +387,7 @@ Module.prototype.sendPacketTooController = function () {
                 else
                     value2 = value - 1024;
                 sendBuffer = this.writeDWordPacket2(200, address, value, value2);
+                */
             } else {
                 sendBuffer = this.writeDWordPacket(200, address, value);
             }
@@ -469,6 +471,7 @@ Module.prototype.requestLocalData = function () {
                 sendBuffer = this.writeBytePacket(200, address, value);
             } else if (length == 2) {
                 sendBuffer = this.writeWordPacket(200, address, value);
+                /*
             } else if (length == 4 && address == 136) {
                 var value2;
                 if (value < 1024)
@@ -476,6 +479,7 @@ Module.prototype.requestLocalData = function () {
                 else
                     value2 = value - 1024;
                 sendBuffer = this.writeDWordPacket2(200, address, value, value2);
+                */
             } else {
                 sendBuffer = this.writeDWordPacket(200, address, value);
             }
