@@ -35,8 +35,6 @@ function Module() {
     this.prevLeftValue = 0;
     this.isRight = false;
 
-    //this.touchSensor = 0;
-    this.humidity = [];
     this.temperature = [];
     this.colorSensor = [];
     this.touchSensor = [];
@@ -104,13 +102,16 @@ Module.prototype.requestInitialData = function () {
 
     var sendbuffer = null;
 
-    //this.touchSensor = 0;
     this.colorSensor = [];
     this.temperature = [];
-    this.humidity = [];
     this.touchSensor = [];
     this.irSensor = [];
     this.lightSensor = [];
+    this.ultrasonicSensor = [];
+    this.magneticSensor = [];
+    this.motionSensor = [];
+    this.htHumiditySensor = [];
+    this.httemperatureSensor = [];
     this.detectedSound = 0;
     this.detectringSound = 0;
     this.userButtonState = 0;
@@ -167,8 +168,12 @@ Module.prototype.requestRemoteData = function (handler) {
         handler.write('IR' + i, this.irSensor[i]); // 적외선 센서
         handler.write('LIGHT' + i, this.lightSensor[i]); // 조도 센서
         handler.write('COLOR' + i, this.colorSensor[i]); // 칼라 센서
-        handler.write('HUMIDTY' + i, this.humidity[i]); // 습도 센서
+        handler.write('HUMIDTY' + i, this.htHumiditySensor[i]); // 습도 센서
         handler.write('TEMPERATURE' + i, this.temperature[i]); // 온도 센서
+        handler.write('HT_TEMPERATURE' + i, this.httemperatureSensor[i]); // 온습도 온도 센서
+        handler.write('ULTRASONIC' + i, this.ultrasonicSensor[i]); // 초음파 센서
+        handler.write('MAGNETIC' + i, this.magneticSensor[i]); // 자석 센서
+        handler.write('MOTION' + i, this.motionSensor[i]); // 동작감지 센서
         
         if (this.maxPortValue[i] != undefined) {
             handler.write('MONITORPORT' + i, this.maxPortValue[i]);
@@ -374,6 +379,7 @@ Module.prototype.sendPacketTooController = function () {
                 sendBuffer = this.writeBytePacket(200, address, value);
             } else if (length == 2) {
                 sendBuffer = this.writeWordPacket(200, address, value);
+                /*
             } else if (length == 4 && address == 136) {
                 var value2;
                 if (value < 1024)
@@ -381,6 +387,7 @@ Module.prototype.sendPacketTooController = function () {
                 else
                     value2 = value - 1024;
                 sendBuffer = this.writeDWordPacket2(200, address, value, value2);
+                */
             } else {
                 sendBuffer = this.writeDWordPacket(200, address, value);
             }
@@ -464,6 +471,7 @@ Module.prototype.requestLocalData = function () {
                 sendBuffer = this.writeBytePacket(200, address, value);
             } else if (length == 2) {
                 sendBuffer = this.writeWordPacket(200, address, value);
+                /*
             } else if (length == 4 && address == 136) {
                 var value2;
                 if (value < 1024)
@@ -471,6 +479,7 @@ Module.prototype.requestLocalData = function () {
                 else
                     value2 = value - 1024;
                 sendBuffer = this.writeDWordPacket2(200, address, value, value2);
+                */
             } else {
                 sendBuffer = this.writeDWordPacket(200, address, value);
             }
@@ -572,7 +581,7 @@ Module.prototype.packetChecker = function (data) {
     }
 };
 Module.prototype.handleLocalData = function (data) { // data: Native Buffer    
-    //console.log("data!!!! " + data.length + " "+ this.packetChecker(data));
+    // console.log("data!!!! " + data.length + " "+ this.packetChecker(data));
     
     for (var i = 0; i < data.length; i++)
     {
@@ -717,6 +726,7 @@ Module.prototype.handleLocalData = function (data) { // data: Native Buffer
                                     }
                                     jx++;
                                 }
+                                jx = 0;
                                 for (var ix = 30; ix < 34; ix++) { // 터치 센서
                                     if (this.receiveBuffer[ix - 5] != undefined) {
                                         this.touchSensor[jx] = this.receiveBuffer[ix - 5];
@@ -735,6 +745,46 @@ Module.prototype.handleLocalData = function (data) { // data: Native Buffer
                                     jx++;
                                 }
                                 // console.log("kjsDebug port3 servo : " + this.servotemp[0] + " port3 ir : " + this.irSensor[0]);
+                                jx = 0;
+                                for (var ix = 42; ix < 46; ix++) { // 온도 센서
+                                    if (this.receiveBuffer[ix - 5] != undefined) {
+                                        this.temperature[jx] = this.receiveBuffer[ix - 5];
+                                        if (this.maxPortValue[jx] < this.temperature[jx]) // add by 191029
+                                            this.maxPortValue[jx] = this.temperature[jx];
+                                    }
+                                    jx++;
+                                }
+                                // console.log("kjsDebug port3 servo : " + this.servotemp[0] + " port3 temperature : " + this.temperature[0]);
+                                jx = 0;
+                                for (var ix = 46; ix < 50; ix++) { // 초음파 센서
+                                    if (this.receiveBuffer[ix - 5] != undefined) {
+                                        this.ultrasonicSensor[jx] = this.receiveBuffer[ix - 5];
+                                        if (this.maxPortValue[jx] < this.ultrasonicSensor[jx]) // add by 191029
+                                            this.maxPortValue[jx] = this.ultrasonicSensor[jx];
+                                    }
+                                    jx++;
+                                }
+                                // console.log("kjsDebug port3 servo : " + this.servotemp[0] + " port3 sonar : " + this.ultrasonicSensor[0]);
+                                jx = 0;
+                                for (var ix = 50; ix < 54; ix++) { // 자석 센서
+                                    if (this.receiveBuffer[ix - 5] != undefined) {
+                                        this.magneticSensor[jx] = this.receiveBuffer[ix - 5];
+                                        if (this.maxPortValue[jx] < this.magneticSensor[jx]) // add by 191029
+                                            this.maxPortValue[jx] = this.magneticSensor[jx];
+                                    }
+                                    jx++;
+                                }
+                                // console.log("kjsDebug port3 servo : " + this.servotemp[0] + " port3 magnet : " + this.magneticSensor[0]);
+                                jx = 0;
+                                for (var ix = 54; ix < 58; ix++) { // 동작감지 센서
+                                    if (this.receiveBuffer[ix - 5] != undefined) {
+                                        this.motionSensor[jx] = this.receiveBuffer[ix - 5];
+                                        if (this.maxPortValue[jx] < this.motionSensor[jx]) // add by 191029
+                                            this.maxPortValue[jx] = this.motionSensor[jx];
+                                    }
+                                    jx++;
+                                }
+                                // console.log("kjsDebug port3 servo : " + this.servotemp[0] + " port3 magnet : " + this.motionSensor[0]);
                                 jx = 0;
                                 for (var ix = 70; ix < 77; ix = ix + 2) { // 조도 센서
                                     if (this.receiveBuffer[ix - 5] != undefined) {
@@ -759,19 +809,19 @@ Module.prototype.handleLocalData = function (data) { // data: Native Buffer
                                 jx = 0;
                                 for (var ix = 62; ix < 66; ix++) { // 습도 센서
                                     if (this.receiveBuffer[ix - 5] != undefined) {
-                                        this.humidity[jx] = this.receiveBuffer[ix - 5];                                        
-                                        if (this.maxPortValue[jx] < this.humidity[jx]) // add by 191029
-                                            this.maxPortValue[jx] = this.humidity[jx];
+                                        this.htHumiditySensor[jx] = this.receiveBuffer[ix - 5];                                        
+                                        if (this.maxPortValue[jx] < this.htHumiditySensor[jx]) // add by 191029
+                                            this.maxPortValue[jx] = this.htHumiditySensor[jx];
                                     }
                                     jx++;
                                 }
                                 jx = 0;
                                 for (var ix = 66; ix < 70; ix++) { // 온도 센서
                                     if (this.receiveBuffer[ix - 5] != undefined) {
-                                        this.temperature[jx] = this.receiveBuffer[ix - 5];
+                                        this.httemperatureSensor[jx] = this.receiveBuffer[ix - 5];
                                         // console.log("m : " + this.maxPortValue[jx] + " t : " + this.temperature[jx]);
-                                        if (this.maxPortValue[jx] < this.temperature[jx]) // add by 191029
-                                            this.maxPortValue[jx] = this.temperature[jx];
+                                        if (this.maxPortValue[jx] < this.httemperatureSensor[jx]) // add by 191029
+                                            this.maxPortValue[jx] = this.httemperatureSensor[jx];
                                     }
                                     jx++;
                                 }
