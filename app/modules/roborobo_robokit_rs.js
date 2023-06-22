@@ -1,6 +1,7 @@
 const {
     ArduinoBase,
     ArduinoStateBase,
+    // protocol
     PinMode,
     SysexCMD,
     Instruction

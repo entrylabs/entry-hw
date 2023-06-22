@@ -1,6 +1,7 @@
 const {
     ArduinoBase,
     ArduinoStateBase,
+    // protocol
     PinMode,
     FirmataCMD
 } = require('./roborobo_base');
@@ -85,10 +86,6 @@ class Roduino extends ArduinoBase {
 
     execute (command, data) {
         super.execute(command, data);
-    }
-
-    _getRequestFirmataVersion () {
-        return [FirmataCMD.GET_VERSION, 0xF0, 0x79, 0xF7];
     }
 
     /**

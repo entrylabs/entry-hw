@@ -19,7 +19,7 @@
   "firmware": "roborobo_robokit_rs",
   "firmwareBaudRate": 115200,
   "tryFlahserNumber": 3,
-  "select_com_port": true,
+  "selectPort": true,
   "hardware": {
     "type": "serial",
     "control": "slave",
