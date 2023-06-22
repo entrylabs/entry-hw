@@ -1,5 +1,8 @@
 const BaseModule = require('./baseModule');
 
+const THREAD_STEP_INTERVAL = 1000 / 60;
+const THREAD_STEP_INTERVAL_COMPATIBILITY = 1000 / 30;
+
 const FirmataCMD = {
     ENABLE_DIGITAL: 0xD0,
     DIGITAL_CH0: 0x90,
@@ -14,7 +17,7 @@ const FirmataCMD = {
     SET_PIN_MODE: 0xF4,
     GET_VERSION: 0xF9,
     RESET: 0xFF,
-}
+};
 
 const PinMode = {
     INPUT: 0x00,
@@ -34,7 +37,7 @@ const PinMode = {
     RGBLED: 0x0E,
     ROTARYPOSITION: 0x0F,
     IGNORE: 0x7F
-}
+};
 
 const SysexCMD = {
     START: 0xF0,
@@ -48,7 +51,7 @@ const SysexCMD = {
     I2C_REPLY: 0x77,
     I2C_CONFIG: 0x78,
     END: 0xF7
-}
+};
 
 const Instruction = {
     DIGITAL: 0x00,
@@ -71,7 +74,7 @@ const Instruction = {
     GET_VERSION_FIRMWARE: 0x7D,
     GET_VERSION_HARDWARE: 0x7E,
     GET_VERSION: 0x7F,
-}
+};
 
 const Frequency = {
     0: 32.7032, 1: 34.6478, 2: 36.7081, 3: 38.8909, 4: 41.2034, 5: 43.6535, 6: 46.2493, 7: 48.9994, 8: 51.9130, 9: 55.0000, 10: 58.2705, 11: 61.7354,
@@ -84,6 +87,7 @@ const Frequency = {
     84: 4186.009, 85: 4434.922, 86: 4698.636, 87: 4978.036, 88: 5274.041, 89: 5587.652, 90: 5919.911, 91: 6271.927, 92: 6644.875, 93: 7040.000, 94: 7458.620, 95: 7902.133,
     96: 8372.018
 };
+
 const RATIO_CONVERT_ANALOG_TO_ANGLE = 0.3515625;
 
 class ArduinoBase extends BaseModule {
@@ -635,7 +639,7 @@ class ArduinoBase extends BaseModule {
      * @param {number} pin [2, 15]
      */
     _enableDigitalInput (pin) {
-        if (this._isDigitalPin(pin)) this.setPinMode(pin, PinMode.INPUT)
+        if (this._isDigitalPin(pin)) this.setPinMode(pin, PinMode.INPUT);
     }
 
     /**
@@ -992,7 +996,7 @@ class ArduinoBase extends BaseModule {
                     model: data[4],
                     hardware: data[5],
                     firmware: data[6]
-                }
+                };
             } break;
         }
         data.splice(0, length);
@@ -1053,7 +1057,7 @@ class ArduinoStateBase {
              * }
              */
             piezo: [],
-        }
+        };
 
         /**
          * 센서의 값을 수신하여 저장
@@ -1110,7 +1114,7 @@ class ArduinoStateBase {
                 },
                 shake: 0,
             }
-        }
+        };
     }
 
     /**
@@ -1121,7 +1125,7 @@ class ArduinoStateBase {
         if (!this.pin[pin]) {
             this.pin[pin] = {
                 mode: null
-            }
+            };
         }
         return this.pin[pin];
     }
@@ -1136,7 +1140,7 @@ class ArduinoStateBase {
                 motor: null,
                 speed: null,
                 state: null
-            }
+            };
         }
         return this.tx.motor[index];
     }
@@ -1150,7 +1154,7 @@ class ArduinoStateBase {
             this.tx.piezo[pin] = {
                 note: null,
                 duration: null
-            }
+            };
         }
         return this.tx.piezo[pin];
     }
@@ -1166,7 +1170,7 @@ class ArduinoStateBase {
                 g: null,
                 b: null,
                 a: null
-            }
+            };
         }
         return this.tx.rgbLed[pin];
     }
@@ -1181,7 +1185,7 @@ class ArduinoStateBase {
                 value: 0,
                 values: [],
                 enable: false
-            }
+            };
         }
         return this.rx.temperature[analogPin];
     }
@@ -1204,10 +1208,28 @@ class ArduinoStateBase {
                 isIntegerPosition: true,
                 isIntegerRotation: true,
                 isIntegerAngle: true,
-            }
+            };
         }
         return this.rx.rotaryPosition[analogPin];
     }
 }
 
-module.exports = {ArduinoBase, ArduinoStateBase, FirmataCMD, PinMode, SysexCMD, Instruction};
+const Sleep = function (ms) {
+    return new Promise(resolve => setTimeout(() => resolve(), ms));
+};
+
+module.exports = {
+    ArduinoBase,
+    ArduinoStateBase,
+
+    FirmataCMD,
+    PinMode,
+    SysexCMD,
+    Instruction,
+    Frequency,
+
+    THREAD_STEP_INTERVAL,
+    THREAD_STEP_INTERVAL_COMPATIBILITY,
+
+    Sleep
+};
