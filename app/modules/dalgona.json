@@ -11,9 +11,9 @@
     "url": "https://dalgonaedu.co.kr/",
     "email": "who@nugunaplay.co.kr",
     "driver": {
-        "win32-ia32": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
-        "win32-x64": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
-        "darwin-x64": "https://entrylabs.github.io/docs/files/drivers/CH34x_Install_MAC_10_9_AND_ABOVE/CH34x_Install_V1.3.pkg"
+        "win32-ia32": "ftdi/dpinst-x86.exe",
+		"win32-x64": "ftdi/dpinst-amd64.exe",
+        "darwin-x64": "https://entrylabs.github.io/docs/files/drivers/FTDIUSBSerial/FTDIUSBSerial.pkg"
     },
     "selectPort": true,
     "reconnect": true,
