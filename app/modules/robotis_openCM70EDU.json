@@ -16,6 +16,14 @@
         "win32-x64": "ROBOTIS/ROBOTIS CDC Driver.bat"
 	},
 	"selectPort" : true,
+	"firmware": {
+        "type": "opencm7",
+        "offset": "0x8004000",
+        "name": "OpenCM7.0",
+        "translate" : "실과로봇 펌웨어 업데이트",
+        "latest_version": 22
+    },
+	"firmwareBaudRate": 57600,
 	"hardware": {
 		"type": "serial",
 		"control": "slave",
