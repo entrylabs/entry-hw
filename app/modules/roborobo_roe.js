@@ -135,9 +135,6 @@ class RoE extends ArduinoBase {
     execute (command, data) {
         const keys = data ? Object.keys(data) : [];
         switch (command) {
-            case 'language': {
-                this.language = data;
-            }
             case 'reset': {
                 this.reset();
             } break;
@@ -538,20 +535,19 @@ class RoE extends ArduinoBase {
     }
 
     _toRoEColorString (protocol) {
-        if (!this.language) return '';
         switch (protocol) {
-            case 1: return this.language.roe_sensor_color_red;
-            case 2: return this.language.roe_sensor_color_orange;
-            case 3: return this.language.roe_sensor_color_yellow;
-            case 7: return this.language.roe_sensor_color_yellow_green;
-            case 4: return this.language.roe_sensor_color_green;
-            case 8: return this.language.roe_sensor_color_sky_blue;
-            case 5: return this.language.roe_sensor_color_blue;
-            case 6: return this.language.roe_sensor_color_purple;
-            case 9: return this.language.roe_sensor_color_pink;
-            case 10: return this.language.roe_sensor_color_black;
-            case 11: return this.language.roe_sensor_color_white;
-            default: return this.language.roe_sensor_color_unknown;
+            case 1: return 'RED';
+            case 2: return 'ORANGE';
+            case 3: return 'YELLOW';
+            case 7: return 'YELLOW GREEN';
+            case 4: return 'GREEN';
+            case 8: return 'SKY BLUE';
+            case 5: return 'BLUE';
+            case 6: return 'PURPLE';
+            case 9: return 'PINK';
+            case 10: return 'BLACK';
+            case 11: return 'WHITE';
+            default: return 'UNKNOWN';
         }
     }
 }
