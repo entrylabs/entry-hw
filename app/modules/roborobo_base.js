@@ -88,6 +88,15 @@ const Frequency = {
     96: 8372.018
 };
 
+const DrawMode = {
+    BIT: 0x00,
+    POINT: 0x01,
+    SIGN: 0x02,
+    STRING: 0x03,
+    SCROLLDRAW: 0x04,
+    CLEAR: 0x07
+};
+
 const RATIO_CONVERT_ANALOG_TO_ANGLE = 0.3515625;
 
 class ArduinoBase extends BaseModule {
@@ -117,8 +126,6 @@ class ArduinoBase extends BaseModule {
 
         this._receiveBuffer = [];
         this._sendBuffer = [];
-        this._sendBuffer.push(this._getResetDeviceCommand());
-        this._sendBuffer.push(this._getDigitalPinEnableCommand());
     }
 
     /**
@@ -171,7 +178,7 @@ class ArduinoBase extends BaseModule {
         if (time >= 3000) {
             this._serialPort.close();
         } else if (time >= 1000) {
-            buffer.push(...this._getRequestBatteryVoltageCommand());
+            buffer.push(...this.requestInitialData());
         }
         return buffer;
     }
@@ -971,21 +978,6 @@ class ArduinoBase extends BaseModule {
         }
 
         switch (data[2]) {
-            case Instruction.GET_SENSOR: {
-                // 자이로 센서 상태 변경 값
-                if (data[4] == 0x09) {
-                    const obj = this.state.rx.gyro;
-                    obj.angle.x = (data[5] + ((data[6] & 0x01) << 7)) * ((data[6] >> 4 & 0x01) == 1 ? -1 : 1);
-                    obj.angle.y = (data[7] + ((data[8] & 0x01) << 7)) * ((data[8] >> 4 & 0x01) == 1 ? -1 : 1);
-                    obj.angle.z = (data[9] + ((data[10] & 0x01) << 7)) * ((data[10] >> 4 & 0x01) == 1 ? -1 : 1);
-
-                    obj.gyro.x = (data[11] + ((data[12] & 0x01) << 7)) * ((data[12] >> 4 & 0x01) == 1 ? -1 : 1);
-                    obj.gyro.y = (data[13] + ((data[14] & 0x01) << 7)) * ((data[14] >> 4 & 0x01) == 1 ? -1 : 1);
-                    obj.gyro.z = (data[15] + ((data[16] & 0x01) << 7)) * ((data[16] >> 4 & 0x01) == 1 ? -1 : 1);
-
-                    obj.shake = data[20] & 0x01;
-                }
-            } break;
             // 전압 체크 프로토콜
             case Instruction.GET_VOLTAGE: {
                 this.voltage = data[4];
@@ -1097,23 +1089,6 @@ class ArduinoStateBase {
              */
             rotaryPosition: [],
 
-            /**
-             * I2C pin 사용 [18, 19] 번호 고정
-             */
-            gyro: {
-                enable: false,
-                angle: {
-                    x: 0,
-                    y: 0,
-                    z: 0
-                },
-                gyro: {
-                    x: 0,
-                    y: 0,
-                    z: 0
-                },
-                shake: 0,
-            }
         };
     }
 
@@ -1227,6 +1202,7 @@ module.exports = {
     SysexCMD,
     Instruction,
     Frequency,
+    DrawMode,
 
     THREAD_STEP_INTERVAL,
     THREAD_STEP_INTERVAL_COMPATIBILITY,

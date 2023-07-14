@@ -66,10 +66,7 @@ class RoE extends ArduinoBase {
      * @override
      */
     reset () {
-        this.state = this.newTypedState();
-
-        this._receiveBuffer = [];
-        this._sendBuffer = [];
+        super.reset();
 
         this._stopLineTracing();
 
@@ -133,7 +130,6 @@ class RoE extends ArduinoBase {
     }
 
     execute (command, data) {
-        const keys = data ? Object.keys(data) : [];
         switch (command) {
             case 'reset': {
                 this.reset();
@@ -143,6 +139,7 @@ class RoE extends ArduinoBase {
             } break;
             case 'setStepMotor': {
                 const motors = [];
+                const keys = data ? Object.keys(data) : [];
                 keys.forEach(key => motors.push(data[key]));
                 this._setStepMotor(motors);
             } break;
@@ -413,7 +410,7 @@ class RoE extends ArduinoBase {
         ]);
     }
 
-    playSounds (num) {
+    _playSounds (num) {
         if (!this.isRealtimeAvailable) return;
 
         num = Math.max(0, Math.min(127, num)) & 0x7F;
