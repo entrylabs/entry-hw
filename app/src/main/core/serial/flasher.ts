@@ -135,6 +135,102 @@ class Flasher {
         });
     }
 
+    private _flashOpenCM7(
+        firmware: IOpenCM7TypeFirmware,
+        port: string,
+        options: {
+            baudRate?: number;
+            MCUType?: string;
+        }
+    ): Promise<any[]> {
+        return new Promise((resolve) => {
+            const cmd = [
+                'opencm7Dfu.exe',
+                ' opencm7',
+                ` ${port}`,
+                ` ${firmware.name}.bin`,
+            ].join('');
+
+            logger.info(`OpenCM7.0 board firmware requested.\nparameter is ${cmd}`);
+            try {
+                this.flasherProcess = exec(
+                    cmd,
+                    {
+                        cwd: directoryPaths.firmware(),
+                    },
+                    (...args) => {
+                        resolve(args);
+                    }
+                ).on('exit', code => {
+                    if (code != null)
+                    {
+                        if (code > 2147483647)
+                        {
+                            code = code - 4294967296;
+                        }
+                    }
+                    console.log('final exit code is', code);
+                }
+                );
+            }
+            catch (error) {
+
+            }
+        });
+    }
+
+    checkOpenCM7Version(
+        port: string,
+        latest_version: number,
+    ): Promise<any[]> {
+        return new Promise((resolve) => {
+            const cmd = [
+                'opencm7Dfu.exe',
+                ' opencm7',
+                ` ${port}`,
+                ' version',
+            ].join('');
+
+            logger.info(`Read OpenCM7.0 board firmware version.\nparameter is ${cmd}`);
+            try {
+                this.flasherProcess = exec(
+                    cmd,
+                    {
+                        cwd: directoryPaths.firmware(),
+                    },
+                    (...args) => {
+                        resolve(args);
+                    }
+                ).on('exit', code => {
+                    if (code != null)
+                    {
+                        console.log('code is', code);
+                        if (code > 2147483647)
+                        {
+                            code = code - 4294967296;
+                        }
+                    }
+                    if (code)
+                    {
+                        if (code < latest_version)
+                        {
+                            dialog.showMessageBox({
+                                type: 'info',
+                                title: `펌웨어 업데이트 안내 (v${latest_version})`,
+                                message: '새로운 펌웨어가 배포되었습니다.\n펌웨어를 업데이트 해주세요.\nNew firmware is available.\nPlease update the firmware.\n'
+                            });
+                        }
+                    }
+                    console.log('final exit code is', code);
+                }
+                );
+            }
+            catch (error) {
+
+            }
+        });
+    }
+
     flash(
         firmware: IFirmwareInfo,
         port: string,
@@ -149,6 +245,8 @@ class Flasher {
             return this._flashCopy(firmware as ICopyTypeFirmware);
         } else if ((firmware as IESP32TypeFirmware).type === 'esp32') {
             return this._flashESP(firmware as IESP32TypeFirmware, port, options);
+        } else if ((firmware as IOpenCM7TypeFirmware).type === 'opencm7') {
+            return this._flashOpenCM7(firmware as IOpenCM7TypeFirmware, port, options);
         } else {
             return Promise.reject(new Error());
         }

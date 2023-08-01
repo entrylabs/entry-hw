@@ -153,11 +153,15 @@ var HamsterS = {
 	MOTION_SPEED: 'motionSpeed',
 	MOTION_VALUE: 'motionValue',
 	MOTION_RADIUS: 'motionRadius',
-	WHEEL_CENTER_DISTANCE: 1.685234,
-	DEG_TO_PULSE: 3.975,
-	DEG_TO_PULSE_PIVOT_PEN: 3.895,
-	CM_TO_PULSE: 137.3078, // 136.5934 ~ 137.8455
-	PEN_CENTER_DISTANCE: 2.452266, // 2.417 ~ 2.4825
+	WHEEL_CENTER_DISTANCE: 1.636, // 1.685234
+	PEN_CENTER_DISTANCE: 2.462, // 2.452266 // 2.417 ~ 2.4825
+	CM_TO_PULSE: 138.2666, // 137.3078 // 136.5934 ~ 137.8455
+	DEG_TO_PULSE: 4.039, // 3.975
+	DEG_TO_PULSE_PIVOT: 8.047,
+	DEG_TO_PULSE_PIVOT_PEN: 3.984, // 3.895
+	DEG_TO_PULSE_CIRCLE: 3.908,
+	DEG_TO_PULSE_CIRCLE_PEN_SAME: 3.833,
+	DEG_TO_PULSE_CIRCLE_PEN_DIFF: 3.916,
 	DEFAULT_SPEED: 30
 };
 
@@ -183,11 +187,12 @@ Module.prototype.toHex2 = function(number) {
 };
 
 Module.prototype.calculateInnerSpeed = function(speed, radius) {
-	return speed * (radius - HamsterS.WHEEL_CENTER_DISTANCE) / (radius + HamsterS.WHEEL_CENTER_DISTANCE);
+	return speed * (radius * 1.052 - HamsterS.WHEEL_CENTER_DISTANCE) / (radius * 1.052 + HamsterS.WHEEL_CENTER_DISTANCE);
 };
 
 Module.prototype.calculateSwingPulse = function(deg, radius, degToPulse) {
-	return Math.round(deg * degToPulse * (radius + HamsterS.WHEEL_CENTER_DISTANCE) / HamsterS.WHEEL_CENTER_DISTANCE);
+//		return Math.round(deg * degToPulse * (radius + HamsterS.WHEEL_CENTER_DISTANCE) / HamsterS.WHEEL_CENTER_DISTANCE);
+		return Math.round(deg * (2.3008 * radius + 4.234));
 };
 
 Module.prototype.cancelTimeout = function() {
@@ -336,15 +341,15 @@ Module.prototype.handleLocalData = function(data) { // data: string
 		var state = (value >> 2) & 0x03;
 		if(wheel.event == 1) {
 			if(state == 2) {
-				if(wheel.pulse > 0 && wheel.pulse < 15) {
-					if(++wheel.count > 5) wheel.event = 2;
+				if(wheel.pulse > 0 && wheel.pulse < 25) {
+					if(++wheel.count > 8) wheel.event = 2;
 				}
 			} else if(state == 3) {
 				wheel.event = 2;
 			}
 		}
 		if(wheel.event == 2) {
-			if(state != wheel.state || wheel.count > 5) {
+			if(state != wheel.state || wheel.count > 8) {
 				wheel.state = state;
 				sensory.wheelState = state;
 				sensory.wheelStateId = (sensory.wheelStateId % 255) + 1;
@@ -745,7 +750,7 @@ Module.prototype.requestLocalData = function() {
 	if(motion.written) {
 		self.cancelTimeout();
 		motion.type = parseInt(motoring.motionType);
-		if(motion.type < 0 || motion.type > 24) {
+		if(motion.type < 0 || motion.type > 30) {
 			motion.type = 0;
 		}
 		if(motion.type != 0) {
@@ -788,13 +793,13 @@ Module.prototype.requestLocalData = function() {
 						case 6: // MOTION_PIVOT_LEFT_BACKWARD
 						case 7: // MOTION_PIVOT_RIGHT_FORWARD
 						case 8: // MOTION_PIVOT_RIGHT_BACKWARD
-							wheel.pulse = Math.round(value * HamsterS.DEG_TO_PULSE * 2);
+							wheel.pulse = Math.round(value * HamsterS.DEG_TO_PULSE_PIVOT);
 							break;
-						case 9: // MOTION_SWING_LEFT_FORWARD
-						case 10: // MOTION_SWING_LEFT_BACKWARD
-						case 11: // MOTION_SWING_RIGHT_FORWARD
-						case 12: // MOTION_SWING_RIGHT_BACKWARD
-							wheel.pulse = self.calculateSwingPulse(value, motoring.motionRadius, HamsterS.DEG_TO_PULSE);
+						case 9: // MOTION_CIRCLE_LEFT_FORWARD
+						case 10: // MOTION_CIRCLE_LEFT_BACKWARD
+						case 11: // MOTION_CIRCLE_RIGHT_FORWARD
+						case 12: // MOTION_CIRCLE_RIGHT_BACKWARD
+							wheel.pulse = self.calculateSwingPulse(value, motoring.motionRadius, HamsterS.DEG_TO_PULSE_CIRCLE);
 							break;
 						case 13: // MOTION_PIVOT_LEFT_PEN_FORWARD
 						case 14: // MOTION_PIVOT_LEFT_PEN_BACKWARD
@@ -802,21 +807,29 @@ Module.prototype.requestLocalData = function() {
 						case 16: // MOTION_PIVOT_RIGHT_PEN_BACKWARD
 							wheel.pulse = self.calculateSwingPulse(value, HamsterS.PEN_CENTER_DISTANCE, HamsterS.DEG_TO_PULSE_PIVOT_PEN);
 							break;
-						case 17: // MOTION_SWING_LEFT_PEN_LEFT_FORWARD
-						case 18: // MOTION_SWING_LEFT_PEN_LEFT_BACKWARD
-						case 19: // MOTION_SWING_RIGHT_PEN_RIGHT_FORWARD
-						case 20: // MOTION_SWING_RIGHT_PEN_RIGHT_BACKWARD
-							wheel.pulse = self.calculateSwingPulse(value, motoring.motionRadius + HamsterS.PEN_CENTER_DISTANCE, HamsterS.DEG_TO_PULSE);
+						case 17: // MOTION_CIRCLE_LEFT_PEN_LEFT_FORWARD
+						case 18: // MOTION_CIRCLE_LEFT_PEN_LEFT_BACKWARD
+						case 23: // MOTION_CIRCLE_RIGHT_PEN_RIGHT_FORWARD
+						case 24: // MOTION_CIRCLE_RIGHT_PEN_RIGHT_BACKWARD
+							wheel.pulse = self.calculateSwingPulse(value, motoring.motionRadius + HamsterS.PEN_CENTER_DISTANCE, HamsterS.DEG_TO_PULSE_CIRCLE_PEN_SAME);
 							break;
-						case 21: // MOTION_SWING_LEFT_PEN_RIGHT_FORWARD
-						case 22: // MOTION_SWING_LEFT_PEN_RIGHT_BACKWARD
-						case 23: // MOTION_SWING_RIGHT_PEN_LEFT_FORWARD
-						case 24: // MOTION_SWING_RIGHT_PEN_LEFT_BACKWARD
+						case 19: // MOTION_CIRCLE_LEFT_PEN_RIGHT_FORWARD
+						case 20: // MOTION_CIRCLE_LEFT_PEN_RIGHT_BACKWARD
+						case 21: // MOTION_CIRCLE_RIGHT_PEN_LEFT_FORWARD
+						case 22: // MOTION_CIRCLE_RIGHT_PEN_LEFT_BACKWARD
 							if(motoring.motionRadius >= HamsterS.PEN_CENTER_DISTANCE) {
-								wheel.pulse = self.calculateSwingPulse(value, motoring.motionRadius - HamsterS.PEN_CENTER_DISTANCE, HamsterS.DEG_TO_PULSE);
+								wheel.pulse = self.calculateSwingPulse(value, motoring.motionRadius - HamsterS.PEN_CENTER_DISTANCE, HamsterS.DEG_TO_PULSE_CIRCLE_PEN_DIFF);
 							} else {
-								wheel.pulse = self.calculateSwingPulse(value, HamsterS.PEN_CENTER_DISTANCE - motoring.motionRadius, HamsterS.DEG_TO_PULSE);
+								wheel.pulse = self.calculateSwingPulse(value, HamsterS.PEN_CENTER_DISTANCE - motoring.motionRadius, HamsterS.DEG_TO_PULSE_CIRCLE_PEN_DIFF);
 							}
+							break;
+						case 25: // MOTION_ROTATION_LEFT_WHEEL_FORWARD
+						case 26: // MOTION_ROTATION_LEFT_WHEEL_BACKWARD
+						case 27: // MOTION_ROTATION_RIGHT_WHEEL_FORWARD
+						case 28: // MOTION_ROTATION_RIGHT_WHEEL_BACKWARD
+						case 29: // MOTION_ROTATION_BOTH_WHEELS_FORWARD
+						case 30: // MOTION_ROTATION_BOTH_WHEELS_BACKWARD
+							wheel.pulse = Math.round(value * 2.46031746031746);
 							break;
 						default:
 							motion.type = 0;
@@ -870,19 +883,19 @@ Module.prototype.requestLocalData = function() {
 			leftWheel = -speed;
 			rightWheel = 0;
 			break;
-		case 9: // MOTION_SWING_LEFT_FORWARD
+		case 9: // MOTION_CIRCLE_LEFT_FORWARD
 			leftWheel = self.calculateInnerSpeed(speed, motoring.motionRadius);
 			rightWheel = speed;
 			break;
-		case 10: // MOTION_SWING_LEFT_BACKWARD
+		case 10: // MOTION_CIRCLE_LEFT_BACKWARD
 			leftWheel = -self.calculateInnerSpeed(speed, motoring.motionRadius);
 			rightWheel = -speed;
 			break;
-		case 11: // MOTION_SWING_RIGHT_FORWARD
+		case 11: // MOTION_CIRCLE_RIGHT_FORWARD
 			leftWheel = speed;
 			rightWheel = self.calculateInnerSpeed(speed, motoring.motionRadius);
 			break;
-		case 12: // MOTION_SWING_RIGHT_BACKWARD
+		case 12: // MOTION_CIRCLE_RIGHT_BACKWARD
 			leftWheel = -speed;
 			rightWheel = -self.calculateInnerSpeed(speed, motoring.motionRadius);
 			break;
@@ -902,15 +915,15 @@ Module.prototype.requestLocalData = function() {
 			leftWheel = -speed;
 			rightWheel = -self.calculateInnerSpeed(speed, HamsterS.PEN_CENTER_DISTANCE);
 			break;
-		case 17: // MOTION_SWING_LEFT_PEN_LEFT_FORWARD
+		case 17: // MOTION_CIRCLE_LEFT_PEN_LEFT_FORWARD
 			leftWheel = self.calculateInnerSpeed(speed, motoring.motionRadius + HamsterS.PEN_CENTER_DISTANCE);
 			rightWheel = speed;
 			break;
-		case 18: // MOTION_SWING_LEFT_PEN_LEFT_BACKWARD
+		case 18: // MOTION_CIRCLE_LEFT_PEN_LEFT_BACKWARD
 			leftWheel = -self.calculateInnerSpeed(speed, motoring.motionRadius + HamsterS.PEN_CENTER_DISTANCE);
 			rightWheel = -speed;
 			break;
-		case 19: // MOTION_SWING_LEFT_PEN_RIGHT_FORWARD
+		case 19: // MOTION_CIRCLE_LEFT_PEN_RIGHT_FORWARD
 			if(motoring.motionRadius >= HamsterS.PEN_CENTER_DISTANCE) {
 				leftWheel = speed;
 				rightWheel = self.calculateInnerSpeed(speed, motoring.motionRadius - HamsterS.PEN_CENTER_DISTANCE);
@@ -919,7 +932,7 @@ Module.prototype.requestLocalData = function() {
 				rightWheel = -speed;
 			}
 			break;
-		case 20: // MOTION_SWING_LEFT_PEN_RIGHT_BACKWARD
+		case 20: // MOTION_CIRCLE_LEFT_PEN_RIGHT_BACKWARD
 			if(motoring.motionRadius >= HamsterS.PEN_CENTER_DISTANCE) {
 				leftWheel = -speed;
 				rightWheel = -self.calculateInnerSpeed(speed, motoring.motionRadius - HamsterS.PEN_CENTER_DISTANCE);
@@ -928,7 +941,7 @@ Module.prototype.requestLocalData = function() {
 				rightWheel = speed;
 			}
 			break;
-		case 21: // MOTION_SWING_RIGHT_PEN_LEFT_FORWARD
+		case 21: // MOTION_CIRCLE_RIGHT_PEN_LEFT_FORWARD
 			if(motoring.motionRadius >= HamsterS.PEN_CENTER_DISTANCE) {
 				leftWheel = self.calculateInnerSpeed(speed, motoring.motionRadius - HamsterS.PEN_CENTER_DISTANCE);
 				rightWheel = speed;
@@ -937,7 +950,7 @@ Module.prototype.requestLocalData = function() {
 				rightWheel = -self.calculateInnerSpeed(speed, HamsterS.PEN_CENTER_DISTANCE - motoring.motionRadius);
 			}
 			break;
-		case 22: // MOTION_SWING_RIGHT_PEN_LEFT_BACKWARD
+		case 22: // MOTION_CIRCLE_RIGHT_PEN_LEFT_BACKWARD
 			if(motoring.motionRadius >= HamsterS.PEN_CENTER_DISTANCE) {
 				leftWheel = -self.calculateInnerSpeed(speed, motoring.motionRadius - HamsterS.PEN_CENTER_DISTANCE);
 				rightWheel = -speed;
@@ -946,13 +959,37 @@ Module.prototype.requestLocalData = function() {
 				rightWheel = self.calculateInnerSpeed(speed, HamsterS.PEN_CENTER_DISTANCE - motoring.motionRadius);
 			}
 			break;
-		case 23: // MOTION_SWING_RIGHT_PEN_RIGHT_FORWARD
+		case 23: // MOTION_CIRCLE_RIGHT_PEN_RIGHT_FORWARD
 			leftWheel = speed;
 			rightWheel = self.calculateInnerSpeed(speed, motoring.motionRadius + HamsterS.PEN_CENTER_DISTANCE);
 			break;
-		case 24: // MOTION_SWING_RIGHT_PEN_RIGHT_BACKWARD
+		case 24: // MOTION_CIRCLE_RIGHT_PEN_RIGHT_BACKWARD
 			leftWheel = -speed;
 			rightWheel = -self.calculateInnerSpeed(speed, motoring.motionRadius + HamsterS.PEN_CENTER_DISTANCE);
+			break;
+		case 25: // MOTION_ROTATION_LEFT_WHEEL_FORWARD
+			leftWheel = speed;
+			rightWheel = 0;
+			break;
+		case 26: // MOTION_ROTATION_LEFT_WHEEL_BACKWARD
+			leftWheel = -speed;
+			rightWheel = 0;
+			break;
+		case 27: // MOTION_ROTATION_RIGHT_WHEEL_FORWARD
+			leftWheel = 0;
+			rightWheel = speed;
+			break;
+		case 28: // MOTION_ROTATION_RIGHT_WHEEL_BACKWARD
+			leftWheel = 0;
+			rightWheel = -speed;
+			break;
+		case 29: // MOTION_ROTATION_BOTH_WHEELS_FORWARD
+			leftWheel = speed;
+			rightWheel = speed;
+			break;
+		case 30: // MOTION_ROTATION_BOTH_WHEELS_BACKWARD
+			leftWheel = -speed;
+			rightWheel = -speed;
 			break;
 	}
 	
@@ -965,10 +1002,10 @@ Module.prototype.requestLocalData = function() {
 		wheel.move = true;
 		wheel.moveCount = 0;
 	}
-	if(leftWheel < 0) str += self.toHex(leftWheel * 1.14 - 0.5);
-	else str += self.toHex(leftWheel * 1.14 + 0.5);
-	if(rightWheel < 0) str += self.toHex(rightWheel * 1.14 - 0.5);
-	else str += self.toHex(rightWheel * 1.14 + 0.5);
+	if(leftWheel < 0) str += self.toHex(leftWheel - 0.5);
+	else str += self.toHex(leftWheel + 0.5);
+	if(rightWheel < 0) str += self.toHex(rightWheel - 0.5);
+	else str += self.toHex(rightWheel + 0.5);
 	str += self.toHex(motoring.leftRed);
 	str += self.toHex(motoring.leftGreen);
 	str += self.toHex(motoring.leftBlue);

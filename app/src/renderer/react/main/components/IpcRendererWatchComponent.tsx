@@ -28,7 +28,7 @@ class IpcRendererWatchComponent extends React.PureComponent<IProps> {
         ipcRenderer.removeAllListeners('cloudMode');
         ipcRenderer.removeAllListeners('socketConnected');
 
-        ipcRenderer.invoke('isValidAsarFile').then((result: boolean) => {
+        ipcRenderer.invoke('isValidAsarFileHW').then((result: boolean) => {
             if(!result){
                 props.invalidateBuild();
             }

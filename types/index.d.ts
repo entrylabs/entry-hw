@@ -29,11 +29,20 @@ declare type IESP32TypeFirmware = {
     afterDelay?: number;
     translate?: string;
 };
+declare type IOpenCM7TypeFirmware = {
+    type: string;
+    offset: string;
+    name: string;
+    latest_version: number;
+    afterDelay?: number;
+    translate?: string;
+};
 declare type IFirmwareInfo =
     | string
     | [{ name: string; translate: string }]
     | ICopyTypeFirmware
-    | IESP32TypeFirmware;
+    | IESP32TypeFirmware
+    | IOpenCM7TypeFirmware;
 declare type ICustomButtonInfo =
     | string
     | { key: string; translate: string }

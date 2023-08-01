@@ -7,7 +7,7 @@
     },
     "category": "robot",
     "platform": ["win32", "darwin"],
-    "icon" : "brown.png",
+    "icon": "brown.png",
     "module": "brown.js",
     "url": "http://robomation.jp",
     "email": "robomation@hanmail.net",
@@ -16,12 +16,12 @@
         "win32-x64": "CP210x_VCP_Windows/CP210xVCPInstaller_x64.exe",
         "darwin-x64": "Mac_OSX_VCP_Driver/SiLabsUSBDriverDisk.dmg"
     },
-    "reconnect" : true,
+    "reconnect": true,
     "hardware": {
         "type": "serial",
         "control": "master",
         "scanType": "data",
-        "vendor": ["Silicon Lab", "IntegriSys S.A."],
+        "vendor": ["Silicon Lab", "IntegriSys S.A.", "Microsoft"],
         "baudRate": 115200,
         "flowControl": "hardware",
         "delimiter": "\r",
