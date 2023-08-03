@@ -10,7 +10,7 @@ class Parodule extends BaseModule {
       ANALOG: 1,
       STRING: 2,
     };
-    
+
     this.cmdTime = 0;
     this.portTimeList = [0, 0, 0, 0, 0];
     this.terminal = [85, 238, 238, 238, 238, 10];
@@ -29,7 +29,7 @@ class Parodule extends BaseModule {
     this.config = config;
   }
 
-  setSerialPort(sp){
+  setSerialPort(sp) {
     var self = this;
     this.sp = sp;
   }
@@ -37,11 +37,11 @@ class Parodule extends BaseModule {
   afterConnect(that, cb) {
     that.connected = true;
     if (cb) {
-        cb('connected');
+      cb('connected');
     }
   }
 
- 
+
   /*
   연결 후 초기에 송신할 데이터가 필요한 경우 사용합니다.
   requestInitialData 를 사용한 경우 checkInitialData 가 필수입니다.
@@ -81,15 +81,15 @@ class Parodule extends BaseModule {
   requestLocalData() {
     // 하드웨어로 보낼 데이터 로직
     var self = this;
-    
+
     if (!this.isDraing && this.sendBuffers.length > 0) {
       this.isDraing = true;
-      this.sp.write(this.sendBuffers.shift(), function() {
-          if (self.sp) {
-              self.sp.drain(function() {
-                  self.isDraing = false;
-              });
-          }
+      this.sp.write(this.sendBuffers.shift(), function () {
+        if (self.sp) {
+          self.sp.drain(function () {
+            self.isDraing = false;
+          });
+        }
       });
     }
 
@@ -99,6 +99,7 @@ class Parodule extends BaseModule {
   // 하드웨어에서 온 데이터 처리
   handleLocalData(data) {
     var datas = this.getDataByBuffer(data);
+    console.log(datas);
     // 데이터 처리 로직
   }
 
@@ -122,7 +123,7 @@ class Parodule extends BaseModule {
     // 출력 모듈일 경우
     if (setDatas) {
       var setKey = Object.keys(setDatas);
-      setKey.forEach(function(port) {
+      setKey.forEach(function (port) {
         var data = setDatas[port];
         if (data) {
           if (self.portTimeList[port] < data.time) {
@@ -132,13 +133,13 @@ class Parodule extends BaseModule {
                 type: data.type,
                 data: data.data
               }
-              self.updateTerminalBuffer(port);  
+              self.updateTerminalBuffer(port);
               buffer = new Buffer(self.makeOutputBuffer(data.type, null));
             }
           }
         }
       });
-     
+
     }
 
 
@@ -155,7 +156,7 @@ class Parodule extends BaseModule {
         }
       }
     }
-    
+
     if (buffer.length) {
       console.log(buffer);
       this.sendBuffers.push(buffer);
@@ -167,28 +168,28 @@ class Parodule extends BaseModule {
     var isRecent = false;
 
     if (port in this.recentCheckData) {
-        if (this.recentCheckData[port].type === type && this.recentCheckData[port].data === data) {
-            isRecent = true;
-        }
+      if (this.recentCheckData[port].type === type && this.recentCheckData[port].data === data) {
+        isRecent = true;
+      }
     }
 
     return isRecent;
   }
 
-  updateTerminalBuffer (port) {
+  updateTerminalBuffer(port) {
     if (this.recentCheckData[port].data === 0) {
       this.terminal[port] = 238;
     }
     else {
       this.terminal[port] = this.recentCheckData[port].data;
     }
-    
+
   }
   makeOutputBuffer(dataType, data) {
     var buffer;
     if (dataType == this.controlTypes.STRING) {
       buffer = new Buffer(data);
-    } 
+    }
     else if (dataType == this.controlTypes.DIGITAL) {
       buffer = new Buffer([
         255,
@@ -210,10 +211,10 @@ class Parodule extends BaseModule {
   getDataByBuffer(buffer) {
     var datas = [];
     var lastIndex = 0;
-    buffer.forEach(function(value, idx) {
+    buffer.forEach(function (value, idx) {
       if (value == 13 && buffer[idx + 1] == 10) {
-          datas.push(buffer.subarray(lastIndex, idx));
-          lastIndex = idx + 2;
+        datas.push(buffer.subarray(lastIndex, idx));
+        lastIndex = idx + 2;
       }
     });
     return datas;
@@ -223,13 +224,13 @@ class Parodule extends BaseModule {
   disconnect(connect) {
     var self = this;
     connect.close();
-    if(self.sp) {
-        delete self.sp;
+    if (self.sp) {
+      delete self.sp;
     }
   }
-  
+
   // 리셋
-  reset(){
+  reset() {
     this.lastTime = 0;
     this.lastSendTime = 0;
     this.sensorData.PULSEIN = {}
