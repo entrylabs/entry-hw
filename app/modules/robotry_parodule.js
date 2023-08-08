@@ -11,6 +11,14 @@ class Parodule extends BaseModule {
       STRING: 2,
     };
 
+    this.paroduleData = {
+      SENSOR: {
+        '0': 0,
+        '1': 1,
+        '2': 2,
+        '3': 3,
+      }
+    }
     this.cmdTime = 0;
     this.portTimeList = [0, 0, 0, 0, 0];
     this.terminal = [85, 238, 238, 238, 238, 10];
@@ -98,14 +106,37 @@ class Parodule extends BaseModule {
 
   // 하드웨어에서 온 데이터 처리
   handleLocalData(data) {
+    var self = this;
     var datas = this.getDataByBuffer(data);
-    console.log(datas);
     // 데이터 처리 로직
+    datas.forEach(function (data) {
+      // 센서 데이터만 걸러냄 
+      if (data.length < 6 || data[0] !== 255 || data[1] !== 102) {
+        return;
+      }
+      else {
+        var readData = data.subarray(2, data.length);
+        for (var i = 0; i < 4; i++) {
+          self.paroduleData.SENSOR[i] = readData[i]
+        }
+      }
+    });
   }
 
   // 엔트리로 전달할 데이터
   requestRemoteData(handler) {
-    // handler.write(key, value) ...
+    var self = this;
+    if (!self.paroduleData) {
+      return;
+    }
+    this.lastSendTime = this.lastTime;
+    Object.keys(this.paroduleData).forEach(function (key) {
+      if (self.paroduleData[key] != undefined) {
+        console.log(self.paroduleData[key]);
+        handler.write(key, self.paroduleData[key]);
+        self.canSendData = false;
+      }
+    });
   }
 
   // 엔트리에서 받은 데이터에 대한 처리
