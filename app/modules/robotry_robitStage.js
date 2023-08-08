@@ -19,11 +19,11 @@ class robitStage extends BaseModule {
         };
     }
 
-    setSerialPort(sp){
+    setSerialPort(sp) {
         var self = this;
         this.sp = sp;
     };
-    
+
     afterConnect(that, cb) {
         that.connected = true;
         if (cb) {
@@ -33,7 +33,7 @@ class robitStage extends BaseModule {
     requestInitialData() {
         return this.makeSensorReadBuffer(this.sensorTypes.ANALOG, 0);
     }
-    
+
     /*
     하드웨어 기기에 전달할 데이터를 반환합니다.
     slave 모드인 경우 duration 속성 간격으로 지속적으로 기기에 요청을 보냅니다.
@@ -44,9 +44,9 @@ class robitStage extends BaseModule {
 
         if (!this.isDraing && this.sendBuffers.length > 0) {
             this.isDraing = true;
-            this.sp.write(this.sendBuffers.shift(), function() {
+            this.sp.write(this.sendBuffers.shift(), function () {
                 if (self.sp) {
-                    self.sp.drain(function() {
+                    self.sp.drain(function () {
                         self.isDraing = false;
                     });
                 }
@@ -62,7 +62,7 @@ class robitStage extends BaseModule {
         var self = this;
         var datas = this.getDataByBuffer(data);
 
-        datas.forEach(function(data) {
+        datas.forEach(function (data) {
             if (data.length <= 4 || data[0] !== 255 || data[1] !== 85) {
                 return;
             }
@@ -122,7 +122,7 @@ class robitStage extends BaseModule {
             return;
         }
         this.lastSendTime = this.lastTime;
-        Object.keys(this.sensorData).forEach(function(key) {
+        Object.keys(this.sensorData).forEach(function (key) {
             if (self.sensorData[key] != undefined) {
                 handler.write(key, self.sensorData[key]);
                 self.canSendData = false;
@@ -141,7 +141,7 @@ class robitStage extends BaseModule {
 
         if (getDatas) {
             var keys = Object.keys(getDatas);
-            keys.forEach(function(key) {
+            keys.forEach(function (key) {
                 var isSend = false;
                 var dataObj = getDatas[key];
                 if (typeof dataObj.port === 'string' || typeof dataObj.port === 'number') {
@@ -151,13 +151,13 @@ class robitStage extends BaseModule {
                         self.digitalPortTimeList[dataObj.port] = dataObj.time;
                     }
                 } else if (Array.isArray(dataObj.port)) {
-                    isSend = dataObj.port.every(function(port) {
+                    isSend = dataObj.port.every(function (port) {
                         var time = self.digitalPortTimeList[port];
                         return dataObj.time > time;
                     });
 
                     if (isSend) {
-                        dataObj.port.forEach(function(port) {
+                        dataObj.port.forEach(function (port) {
                             self.digitalPortTimeList[port] = dataObj.time;
                         });
                     }
@@ -177,7 +177,7 @@ class robitStage extends BaseModule {
 
         if (setDatas) {
             var setKeys = Object.keys(setDatas);
-            setKeys.forEach(function(port) {
+            setKeys.forEach(function (port) {
                 var data = setDatas[port];
                 if (data) {
                     if (self.digitalPortTimeList[port] < data.time) {
@@ -212,7 +212,7 @@ class robitStage extends BaseModule {
 
         return isRecent;
     }
-    
+
     /*
     GET인 경우 SensorType 에 따라 버퍼를 생성
     ff 55 len idx action device port  slot  data a
@@ -263,7 +263,7 @@ class robitStage extends BaseModule {
         if (sensorIdx > 254) {
             sensorIdx = 0;
         }
-    
+
         return buffer;
     }
     //0xff 0x55 0x6 0x0 0x1 0xa 0x9 0x0 0x0 0xa
@@ -313,7 +313,7 @@ class robitStage extends BaseModule {
             case this.sensorTypes.TONE: {
             }
         }
-    
+
         return buffer;
     }
 
@@ -321,7 +321,7 @@ class robitStage extends BaseModule {
     getDataByBuffer(buffer) {
         var datas = [];
         var lastIndex = 0;
-        buffer.forEach(function(value, idx) {
+        buffer.forEach(function (value, idx) {
             if (value == 13 && buffer[idx + 1] == 10) {
                 datas.push(buffer.subarray(lastIndex, idx));
                 lastIndex = idx + 2;
@@ -335,13 +335,13 @@ class robitStage extends BaseModule {
     disconnect(connect) {
         var self = this;
         connect.close();
-        if(self.sp) {
+        if (self.sp) {
             delete self.sp;
         }
     }
 
     // 리셋
-    reset(){
+    reset() {
         this.lastTime = 0;
         this.lastSendTime = 0;
         this.sensorData.PULSEIN = {}
