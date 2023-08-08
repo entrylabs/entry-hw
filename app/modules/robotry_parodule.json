@@ -6,7 +6,7 @@
   },
   "category": "board",
   "platform": ["win32", "darwin"],
-  "icon": "robotry_robitStage.png",
+  "icon": "robotry_parodule.png",
   "module": "robotry_parodule.js",
   "url": "http://parob.io",
   "email": "hee.kim6133@robotry.co.kr",
