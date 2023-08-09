@@ -14,9 +14,15 @@ class Parodule extends BaseModule {
     this.paroduleData = {
       SENSOR: {
         '0': 0,
-        '1': 1,
-        '2': 2,
-        '3': 3,
+        '1': 0,
+        '2': 0,
+        '3': 0,
+      },
+      MODULE: {
+        '0': 0,
+        '1': 0,
+        '2': 0,
+        '3': 0,
       }
     }
     this.cmdTime = 0;
@@ -24,8 +30,9 @@ class Parodule extends BaseModule {
     this.terminal = [85, 238, 238, 238, 238, 10];
     this.moduleOff = [255, 85, 200, 200, 200, 200, 10];
     this.paroduleEntry = new Buffer("entry\r\n");
-    this.paroduleInit = new Buffer("init\r\n");
+    this.paroduleInit = [255, 85, 255, 255, 255, 255, '\n'];
     this.paroduleUpdate = new Buffer("update\r\n");
+    this.pre_time = 0;
   }
   /*
   최초에 커넥션이 이루어진 후의 초기 설정.
@@ -55,8 +62,7 @@ class Parodule extends BaseModule {
   requestInitialData 를 사용한 경우 checkInitialData 가 필수입니다.
   이 두 함수가 정의되어있어야 로직이 동작합니다. 필요없으면 작성하지 않아도 됩니다.
   */
-  requestInitialData() {
-    /*
+  requestInitialData() {/*
     const loopTime = Date.now() + 250;
     while (Date.now() < loopTime) {
     }
@@ -66,14 +72,6 @@ class Parodule extends BaseModule {
 
   // 연결 후 초기에 수신받아서 정상연결인지를 확인해야하는 경우 사용합니다.
   checkInitialData(data, config) {
-    /* 동작이 매끄럽지 못해서 보류 
-    if (data == "paro\r\n" || data == "1\r\n") {
-      return true;
-    }
-    else {
-      return false;
-    }
-    */
     return true;
   }
 
@@ -92,6 +90,7 @@ class Parodule extends BaseModule {
 
     if (!this.isDraing && this.sendBuffers.length > 0) {
       this.isDraing = true;
+      console.log(this.sendBuffers);
       this.sp.write(this.sendBuffers.shift(), function () {
         if (self.sp) {
           self.sp.drain(function () {
@@ -111,10 +110,17 @@ class Parodule extends BaseModule {
     // 데이터 처리 로직
     datas.forEach(function (data) {
       // 센서 데이터만 걸러냄 
-      if (data.length < 6 || data[0] !== 255 || data[1] !== 102) {
+      if (data.length < 6) {
         return;
       }
-      else {
+      else if (data[0] == 255 && data[1] == 85) {
+        var readData = data.subarray(2, data.length);
+        for (var i = 0; i < 4; i++) {
+          self.paroduleData.MODULE[i] = readData[i]
+        }
+        //console.log(data);
+      }
+      else if (data[0] == 255 && data[1] == 102) {
         var readData = data.subarray(2, data.length);
         for (var i = 0; i < 4; i++) {
           self.paroduleData.SENSOR[i] = readData[i]
@@ -132,7 +138,7 @@ class Parodule extends BaseModule {
     this.lastSendTime = this.lastTime;
     Object.keys(this.paroduleData).forEach(function (key) {
       if (self.paroduleData[key] != undefined) {
-        console.log(self.paroduleData[key]);
+        //console.log(self.paroduleData[key]);
         handler.write(key, self.paroduleData[key]);
         self.canSendData = false;
       }
@@ -141,6 +147,8 @@ class Parodule extends BaseModule {
 
   // 엔트리에서 받은 데이터에 대한 처리
   handleRemoteData(handler) {
+    const interval = 60000; // 1분에 한번씩 연결된 모듈 데이터 호출
+    const cur_time = Date.now();
     var self = this;
     var cmdDatas = handler.read('CMD');
     var getDatas = handler.read('GET');
@@ -189,8 +197,14 @@ class Parodule extends BaseModule {
     }
 
     if (buffer.length) {
-      console.log(buffer);
       this.sendBuffers.push(buffer);
+    }
+    else {
+      if (cur_time - this.pre_time > interval) {
+        this.pre_time = cur_time;
+        buffer = new Buffer([255, 85, 255, 255, 255, 255, 10]);
+        this.sendBuffers.push(buffer);
+      }
     }
   }
 
