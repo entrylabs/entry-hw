@@ -11,6 +11,11 @@ class Parodule extends BaseModule {
       STRING: 2,
     };
 
+    this.NONE = 208;
+    this.LED = 209;
+    this.MOTOR = 210;
+    this.BUZZER = 211;
+
     this.paroduleData = {
       SENSOR: {
         '0': 0,
@@ -23,7 +28,13 @@ class Parodule extends BaseModule {
         '1': 0,
         '2': 0,
         '3': 0,
-      }
+      },
+
+      MODULE1: "LED",
+      MODULE2: "LED",
+      MODULE3: "LED",
+      MODULE4: "LED",
+
     }
     this.cmdTime = 0;
     this.portTimeList = [0, 0, 0, 0, 0];
@@ -114,16 +125,36 @@ class Parodule extends BaseModule {
         return;
       }
       else if (data[0] == 255 && data[1] == 85) {
+        var temp = ["", "", "", ""];
         var readData = data.subarray(2, data.length);
         for (var i = 0; i < 4; i++) {
-          self.paroduleData.MODULE[i] = readData[i]
+          self.paroduleData.MODULE[i] = readData[i];
         }
+        for (var i = 0; i < 4; i++) {
+          var value = self.paroduleData.MODULE[i];
+          if (value == 209) {
+            temp[i] = "LED";
+          }
+          else if (value == 210) {
+            temp[i] = "모터";
+          }
+          else if (value == 211) {
+            temp[i] = "부저";
+          }
+          else {
+            temp[i] = "없음";
+          }
+        }
+        self.paroduleData.MODULE1 = temp[0];
+        self.paroduleData.MODULE2 = temp[1];
+        self.paroduleData.MODULE3 = temp[2];
+        self.paroduleData.MODULE4 = temp[3];
         //console.log(data);
       }
       else if (data[0] == 255 && data[1] == 102) {
         var readData = data.subarray(2, data.length);
         for (var i = 0; i < 4; i++) {
-          self.paroduleData.SENSOR[i] = readData[i]
+          self.paroduleData.SENSOR[i] = readData[i];
         }
       }
     });
