@@ -35,13 +35,16 @@ class Parodule extends BaseModule {
       MODULE3: "LED",
       MODULE4: "LED",
 
-    }
+    };
+
+    this.isConnect = false;
     this.cmdTime = 0;
     this.portTimeList = [0, 0, 0, 0, 0];
     this.terminal = [85, 238, 238, 238, 238, 10];
     this.moduleOff = [255, 85, 200, 200, 200, 200, 10];
+    this.bleDisconCode = new Buffer("123\r\n");
     this.paroduleEntry = new Buffer("entry\r\n");
-    this.paroduleInit = [255, 85, 255, 255, 255, 255, '\n'];
+    this.paroduleInit = [255, 68, 255, 255, 255, 255, '\n'];
     this.paroduleUpdate = new Buffer("update\r\n");
     this.pre_time = 0;
   }
@@ -66,7 +69,9 @@ class Parodule extends BaseModule {
       cb('connected');
     }
   }
-
+  connect() {
+    this.isConnect = true;
+  }
 
   /*
   연결 후 초기에 송신할 데이터가 필요한 경우 사용합니다.
@@ -97,25 +102,25 @@ class Parodule extends BaseModule {
   */
   requestLocalData() {
     // 하드웨어로 보낼 데이터 로직
-    var self = this;
-
-    if (!this.isDraing && this.sendBuffers.length > 0) {
-      this.isDraing = true;
-      console.log(this.sendBuffers);
-      this.sp.write(this.sendBuffers.shift(), function () {
-        if (self.sp) {
-          self.sp.drain(function () {
-            self.isDraing = false;
-          });
-        }
-      });
+    if (!this.isConnect) {
+      return;
     }
 
-    return 0;
+    if (this.sendBuffers.length > 0) {
+      if (this.sp) {
+        this.sp.write(this.sendBuffers.shift(), () => {
+          this.sp.drain(() => {
+          });
+        });
+      }
+    }
+
+    return null;
   }
 
   // 하드웨어에서 온 데이터 처리
   handleLocalData(data) {
+    //console.log(data);
     var self = this;
     var datas = this.getDataByBuffer(data);
     // 데이터 처리 로직
@@ -149,7 +154,6 @@ class Parodule extends BaseModule {
         self.paroduleData.MODULE2 = temp[1];
         self.paroduleData.MODULE3 = temp[2];
         self.paroduleData.MODULE4 = temp[3];
-        //console.log(data);
       }
       else if (data[0] == 255 && data[1] == 102) {
         var readData = data.subarray(2, data.length);
@@ -233,7 +237,7 @@ class Parodule extends BaseModule {
     else {
       if (cur_time - this.pre_time > interval) {
         this.pre_time = cur_time;
-        buffer = new Buffer([255, 85, 255, 255, 255, 255, 10]);
+        buffer = new Buffer([255, 68, 255, 255, 255, 255, 10]);
         this.sendBuffers.push(buffer);
       }
     }
@@ -298,18 +302,20 @@ class Parodule extends BaseModule {
 
   // 연결 해제되면 시리얼 포트 제거
   disconnect(connect) {
-    var self = this;
-    connect.close();
-    if (self.sp) {
-      delete self.sp;
+    const killcode = this.bleDisconCode;
+    if (this.sp) {
+      this.sp.write(killcode, () => {
+        this.sp.drain(() => {
+          connect.close();
+          this.isConnect = false;
+          this.sp = undefined;
+        })
+      })
     }
   }
 
   // 리셋
   reset() {
-    this.lastTime = 0;
-    this.lastSendTime = 0;
-    this.sensorData.PULSEIN = {}
   }
 }
 
