@@ -108,6 +108,7 @@ class Parodule extends BaseModule {
 
     if (this.sendBuffers.length > 0) {
       if (this.sp) {
+        console.log(this.sendBuffers);
         this.sp.write(this.sendBuffers.shift(), () => {
           this.sp.drain(() => {
           });
