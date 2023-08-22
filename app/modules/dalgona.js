@@ -345,15 +345,18 @@ Module.prototype.requestLocalData = function () {
 /*
   ff 55 idx size data a
   */
+
+// 펌웨어에서 입력된 값을 처리하는 Buffer
 Module.prototype.handleLocalData = function (data) {
     const self = this;
     const datas = this.getDataByBuffer(data);
-
+    // console.log(datas);
     datas.forEach((data) => {
         if (data.length <= 4 || data[0] !== 255 || data[1] !== 85) {
             return;
         }
         const readData = data.subarray(2, data.length);
+        // console.log(readData);        
         let value;
         switch (readData[0]) {
             case self.sensorValueSize.FLOAT: {
@@ -380,7 +383,10 @@ Module.prototype.handleLocalData = function (data) {
 
         const type = readData[readData.length - 1];
         const port = readData[readData.length - 2];
-
+        // if(port == 9)
+        // {
+        //     console.log(readData);
+        // }
         switch (type) {
             case self.sensorTypes.DIGITAL: {
                 self.sensorData.DIGITAL[port] = value;
@@ -408,8 +414,6 @@ Module.prototype.handleLocalData = function (data) {
             }
             case self.sensorTypes.ULTRASONIC: {
                 self.sensorData.ULTRASONIC[port] = value;
-                //      console.log(port);
-                //      console.log(self.sensorData.ULTRASONIC[port]);
                 break;
             }
             case self.sensorTypes.DUST: {
@@ -426,14 +430,12 @@ Module.prototype.handleLocalData = function (data) {
             }
             case self.sensorTypes.RFIDTAP: {
                 self.sensorData.RFIDTAP = value;
-                // console.log('RFIDTAP');
-                // console.log(value);
                 break;
             }
             case self.sensorTypes.RFIDVALUE: {
                 value = value.substring(0, value.length - 1); //마지막에 쓰레기값 출력X
                 self.sensorData.RFIDVALUE = value;
-                // console.log(value);
+                // console.log(readData);
                 break;
             }
             case self.sensorTypes.MLXOBJ: {
@@ -455,20 +457,17 @@ Module.prototype.handleLocalData = function (data) {
   ff 55 len idx action device port  slot  data a
   0  1  2   3   4      5      6     7     8
   */
-
+// 엔트리 블럭 화면에서 입력에 해당하는 블럭을 사용했을 때, 펌웨어쪽으로 보내는 Buffer
 Module.prototype.makeSensorReadBuffer = function (device, port, data) {
     let buffer;
     const dummy = new Buffer([10]);
     if (device == this.sensorTypes.DIGITAL) {
         //data 2: pull up, 0: normal
-        //console.log(data)
         buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port, data, 10]);
     } else if (device == this.sensorTypes.PULLUP) {
         //data 2: pull up, 0: normal
-        //console.log(data)
         //pullup인 경우
         buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port, data, 10]);
-        //console.log(buffer);
     } else if (device == this.sensorTypes.RFIDTAP) {
         buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.GET, device, port, 10]);
     } else if (device == this.sensorTypes.ULTRASONIC) {
@@ -524,6 +523,8 @@ Module.prototype.makeSensorReadBuffer = function (device, port, data) {
 };
 
 //0xff 0x55 0x6 0x0 0x1 0xa 0x9 0x0 0x0 0xa
+
+// 엔트리 블럭 화면에서 출력에 해당하는 블럭을 사용했을 때, 펌웨어쪽으로 보내는 Buffer
 Module.prototype.makeOutputBuffer = function (device, port, data) {
     let buffer;
     const value = new Buffer(2);
@@ -684,13 +685,12 @@ Module.prototype.makeOutputBuffer = function (device, port, data) {
 
         //     buffer = Buffer.from([255, 85, 26, sensorIdx, this.actionTypes.MODUEL, device, port]);
         //     buffer = Buffer.concat([buffer, fndBlockIndex, fndClk, fndDio, fndBrightnessLev, fndOnOff, fndDisplayStrLength, fndDisplayStr0, fndDisplayStr1, fndDisplayStr2, fndDisplayStr3, fndDelayMs, dummy]);
-        //     console.log(buffer);
+
         //     break;  
         // }
 
 
         case this.sensorTypes.NEOPIXELINIT: {
-            console.log('NEOPIXELINIT');
             value.writeInt16LE(data);
             buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.SET, device, port]);
             buffer = Buffer.concat([buffer, value, dummy]);
@@ -914,7 +914,6 @@ Module.prototype.makeOutputBuffer = function (device, port, data) {
         case this.sensorTypes.DOTMATRIXCLEAR: {
             buffer = new Buffer([255, 85, 4, sensorIdx, this.actionTypes.SET, device, port]);
             buffer = Buffer.concat([buffer, dummy]);
-            console.log(buffer);
             break;
         }
         case this.sensorTypes.LCDINIT: {
@@ -946,7 +945,6 @@ Module.prototype.makeOutputBuffer = function (device, port, data) {
 
             if ($.isPlainObject(data)) {
                 textLen = ('' + data.text).length;
-                // console.log(textLen);
                 text = Buffer.from('' + data.text, 'ascii');
                 line.writeInt16LE(data.line);
                 textLenBuf.writeInt16LE(textLen);
@@ -1064,7 +1062,6 @@ Module.prototype.makeOutputBuffer = function (device, port, data) {
             } else {
                 num.writeFloatLE(0);
             }
-            console.log(num);
             buffer = new Buffer([255, 85, 8, sensorIdx, this.actionTypes.SET, device, port]);
             buffer = Buffer.concat([buffer, num, dummy]);
 
@@ -1096,6 +1093,9 @@ Module.prototype.getDataByBuffer = function (buffer) {
         if (value == 13 && buffer[idx + 1] == 10) {
             datas.push(buffer.subarray(lastIndex, idx));
             lastIndex = idx + 2;
+            // if(buffer[idx-1] == 9)
+                // console.log(datas);
+           
         }
     });
 
