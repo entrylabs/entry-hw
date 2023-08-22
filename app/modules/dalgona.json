@@ -1,8 +1,8 @@
 {
     "id": "540101",
     "name": {
-        "en": "dalgona board",
-        "ko": "달고나 제어보드"
+        "en": "Dalgona.Edu Plus",
+        "ko": "달고나.에듀 Plus"
     },
     "category": "board",
     "platform": ["win32", "darwin"],
