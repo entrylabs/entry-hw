@@ -13,7 +13,7 @@ function Module() {
         OLED: 241,
         COM: 242,
         NEOPIXEL: 243,
-        ULTRASONIC_COUNTER: 244,
+        //ULTRASONIC_COUNTER: 244,
         DOTMATRIX: 245
     }
 
