@@ -10,17 +10,15 @@
   "module": "robotry_parodule.js",
   "url": "http://parob.io",
   "email": "hee.kim6133@robotry.co.kr",
-  "driver": [{
-      "win32-ia32": "robotry/CH34x_Install_Windows_v3_4.exe",
-      "win32-x64": "robotry/CH34x_Install_Windows_v3_4.exe",
-  "translate": "드라이버 설치"
-  }],
-
   "reconnect": true,  
+  "driver": {
+        "win32-x64": "robotry/Parodule_Dongle_Firmware.exe",
+        "translate": "펌웨어 업데이트"
+    },
   "hardware": {
       "type": "serial",
       "control": "slave",
-      "duration": 50,
+      "duration": 10,
       "pnpId": "1001",
       "flowControl": "hardware",
       "baudRate": 115200,
