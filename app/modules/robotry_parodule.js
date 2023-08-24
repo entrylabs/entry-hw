@@ -11,6 +11,7 @@ class Parodule extends BaseModule {
       STRING: 2,
     };
 
+    this.UNKNOWN = 207;
     this.NONE = 208;
     this.LED = 209;
     this.MOTOR = 210;
@@ -44,7 +45,7 @@ class Parodule extends BaseModule {
     this.moduleOff = [255, 85, 200, 200, 200, 200, 10];
     this.bleDisconCode = new Buffer("123\r\n");
     this.paroduleEntry = new Buffer("entry\r\n");
-    this.paroduleInit = [255, 68, 255, 255, 255, 255, '\n'];
+    this.paroduleInit = [255, 68, 255, 255, 255, 255, '\n']; // 엔트리용 모듈 인식 코드
     this.paroduleUpdate = new Buffer("update\r\n");
     this.pre_time = 0;
   }
@@ -78,12 +79,8 @@ class Parodule extends BaseModule {
   requestInitialData 를 사용한 경우 checkInitialData 가 필수입니다.
   이 두 함수가 정의되어있어야 로직이 동작합니다. 필요없으면 작성하지 않아도 됩니다.
   */
-  requestInitialData() {/*
-    const loopTime = Date.now() + 250;
-    while (Date.now() < loopTime) {
-    }
+  requestInitialData() {
     return this.paroduleInit;
-    */
   }
 
   // 연결 후 초기에 수신받아서 정상연결인지를 확인해야하는 경우 사용합니다.
@@ -114,6 +111,9 @@ class Parodule extends BaseModule {
           });
         });
       }
+    }
+    else {
+      this.sp.write([255, 85, 10]);
     }
 
     return null;
@@ -147,8 +147,10 @@ class Parodule extends BaseModule {
           else if (value == 211) {
             temp[i] = "부저";
           }
-          else {
+          else if (value == 208) {
             temp[i] = "없음";
+          } else {
+            temp[i] = "모름";
           }
         }
         self.paroduleData.MODULE1 = temp[0];
