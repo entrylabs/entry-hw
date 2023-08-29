@@ -41,12 +41,12 @@ class Parodule extends BaseModule {
     this.isConnect = false;
     this.cmdTime = 0;
     this.portTimeList = [0, 0, 0, 0, 0];
-    this.terminal = [85, 238, 238, 238, 238, 10];
+    this.terminal = [238, 238, 238, 238, 10];
     this.moduleOff = [255, 85, 200, 200, 200, 200, 10];
     this.bleDisconCode = new Buffer("123\r\n");
     this.paroduleEntry = new Buffer("entry\r\n");
     this.paroduleInit = [255, 68, 255, 255, 255, 255, '\n']; // 엔트리용 모듈 인식 코드
-    this.paroduleUpdate = new Buffer("update\r\n");
+    this.paroduleClose = new Buffer("spclose\r\n");
     this.pre_time = 0;
   }
   /*
@@ -80,7 +80,8 @@ class Parodule extends BaseModule {
   이 두 함수가 정의되어있어야 로직이 동작합니다. 필요없으면 작성하지 않아도 됩니다.
   */
   requestInitialData() {
-    return this.paroduleInit;
+    console.log(this.paroduleEntry);
+    return this.paroduleEntry;
   }
 
   // 연결 후 초기에 수신받아서 정상연결인지를 확인해야하는 경우 사용합니다.
@@ -112,10 +113,6 @@ class Parodule extends BaseModule {
         });
       }
     }
-    else {
-      this.sp.write([255, 85, 10]);
-    }
-
     return null;
   }
 
@@ -159,6 +156,7 @@ class Parodule extends BaseModule {
         self.paroduleData.MODULE4 = temp[3];
       }
       else if (data[0] == 255 && data[1] == 102) {
+        console.log(data);
         var readData = data.subarray(2, data.length);
         for (var i = 0; i < 4; i++) {
           self.paroduleData.SENSOR[i] = readData[i];
@@ -277,10 +275,10 @@ class Parodule extends BaseModule {
       buffer = new Buffer([
         255,
         85,
+        this.terminal[0],
         this.terminal[1],
         this.terminal[2],
         this.terminal[3],
-        this.terminal[4],
         10
       ]);
     }
@@ -305,9 +303,10 @@ class Parodule extends BaseModule {
 
   // 연결 해제되면 시리얼 포트 제거
   disconnect(connect) {
-    const killcode = this.bleDisconCode;
+    const spClose = this.paroduleClose;
+    console.log(spClose);
     if (this.sp) {
-      this.sp.write(killcode, () => {
+      this.sp.write(spClose, () => {
         this.sp.drain(() => {
           connect.close();
           this.isConnect = false;

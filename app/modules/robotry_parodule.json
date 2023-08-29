@@ -18,11 +18,11 @@
   "hardware": {
       "type": "serial",
       "control": "slave",
-      "duration": 10,
+      "duration": 16,
       "pnpId": "1001",
       "flowControl": "hardware",
       "baudRate": 115200,
-      "lostTimer": 1500,
+      "lostTimer": 5000,
       "byteDelimiter": [13, 10],
       "firmwarecheck": false
   }
