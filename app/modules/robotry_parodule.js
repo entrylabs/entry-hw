@@ -27,10 +27,10 @@ class Parodule extends BaseModule {
                 '2': 0,
                 '3': 0,
             },
-            MODULE1: "LED",
-            MODULE2: "LED",
-            MODULE3: "LED",
-            MODULE4: "LED",
+            MODULE1: 'LED',
+            MODULE2: 'LED',
+            MODULE3: 'LED',
+            MODULE4: 'LED',
         };
         this.isConnect = false;
         this.cmdTime = 0;
@@ -38,9 +38,9 @@ class Parodule extends BaseModule {
         this.terminal = [0xee, 0xee, 0xee, 0xee, '\n']; // 터미널 버퍼 저장 공간
         this.moduleOff = [0xff, 0x55, 0xc8, 0xc8, 0xc8, 0xc8, '\n']; // 모듈 종료 인터럽트
         // this.bleDisconCode = new Buffer("123\r\n");
-        this.paroduleEntry = new Buffer("entry\r\n"); // 엔트리 모듈 내부 셰이킹
+        this.paroduleEntry = new Buffer('entry\r\n'); // 엔트리 모듈 내부 셰이킹
         this.paroduleInit = [0xff, 0x44, 0xff, 0xff, 0xff, 0xff, '\n']; // 엔트리용 모듈 인식 코드
-        this.paroduleClose = new Buffer("spclose\r\n"); // 시리어 포트 종료 신호
+        this.paroduleClose = new Buffer('spclose\r\n'); // 시리어 포트 종료 신호
         this.pre_time = 0;
     }
     /*
@@ -53,7 +53,7 @@ class Parodule extends BaseModule {
         this.config = config;
     }
     setSerialPort(sp) {
-        var self = this;
+        let self = this;
         this.sp = sp;
     }
     afterConnect(that, cb) {
@@ -103,8 +103,8 @@ class Parodule extends BaseModule {
 
     // 하드웨어에서 온 데이터 처리
     handleLocalData(data) {
-        var self = this;
-        var datas = this.getDataByBuffer(data);
+        let self = this;
+        let datas = this.getDataByBuffer(data);
         // 데이터 처리 로직
         datas.forEach(function (data) {
             // 센서 데이터만 걸러냄 
@@ -112,26 +112,26 @@ class Parodule extends BaseModule {
                 return;
             }
             else if (data[0] == 0xff && data[1] == 0x44) {
-                var temp = ["", "", "", ""];
-                var readData = data.subarray(2, data.length);
-                for (var i = 0; i < 4; i++) {
+                let temp = ['', '', '', ''];
+                let readData = data.subarray(2, data.length);
+                for (let i = 0; i < 4; i++) {
                     self.paroduleData.MODULE[i] = readData[i];
                 }
-                for (var i = 0; i < 4; i++) {
-                    var value = self.paroduleData.MODULE[i];
+                for (let i = 0; i < 4; i++) {
+                    let value = self.paroduleData.MODULE[i];
                     if (value == 209) {
-                        temp[i] = "LED";
+                        temp[i] = 'LED';
                     }
                     else if (value == 210) {
-                        temp[i] = "모터";
+                        temp[i] = '모터';
                     }
                     else if (value == 211) {
-                        temp[i] = "부저";
+                        temp[i] = '부저';
                     }
                     else if (value == 208) {
-                        temp[i] = "없음";
+                        temp[i] = '없음';
                     } else {
-                        temp[i] = "모름";
+                        temp[i] = '모름';
                     }
                 }
                 self.paroduleData.MODULE1 = temp[0];
@@ -140,8 +140,8 @@ class Parodule extends BaseModule {
                 self.paroduleData.MODULE4 = temp[3];
             }
             else if (data[0] == 0xff && data[1] == 0x66) {
-                var readData = data.subarray(2, data.length);
-                for (var i = 0; i < 4; i++) {
+                let readData = data.subarray(2, data.length);
+                for (let i = 0; i < 4; i++) {
                     self.paroduleData.SENSOR[i] = readData[i];
                 }
             }
@@ -149,7 +149,7 @@ class Parodule extends BaseModule {
     }
     // 엔트리로 전달할 데이터
     requestRemoteData(handler) {
-        var self = this;
+        let self = this;
         if (!self.paroduleData) {
             return;
         }
@@ -165,20 +165,20 @@ class Parodule extends BaseModule {
     handleRemoteData(handler) {
         const interval = 60000; // 1분에 한번씩 연결된 모듈 데이터 호출
         const cur_time = Date.now();
-        var self = this;
-        var cmdDatas = handler.read('CMD');
-        var getDatas = handler.read('GET');
-        var setDatas = handler.read('SET');
-        var time = handler.read('TIME');
-        var buffer = new Buffer([]);
+        let self = this;
+        let cmdDatas = handler.read('CMD');
+        let getDatas = handler.read('GET');
+        let setDatas = handler.read('SET');
+        let time = handler.read('TIME');
+        let buffer = new Buffer([]);
         // 입력 모듈일 경우
         if (getDatas) {
         }
         // 출력 모듈일 경우
         if (setDatas) {
-            var setKey = Object.keys(setDatas);
+            let setKey = Object.keys(setDatas);
             setKey.forEach(function (port) {
-                var data = setDatas[port];
+                let data = setDatas[port];
                 if (data) {
                     if (self.portTimeList[port] < data.time) {
                         self.portTimeList[port] = data.time
@@ -221,7 +221,7 @@ class Parodule extends BaseModule {
     }
     // recentCheckData 리스트에 있는 경우 true 반환 아니면 false
     isRecentData(port, type, data) {
-        var isRecent = false;
+        let isRecent = false;
 
         if (port in this.recentCheckData) {
             if (this.recentCheckData[port].type === type && this.recentCheckData[port].data === data) {
@@ -240,7 +240,7 @@ class Parodule extends BaseModule {
         }
     }
     makeOutputBuffer(dataType, data) {
-        var buffer;
+        let buffer;
         if (dataType == this.controlTypes.STRING) {
             buffer = new Buffer(data);
         }
@@ -261,8 +261,8 @@ class Parodule extends BaseModule {
     }
     // '\r\n' 을 기준으로 버퍼를 자른다
     getDataByBuffer(buffer) {
-        var datas = [];
-        var lastIndex = 0;
+        let datas = [];
+        let lastIndex = 0;
         buffer.forEach(function (value, idx) {
             if (value == 13 && buffer[idx + 1] == 10) {
                 datas.push(buffer.subarray(lastIndex, idx));
