@@ -106,7 +106,7 @@ class Parodule extends BaseModule {
         let self = this;
         let datas = this.getDataByBuffer(data);
         // 데이터 처리 로직
-        datas.forEach(function (data) {
+        datas.forEach((data) => {
             // 센서 데이터만 걸러냄 
             if (data.length < 6) {
                 return;
