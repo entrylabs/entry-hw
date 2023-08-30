@@ -27,20 +27,21 @@ class Parodule extends BaseModule {
                 '2': 0,
                 '3': 0,
             },
-            MODULE1: "LED",
-            MODULE2: "LED",
-            MODULE3: "LED",
-            MODULE4: "LED",
+            MODULE1: 'LED',
+            MODULE2: 'LED',
+            MODULE3: 'LED',
+            MODULE4: 'LED',
         };
         this.isConnect = false;
         this.cmdTime = 0;
         this.portTimeList = [0, 0, 0, 0, 0];
         this.terminal = [0xee, 0xee, 0xee, 0xee, '\n']; // 터미널 버퍼 저장 공간
         this.moduleOff = [0xff, 0x55, 0xc8, 0xc8, 0xc8, 0xc8, '\n']; // 모듈 종료 인터럽트
-        // this.bleDisconCode = new Buffer("123\r\n");
-        this.paroduleEntry = new Buffer("entry\r\n"); // 엔트리 모듈 내부 셰이킹
-        this.paroduleInit = [0xff, 0x44, 0xff, 0xff, 0xff, 0xff, '\n']; // 엔트리용 모듈 인식 코드
-        this.paroduleClose = new Buffer("spclose\r\n"); // 시리어 포트 종료 신호
+        // this.bleDisconCode = new Buffer('123\r\n');
+        this.paroduleEntry = new Buffer('entry\r\n'); // 엔트리 모듈 내부 셰이킹
+        this.paroduleInit = [0xff, 0x55, 0xff, 0xff, 0xff, 0xff, 0x0a]; // 엔트리용 모듈 인식 코드
+        this.paroduleClose = new Buffer('spclose\r\n'); // 시리어 포트 종료 신호
+        this.isSend = true;
         this.pre_time = 0;
     }
     /*
@@ -75,7 +76,13 @@ class Parodule extends BaseModule {
     }
     // 연결 후 초기에 수신받아서 정상연결인지를 확인해야하는 경우 사용합니다.
     checkInitialData(data, config) {
-        return true;
+        if (data) {
+            return true;
+        }
+        else {
+            return false;
+        }
+
     }
     // 주기적으로 하드웨어에서 받은 데이터의 검증이 필요한 경우 사용합니다.
     validateLocalData(data) {
@@ -106,13 +113,14 @@ class Parodule extends BaseModule {
         var self = this;
         var datas = this.getDataByBuffer(data);
         // 데이터 처리 로직
-        datas.forEach(function (data) {
+        datas.forEach((data) => {
             // 센서 데이터만 걸러냄 
             if (data.length < 6) {
                 return;
             }
             else if (data[0] == 0xff && data[1] == 0x44) {
-                var temp = ["", "", "", ""];
+                //console.log(data);
+                var temp = ['', '', '', ''];
                 var readData = data.subarray(2, data.length);
                 for (var i = 0; i < 4; i++) {
                     self.paroduleData.MODULE[i] = readData[i];
@@ -120,18 +128,18 @@ class Parodule extends BaseModule {
                 for (var i = 0; i < 4; i++) {
                     var value = self.paroduleData.MODULE[i];
                     if (value == 209) {
-                        temp[i] = "LED";
+                        temp[i] = 'LED';
                     }
                     else if (value == 210) {
-                        temp[i] = "모터";
+                        temp[i] = '모터';
                     }
                     else if (value == 211) {
-                        temp[i] = "부저";
+                        temp[i] = '부저';
                     }
                     else if (value == 208) {
-                        temp[i] = "없음";
+                        temp[i] = '없음';
                     } else {
-                        temp[i] = "모름";
+                        temp[i] = '모름';
                     }
                 }
                 self.paroduleData.MODULE1 = temp[0];
@@ -164,7 +172,6 @@ class Parodule extends BaseModule {
     // 엔트리에서 받은 데이터에 대한 처리
     handleRemoteData(handler) {
         const interval = 60000; // 1분에 한번씩 연결된 모듈 데이터 호출
-        const cur_time = Date.now();
         var self = this;
         var cmdDatas = handler.read('CMD');
         var getDatas = handler.read('GET');
@@ -212,11 +219,16 @@ class Parodule extends BaseModule {
             this.sendBuffers.push(buffer);
         }
         else {
-            if (cur_time - this.pre_time > interval) {
-                this.pre_time = cur_time;
-                buffer = new Buffer([255, 68, 255, 255, 255, 255, 10]);
+            buffer = new Buffer([0xff, 0x55, 0xff, 0xff, 0xff, 0xff, 0x0a]);
+            if (this.isSend) {
+                this.isSend = false;
                 this.sendBuffers.push(buffer);
             }
+            else if (Date.now() - this.pre_time > interval) {
+                this.pre_time = Date.now();
+                this.sendBuffers.push(buffer);
+            }
+
         }
     }
     // recentCheckData 리스트에 있는 경우 true 반환 아니면 false
@@ -246,13 +258,13 @@ class Parodule extends BaseModule {
         }
         else if (dataType == this.controlTypes.DIGITAL) {
             buffer = new Buffer([
-                255,
-                85,
+                0xff,
+                0x55,
                 this.terminal[0],
                 this.terminal[1],
                 this.terminal[2],
                 this.terminal[3],
-                10
+                0x0a
             ]);
         }
         else {
@@ -279,7 +291,6 @@ class Parodule extends BaseModule {
                 this.sp.drain(() => {
                     connect.close();
                     this.isConnect = false;
-                    this.sp = undefined;
                 })
             })
         }
