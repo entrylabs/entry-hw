@@ -12,7 +12,7 @@
   "email": "hee.kim6133@robotry.co.kr",
   "reconnect": true,  
   "driver": {
-        "win32-x64": "robotry/Parodule_Dongle_Firmware.exe",
+        "win32-x64": "robotry/Parodule_Firmware.exe",
         "translate": "펌웨어 업데이트"
     },
   "hardware": {
