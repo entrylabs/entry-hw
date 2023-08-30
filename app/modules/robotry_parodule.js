@@ -80,7 +80,6 @@ class Parodule extends BaseModule {
   이 두 함수가 정의되어있어야 로직이 동작합니다. 필요없으면 작성하지 않아도 됩니다.
   */
   requestInitialData() {
-    console.log(this.paroduleEntry);
     return this.paroduleEntry;
   }
 
@@ -106,7 +105,6 @@ class Parodule extends BaseModule {
 
     if (this.sendBuffers.length > 0) {
       if (this.sp) {
-        console.log(this.sendBuffers);
         this.sp.write(this.sendBuffers.shift(), () => {
           this.sp.drain(() => {
           });
@@ -118,7 +116,6 @@ class Parodule extends BaseModule {
 
   // 하드웨어에서 온 데이터 처리
   handleLocalData(data) {
-    //console.log(data);
     var self = this;
     var datas = this.getDataByBuffer(data);
     // 데이터 처리 로직
@@ -173,7 +170,6 @@ class Parodule extends BaseModule {
     this.lastSendTime = this.lastTime;
     Object.keys(this.paroduleData).forEach(function (key) {
       if (self.paroduleData[key] != undefined) {
-        //console.log(self.paroduleData[key]);
         handler.write(key, self.paroduleData[key]);
         self.canSendData = false;
       }
@@ -303,7 +299,6 @@ class Parodule extends BaseModule {
   // 연결 해제되면 시리얼 포트 제거
   disconnect(connect) {
     const spClose = this.paroduleClose;
-    console.log(spClose);
     if (this.sp) {
       this.sp.write(spClose, () => {
         this.sp.drain(() => {
