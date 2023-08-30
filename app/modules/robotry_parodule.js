@@ -53,7 +53,6 @@ class Parodule extends BaseModule {
         this.config = config;
     }
     setSerialPort(sp) {
-        let self = this;
         this.sp = sp;
     }
     afterConnect(that, cb) {
@@ -100,13 +99,11 @@ class Parodule extends BaseModule {
         }
         return null;
     }
-
     // 하드웨어에서 온 데이터 처리
     handleLocalData(data) {
         let self = this;
-        let datas = this.getDataByBuffer(data);
         // 데이터 처리 로직
-        datas.forEach((data) => {
+        this.getDataByBuffer(data).forEach((data) => {
             // 센서 데이터만 걸러냄 
             if (data.length < 6) {
                 return;
