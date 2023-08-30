@@ -224,11 +224,12 @@ class Parodule extends BaseModule {
                 this.isSend = false;
                 this.sendBuffers.push(buffer);
             }
+            /* 당장은 없어도 괜찮음
             else if (Date.now() - this.pre_time > interval) {
                 this.pre_time = Date.now();
                 this.sendBuffers.push(buffer);
             }
-
+            */
         }
     }
     // recentCheckData 리스트에 있는 경우 true 반환 아니면 false
