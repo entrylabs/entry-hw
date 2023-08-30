@@ -41,12 +41,12 @@ class Parodule extends BaseModule {
     this.isConnect = false;
     this.cmdTime = 0;
     this.portTimeList = [0, 0, 0, 0, 0];
-    this.terminal = [0xee, 0xee, 0xee, 0xee, '\n'];
-    this.moduleOff = [0xff, 0x55, 0xc8, 0xc8, 0xc8, 0xc8, '\n'];
-    this.bleDisconCode = new Buffer("123\r\n");
-    this.paroduleEntry = new Buffer("entry\r\n");
+    this.terminal = [0xee, 0xee, 0xee, 0xee, '\n']; // 터미널 버퍼 저장 공간
+    this.moduleOff = [0xff, 0x55, 0xc8, 0xc8, 0xc8, 0xc8, '\n']; // 모듈 종료 인터럽트
+    // this.bleDisconCode = new Buffer("123\r\n");
+    this.paroduleEntry = new Buffer("entry\r\n"); // 엔트리 모듈 내부 셰이킹
     this.paroduleInit = [0xff, 0x44, 0xff, 0xff, 0xff, 0xff, '\n']; // 엔트리용 모듈 인식 코드
-    this.paroduleClose = new Buffer("spclose\r\n");
+    this.paroduleClose = new Buffer("spclose\r\n"); // 시리어 포트 종료 신호
     this.pre_time = 0;
   }
   /*
