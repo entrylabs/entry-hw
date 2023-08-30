@@ -11,10 +11,10 @@
   "url": "http://parob.io",
   "email": "hee.kim6133@robotry.co.kr",
   "reconnect": true,  
-  "driver": {
+  "driver": [{
         "win32-x64": "robotry/Parodule_Firmware.exe",
         "translate": "펌웨어 업데이트"
-    },
+    }],
   "hardware": {
       "type": "serial",
       "control": "slave",
