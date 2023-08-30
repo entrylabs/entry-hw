@@ -112,27 +112,22 @@ class Parodule extends BaseModule {
                 return;
             }
             else if (data[0] == 0xff && data[1] == 0x44) {
-                let temp = ['', '', '', ''];
+                let temp = {};
                 let readData = data.subarray(2, data.length);
                 for (let i = 0; i < 4; i++) {
                     self.paroduleData.MODULE[i] = readData[i];
                 }
                 for (let i = 0; i < 4; i++) {
-                    let value = self.paroduleData.MODULE[i];
-                    if (value == 209) {
+                    if (self.paroduleData.MODULE[i] == 209)
                         temp[i] = 'LED';
-                    }
-                    else if (value == 210) {
+                    else if (self.paroduleData.MODULE[i] == 210)
                         temp[i] = '모터';
-                    }
-                    else if (value == 211) {
+                    else if (self.paroduleData.MODULE[i] == 211)
                         temp[i] = '부저';
-                    }
-                    else if (value == 208) {
+                    else if (self.paroduleData.MODULE[i] == 208)
                         temp[i] = '없음';
-                    } else {
+                    else
                         temp[i] = '모름';
-                    }
                 }
                 self.paroduleData.MODULE1 = temp[0];
                 self.paroduleData.MODULE2 = temp[1];
@@ -164,7 +159,7 @@ class Parodule extends BaseModule {
     // 엔트리에서 받은 데이터에 대한 처리
     handleRemoteData(handler) {
         const interval = 60000; // 1분에 한번씩 연결된 모듈 데이터 호출
-        const cur_time = Date.now();
+        let cur_time = Date.now();
         let self = this;
         let cmdDatas = handler.read('CMD');
         let getDatas = handler.read('GET');
