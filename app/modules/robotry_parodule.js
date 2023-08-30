@@ -103,36 +103,43 @@ class Parodule extends BaseModule {
     handleLocalData(data) {
         let self = this;
         // 데이터 처리 로직
-        this.getDataByBuffer(data).forEach((data) => {
+        self.getDataByBuffer(data).forEach((data) => {
             // 센서 데이터만 걸러냄 
             if (data.length < 6) {
                 return;
             }
             else if (data[0] == 0xff && data[1] == 0x44) {
-                let temp = {};
-                let readData = data.subarray(2, data.length);
+                // let temp = {};
+                const readData = data.subarray(2, data.length);
                 for (let i = 0; i < 4; i++) {
                     self.paroduleData.MODULE[i] = readData[i];
                 }
+                /*
                 for (let i = 0; i < 4; i++) {
-                    if (self.paroduleData.MODULE[i] == 209)
+                    if (self.paroduleData.MODULE[i] == 209) {
                         temp[i] = 'LED';
-                    else if (self.paroduleData.MODULE[i] == 210)
+                    }
+                    else if (self.paroduleData.MODULE[i] == 210) {
                         temp[i] = '모터';
-                    else if (self.paroduleData.MODULE[i] == 211)
+                    }
+                    else if (self.paroduleData.MODULE[i] == 211) {
                         temp[i] = '부저';
-                    else if (self.paroduleData.MODULE[i] == 208)
+                    }
+                    else if (self.paroduleData.MODULE[i] == 208) {
                         temp[i] = '없음';
-                    else
+                    }
+                    else {
                         temp[i] = '모름';
+                    }
                 }
                 self.paroduleData.MODULE1 = temp[0];
                 self.paroduleData.MODULE2 = temp[1];
                 self.paroduleData.MODULE3 = temp[2];
                 self.paroduleData.MODULE4 = temp[3];
+                */
             }
             else if (data[0] == 0xff && data[1] == 0x66) {
-                let readData = data.subarray(2, data.length);
+                const readData = data.subarray(2, data.length);
                 for (let i = 0; i < 4; i++) {
                     self.paroduleData.SENSOR[i] = readData[i];
                 }
