@@ -1,4 +1,3 @@
-const { values } = require('lodash');
 const BaseModule = require('./robotry');
 class Parodule extends BaseModule {
   // 클래스 내부에서 사용될 필드들을 이곳에서 선언합니다.
@@ -10,13 +9,11 @@ class Parodule extends BaseModule {
       ANALOG: 1,
       STRING: 2,
     };
-
     this.UNKNOWN = 207;
     this.NONE = 208;
     this.LED = 209;
     this.MOTOR = 210;
     this.BUZZER = 211;
-
     this.paroduleData = {
       SENSOR: {
         '0': 0,
@@ -30,14 +27,11 @@ class Parodule extends BaseModule {
         '2': 0,
         '3': 0,
       },
-
       MODULE1: "LED",
       MODULE2: "LED",
       MODULE3: "LED",
       MODULE4: "LED",
-
     };
-
     this.isConnect = false;
     this.cmdTime = 0;
     this.portTimeList = [0, 0, 0, 0, 0];
@@ -58,12 +52,10 @@ class Parodule extends BaseModule {
     this.handler = handler;
     this.config = config;
   }
-
   setSerialPort(sp) {
     var self = this;
     this.sp = sp;
   }
-
   afterConnect(that, cb) {
     that.connected = true;
     if (cb) {
@@ -73,7 +65,6 @@ class Parodule extends BaseModule {
   connect() {
     this.isConnect = true;
   }
-
   /*
   연결 후 초기에 송신할 데이터가 필요한 경우 사용합니다.
   requestInitialData 를 사용한 경우 checkInitialData 가 필수입니다.
@@ -82,17 +73,14 @@ class Parodule extends BaseModule {
   requestInitialData() {
     return this.paroduleEntry;
   }
-
   // 연결 후 초기에 수신받아서 정상연결인지를 확인해야하는 경우 사용합니다.
   checkInitialData(data, config) {
     return true;
   }
-
   // 주기적으로 하드웨어에서 받은 데이터의 검증이 필요한 경우 사용합니다.
   validateLocalData(data) {
     return true;
   }
-
   /*
   하드웨어 기기에 전달할 데이터를 반환합니다.
   slave 모드인 경우 duration 속성 간격으로 지속적으로 기기에 요청을 보냅니다.
@@ -102,7 +90,6 @@ class Parodule extends BaseModule {
     if (!this.isConnect) {
       return;
     }
-
     if (this.sendBuffers.length > 0) {
       if (this.sp) {
         this.sp.write(this.sendBuffers.shift(), () => {
@@ -160,7 +147,6 @@ class Parodule extends BaseModule {
       }
     });
   }
-
   // 엔트리로 전달할 데이터
   requestRemoteData(handler) {
     var self = this;
@@ -175,7 +161,6 @@ class Parodule extends BaseModule {
       }
     });
   }
-
   // 엔트리에서 받은 데이터에 대한 처리
   handleRemoteData(handler) {
     const interval = 60000; // 1분에 한번씩 연결된 모듈 데이터 호출
@@ -188,7 +173,6 @@ class Parodule extends BaseModule {
     var buffer = new Buffer([]);
     // 입력 모듈일 경우
     if (getDatas) {
-
     }
     // 출력 모듈일 경우
     if (setDatas) {
@@ -211,8 +195,6 @@ class Parodule extends BaseModule {
       });
 
     }
-
-
     // 커맨드 명령어
     if (cmdDatas) {
       if (self.cmdTime < cmdDatas.time) {
@@ -226,7 +208,6 @@ class Parodule extends BaseModule {
         }
       }
     }
-
     if (buffer.length) {
       this.sendBuffers.push(buffer);
     }
@@ -238,7 +219,6 @@ class Parodule extends BaseModule {
       }
     }
   }
-
   // recentCheckData 리스트에 있는 경우 true 반환 아니면 false
   isRecentData(port, type, data) {
     var isRecent = false;
@@ -248,7 +228,6 @@ class Parodule extends BaseModule {
         isRecent = true;
       }
     }
-
     return isRecent;
   }
 
@@ -259,7 +238,6 @@ class Parodule extends BaseModule {
     else {
       this.terminal[port] = this.recentCheckData[port].data;
     }
-
   }
   makeOutputBuffer(dataType, data) {
     var buffer;
@@ -278,11 +256,9 @@ class Parodule extends BaseModule {
       ]);
     }
     else {
-
     }
     return buffer;
   }
-
   // '\r\n' 을 기준으로 버퍼를 자른다
   getDataByBuffer(buffer) {
     var datas = [];
@@ -295,7 +271,6 @@ class Parodule extends BaseModule {
     });
     return datas;
   }
-
   // 연결 해제되면 시리얼 포트 제거
   disconnect(connect) {
     const spClose = this.paroduleClose;
@@ -309,10 +284,8 @@ class Parodule extends BaseModule {
       })
     }
   }
-
   // 리셋
   reset() {
   }
 }
-
 module.exports = new Parodule();
