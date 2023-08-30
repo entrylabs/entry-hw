@@ -41,11 +41,11 @@ class Parodule extends BaseModule {
     this.isConnect = false;
     this.cmdTime = 0;
     this.portTimeList = [0, 0, 0, 0, 0];
-    this.terminal = [238, 238, 238, 238, 10];
-    this.moduleOff = [255, 85, 200, 200, 200, 200, 10];
+    this.terminal = [0xee, 0xee, 0xee, 0xee, '\n'];
+    this.moduleOff = [0xff, 0x55, 0xc8, 0xc8, 0xc8, 0xc8, '\n'];
     this.bleDisconCode = new Buffer("123\r\n");
     this.paroduleEntry = new Buffer("entry\r\n");
-    this.paroduleInit = [255, 68, 255, 255, 255, 255, '\n']; // 엔트리용 모듈 인식 코드
+    this.paroduleInit = [0xff, 0x44, 0xff, 0xff, 0xff, 0xff, '\n']; // 엔트리용 모듈 인식 코드
     this.paroduleClose = new Buffer("spclose\r\n");
     this.pre_time = 0;
   }
@@ -127,7 +127,7 @@ class Parodule extends BaseModule {
       if (data.length < 6) {
         return;
       }
-      else if (data[0] == 255 && data[1] == 85) {
+      else if (data[0] == 0xff && data[1] == 0x44) {
         var temp = ["", "", "", ""];
         var readData = data.subarray(2, data.length);
         for (var i = 0; i < 4; i++) {
@@ -155,8 +155,7 @@ class Parodule extends BaseModule {
         self.paroduleData.MODULE3 = temp[2];
         self.paroduleData.MODULE4 = temp[3];
       }
-      else if (data[0] == 255 && data[1] == 102) {
-        console.log(data);
+      else if (data[0] == 0xff && data[1] == 0x66) {
         var readData = data.subarray(2, data.length);
         for (var i = 0; i < 4; i++) {
           self.paroduleData.SENSOR[i] = readData[i];
