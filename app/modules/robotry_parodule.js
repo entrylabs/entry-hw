@@ -11,7 +11,7 @@ class Parodule extends BaseModule {
         };
         this.UNKNOWN = 207;
         this.NONE = 208;
-        this.LED = 209;
+        this.PIXEL = 209;
         this.MOTOR = 210;
         this.BUZZER = 211;
         this.paroduleData = {
@@ -27,10 +27,10 @@ class Parodule extends BaseModule {
                 '2': 0,
                 '3': 0,
             },
-            MODULE1: 'LED',
-            MODULE2: 'LED',
-            MODULE3: 'LED',
-            MODULE4: 'LED',
+            MODULE1: '픽셀',
+            MODULE2: '픽셀',
+            MODULE3: '픽셀',
+            MODULE4: '픽셀',
         };
         this.isConnect = false;
         this.cmdTime = 0;
@@ -127,16 +127,16 @@ class Parodule extends BaseModule {
                 }
                 for (let i = 0; i < 4; i++) {
                     let value = self.paroduleData.MODULE[i];
-                    if (value == 209) {
-                        temp[i] = 'LED';
+                    if (value == this.PIXEL) {
+                        temp[i] = '픽셀';
                     }
-                    else if (value == 210) {
+                    else if (value == this.MOTOR) {
                         temp[i] = '모터';
                     }
-                    else if (value == 211) {
+                    else if (value == this.BUZZER) {
                         temp[i] = '부저';
                     }
-                    else if (value == 208) {
+                    else if (value == this.NONE) {
                         temp[i] = '없음';
                     } else {
                         temp[i] = '모름';
