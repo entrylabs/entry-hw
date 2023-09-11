@@ -171,7 +171,6 @@ class Parodule extends BaseModule {
     }
     // 엔트리에서 받은 데이터에 대한 처리
     handleRemoteData(handler) {
-        const interval = 60000; // 1분에 한번씩 연결된 모듈 데이터 호출
         let self = this;
         let cmdDatas = handler.read('CMD');
         let getDatas = handler.read('GET');
@@ -224,21 +223,23 @@ class Parodule extends BaseModule {
                 this.isSend = false;
                 this.sendBuffers.push(buffer);
             }
-            /* 당장은 없어도 괜찮음
-            else if (Date.now() - this.pre_time > interval) {
-                this.pre_time = Date.now();
-                this.sendBuffers.push(buffer);
-            }
-            */
         }
     }
     // recentCheckData 리스트에 있는 경우 true 반환 아니면 false
     isRecentData(port, type, data) {
         let isRecent = false;
+        const interval = 1000;
 
         if (port in this.recentCheckData) {
             if (this.recentCheckData[port].type === type && this.recentCheckData[port].data === data) {
                 isRecent = true;
+                if (Date.now() - this.pre_time > interval) { // 같은 데이터가 연속인 경우 1초에 한번만 전송
+                    this.pre_time = Date.now();
+                    isRecent = false;
+                }
+                else {
+                    isRecent = true;
+                }
             }
         }
         return isRecent;
