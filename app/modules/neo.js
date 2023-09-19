@@ -16,7 +16,8 @@ const FrameCode = {
 };
 
 const PduConnectionCode = {
-    PAIRING_START: 0x01,
+    MANUAL_PAIRING: 0x00,
+    AUTO_PAIRING: 0x01,
     PAIRING_INFO: 0x03,
     PAIRING_REMOVE: 0x06,
     NOTIFY_LIVE: 0x07,
@@ -24,17 +25,18 @@ const PduConnectionCode = {
 
 const PduBasicCode = {
     SENSOR_DATA: 0x01,
+    CONTROLLER_CMD: 0x02,
     BASIC: 0x10,
     EXTEND_1: 0x11,
+    EXTEND_2: 0x12,
+    EXTEND_3: 0x13,
 };
 
 const SensorKind = {
     CONTROLLER: 0x00,
     ANALOG: 0x01,
-    COLOR: 0x02,
-    DISTANCE: 0x03,
-    TEMPERATURE: 0x04,
-    GYRO: 0x05,
+    DIGITAL: 0x02,
+    COLOR: 0x03,
 };
 
 const UnitId = {
@@ -42,12 +44,11 @@ const UnitId = {
     CONTROLLER_IN1: 0x01,
     CONTROLLER_IN2: 0x02,
     CONTROLLER_IN3: 0x03,
-    SENSOR_STICK: 0x10,
-    SENSOR_STICK_IN1: 0x11,
-    IOT: 0x80,
     CONTROLLER_OUT1: 0x81,
     CONTROLLER_OUT2: 0x82,
-    CONTROLLER_OUT3: 0x83,
+    CONTROLLER_OUT12: 0x83,
+    CONTROLLER_OUT3: 0x84,
+    CONTROLLER_OUT123: 0x87,
 };
 
 class Neo extends BaseModule {
@@ -72,9 +73,6 @@ class Neo extends BaseModule {
             in2Values: [0, 0, 0, 0],
             in3Kind: 0,
             in3Values: [0, 0, 0, 0],
-            sensorStickBattery: 0,
-            in4Kind: 0,
-            in4Values: [0, 0, 0, 0],
         };
     }
 
@@ -295,13 +293,10 @@ class Neo extends BaseModule {
 
             this.logPdu(this.byteArrayToHex(pdu));
 
-            const responseData = this.parseResponsePdu(pdu);
-            if (responseData && responseData.blockId) {
-                if (this.pendingList[responseData.blockId]) {
-                    if (responseData.result === 0x02) {
-                        this.pendingList[responseData.blockId].state = 'pending';
-                    }
-                    if (responseData.result === 0x01) {
+            if (pdu[IDX_PDU_CODE] >= PduBasicCode.BASIC) {
+                const responseData = this.parseResponsePdu(pdu);
+                if (responseData && responseData.blockId) {
+                    if (this.pendingList[responseData.blockId]) {
                         this.pendingList[responseData.blockId].state = 'completed';
                     }
                 }
@@ -336,7 +331,7 @@ class Neo extends BaseModule {
                 } else if (unitId === UnitId.CONTROLLER_IN3) {
                     this.sensorValues.in3Values = [analogValue, 0, 0, 0];
                 }
-            } else if (sensorDataKind === SensorKind.COLOR) {
+            } else if (sensorDataKind === SensorKind.DIGITAL || sensorDataKind === SensorKind.COLOR) {
                 const value1 = new Buffer(value.slice(0, 2)).readInt16LE();
                 const value2 = new Buffer(value.slice(2, 4)).readInt16LE();
                 const value3 = new Buffer(value.slice(4, 6)).readInt16LE();
@@ -361,8 +356,8 @@ class Neo extends BaseModule {
      */
     parseResponsePdu(pdu) {
         return {
-            blockId: pdu[IDX_PDU_CODE + 1],
-            result: pdu[IDX_PDU_CODE + 2],
+            blockId: pdu[IDX_ACK_NUM],
+            result: pdu[IDX_ACK_NUM + 1],
         };
     }
 

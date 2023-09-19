@@ -13,7 +13,7 @@ function Module() {
         OLED: 241,
         COM: 242,
         NEOPIXEL: 243,
-        //ULTRASONIC_COUNTER: 244,
+        ULTRASONIC_COUNTER: 244,
         DOTMATRIX: 245
     }
 
@@ -80,6 +80,7 @@ function Module() {
 }
 
 var sensorIdx = 0;
+var cnt =0;
 
 Module.prototype.init = function(handler, config) {
 };
@@ -560,21 +561,22 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
           var brig = new Buffer(1);
 
           //var msgLength = data.length + 3;
-          mode[0] = data.mode;    //네오픽셀 모드
-          index[0] = data.index;  //네오픽셀 인덱스
-          value[0] = data.value;  //갯수
+          mode[0] = data.mode;    //네오픽셀 모드 7
+          index[0] = data.index;  //네오픽셀 인덱스 8
+          value[0] = data.value;  //갯수 9
           pos[0] = data.pos;      //위치
           red[0] = data.red;      //빨강
           blue[0] = data.blue;    //파랑
           green[0] = data.green;  //녹색
           brig[0] = data.brig;    //밝기
+	
+        
 
           if(mode[0] == 1)
           {
             buffer = new Buffer([255, 85, 7, sensorIdx, this.actionTypes.SET, device, port]);
             buffer = Buffer.concat([buffer, mode, index, value, dummy]);
           }
-
           else if (mode[0] ==2) {
             buffer = new Buffer([255, 85, 11, sensorIdx, this.actionTypes.SET, device, 0]);
             buffer = Buffer.concat([buffer, mode, index, pos, red, green, blue, brig, dummy]);
@@ -585,10 +587,50 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
           } else {
             buffer = new Buffer([255, 85, 06, sensorIdx, this.actionTypes.SET, device, 0, 4, 1]);
           }
+
           //
           //buffer = new Buffer([255, 85, 11, sensorIdx, this.actionTypes.SET, device, 0, 2, 1, 5, 255, 1, 1, 55]);
           break;
         }
+        // case this.sensorTypes.DOTMATRIX: {
+
+        //     var mode = new Buffer(1);
+        //     var index = new Buffer(1);
+        //     var value = new Buffer(1);
+        //     var pos = new Buffer(1);
+        //     var red = new Buffer(1);
+        //     var add_value = new Buffer(1);
+
+        //     //var msgLength = data.length + 3;
+        //     mode[0] = data.mode;    //네오픽셀 모드 7
+        //     index[0] = data.index;  //네오픽셀 인덱스 8
+        //     value[0] = data.value;  //갯수 9
+        //     pos[0] = data.pos;      //위치
+        //     red[0] = data.red;      //빨강
+            
+        //     if (mode[0] == 3) {
+        //         if(cnt < 8)
+        //         {
+        //             add_value[0] =+ red[0];
+        //             cnt++
+        //         }
+    
+        //         if(cnt == 7)
+        //         {
+        //             buffer = new Buffer([255, 85, 10, sensorIdx, this.actionTypes.SET, device, 0]);
+        //             buffer = Buffer.concat([buffer, mode, index, add_value, dummy]);
+        //             cnt = 0;
+        //         }else {
+        //             buffer = new Buffer([255, 85, 06, sensorIdx, this.actionTypes.SET, device, 0, 4, 1]);
+
+        //         } 
+        //     }
+  
+        //     //
+        //     //buffer = new Buffer([255, 85, 11, sensorIdx, this.actionTypes.SET, device, 0, 2, 1, 5, 255, 1, 1, 55]);
+        //     break;
+        // }
+        
     }
 
     return buffer;
