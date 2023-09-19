@@ -1,3 +1,4 @@
+const Lodash = require('lodash');
 const BaseModule = require('./baseModule');
 
 class ProboConnect extends BaseModule {
@@ -60,7 +61,28 @@ class ProboConnect extends BaseModule {
                 EC:0,
                 EEPR2:0,
                 EEPR1:0
+            },
+            Infinite:{
+                ROTATION_1:0,
+                ROTATION_2:0,
+                ROTATION_3:0,
+                ROTATION_4:0
+            },
+            Acceler:{
+                AXIS_X1:0,
+                AXIS_X2:0,
+                AXIS_X3:0,
+                AXIS_X4:0,
+                AXIS_Y1:0,
+                AXIS_Y2:0,
+                AXIS_Y3:0,
+                AXIS_Y4:0,
+                AXIS_Z1:0,
+                AXIS_Z2:0,
+                AXIS_Z3:0,
+                AXIS_Z4:0,
             }
+
         };
 
         this.RemoteData = {
@@ -86,6 +108,10 @@ class ProboConnect extends BaseModule {
             ASET2:0,
             ASET1:0
         };
+
+        // this.Infinite_Buff = { AA1: 0, AA2: 0, AA3: 0, AA4: 0 },
+        // this.Infinite_Count = { AA1: 0, AA2: 0, AA3: 0, AA4: 0 },
+        // this.Infinite_Start = { AA1: 0, AA2: 0, AA3: 0, AA4: 0 },
 
         this.OutputData = new Buffer(22);
 
@@ -273,11 +299,51 @@ class ProboConnect extends BaseModule {
                 this.InputData.EEPROM.EC = data[13];
                 this.InputData.EEPROM.EEPR2 = data[14];
                 this.InputData.EEPROM.EEPR1 = data[15];
+
+                this.InputData.Infinite.ROTATION_1 = (data[16]>>6)&0xC;
+                this.InputData.Infinite.ROTATION_2 = (data[16]>>4)&0xC;
+                this.InputData.Infinite.ROTATION_3 = (data[16]>>2)&0xC;
+                this.InputData.Infinite.ROTATION_4 = (data[16]>>0)&0xC;
+
+                this.InputData.Acceler.AXIS_X1 = data[4];
+                this.InputData.Acceler.AXIS_X2 = data[5];
+                this.InputData.Acceler.AXIS_X3 = data[6];
+                this.InputData.Acceler.AXIS_X4 = data[7];
+
+                this.InputData.Acceler.AXIS_Y1 = data[17];
+                this.InputData.Acceler.AXIS_Y2 = data[19];
+                this.InputData.Acceler.AXIS_Y3 = data[21];
+                this.InputData.Acceler.AXIS_Y4 = data[23];
+
+                this.InputData.Acceler.AXIS_Z1 = data[18];
+                this.InputData.Acceler.AXIS_Z2 = data[20];
+                this.InputData.Acceler.AXIS_Z3 = data[22];
+                this.InputData.Acceler.AXIS_Z4 = data[24];
+
             }
             else
                 console.count('CheckSum Err');
         }
         //this.sensors = data;
+    }
+
+    // 커스텀 버튼을 사용자에게 보여줄지 여부
+    canShowCustomButton() {
+        return true;
+    }
+  
+    // 커스텀 버튼 클릭시 동작할 로직
+    customButtonClicked(key) {
+        switch (key) {
+        case "case1":
+            //버튼 1 로직
+            break;
+        case "case2":
+            //버튼 2 로직
+            break;
+        default:
+            console.log(key);
+        }
     }
 
 }
