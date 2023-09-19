@@ -1,4 +1,3 @@
-const Lodash = require('lodash');
 const BaseModule = require('./baseModule');
 
 class ProboConnect extends BaseModule {
