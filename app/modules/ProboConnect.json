@@ -10,11 +10,11 @@
     "driver": [{
           "win32-ia32": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.exe",
           "win32-x64": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.exe",
-          "translate": "드라이버 설치"},
+          "translate": "드라이버 설치1"},
         {
           "win32-ia32": "Easy_Down_Entry/PROBO_Easy_Down_Entry_ver8.38_install.exe",
           "win32-x64": "Easy_Down_Entry/PROBO_Easy_Down_Entry_ver8.38_install.exe",
-          "translate": "펌웨어 설치"}
+          "translate": "드라이버 설치2"}
         ],
     "url": "https://www.probo.kr/",
     "email": "tkddnjs10@naver.com",

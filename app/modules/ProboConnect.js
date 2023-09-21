@@ -1,4 +1,3 @@
-const Lodash = require('lodash');
 const BaseModule = require('./baseModule');
 
 class ProboConnect extends BaseModule {
@@ -327,24 +326,24 @@ class ProboConnect extends BaseModule {
         //this.sensors = data;
     }
 
-    // 커스텀 버튼을 사용자에게 보여줄지 여부
-    canShowCustomButton() {
-        return true;
-    }
+    // // 커스텀 버튼을 사용자에게 보여줄지 여부
+    // canShowCustomButton() {
+    //     return true;
+    // }
   
     // 커스텀 버튼 클릭시 동작할 로직
-    customButtonClicked(key) {
-        switch (key) {
-        case "case1":
-            //버튼 1 로직
-            break;
-        case "case2":
-            //버튼 2 로직
-            break;
-        default:
-            console.log(key);
-        }
-    }
+    // customButtonClicked(key) {
+    //     switch (key) {
+    //     case "case1":
+    //         //버튼 1 로직
+    //         break;
+    //     case "case2":
+    //         //버튼 2 로직
+    //         break;
+    //     default:
+    //         console.log(key);
+    //     }
+    // }
 
 }
 
