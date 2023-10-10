@@ -13,7 +13,13 @@ class AsomeKit extends BaseModule {
         this.msg_id = '';
         this.sendToEntry = {
             msg_id: "",
-            distance: 0,
+            bt_value: 0,
+            cm: 0,
+            humidity: 0,
+            temperature: 0,
+            light: 0,
+            vibration: 0,
+            sound: 0,
             udp_msg: "",
         };
     }
@@ -110,9 +116,37 @@ class AsomeKit extends BaseModule {
 
             console.log("from AsomeBot: ", line);
 
-            if (line.indexOf('#DT') >= 0) {
+            if (line.indexOf('#BT') >= 0) {
                 var values = line.split(" ");
-                if (values.length > 1) this.sendToEntry.distance = values[1];
+                if (values.length > 1) this.sendToEntry.bt_value = values[1];
+            }
+            if (line.indexOf('#CM') >= 0) {
+                var values = line.split(" ");
+                if (values.length > 1) this.sendToEntry.cm = values[1];
+            }
+            if (line.indexOf('#HD') >= 0) {
+                var values = line.split(" ");
+                if (values.length > 1) this.sendToEntry.humidity = values[1];
+            }
+            if (line.indexOf('#TP') >= 0) {
+                var values = line.split(" ");
+                if (values.length > 1) this.sendToEntry.temperature = values[1];
+            }
+            if (line.indexOf('#BN') >= 0) {
+                var values = line.split(" ");
+                if (values.length > 1) this.sendToEntry.light = values[1];
+            }
+            if (line.indexOf('#VT') >= 0) {
+                var values = line.split(" ");
+                if (values.length > 1) {
+                    if (values[1] == 'False') {
+                        this.sendToEntry.vibration = 0;
+                    } else {this.sendToEntry.vibration = 1;}
+                }
+            }
+            if (line.indexOf('#SO') >= 0) {
+                var values = line.split(" ");
+                if (values.length > 1) this.sendToEntry.sound = values[1];
             }
             if (line.indexOf('#UDP') >= 0) {
                 var values = line.split(" ");
