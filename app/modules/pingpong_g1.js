@@ -180,7 +180,6 @@ class PingpongG1 extends BaseModule {
         if (!this.isDraing && this.sendBuffer.length > 0) {
             this.isDraing = true;
             const msg = this.sendBuffer.shift();
-            //console.log('P:requestLocalData() : ', msg, this.sendBuffer.length);
             this.sp.write(msg, () => {
                 if (self.sp) {
                     self.sp.drain(() => {
@@ -195,7 +194,6 @@ class PingpongG1 extends BaseModule {
 
     // 하드웨어에서 온 데이터 처리
     handleLocalData(data) {
-        //console.log('P:handle LocalData:(%d) %s ', data.length, this.dbgHexstr(data));
         if (!this.isConnected) {
         }
 
@@ -246,7 +244,6 @@ class PingpongG1 extends BaseModule {
 
     // 엔트리로 전달할 데이터
     requestRemoteData(handler) {
-        //console.log('P:request RD: ');
         const self = this;
         Object.keys(this.readValue).forEach((key) => {
             if (self.readValue[key] !== undefined) {
@@ -270,7 +267,7 @@ class PingpongG1 extends BaseModule {
             this.sp.write(this.makePackets('setColorLed'), (err) => {});
         }, 500);
 
-        setTimeout(() => {
+        setTimeout(() => { //YIM's 모든 센서가 연결된 후에 보내야하는데 여기서 보내지는게 오류...
             this.sp.write(this.makePackets('getSensorData'), (err) => {
                 console.log('done.........');
             });
