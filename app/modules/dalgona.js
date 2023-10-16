@@ -56,13 +56,13 @@ function Module() {
         GYROY: 56,
         GYROZ: 57,
         PULLUP: 58,
-        // FNDINIT: 59,
+        TONETOGGLE: 59,
     };
 
     this.actionTypes = {
         GET: 1,
         SET: 2,
-        MODUEL: 3,
+        MODULE: 3,
         RESET: 4,
     };
 
@@ -548,10 +548,13 @@ Module.prototype.makeOutputBuffer = function (device, port, data) {
             buffer = Buffer.concat([buffer, value1, value2, stime, dummy]);
             break;
         }
-        case this.sensorTypes.DIGITAL:
+        case this.sensorTypes.DIGITAL:{
+            console.log("digital");
+            console.log(buffer);
+        }
         case this.sensorTypes.PWM: {
             value.writeInt16LE(data);
-            buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.SET, device, port]);
+            buNffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.SET, device, port]);
             buffer = Buffer.concat([buffer, value, dummy]);
             break;
         }
@@ -573,6 +576,18 @@ Module.prototype.makeOutputBuffer = function (device, port, data) {
             buffer = Buffer.concat([buffer, value, time, dummy]);
             break;
         }
+
+        case this.sensorTypes.TONETOGGLE:{
+            value.writeInt16LE(data);
+            buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.SET, device, port]);
+            buffer = Buffer.concat([buffer, value, dummy]);
+
+            console.log("tonetoggle");
+            console.log(buffer);
+
+            break;
+        }
+        
         case this.sensorTypes.RGBLED: {
             const port1 = new Buffer(2);
             const port2 = new Buffer(2);
@@ -632,62 +647,6 @@ Module.prototype.makeOutputBuffer = function (device, port, data) {
             ]);
             break;
         }
-
-
-        // case this.sensorTypes.FNDINIT: {
-        //     const fndClk = Buffer.alloc(2);
-        //     const fndDio = Buffer.alloc(2);            
-        //     const fndBrightnessLev =  Buffer.alloc(2);
-        //     const fndOnOff =  Buffer.alloc(2);
-        //     const fndBlockIndex = Buffer.alloc(2);
-        //     const fndDelayMs = Buffer.alloc(2);
-        //     const fndDisplayStrLength = Buffer.alloc(2);
-        //     const fndDisplayStr0 = Buffer.alloc(2);    
-        //     const fndDisplayStr1 = Buffer.alloc(2);
-        //     const fndDisplayStr2 = Buffer.alloc(2);
-        //     const fndDisplayStr3 = Buffer.alloc(2);
-
-        //     if ($.isPlainObject(data)) {
-        //         fndClk.writeInt16LE(data.clk_pin);
-        //         fndDio.writeInt16LE(data.dio_pin);
-        //         // FND Init Block Area Above
-
-        //         fndBrightnessLev.writeInt16LE(data.level_val);
-        //         fndBlockIndex.writeInt16LE(data.block_index);                
-        //         // FND Display Block Area Above
-
-        //         fndOnOff.writeInt16LE(data.onoff);                
-        //         fndDelayMs.writeInt16LE(data.delay_ms);
-
-        //         fndDisplayStrLength.writeInt16LE(data.str_length);
-        //         fndDisplayStr0.writeInt16LE(data.data_0);
-        //         fndDisplayStr1.writeInt16LE(data.data_1);
-        //         fndDisplayStr2.writeInt16LE(data.data_2);
-        //         fndDisplayStr3.writeInt16LE(data.data_3);
-        //     } else {
-        //         fndClk.writeInt16LE(0);
-        //         fndDio.writeInt16LE(0);    
-        //         // FND Init Block Area Above   
-
-        //         fndBrightnessLev.writeInt16LE(0);
-        //         fndBlockIndex.writeInt16LE(0);
-        //         // FND Display Block Area Above
-
-        //         fndOnOff.writeInt16LE(0);            
-        //         fndDelayMs.writeInt16LE(0);         
-
-        //         fndDisplayStrLength.writeInt16LE(0);
-        //         fndDisplayStr0.writeInt16LE(0);
-        //         fndDisplayStr1.writeInt16LE(0);
-        //         fndDisplayStr2.writeInt16LE(0);
-        //         fndDisplayStr3.writeInt16LE(0);        
-        //     }
-
-        //     buffer = Buffer.from([255, 85, 26, sensorIdx, this.actionTypes.MODUEL, device, port]);
-        //     buffer = Buffer.concat([buffer, fndBlockIndex, fndClk, fndDio, fndBrightnessLev, fndOnOff, fndDisplayStrLength, fndDisplayStr0, fndDisplayStr1, fndDisplayStr2, fndDisplayStr3, fndDelayMs, dummy]);
-
-        //     break;  
-        // }
 
 
         case this.sensorTypes.NEOPIXELINIT: {
