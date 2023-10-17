@@ -1,0 +1,48 @@
+{
+    "id": "FFFE01",
+    "name": {
+        "en": "Sensor Uno",
+        "ko": "센서우노(USB)"
+    },
+    "category": "board",
+    "platform": ["win32", "darwin"],
+    "icon": "suno.png",
+    "module": "suno.js",
+    "url": "https://excitetouch.com",
+    "email": "joonsuk0208@gmail.com",
+    "driver": [
+        {
+            "win32-ia32": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
+            "win32-x64": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
+            "darwin-x64": "https://entrylabs.github.io/docs/files/drivers/CH34x_Install_MAC_10_9_AND_ABOVE/CH34x_Install_V1.3.pkg",
+            "translate": "드라이버 (유선용)"
+        },
+        {
+            "win32-ia32": "SUNOBT/CP210xVCPInstaller_x86.exe",
+            "win32-x64": "SUNOBT/CP210xVCPInstaller_x64.exe",
+            "darwin-x64": "Mac_OSX_VCP_Driver/SiLabsUSBDriverDisk.dmg",
+            "translate": "드라이버 (블루투스)"
+        }
+    ],
+    "reconnect": true,
+    "firmware": [
+        {
+            "name": "suno",
+            "translate": "펌웨어 (USB케이블)"
+        },
+        {
+            "name": "sunobt",
+            "translate": "펌웨어 (블루투스)"
+        }
+    ],
+    "hardware": {
+        "type": "serial",
+        "control": "slave",
+        "duration": 48,
+        "vendor": {
+            "win32": ["wch.cn", "Arduino"]
+        },
+        "baudRate": 57600
+        
+    }
+}
