@@ -86,7 +86,7 @@ class PingpongBase extends BaseModule {
                 0xb8,
                 0x00,
                 0x0b,
-                30, // interval
+                10, // interval //YIM's 30->10
                 0x01,
             ]);
         }
@@ -101,7 +101,6 @@ class PingpongBase extends BaseModule {
 
     // 연결 후 초기에 송신할 데이터가 필요한 경우 사용합니다.
     requestInitialData(sp, payload) {
-        //console.log('P:requestInitialData: ');
         const grpid = payload.match(/[0-7]{1,2}$/g);
         if (grpid == null) {
             console.warn('Wrong group id inputted', payload);
@@ -150,8 +149,15 @@ class PingpongBase extends BaseModule {
 
                 if (this.isPingpongConnected(packet) == true) {
                     console.info('checkInitialData(): all cube connected!');
+
+                    setTimeout(() => {
+                        this.sp.write(this.makePackets('getSensorData'), (err) => {
+                            console.log('send get Sensor Data.');
+                        });
+                    }, 500); 
+					// YIM's getsensor 명령얼 보내야 할 곳으로 보임..
                     return true;
-                }
+                } //YIM's G2~4 까지는 checkInitialData 리턴이 true 가 되지 않음 , 이 때 firmwarecheck 설정이 true이면 문제가 됨 ???
 
                 // skip this packet
                 this.checkBuffer = Buffer.from(payload.slice(packetSize));
@@ -171,7 +177,6 @@ class PingpongBase extends BaseModule {
     handleRemoteData(handler) {
         this.send_cmd = handler.read('COMMAND');
         if (this.send_cmd) {
-            //console.log('P:handleRemoteData: ', this.send_cmd);
             if (this.send_cmd.id == -1) {
                 this.cmd_seq = 0;
                 //console.log('P:handleRemoteData RD: CLEAR');
@@ -189,7 +194,6 @@ class PingpongBase extends BaseModule {
         if (!this.isDraing && this.sendBuffer.length > 0) {
             this.isDraing = true;
             const msg = this.sendBuffer.shift();
-            //console.log('P:requestLocalData() : ', msg, this.sendBuffer.length);
             this.sp.write(msg, () => {
                 if (self.sp) {
                     self.sp.drain(() => {
@@ -204,64 +208,59 @@ class PingpongBase extends BaseModule {
 
     // 하드웨어에서 온 데이터 처리
     handleLocalData(data) {
-        //console.log('P:handle LocalData:(%d) %s ', data.length, this.dbgHexstr(data));
-        if (!this.isConnected) {
+        if (!this.isConnected) { 
         }
 
         if (data.length >= 9) {
             const packetSize = data.readInt16BE(7);
             const opcode = data[6];
 
-            if (data.length >= packetSize && packetSize >= 19) {
-                if (opcode == 0xb8 && data[5] == 0xc8) {
-                    const cubeid = data[3];
-                    if (cubeid >= this.cubeCount) {
-                        return;
+            if(opcode == 0xb8 && this.cubeCount * 20 == data.length){
+                    for(let x = 0; x < this.cubeCount; x++){
+
+                        // 센서 패킷은 20개씩 들어옴
+                        const cubeid = Number(data[0+(20*x)].toString(16).slice(1, 2));
+
+                        console.log("handleLocalData x : ", x);
+                        console.log("handleLocalData cubeid : ", data[0+(20*x)]);
+                        console.log("handleLocalData cubeid : ", cubeid);
+
+                        if (cubeid >= this.cubeCount) {
+                            return;
+                        }
+                        
+                        const sensor = this._sensorData[cubeid];
+
+                        sensor.MOVE_X = data.readInt8(12+(20*x));
+                        sensor.MOVE_Y = data.readInt8(13+(20*x));
+                        sensor.MOVE_Z = data.readInt8(14+(20*x));
+    
+                        const xx = Math.max(Math.min(data.readInt8(15+(20*x)), 90), -90);
+                        let yy = Math.max(Math.min(data.readInt8(16+(20*x)), 90), -90);
+                        yy *= -1;
+                        const zz = Math.max(Math.min(data.readInt8(17+(20*x)), 90), -90);
+                        sensor.TILT_X = xx;
+                        sensor.TILT_Y = yy;
+                        sensor.TILT_Z = zz;
+    
+                        sensor.BUTTON = data[11+(20*x)];
+    
+                        sensor.PROXIMITY = data.readUInt8(18+(20*x));
+    
+                        // 기존 FW 70 버전 = data length 19 bytes (ANALOG IN 미지원)
+                        if (packetSize > 19) {
+                            sensor.AIN = data.readUInt8(19+(20*x)) * 4;
+                        } else {
+                            sensor.AIN = 0;
+                        }
                     }
-                    const sensor = this._sensorData[cubeid];
-
-                    sensor.MOVE_X = data.readInt8(12);
-                    sensor.MOVE_Y = data.readInt8(13);
-                    sensor.MOVE_Z = data.readInt8(14);
-
-                    const xx = Math.max(Math.min(data.readInt8(15), 90), -90);
-                    let yy = Math.max(Math.min(data.readInt8(16), 90), -90);
-                    yy *= -1;
-                    const zz = Math.max(Math.min(data.readInt8(17), 90), -90);
-                    sensor.TILT_X = xx;
-                    sensor.TILT_Y = yy;
-                    sensor.TILT_Z = zz;
-
-                    sensor.BUTTON = data[11];
-
-                    sensor.PROXIMITY = data.readUInt8(18);
-
-                    // 기존 FW 70 버전 = data length 19 bytes (ANALOG IN 미지원)
-                    if (packetSize > 19) {
-                        sensor.AIN = data.readUInt8(19) * 4;
-                    } else {
-                        sensor.AIN = 0;
-                    }
-
-                    //XXX: sensor data 묶어서 보낼 경우 사용
-                    //this.readValue.SENSOR = sensor;
-
-                    /*
-				this._proximity.C1Prox = PingPongUtil.getUnsignedIntfromByteData(value[18]);
-				this._proximity.C1ProxInterVal = this._proximity.C1Prox - this._proximity.C1ProxOld;
-				this._proximity.C1ProxOld = this._proximity.C1Prox;
-				*/
-                }
-            } else {
-                //TODO: 기타 응답 패킷 처리 필요부분 추가
-                //console.log('P:Board Data: %s ', this.dbgHexstr(data));
+                console.log("handleLocalData : ", this._sensorData);
             }
         }
     }
 
     // 엔트리로 전달할 데이터
     requestRemoteData(handler) {
-        //console.log('P:request RD: ');
         const self = this;
         Object.keys(this.readValue).forEach((key) => {
             if (self.readValue[key] !== undefined) {
@@ -270,11 +269,14 @@ class PingpongBase extends BaseModule {
         });
 
         //XXX: entryjs의 monitorTemplate 사용하려면 트리상단에 PORT 정보 보내야함
+        // wooms 첫번째 큐브만 정상적으로 들어옴
         for (let cubeid = 0; cubeid < this.cubeCount; cubeid++) {
+            // console.log("requestRemoteData : ", cubeid);
+            // console.log("requestRemoteData : ", this._sensorData[cubeid]);
             const sdata = this._sensorData[cubeid];
             Object.keys(sdata).forEach((key) => {
                 if (sdata[key] !== undefined) {
-                    //console.log(" --handler.write (%s) = %j ", key, self._sensorData[key]);
+                    // console.log(" --handler.write (%s) = %j ", key, self._sensorData[key]);
                     handler.write(`c${cubeid.toString()}_${key}`, sdata[key]);
                 }
             });
@@ -285,10 +287,10 @@ class PingpongBase extends BaseModule {
         console.log('P: connect: ');
 
         setTimeout(() => {
-            this.sp.write(this.makePackets('getSensorData'), (err) => {
-                console.log('done.........');
-            });
-        }, 500);
+            // this.sp.write(this.makePackets('getSensorData'), (err) => {
+            //     console.log('done.........');
+            // });
+        }, 500); // YIM's 모든 큐브가 다 연결된 상태에서 STAR에게 보내지고 있는지... 500이면 좋은건지 오히려 모든 큐브 연결된 후 보내는게 맞지 않을지...
     }
 
     // 하드웨어 연결 해제 시 호출됩니다.
@@ -297,12 +299,7 @@ class PingpongBase extends BaseModule {
 
         checkMultiroleAction = false;
         
-        //console.log('.. ', this.sp.isOpen);
         if (this.sp) {
-            // set led
-            //this.sp.write( Buffer.from('ffffffff0000ce000e0200000150', 'hex') );
-            // getSensor disable
-            //this.sp.write( Buffer.from('ffffffff00c8b8000b0001', 'hex') );
 
             this.sp.write(this.makePackets('disconnect'), (err) => {
                 if (this.sp.isOpen) {
