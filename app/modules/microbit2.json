@@ -15,13 +15,13 @@
     "firmware": [
         {
             "type": "copy",
-            "name": "microbit_compatible",
+            "name": "microbit_compatible_lite",
             "afterDelay": 12000,
             "translate": "Microbit v1"
         },
         {
             "type": "copy",
-            "name": "microbit2",
+            "name": "microbit2_lite",
             "afterDelay": 7000,
             "translate": "Microbit v2"
         }
