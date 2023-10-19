@@ -554,7 +554,7 @@ Module.prototype.makeOutputBuffer = function (device, port, data) {
         }
         case this.sensorTypes.PWM: {
             value.writeInt16LE(data);
-            buNffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.SET, device, port]);
+            buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.SET, device, port]);
             buffer = Buffer.concat([buffer, value, dummy]);
             break;
         }
