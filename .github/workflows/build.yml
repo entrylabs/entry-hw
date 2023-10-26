@@ -11,10 +11,10 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
-    - name: Setup Node version 10.x
-      uses: actions/setup-node@v1
+    - name: Setup Node version 16.19.0
+      uses: actions/setup-node@v3
       with:
-        node-version: '10.x'
+        node-version: '16.19.0'
         check-latest: true
     - name: Yarn install, webpacking
       run: |

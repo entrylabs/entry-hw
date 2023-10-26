@@ -1,19 +1,13 @@
 const {
     ArduinoBase,
     ArduinoStateBase,
+    // protocol
     PinMode,
     SysexCMD,
-    Instruction
+    Instruction,
+    DrawMode
 } = require('./roborobo_base');
 
-const DrawMode = {
-    BIT: 0x00,
-    POINT: 0x01,
-    SIGN: 0x02,
-    STRING: 0x03,
-    SCROLLDRAW: 0x04,
-    CLEAR: 0x07
-}
 
 class RobokitRS extends ArduinoBase {
     constructor () {
@@ -33,6 +27,9 @@ class RobokitRS extends ArduinoBase {
 
     reset () {
         super.reset();
+
+        this._sendBuffer.push(this._getResetDeviceCommand());
+        this._sendBuffer.push(this._getDigitalPinEnableCommand());
     }
 
     requestInitialData () {
@@ -55,6 +52,9 @@ class RobokitRS extends ArduinoBase {
         super.handleLocalData(data);
     }
 
+    /**
+     * @override
+     */
     requestRemoteData (handler) {
         super.requestRemoteData(handler);
 
@@ -225,6 +225,57 @@ class RobokitRS extends ArduinoBase {
         direction = Math.max(0, Math.min(7, direction)) & 0x0F;
         this._sendBuffer.push([SysexCMD.START, SysexCMD.SET, Instruction.SET_MODE, 0x02, 0x07, direction, SysexCMD.END]);
     }
+
+    /**
+    * @override
+    * @param {Array} data
+    */
+    _processSysexCMD_Get (data) {
+        if (data.length < 4) return;
+
+        const length = data[3] + 5;
+        if (data.length < length) return;
+        if (data[length - 1] != 0xF7) {
+            data.splice(0, 1);
+            return;
+        }
+
+        if (data[2] == Instruction.GET_SENSOR && this._processSysexCMD_GetSensor(data)) {
+            data.splice(0, length);
+        } else {
+            super._processSysexCMD_Get(data);
+        }
+    }
+
+    /**
+     * @override
+     * @param {Array} data
+     */
+    _processSysexCMD_GetSensor (data) {
+        switch (data[4]) {
+            // 자이로 센서 상태 변경 값
+            // this.readData[4] => device id, gyro => 0x09
+            case 0x09: {
+                const obj = this.state.rx.gyro;
+                obj.angle.x = (data[5] + ((data[6] & 0x01) << 7)) * ((data[6] >> 4 & 0x01) == 1 ? -1 : 1);
+                obj.angle.y = (data[7] + ((data[8] & 0x01) << 7)) * ((data[8] >> 4 & 0x01) == 1 ? -1 : 1);
+                obj.angle.z = (data[9] + ((data[10] & 0x01) << 7)) * ((data[10] >> 4 & 0x01) == 1 ? -1 : 1);
+
+                obj.gyro.x = (data[11] + ((data[12] & 0x01) << 7)) * ((data[12] >> 4 & 0x01) == 1 ? -1 : 1);
+                obj.gyro.y = (data[13] + ((data[14] & 0x01) << 7)) * ((data[14] >> 4 & 0x01) == 1 ? -1 : 1);
+                obj.gyro.z = (data[15] + ((data[16] & 0x01) << 7)) * ((data[16] >> 4 & 0x01) == 1 ? -1 : 1);
+
+                obj.accel.x = (data[17] & 0x3F) * ((data[17] >> 6 & 0x01) == 1 ? -1 : 1);
+                obj.accel.y = (data[18] & 0x3F) * ((data[18] >> 6 & 0x01) == 1 ? -1 : 1);
+                obj.accel.z = (data[19] & 0x3F) * ((data[19] >> 6 & 0x01) == 1 ? -1 : 1);
+
+                obj.shake = data[20] & 0x01;
+            } break;
+            default:
+                return false;
+        }
+        return true;
+    }
 }
 
 class State extends ArduinoStateBase {
@@ -247,6 +298,11 @@ class State extends ArduinoStateBase {
                 z: 0
             },
             gyro: {
+                x: 0,
+                y: 0,
+                z: 0
+            },
+            accel: {
                 x: 0,
                 y: 0,
                 z: 0

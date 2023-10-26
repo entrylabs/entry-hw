@@ -7,13 +7,13 @@ class KKMOO extends BaseModule {
         super();
         
         this.sendToEntry = "";
-        this.receiveData = "";
+        this.receiveData;
         this.isReceived = false;
         this.isPlaying = false;
         this.isPlaying_old = false;
         this.cmdProc = "";
         this.sendBuffer = [];
-        this.test;
+        this.test = 0;
         // ...
     }
      /*
@@ -36,14 +36,15 @@ class KKMOO extends BaseModule {
     이 두 함수가 정의되어있어야 로직이 동작합니다. 필요없으면 작성하지 않아도 됩니다.
     */
     requestInitialData(sp) {
-        this.isConnect = true;
-        if (!this.sp) {
-            this.sp = sp;
+        if (!this.isConnect) {
+            this.isConnect = true;
+            if (!this.sp) {
+                this.sp = sp;
+            }
+            const initTX = Buffer.from("^ET");
+            sp.write(initTX);
         }
-        const initTX = Buffer.from("^ET");
-        sp.write(initTX);
         return null;
-    
     }
 
     
@@ -63,12 +64,11 @@ class KKMOO extends BaseModule {
         }
     }
     requestRemoteData(handler) {
-        if(this.isPlaying != this.isPlaying_old){
+        handler.write("data",this.isPlaying);
+        /*if(this.isPlaying != this.isPlaying_old){
             this.isPlaying_old = this.isPlaying;
-            handler.write("data",this.isPlaying);
-            //console.log(this.isPlaying);
-            
-        }
+            handler.write("data",this.isPlaying);            
+        }*/
     }
     
     // 엔트리에서 받은 데이터에 대한 처리
@@ -79,7 +79,6 @@ class KKMOO extends BaseModule {
         else{
             this.receiveData = null;
         }
-        //console.log(handler);
     }
 
     requestLocalData(){
@@ -101,7 +100,8 @@ class KKMOO extends BaseModule {
                     
                     var cmd = "^AN"+msg;
                     this.sp.write(Buffer.from(cmd));
-                    //console.log(cmd);
+                    this.sp.flush()
+                    console.log(cmd);
     
                     break;
                 case "IR":
@@ -144,7 +144,7 @@ class KKMOO extends BaseModule {
                     break;
             }
         }
-        
+        this.receiveData = null;
         
     }
     disconnect(connect){
@@ -153,6 +153,7 @@ class KKMOO extends BaseModule {
         setTimeout(()=>{
             connect.close();
         },500); 
+        this.isConnect = false;
         }
     lostController() { }
 
