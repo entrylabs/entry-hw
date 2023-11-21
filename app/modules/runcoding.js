@@ -393,8 +393,6 @@ Module.prototype.makeSensorReadBuffer = function(device, port, data) {
         sensorIdx = 0;
     }
 
-    console.log(buffer);
-
     return buffer;
 };
 
