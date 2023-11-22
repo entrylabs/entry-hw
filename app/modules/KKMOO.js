@@ -57,15 +57,15 @@ class KKMOO extends BaseModule {
     }
     handleLocalData(data) {
         const received = data.toString("ascii");
-        if (received.includes("entry:")) {
-            if (received.includes("true")) {
-                this.isPlaying = "true";
+        if (received.includes('entry:')) {
+            if (received.includes('true')) {
+                this.isPlaying = 'true';
             }
             else {
-                this.isPlaying = "false";
+                this.isPlaying = 'false';
             }
         }
-        if (received.includes("ATfinRobot")) {
+        if (received.includes('ATfinRobot')) {
             //console.log("ATfinRobot");
             this.buffercnt++;
             if (this.sendBuffer[this.buffercnt] != null) {
@@ -74,7 +74,7 @@ class KKMOO extends BaseModule {
         }
     }
     requestRemoteData(handler) {
-        handler.write("data", this.isPlaying);
+        handler.write('data', this.isPlaying);
     }
 
     // 엔트리에서 받은 데이터에 대한 처리
@@ -110,9 +110,9 @@ class KKMOO extends BaseModule {
                     if (angle < 0) {
                         angle = 4096 + angle;
                     }
-                    motnum = motnum.toString(16).padStart(2, '0')
+                    motnum = motnum.toString(16).padStart(2, '0');
                     msg += motnum;
-                    angle = angle.toString(16).padStart(3, '0')
+                    angle = angle.toString(16).padStart(3, '0');
                     msg += angle;
 
                     var cmd = "^AN" + msg;
