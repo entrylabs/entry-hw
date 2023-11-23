@@ -6,13 +6,13 @@ class KKMOO extends BaseModule {
     constructor() {
         super();
 
-        this.sendToEntry = "";
+        this.sendToEntry = '';
         this.receiveData;
         this.isReceived = false;
         this.isReceived_old = false;
         this.isPlaying = false;
         this.isPlaying_old = false;
-        this.cmdProc = "";
+        this.cmdProc = '';
         this.sendBuffer = [];
         this.buffercnt = 0;
 
@@ -44,7 +44,7 @@ class KKMOO extends BaseModule {
             if (!this.sp) {
                 this.sp = sp;
             }
-            const initTX = Buffer.from("^ET");
+            const initTX = Buffer.from('^ET');
             sp.write(initTX);
         }
         return null;
@@ -56,12 +56,11 @@ class KKMOO extends BaseModule {
         return true;
     }
     handleLocalData(data) {
-        const received = data.toString("ascii");
+        const received = data.toString('ascii');
         if (received.includes('entry:')) {
             if (received.includes('true')) {
                 this.isPlaying = 'true';
-            }
-            else {
+            } else {
                 this.isPlaying = 'false';
             }
         }
@@ -81,8 +80,7 @@ class KKMOO extends BaseModule {
     handleRemoteData(handler) {
         if (Object.keys(handler.read('msg')).length === 0) {
             this.isReceived = false;
-        }
-        else {
+        } else {
             this.isReceived = true;
         }
         if (this.isReceived != this.isReceived_old && this.isReceived == true) {
@@ -96,16 +94,16 @@ class KKMOO extends BaseModule {
         if (this.received) {
             this.received = false;
             switch (this.receiveData.prot) {
-                case "RT":
-                    var data = this.receiveData;
+                case 'RT': {
                     this.isReceived = false;
                     this.isReceived_old = false;
                     return;
-                case "EC":
-                    var msg = "";
-                    var data = this.receiveData.data;
-                    var motnum = parseInt(data.MOT);
-                    var angle = parseInt(data.ANG);
+                }
+                case 'EC': {
+                    let msg = '';
+                    const data = this.receiveData.data;
+                    let motnum = parseInt(data.MOT, 10);
+                    let angle = parseInt(data.ANG, 10);
                     angle *= 10;
                     if (angle < 0) {
                         angle = 4096 + angle;
@@ -115,31 +113,38 @@ class KKMOO extends BaseModule {
                     angle = angle.toString(16).padStart(3, '0');
                     msg += angle;
 
-                    var cmd = "^AN" + msg;
+                    const cmd = `^AN${msg}`;
                     //this.sp.write(Buffer.from(cmd));
                     //console.log(cmd);
                     return cmd;
-                case "IR":
-                    var cmd = "^ir"
+                }
+
+                case 'IR': {
+                    const cmd = '^ir';
                     return cmd;
-                case "PM":
-                    var msg = "";
-                    var slot = parseInt(this.receiveData.data);
+                }
+
+                case 'PM': {
+                    let msg = '';
+                    const slot = parseInt(this.receiveData.data, 10);
                     msg = slot.toString(16).padStart(2, '0');
-                    var cmd = "$PM" + msg;
+                    const cmd = `$PM${msg}`;
                     return cmd;
-                case "CM":
-                    var msg = "";
-                    var slot = parseInt(this.receiveData.data) + 90;
+                }
+                case 'CM': {
+                    let msg = '';
+                    const slot = parseInt(this.receiveData.data, 10) + 90;
                     msg = slot.toString(16).padStart(2, '0');
-                    var cmd = "$PM" + msg;
+                    const cmd = `$PM${msg}`;
                     return cmd;
-                case "AD":
-                    var msg = "";
-                    var data = this.receiveData.data;
-                    var motnum = parseInt(data.MOT);
-                    var angle = parseInt(data.ANG);
-                    var time = parseInt(data.TME);
+                }
+
+                case 'AD': {
+                    let msg = '';
+                    const data = this.receiveData.data;
+                    let motnum = parseInt(data.MOT, 10);
+                    let angle = parseInt(data.ANG, 10);
+                    let time = parseInt(data.TME, 10);
                     angle *= 10;
                     if (angle < 0) {
                         angle = 4096 + angle;
@@ -150,57 +155,57 @@ class KKMOO extends BaseModule {
                     msg += angle;
                     time = time.toString(16).padStart(4, '0');
                     msg += time;
-                    var cmd = "^ad" + msg;
+                    const cmd = `^ad${msg}`;
                     return cmd;
-                case "MP":
-                    var msg = "00";
-                    var data = this.receiveData.data;
-                    var time = parseInt(data.pop());
-                    for (var i of data) {
-                        var angle = parseInt(i.ANG);
+                }
+                case 'MP': {
+                    let msg = '00';
+                    const data = this.receiveData.data;
+                    const time = parseInt(data.pop(), 10);
+                    for (const i of data) {
+                        let angle = parseInt(i.ANG, 10);
                         angle *= 10;
                         if (angle < 0) {
                             angle = 4096 + angle;
-                            msg += "f" + angle.toString(16).padStart(3, '0');
-                        }
-                        else {
-                            msg += "0" + angle.toString(16).padStart(3, '0');
+                            msg += `f${angle.toString(16).padStart(3, '0')}`;
+                        } else {
+                            msg += `0${angle.toString(16).padStart(3, '0')}`;
                         }
 
                         if (i.MOT == 8 || i.MOT == 17) {
-                            msg += "000000000000";
+                            msg += '000000000000';
                         }
                     }
-                    var cmd = "*mf" + msg;
+                    let cmd = `*mf${msg}`;
                     this.sp.write(Buffer.from(cmd));
-                    this.sp.write("*mt00" + Buffer.from(time.toString(16).padStart(4, '0')));
-                    var cmd = "*pm01"
+                    this.sp.write(`*mt00${Buffer.from(time.toString(16).padStart(4, '0'))}`);
+                    cmd = '*pm01';
                     return cmd;
-                case "PT":
+                }
+                case 'PT': {
                     this.buffercnt = 0;
                     this.sendBuffer = [];
-                    var frame = 0;
-                    var data = this.receiveData.data;
-                    for (var i of data) {
-                        var msg = "";
-                        for (var key in i.data) {
-                            var angle = parseInt(i.data[key].angle);
+                    let frame = 0;
+                    const data = this.receiveData.data;
+                    for (const i of data) {
+                        let msg = '';
+                        for (const key in i.data) {
+                            let angle = parseInt(i.data[key].angle, 10);
                             angle *= 10;
                             if (angle < 0) {
                                 angle = 4096 + angle;
-                                msg += "f" + angle.toString(16).padStart(3, '0');
-                            }
-                            else {
-                                msg += "0" + angle.toString(16).padStart(3, '0');
+                                msg += `f${angle.toString(16).padStart(3, '0')}`;
+                            } else {
+                                msg += `0${angle.toString(16).padStart(3, '0')}`;
                             }
                             if (key == 8 || key == 17) {
-                                msg += "000000000000";
+                                msg += '000000000000';
                             }
                         }
-                        msg = "*mf" + frame.toString(16).padStart(2, '0') + msg;
-                        var cmd_msg = msg;
-                        var time = parseInt(i.time);
-                        var cmd_time = "*mt" + frame.toString(16).padStart(2, '0') + Buffer.from(time.toString(16).padStart(4, '0'));
+                        msg = `*mf${frame.toString(16).padStart(2, '0')}${msg}`;
+                        const cmd_msg = msg;
+                        const time = parseInt(i.time, 10);
+                        const cmd_time = `*mt${frame.toString(16).padStart(2, '0')}${Buffer.from(time.toString(16).padStart(4, '0'))}`;
                         frame++;
                         this.sendBuffer.push(cmd_msg);
                         this.sendBuffer.push(cmd_time);
@@ -211,69 +216,66 @@ class KKMOO extends BaseModule {
                         //console.log(cmd_time);
                     }
                     if (frame > 0) {
-                        var pm = "*pm" + frame.toString(16).padStart(2, '0');
+                        const pm = `*pm${frame.toString(16).padStart(2, '0')}`;
                         this.sendBuffer.push(pm);
-                        var _this = this;
-                        for (let i in this.sendBuffer) {
+                        const _this = this;
+                        for (const i in this.sendBuffer) {
                             setTimeout(() =>
-                                _this.sp.write(Buffer.from(_this.sendBuffer[i]))
-                                , 20 * i);
+                                _this.sp.write(Buffer.from(_this.sendBuffer[i])), 20 * i);
                         }
                         return;
-                    }
-                    else {
+                    } else {
                         return;
                     }
-                case "SV":
+                }
+                case 'SV': {
                     this.buffercnt = 0;
                     this.sendBuffer = [];
-                    var _frame = 0;
-                    var data = this.receiveData.data;
-                    var _slot = this.receiveData.slot;
-                    var slot = (parseInt(_slot) + 90).toString(16).padStart(2, '0');
-                    var _name = this.receiveData.name;
+                    let _frame = 0;
+                    const data = this.receiveData.data;
+                    const _slot = this.receiveData.slot;
+                    const slot = (parseInt(_slot, 10) + 90).toString(16).padStart(2, '0');
+                    const _name = this.receiveData.name;
                     if (data.length > 0) {
-                        var framelength = data.length.toString(16).padStart(2, '0');
-                        var cmd_header = ">mh" + slot + _name + '00000000000' + framelength;
+                        const framelength = data.length.toString(16).padStart(2, '0');
+                        const cmd_header = `>mh${slot}${_name}00000000000${framelength}`;
                         this.sendBuffer.push(cmd_header);
                         //this.sp.write(Buffer.from(cmd_header));
-                        for (var i of data) {
-                            var msg = "";
-                            for (var key in i.data) {
-                                var angle = parseInt(i.data[key].angle);
+                        for (const i of data) {
+                            let msg = '';
+                            for (const key in i.data) {
+                                let angle = parseInt(i.data[key].angle, 10);
                                 angle *= 10;
                                 if (angle < 0) {
                                     angle = 4096 + angle;
-                                    msg += "f" + angle.toString(16).padStart(3, '0');
-                                }
-                                else {
-                                    msg += "0" + angle.toString(16).padStart(3, '0');
+                                    msg += `f${angle.toString(16).padStart(3, '0')}`;
+                                } else {
+                                    msg += `0${angle.toString(16).padStart(3, '0')}`;
                                 }
                                 if (key == 8 || key == 17) {
-                                    msg += "000000000000";
+                                    msg += '000000000000';
                                 }
                             }
-                            var time = parseInt(i.time).toString(16).padStart(4, '0');
-                            frame = _frame.toString(16).padStart(2, '0');
-                            var cmd_frame = ">mf" + slot + frame + time + msg;
+                            const time = parseInt(i.time, 10).toString(16).padStart(4, '0');
+                            const frame = _frame.toString(16).padStart(2, '0');
+                            const cmd_frame = `>mf${slot}${frame}${time}${msg}`;
                             _frame++;
                             this.sendBuffer.push(cmd_frame);
                             //this.sp.write(Buffer.from(cmd_frame));
                         }
-                        var cmd_hash = ">hs" + slot + this.receiveData.hash;
+                        const cmd_hash = `>hs${slot}${this.receiveData.hash}`;
                         this.sendBuffer.push(cmd_hash);
                         return this.sendBuffer[0];
-                    }
-                    else {
+                    } else {
                         return;
                     }
+                }
             }
         }
         this.receiveData = null;
-
     }
     disconnect(connect) {
-        var cmd = "^ce";
+        const cmd = '^ce';
         this.sp.write(Buffer.from(cmd));
         setTimeout(() => {
             connect.close();
@@ -285,6 +287,5 @@ class KKMOO extends BaseModule {
     reset() {
         //console.log("reset");
     }
-
 }
 module.exports = new KKMOO();
