@@ -1,0 +1,26 @@
+{
+	"id": "070402",
+	"name": {
+		"en": "ROBOTIS DREAM(무선연결)",
+		"ko": "로보티즈 DREAM(무선연결)"
+	},
+	"category": "module",
+	"platform": ["win32"],
+	"icon" : "robotis_Dream.png",
+	"module": "robotis_Dream.js",
+	"url": "http://www.robotis.com",
+	"email": "khg@robotis.com",
+	"reconnect" : true,
+	"driver": {
+        "win32-ia32": "ROBOTIS/ROBOTIS CDC Driver.bat",
+        "win32-x64": "ROBOTIS/ROBOTIS CDC Driver.bat"
+	},
+	"selectPort" : true,
+	"hardware": {
+		"type": "serial",
+		"control": "slave",
+		"vendor": "ROBOTIS",
+		"duration": 50,
+		"baudRate": 57600
+	}
+}
