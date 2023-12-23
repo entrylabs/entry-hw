@@ -39,10 +39,7 @@
         "type": "serial",
         "control": "slave",
         "duration": 48,
-        "vendor": {
-            "win32": ["wch.cn", "Arduino"]
-        },
+        "vendor": ["wch.cn", "Arduino"],
         "baudRate": 57600
-        
     }
 }

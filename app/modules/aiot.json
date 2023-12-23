@@ -1,27 +1,27 @@
 {
-	"id": "260201",
-	"name": {
-		"ko": "AIoT 보드",
-		"en": "AIoT Board"		
-	},
-	"category": "board",
-	"platform": ["win32", "darwin"],
-	"icon" : "aiot.png",
-	"module": "aiot.js",
-	"url": "http://wonn.co.kr",
-	"email": "wonn@wonn.co.kr",	
-	"driver": {
-		"win32-ia32": "CDM21226_Setup/CDM21226_Setup.exe",
-		"win32-x64": "CDM21226_Setup/CDM21226_Setup.exe"
-	},
-    "reconnect" : true,
-	"firmware": "aiot",
-	"hardware": {
-		"type": "serial",
-		"control": "slave",
-		"duration": 32,
-		"vendor": ["Arduino", "wch.cn", "FTDI"],
-		"baudRate": 115200,
-		"firmwarecheck" : false
-	}
+    "id": "260201",
+    "name": {
+        "ko": "아두이노 확장 쉴드",
+        "en": "Arduino Extension Shield"
+    },
+    "category": "board",
+    "platform": ["win32", "darwin"],
+    "icon": "aiot.png",
+    "module": "aiot.js",
+    "email": "cowboy0125@naver.com",
+    "driver": {
+        "win32-ia32": "CDM21226_Setup/CDM21226_Setup.exe",
+        "win32-x64": "CDM21226_Setup/CDM21226_Setup.exe"
+    },
+    "selectPort": true,
+    "reconnect": true,
+    "firmware": "aiot",
+    "hardware": {
+        "type": "serial",
+        "control": "slave",
+        "duration": 32,
+        "vendor": ["Arduino", "wch.cn", "FTDI"],
+        "baudRate": 115200,
+        "firmwarecheck": false
+    }
 }
