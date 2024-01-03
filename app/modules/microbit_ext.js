@@ -1,4 +1,4 @@
-const _ = require('lodash');
+const _ = global.$;
 const BaseModule = require('./baseModule');
 
 /**
@@ -56,7 +56,7 @@ const functionKeys = {
 
 const EXCEPTION_COMMAND_CODE = [170, 171, 172];
 
-class Microbit extends BaseModule {
+class MicrobitExt extends BaseModule {
     constructor() {
         super();
         this.sendBuffers = [];
@@ -132,7 +132,6 @@ class Microbit extends BaseModule {
 
     requestInitialData() {
         const aa = this.makeBuffer(functionKeys.CHECK_READY);
-        console.log('send to : ', aa);
         return aa;
     }
 
@@ -156,7 +155,6 @@ class Microbit extends BaseModule {
      */
     checkInitialData(data, config) {
         // data[1~4] 는 commandId 로, 체크하지 않는다.
-        console.log('checkInitialData : ', data);
         // return true;
         return (
             data[0] === functionKeys.CHECK_READY &&
@@ -180,7 +178,6 @@ class Microbit extends BaseModule {
         const codeId = handler.read('codeId') || null;
         // 리퀘스트 목록이 마지막으로 확인한 버전과 다르기 때문에, 업데이트한다.
         // 업데이트는 중복되지 않는 id 의 커맨드만 뒤에 추가한다.
-
         this.commandQueue.push({
             type,
             payload,
@@ -391,6 +388,8 @@ class Microbit extends BaseModule {
             case functionKeys.GET_SENSOR:
             case functionKeys.GET_BUTTON:
             case functionKeys.RESET_SCREEN:
+            case functionKeys.SET_SERVO:
+            case functionKeys.SET_SERVO_PERIOD:
             case functionKeys.SET_CUSTOM_IMAGE: {
                 this.commandQueue.shift();
                 break;
@@ -501,4 +500,4 @@ class Microbit extends BaseModule {
     }
 }
 
-module.exports = new Microbit();
+module.exports = new MicrobitExt();

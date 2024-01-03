@@ -1,0 +1,25 @@
+{
+	"id": "5A0101",
+	"name": {
+		"en": "HEXABOARD",
+		"ko": "헥사보드"
+	},
+	"category": "board",
+	"platform": ["win32", "darwin"],
+	"icon" : "hexaboard.png",
+	"module": "hexaboard.js",
+	"email": "kgu0724@makeitnow.kr",
+	"url": "https://makeitnow.kr/entry",
+	"selectPort" : true,
+	"firmware": "https://makeitnow.tistory.com/236",
+	"driver": {
+		"win32-ia32": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
+		"win32-x64": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE"
+	},
+	"hardware": {
+		"type": "serial",
+		"control": "slave",
+		"duration": 32,
+		"baudRate": 115200
+	}
+}

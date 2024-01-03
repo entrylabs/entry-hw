@@ -1,0 +1,26 @@
+{
+  "id": "580101",
+  "name": {
+    "en": "ETkit",
+    "ko": "이티키트"
+  },
+  "category": "board",
+  "platform": ["win32", "darwin"],
+  "icon": "etkit.png",
+  "module": "etkit.js",
+  "driver": {
+    "win32-ia32": "arduino/dpinst-x86.exe",
+    "win32-x64": "arduino/dpinst-amd64.exe"
+  },
+  "url": "https://2tc.co.kr/",
+  "reconnect": true,
+  "firmware": "etkit",
+  "hardware": {
+    "type": "serial",
+    "control": "slave",
+    "duration": 32,
+    "vendor": ["Arduino", "wch.cn", "FTDI"],
+    "firmwarecheck" : false,
+    "baudRate": 115200
+  }
+}
