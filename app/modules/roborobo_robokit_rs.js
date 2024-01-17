@@ -109,7 +109,7 @@ class RobokitRS extends ArduinoBase {
      * @override
      */
     get targetVersion () {
-        return {model: 0, hardware: 10, firmware: 28};
+        return {model: 0, hardware: 10, firmware: 30};
     }
 
     _getConnectionCheckCommand () {
