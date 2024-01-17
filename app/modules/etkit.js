@@ -1,30 +1,37 @@
 function Module() {
   this.sp = null;
   this.sensorTypes = { 
-    ALIVE:0,
-    DIGITAL:1,
-    ANALOG:2,
-    DHT_PIN:3,
-    LCD:4,
-    CO2: 5,
-    OLED: 6,
-    TIMER:8,
-    READ_BLUETOOTH: 9,
-    WRITE_BLUETOOTH: 10,
+    ALIVE:    0,
+    DIGITAL:  1,
+    ANALOG:   2,
+    DHT_PIN:  3,
+    LCD:      4,
+    PWM:      5,
+    SERVO_PIN:       6,
+    PULSEIN:         7,
+    ULTRASONIC:      8,
+    TIMER:              9,
+    WRITE_SEG:                10,
+    READ_SEG: 13,
+    READ_BLUETOOTH:     11,
+    WRITE_BLUETOOTH:    12,
+    GAS:                14
   };
   this.actionTypes = {
     GET:1,
     SET:2,
     MODULE:3,
-    RESET:4,
+    RESET:4
   };
   this.sensorValueSize = {
     FLOAT:2,
     SHORT:3,
-    STRING:4,
+    STRING:4
   };
   this.digitalPortTimeList = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
   this.sensorData = {
+    PULSEIN: {},
+    ULTRASONIC: 0,
     DIGITAL: {
       '0': 0,
       '1': 0,
@@ -50,14 +57,12 @@ function Module() {
       '5': 0,
     },
     DHT_PIN: 0,
-    CO2: 0,
     TIMER: 0,
     READ_BLUETOOTH: 0,
+    READ_SEG: 0,
   };
-  this.defaultOutput = {
-  };
-  this.recentCheckData = {
-  };
+  this.defaultOutput = {};
+  this.recentCheckData = {};
   this.sendBuffers = [];
   this.lastTime = 0;
   this.lastSendTime = 0;
@@ -72,7 +77,8 @@ Module.prototype.setSerialPort = function (sp) {
   this.sp = sp;
 };
 Module.prototype.requestInitialData = function() {
-  return this.makeSensorReadBuffer(this.sensorTypes.ANALOG, 0);
+  //return this.makeSensorReadBuffer(this.sensorTypes.ANALOG, 0);
+  return true;
 };
 Module.prototype.checkInitialData = function(data, config) {
   return true;
@@ -153,24 +159,33 @@ Module.prototype.handleLocalData = function(data) {
                    
                     switch(type) {
                       case self.sensorTypes.DIGITAL: {
-                        self.sensorData.DIGITAL[port] = value; 
+                        self.sensorData.DIGITAL[port] = value;
                         break;
                       }
                       case self.sensorTypes.ANALOG: {
-                        self.sensorData.ANALOG[port] = value; 
+                        self.sensorData.ANALOG[port] = value;
                         break;
                       }
-                      
                       case self.sensorTypes.DHT_PIN: {
-                        self.sensorData.DHT_PIN = value; 
+                        self.sensorData.DHT_PIN = value;
                         break;
                       }
-                      
+                      case self.sensorTypes.PULSEIN: {
+                        self.sensorData.PULSEIN[port] = value;
+                        break;
+                      }
+                      case self.sensorTypes.ULTRASONIC: {
+                        self.sensorData.ULTRASONIC = value;
+                        break;
+                      }
                       case self.sensorTypes.READ_BLUETOOTH: {
                         self.sensorData.READ_BLUETOOTH = value;
                         break;
                       }
-                      
+                      case self.sensorTypes.READ_SEG: {
+                        self.sensorData.READ_SEG = value;
+                        break;
+                      }
                       case self.sensorTypes.TIMER: {
                         self.sensorData.TIMER = value;
                         break;
@@ -202,27 +217,64 @@ Module.prototype.requestLocalData = function() {
 Module.prototype.makeSensorReadBuffer = function(device, port, data) {
   let buffer; 
   const dummy = new Buffer([10]); 
-  if(device == this.sensorTypes.DHT_PIN) {
-    buffer = new Buffer([255, 85, 7, sensorIdx, this.actionTypes.GET, device, port, 10]); 
+  if (device == this.sensorTypes.DIGITAL) {
+    if (!data) {
+      buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port, 0, 10]);
+    } else {
+      buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port, data, 10]);
+    }
+  }
+  /*
+  else if(device == this.sensorTypes.ANALOG) {
+    if (!data) {
+      buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port, 0, 10]);
+    } else {
+      buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port, data, 10]);
+    }
+  }
+  */
+  else if(device == this.sensorTypes.DHT_PIN) {
+    //buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port, 10]);
+    
+    if (!data) {
+      buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port, 0, 10]);
+    } else {
+      buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port, data, 10]);
+    }
+    
+  }
+  else if (device == this.sensorTypes.ULTRASONIC) {
+    buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port[0], port[1], 10]);
   } 
   else if (device == this.sensorTypes.READ_BLUETOOTH) {
     buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.GET, device, port, 10]);
   }
+  else if (device == this.sensorTypes.READ_SEG) {
+    if (!data) {
+      buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port, 0, 10]);
+    } else {
+      buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.GET, device, port, 10]);
+    }
+    
+  }
   else if (!data) {
     buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.GET, device, port, 10]);
+    
   } 
   else {
     value = new Buffer(2);
     value.writeInt16LE(data);
     buffer = new Buffer([255, 85, 7, sensorIdx, this.actionTypes.GET, device, port, 10]);
-    buffer = Buffer.concat([buffer, value, dummy]); 
+    
+    buffer = Buffer.concat([buffer, value, dummy]);
+    
   }
   
   sensorIdx++;
   if(sensorIdx > 254) {
     sensorIdx = 0;
   }
-
+  
   return buffer;
 };
 Module.prototype.makeOutputBuffer = function(device, port, data) {
@@ -230,77 +282,16 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
   const value = new Buffer(2);
   const dummy = new Buffer([10]);
   switch(device) {
+    case this.sensorTypes.SERVO_PIN:
+    case this.sensorTypes.PWM:
     case this.sensorTypes.DIGITAL: {
       value.writeInt16LE(data);
-      buffer = new Buffer([
-          255,
-          85,
-          6,
-          sensorIdx,
-          this.actionTypes.SET,
-          device,
-          port,
-      ]);
+      buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.SET, device, port,]);
       buffer = Buffer.concat([buffer, value, dummy]);
       break;
-      
     }
-    case this.sensorTypes.WRITE_BLUETOOTH: {
-      var text0 = new Buffer(2);
-      var text1 = new Buffer(2);
-      var text2 = new Buffer(2);
-      var text3 = new Buffer(2);
-      var text4 = new Buffer(2);
-      var text5 = new Buffer(2);
-      var text6 = new Buffer(2);
-      var text7 = new Buffer(2);
-      var text8 = new Buffer(2);
-      var text9 = new Buffer(2);
-      var text10 = new Buffer(2);
-      var text11 = new Buffer(2);
-      var text12 = new Buffer(2);
-      var text13 = new Buffer(2);
-      var text14 = new Buffer(2);
-      var text15 = new Buffer(2);
-      if ($.isPlainObject(data)) {
-          text0.writeInt16LE(data.text0);
-          text1.writeInt16LE(data.text1);
-          text2.writeInt16LE(data.text2);
-          text3.writeInt16LE(data.text3);
-          text4.writeInt16LE(data.text4);
-          text5.writeInt16LE(data.text5);
-          text6.writeInt16LE(data.text6);
-          text7.writeInt16LE(data.text7);
-          text8.writeInt16LE(data.text8);
-          text9.writeInt16LE(data.text9);
-          text10.writeInt16LE(data.text10);
-          text11.writeInt16LE(data.text11);
-          text12.writeInt16LE(data.text12);
-          text13.writeInt16LE(data.text13);
-          text14.writeInt16LE(data.text14);
-          text15.writeInt16LE(data.text15);
-      } else {
-          text0.writeInt16LE(0);
-          text1.writeInt16LE(0);
-          text2.writeInt16LE(0);
-          text3.writeInt16LE(0);
-          text4.writeInt16LE(0);
-          text5.writeInt16LE(0);
-          text6.writeInt16LE(0);
-          text7.writeInt16LE(0);
-          text8.writeInt16LE(0);
-          text9.writeInt16LE(0);
-          text10.writeInt16LE(0);
-          text11.writeInt16LE(0);
-          text12.writeInt16LE(0);
-          text13.writeInt16LE(0);
-          text14.writeInt16LE(0);
-          text15.writeInt16LE(0);
-      }
-      buffer = new Buffer([255, 85, 36, sensorIdx, this.actionTypes.MODULE, device, port]);
-      buffer = Buffer.concat([buffer, text0, text1, text2, text3, text4, text5, text6, text7, text8, text9, text10, text11, text12, text13, text14, text15, dummy]);
-      break;
-    }
+    case this.sensorTypes.WRITE_SEG:
+    case this.sensorTypes.WRITE_BLUETOOTH: 
     case this.sensorTypes.LCD: {
       var text0 = new Buffer(2);
       var text1 = new Buffer(2);
@@ -356,70 +347,29 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
       buffer = new Buffer([255, 85, 36, sensorIdx, this.actionTypes.MODULE, device, port]);
       buffer = Buffer.concat([buffer, text0, text1, text2, text3, text4, text5, text6, text7, text8, text9, text10, text11, text12, text13, text14, text15, dummy]);
       break;
-    }
-    case this.sensorTypes.OLED: {
-      
-      const coordinate_x = new Buffer(2);
-      const coordinate_y = new Buffer(2);
+    }  
+    /*
+    case this.sensorTypes.SEG: {
       var text0 = new Buffer(2);
       var text1 = new Buffer(2);
       var text2 = new Buffer(2);
       var text3 = new Buffer(2);
-      var text4 = new Buffer(2);
-      var text5 = new Buffer(2);
-      var text6 = new Buffer(2);
-      var text7 = new Buffer(2);
-      var text8 = new Buffer(2);
-      var text9 = new Buffer(2);
-      var text10 = new Buffer(2);
-      var text11 = new Buffer(2);
-      var text12 = new Buffer(2);
-      var text13 = new Buffer(2);
-      var text14 = new Buffer(2);
-      var text15 = new Buffer(2);
       if ($.isPlainObject(data)) {
-          coordinate_x.writeInt16LE(data.value0);
-          coordinate_y.writeInt16LE(data.value1);
-          text0.writeInt16LE(data.text0);
-          text1.writeInt16LE(data.text1);
-          text2.writeInt16LE(data.text2);
-          text3.writeInt16LE(data.text3);
-          text4.writeInt16LE(data.text4);
-          text5.writeInt16LE(data.text5);
-          text6.writeInt16LE(data.text6);
-          text7.writeInt16LE(data.text7);
-          text8.writeInt16LE(data.text8);
-          text9.writeInt16LE(data.text9);
-          text10.writeInt16LE(data.text10);
-          text11.writeInt16LE(data.text11);
-          text12.writeInt16LE(data.text12);
-          text13.writeInt16LE(data.text13);
-          text14.writeInt16LE(data.text14);
-          text15.writeInt16LE(data.text15);
+        text0.writeInt16LE(data.text0);
+        text1.writeInt16LE(data.text1);
+        text2.writeInt16LE(data.text2);
+        text3.writeInt16LE(data.text3);
       } else {
-          coordinate_x.writeInt16LE(0);
-          coordinate_y.writeInt16LE(0);
-          text0.writeInt16LE(0);
-          text1.writeInt16LE(0);
-          text2.writeInt16LE(0);
-          text3.writeInt16LE(0);
-          text4.writeInt16LE(0);
-          text5.writeInt16LE(0);
-          text6.writeInt16LE(0);
-          text7.writeInt16LE(0);
-          text8.writeInt16LE(0);
-          text9.writeInt16LE(0);
-          text10.writeInt16LE(0);
-          text11.writeInt16LE(0);
-          text12.writeInt16LE(0);
-          text13.writeInt16LE(0);
-          text14.writeInt16LE(0);
-          text15.writeInt16LE(0);
+        text0.writeInt16LE(0);
+        text1.writeInt16LE(0);
+        text2.writeInt16LE(0);
+        text3.writeInt16LE(0);
       }
-      buffer = new Buffer([255, 85, 40, sensorIdx, this.actionTypes.MODULE, device, port]);
-      buffer = Buffer.concat([buffer, coordinate_x, coordinate_y, text0, text1, text2, text3, text4, text5, text6, text7, text8, text9, text10, text11, text12, text13, text14, text15, dummy]);
+      buffer = new Buffer([255, 85, 36, sensorIdx, this.actionTypes.MODULE, device, port]);
+      buffer = Buffer.concat([buffer, text0, text1, text2, text3, dummy]);
       break;
     }
+    */
   }
   return buffer;
 };
@@ -460,6 +410,7 @@ Module.prototype.handleRemoteData = function(handler) {
                       data: dataObj.data,
                   };
                   buffer = Buffer.concat([buffer, self.makeSensorReadBuffer(key, dataObj.port, dataObj.data)]);
+                  
               }
           }
       });
@@ -493,13 +444,14 @@ Module.prototype.disconnect = function(connect) {
   const self = this;
   connect.close();
   if (self.sp) {
-      delete self.sp;
+    delete self.sp;
   }
 };
 
 Module.prototype.reset = function() {
   this.lastTime = 0;
   this.lastSendTime = 0;
+  this.sensorData.PULSEIN = {};
 };
 
 module.exports = new Module();
