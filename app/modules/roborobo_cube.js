@@ -89,7 +89,7 @@ class Cube extends ArduinoBase {
      * @override
      */
     get targetVersion () {
-        return {model: 65, hardware: 1, firmware: 16};
+        return {model: 65, hardware: 1, firmware: 18};
     }
 
     /**
