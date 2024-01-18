@@ -332,8 +332,11 @@ Module.prototype.requestLocalData = function() {
                 sendBuffer = this.writeBytePacket(200, address, value);
             } else if (length == 2) {
                 sendBuffer = this.writeWordPacket(200, address, value);
-            } else {
+            } else if (length == 4) {
                 sendBuffer = this.writeDWordPacket(200, address, value);
+            } else {
+                console.log(value);
+                sendBuffer = this.writeCustomLengthPacket(200, address, value, length);
             }
 
         } else if (instruction == INST_READ) {
@@ -608,23 +611,29 @@ Module.prototype.writeDWordPacket = function(id, address, value) {
     return packet;
 };
 
-Module.prototype.writeDWordPacket2 = function(id, address, value, value2) {
-    //console.log("######### writeDWordPacket2");
+Module.prototype.writeCustomLengthPacket = function(id, address, buf, length) {
+    //console.log("######### writeCustomLengthPacket");
     var packet = [];
+    var i = 0;
     packet.push(0xff);
     packet.push(0xff);
     packet.push(0xfd);
     packet.push(0x00);
     packet.push(id);
-    packet.push(0x09);
+    packet.push(length + 5);
     packet.push(0x00);
     packet.push(INST_WRITE);
     packet.push(this.getLowByte(address));
     packet.push(this.getHighByte(address));
-    packet.push(this.getLowByte(this.getLowWord(value)));
-    packet.push(this.getHighByte(this.getLowWord(value)));
-    packet.push(this.getLowByte(this.getLowWord(value2)));
-    packet.push(this.getHighByte(this.getLowWord(value2)));
+    console.log(buf);
+    for (i = 0; i < length; i++) {
+        console.log(buf[i]);
+        if (typeof(buf[i]) == "number") {
+            packet.push(buf[i]);
+        } else if (typeof(buf[i]) == "string") {
+            packet.push(buf[i].charCodeAt(0));
+        }
+    }
     //console.log("packet : " + packet);
     var crc = this.updateCRC(0, packet, packet.length);
     packet.push(this.getLowByte(crc));
