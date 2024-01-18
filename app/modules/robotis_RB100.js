@@ -225,7 +225,11 @@ Module.prototype.handleRemoteData = function(handler) {
                 }
             }
         }
-        if(instruction == INST_WRITE || instruction == 4 || instruction == 5 || instruction == 6 || instruction == INST_BYPASS_WRITE) {
+        if(instruction == INST_WRITE || 
+            instruction == 4 || 
+            instruction == 5 || 
+            instruction == 6 || 
+            instruction == INST_BYPASS_WRITE) {
 			doSend = true;
 		}
         if (!doSend) {
@@ -258,7 +262,11 @@ Module.prototype.handleRemoteData = function(handler) {
             this.prevServoSet(address, value, length);
         }
 
-        if (instruction == INST_WRITE || instruction == INST_DXL_SYNCWRITE || instruction == INST_DXL_REGWRITE || instruction == INST_DXL_ACTION || instruction == INST_BYPASS_WRITE) {
+        if (instruction == INST_WRITE || 
+            instruction == INST_DXL_SYNCWRITE || 
+            instruction == INST_DXL_REGWRITE || 
+            instruction == INST_DXL_ACTION || 
+            instruction == INST_BYPASS_WRITE) {
             this.robotisBuffer.push(data[index]);
             if (instruction == INST_WRITE) {
                 // 만약 bypass mode를 enable 한다고 하면
@@ -316,8 +324,7 @@ Module.prototype.requestLocalData = function() {
         }
         isTemp = true;
     } else {
-
-        var data = this.robotisBuffer.shift();
+        const data = this.robotisBuffer.shift();
         if (data == null) {
             return sendBuffer;
         }
@@ -325,7 +332,7 @@ Module.prototype.requestLocalData = function() {
         var address = data[1];
         var length = data[2];
         var value = data[3];
-        var value_2 = data[4];
+        const value2 = data[4];
         //console.log('send address : ' + address + ', ' + value + ", " + length); // add by kjs 170426
         if (instruction == INST_WRITE) {
             if (length == 1) {
@@ -348,35 +355,35 @@ Module.prototype.requestLocalData = function() {
             value = data[5];
             var tmpSendBuffer = this.dxlSyncWritePacket(ids, address, length, value);
             var tmp = [];
-            for(let j = 0; j < tmpSendBuffer / 20; j++){
-                for(let i = j*20; i < j*20+20; i++) {
+            for (let j = 0; j < tmpSendBuffer / 20; j++) {
+                for (let i = j*20; i < j*20+20; i++) {
                     tmp.push(tmpSendBuffer[i]);
                 }
                 sendBuffer.push(tmp);
             }
             
             sendBuffer = this.dxlSyncWritePacket(ids, address, length, value);
-        } else if(instruction == INST_DXL_REGWRITE) {
+        } else if (instruction == INST_DXL_REGWRITE) {
             var ids = data[4];
 
             sendBuffer = this.dxlRegWritePacket(ids[0], address, length, value);
-        } else if(instruction == INST_DXL_ACTION) {
+        } else if (instruction == INST_DXL_ACTION) {
             sendBuffer = this.dxlActionWrite();
-        } else if(instruction == INST_BYPASS_READ) {
-            var id = value;
+        } else if (instruction == INST_BYPASS_READ) {
+            const id = value;
             this.addressToRead[address] = 0;
             sendBuffer = this.readPacket(id, address, length);
-        } else if(instruction == INST_BYPASS_WRITE) {
-            var id = value;
+        } else if (instruction == INST_BYPASS_WRITE) {
+            const id = value;
             this.addressToRead[address] = 0;
             if (length == 1) {
-                sendBuffer = this.writeBytePacket(id, address, value_2);
+                sendBuffer = this.writeBytePacket(id, address, value2);
             }
             else if (length == 2) {
-                sendBuffer = this.writeWordPacket(id, address, value_2);
+                sendBuffer = this.writeWordPacket(id, address, value2);
             }
             else {
-                sendBuffer = this.writeDWordPacket(id, address, value_2);
+                sendBuffer = this.writeDWordPacket(id, address, value2);
             }
         }
     
