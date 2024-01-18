@@ -332,13 +332,6 @@ Module.prototype.requestLocalData = function() {
                 sendBuffer = this.writeBytePacket(200, address, value);
             } else if (length == 2) {
                 sendBuffer = this.writeWordPacket(200, address, value);
-            } else if (length == 4 && address == 136) {
-                var value2;
-                if (value < 1024)
-                    value2 = value + 1024;
-                else
-                    value2 = value - 1024;
-                sendBuffer = this.writeDWordPacket2(200, address, value, value2);
             } else {
                 sendBuffer = this.writeDWordPacket(200, address, value);
             }
@@ -373,7 +366,15 @@ Module.prototype.requestLocalData = function() {
         } else if(instruction == INST_BYPASS_WRITE) {
             var id = value;
             this.addressToRead[address] = 0;
-            sendBuffer = this.writeBytePacket(id, address, value_2);
+            if (length == 1) {
+                sendBuffer = this.writeBytePacket(id, address, value_2);
+            }
+            else if (length == 2) {
+                sendBuffer = this.writeWordPacket(id, address, value_2);
+            }
+            else {
+                sendBuffer = this.writeDWordPacket(id, address, value_2);
+            }
         }
     
         console.log("send buffer : " + sendBuffer)
@@ -382,7 +383,8 @@ Module.prototype.requestLocalData = function() {
             sendBuffer[2] == 0xFD &&
             sendBuffer[3] == 0x00 &&
             sendBuffer[4] == 0xC8 ||
-            (sendBuffer[4] >= 100 && sendBuffer[4] <= 119)) {
+            (sendBuffer[4] >= 100 && sendBuffer[4] <= 119) ||
+            (sendBuffer[4] >= 1 && sendBuffer[4] <= 63)) {
             dataLength = this.makeWord(sendBuffer[5], sendBuffer[6]);
 
             if (sendBuffer[7] == INST_READ) {
@@ -422,14 +424,15 @@ Module.prototype.handleLocalData = function(data) { // data: Native Buffer
 		// console.log('<< 1 : ' + this.receiveLength + ' : ' + this.receiveBuffer);
 
 		// while (this.receiveBuffer.length > 0) {
-		while (this.receiveBuffer.length >= 11 + this.receiveLength) {
+		while (this.receiveBuffer.length >= 11) {
 			if (this.receiveBuffer.shift() == 0xFF) {
 				if (this.receiveBuffer.shift() == 0xFF) {
 					if (this.receiveBuffer.shift() == 0xFD) {
 						if (this.receiveBuffer.shift() == 0x00) {
                             var id = this.receiveBuffer.shift();
 							if (id == 0xC8 ||
-                                (id >= 100 && id <= 119)) {
+                                (id >= 100 && id <= 119) ||
+                                (id >= 1 && id <= 63)) {
 								var packetLength = this.makeWord(this.receiveBuffer.shift(), this.receiveBuffer.shift());
 								// if (packetLength > 4) {
 								// console.log("?? : " + this.receiveLength + ' / ' + (packetLength - 4));
