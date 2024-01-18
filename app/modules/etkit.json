@@ -12,9 +12,19 @@
     "win32-ia32": "arduino/dpinst-x86.exe",
     "win32-x64": "arduino/dpinst-amd64.exe"
   },
-  "url": "https://2tc.co.kr/",
+  "url": "https://ebdedu.com",
   "reconnect": true,
-  "firmware": "etkit",
+  "selectPort": true,
+  "firmware": [
+    {
+      "name": "etkit",
+      "translate": "이티키트 실속팩"
+    },
+    {
+      "name": "etkit_middle",
+      "translate": "이티키트 중급자"
+    }
+],
   "hardware": {
     "type": "serial",
     "control": "slave",
