@@ -343,13 +343,6 @@ Module.prototype.requestLocalData = function() {
                 sendBuffer = this.writeBytePacket(200, address, value);
             } else if (length == 2) {
                 sendBuffer = this.writeWordPacket(200, address, value);
-            } else if (length == 4 && address == 136) {
-                var value2;
-                if (value < 1024)
-                    value2 = value + 1024;
-                else
-                    value2 = value - 1024;
-                sendBuffer = this.writeDWordPacket2(200, address, value, value2);
             } else {
                 sendBuffer = this.writeDWordPacket(200, address, value);
             }
