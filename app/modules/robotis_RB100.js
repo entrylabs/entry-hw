@@ -142,6 +142,7 @@ Module.prototype.requestRemoteData = function(handler) {
 
     for (var indexA = 0; indexA < this.dataBuffer.length; indexA++) { // 일반형
         if (this.dataBuffer[indexA] != undefined) {
+            // console.log("indexA: " + indexA + " value: " + this.dataBuffer[indexA]);
             handler.write(indexA, this.dataBuffer[indexA]);
         }
     }
