@@ -201,19 +201,6 @@ Module.prototype.handleRemoteData = function(handler) {
             } else {
                 doSend = true;
             }
-        } else if (instruction == INST_WRITE) {
-            if (this.prevInstruction == INST_WRITE &&
-                this.prevAddress == address &&
-                this.prevLength == length &&
-                this.prevValue == value && address != 86) {
-                doSend = false;
-            } else {
-                if (this.prevServoCompare(address, value, length)) {
-                    
-                } else {
-                    doSend = true;
-                }
-            }
         } else if (instruction == INST_BYPASS_READ) {
             if (isReadDataArrived == false &&
                 this.prevInstruction == INST_BYPASS_READ &&
@@ -237,7 +224,7 @@ Module.prototype.handleRemoteData = function(handler) {
                 }
             }
         }
-        if(instruction == 4 || instruction == 5 || instruction == 6) {
+        if(instruction == INST_WRITE || instruction == 4 || instruction == 5 || instruction == 6 || INST_BYPASS_WRITE) {
 			doSend = true;
 		}
         if (!doSend) {
@@ -270,7 +257,7 @@ Module.prototype.handleRemoteData = function(handler) {
             this.prevServoSet(address, value, length);
         }
 
-        if (instruction == INST_WRITE || instruction == INST_DXL_SYNCWRITE || instruction == INST_DXL_REGWRITE || instruction == INST_DXL_ACTION) {
+        if (instruction == INST_WRITE || instruction == INST_DXL_SYNCWRITE || instruction == INST_DXL_REGWRITE || instruction == INST_DXL_ACTION || instruction == INST_BYPASS_WRITE) {
             this.robotisBuffer.push(data[index]); 
             if (instruction == INST_WRITE) {
                 // 만약 bypass mode를 enable 한다고 하면
@@ -338,6 +325,7 @@ Module.prototype.requestLocalData = function() {
         var address = data[1];
         var length = data[2];
         var value = data[3];
+        var value_2 = data[4];
         //console.log('send address : ' + address + ', ' + value + ", " + length); // add by kjs 170426
         if (instruction == INST_WRITE) {
             if (length == 1) {
@@ -382,6 +370,10 @@ Module.prototype.requestLocalData = function() {
             var id = value;
             this.addressToRead[address] = 0;
             sendBuffer = this.readPacket(id, address, length);
+        } else if(instruction == INST_BYPASS_WRITE) {
+            var id = value;
+            this.addressToRead[address] = 0;
+            sendBuffer = this.writeBytePacket(id, address, value_2);
         }
     
         console.log("send buffer : " + sendBuffer)
@@ -550,6 +542,7 @@ var INST_DXL_SYNCWRITE = 4;
 var INST_DXL_REGWRITE = 5;
 var INST_DXL_ACTION = 6;
 var INST_BYPASS_READ = 0xA2;
+var INST_BYPASS_WRITE = 0xA3;
 
 var isReadDataArrived = true;
 var isConnected = true;
