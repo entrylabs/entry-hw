@@ -3,7 +3,7 @@ function Module() {
     this.comparerId2 = 0;
     this.playedblockId = 0;
     this.deviceInfo = {
-        name: "--",
+        name: '',
         distance: 0,
         button: [0, 0],
         analog: 0,
@@ -127,9 +127,9 @@ Module.prototype.handleRemoteData = function(handler) {
 };
 
 Module.prototype.printBuffer = function(buffer) {
-    let msg = buffer.length.toString() + ": ";
+    let msg = buffer.length.toString() + ': ';
     for (let i = 0; i < buffer.length; i++) {
-        msg += "0x" + buffer[i].toString(16) + ", ";
+        msg += '0x' + buffer[i].toString(16) + ', ';
     }
     console.log(msg);
 };
@@ -155,7 +155,7 @@ Module.prototype.parsing = function(data) {
         const size = data[7 + count] | (data[8 + count] << 8);
         switch (index) {
             case 0x03: {
-                this.deviceInfo.name = "";
+                this.deviceInfo.name = '';
                 for (let i = 10; i < 21; i++) {
                     this.deviceInfo.name += String.fromCharCode(data[i + count]);
                 }
@@ -216,7 +216,7 @@ Module.prototype.firstPacket = function() {
 };
 
 Module.prototype.generate = function() {
-    let buffer = [0, 0, 0, 0, 0, 0];
+    const buffer = [0, 0, 0, 0, 0, 0];
     buffer[2] = 0x03;
     buffer[3] = 0x20;
     buffer[4] = this.cBuffer.length & 0xFF;
@@ -298,7 +298,7 @@ Module.prototype.addMelodyPlayList = function(list, play) {
 
 Module.prototype.addServoControl = function(id, speed, position) {
     let count = 0;
-    let buffer = [0, 0, 0, 0];
+    const buffer = [0, 0, 0, 0];
     buffer[0] = 0x13;
     buffer[1] = 0x00;
     buffer[2] = 0x00;
@@ -330,7 +330,7 @@ Module.prototype.addPwmControl = function(pwm) {
 
 Module.prototype.addDcControl = function(id, speed) {
     let count = 0;
-    let buffer = [0, 0, 0, 0];
+    const buffer = [0, 0, 0, 0];
     buffer[0] = 0x23;
     buffer[1] = 0x00;
     buffer[2] = 0x00;
@@ -346,12 +346,11 @@ Module.prototype.addDcControl = function(id, speed) {
     buffer[1] = count * 3 + 1;
     buffer[3] = count;
     this.cBuffer.push(...buffer);
-
 };
 
 Module.prototype.addServoOffset = function(id, offset) {
     let count = 0;
-    let buffer = [0, 0, 0, 0];
+    const buffer = [0, 0, 0, 0];
     buffer[0] = 0x1E;
     buffer[1] = 0x00;
     buffer[2] = 0x00;
@@ -368,8 +367,6 @@ Module.prototype.addServoOffset = function(id, offset) {
     buffer[3] = count;
     this.cBuffer.push(...buffer);
 };
-
-
 
 // 하드웨어 연결 해제 시 호출
 Module.prototype.disconnect = function(connect) {
