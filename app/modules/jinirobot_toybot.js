@@ -141,8 +141,7 @@ Module.prototype.checkHeader = function(data) {
             checker ^= data[i];
         }
         return checker === data[0] ? true : false;       
-    }
-    else {
+    } else {
         return false;
     }
 };
@@ -378,7 +377,6 @@ Module.prototype.disconnect = function(connect) {
 };
 
 // 연결 종료 후 처리 코드
-Module.prototype.reset = function() {
-};
+Module.prototype.reset = function() {};
     
 module.exports = new Module();
