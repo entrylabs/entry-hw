@@ -1,0 +1,26 @@
+{
+	"id": "070B01",
+	"name": {
+		"en": "ROBOTIS Practical Course 2025(무선연결)",
+		"ko": "로보티즈 실과 2025(무선연결)"
+	},
+	"category": "module",
+	"platform": ["win32"],
+	"icon" : "robotis_RB100im_Practical_Assembly.png",
+	"module": "robotis_RB100.js",
+	"url": "http://www.steamcup.org/ko/",
+	"email": "jason@robotis.com",
+	"reconnect" : true,
+	"driver": {
+        "win32-ia32": "ROBOTIS/ROBOTIS CDC Driver.bat",
+        "win32-x64": "ROBOTIS/ROBOTIS CDC Driver.bat"
+	},
+	"selectPort" : true,
+	"hardware": {
+		"type": "serial",
+		"control": "slave",
+		"vendor": "ROBOTIS",
+		"duration": 15,
+		"baudRate": 57600
+	}
+}
