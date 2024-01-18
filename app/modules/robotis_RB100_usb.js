@@ -224,7 +224,7 @@ Module.prototype.handleRemoteData = function(handler) {
                 }
             }
         }
-        if(instruction == INST_WRITE || instruction == 4 || instruction == 5 || instruction == 6 || INST_BYPASS_WRITE) {
+        if(instruction == INST_WRITE || instruction == 4 || instruction == 5 || instruction == 6 || instruction == INST_BYPASS_WRITE) {
 			doSend = true;
 		}
         if (!doSend) {

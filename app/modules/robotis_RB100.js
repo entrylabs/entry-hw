@@ -201,19 +201,6 @@ Module.prototype.handleRemoteData = function(handler) {
             } else {
                 doSend = true;
             }
-        } else if (instruction == INST_WRITE) {
-            if (this.prevInstruction == INST_WRITE &&
-                this.prevAddress == address &&
-                this.prevLength == length &&
-                this.prevValue == value && address != 86) {
-                doSend = false;
-            } else {
-                if (this.prevServoCompare(address, value, length)) {
-                    
-                } else {
-                    doSend = true;
-                }
-            }
         } else if (instruction == INST_BYPASS_READ) {
             if (isReadDataArrived == false &&
                 this.prevInstruction == INST_BYPASS_READ &&
@@ -237,7 +224,7 @@ Module.prototype.handleRemoteData = function(handler) {
                 }
             }
         }
-        if(instruction == 4 || instruction == 5 || instruction == 6) {
+        if(instruction == INST_WRITE || instruction == 4 || instruction == 5 || instruction == 6 || instruction == INST_BYPASS_WRITE) {
 			doSend = true;
 		}
         if (!doSend) {
@@ -270,7 +257,7 @@ Module.prototype.handleRemoteData = function(handler) {
             this.prevServoSet(address, value, length);
         }
 
-        if (instruction == INST_WRITE || instruction == INST_DXL_SYNCWRITE || instruction == INST_DXL_REGWRITE || instruction == INST_DXL_ACTION) {
+        if (instruction == INST_WRITE || instruction == INST_DXL_SYNCWRITE || instruction == INST_DXL_REGWRITE || instruction == INST_DXL_ACTION || instruction == INST_BYPASS_WRITE) {
             this.robotisBuffer.push(data[index]);
             if (instruction == INST_WRITE) {
                 // 만약 bypass mode를 enable 한다고 하면
@@ -337,6 +324,7 @@ Module.prototype.requestLocalData = function() {
         var address = data[1];
         var length = data[2];
         var value = data[3];
+        var value_2 = data[4];
         //console.log('send address : ' + address + ', ' + value + ", " + length); // add by kjs 170426
         if (instruction == INST_WRITE) {
             if (length == 1) {
@@ -374,6 +362,18 @@ Module.prototype.requestLocalData = function() {
             var id = value;
             this.addressToRead[address] = 0;
             sendBuffer = this.readPacket(id, address, length);
+        } else if(instruction == INST_BYPASS_WRITE) {
+            var id = value;
+            this.addressToRead[address] = 0;
+            if (length == 1) {
+                sendBuffer = this.writeBytePacket(id, address, value_2);
+            }
+            else if (length == 2) {
+                sendBuffer = this.writeWordPacket(id, address, value_2);
+            }
+            else {
+                sendBuffer = this.writeDWordPacket(id, address, value_2);
+            }
         }
     
         console.log("send buffer : " + sendBuffer)
@@ -382,7 +382,8 @@ Module.prototype.requestLocalData = function() {
             sendBuffer[2] == 0xFD &&
             sendBuffer[3] == 0x00 &&
             sendBuffer[4] == 0xC8 ||
-            (sendBuffer[4] >= 100 && sendBuffer[4] <= 119)) {
+            (sendBuffer[4] >= 100 && sendBuffer[4] <= 119) ||
+            (sendBuffer[4] >= 1 && sendBuffer[4] <= 63)) {
             dataLength = this.makeWord(sendBuffer[5], sendBuffer[6]);
 
             if (sendBuffer[7] == INST_READ) {
@@ -422,14 +423,15 @@ Module.prototype.handleLocalData = function(data) { // data: Native Buffer
 		// console.log('<< 1 : ' + this.receiveLength + ' : ' + this.receiveBuffer);
 
 		// while (this.receiveBuffer.length > 0) {
-		while (this.receiveBuffer.length >= 11 + this.receiveLength) {
+		while (this.receiveBuffer.length >= 11) {
 			if (this.receiveBuffer.shift() == 0xFF) {
 				if (this.receiveBuffer.shift() == 0xFF) {
 					if (this.receiveBuffer.shift() == 0xFD) {
 						if (this.receiveBuffer.shift() == 0x00) {
                             var id = this.receiveBuffer.shift();
 							if (id == 0xC8 ||
-                                (id >= 100 && id <= 119)) {
+                                (id >= 100 && id <= 119) ||
+                                (id >= 1 && id <= 63)) {
 								var packetLength = this.makeWord(this.receiveBuffer.shift(), this.receiveBuffer.shift());
 								// if (packetLength > 4) {
 								// console.log("?? : " + this.receiveLength + ' / ' + (packetLength - 4));
@@ -535,6 +537,7 @@ var INST_DXL_SYNCWRITE = 4;
 var INST_DXL_REGWRITE = 5;
 var INST_DXL_ACTION = 6;
 var INST_BYPASS_READ = 0xA2;
+var INST_BYPASS_WRITE = 0xA3;
 
 var isReadDataArrived = true;
 var isConnected = true;
