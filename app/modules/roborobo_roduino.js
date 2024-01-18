@@ -30,7 +30,7 @@ class Roduino extends ArduinoBase {
     }
 
     requestInitialData () {
-        return this.getRequestAllVersionCommand();
+        return super.requestInitialData();
     }
 
     checkInitialData (data, config) {
@@ -81,6 +81,13 @@ class Roduino extends ArduinoBase {
      */
     get targetVersion () {
         return {model: 1, hardware: 1, firmware: 2};
+    }
+
+    /**
+     * @override
+     */
+    _getConnectionCheckCommand () {
+        return this._getRequestAllVersionCommand();
     }
 
     /**
