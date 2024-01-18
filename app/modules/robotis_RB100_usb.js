@@ -122,7 +122,8 @@ Module.prototype.requestInitialData = function() {
     this.servoPrevValue4 = [];  // add by kjs 20170627 
     
     this.robotisBuffer.push([INST_WRITE, 21, 2, 20]);
-    this.robotisBuffer.push([INST_WRITE, 20, 1, 1]);
+    this.robotisBuffer.push([INST_WRITE, 19, 1, 1]); // bypass 모드 켜기
+    this.robotisBuffer.push([INST_WRITE, 20, 1, 1]); // bypass port를 USB로 설정
     
     return this.readPacket(200, 0, 2);
 };
@@ -213,6 +214,16 @@ Module.prototype.handleRemoteData = function(handler) {
                     doSend = true;
                 }
             }
+        } else if (instruction == INST_BYPASS_READ) {
+            if (isReadDataArrived == false &&
+                this.prevInstruction == INST_BYPASS_READ &&
+                this.prevAddress == address &&
+                this.prevLength == length &&
+                this.prevValue == value) {
+                doSend = false;
+            } else {
+                doSend = true;
+            }
         }
         //console.log("dosend : " + doSend);
         if (doSend) {
@@ -260,8 +271,16 @@ Module.prototype.handleRemoteData = function(handler) {
         }
 
         if (instruction == INST_WRITE || instruction == INST_DXL_SYNCWRITE || instruction == INST_DXL_REGWRITE || instruction == INST_DXL_ACTION) {
-            this.robotisBuffer.push(data[index]);
-        } else if (instruction == INST_READ) {
+            this.robotisBuffer.push(data[index]); 
+            if (instruction == INST_WRITE) {
+                // 만약 bypass mode를 enable 한다고 하면
+                if (address == 19 && value == 1) {
+                    // bypass port를 USB로 설정
+                    this.robotisBuffer.push([INST_WRITE, 20, 1, 1]);
+                }
+            }
+        } else if (instruction == INST_READ || instruction == INST_BYPASS_READ) {
+            
             if (this.addressToRead[address] == undefined || this.addressToRead[address] == 0) {
                 this.addressToRead[address] = 1;
                 this.robotisBuffer.push(data[index]);
@@ -311,7 +330,7 @@ Module.prototype.requestLocalData = function() {
         isTemp = true;
     } else {
 
-            var data = this.robotisBuffer.shift();
+        var data = this.robotisBuffer.shift();
         if (data == null) {
             return sendBuffer;
         }
@@ -359,6 +378,10 @@ Module.prototype.requestLocalData = function() {
             sendBuffer = this.dxlRegWritePacket(ids[0], address, length, value);
         } else if(instruction == INST_DXL_ACTION) {
             sendBuffer = this.dxlActionWrite();
+        } else if(instruction == INST_BYPASS_READ) {
+            var id = value;
+            this.addressToRead[address] = 0;
+            sendBuffer = this.readPacket(id, address, length);
         }
     
         console.log("send buffer : " + sendBuffer)
@@ -366,10 +389,11 @@ Module.prototype.requestLocalData = function() {
             sendBuffer[1] == 0xFF &&
             sendBuffer[2] == 0xFD &&
             sendBuffer[3] == 0x00 &&
-            sendBuffer[4] == 0xC8) {
+            sendBuffer[4] == 0xC8 ||
+            (sendBuffer[4] >= 100 && sendBuffer[4] <= 119)) {
             dataLength = this.makeWord(sendBuffer[5], sendBuffer[6]);
 
-            if (sendBuffer[7] == 0x02) {
+            if (sendBuffer[7] == INST_READ) {
                 this.receiveAddress = address;
                 this.receiveLength = length;
                 this.defaultLength = data[2];
@@ -411,7 +435,9 @@ Module.prototype.handleLocalData = function(data) { // data: Native Buffer
 				if (this.receiveBuffer.shift() == 0xFF) {
 					if (this.receiveBuffer.shift() == 0xFD) {
 						if (this.receiveBuffer.shift() == 0x00) {
-							if (this.receiveBuffer.shift() == 0xC8) {
+                            var id = this.receiveBuffer.shift();
+							if (id == 0xC8 ||
+                                (id >= 100 && id <= 119)) {
 								var packetLength = this.makeWord(this.receiveBuffer.shift(), this.receiveBuffer.shift());
 								// if (packetLength > 4) {
 								// console.log("?? : " + this.receiveLength + ' / ' + (packetLength - 4));
@@ -523,6 +549,7 @@ var INST_WRITE = 3;
 var INST_DXL_SYNCWRITE = 4;
 var INST_DXL_REGWRITE = 5;
 var INST_DXL_ACTION = 6;
+var INST_BYPASS_READ = 0xA2;
 
 var isReadDataArrived = true;
 var isConnected = true;
