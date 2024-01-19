@@ -1,8 +1,8 @@
 {
 	"id": "070B01",
 	"name": {
-		"en": "ROBOTIS Practical Course 2025(무선연결)",
-		"ko": "로보티즈 실과 2025(무선연결)"
+		"en": "ROBOTIS Practical Course 2025",
+		"ko": "로보티즈 실과 2025"
 	},
 	"category": "module",
 	"platform": ["win32"],
