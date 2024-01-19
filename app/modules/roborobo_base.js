@@ -134,7 +134,7 @@ class ArduinoBase extends BaseModule {
      * 이 두 함수가 정의되어있어야 로직이 동작합니다. 필요없으면 작성하지 않아도 됩니다.
      */
     requestInitialData () {
-        return this.getRequestAllVersionCommand();
+        return this._getRequestAllVersionCommand();
     }
 
     /**
@@ -178,7 +178,7 @@ class ArduinoBase extends BaseModule {
         if (time >= 3000) {
             this._serialPort.close();
         } else if (time >= 1000) {
-            buffer.push(...this.requestInitialData());
+            buffer.push(...this._getConnectionCheckCommand());
         }
         return buffer;
     }
@@ -187,7 +187,6 @@ class ArduinoBase extends BaseModule {
     handleLocalData (data) {
         this._receiveBuffer.push(...data);
         this._lastTime = Date.now();
-
         while (this._receiveBuffer.length > 0) {
             const length = this._receiveBuffer.length;
             this._processReceiveData(this._receiveBuffer);
@@ -272,6 +271,10 @@ class ArduinoBase extends BaseModule {
         throw new Error('재정의 필요');
     }
 
+    _getConnectionCheckCommand () {
+        return this._getRequestBatteryVoltageCommand();
+    }
+
     /**
      * 장치 초기화 명령어 반환
      */
@@ -296,7 +299,7 @@ class ArduinoBase extends BaseModule {
     /**
      * 전체 버전 요청
      */
-    getRequestAllVersionCommand () {
+    _getRequestAllVersionCommand () {
         return [SysexCMD.START, SysexCMD.GET, Instruction.GET_VERSION, 0x00, SysexCMD.END];
     }
 

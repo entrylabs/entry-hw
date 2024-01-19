@@ -33,11 +33,8 @@ class Cube extends ArduinoBase {
         this._setSensorMode(0);
     }
 
-    /**
-     * @override
-     */
     requestInitialData () {
-        return this.getRequestAllVersionCommand();
+        return super.requestInitialData();
     }
 
     checkInitialData (data, config) {
@@ -92,7 +89,14 @@ class Cube extends ArduinoBase {
      * @override
      */
     get targetVersion () {
-        return {model: 65, hardware: 1, firmware: 16};
+        return {model: 65, hardware: 1, firmware: 18};
+    }
+
+    /**
+     * @override
+     */
+    _getConnectionCheckCommand () {
+        return this._getRequestAllVersionCommand();
     }
 
     /**
