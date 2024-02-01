@@ -1,0 +1,36 @@
+{
+  "id": "580101",
+  "name": {
+    "en": "ETkit",
+    "ko": "이티키트"
+  },
+  "category": "board",
+  "platform": ["win32", "darwin"],
+  "icon": "etkit.png",
+  "module": "etkit.js",
+  "driver": {
+    "win32-ia32": "arduino/dpinst-x86.exe",
+    "win32-x64": "arduino/dpinst-amd64.exe"
+  },
+  "url": "https://ebdedu.com",
+  "reconnect": true,
+  "selectPort": true,
+  "firmware": [
+    {
+      "name": "etkit",
+      "translate": "이티키트 실속팩"
+    },
+    {
+      "name": "etkit_middle",
+      "translate": "이티키트 중급자"
+    }
+],
+  "hardware": {
+    "type": "serial",
+    "control": "slave",
+    "duration": 32,
+    "vendor": ["Arduino", "wch.cn", "FTDI"],
+    "firmwarecheck" : false,
+    "baudRate": 115200
+  }
+}
