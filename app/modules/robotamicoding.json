@@ -15,6 +15,7 @@
 	},
     "reconnect": true,
     "firmware": "robotami_coding",
+    "selectPort" : true,
 	"hardware": {
 		"type": "serial",
         "control": "slave",
