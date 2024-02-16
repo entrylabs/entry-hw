@@ -316,7 +316,6 @@ Module.prototype.requestLocalData = function() {
             } else if (length == 4) {
                 sendBuffer = this.writeDWordPacket(200, address, value);
             } else {
-                console.log(value);
                 sendBuffer = this.writeCustomLengthPacket(200, address, value, length);
             }
         } else if (instruction == INST_READ) {
@@ -610,9 +609,7 @@ Module.prototype.writeCustomLengthPacket = function(id, address, buf, length) {
     packet.push(INST_WRITE);
     packet.push(this.getLowByte(address));
     packet.push(this.getHighByte(address));
-    console.log(buf);
     for (i = 0; i < length; i++) {
-        console.log(buf[i]);
         if (typeof(buf[i]) == 'number') {
             packet.push(buf[i]);
         } else if (typeof(buf[i]) == 'string') {

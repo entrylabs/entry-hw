@@ -2,7 +2,7 @@
 	"id": "070B01",
 	"name": {
 		"en": "ROBOTIS Practical Course 2025",
-		"ko": "로보티즈 실과 2025"
+		"ko": "2022 개정 교육과정 실과로봇"
 	},
 	"category": "module",
 	"platform": ["win32"],
@@ -15,7 +15,7 @@
         "win32-ia32": "ROBOTIS/ROBOTIS CDC Driver.bat",
         "win32-x64": "ROBOTIS/ROBOTIS CDC Driver.bat"
 	},
-	"selectPort" : true,
+	"selectPort" : false,
 	"hardware": {
 		"type": "serial",
 		"control": "slave",
