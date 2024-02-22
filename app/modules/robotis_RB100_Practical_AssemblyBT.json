@@ -1,21 +1,21 @@
 {
-	"id": "070201",
+	"id": "070B01",
 	"name": {
-		"en": "ROBOTIS IoT",
-		"ko": "로보티즈 IoT"
+		"en": "Robot AI",
+		"ko": "로봇아이(AI)"
 	},
 	"category": "module",
 	"platform": ["win32"],
-	"icon" : "robotis_openCM70.png",
-	"module": "robotis_openCM70.js",
-	"url": "http://www.robotis.com",
+	"icon" : "robotis_RB100im_Practical_Assembly.png",
+	"module": "robotis_RB100_Practice_Course.js",
+	"url": "http://www.steamcup.org/ko/",
 	"email": "jason@robotis.com",
-	"video": "https://goo.gl/QaXNYy",
 	"reconnect" : true,
 	"driver": {
         "win32-ia32": "ROBOTIS/ROBOTIS CDC Driver.bat",
         "win32-x64": "ROBOTIS/ROBOTIS CDC Driver.bat"
 	},
+	"selectPort" : false,
 	"hardware": {
 		"type": "serial",
 		"control": "slave",

@@ -122,6 +122,8 @@ Module.prototype.requestInitialData = function() {
     this.robotisBuffer.push([INST_WRITE, 20, 1, 0]); // bypass port를 BLE로 설정
     this.robotisBuffer.push([INST_WRITE, 4250, 1, 1]); // huskylens 텍스트 지우기
     this.robotisBuffer.push([INST_WRITE, 722, 1, 0]); // dxl 토크 끄기
+    this.robotisBuffer.push([INST_WRITE, 163, 2, 3329]); // 얼굴 알라로 바꾸기
+    this.robotisBuffer.push([INST_WRITE, 162, 1, 1]); // 화면 업데이트
     
     return this.readPacket(200, 0, 2);
 };
