@@ -1,7 +1,4 @@
-// const _ = global.$;
 const BaseModule = require('./baseModule');
-const { forEach } = require('lodash');
-// const { forEach } = require('lodash');
 
 class hexaboard extends BaseModule {
     constructor() {

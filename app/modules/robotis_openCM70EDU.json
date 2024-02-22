@@ -9,7 +9,7 @@
 	"icon" : "robotis_openCM70EDU.png",
 	"module": "robotis_openCM70EDU.js",
 	"url": "http://www.robotis.com",
-	"email": "kjw@robotis.com",
+	"email": "jason@robotis.com",
 	"reconnect" : true,
 	"driver": {
         "win32-ia32": "ROBOTIS/ROBOTIS CDC Driver.bat",
