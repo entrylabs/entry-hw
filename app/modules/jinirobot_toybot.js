@@ -1,4 +1,7 @@
 function Module() {
+    this.type = 0x03;
+    this.version = 0x22;
+    this.modeControl = 0x03;
     this.comparerId1 = 0;
     this.comparerId2 = 0;
     this.playedblockId = 0;
@@ -8,15 +11,22 @@ function Module() {
         button: [0, 0],
         analog: 0,
         servo: [0, 0, 0, 0, 0],
-        offset: [0, 0, 0, 0, 0],
+        offset: [0, 0, 0, 0, 0]
     };
+    this.repeatRead = [
+        {index: 0x13, repeat: 0x02}, // Servo Control Each
+        {index: 0x1E, repeat: 0x02}, // Servo Calibration
+        {index: 0x43, repeat: 0x02}, // Analog Value
+        {index: 0x53, repeat: 0x02}, // Button Control
+        {index: 0x73, repeat: 0x02}  // Ultrasonic Distance
+    ]
     this.cBuffer = []; // contants buffer
 };
 
 // 최초에 커넥션이 이루어진 후의 초기 설정.
 // handler 는 워크스페이스와 통신하 데이터를 json 화 하는 오브젝트입니다. (datahandler/json 참고)
 // config 은 module.json 오브젝트입니다.
-Module.prototype.init = function(handler, config) {	
+Module.prototype.init = function(handler, config) {
     this.comparerId1 = 0;
     this.comparerId2 = 0;
     this.playedblockId = 0;
@@ -24,11 +34,10 @@ Module.prototype.init = function(handler, config) {
     this.deviceInfo.button[0] = 0;
     this.deviceInfo.button[1] = 0;
     this.deviceInfo.analog = 0;
-    this.deviceInfo.servo[0] = 0;
-    this.deviceInfo.servo[1] = 0;
-    this.deviceInfo.servo[2] = 0;
-    this.deviceInfo.servo[3] = 0;
-    this.deviceInfo.servo[4] = 0;
+    for (let i = 0; i < 5; i++) {
+        this.deviceInfo.servo[0] = 0;
+        this.deviceInfo.offset[0] = 0;
+    }
     this.cBuffer = [];
 };
 
@@ -36,7 +45,12 @@ Module.prototype.init = function(handler, config) {
 // requestInitialData 를 사용한 경우 checkInitialData 가 필수입니다.
 // 이 두 함수가 정의되어있어야 로직이 동작합니다. 필요없으면 작성하지 않아도 됩니다.
 Module.prototype.requestInitialData = function() {
-    const packet = this.firstPacket();
+    const repeatName = [
+        {index: 0x03, repeat: 0x02}
+    ];
+    this.addReturn(repeatName);
+    this.addMode(this.modeControl);
+    const packet = this.generate();
     return packet;
 };
 
@@ -52,7 +66,7 @@ Module.prototype.checkInitialData = function(data, config) {
 };
 
 // 주기적으로 하드웨어에서 받은 데이터의 검증이 필요한 경우 사용합니다.
-Module.prototype.validateLocalData = function(data) {    
+Module.prototype.validateLocalData = function(data) {
     const result = this.checkHeader(data);
     return result;
 };
@@ -60,10 +74,10 @@ Module.prototype.validateLocalData = function(data) {
 // 하드웨어 기기에 전달할 데이터를 반환합니다.
 // slave 모드인 경우 duration 속성 간격으로 지속적으로 기기에 요청을 보냅니다.
 Module.prototype.requestLocalData = function() {
-    this.addReadInput();
+    this.addReturn(this.repeatRead);
     this.addHeartBeat();
-    const data = this.generate();
-    return data;	
+    const packet = this.generate();
+    return packet;	
 };
 
 // 하드웨어에서 온 데이터 처리
@@ -136,7 +150,7 @@ Module.prototype.printBuffer = function(buffer) {
 
 Module.prototype.checkHeader = function(data) {
     if (data.length >= 6) {
-        let checker = 0;
+        let checker = 0xAA;
         for (let i = 1; i < 6; i++) {
             checker ^= data[i];
         }
@@ -194,73 +208,52 @@ Module.prototype.parsing = function(data) {
     }
 };
 
-Module.prototype.firstPacket = function() {
-    const buffer = new Uint8Array(16);
-    buffer[0] = 0x2B;
-    buffer[1] = 0x02;
-    buffer[2] = 0x03;
-    buffer[3] = 0x20;
-    buffer[4] = 0x0A;
-    buffer[5] = 0x00;
-    buffer[6] = 0x02;
-    buffer[7] = 0x01;
-    buffer[8] = 0x00;
-    buffer[9] = 0x03;
-    buffer[10] = 0x01;
-    buffer[11] = 0x03;
-    buffer[12] = 0x00;
-    buffer[13] = 0x01;
-    buffer[14] = 0x03;
-    buffer[15] = 0x02;
-    return buffer;
-};
-
 Module.prototype.generate = function() {
-    const buffer = [0, 0, 0, 0, 0, 0];
-    buffer[2] = 0x03;
-    buffer[3] = 0x20;
+    const buffer = new Uint8Array(6 + this.cBuffer.length);
+    buffer[0] = 0xAA;
+    buffer[1] = 0xAA;
+    buffer[2] = this.type;
+    buffer[3] = this.version;
     buffer[4] = this.cBuffer.length & 0xFF;
     buffer[5] = (this.cBuffer.length >> 8) & 0xFF;
     for (let i = 0; i < this.cBuffer.length; i++) {
         buffer[1] ^= this.cBuffer[i];
-        buffer.push(this.cBuffer[i]);
+        buffer[6 + i] = this.cBuffer[i];
     }
-    //buffer[1] ^= 0xAA;
     for (let i = 1; i < 6; i++) {
         buffer[0] ^= buffer[i];
     }
-    //buffer[0] ^= 0xAA;
     this.cBuffer = [];
     return buffer;
 };
 
-Module.prototype.addHeartBeat = function() {
-    const buffer = [0xFF, 0x01, 0x00, 0x01];
+Module.prototype.addReturn = function(data) {
+    const length = data.length * 2 + 1;
+    const buffer = new Uint8Array(3 + length);
+    buffer[0] = 0x01;
+    buffer[1] = length & 0xFF;
+    buffer[2] = (length >> 8) & 0xFF;
+    buffer[3] = data.length;
+    for (let i = 0; i < data.length; i++) {
+        const addr = i * 2;
+        buffer[addr + 4] = data[i].index;
+        buffer[addr + 5] = data[i].repeat;
+    }
     this.cBuffer.push(...buffer);
 };
 
-Module.prototype.addReadInput = function() {
-    const buffer = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-    buffer[0] = 0x01;
-    buffer[1] = 0x0B;
+Module.prototype.addMode = function(mode) {
+    const buffer = new Uint8Array(4);
+    buffer[0] = 0x02;
+    buffer[1] = 0x01;
     buffer[2] = 0x00;
-    buffer[3] = 0x05;
-    buffer[4] = 0x43;
-    buffer[5] = 0x02;
-    buffer[6] = 0x53;
-    buffer[7] = 0x02;
-    buffer[8] = 0x73;
-    buffer[9] = 0x02;
-    buffer[10] = 0x13;
-    buffer[11] = 0x02;    
-    buffer[12] = 0x1E;
-    buffer[13] = 0x02;
+    buffer[3] = mode;
     this.cBuffer.push(...buffer);
-};
+}
 
 Module.prototype.addLedControl = function(r, g, b) {
     if (r !== null && g !== null && b !== null) {
-        const buffer = [0, 0, 0, 0, 0, 0];
+        const buffer = new Uint8Array(6);
         buffer[0] = 0x63;
         buffer[1] = 0x03;
         buffer[2] = 0x00;
@@ -273,9 +266,9 @@ Module.prototype.addLedControl = function(r, g, b) {
 
 Module.prototype.addMelodyPlayScore = function(note, pitch) {
     if (note !== null && pitch !== null) {
-        const buffer = [0, 0, 0, 0, 0, 0];
+        const buffer = new Uint8Array(6);
         buffer[0] = 0x83;
-        buffer[1] = 0x02 + 1;
+        buffer[1] = 0x03;
         buffer[2] = 0x00;
         buffer[3] = 0x01;
         buffer[4] = note;
@@ -286,7 +279,7 @@ Module.prototype.addMelodyPlayScore = function(note, pitch) {
 
 Module.prototype.addMelodyPlayList = function(list, play) {
     if (list !== null && play !== null) {
-        const buffer = [0, 0, 0, 0, 0];
+        const buffer = new Uint8Array(5);
         buffer[0] = 0x87;
         buffer[1] = 0x02;
         buffer[2] = 0x00;
@@ -298,18 +291,19 @@ Module.prototype.addMelodyPlayList = function(list, play) {
 
 Module.prototype.addServoControl = function(id, speed, position) {
     let count = 0;
-    const buffer = [0, 0, 0, 0];
+    const buffer = new Uint8Array(4 + id.length * 4);
     buffer[0] = 0x13;
     buffer[1] = 0x00;
     buffer[2] = 0x00;
     buffer[3] = 0x00;
     for (let i = 0; i < id.length; i++) {
         if (id[i] !== null && speed[i] !== null && position[i] !== null) {
+            const addr = i * 4;
             count++;
-            buffer.push(id[i]);
-            buffer.push(speed[i]);
-            buffer.push(position[i] & 0xFF);
-            buffer.push((position[i] >> 8) & 0xFF);
+            buffer[addr + 4] = id[i];
+            buffer[addr + 5] = speed[i];
+            buffer[addr + 6] = position[i] & 0xFF;
+            buffer[addr + 7] = (position[i] >> 8) & 0xFF;
         }
     }
     buffer[1] = count * 4 + 1;
@@ -319,28 +313,30 @@ Module.prototype.addServoControl = function(id, speed, position) {
 
 Module.prototype.addPwmControl = function(pwm) {
     if (pwm !== null) {
-        const buffer = [0, 0, 0, 0];
+        const buffer = new Uint8Array(5);
         buffer[0] = 0x33;
-        buffer[1] = 0x01;
+        buffer[1] = 0x02;
         buffer[2] = 0x00;
-        buffer[3] = pwm;
+        buffer[3] = pwm & 0xFF;
+        buffer[4] = (pwm >> 8) & 0xFF;
         this.cBuffer.push(...buffer);
     }
 };
 
 Module.prototype.addDcControl = function(id, speed) {
     let count = 0;
-    const buffer = [0, 0, 0, 0];
+    const buffer = new Uint8Array(4 + id.length * 3);
     buffer[0] = 0x23;
     buffer[1] = 0x00;
     buffer[2] = 0x00;
     buffer[3] = 0x00;
     for (let i = 0; i < id.length; i++) {
         if (id[i] !== null && speed[i] !== null) {
+            const addr = i * 3;
             count++;
-            buffer.push(id[i]);
-            buffer.push(speed[i] & 0xFF);
-            buffer.push((speed[i] >> 8) & 0xFF);
+            buffer[addr + 4] = id[i];
+            buffer[addr + 5] = speed[i] & 0xFF;
+            buffer[addr + 6] = (speed[i] >> 8) & 0xFF;
         }
     }
     buffer[1] = count * 3 + 1;
@@ -350,21 +346,31 @@ Module.prototype.addDcControl = function(id, speed) {
 
 Module.prototype.addServoOffset = function(id, offset) {
     let count = 0;
-    const buffer = [0, 0, 0, 0];
+    const buffer = new Uint8Array(4 + id.length * 3);
     buffer[0] = 0x1E;
     buffer[1] = 0x00;
     buffer[2] = 0x00;
     buffer[3] = 0x00;
     for (let i = 0; i < id.length; i++) {
         if (id[i] !== null && offset[i] !== null) {
+            const addr = i * 3;
             count++;
-            buffer.push(id[i]);
-            buffer.push(offset[i] & 0xFF);
-            buffer.push((offset[i] >> 8) & 0xFF);
+            buffer[addr + 4] = id[i];
+            buffer[addr + 5] = offset[i] & 0xFF;
+            buffer[addr + 6] = (offset[i] >> 8) & 0xFF;
         }
     }
     buffer[1] = count * 3 + 1;
     buffer[3] = count;
+    this.cBuffer.push(...buffer);
+};
+
+Module.prototype.addHeartBeat = function() {
+    const buffer = new Uint8Array(4);
+    buffer[0] = 0xFF;
+    buffer[1] = 0x01;
+    buffer[2] = 0x00;
+    buffer[3] = 0x01;
     this.cBuffer.push(...buffer);
 };
 
