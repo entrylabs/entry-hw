@@ -7,7 +7,7 @@
 	"category": "module",
 	"platform": ["win32"],
 	"icon" : "robotis_RB100im_Practical_Assembly.png",
-	"module": "robotis_RB100_Practice_Course.js",
+	"module": "robotis_RB100_practice.js",
 	"url": "http://www.steamcup.org/ko/",
 	"email": "jason@robotis.com",
 	"reconnect" : true,
