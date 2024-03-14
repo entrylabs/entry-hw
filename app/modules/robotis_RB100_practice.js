@@ -480,7 +480,7 @@ Module.prototype.handleLocalData = function(data) { // data: Native Buffer
                     console.log(`rx length: ${rxPacket.packetLength}`);
                     if (rxPacket.packetLength >= 147) {
                         let tempValue = 0;
-                        for (let i = 0; i < 56; i++) {
+                        for (let i = 0; i < addrMap.length; i++) {
                             switch (addrMap[i][1]) {
                                 case 1:
                                     this.dataBuffer[addrMap[i][2]] = rxPacket.data[2 + addrMap[i][0]];
@@ -492,7 +492,6 @@ Module.prototype.handleLocalData = function(data) { // data: Native Buffer
                                     if (tempValue >= 32768) {
                                         tempValue = tempValue - 65536;
                                     }
-                                    console.log(`tempValue: ${tempValue}`);
                                     this.dataBuffer[addrMap[i][2]] = tempValue;
                                     break;
 
@@ -502,6 +501,34 @@ Module.prototype.handleLocalData = function(data) { // data: Native Buffer
                                                                      (rxPacket.data[2 + addrMap[i][0] + 1] << 8) +
                                                                      (rxPacket.data[2 + addrMap[i][0] + 2] << 16) +
                                                                      (rxPacket.data[2 + addrMap[i][0] + 3] << 24);
+                                    break;
+                            }
+                        }
+
+                        // line category
+                        this.dataBuffer[5201] = rxPacket.data[2 + 143];
+                        
+                        for (let i = 0; i < addrMap2.length; i++) {
+                            switch (addrMap2[i][1]) {
+                                case 1:
+                                    this.dataBuffer[addrMap2[i][2]] = rxPacket.data[2 + addrMap2[i][0]];
+                                    break;
+
+                                case 2:
+                                    tempValue = rxPacket.data[2 + addrMap2[i][0]] +
+                                                (rxPacket.data[2 + addrMap2[i][0] + 1] << 8);
+                                    if (tempValue >= 32768) {
+                                        tempValue = tempValue - 65536;
+                                    }
+                                    this.dataBuffer[addrMap2[i][2]] = tempValue;
+                                    break;
+
+                                
+                                case 4:
+                                    this.dataBuffer[addrMap2[i][2]] = rxPacket.data[2 + addrMap2[i][0]] +
+                                                                     (rxPacket.data[2 + addrMap2[i][0] + 1] << 8) +
+                                                                     (rxPacket.data[2 + addrMap2[i][0] + 2] << 16) +
+                                                                     (rxPacket.data[2 + addrMap2[i][0] + 3] << 24);
                                     break;
                             }
                         }
@@ -734,6 +761,35 @@ const addrMap = [
     [80,1,5030],
     [81,1,5031],
     [82,1,5040],
+];
+
+
+const addrMap2 = [
+    [152,1,4000],
+    [153,2,4003],
+    [155,1,4005],
+    [156,1,4006],
+    [157,2,4009],
+    [159,2,4011],
+    [161,2,4013],
+    [163,2,4015],
+    [165,2,4017],
+    [167,2,4019],
+    [169,2,4021],
+    [171,2,4023],
+    [173,2,4025],
+    [175,2,4027],
+    [177,1,4031],
+    [178,1,4032],
+    [179,1,4033],
+    [180,2,4036],
+    [182,2,4038],
+    [184,2,4040],
+    [186,2,4042],
+    [188,2,4044],
+    [190,2,4046],
+    [192,2,4048],
+    [194,2,4050],
 ];
 
 //const rxPacket = Object.assign({}, packet);
