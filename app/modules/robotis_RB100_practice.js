@@ -124,7 +124,9 @@ Module.prototype.requestInitialData = function() {
     this.robotisBuffer.push([INST_WRITE, 19, 1, 1]); // bypass 모드 켜기
     this.robotisBuffer.push([INST_WRITE, 20, 1, 0]); // bypass port를 BLE로 설정
     this.robotisBuffer.push([INST_WRITE, 23, 1, 1]); // auto report 기능 켜기
-    
+    this.robotisBuffer.push([INST_WRITE, 4250, 1, 1]); // huskylens 텍스트 지우기
+    this.robotisBuffer.push([INST_WRITE, 722, 1, 0]); // dxl 토크 끄기
+
     return this.readPacket(200, 0, 2);
 };
 
@@ -142,14 +144,12 @@ Module.prototype.requestRemoteData = function(handler) {
     for (let indexA = 0; indexA < this.dataBuffer.length; indexA++) { // 일반형
         if (this.dataBuffer[indexA] != undefined) {
             // console.log("indexA: " + indexA + " value: " + this.dataBuffer[indexA]);
-            if (indexA == 55) {
-                console.log(`requestRemoteData: ${this.dataBuffer[indexA]}`);
-            }
             handler.write(indexA, this.dataBuffer[indexA]);
         }
     }
     //실과형
     //console.log("###### value : " + this.detectedSound);
+    /*
     for (let i = 0; i < 4; i++) {        
         handler.write(`TOUCH${i}`, this.touchSensor[i]); // 접촉 센서
         handler.write(`IR${i}`, this.irSensor[i]); // 적외선 센서
@@ -161,6 +161,7 @@ Module.prototype.requestRemoteData = function(handler) {
     handler.write('DETECTEDSOUNDE', this.detectedSound); // 최종 소리 감지 횟수
     handler.write('DETECTINGSOUNDE1', this.detectringSound); // 실시간 소리 감지 횟수
     handler.write('USERBUTTONSTATE', this.userButtonState);
+    */
 };
 
 Module.prototype.handleRemoteData = function(handler) {
@@ -323,7 +324,6 @@ Module.prototype.requestLocalData = function() {
             } else if (length == 4) {
                 sendBuffer = this.writeDWordPacket(200, address, value);
             } else {
-                console.log(value);
                 sendBuffer = this.writeCustomLengthPacket(200, address, value, length);
             }
         } else if (instruction == INST_READ) {
@@ -478,8 +478,34 @@ Module.prototype.handleLocalData = function(data) { // data: Native Buffer
 
                 if (rxPacket.cmd == DXL_INST_STATUS) {
                     console.log(`rx length: ${rxPacket.packetLength}`);
-                    console.log(`LINE CAT: ${rxPacket.data[45]}`);
-                    this.dataBuffer[55] = rxPacket.data[45];
+                    if (rxPacket.packetLength >= 147) {
+                        let tempValue = 0;
+                        for (let i = 0; i < 56; i++) {
+                            switch (addrMap[i][1]) {
+                                case 1:
+                                    this.dataBuffer[addrMap[i][2]] = rxPacket.data[2 + addrMap[i][0]];
+                                    break;
+
+                                case 2:
+                                    tempValue = rxPacket.data[2 + addrMap[i][0]] +
+                                                (rxPacket.data[2 + addrMap[i][0] + 1] << 8);
+                                    if (tempValue >= 32768) {
+                                        tempValue = tempValue - 65536;
+                                    }
+                                    console.log(`tempValue: ${tempValue}`);
+                                    this.dataBuffer[addrMap[i][2]] = tempValue;
+                                    break;
+
+                                
+                                case 4:
+                                    this.dataBuffer[addrMap[i][2]] = rxPacket.data[2 + addrMap[i][0]] +
+                                                                     (rxPacket.data[2 + addrMap[i][0] + 1] << 8) +
+                                                                     (rxPacket.data[2 + addrMap[i][0] + 2] << 16) +
+                                                                     (rxPacket.data[2 + addrMap[i][0] + 3] << 24);
+                                    break;
+                            }
+                        }
+                    }
                 }
 
                 this.packetReceiveState = PACKET_STATE_IDLE;
@@ -649,6 +675,66 @@ const rxPacket = {
     checksumReceived: 0,
     data: [],
 };
+
+const addrMap = [
+    [0,4,302],
+    [4,1,42],
+    [5,1,44],
+    [6,1,45],
+    [7,1,47],
+    [8,1,50],
+    [9,1,51],
+    [10,1,52],
+    [11,1,68],
+    [12,2,70],
+    [14,2,72],
+    [16,2,74],
+    [18,2,76],
+    [20,2,78],
+    [22,2,80],
+    [24,2,82],
+    [26,2,84],
+    [28,1,86],
+    [29,1,87],
+    [30,2,88],
+    [32,2,90],
+    [34,1,112],
+    [35,1,118],
+    [36,1,119],
+    [37,1,122],
+    [38,1,123],
+    [39,1,124],
+    [40,1,125],
+    [41,1,160],
+    [42,1,220],
+    [43,2,360],
+    [45,2,362],
+    [47,2,364],
+    [49,2,366],
+    [51,2,368],
+    [53,2,370],
+    [55,1,372],
+    [56,1,373],
+    [57,1,374],
+    [58,1,375],
+    [59,1,376],
+    [60,1,377],
+    [61,1,378],
+    [62,1,379],
+    [63,1,380],
+    [64,1,381],
+    [65,1,382],
+    [66,1,383],
+    [67,1,500],
+    [68,1,501],
+    [69,8,502],
+    [77,1,700],
+    [78,1,810],
+    [79,1,5015],
+    [80,1,5030],
+    [81,1,5031],
+    [82,1,5040],
+];
 
 //const rxPacket = Object.assign({}, packet);
 
