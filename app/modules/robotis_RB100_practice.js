@@ -126,6 +126,21 @@ Module.prototype.requestInitialData = function() {
     this.robotisBuffer.push([INST_WRITE, 23, 1, 1]); // auto report 기능 켜기
     this.robotisBuffer.push([INST_WRITE, 4250, 1, 1]); // huskylens 텍스트 지우기
     this.robotisBuffer.push([INST_WRITE, 722, 1, 0]); // dxl 토크 끄기
+    
+    rxPacket.header = [0, 0, 0];
+    rxPacket.reserved = 0;
+    rxPacket.id = 0;
+    rxPacket.cmd = 0;
+    rxPacket.error = 0;
+    rxPacket.type = 0;
+    rxPacket.index = 0;
+    rxPacket.packetLength = 0;
+    rxPacket.paramLength = 0;
+    rxPacket.crc = 0;
+    rxPacket.crcReceived = 0;
+    rxPacket.checksum = 0;
+    rxPacket.checksumReceived = 0;
+    rxPacket.data = [];
 
     return this.readPacket(200, 0, 2);
 };
