@@ -2,9 +2,7 @@ function Module() {
     this.type = 0x03;
     this.version = 0x22;
     this.modeControl = 0x03;
-    this.comparerId1 = 0;
-    this.comparerId2 = 0;
-    this.playedblockId = 0;
+    this.comparerId = 0;
     this.deviceInfo = {
         name: '',
         distance: 0,
@@ -27,9 +25,7 @@ function Module() {
 // handler 는 워크스페이스와 통신하 데이터를 json 화 하는 오브젝트입니다. (datahandler/json 참고)
 // config 은 module.json 오브젝트입니다.
 Module.prototype.init = function(handler, config) {
-    this.comparerId1 = 0;
-    this.comparerId2 = 0;
-    this.playedblockId = 0;
+    this.comparerId = 0;
     this.deviceInfo.distance = 0;
     this.deviceInfo.button[0] = 0;
     this.deviceInfo.button[1] = 0;
@@ -92,50 +88,68 @@ Module.prototype.requestRemoteData = function(handler) {
 
 // 엔트리에서 받은 데이터에 대한 처리
 Module.prototype.handleRemoteData = function(handler) {
-    const block1 = handler.read('setblock1');
-    const block2 = handler.read('setblock2');
-    if (this.comparerId1 !== block1.id) {
-        this.comparerId1 = block1.id;
-        if (block1.ledControl) {
-            const r = block1.ledControl.r;
-            const g = block1.ledControl.g;
-            const b = block1.ledControl.b;
-            this.addLedControl(r, g, b);
-        } else if (block1.playScore) {
-            const note = block1.playScore.note;
-            const pitch = block1.playScore.pitch;
-            this.playedblockId = block1.id;
-            this.addMelodyPlayScore(note, pitch);
-        } else if (block1.playList) {
-            const list = block1.playList.list;
-            const play = block1.playList.play;
-            this.addMelodyPlayList(list, play);
-        } else if (block1.servoControl) {
-            const id = block1.servoControl.id;
-            const speed = block1.servoControl.speed;
-            const position = block1.servoControl.position;
-            this.addServoControl(id, speed, position);
-        } else if (block1.pwmControl) {
-            const pwm = block1.pwmControl.pwm;
-            this.addPwmControl(pwm);
-        } else if (block1.dcControl) {
-            const id = block1.dcControl.id;
-            const speed = block1.dcControl.speed;
-            this.addDcControl(id, speed);
-        } else if (block1.servoOffset) {
-            const id = block1.servoOffset.id;
-            const offset = block1.servoOffset.offset;
-            this.addServoOffset(id, offset);
-        }
-    }
-    if (this.comparerId2 !== block2.id) {
-        this.comparerId2 = block2.id;
-        if (block2.playScore) {
-            const note = block2.playScore.note;
-            const pitch = block2.playScore.pitch;
-            if (this.playedblockId == block2.id) {
-                this.addMelodyPlayScore(note, pitch);
-            }
+    const block = handler.read('setblock');
+    if (this.comparerId !== block.id) {
+        this.comparerId = block.id;
+        if (block.ledControl) {
+            this.addLedControl(block.ledControl);
+        } else if (block.playScore) {
+            this.addMelodyPlayScore(block.playScore);
+        } else if (block.playList) {
+            this.addMelodyPlayList(block.playList);
+        } else if (block.servoControl) {
+            this.addServoControl(block.servoControl);
+        } else if (block.pwmControl) {
+            this.addPwmControl(block.pwmControl);
+        } else if (block.dcControl) {
+            this.addDcControl(block.dcControl);
+        } else if (block.servoOffset) {
+            this.addServoOffset(block.servoOffset);
+        } else if (block.setZero) {
+            this.addMelodyPlayScore(
+                {
+                    beat: 0x0B,
+                    pitch:0x00
+                }
+            );
+            this.addServoControl(
+                [{
+                    id: 0,
+                    speed: 5,
+                    position: this.deviceInfo.servo[0]
+                },
+                {
+                    id: 1,
+                    speed: 5,
+                    position: this.deviceInfo.servo[1]
+                },
+                {
+                    id: 2,
+                    speed: 5,
+                    position: this.deviceInfo.servo[2]
+                },
+                {
+                    id: 3,
+                    speed: 5,
+                    position: this.deviceInfo.servo[3]
+                },
+                {
+                    id: 4,
+                    speed: 5,
+                    position: this.deviceInfo.servo[4]
+                }]
+            );
+            this.addPwmControl(0);
+            this.addDcControl(
+                [{
+                    id: 0,
+                    speed: 0
+                },
+                {
+                    id: 1,
+                    speed: 0
+                }]
+            );
         }
     }
 };
@@ -154,7 +168,7 @@ Module.prototype.checkHeader = function(data) {
         for (let i = 1; i < 6; i++) {
             checker ^= data[i];
         }
-        return checker === data[0] ? true : false;       
+        return checker === data[0] ? true : false;
     } else {
         return false;
     }
@@ -251,60 +265,52 @@ Module.prototype.addMode = function(mode) {
     this.cBuffer.push(...buffer);
 }
 
-Module.prototype.addLedControl = function(r, g, b) {
-    if (r !== null && g !== null && b !== null) {
-        const buffer = new Uint8Array(6);
-        buffer[0] = 0x63;
-        buffer[1] = 0x03;
-        buffer[2] = 0x00;
-        buffer[3] = r;
-        buffer[4] = g;
-        buffer[5] = b;
-        this.cBuffer.push(...buffer);
-    }
+Module.prototype.addLedControl = function(color) {
+    const buffer = new Uint8Array(6);
+    buffer[0] = 0x63;
+    buffer[1] = 0x03;
+    buffer[2] = 0x00;
+    buffer[3] = color.r;
+    buffer[4] = color.g;
+    buffer[5] = color.b;
+    this.cBuffer.push(...buffer);
 };
 
-Module.prototype.addMelodyPlayScore = function(note, pitch) {
-    if (note !== null && pitch !== null) {
-        const buffer = new Uint8Array(6);
-        buffer[0] = 0x83;
-        buffer[1] = 0x03;
-        buffer[2] = 0x00;
-        buffer[3] = 0x01;
-        buffer[4] = note;
-        buffer[5] = pitch;
-        this.cBuffer.push(...buffer);
-    }
+Module.prototype.addMelodyPlayScore = function(note) {
+    const buffer = new Uint8Array(6);
+    buffer[0] = 0x83;
+    buffer[1] = 0x03;
+    buffer[2] = 0x00;
+    buffer[3] = 0x01;
+    buffer[4] = note.beat;
+    buffer[5] = note.pitch;
+    this.cBuffer.push(...buffer);
 };
 
-Module.prototype.addMelodyPlayList = function(list, play) {
-    if (list !== null && play !== null) {
-        const buffer = new Uint8Array(5);
-        buffer[0] = 0x87;
-        buffer[1] = 0x02;
-        buffer[2] = 0x00;
-        buffer[3] = list;
-        buffer[4] = play;
-        this.cBuffer.push(...buffer);
-    }
+Module.prototype.addMelodyPlayList = function(list) {
+    const buffer = new Uint8Array(5);
+    buffer[0] = 0x87;
+    buffer[1] = 0x02;
+    buffer[2] = 0x00;
+    buffer[3] = list.name;
+    buffer[4] = list.play;
+    this.cBuffer.push(...buffer);
 };
 
-Module.prototype.addServoControl = function(id, speed, position) {
+Module.prototype.addServoControl = function(servo) {
     let count = 0;
-    const buffer = new Uint8Array(4 + id.length * 4);
+    const buffer = new Uint8Array(4 + servo.length * 4);
     buffer[0] = 0x13;
     buffer[1] = 0x00;
     buffer[2] = 0x00;
     buffer[3] = 0x00;
-    for (let i = 0; i < id.length; i++) {
-        if (id[i] !== null && speed[i] !== null && position[i] !== null) {
-            const addr = i * 4;
-            count++;
-            buffer[addr + 4] = id[i];
-            buffer[addr + 5] = speed[i];
-            buffer[addr + 6] = position[i] & 0xFF;
-            buffer[addr + 7] = (position[i] >> 8) & 0xFF;
-        }
+    for (let i = 0; i < servo.length; i++) {
+        const addr = i * 4;
+        count++;
+        buffer[addr + 4] = servo[i].id;
+        buffer[addr + 5] = servo[i].speed;
+        buffer[addr + 6] = servo[i].position & 0xFF;
+        buffer[addr + 7] = (servo[i].position >> 8) & 0xFF;
     }
     buffer[1] = count * 4 + 1;
     buffer[3] = count;
@@ -323,42 +329,38 @@ Module.prototype.addPwmControl = function(pwm) {
     }
 };
 
-Module.prototype.addDcControl = function(id, speed) {
+Module.prototype.addDcControl = function(dc) {
     let count = 0;
-    const buffer = new Uint8Array(4 + id.length * 3);
+    const buffer = new Uint8Array(4 + dc.length * 3);
     buffer[0] = 0x23;
     buffer[1] = 0x00;
     buffer[2] = 0x00;
     buffer[3] = 0x00;
-    for (let i = 0; i < id.length; i++) {
-        if (id[i] !== null && speed[i] !== null) {
-            const addr = i * 3;
-            count++;
-            buffer[addr + 4] = id[i];
-            buffer[addr + 5] = speed[i] & 0xFF;
-            buffer[addr + 6] = (speed[i] >> 8) & 0xFF;
-        }
+    for (let i = 0; i < dc.length; i++) {
+        const addr = i * 3;
+        count++;
+        buffer[addr + 4] = dc[i].id;
+        buffer[addr + 5] = dc[i].speed & 0xFF;
+        buffer[addr + 6] = (dc[i].speed >> 8) & 0xFF;
     }
     buffer[1] = count * 3 + 1;
     buffer[3] = count;
     this.cBuffer.push(...buffer);
 };
 
-Module.prototype.addServoOffset = function(id, offset) {
+Module.prototype.addServoOffset = function(servoOffset) {
     let count = 0;
-    const buffer = new Uint8Array(4 + id.length * 3);
+    const buffer = new Uint8Array(4 + servoOffset.length * 3);
     buffer[0] = 0x1E;
     buffer[1] = 0x00;
     buffer[2] = 0x00;
     buffer[3] = 0x00;
-    for (let i = 0; i < id.length; i++) {
-        if (id[i] !== null && offset[i] !== null) {
-            const addr = i * 3;
-            count++;
-            buffer[addr + 4] = id[i];
-            buffer[addr + 5] = offset[i] & 0xFF;
-            buffer[addr + 6] = (offset[i] >> 8) & 0xFF;
-        }
+    for (let i = 0; i < servoOffset.length; i++) {
+        const addr = i * 3;
+        count++;
+        buffer[addr + 4] = servoOffset[i].id;
+        buffer[addr + 5] = servoOffset[i].offset & 0xFF;
+        buffer[addr + 6] = (servoOffset[i].offset >> 8) & 0xFF;
     }
     buffer[1] = count * 3 + 1;
     buffer[3] = count;
