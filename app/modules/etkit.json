@@ -24,13 +24,14 @@
       "name": "etkit_middle",
       "translate": "이티키트 중급자"
     }
-],
+  ],
   "hardware": {
     "type": "serial",
     "control": "slave",
     "duration": 32,
-    "vendor": ["Arduino", "wch.cn", "FTDI"],
+    "vendor": "Arduino",
     "firmwarecheck" : false,
-    "baudRate": 115200
+    "byteDelimiter": [13, 10],
+    "baudRate": 9600
   }
 }
