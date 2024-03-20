@@ -29,6 +29,14 @@ function Module() {
     this.receiveLength = -1; // to check read packet
     this.defaultLength = -1; // to check read packet
 
+    this.pirPir = [];
+    this.pirTemperature = [];
+    this.pirHumidity = [];
+    this.pirBrightness = [];
+    this.distanceDistance = [];
+    this.distanceButton = [];
+    this.distanceBrightness = [];
+
     this.packetReceiveState = 0;
     this.headerCount = 0;
 
@@ -95,6 +103,14 @@ Module.prototype.requestInitialData = function() {
     this.receiveAddress = -1;
     this.receiveLength = -1;
     this.defaultLength = -1;
+    
+    this.pirPir = [];
+    this.pirTemperature = [];
+    this.pirHumidity = [];
+    this.pirBrightness = [];
+    this.distanceDistance = [];
+    this.distanceButton = [];
+    this.distanceBrightness = [];
 
     //this.touchSensor = 0;
     this.colorSensor = [];
@@ -162,6 +178,17 @@ Module.prototype.requestRemoteData = function(handler) {
             handler.write(indexA, this.dataBuffer[indexA]);
         }
     }
+
+    // ID 100인 온습도+조도+동작감지센서
+    handler.write('PIR_100_PIR', this.pirPir[0]);
+    handler.write('PIR_100_TEMPERATURE', this.pirTemperature[0]);
+    handler.write('PIR_100_HUMIDITY', this.pirHumidity[0]);
+    handler.write('PIR_100_BRIGHTNESS', this.pirBrightness[0]);
+
+    // ID 110인 거리+버튼+조도센서
+    handler.write('DIST_110_DISTANCE', this.dataBuffer[148] + (this.dataBuffer[149] << 8));
+    handler.write('DIST_110_BUTTON', this.dataBuffer[150]);
+    handler.write('DIST_110_BRIGHTNESS', this.dataBuffer[151]);
     //실과형
     //console.log("###### value : " + this.detectedSound);
     /*
@@ -526,6 +553,18 @@ Module.prototype.handleLocalData = function(data) { // data: Native Buffer
 
                         // line category
                         this.dataBuffer[5201] = rxPacket.data[2 + 143];
+
+                        
+                        // 온습도+조도+동작감지센서값
+                        this.pirPir[0]          = rxPacket.data[2 + 144];
+                        this.pirTemperature[0]  = rxPacket.data[2 + 145];
+                        this.pirHumidity[0]     = rxPacket.data[2 + 146];
+                        this.pirBrightness[0]   = rxPacket.data[2 + 147];
+                        
+                        // 거리+버튼+조도센서값
+                        this.distanceDistance[0]    = rxPacket.data[2 + 148];
+                        this.distanceButton[0]      = rxPacket.data[2 + 150] + (rxPacket.data[2 + 150] << 8);
+                        this.distanceBrightness[0]  = rxPacket.data[2 + 151];
                         
                         for (let i = 0; i < addrMap2.length; i++) {
                             switch (addrMap2[i][1]) {
