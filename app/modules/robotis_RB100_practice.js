@@ -464,7 +464,11 @@ Module.prototype.handleLocalData = function(data) { // data: Native Buffer
 
             case PACKET_STATE_LENGTH_H:
                 rxPacket.packetLength    |= (dataIn << 8);
-                this.packetReceiveState   = PACKET_STATE_DATA;
+                if (rxPacket.packetLength < 1000) {
+                    this.packetReceiveState = PACKET_STATE_DATA;
+                } else {
+                    this.packetReceiveState = PACKET_STATE_IDLE;
+                }
                 rxPacket.index            = 0;
                 break;
 
