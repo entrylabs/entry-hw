@@ -217,6 +217,7 @@ Module.prototype.requestLocalData = function() {
 Module.prototype.makeSensorReadBuffer = function(device, port, data) {
   let buffer; 
   const dummy = new Buffer([10]); 
+  /*
   if (device == this.sensorTypes.DIGITAL) {
     if (!data) {
       buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port, 0, 10]);
@@ -224,6 +225,7 @@ Module.prototype.makeSensorReadBuffer = function(device, port, data) {
       buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port, data, 10]);
     }
   }
+  */
   /*
   else if(device == this.sensorTypes.ANALOG) {
     if (!data) {
@@ -233,7 +235,7 @@ Module.prototype.makeSensorReadBuffer = function(device, port, data) {
     }
   }
   */
-  else if(device == this.sensorTypes.DHT_PIN) {
+  if(device == this.sensorTypes.DHT_PIN) {
     //buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port, 10]);
     
     if (!data) {
@@ -255,7 +257,6 @@ Module.prototype.makeSensorReadBuffer = function(device, port, data) {
     } else {
       buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.GET, device, port, 10]);
     }
-    
   }
   else if (!data) {
     buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.GET, device, port, 10]);
@@ -286,7 +287,7 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
     case this.sensorTypes.PWM:
     case this.sensorTypes.DIGITAL: {
       value.writeInt16LE(data);
-      buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.SET, device, port,]);
+      buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.SET, device, port]);
       buffer = Buffer.concat([buffer, value, dummy]);
       break;
     }
@@ -373,6 +374,7 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
   }
   return buffer;
 };
+
 Module.prototype.handleRemoteData = function(handler) {
   const self = this;
   const getDatas = handler.read('GET');
