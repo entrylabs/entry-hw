@@ -29,6 +29,8 @@ function Module() {
     this.receiveLength = -1; // to check read packet
     this.defaultLength = -1; // to check read packet
 
+    this.dxlPositions = [];
+
     this.pirPir = [];
     this.pirTemperature = [];
     this.pirHumidity = [];
@@ -104,6 +106,8 @@ Module.prototype.requestInitialData = function() {
     this.receiveLength = -1;
     this.defaultLength = -1;
     
+    this.dxlPositions = [];
+
     this.pirPir = [];
     this.pirTemperature = [];
     this.pirHumidity = [];
@@ -176,6 +180,13 @@ Module.prototype.requestRemoteData = function(handler) {
         if (this.dataBuffer[indexA] != undefined) {
             // console.log("indexA: " + indexA + " value: " + this.dataBuffer[indexA]);
             handler.write(indexA, this.dataBuffer[indexA]);
+        }
+    }
+
+    for (let i = 0; i < 64; i++) {
+        if (this.dxlPositions[i] != undefined &&
+            this.dxlPositions[i] != 0xFFFF) {
+            handler.write(`DXL_POS_${i}`, this.dxlPositions[i]); // 다이나믹셀 위치값
         }
     }
 
@@ -444,7 +455,7 @@ Module.prototype.packetChecker = function(data) {
 
 Module.prototype.handleLocalData = function(data) { // data: Native Buffer
     let stuffLength = 0;
-    console.log(`length: ${data.length}`);
+    //console.log(`length: ${data.length}`);
     for (let i = 0; i < data.length; i++) {
         //this.receiveBuffer.push(data[i]);
         const dataIn = data[i];
@@ -551,9 +562,18 @@ Module.prototype.handleLocalData = function(data) { // data: Native Buffer
                             }
                         }
 
+                        // DXL Position
+                        for (let i = 0; i < 20; i++) {
+                            const currentId  = rxPacket.data[2 + 83 + (3 * i)];
+                            const currentPos = rxPacket.data[2 + 83 + (3 * i) + 1] + 
+                                               (rxPacket.data[2 + 83 + (3 * i) + 2] << 8);
+                            if (currentId != 0xFF && currentPos != 0xFFFF) {
+                                this.dxlPositions[currentId] = currentPos;
+                            }
+                        }
+
                         // line category
                         this.dataBuffer[5201] = rxPacket.data[2 + 143];
-
                         
                         // 온습도+조도+동작감지센서값
                         this.pirPir[0]          = rxPacket.data[2 + 144];
