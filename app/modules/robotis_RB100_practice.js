@@ -413,8 +413,10 @@ Module.prototype.requestLocalData = function() {
                 sendBuffer = this.writeBytePacket(id, address, value2);
             } else if (length == 2) {
                 sendBuffer = this.writeWordPacket(id, address, value2);
-            } else {
+            } else if (length == 4) {
                 sendBuffer = this.writeDWordPacket(id, address, value2);
+            } else {
+                sendBuffer = this.writeCustomLengthPacket(id, address, value2, length);
             }
         }
     
