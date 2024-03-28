@@ -9,11 +9,10 @@
     "icon": "thinkboard.png",
     "module": "thinkboard.js",
     "url": "http://thinkfuni.co.kr",
-	"email": "dksd2736@edu-partners.co.kr",
     "video": "https://youtu.be/gQibrWCEs9M",
     "driver": {
-		"win32-ia32": "CDM21228_Driver/CDM21228_Setup.exe",
-		"win32-x64": "CDM21228_Driver/CDM21228_Setup.exe",
+        "win32-ia32": "CDM21228_Driver/CDM21228_Setup.exe",
+        "win32-x64": "CDM21228_Driver/CDM21228_Setup.exe",
         "darwin-x64": "Mac_OSX_VCP_Driver/SiLabsUSBDriverDisk.dmg"
     },
     "selectPort": true,
