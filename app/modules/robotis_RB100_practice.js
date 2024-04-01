@@ -236,6 +236,8 @@ Module.prototype.handleRemoteData = function(handler) {
         this.servoPrevAddres4 = []; // add by kjs 20170627 
         this.servoPrevLength4 = []; // add by kjs 20170627 
         this.servoPrevValue4 = [];  // add by kjs 20170627 
+
+        return;
     }
     for (let index = 0; index < data.length; index++) {
         const instruction = data[index][0];
