@@ -932,7 +932,7 @@ Module.prototype.writeDWordPacket = function(id, address, value) {
     packet.push(this.getHighByte(this.getLowWord(value)));
     packet.push(this.getLowByte(this.getHighWord(value)));
     packet.push(this.getHighByte(this.getHighWord(value)));
-    console.log(`packet : ${packet}`);
+    //console.log(`packet : ${packet}`);
     const crc = this.updateCRC(0, packet, packet.length);
     packet.push(this.getLowByte(crc));
     packet.push(this.getHighByte(crc));
@@ -953,9 +953,9 @@ Module.prototype.writeCustomLengthPacket = function(id, address, buf, length) {
     packet.push(INST_WRITE);
     packet.push(this.getLowByte(address));
     packet.push(this.getHighByte(address));
-    console.log(buf);
+    //console.log(buf);
     for (i = 0; i < length; i++) {
-        console.log(buf[i]);
+        //console.log(buf[i]);
         if (typeof(buf[i]) == 'number') {
             packet.push(buf[i]);
         } else if (typeof(buf[i]) == 'string') {
