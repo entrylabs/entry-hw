@@ -13,7 +13,7 @@
 	"reconnect" : true,
 	"driver": {
         "win32-ia32": "ROBOTIS/ROBOTIS CDC Driver.bat",
-        "win32-x64": "ROBOTIS/ROBOTIS CDC Driver.bat"
+        "win32-x64": "ROBOTIS/RobotisDriverInstaller.exe"
 	},
 	"selectPort" : false,
 	"hardware": {
