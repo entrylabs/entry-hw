@@ -1,3 +1,4 @@
+// dalgona_basic
 function Module() {
     this.sp = null;
     this.sensorTypes = {
