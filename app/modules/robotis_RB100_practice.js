@@ -197,9 +197,9 @@ Module.prototype.requestRemoteData = function(handler) {
     handler.write('PIR_100_BRIGHTNESS', this.pirBrightness[0]);
 
     // ID 110인 거리+버튼+조도센서
-    handler.write('DIST_110_DISTANCE', this.dataBuffer[148] + (this.dataBuffer[149] << 8));
-    handler.write('DIST_110_BUTTON', this.dataBuffer[150]);
-    handler.write('DIST_110_BRIGHTNESS', this.dataBuffer[151]);
+    handler.write('DIST_110_DISTANCE', this.distanceDistance[0]);
+    handler.write('DIST_110_BUTTON', this.distanceButton[0]);
+    handler.write('DIST_110_BRIGHTNESS', this.distanceBrightness[0]);
     //실과형
     //console.log("###### value : " + this.detectedSound);
     /*
@@ -586,8 +586,8 @@ Module.prototype.handleLocalData = function(data) { // data: Native Buffer
                         this.pirBrightness[0]   = rxPacket.data[2 + 147];
                         
                         // 거리+버튼+조도센서값
-                        this.distanceDistance[0]    = rxPacket.data[2 + 148];
-                        this.distanceButton[0]      = rxPacket.data[2 + 150] + (rxPacket.data[2 + 150] << 8);
+                        this.distanceDistance[0]    = rxPacket.data[2 + 148] + (rxPacket.data[2 + 149] << 8);
+                        this.distanceButton[0]      = rxPacket.data[2 + 150];
                         this.distanceBrightness[0]  = rxPacket.data[2 + 151];
                         
                         for (let i = 0; i < addrMap2.length; i++) {
