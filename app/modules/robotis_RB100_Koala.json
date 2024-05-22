@@ -1,0 +1,26 @@
+{
+	"id": "070C02",
+	"name": {
+		"en": "Koala for Practical Course",
+		"ko": "실과 코알라"
+	},
+	"category": "module",
+	"platform": ["win32"],
+	"icon" : "robotis_RB100im_koala.png",
+	"module": "robotis_RB100_practice.js",
+	"url": "http://www.robotis.com",
+	"email": "jason@robotis.com",
+	"reconnect" : true,
+	"driver": {
+        "win32-ia32": "ROBOTIS/ROBOTIS CDC Driver.bat",
+        "win32-x64": "ROBOTIS/RobotisDriverInstaller.exe"
+	},
+	"selectPort" : false,
+	"hardware": {
+		"type": "serial",
+		"control": "slave",
+		"vendor": "ROBOTIS",
+		"duration": 15,
+		"baudRate": 57600
+	}
+}
