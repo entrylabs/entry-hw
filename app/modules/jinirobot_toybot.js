@@ -12,7 +12,7 @@ function Module() {
         offset: [0, 0, 0, 0, 0]
     };
     this.repeatRead = [
-        {index: 0x13, repeat: 0x02}, // Servo Control Each
+        {index: 0x16, repeat: 0x02}, // Servo Current Each
         {index: 0x1E, repeat: 0x02}, // Servo Calibration
         {index: 0x43, repeat: 0x02}, // Analog Value
         {index: 0x53, repeat: 0x02}, // Button Control
@@ -182,13 +182,13 @@ Module.prototype.parsing = function(data) {
         const index = data[6 + count];
         const size = data[7 + count] | (data[8 + count] << 8);
         switch (index) {
-            case 0x03: {
+            case 0x03: { // Name
                 this.deviceInfo.name = '';
                 for (let i = 10; i < 21; i++) {
                     this.deviceInfo.name += String.fromCharCode(data[i + count]);
                 }
             } break;
-            case 0x13: { // Control Each
+            case 0x16: { // Current Each
                 const repeat = data[9 + count] * 4;
                 for (let i = 0; i < repeat; i += 4) {
                     const id = data[10 + i + count];
