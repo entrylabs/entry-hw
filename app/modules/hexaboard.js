@@ -84,11 +84,13 @@ class hexaboard extends BaseModule {
             DISPLAY_OLED: 0x10, // OLED 값 정의
             DISPLAY_INIT_OLED: 0x12, // OLED 값 정의
             UPDATE_ALL_NEOPIXEL: 0x11, //모든 네오픽셀 켜기
+            CLEAR_DISPLAY_OLED: 0x25, // OLED값 리셋
             CONNECT_WIFI: 0x21, //WIFI 연결
             CONNECT_BLYNK: 0x21, //BLYNK서버 연결
             BLYNK_VIRTUAL_WRITE: 0x22, //BLYNK 가상의 핀 데이터 전송
             BLYNK_WRITE: 0x23, //BLYNK 상태값 바뀌었을때
             CONNECTED_BLYNK: 0x24, //BLYNK 연결 상태 확인
+            HEXA_INIT: 0x30,
         };
         // 자이로 센서에 대한 추가적인 세부 명령 정의
         this.gyro_sensor = {
@@ -160,7 +162,7 @@ class hexaboard extends BaseModule {
             // 에러 처리 또는 데이터 분할 필요
             throw new Error('Data length exceeds buffer limit');
         }
-
+        // console.log(`딜레이 : ${duration}`);
         buffer = new Buffer([
             255,
             85,
@@ -374,6 +376,7 @@ class hexaboard extends BaseModule {
                                     data : value,
                                 }),
                             ]);
+                        // console.log(`pin : ${port}, value : ${value}`);
                         if (buffer.length) {
                             //이곳에서 데이터를 SendBuffer에 저장하기
                             this.sendBuffers.push(buffer);
@@ -414,6 +417,7 @@ class hexaboard extends BaseModule {
                             ]);
                         if (buffer.length) {
                             //이곳에서 데이터를 SendBuffer에 저장하기
+                            console.log(`duration : ${duration}`);
                             this.sendBuffers.push(buffer);
                         }
                         break;
@@ -525,6 +529,19 @@ class hexaboard extends BaseModule {
                             this.sendBuffers.push(buffer);
                         }
                         break;
+                    case this.sensorTypes.CLEAR_DISPLAY_OLED:
+                        // console.log('DISPLAY_INIT_OLED');
+                        buffer = Buffer.concat(
+                            [buffer,
+                                this.makeOutputBuffer({
+                                    command : this.command.WRITE,
+                                    sensorType : this.sensorTypes.CLEAR_DISPLAY_OLED,
+                                }),
+                            ]);
+                        if (buffer.length) {
+                            this.sendBuffers.push(buffer);
+                        }
+                        break;
                     case this.sensorTypes.CONNECT_WIFI:
                         // console.log('CONNECT_WIFI');
                         ssid = readData.data.ssid;
@@ -595,6 +612,19 @@ class hexaboard extends BaseModule {
                             this.sendBuffers.push(buffer);
                         }
                         break;
+                    case this.sensorTypes.HEXA_INIT:
+                        buffer = Buffer.concat(
+                            [buffer,
+                                this.makeOutputBuffer({
+                                    command : this.command.WRITE,
+                                    sensorType : this.sensorTypes.HEXA_INIT,
+                                }),
+                            ]);
+                        if (buffer.length) {
+                            //이곳에서 데이터를 SendBuffer에 저장하기
+                            this.sendBuffers.push(buffer);
+                        }
+                        break;
                 }
             }
 
@@ -617,6 +647,7 @@ class hexaboard extends BaseModule {
                                 }),
                             ]);
                         if (buffer.length) {
+                            // console.log(`pin : ${port}, value : ${value}`);
                             this.sendBuffers.push(buffer);
                         }
                         break;
@@ -691,6 +722,7 @@ class hexaboard extends BaseModule {
         // 디바이스로 데이터를 보내는 로직. control: slave 인 경우 duration 주기에 맞춰 디바이스에 데이터를 보낸다.
         // return 값으로 버퍼를 반환하면 디바이스로 데이터를 보내나, 아두이노의 경우 레거시 코드를 따르고 있다.
         if (this.sendBuffers.length > 0) {
+            // console.log(this.sendBuffers);
             this.sp.write(this.sendBuffers.shift(), () => {
                 if (this.sp) {
                     this.sp.drain(() => {
@@ -703,7 +735,9 @@ class hexaboard extends BaseModule {
         return null;
     }
 
-    connect() {}
+    connect() {
+        // console.log("connected");
+    }
 
     disconnect(connect) {
         if (this.isConnect) {
@@ -720,7 +754,9 @@ class hexaboard extends BaseModule {
         }
     }
 
-    reset() {}
+    reset() {
+        // console.log("reset");
+    }
 }
 
 module.exports = new hexaboard();
