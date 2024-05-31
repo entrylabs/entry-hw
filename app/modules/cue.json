@@ -1,0 +1,28 @@
+{
+    "id": "240301",
+    "name": {
+        "en": "Cue",
+        "ko": "큐"
+    },
+    "category": "robot",
+    "platform": "win32",
+    "icon": "cue.png",
+    "module": "cue.js",
+    "url": "https://clevermate.kr",
+    "video": "https://www.youtube.com/MARUSYSedu",
+    "driver": {
+        "win32-ia32": "DASH/PL2303_Prolific_DriverInstaller_v1190.exe",
+        "win32-x64": "DASH/PL2303_Prolific_DriverInstaller_v1190.exe"
+    },
+    "reconnect": true,
+    "hardware": {
+        "type": "serial",
+        "control": "master",
+        "scanType": "data",
+        "bufferSize" : "64",
+        "vendor": ["Prolific"],
+        "baudRate": 115200,
+        "lostTimer": 1000,
+        "firmwarecheck": false
+    }
+}
