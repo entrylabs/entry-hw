@@ -1,8 +1,8 @@
 {
-	"id": "070C02",
+	"id": "070C01",
 	"name": {
-		"en": "Koala for Practical Course",
-		"ko": "실과 코알라"
+		"en": "KoalaBot",
+		"ko": "코알라봇"
 	},
 	"category": "module",
 	"platform": ["win32"],
