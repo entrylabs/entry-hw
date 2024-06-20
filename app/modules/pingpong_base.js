@@ -1,8 +1,9 @@
 const BaseModule = require('./baseModule');
 const { app } = require('electron');
+const { dialog } = require('electron');
 
 //1.9.19 이후 여러번 패킷 전송을 막기 위한 변수
-var checkMultiroleAction = false;
+let checkMultiroleAction = false;
 
 class PingpongBase extends BaseModule {
     constructor(cubeCnt) {
@@ -28,6 +29,7 @@ class PingpongBase extends BaseModule {
     }
 
     makePackets(method, grpid = 0) {
+        console.log('makePackets');
         //console.log('..make_packet: ' + method);
 
         // CUBE_ID[0:3] / ASSIGNED_ID[4:5] / OPCODE[6] / SIZE[7:8] / OPT[9..11]
@@ -93,14 +95,18 @@ class PingpongBase extends BaseModule {
         return result;
     }
 
-    isPingpongConnected(packet) {}
+    isPingpongConnected(packet) {
+        console.log('isPingpongConnected');
+    }
 
     setSerialPort(sp) {
+        console.log('setSerialPort');
         this.sp = sp;
     }
 
     // 연결 후 초기에 송신할 데이터가 필요한 경우 사용합니다.
     requestInitialData(sp, payload) {
+        console.log('requestInitialData');
         const grpid = payload.match(/[0-7]{1,2}$/g);
         if (grpid == null) {
             console.warn('Wrong group id inputted', payload);
@@ -108,16 +114,16 @@ class PingpongBase extends BaseModule {
         }
         const grpno = parseInt(grpid[0], 16);
 
-        if(checkMultiroleAction==false){
-            checkMultiroleAction=true;
-            return this.makePackets('setMultirole', grpno);
+        if (checkMultiroleAction == false) {
+            checkMultiroleAction = true;
+            return this.makePackets('setMultirole', grpno);    
         } else {
             return null;
         }  
-
     }
 
     dbgHexstr(data) {
+        console.log('dbgHexstr');
         let output = '';
         data.map((item) => {
             let number = item.toString(16);
@@ -155,7 +161,7 @@ class PingpongBase extends BaseModule {
                             console.log('send get Sensor Data.');
                         });
                     }, 500); 
-					// YIM's getsensor 명령얼 보내야 할 곳으로 보임..
+                    // YIM's getsensor 명령얼 보내야 할 곳으로 보임..
                     return true;
                 } //YIM's G2~4 까지는 checkInitialData 리턴이 true 가 되지 않음 , 이 때 firmwarecheck 설정이 true이면 문제가 됨 ???
 
@@ -169,12 +175,14 @@ class PingpongBase extends BaseModule {
 
     // optional. 하드웨어에서 받은 데이터의 검증이 필요한 경우 사용합니다.
     validateLocalData(data) {
+        console.log('validateLocalData');
         //console.log('P:validateLocalData: '+data.length);
         return true;
     }
 
     // 엔트리에서 받은 데이터에 대한 처리
     handleRemoteData(handler) {
+        console.log('handleRemoteData');
         this.send_cmd = handler.read('COMMAND');
         if (this.send_cmd) {
             if (this.send_cmd.id == -1) {
@@ -190,6 +198,7 @@ class PingpongBase extends BaseModule {
 
     // 하드웨어 기기에 전달할 데이터
     requestLocalData() {
+        console.log('requestLocalData');
         const self = this;
         if (!this.isDraing && this.sendBuffer.length > 0) {
             this.isDraing = true;
@@ -208,6 +217,7 @@ class PingpongBase extends BaseModule {
 
     // 하드웨어에서 온 데이터 처리
     handleLocalData(data) {
+        console.log('handleLocalData');
         if (!this.isConnected) { 
         }
 
@@ -215,9 +225,8 @@ class PingpongBase extends BaseModule {
             const packetSize = data.readInt16BE(7);
             const opcode = data[6];
 
-            if(opcode == 0xb8 && this.cubeCount * 20 == data.length){
-                    for(let x = 0; x < this.cubeCount; x++){
-
+            if (opcode == 0xb8 && this.cubeCount * 20 == data.length) {
+                for (let x = 0; x < this.cubeCount; x++) {
                         // 센서 패킷은 20개씩 들어옴
                         const cubeid = Number(data[0+(20*x)].toString(16).slice(1, 2));
 
@@ -253,14 +262,15 @@ class PingpongBase extends BaseModule {
                         } else {
                             sensor.AIN = 0;
                         }
-                    }
-                console.log("handleLocalData : ", this._sensorData);
+                }
+                console.log('handleLocalData : ', this._sensorData);
             }
         }
     }
 
     // 엔트리로 전달할 데이터
     requestRemoteData(handler) {
+        console.log('requestRemoteData');
         const self = this;
         Object.keys(this.readValue).forEach((key) => {
             if (self.readValue[key] !== undefined) {
@@ -296,30 +306,40 @@ class PingpongBase extends BaseModule {
     // 하드웨어 연결 해제 시 호출됩니다.
     disconnect(connect) {
         console.log('P:disconnect: ');
+        
+        dialog.showMessageBox({
+            title: '핑퐁 로봇',
+            message: '3초 후 재시작 됩니다.',
+        });
 
         checkMultiroleAction = false;
-        
-        if (this.sp) {
 
+        if (this.sp) {
             this.sp.write(this.makePackets('disconnect'), (err) => {
+                console.log('disconnect error', err);
                 if (this.sp.isOpen) {
                     console.log('Disconnect');
-                    connect.close();
+                    setTimeout(() => {
+                        connect.close();
+                    }, 1000);
                 }
                 this.sp = null;
             });
         } else {
-            connect.close();
-        }
-
-        app.relaunch();
-        app.exit(0);
-
+            setTimeout(() => {
+                connect.close();
+            }, 1000);
+        }    
+        
+        setTimeout(() => {
+            app.relaunch();
+            app.exit(0);    
+        }, 3000);
     }
 
     // 엔트리와의 연결 종료 후 처리 코드입니다.
     reset() {
-        //console.log('P:reset: ');
+        console.log('P:reset: ');
     }
 }
 
