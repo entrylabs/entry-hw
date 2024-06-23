@@ -3,7 +3,7 @@ const notarize = require('./notarize');
 module.exports = async function notarizing(context) {
     const { appOutDir } = context;
     const { electronPlatformName } = context;
-    const { APPLE_ID, APPLE_PASSWORD } = process.env;
+    const { APPLE_ID, APPLE_PASSWORD, TEAM_ID } = process.env;
 
     if (electronPlatformName !== 'darwin') {
         return;
@@ -15,6 +15,7 @@ module.exports = async function notarizing(context) {
         appBundleId: 'org.playentry.entryhw',
         appPath: `${appOutDir}/${appName}.app`,
         appleId: APPLE_ID,
+        teamId: TEAM_ID,
         appleIdPassword: APPLE_PASSWORD,
     });
 };
