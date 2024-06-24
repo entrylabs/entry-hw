@@ -1,12 +1,12 @@
 {
     "id": "990101",
     "name": {
-        "en": "AVM-Board",
-        "ko": "AVM-Board"
+        "en": "AvatarBot",
+        "ko": "AvatarBot"
     },
     "platform": ["win32", "darwin"],
-    "icon" : "avmboard.png",
-    "module": "avmboard.js",
+    "icon" : "avatarbot.png",
+    "module": "avatarbot.js",
     "driver": {
 	"win32-ia32": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
     "win32-x64": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
