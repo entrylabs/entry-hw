@@ -14,7 +14,7 @@
     },
     "reconnect" : true,
     "firmware": "AvatarBot",
-    "firmwareBaudRate": 115200,
+    "firmwareBaudRate": 460800,
     "select_com_port":true,
     "entry": {
         "protocol": "json"
@@ -22,9 +22,9 @@
     "hardware": {
         "type": "serial",
         "control": "slave",
-        "duration": 200,
+        "duration": 2000,
         "vendor": ["Arduino", "wch.cn", "FTDI"],
-        "baudRate": 115200,
+        "baudRate": 460800,
         "lostTimer": 1000,
         "firmwarecheck": false
     }

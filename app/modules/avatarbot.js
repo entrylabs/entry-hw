@@ -9,30 +9,35 @@ function Module() {
     this.remainValue = null;
     */
     //
+    this.sendBuffers = [];
+    this.avatarBotDataSet = 230;
     this.dataSet_index = null;
-    this.dataSet = new Array(200).fill(0);
-    this.remoteDataSet = new Array(200).fill(0);
+    this.dataSet = new Array(230).fill(0);
+    this.remoteDataSet = new Array(230).fill(0);
     this.BoardFunType = {
     	Info: 0,
     	Button:10,
-        GPIO_LED_PWM: 20,
-        ADC: 30,
-        DAC: 40,
-        IR_Remote: 50,
-        Buzzer: 60,
-        PCA9568: 70,
-        Servo_M0: 80,
-        Servo_M1: 90,
-        Servo_M2: 100,
-        Servo_M3: 110,
-        Servo_M4: 120,
-        Servo_M5: 130,
-        Servo_M6: 140,
-        Servo_M7: 150,
-        DC_M: 160,
-        MPU6050: 170,
-        LED_Strip: 180,
-        ULTRA_SONIC: 190
+        GPIO_LED_PWM0: 20,
+        GPIO_LED_PWM1: 30,
+        GPIO_LED_PWM2: 40,
+        GPIO_LED_PWM3: 50,
+        ADC: 60,
+        DAC: 70,
+        IR_Remote: 80,
+        Buzzer: 90,
+        PCA9568: 100,
+        Servo_M0: 110,
+        Servo_M1: 120,
+        Servo_M2: 130,
+        Servo_M3: 140,
+        Servo_M4: 150,
+        Servo_M5: 160,
+        Servo_M6: 170,
+        Servo_M7: 180,
+        DC_M: 190,
+        MPU6050: 200,
+        LED_Strip: 210,
+        ULTRA_SONIC: 220
 	}
 	this.Board_PWM = {
 		Resolution: 13,
@@ -69,15 +74,17 @@ Module.prototype.init = function(handler, config) {
 	this.remoteDataSet[index+0] = 0x99;
 	this.remoteDataSet[index+1] = 0x01;
 	this.remoteDataSet[index+2] = 0x01;
-	this.remoteDataSet[index+3] = 200;
+	this.remoteDataSet[index+3] = this.avatarBotDataSet;
 	
-	// pwm
-	index = this.BoardFunType.GPIO_LED_PWM;
-	this.remoteDataSet[index+2] = (this.Board_PWM.Freq)&0xff;
-	this.remoteDataSet[index+3] = (this.Board_PWM.Freq>>8)&0xff;
-	this.remoteDataSet[index+4] = (this.Board_PWM.Freq>>16)&0xff;
-	this.remoteDataSet[index+5] = (this.Board_PWM.Resolution)&0xff;
-	
+	// pwm. 2~5 pad
+	for(var i=0; i<4; i++)
+	{
+		index = this.BoardFunType.GPIO_LED_PWM0 + (i*10);
+		this.remoteDataSet[index+2] = (this.Board_PWM.Freq)&0xff;
+		this.remoteDataSet[index+3] = (this.Board_PWM.Freq>>8)&0xff;
+		this.remoteDataSet[index+4] = (this.Board_PWM.Freq>>16)&0xff;
+		this.remoteDataSet[index+5] = (this.Board_PWM.Resolution)&0xff;
+	}
 	// adc
 	index = this.BoardFunType.ADC;
 	this.remoteDataSet[index+4] = (this.Board_ADC.Attenuation_11db)&0xff;
@@ -125,6 +132,7 @@ requestInitialData 를 사용한 경우 checkInitialData 가 필수입니다.
 */   
 Module.prototype.requestInitialData = function() {
 	// console.log('[jhkim] Module requestInitialData');
+	// return this.makeSensorReadBuffer(this.sensorTypes.ANALOG, 0);
     return null;
 };
 
@@ -153,8 +161,9 @@ Module.prototype.handleRemoteData = function(handler) {
 };
 */
 Module.prototype.handleRemoteData = function(handler) {
+	// console.log('[jhkim] handleRemoteData(read entry)'); 
 	var data = this.remoteDataSet;
-    for (var index = 0; index < 200; index++) {
+    for (var index = 0; index < this.avatarBotDataSet; index++) {
         data[index] = handler.read(index); // remoteDataset shallow copy
     }
 };
@@ -206,7 +215,7 @@ Module.prototype.requestLocalData = function() {
 Module.prototype.requestLocalData = function() {
     var queryString = [];
     var data = this.remoteDataSet; // Module 객체의 dataset table read. max length 200
-    for (var index = 0; index < 200; index++) {
+    for (var index = 0; index < this.avatarBotDataSet; index++) {
         var query = (data[index])&0xff;
        	queryString.push(query); // 1byte
     }
@@ -255,15 +264,19 @@ Module.prototype.handleLocalData = function(data) {
         self.dataSet[self.dataSet_index+i] = data[i];
     }
     
-    if(self.dataSet[0] === 0x99 && self.dataSet[1] === 0x01 && self.dataSet[2] === 0x01 && self.dataSet[3] === 200) {
+    if(self.dataSet[0] === 0x99 && self.dataSet[1] === 0x01 && self.dataSet[2] === 0x01 && self.dataSet[3] === self.avatarBotDataSet) {
  		self.dataSet_index = self.dataSet_index + data.length;
     }else{
 		self.dataSet_index = 0;
         return;
 	}
+	
+	/*
 	console.log('[jhkim] handleLocalData - DataSet length = ', data.length); 
 	console.log('[jhkim] handleLocalData - dataSet_index  = ', self.dataSet_index); 
-    if(self.dataSet_index == 200){
+	*/
+	
+    if(self.dataSet_index == self.avatarBotDataSet){
 		self.originParsing(self.dataSet);
 		self.dataSet_index = 0;
 		self.dataSet[0] = 0; // clear
@@ -275,8 +288,9 @@ Module.prototype.handleLocalData = function(data) {
 
 /* Original Parsing FF 55 ~ */
 Module.prototype.originParsing = function(data) {
+	/*
 	console.log('[jhkim] originParsing - DataSet length = ', data.length); 
-	for(var i=0; i<20; i++)
+	for(var i=0; i<(data.length/10); i++)
 	{
 		var index = i*10;
 		console.log('[jhkim] originParsing - DataSet[', i, ']: ', 
@@ -285,6 +299,7 @@ Module.prototype.originParsing = function(data) {
 			data[index+6], ' | ', data[index+7], ' | ', data[index+8], ' | ', 
 			data[index+9]);
 	}
+	*/
 };
 
 // 엔트리로 전달할 데이터
@@ -301,7 +316,8 @@ Module.prototype.requestRemoteData = function(handler) {
 };
 */
 Module.prototype.requestRemoteData = function(handler) {
-    for (var i = 0; i < 200; i++) {
+	// console.log('[jhkim] requestRemoteData(to entry)'); 
+    for (var i = 0; i < this.avatarBotDataSet; i++) {
         var value = this.dataSet[i];
         handler.write(i, value);
     }
