@@ -14,10 +14,7 @@
 	"driver": {
 		"win32-ia32": "XBOT/XBOT.exe",
 		"win32-x64": "XBOT/XBOT.exe",
-		"darwin-x64": "CH34x_Install_MAC_10_9_AND_ABOVE/CH34x_Install.pkg"
-	},
-	"entry": {
-		"protocol": "json"
+		"darwin-x64": "https://entrylabs.github.io/docs/files/drivers/CH34x_Install_MAC_10_9_AND_ABOVE/CH34x_Install.pkg"
 	},
 	"hardware": {
 		"type": "serial",
