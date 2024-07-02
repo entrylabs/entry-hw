@@ -12,6 +12,8 @@ function Module() {
     this.sendBuffers = [];
     this.avatarBotDataSet = 230;
     this.dataSet_index = null;
+    //
+    this.dataSetHW = new Array(230).fill(0);
     this.dataSet = new Array(230).fill(0);
     this.remoteDataSet = new Array(230).fill(0);
     this.BoardFunType = {
@@ -161,13 +163,15 @@ Module.prototype.handleRemoteData = function(handler) {
 };
 */
 Module.prototype.handleRemoteData = function(handler) {
-	// console.log('[jhkim] handleRemoteData(read entry)', this.dataSet[23]); 
+	console.log('[jhkim] handleRemoteData(read entry)', this.remoteDataSet[11]); 
 	const cmd = handler.read('CMD');
 	var data = this.remoteDataSet;
+    console.log('[jhkim] handleRemoteData(read entry) data = ', data[11], ', cmd = ', cmd[11] ); 
     for (var index = 0; index < this.avatarBotDataSet; index++) {
         // data[index] = handler.read(index); // remoteDataset shallow copy
     	data[index] = cmd[index];
     }
+    console.log('[jhkim] handleRemoteData(read entry) data = ', data[11], ', cmd = ', cmd[11], ', de = ', this.remoteDataSet[11]); 
     // console.log('[jhkim] handleRemoteData(read entry)', this.remoteDataSet[23]); 
     /*
     for(var i=0; i<(data.length/10); i++)
@@ -233,6 +237,7 @@ Module.prototype.requestLocalData = function() {
         var query = (data[index])&0xff;
        	queryString.push(query); // 1byte
     }
+    
     return queryString;
 };
 
@@ -274,21 +279,46 @@ Module.prototype.handleLocalData = function(data) {
 */
 Module.prototype.handleLocalData = function(data) {
 	var self = this;
+	/*
+	if(data[0] === 0x99 && data[1] === 0x01 && data[2] === 0x01 && data[3] === self.avatarBotDataSet)
+	{
+		self.dataSet_index = 1;		
+	}
+	
+	if(self.dataSet_index == 0)
+	{
+		return;
+	}
+	
+	for (var i = 0; i < data.length; i++) {
+        self.dataSet[self.dataSet_index+i] = data[i];
+    }
+	self.dataSet_index = self.dataSet_index + data.length;
+	
+	if(self.dataSet_index == self.avatarBotDataSet){
+		self.originParsing(self.dataSet);
+		self.dataSet_index = 0;
+		//self.dataSet[0] = 0; // clear
+		//self.dataSet[1] = 0; // clear
+		//self.dataSet[2] = 0; // clear
+		//self.dataSet[3] = 0; // clear
+		// 
+		console.log('[jhkim] handleLocalData - dataSet_index[11]  = ', self.dataSet[11]); 
+	}
+	*/
+	
 	for (var i = 0; i < data.length; i++) {
         self.dataSet[self.dataSet_index+i] = data[i];
     }
     
-    if(self.dataSet[0] === 0x99 && self.dataSet[1] === 0x01 && self.dataSet[2] === 0x01 && self.dataSet[3] === self.avatarBotDataSet) {
+    
+    if(self.dataSet[0] === 0x99 && self.dataSet[1] === 0x01 && self.dataSet[2] === 0x01 && self.dataSet[3] === self.avatarBotDataSet) 
+    {
  		self.dataSet_index = self.dataSet_index + data.length;
     }else{
 		self.dataSet_index = 0;
         return;
 	}
-	
-	/*
-	console.log('[jhkim] handleLocalData - DataSet length = ', data.length); 
-	console.log('[jhkim] handleLocalData - dataSet_index  = ', self.dataSet_index); 
-	*/
 	
     if(self.dataSet_index == self.avatarBotDataSet){
 		self.originParsing(self.dataSet);
@@ -297,12 +327,16 @@ Module.prototype.handleLocalData = function(data) {
 		self.dataSet[1] = 0; // clear
 		self.dataSet[2] = 0; // clear
 		self.dataSet[3] = 0; // clear
+		// 
+		console.log('[jhkim] handleLocalData - dataSet_index[11]  = ', self.dataSet[11]); 
 	}
+	
+	
 };
 
 /* Original Parsing FF 55 ~ */
 Module.prototype.originParsing = function(data) {
-	/*
+	
 	console.log('[jhkim] originParsing - DataSet length = ', data.length); 
 	for(var i=0; i<(data.length/10); i++)
 	{
@@ -313,7 +347,7 @@ Module.prototype.originParsing = function(data) {
 			data[index+6], ' | ', data[index+7], ' | ', data[index+8], ' | ', 
 			data[index+9]);
 	}
-	*/
+	
 };
 
 // 엔트리로 전달할 데이터
@@ -330,7 +364,7 @@ Module.prototype.requestRemoteData = function(handler) {
 };
 */
 Module.prototype.requestRemoteData = function(handler) {
-	// console.log('[jhkim] requestRemoteData(to entry) : ', this.dataSet[23]); 
+	// console.log('[jhkim] requestRemoteData(to entry) : ', this.dataSet[11]); 
     /*
     for (var i = 0; i < this.avatarBotDataSet; i++) {
         var value = this.dataSet[i];
