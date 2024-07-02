@@ -161,11 +161,25 @@ Module.prototype.handleRemoteData = function(handler) {
 };
 */
 Module.prototype.handleRemoteData = function(handler) {
-	// console.log('[jhkim] handleRemoteData(read entry)'); 
+	// console.log('[jhkim] handleRemoteData(read entry)', this.dataSet[23]); 
+	const cmd = handler.read('CMD');
 	var data = this.remoteDataSet;
     for (var index = 0; index < this.avatarBotDataSet; index++) {
-        data[index] = handler.read(index); // remoteDataset shallow copy
+        // data[index] = handler.read(index); // remoteDataset shallow copy
+    	data[index] = cmd[index];
     }
+    // console.log('[jhkim] handleRemoteData(read entry)', this.remoteDataSet[23]); 
+    /*
+    for(var i=0; i<(data.length/10); i++)
+	{
+		var index = i*10;
+		console.log('[jhkim] originParsing - DataSet[', i, ']: ', 
+			data[index+0], ' | ', data[index+1], ' | ', data[index+2], ' | ', 
+			data[index+3], ' | ', data[index+4], ' | ', data[index+5], ' | ', 
+			data[index+6], ' | ', data[index+7], ' | ', data[index+8], ' | ', 
+			data[index+9]);
+	}
+	*/
 };
 
 /*
@@ -316,11 +330,25 @@ Module.prototype.requestRemoteData = function(handler) {
 };
 */
 Module.prototype.requestRemoteData = function(handler) {
-	// console.log('[jhkim] requestRemoteData(to entry)'); 
+	// console.log('[jhkim] requestRemoteData(to entry) : ', this.dataSet[23]); 
+    /*
     for (var i = 0; i < this.avatarBotDataSet; i++) {
         var value = this.dataSet[i];
         handler.write(i, value);
     }
+    */
+    handler.write('CMD', this.dataSet);
+    /*
+    for(var i=0; i<(this.dataSet.length/10); i++)
+	{
+		var index = i*10;
+		console.log('[jhkim] requestRemoteData - DataSet[', i, ']: ', 
+			this.dataSet[index+0], ' | ', this.dataSet[index+1], ' | ', this.dataSet[index+2], ' | ', 
+			this.dataSet[index+3], ' | ', this.dataSet[index+4], ' | ', this.dataSet[index+5], ' | ', 
+			this.dataSet[index+6], ' | ', this.dataSet[index+7], ' | ', this.dataSet[index+8], ' | ', 
+			this.dataSet[index+9]);
+	}
+	*/
 };
 //
 Module.prototype.reset = function() {};
