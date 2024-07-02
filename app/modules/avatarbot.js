@@ -1,13 +1,5 @@
 // 클래스 내부에서 사용될 필드
 function Module() {
-	/*
-    this.digitalValue = new Array(14);
-    this.analogValue = new Array(6);
-
-    this.remoteDigitalValue = new Array(14);
-    this.readablePorts = null;
-    this.remainValue = null;
-    */
     //
     this.sendBuffers = [];
     this.avatarBotDataSet = 230;
@@ -151,17 +143,6 @@ Module.prototype.validateLocalData = function(data) {
 };
 
 // 엔트리에서 받은 데이터에 대한 처리
-/*
-Module.prototype.handleRemoteData = function(handler) {
-	console.log('[jhkim] Handling remote data...');
-    this.readablePorts = handler.read('readablePorts');
-    var digitalValue = this.remoteDigitalValue;
-    for (var port = 0; port < 14; port++) {
-        digitalValue[port] = handler.read(port);
-    }
-    // console.log('[jhkim] Remote digital values updated:', digitalValue);
-};
-*/
 Module.prototype.handleRemoteData = function(handler) {
 	console.log('[jhkim] handleRemoteData(read entry)', this.remoteDataSet[11]); 
 	const cmd = handler.read('CMD');
@@ -173,62 +154,11 @@ Module.prototype.handleRemoteData = function(handler) {
     }
     console.log('[jhkim] handleRemoteData(read entry) data = ', data[11], ', cmd = ', cmd[11], ', de = ', this.remoteDataSet[11]); 
     // console.log('[jhkim] handleRemoteData(read entry)', this.remoteDataSet[23]); 
-    /*
-    for(var i=0; i<(data.length/10); i++)
-	{
-		var index = i*10;
-		console.log('[jhkim] originParsing - DataSet[', i, ']: ', 
-			data[index+0], ' | ', data[index+1], ' | ', data[index+2], ' | ', 
-			data[index+3], ' | ', data[index+4], ' | ', data[index+5], ' | ', 
-			data[index+6], ' | ', data[index+7], ' | ', data[index+8], ' | ', 
-			data[index+9]);
-	}
-	*/
 };
 
 /*
 하드웨어 기기에 전달할 데이터를 반환합니다.
 slave 모드인 경우 duration 속성 간격으로 지속적으로 기기에 요청을 보냅니다.
-*/
-/*
-Module.prototype.requestLocalData = function() {
-    var queryString = [];
-
-    var readablePorts = this.readablePorts; // Module 객체의 readablePorts 필드를 가져옴
-    if (readablePorts) {
-		// readablePorts가 존재할 경우
-        for (var i in readablePorts) {
-			// readablePorts의 각 항목에 대해 반복
-            var query = (5 << 5) + (readablePorts[i] << 1);
-            queryString.push(query); // 쿼리 스트링 배열에 추가
-        }
-    }
-    var readablePortsValues =
-        (readablePorts && Object.values(readablePorts)) || [];
- 	// readablePorts의 값들을 배열 형태로 가져옴, 없으면 빈 배열    
-    var digitalValue = this.remoteDigitalValue; // Module 객체의 remoteDigitalValue 필드를 가져옴
-    for (var port = 0; port < 14; port++) {
-        if (readablePortsValues.indexOf(port) > -1) {
-            continue;
-        }
-        var value = digitalValue[port];
-        if (value === 255 || value === 0) {
-			// digital out
-			// (0b111<<5) + [0~14]<<1 + [1 or 0] = 0b11100000 + 0b11110 + 0b1 
-            var query = (7 << 5) + (port << 1) + (value == 255 ? 1 : 0);
-            queryString.push(query); // 1byte
-        } else if (value > 0 && value < 255) {
-			// ADC write
-			// (0b110<<5) + [0~14]<<1 + [0] = 0b11100000 + 0b11110 + 0bx
-            var query = (6 << 5) + (port << 1) + (value >> 7);
-            queryString.push(query); // 1byte
-            // 0b0xxx_xxxx
-            query = value & 127;
-            queryString.push(query); // 1byte
-        }
-    }
-    return queryString;
-};
 */
 Module.prototype.requestLocalData = function() {
     var queryString = [];
@@ -242,71 +172,8 @@ Module.prototype.requestLocalData = function() {
 };
 
 // 하드웨어에서 온 데이터 처리
-/*
 Module.prototype.handleLocalData = function(data) {
-    // data: Native Buffer
-    var pointer = 0;
-    for (var i = 0; i < 32; i++) {
-        var chunk;
-        if (!this.remainValue) {
-            chunk = data[i];
-        } else {
-            chunk = this.remainValue;
-            i--;
-        }
-        if (chunk >> 7) {
-            if ((chunk >> 6) & 1) {
-				// 0b11xx_xxxx => adc value
-                var nextChunk = data[i + 1];
-                if (!nextChunk && nextChunk !== 0) {
-                    this.remainValue = chunk;
-                } else {
-                    this.remainValue = null;
-
-                    var port = (chunk >> 3) & 7;
-                    this.analogValue[port] =
-                        ((chunk & 7) << 7) + (nextChunk & 127); // 3bit + 7bit = 10bit adc
-                }
-                i++;
-            } else {
-				// 0b10xx_xxxx => digital value
-                var port = (chunk >> 2) & 15;
-                this.digitalValue[port] = chunk & 1;
-            }
-        }
-    }
-};
-*/
-Module.prototype.handleLocalData = function(data) {
-	var self = this;
-	/*
-	if(data[0] === 0x99 && data[1] === 0x01 && data[2] === 0x01 && data[3] === self.avatarBotDataSet)
-	{
-		self.dataSet_index = 1;		
-	}
-	
-	if(self.dataSet_index == 0)
-	{
-		return;
-	}
-	
-	for (var i = 0; i < data.length; i++) {
-        self.dataSet[self.dataSet_index+i] = data[i];
-    }
-	self.dataSet_index = self.dataSet_index + data.length;
-	
-	if(self.dataSet_index == self.avatarBotDataSet){
-		self.originParsing(self.dataSet);
-		self.dataSet_index = 0;
-		//self.dataSet[0] = 0; // clear
-		//self.dataSet[1] = 0; // clear
-		//self.dataSet[2] = 0; // clear
-		//self.dataSet[3] = 0; // clear
-		// 
-		console.log('[jhkim] handleLocalData - dataSet_index[11]  = ', self.dataSet[11]); 
-	}
-	*/
-	
+	var self = this;	
 	for (var i = 0; i < data.length; i++) {
         self.dataSet[self.dataSet_index+i] = data[i];
     }
@@ -351,18 +218,6 @@ Module.prototype.originParsing = function(data) {
 };
 
 // 엔트리로 전달할 데이터
-/*
-Module.prototype.requestRemoteData = function(handler) {
-    for (var i = 0; i < this.analogValue.length; i++) {
-        var value = this.analogValue[i];
-        handler.write('a' + i, value);
-    }
-    for (var i = 0; i < this.digitalValue.length; i++) {
-        var value = this.digitalValue[i];
-        handler.write(i, value);
-    }
-};
-*/
 Module.prototype.requestRemoteData = function(handler) {
 	// console.log('[jhkim] requestRemoteData(to entry) : ', this.dataSet[11]); 
     /*
