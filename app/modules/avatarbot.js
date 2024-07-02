@@ -2,36 +2,34 @@
 function Module() {
     //
     this.sendBuffers = [];
-    this.avatarBotDataSet = 230;
+    this.avatarBotDataSet = 210;
     this.dataSet_index = null;
     //
-    this.dataSetHW = new Array(230).fill(0);
-    this.dataSet = new Array(230).fill(0);
-    this.remoteDataSet = new Array(230).fill(0);
+    this.dataSetHW = new Array(210).fill(0);
+    this.dataSet = new Array(210).fill(0);
+    this.remoteDataSet = new Array(210).fill(0);
     this.BoardFunType = {
     	Info: 0,
     	Button:10,
-        GPIO_LED_PWM0: 20,
-        GPIO_LED_PWM1: 30,
-        GPIO_LED_PWM2: 40,
-        GPIO_LED_PWM3: 50,
-        ADC: 60,
-        DAC: 70,
-        IR_Remote: 80,
-        Buzzer: 90,
-        PCA9568: 100,
-        Servo_M0: 110,
-        Servo_M1: 120,
-        Servo_M2: 130,
-        Servo_M3: 140,
-        Servo_M4: 150,
-        Servo_M5: 160,
-        Servo_M6: 170,
-        Servo_M7: 180,
-        DC_M: 190,
-        MPU6050: 200,
-        LED_Strip: 210,
-        ULTRA_SONIC: 220
+        GPIO_PWM_SET: 20,
+        GPIO_PWM: 30,
+        ADC: 40,
+        IR_Remote: 50,
+        Buzzer: 60,
+        PCA9568: 70,
+        Servo_M0: 80,
+        Servo_M1: 90,
+        Servo_M2: 100,
+        Servo_M3: 110,
+        Servo_M4: 120,
+        Servo_M5: 130,
+        Servo_M6: 140,
+        Servo_M7: 150,
+        DC_M: 160,
+        MPU6050_1: 170,
+        MPU6050_2: 180,
+        LED_Strip: 190,
+        ULTRA_SONIC: 200
 	}
 	this.Board_PWM = {
 		Resolution: 13,
@@ -70,15 +68,13 @@ Module.prototype.init = function(handler, config) {
 	this.remoteDataSet[index+2] = 0x01;
 	this.remoteDataSet[index+3] = this.avatarBotDataSet;
 	
-	// pwm. 2~5 pad
-	for(var i=0; i<4; i++)
-	{
-		index = this.BoardFunType.GPIO_LED_PWM0 + (i*10);
-		this.remoteDataSet[index+2] = (this.Board_PWM.Freq)&0xff;
-		this.remoteDataSet[index+3] = (this.Board_PWM.Freq>>8)&0xff;
-		this.remoteDataSet[index+4] = (this.Board_PWM.Freq>>16)&0xff;
-		this.remoteDataSet[index+5] = (this.Board_PWM.Resolution)&0xff;
-	}
+	// pwm pad	
+	index = this.BoardFunType.GPIO_PWM_SET;
+	this.remoteDataSet[index+1] = (this.Board_PWM.Freq)&0xff;
+	this.remoteDataSet[index+2] = (this.Board_PWM.Freq>>8)&0xff;
+	this.remoteDataSet[index+3] = (this.Board_PWM.Freq>>16)&0xff;
+	this.remoteDataSet[index+4] = (this.Board_PWM.Resolution)&0xff;
+
 	// adc
 	index = this.BoardFunType.ADC;
 	this.remoteDataSet[index+4] = (this.Board_ADC.Attenuation_11db)&0xff;
@@ -154,6 +150,16 @@ Module.prototype.handleRemoteData = function(handler) {
     }
     console.log('[jhkim] handleRemoteData(read entry) data = ', data[11], ', cmd = ', cmd[11], ', de = ', this.remoteDataSet[11]); 
     // console.log('[jhkim] handleRemoteData(read entry)', this.remoteDataSet[23]); 
+    // console.log('[jhkim] originParsing - DataSet length = ', data.length); 
+	for(var i=0; i<(data.length/10); i++)
+	{
+		var index = i*10;
+		console.log('[jhkim] handleRemoteData - DataSet[', i, ']: ', 
+			data[index+0], ' | ', data[index+1], ' | ', data[index+2], ' | ', 
+			data[index+3], ' | ', data[index+4], ' | ', data[index+5], ' | ', 
+			data[index+6], ' | ', data[index+7], ' | ', data[index+8], ' | ', 
+			data[index+9]);
+	}
 };
 
 /*
@@ -168,6 +174,15 @@ Module.prototype.requestLocalData = function() {
        	queryString.push(query); // 1byte
     }
     
+    for(var i=0; i<(data.length/10); i++)
+	{
+		var index = i*10;
+		console.log('[jhkim] requestLocalData - DataSet[', i, ']: ', 
+			data[index+0], ' | ', data[index+1], ' | ', data[index+2], ' | ', 
+			data[index+3], ' | ', data[index+4], ' | ', data[index+5], ' | ', 
+			data[index+6], ' | ', data[index+7], ' | ', data[index+8], ' | ', 
+			data[index+9]);
+	}
     return queryString;
 };
 
@@ -203,7 +218,7 @@ Module.prototype.handleLocalData = function(data) {
 
 /* Original Parsing FF 55 ~ */
 Module.prototype.originParsing = function(data) {
-	
+	/*
 	console.log('[jhkim] originParsing - DataSet length = ', data.length); 
 	for(var i=0; i<(data.length/10); i++)
 	{
@@ -214,7 +229,7 @@ Module.prototype.originParsing = function(data) {
 			data[index+6], ' | ', data[index+7], ' | ', data[index+8], ' | ', 
 			data[index+9]);
 	}
-	
+	*/
 };
 
 // 엔트리로 전달할 데이터
