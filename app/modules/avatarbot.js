@@ -210,7 +210,7 @@ Module.prototype.handleLocalData = function(data) {
 		self.dataSet[2] = 0; // clear
 		self.dataSet[3] = 0; // clear
 		// 
-		console.log('[jhkim] handleLocalData - dataSet_index[11]  = ', self.dataSet[11]); 
+		// console.log('[jhkim] handleLocalData - dataSet_index[11]  = ', self.dataSet[11]); 
 	}
 	
 	
