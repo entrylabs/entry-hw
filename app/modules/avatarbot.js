@@ -49,8 +49,8 @@ function Module() {
 	this.Board_Servo = {
 		Pulse_Min: 150,
 		Pulse_Max: 600,
-		us_Min: 500,
-		us_Max: 2400
+		us_Min: 400,
+		us_Max: 2100
 	}
 }
 
