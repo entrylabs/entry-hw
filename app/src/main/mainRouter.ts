@@ -23,6 +23,7 @@ interface IEntryServer {
     open: () => void;
     disconnectHardware: () => void;
     connectHardwareSuccess: () => void;
+    connectHardwareFailed: () => void;
     addRoomIdsOnSecondInstance: (roomId: string) => void;
     send: (data: any) => void;
 }
@@ -252,6 +253,7 @@ class MainRouter {
         } catch (e) {
             logger.error(`startScan Error, ${e.name} ${e.message}`);
             this.sendState(HardwareStatement.scanFailed);
+            this.server.connectHardwareFailed();
         }
     }
 

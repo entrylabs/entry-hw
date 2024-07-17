@@ -56,6 +56,10 @@ class ServerProcessManager {
         this._sendToChild('connectHardwareSuccess');
     }
 
+    connectHardwareFailed() {
+        this._sendToChild('connectHardwareFailed');
+    }
+
     disconnectHardware() {
         // this.childProcess.disconnectHardware();
         this._sendToChild('disconnectHardware');
