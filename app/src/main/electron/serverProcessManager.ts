@@ -38,7 +38,7 @@ class ServerProcessManager {
 
     open() {
         this._receiveFromChildEventRegister();
-        this._sendToChild('open');
+        this._sendToChild('open', process.env.NODE_ENV);
         // this.childProcess.open();
     }
 
