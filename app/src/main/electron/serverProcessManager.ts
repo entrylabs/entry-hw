@@ -27,7 +27,7 @@ class ServerProcessManager {
         } catch (e) {
             logger.error('Error occurred while spawn Server Process.', e);
             throw new Error(
-                'Error occurred while spawn Server Process. make sure it exists same dir path',
+                'Error occurred while spawn Server Process. make sure it exists same dir path'
             );
         }
     }
@@ -38,7 +38,7 @@ class ServerProcessManager {
 
     open() {
         this._receiveFromChildEventRegister();
-        this._sendToChild('open');
+        this._sendToChild('open', process.env.NODE_ENV);
         // this.childProcess.open();
     }
 
@@ -50,6 +50,14 @@ class ServerProcessManager {
         // this.childProcess.addRoomId(roomId);
         this.currentRoomId = roomId;
         this._sendToChild('addRoomId', roomId);
+    }
+
+    connectHardwareSuccess() {
+        this._sendToChild('connectHardwareSuccess');
+    }
+
+    connectHardwareFailed() {
+        this._sendToChild('connectHardwareFailed');
     }
 
     disconnectHardware() {
@@ -68,10 +76,11 @@ class ServerProcessManager {
      * @private
      */
     _sendToChild(methodName: string, message?: any) {
-        this._isProcessLive() && this.childProcess.send({
-            key: methodName,
-            value: message,
-        });
+        this._isProcessLive() &&
+            this.childProcess.send({
+                key: methodName,
+                value: message,
+            });
     }
 
     _receiveFromChildEventRegister() {
@@ -87,43 +96,46 @@ class ServerProcessManager {
         // this.childProcess.on('close', () => {
 
         // });
-        this.childProcess && this.childProcess.on('message', (message: { key: string; value: any; }) => {
-            const { key, value } = message;
-            switch (key) {
-            case 'cloudModeChanged': {
-                this.router.notifyCloudModeChanged(value);
-                break;
-            }
-            case 'runningModeChanged': {
-                this.router.notifyServerRunningModeChanged(value);
-                break;
-            }
-            case 'data': {
-                this.router.handleServerData(value);
-                break;
-            }
-            case 'connection': {
-                this.router.handleServerSocketConnected();
-                break;
-            }
-            case 'close': {
-                if (!this.currentRoomId || this.currentRoomId === value) {
-                    this.router.handleServerSocketClosed();
+        this.childProcess &&
+            this.childProcess.on('message', (message: { key: string; value: any }) => {
+                const { key, value } = message;
+                switch (key) {
+                    case 'cloudModeChanged': {
+                        this.router.notifyCloudModeChanged(value);
+                        break;
+                    }
+                    case 'runningModeChanged': {
+                        this.router.notifyServerRunningModeChanged(value);
+                        break;
+                    }
+                    case 'data': {
+                        this.router.handleServerData(value);
+                        break;
+                    }
+                    case 'connection': {
+                        this.router.handleServerSocketConnected();
+                        break;
+                    }
+                    case 'close': {
+                        if (!this.currentRoomId || this.currentRoomId === value) {
+                            this.router.handleServerSocketClosed();
+                        }
+                        break;
+                    }
+                    default: {
+                        console.error('unhandled pkg server message', key, value);
+                    }
                 }
-                break;
-            }
-            default: {
-                console.error('unhandled pkg server message', key, value);
-            }
-            }
-        });
+            });
     }
 
     _isProcessLive() {
-        return this.childProcess &&
+        return (
+            this.childProcess &&
             !this.childProcess.killed &&
             this.childProcess.connected &&
-            this.childProcess.channel;
+            this.childProcess.channel
+        );
     }
 }
 
