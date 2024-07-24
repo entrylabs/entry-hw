@@ -2,7 +2,7 @@
     "id": "010199",
     "name": {
         "en": "Arduino Uno Compatible",
-        "ko": "아두이노 Uno 호환보드"
+        "ko": "아두이노 우노 호환보드"
     },
     "category": "board",
     "platform": ["win32", "darwin"],
