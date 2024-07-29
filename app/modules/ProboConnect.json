@@ -4,21 +4,22 @@
         "en": "ProboConnect",
         "ko": "프로보커넥트"
     },
-    "category": "module",
     "platform": ["win32"],
     "icon" : "ProboConnect.png",
     "module": "ProboConnect.js",
-    "driver": {
+    "driver": [{
           "win32-ia32": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.exe",
-          "win32-x64": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.exe"
-    },
+          "win32-x64": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.exe",
+          "translate": "드라이버 설치1"},
+        {
+          "win32-ia32": "Easy_Down_Entry/PROBO_Easy_Down_Entry_ver8.38_install.exe",
+          "win32-x64": "Easy_Down_Entry/PROBO_Easy_Down_Entry_ver8.38_install.exe",
+          "translate": "드라이버 설치2"}
+        ],
     "url": "https://www.probo.kr/",
-    "email": "alswn5609@naver.com",
+    "email": "tkddnjs10@naver.com",
     "reconnect": true,
-    "select_com_port": true,
-      "entry": {
-          "protocol": "json"
-      },
+    "selectPort": true,
     "hardware": {
       "type": "serial",
       "control": "slave",
@@ -33,4 +34,5 @@
       "delimiter" : "",
       "flowControl" : "Connect"
     }
+
 }
