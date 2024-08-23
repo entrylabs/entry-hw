@@ -374,6 +374,9 @@ Module.prototype.requestLocalData = function() {
         if (instruction == INST_WRITE) {
             if (length == 1) {
                 sendBuffer = this.writeBytePacket(200, address, value);
+                if (address == 2100 && value == 1) {
+                    this.robotisBuffer = [];
+                }
             } else if (length == 2) {
                 sendBuffer = this.writeWordPacket(200, address, value);
             } else if (length == 4) {
