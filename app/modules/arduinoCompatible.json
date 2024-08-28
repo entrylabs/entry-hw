@@ -2,7 +2,7 @@
     "id": "010199",
     "name": {
         "en": "Arduino Uno Compatible",
-        "ko": "아두이노 Uno 호환보드"
+        "ko": "아두이노 우노 호환보드"
     },
     "category": "board",
     "platform": ["win32", "darwin"],
@@ -13,12 +13,9 @@
         "win32-ia32": "arduino/dpinst-x86.exe",
         "win32-x64": "arduino/dpinst-amd64.exe"
     },
-    "select_com_port": true,
+    "selectPort": true,
     "reconnect": true,
     "firmware": "board2",
-    "entry": {
-        "protocol": "json"
-    },
     "hardware": {
         "type": "serial",
         "control": "slave",

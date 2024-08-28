@@ -1,8 +1,8 @@
 {
 	"id": "060101",
 	"name": {
-		"en": "digital monkeyboard",
-		"ko": "디지털 몽키보드"
+		"en": "MakeBrick",
+		"ko": "메이크브릭"
 	},
 	"category": "module",
 	"platform": ["win32"],
@@ -16,9 +16,6 @@
 	},
     "reconnect" : true,
     "firmware": "mkboard",
-	"entry": {
-		"protocol": "json"
-	},
 	"hardware": {
 		"type": "serial",
 		"control": "slave",
