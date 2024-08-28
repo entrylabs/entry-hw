@@ -22,8 +22,6 @@ interface IEntryServer {
     setRouter: (router: MainRouter) => void;
     open: () => void;
     disconnectHardware: () => void;
-    connectHardwareSuccess: () => void;
-    connectHardwareFailed: () => void;
     addRoomIdsOnSecondInstance: (roomId: string) => void;
     send: (data: any) => void;
 }
@@ -242,7 +240,7 @@ class MainRouter {
                 if (connector) {
                     logger.info(
                         `[Device Info] ${config.id} | ${
-                            config?.name?.ko || config?.name?.en || 'noname'
+                        config?.name?.ko || config?.name?.en || 'noname'
                         }`
                     );
                     this.connector = connector;
@@ -253,7 +251,6 @@ class MainRouter {
         } catch (e) {
             logger.error(`startScan Error, ${e.name} ${e.message}`);
             this.sendState(HardwareStatement.scanFailed);
-            this.server.connectHardwareFailed();
         }
     }
 
@@ -320,7 +317,6 @@ class MainRouter {
             logger.verbose('entryServer, connector connection');
             this.handler = new DataHandler(this.config.id);
             this._connectToServer();
-            this.server.connectHardwareSuccess();
             this.connector.connect(); // router 설정 후 실제 기기와의 통신 시작
         }
     }
@@ -549,7 +545,7 @@ class MainRouter {
                 console.log(e);
                 return false;
             }
-        });
+        })
         ipcMain.on('getSharedObject', (e) => {
             e.returnValue = global.sharedObject;
         });
@@ -561,9 +557,7 @@ class MainRouter {
             }
         });
         ipcMain.on('customButtonClicked', (e, key) => {
-            this.hwModule &&
-                this.hwModule.customButtonClicked &&
-                this.hwModule.customButtonClicked(key);
+            this.hwModule && this.hwModule.customButtonClicked && this.hwModule.customButtonClicked(key);
         });
         logger.verbose('EntryHW ipc event registered');
     }
