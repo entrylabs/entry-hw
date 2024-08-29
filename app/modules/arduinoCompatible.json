@@ -6,7 +6,7 @@
     },
     "category": "board",
     "platform": ["win32", "darwin"],
-    "icon": "arduino.png",
+    "icon": "arduinoCompatible.png",
     "module": "arduino.js",
     "url": "http://arduino.cc",
     "driver": {
