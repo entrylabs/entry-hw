@@ -1,7 +1,7 @@
 const { notarize } = require('electron-notarize');
 
 module.exports = async function notarizing(notarizeOption) {
-    const { appBundleId, appPath, appleId, appleIdPassword } = notarizeOption;
+    const { appBundleId, appPath, appleId, appleIdPassword, teamId } = notarizeOption;
     const { NOTARIZE } = process.env;
 
     // noinspection EqualityComparisonWithCoercionJS
@@ -10,7 +10,7 @@ module.exports = async function notarizing(notarizeOption) {
         return;
     }
 
-    if (!appleId || !appleIdPassword) {
+    if (!appleId || !appleIdPassword || !teamId) {
         console.log('  • APPLE_ID or APPLE_PASSWORD not found. will be skipped this process');
         return;
     }
@@ -21,9 +21,11 @@ module.exports = async function notarizing(notarizeOption) {
     appleId: ${appleId}`,
     );
     return await notarize({
+        tool: 'notarytool',
         appBundleId,
         appPath,
         appleId,
+        teamId,
         appleIdPassword,
     });
 };

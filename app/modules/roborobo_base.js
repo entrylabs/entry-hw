@@ -1,5 +1,8 @@
 const BaseModule = require('./baseModule');
 
+const THREAD_STEP_INTERVAL = 1000 / 60;
+const THREAD_STEP_INTERVAL_COMPATIBILITY = 1000 / 30;
+
 const FirmataCMD = {
     ENABLE_DIGITAL: 0xD0,
     DIGITAL_CH0: 0x90,
@@ -14,7 +17,7 @@ const FirmataCMD = {
     SET_PIN_MODE: 0xF4,
     GET_VERSION: 0xF9,
     RESET: 0xFF,
-}
+};
 
 const PinMode = {
     INPUT: 0x00,
@@ -34,7 +37,7 @@ const PinMode = {
     RGBLED: 0x0E,
     ROTARYPOSITION: 0x0F,
     IGNORE: 0x7F
-}
+};
 
 const SysexCMD = {
     START: 0xF0,
@@ -48,7 +51,7 @@ const SysexCMD = {
     I2C_REPLY: 0x77,
     I2C_CONFIG: 0x78,
     END: 0xF7
-}
+};
 
 const Instruction = {
     DIGITAL: 0x00,
@@ -71,7 +74,7 @@ const Instruction = {
     GET_VERSION_FIRMWARE: 0x7D,
     GET_VERSION_HARDWARE: 0x7E,
     GET_VERSION: 0x7F,
-}
+};
 
 const Frequency = {
     0: 32.7032, 1: 34.6478, 2: 36.7081, 3: 38.8909, 4: 41.2034, 5: 43.6535, 6: 46.2493, 7: 48.9994, 8: 51.9130, 9: 55.0000, 10: 58.2705, 11: 61.7354,
@@ -84,6 +87,16 @@ const Frequency = {
     84: 4186.009, 85: 4434.922, 86: 4698.636, 87: 4978.036, 88: 5274.041, 89: 5587.652, 90: 5919.911, 91: 6271.927, 92: 6644.875, 93: 7040.000, 94: 7458.620, 95: 7902.133,
     96: 8372.018
 };
+
+const DrawMode = {
+    BIT: 0x00,
+    POINT: 0x01,
+    SIGN: 0x02,
+    STRING: 0x03,
+    SCROLLDRAW: 0x04,
+    CLEAR: 0x07
+};
+
 const RATIO_CONVERT_ANALOG_TO_ANGLE = 0.3515625;
 
 class ArduinoBase extends BaseModule {
@@ -113,8 +126,6 @@ class ArduinoBase extends BaseModule {
 
         this._receiveBuffer = [];
         this._sendBuffer = [];
-        this._sendBuffer.push(this._getResetDeviceCommand());
-        this._sendBuffer.push(this._getDigitalPinEnableCommand());
     }
 
     /**
@@ -123,7 +134,7 @@ class ArduinoBase extends BaseModule {
      * 이 두 함수가 정의되어있어야 로직이 동작합니다. 필요없으면 작성하지 않아도 됩니다.
      */
     requestInitialData () {
-        return this.getRequestAllVersionCommand();
+        return this._getRequestAllVersionCommand();
     }
 
     /**
@@ -167,7 +178,7 @@ class ArduinoBase extends BaseModule {
         if (time >= 3000) {
             this._serialPort.close();
         } else if (time >= 1000) {
-            buffer.push(...this._getRequestBatteryVoltageCommand());
+            buffer.push(...this._getConnectionCheckCommand());
         }
         return buffer;
     }
@@ -176,7 +187,6 @@ class ArduinoBase extends BaseModule {
     handleLocalData (data) {
         this._receiveBuffer.push(...data);
         this._lastTime = Date.now();
-
         while (this._receiveBuffer.length > 0) {
             const length = this._receiveBuffer.length;
             this._processReceiveData(this._receiveBuffer);
@@ -261,6 +271,10 @@ class ArduinoBase extends BaseModule {
         throw new Error('재정의 필요');
     }
 
+    _getConnectionCheckCommand () {
+        return this._getRequestBatteryVoltageCommand();
+    }
+
     /**
      * 장치 초기화 명령어 반환
      */
@@ -285,7 +299,7 @@ class ArduinoBase extends BaseModule {
     /**
      * 전체 버전 요청
      */
-    getRequestAllVersionCommand () {
+    _getRequestAllVersionCommand () {
         return [SysexCMD.START, SysexCMD.GET, Instruction.GET_VERSION, 0x00, SysexCMD.END];
     }
 
@@ -635,7 +649,7 @@ class ArduinoBase extends BaseModule {
      * @param {number} pin [2, 15]
      */
     _enableDigitalInput (pin) {
-        if (this._isDigitalPin(pin)) this.setPinMode(pin, PinMode.INPUT)
+        if (this._isDigitalPin(pin)) this.setPinMode(pin, PinMode.INPUT);
     }
 
     /**
@@ -967,21 +981,6 @@ class ArduinoBase extends BaseModule {
         }
 
         switch (data[2]) {
-            case Instruction.GET_SENSOR: {
-                // 자이로 센서 상태 변경 값
-                if (data[4] == 0x09) {
-                    const obj = this.state.rx.gyro;
-                    obj.angle.x = (data[5] + ((data[6] & 0x01) << 7)) * ((data[6] >> 4 & 0x01) == 1 ? -1 : 1);
-                    obj.angle.y = (data[7] + ((data[8] & 0x01) << 7)) * ((data[8] >> 4 & 0x01) == 1 ? -1 : 1);
-                    obj.angle.z = (data[9] + ((data[10] & 0x01) << 7)) * ((data[10] >> 4 & 0x01) == 1 ? -1 : 1);
-
-                    obj.gyro.x = (data[11] + ((data[12] & 0x01) << 7)) * ((data[12] >> 4 & 0x01) == 1 ? -1 : 1);
-                    obj.gyro.y = (data[13] + ((data[14] & 0x01) << 7)) * ((data[14] >> 4 & 0x01) == 1 ? -1 : 1);
-                    obj.gyro.z = (data[15] + ((data[16] & 0x01) << 7)) * ((data[16] >> 4 & 0x01) == 1 ? -1 : 1);
-
-                    obj.shake = data[20] & 0x01;
-                }
-            } break;
             // 전압 체크 프로토콜
             case Instruction.GET_VOLTAGE: {
                 this.voltage = data[4];
@@ -992,7 +991,7 @@ class ArduinoBase extends BaseModule {
                     model: data[4],
                     hardware: data[5],
                     firmware: data[6]
-                }
+                };
             } break;
         }
         data.splice(0, length);
@@ -1053,7 +1052,7 @@ class ArduinoStateBase {
              * }
              */
             piezo: [],
-        }
+        };
 
         /**
          * 센서의 값을 수신하여 저장
@@ -1093,24 +1092,7 @@ class ArduinoStateBase {
              */
             rotaryPosition: [],
 
-            /**
-             * I2C pin 사용 [18, 19] 번호 고정
-             */
-            gyro: {
-                enable: false,
-                angle: {
-                    x: 0,
-                    y: 0,
-                    z: 0
-                },
-                gyro: {
-                    x: 0,
-                    y: 0,
-                    z: 0
-                },
-                shake: 0,
-            }
-        }
+        };
     }
 
     /**
@@ -1121,7 +1103,7 @@ class ArduinoStateBase {
         if (!this.pin[pin]) {
             this.pin[pin] = {
                 mode: null
-            }
+            };
         }
         return this.pin[pin];
     }
@@ -1136,7 +1118,7 @@ class ArduinoStateBase {
                 motor: null,
                 speed: null,
                 state: null
-            }
+            };
         }
         return this.tx.motor[index];
     }
@@ -1150,7 +1132,7 @@ class ArduinoStateBase {
             this.tx.piezo[pin] = {
                 note: null,
                 duration: null
-            }
+            };
         }
         return this.tx.piezo[pin];
     }
@@ -1166,7 +1148,7 @@ class ArduinoStateBase {
                 g: null,
                 b: null,
                 a: null
-            }
+            };
         }
         return this.tx.rgbLed[pin];
     }
@@ -1181,7 +1163,7 @@ class ArduinoStateBase {
                 value: 0,
                 values: [],
                 enable: false
-            }
+            };
         }
         return this.rx.temperature[analogPin];
     }
@@ -1204,10 +1186,29 @@ class ArduinoStateBase {
                 isIntegerPosition: true,
                 isIntegerRotation: true,
                 isIntegerAngle: true,
-            }
+            };
         }
         return this.rx.rotaryPosition[analogPin];
     }
 }
 
-module.exports = {ArduinoBase, ArduinoStateBase, FirmataCMD, PinMode, SysexCMD, Instruction};
+const Sleep = function (ms) {
+    return new Promise(resolve => setTimeout(() => resolve(), ms));
+};
+
+module.exports = {
+    ArduinoBase,
+    ArduinoStateBase,
+
+    FirmataCMD,
+    PinMode,
+    SysexCMD,
+    Instruction,
+    Frequency,
+    DrawMode,
+
+    THREAD_STEP_INTERVAL,
+    THREAD_STEP_INTERVAL_COMPATIBILITY,
+
+    Sleep
+};

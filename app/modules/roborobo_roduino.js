@@ -1,6 +1,7 @@
 const {
     ArduinoBase,
     ArduinoStateBase,
+    // protocol
     PinMode,
     FirmataCMD
 } = require('./roborobo_base');
@@ -23,6 +24,9 @@ class Roduino extends ArduinoBase {
 
     reset () {
         super.reset();
+
+        this._sendBuffer.push(this._getResetDeviceCommand());
+        this._sendBuffer.push(this._getDigitalPinEnableCommand());
     }
 
     requestInitialData () {
@@ -37,32 +41,17 @@ class Roduino extends ArduinoBase {
         return super.validateLocalData(data);
     }
 
-    /**
-     * @override
-     */
     requestLocalData () {
-        const buffer = [];
-        for (let i = 0; i < this._sendBuffer.length; i++) {
-            const bytes = this._sendBuffer.shift();
-            if (bytes && bytes.length > 0) {
-                buffer.push(...bytes);
-            }
-        }
-
-        //  연결 상태 유지 
-        const time = Date.now() - this._lastTime;
-        if (time >= 3000) {
-            this._serialPort.close();
-        } else if (time >= 1000) {
-            buffer.push(...this.getRequestAllVersionCommand());
-        }
-        return buffer;
+        return super.requestLocalData();
     }
 
     handleLocalData (data) {
         super.handleLocalData(data);
     }
 
+    /**
+     * @override
+     */
     requestRemoteData (handler) {
         super.requestRemoteData(handler);
 
@@ -87,15 +76,18 @@ class Roduino extends ArduinoBase {
         super.execute(command, data);
     }
 
-    _getRequestFirmataVersion () {
-        return [FirmataCMD.GET_VERSION, 0xF0, 0x79, 0xF7];
+    /**
+     * @override
+     */
+    get targetVersion () {
+        return {model: 1, hardware: 1, firmware: 2};
     }
 
     /**
      * @override
      */
-    get targetVersion () {
-        return {model: 1, hardware: 1, firmware: 2}
+    _getConnectionCheckCommand () {
+        return this._getRequestAllVersionCommand();
     }
 
     /**

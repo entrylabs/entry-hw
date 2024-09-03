@@ -2,7 +2,7 @@
     "id": "011001",
     "name": {
         "en": "Arduino Nano",
-        "ko": "아두이노 Nano"
+        "ko": "아두이노 나노"
     },
     "category": "board",
     "platform": ["win32", "darwin"],

@@ -22,6 +22,7 @@ function Module() {
         LCDINIT: 19,
         LCD: 20,
         LCDCLEAR: 21,
+        TEMPCHECK: 22,
     };
 
     this.actionTypes = {
@@ -65,6 +66,7 @@ function Module() {
         },
         PULSEIN: {},
         TIMER: 0,
+        TEMPCHECK: 0,
     };
 
     this.defaultOutput = {};
@@ -112,6 +114,7 @@ Module.prototype.validateLocalData = function(data) {
     return true;
 };
 
+// 엔트리로 전달할 데이터
 Module.prototype.requestRemoteData = function(handler) {
     var self = this;
     if (!self.sensorData) {
@@ -258,6 +261,7 @@ Module.prototype.requestLocalData = function() {
     return null;
 };
 
+ // 하드웨어에서 온 데이터 처리 로직
 /*
 ff 55 idx size data a
 */
@@ -270,6 +274,7 @@ Module.prototype.handleLocalData = function(data) {
             return;
         }
         var readData = data.subarray(2, data.length);
+
         var value;
         switch (readData[0]) {
             case self.sensorValueSize.FLOAT: {
@@ -290,6 +295,9 @@ Module.prototype.handleLocalData = function(data) {
         var type = readData[readData.length - 1];
         var port = readData[readData.length - 2];
 
+        
+
+        
         switch (type) {
             case self.sensorTypes.DIGITAL: {
                 self.sensorData.DIGITAL[port] = value;
@@ -311,6 +319,10 @@ Module.prototype.handleLocalData = function(data) {
                 self.sensorData.TIMER = value;
                 break;
             }
+            case self.sensorTypes.TEMPCHECK: {
+                self.sensorData.TEMPCHECK = value;
+                break;
+            }
             default: {
                 break;
             }
@@ -326,6 +338,7 @@ ff 55 len idx action device port  slot  data a
 Module.prototype.makeSensorReadBuffer = function(device, port, data) {
     var buffer;
     var dummy = new Buffer([10]);
+
     if (device == this.sensorTypes.ULTRASONIC) {
         buffer = new Buffer([
             255,
@@ -336,6 +349,17 @@ Module.prototype.makeSensorReadBuffer = function(device, port, data) {
             device,
             port[0],
             port[1],
+            10,
+        ]);
+    } else if (device == this.sensorTypes.TEMPCHECK)  {
+        buffer = new Buffer([
+            255,
+            85,
+            5,
+            sensorIdx,
+            this.actionTypes.GET,
+            device,
+            port,
             10,
         ]);
     } else if (!data) {
@@ -643,6 +667,7 @@ Module.prototype.getDataByBuffer = function(buffer) {
     return datas;
 };
 
+// 하드웨어 연결 해제 시 호출
 Module.prototype.disconnect = function(connect) {
     var self = this;
     connect.close();
@@ -651,6 +676,7 @@ Module.prototype.disconnect = function(connect) {
     }
 };
 
+// 엔트라와의 연결 종료 후 처리 코드
 Module.prototype.reset = function() {
     this.lastTime = 0;
     this.lastSendTime = 0;

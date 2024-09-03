@@ -9,7 +9,7 @@
 	"icon" : "robotis_RB100im_Humanoid.png",
 	"module": "robotis_RB100.js",
 	"url": "http://www.robotis.com",
-	"email": "khg@robotis.com",
+	"email": "jason@robotis.com",
 	"reconnect" : true,
 	"driver": {
         "win32-ia32": "ROBOTIS/ROBOTIS CDC Driver.bat",

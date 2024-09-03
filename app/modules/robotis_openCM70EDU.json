@@ -9,13 +9,21 @@
 	"icon" : "robotis_openCM70EDU.png",
 	"module": "robotis_openCM70EDU.js",
 	"url": "http://www.robotis.com",
-	"email": "kjw@robotis.com",
+	"email": "jason@robotis.com",
 	"reconnect" : true,
 	"driver": {
         "win32-ia32": "ROBOTIS/ROBOTIS CDC Driver.bat",
         "win32-x64": "ROBOTIS/ROBOTIS CDC Driver.bat"
 	},
 	"selectPort" : true,
+	"firmware": {
+        "type": "opencm7",
+        "offset": "0x8004000",
+        "name": "OpenCM7.0",
+        "translate" : "실과로봇 펌웨어 업데이트",
+        "latest_version": 21
+    },
+	"firmwareBaudRate": 57600,
 	"hardware": {
 		"type": "serial",
 		"control": "slave",

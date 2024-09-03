@@ -6,6 +6,7 @@ import {CloudModeTypes} from '../../../common/constants';
 import BaseScanner from '../baseScanner';
 import SerialConnector from './connector';
 import createLogger from '../../electron/functions/createLogger';
+import Flasher from './flasher';
 
 const logger = createLogger('core/SerialScanner.ts');
 
@@ -18,6 +19,7 @@ const logger = createLogger('core/SerialScanner.ts');
  */
 class SerialScanner extends BaseScanner<SerialConnector> {
     private isScanning = false;
+    private flasher = new Flasher();
 
     static get SCAN_INTERVAL_MILLS() {
         return 1500;
@@ -98,6 +100,20 @@ class SerialScanner extends BaseScanner<SerialConnector> {
         if (this.config.handshake && !this.router.selectedPayload) {
             // handshakeType 가 argument 면 selectedPayload 가 필요하다. 이 값이 없으면 시리얼포트 선출하지 않는다.
             return;
+        }
+
+        
+        const firmware = this.config.firmware; 
+                    
+        if (firmware)
+        {
+            if ((firmware as IOpenCM7TypeFirmware).type === 'opencm7')
+            {
+                if (selectedPorts[0] != null)
+                {
+                    await this.flasher.checkOpenCM7Version(selectedPorts[0], (this.config.firmware as IOpenCM7TypeFirmware).latest_version);
+                }
+            }
         }
 
         const electedConnector = await electPort(selectedPorts, hardware, this.hwModule,
