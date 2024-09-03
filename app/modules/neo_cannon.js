@@ -166,7 +166,7 @@ Module.prototype.handleRemoteData = function (handler) {
             const green = newValue.data.green;
             const blue = newValue.data.blue;
 
-            if (newValue.data.num) {
+            if (newValue.data.num !== undefined) {
                 const num = newValue.data.num;
                 workerData.neopixel[num].r = red;
                 workerData.neopixel[num].g = green;
