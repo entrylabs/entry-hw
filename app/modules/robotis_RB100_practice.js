@@ -569,29 +569,40 @@ Module.prototype.handleLocalData = function(data) { // data: Native Buffer
                             }
                         }
 
+                        const dxlPositionStartAddr =
+                            addrMap[addrMap.length - 1][0] + addrMap[addrMap.length - 1][1];
+
                         // DXL Position
                         for (let i = 0; i < 20; i++) {
-                            const currentId  = rxPacket.data[2 + 83 + (3 * i)];
-                            const currentPos = rxPacket.data[2 + 83 + (3 * i) + 1] + 
-                                               (rxPacket.data[2 + 83 + (3 * i) + 2] << 8);
-                            if (currentId != 0xFF && currentPos != 0xFFFF) {
+                            const currentId =
+                                rxPacket.data[2 + dxlPositionStartAddr + 3 * i];
+                            const currentPos =
+                                rxPacket.data[2 + dxlPositionStartAddr + 3 * i + 1] +
+                                (rxPacket.data[2 + dxlPositionStartAddr + 3 * i + 2] << 8);
+                            if (currentId != 0xff && currentPos != 0xffff) {
                                 this.dxlPositions[currentId] = currentPos;
                             }
                         }
 
+                        const lineCategoryStartAddr = dxlPositionStartAddr + 3 * 20;
+
                         // line category
                         this.dataBuffer[5201] = rxPacket.data[2 + 143];
+
+                        const sensorStartAddr = lineCategoryStartAddr + 1;
                         
                         // 온습도+조도+동작감지센서값
-                        this.pirPir[0]          = rxPacket.data[2 + 144];
-                        this.pirTemperature[0]  = rxPacket.data[2 + 145];
-                        this.pirHumidity[0]     = rxPacket.data[2 + 146];
-                        this.pirBrightness[0]   = rxPacket.data[2 + 147];
+                        this.pirPir[0] = rxPacket.data[2 + sensorStartAddr];
+                        this.pirTemperature[0] = rxPacket.data[2 + sensorStartAddr + 1];
+                        this.pirHumidity[0] = rxPacket.data[2 + sensorStartAddr + 2];
+                        this.pirBrightness[0] = rxPacket.data[2 + sensorStartAddr + 3];
                         
                         // 거리+버튼+조도센서값
-                        this.distanceDistance[0]    = rxPacket.data[2 + 148] + (rxPacket.data[2 + 149] << 8);
-                        this.distanceButton[0]      = rxPacket.data[2 + 150];
-                        this.distanceBrightness[0]  = rxPacket.data[2 + 151];
+                        this.distanceDistance[0] =
+                            rxPacket.data[2 + sensorStartAddr + 4] +
+                            (rxPacket.data[2 + sensorStartAddr + 5] << 8);
+                        this.distanceButton[0] = rxPacket.data[2 + sensorStartAddr + 6];
+                        this.distanceBrightness[0] = rxPacket.data[2 + sensorStartAddr + 7];
                         
                         for (let i = 0; i < addrMap2.length; i++) {
                             switch (addrMap2[i][1]) {
