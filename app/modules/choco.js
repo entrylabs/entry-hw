@@ -307,11 +307,20 @@ class Choco extends BaseModule {
      * @param {*} handler 
      */
     requestRemoteData(handler) {
+        //sensor데이터는 상태가 바뀔때 전송한다.
+        if (
+            _.isEmpty(this.previousSensorData) ||
+            !_.isEqual(this.previousSensorData, this.sensorData)
+        ) {
+            handler.write('sensorData', this.sensorData);
+            this.previousSensorData = _.cloneDeep(this.sensorData);
+        }
+        
         if (this.executeCmd.processing === 'done') {
             this.log('requestRemoteData done', this.executeCmd.id);
 
             handler.write('msg_id', this.executeCmd.id);
-            handler.write('sensorData', this.sensorData);
+            //handler.write('sensorData', this.sensorData);
 
             this.executeCmd.id = '';
             this.executeCmd.processing = 'none';
