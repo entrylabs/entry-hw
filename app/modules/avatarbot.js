@@ -52,6 +52,17 @@ function Module() {
 		us_Min: 400,
 		us_Max: 2100
 	}
+	this.Board_LED_Strip = {
+		En:0,
+		sample: 0,
+		led_num: 64,
+		color_order: 0,
+		r: 0,
+		g: 0,
+		b: 0,
+		brightness:63,
+		set_en: 0,
+	}
 }
 
 /*
@@ -109,6 +120,11 @@ Module.prototype.init = function(handler, config) {
 		this.remoteDataSet[index+8] = (this.Board_Servo.us_Max>>8)&0xff;	
 	}
 	
+	// led 
+	index = this.BoardFunType.LED_Strip;
+	this.remoteDataSet[index+2] = (this.Board_LED_Strip.led_num)&0xff;
+	this.remoteDataSet[index+7] = (this.Board_LED_Strip.brightness)&0xff;
+	
 	// init... 
 	this.dataSet_index = 0;
 	this.dataSet = this.remoteDataSet.slice(); // copy data.
@@ -151,6 +167,7 @@ Module.prototype.handleRemoteData = function(handler) {
     console.log('[jhkim] handleRemoteData(read entry) data = ', data[11], ', cmd = ', cmd[11], ', de = ', this.remoteDataSet[11]); 
     // console.log('[jhkim] handleRemoteData(read entry)', this.remoteDataSet[23]); 
     // console.log('[jhkim] originParsing - DataSet length = ', data.length); 
+	/*
 	for(var i=0; i<(data.length/10); i++)
 	{
 		var index = i*10;
@@ -160,6 +177,7 @@ Module.prototype.handleRemoteData = function(handler) {
 			data[index+6], ' | ', data[index+7], ' | ', data[index+8], ' | ', 
 			data[index+9]);
 	}
+	*/
 };
 
 /*
@@ -173,7 +191,7 @@ Module.prototype.requestLocalData = function() {
         var query = (data[index])&0xff;
        	queryString.push(query); // 1byte
     }
-    
+    /*
     for(var i=0; i<(data.length/10); i++)
 	{
 		var index = i*10;
@@ -183,6 +201,7 @@ Module.prototype.requestLocalData = function() {
 			data[index+6], ' | ', data[index+7], ' | ', data[index+8], ' | ', 
 			data[index+9]);
 	}
+	*/
     return queryString;
 };
 
