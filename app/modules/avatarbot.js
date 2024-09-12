@@ -42,6 +42,16 @@ function Module() {
 		Attenuation_6db: 2,
 		Attenuation_11db: 3 // default db value.
 	}
+
+	this.Board_IR_Remote = {
+		Flag: 0,
+		Value: 0xff,
+        Repeat: 0,
+        Address: 0,
+        Command: 0,
+        Raw_data: 0
+	}
+
 	this.Board_PCA9568 = {
 		Osci: 27000000,
 		Freq: 50
@@ -90,6 +100,10 @@ Module.prototype.init = function(handler, config) {
 	index = this.BoardFunType.ADC;
 	this.remoteDataSet[index+4] = (this.Board_ADC.Attenuation_11db)&0xff;
 	this.remoteDataSet[index+5] = (this.Board_ADC.Resolution)&0xff;
+	
+	// ir receiver
+	index = this.BoardFunType.IR_Remote;
+	this.remoteDataSet[index+1] = (this.Board_IR_Remote.Value)&0xff;
 	
 	// pca9568
 	index = this.BoardFunType.PCA9568;
