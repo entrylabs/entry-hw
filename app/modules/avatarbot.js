@@ -11,6 +11,7 @@ function Module() {
     this.BoardFunType = {
     	Info: 0,
     	Button:10,
+		OLED:12, // OLED : 12(EN),13(Sample)
         GPIO_PWM_SET: 20,
         GPIO_PWM: 30,
         ADC: 40,
