@@ -10,6 +10,7 @@ function Module() {
     this.remoteDataSet = new Array(210).fill(0);
     this.BoardFunType = {
     	Info: 0,
+		Info_isConnect: 5,
     	Button:10,
 		OLED:12, // OLED : 12(EN),13(Sample)
         GPIO_PWM_SET: 20,
@@ -89,7 +90,7 @@ Module.prototype.init = function(handler, config) {
 	this.remoteDataSet[index+1] = 0x01;
 	this.remoteDataSet[index+2] = 0x01;
 	this.remoteDataSet[index+3] = this.avatarBotDataSet;
-	
+
 	// pwm pad	
 	index = this.BoardFunType.GPIO_PWM_SET;
 	this.remoteDataSet[index+1] = (this.Board_PWM.Freq)&0xff;
@@ -171,15 +172,15 @@ Module.prototype.validateLocalData = function(data) {
 
 // 엔트리에서 받은 데이터에 대한 처리
 Module.prototype.handleRemoteData = function(handler) {
-	console.log('[jhkim] handleRemoteData(read entry)', this.remoteDataSet[11]); 
+	// console.log('[jhkim] handleRemoteData(read entry)', this.remoteDataSet[11]); 
 	const cmd = handler.read('CMD');
 	var data = this.remoteDataSet;
-    console.log('[jhkim] handleRemoteData(read entry) data = ', data[11], ', cmd = ', cmd[11] ); 
+    // console.log('[jhkim] handleRemoteData(read entry) data = ', data[11], ', cmd = ', cmd[11] ); 
     for (var index = 0; index < this.avatarBotDataSet; index++) {
         // data[index] = handler.read(index); // remoteDataset shallow copy
     	data[index] = cmd[index];
     }
-    console.log('[jhkim] handleRemoteData(read entry) data = ', data[11], ', cmd = ', cmd[11], ', de = ', this.remoteDataSet[11]); 
+    // console.log('[jhkim] handleRemoteData(read entry) data = ', data[11], ', cmd = ', cmd[11], ', de = ', this.remoteDataSet[11]); 
     // console.log('[jhkim] handleRemoteData(read entry)', this.remoteDataSet[23]); 
     // console.log('[jhkim] originParsing - DataSet length = ', data.length); 
 	/*
