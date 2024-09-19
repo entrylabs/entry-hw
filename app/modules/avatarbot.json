@@ -13,8 +13,7 @@
 	"translate": "Arduino compatible driver"
     },
     "reconnect" : true,
-    "firmware": "AvatarBot",
-    "firmwareBaudRate": 460800,
+    "firmware": "http://avatarmecha.ddns.net:5050/sharing/iCuhzvxcu",
     "select_com_port":true,
     "entry": {
         "protocol": "json"
