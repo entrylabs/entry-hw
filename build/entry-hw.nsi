@@ -14,7 +14,7 @@
 !define PRODUCT_NAME "Entry_HW"
 !define PROTOCOL_NAME "entryhw"
 !define APP_NAME "Entry_HW.exe"
-!define PRODUCT_VERSION "1.9.57"
+!define PRODUCT_VERSION "1.9.58"
 !define PRODUCT_PUBLISHER "EntryLabs"
 !define PRODUCT_WEB_SITE "https://www.playentry.org/"
 
