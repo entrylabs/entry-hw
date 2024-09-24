@@ -22,7 +22,7 @@ interface IEntryServer {
     setRouter: (router: MainRouter) => void;
     open: () => void;
     disconnectHardware: () => void;
-    connectHardwareSuccess: () => void;
+    connectHardwareSuccess: (hardwareId: String) => void;
     connectHardwareFailed: () => void;
     addRoomIdsOnSecondInstance: (roomId: string) => void;
     send: (data: any) => void;
@@ -320,7 +320,7 @@ class MainRouter {
             logger.verbose('entryServer, connector connection');
             this.handler = new DataHandler(this.config.id);
             this._connectToServer();
-            this.server.connectHardwareSuccess();
+            this.server.connectHardwareSuccess(this.config.id);
             this.connector.connect(); // router 설정 후 실제 기기와의 통신 시작
         }
     }

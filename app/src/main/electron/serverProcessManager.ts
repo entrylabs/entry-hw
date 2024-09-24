@@ -52,8 +52,8 @@ class ServerProcessManager {
         this._sendToChild('addRoomId', roomId);
     }
 
-    connectHardwareSuccess() {
-        this._sendToChild('connectHardwareSuccess');
+    connectHardwareSuccess(hardwareId: string) {
+        this._sendToChild('connectHardwareSuccess', hardwareId);
     }
 
     connectHardwareFailed() {
