@@ -1,0 +1,30 @@
+{
+    "id": "640101",
+    "name": {
+        "en": "AvatarBot",
+        "ko": "AvatarBot"
+    },
+    "platform": ["win32", "darwin"],
+    "icon" : "avatarbot.png",
+    "module": "avatarbot.js",
+    "driver": {
+	"win32-ia32": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
+    "win32-x64": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
+	"translate": "Arduino compatible driver"
+    },
+    "reconnect" : true,
+    "firmware": "http://avatarmecha.ddns.net:5050/sharing/iCuhzvxcu",
+    "select_com_port":true,
+    "entry": {
+        "protocol": "json"
+    },
+    "hardware": {
+        "type": "serial",
+        "control": "slave",
+        "duration": 500,
+        "vendor": ["Arduino", "wch.cn", "FTDI"],
+        "baudRate": 460800,
+        "lostTimer": 1000,
+        "firmwarecheck": false
+    }
+}
