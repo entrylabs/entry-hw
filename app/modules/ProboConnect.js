@@ -1,10 +1,10 @@
-const _ = require('lodash');
 const BaseModule = require('./baseModule');
 
 class ProboConnect extends BaseModule {
     constructor() {
         super();
 
+        this.lastID = 0;
         this.foo = 0;
         this.sp = null;
         this.EdgeBuff = {
@@ -26,7 +26,8 @@ class ProboConnect extends BaseModule {
                 AA1: 0,
                 AA2: 0,
                 AA3: 0,
-                AA4: 0 },
+                AA4: 0
+            },
             Digital:{
                 A1: 0,
                 A2: 0,
@@ -43,7 +44,8 @@ class ProboConnect extends BaseModule {
                 BEA1:0,
                 BEA2:0,
                 BEA3:0,
-                BEA4:0 },
+                BEA4:0
+            },
             Remote:{
                 R_1:0,
                 R_2:0,
@@ -56,12 +58,34 @@ class ProboConnect extends BaseModule {
                 R_L1:0,
                 R_L2:0,
                 R_R1:0,
-                R_R2:0 },
+                R_R2:0
+            },
             EEPROM:{
                 EC:0,
                 EEPR2:0,
-                EEPR1:0
+                EEPR1:0,
+            },
+            Infinite:{
+                ROTATION_1:0,
+                ROTATION_2:0,
+                ROTATION_3:0,
+                ROTATION_4:0
+            },
+            Acceler:{
+                AXIS_X1:0,
+                AXIS_X2:0,
+                AXIS_X3:0,
+                AXIS_X4:0,
+                AXIS_Y1:0,
+                AXIS_Y2:0,
+                AXIS_Y3:0,
+                AXIS_Y4:0,
+                AXIS_Z1:0,
+                AXIS_Z2:0,
+                AXIS_Z3:0,
+                AXIS_Z4:0,
             }
+
         };
 
         this.RemoteData = {
@@ -88,6 +112,10 @@ class ProboConnect extends BaseModule {
             ASET1:0
         };
 
+        // this.Infinite_Buff = { AA1: 0, AA2: 0, AA3: 0, AA4: 0 },
+        // this.Infinite_Count = { AA1: 0, AA2: 0, AA3: 0, AA4: 0 },
+        // this.Infinite_Start = { AA1: 0, AA2: 0, AA3: 0, AA4: 0 },
+
         this.OutputData = new Buffer(22);
 
         this.OutputData[0] = 0xAD;
@@ -112,8 +140,6 @@ class ProboConnect extends BaseModule {
         this.OutputData[19] = 0x00;
         this.OutputData[20] = 0x00;
         this.OutputData[21] = 0x00;
-
-
     }
 
     // init(handler, config) {}
@@ -124,7 +150,6 @@ class ProboConnect extends BaseModule {
 
     // 연결 후 초기에 송신할 데이터가 필요한 경우 사용합니다.
     requestInitialData(sp){
-        console.count('InitialData');
         this.sp = sp;
         var initTxBuf = new Buffer([0x63, 0x36]);
         return initTxBuf;
@@ -132,8 +157,6 @@ class ProboConnect extends BaseModule {
 
     // 연결 후 초기에 수신받아서 정상연결인지를 확인해야하는 경우 사용합니다.
     checkInitialData(data, config) {
-        console.count('checkInit');
-        //const TxBuf = new Buffer([0x1B, 0x00, 0x00, 0x00, 0x0E]);
         const TxBuf = new Buffer([0x24, 0x42]);
         var rt = false;
 
@@ -152,19 +175,14 @@ class ProboConnect extends BaseModule {
 
     // 엔트리로 전달할 데이터
     requestRemoteData(handler) {
-        console.count('write soket');
         handler.write("InputData",this.InputData);
     }
 
     // 엔트리에서 받은 데이터에 대한 처리
     handleRemoteData(handler) {
-        console.count('read soket');
-
-        //handler.read('DC1');
         Object.keys(this.RemoteData).forEach((port) => {
             this.RemoteData[port] = handler.read(port);
         });
-
         this.OutputData[3] = 0xF0 | (this.RemoteData.B4 << 3) | (this.RemoteData.B3 << 2) | (this.RemoteData.B2 << 1) | this.RemoteData.B1;
         this.OutputData[4] = this.RemoteData.Servo1;
         this.OutputData[5] = this.RemoteData.Servo2;
@@ -184,53 +202,36 @@ class ProboConnect extends BaseModule {
         this.OutputData[18] = this.RemoteData.EEPR1;
         this.OutputData[19] = this.RemoteData.ASET2;
         this.OutputData[20] = this.RemoteData.ASET1;
-
-
-        // Object.keys(this.SENSOR_MAP).forEach((port) => {
-        //     this.SENSOR_MAP[port] = handler.read(port);
-        // });
-        //
-        // const receivedStatusColor = this.STATUS_COLOR_MAP[
-        //     handler.read('STATUS_COLOR')
-        //     ];
-        // if (
-        //     receivedStatusColor !== undefined &&
-        //     this.CURRENT_STATUS_COLOR.COLOR !== receivedStatusColor
-        // ) {
-        //     this.CURRENT_STATUS_COLOR = {
-        //         COLOR: receivedStatusColor,
-        //         APPLIED: false,
-        //     };
-        // }
     }
 
     checkSumMk(buff){
         buff[this.OutputData.length - 1] = 0;
-        for(var i = 3 ; i < this.OutputData.length - 1 ; i++)
+        for(var i = 3 ; i < this.OutputData.length - 1 ; i++) {
             buff[this.OutputData.length - 1] +=  this.OutputData[i];
+        }
     }
 
     // 하드웨어에 전달할 데이터
     requestLocalData() {
-        console.count('write hardware');
-        // var OutputBuff = [0xAD,0xDA,0x00];
-        // const TxBuf = new Buffer([0xAD, 0xDA, 0x00]);
         this.OutputData[2] = this.OutputData.length - 3;
         this.checkSumMk(this.OutputData);
+        //console.log(this.InputData.EEPROM.ADDRESS, send);
         return this.OutputData;
     }
 
     checkSumCk(buff){
         var ck = 0;
-        for(var i = 3 ; i < (buff[2] + 2) ; i++ )
+        for(var i = 3 ; i < (buff[2] + 2) ; i++ ) {
             ck += buff[i];
+        }
 
-        return buff[buff[2]+2] == (ck & 0xff) ? true : false;
+        return buff[buff[2]+2] == (ck & 0xff)
+            ? true
+            : false;
     }
 
     // 하드웨어에서 온 데이터 처리
     handleLocalData(data) {
-        console.count('read hardware');
         if(data[0]==0xCD && data[1] == 0xDA)
         {
             if(this.checkSumCk(data)) {
@@ -274,12 +275,48 @@ class ProboConnect extends BaseModule {
                 this.InputData.EEPROM.EC = data[13];
                 this.InputData.EEPROM.EEPR2 = data[14];
                 this.InputData.EEPROM.EEPR1 = data[15];
+
+                this.InputData.Infinite.ROTATION_1 = (data[16]>>6)&0xC;
+                this.InputData.Infinite.ROTATION_2 = (data[16]>>4)&0xC;
+                this.InputData.Infinite.ROTATION_3 = (data[16]>>2)&0xC;
+                this.InputData.Infinite.ROTATION_4 = (data[16]>>0)&0xC;
+
+                this.InputData.Acceler.AXIS_X1 = data[4];
+                this.InputData.Acceler.AXIS_X2 = data[5];
+                this.InputData.Acceler.AXIS_X3 = data[6];
+                this.InputData.Acceler.AXIS_X4 = data[7];
+
+                this.InputData.Acceler.AXIS_Y1 = data[17];
+                this.InputData.Acceler.AXIS_Y2 = data[19];
+                this.InputData.Acceler.AXIS_Y3 = data[21];
+                this.InputData.Acceler.AXIS_Y4 = data[23];
+
+                this.InputData.Acceler.AXIS_Z1 = data[18];
+                this.InputData.Acceler.AXIS_Z2 = data[20];
+                this.InputData.Acceler.AXIS_Z3 = data[22];
+                this.InputData.Acceler.AXIS_Z4 = data[24];
             }
-            else
-                console.count('CheckSum Err');
         }
-        //this.sensors = data;
     }
+
+    // // 커스텀 버튼을 사용자에게 보여줄지 여부
+    // canShowCustomButton() {
+    //     return true;
+    // }
+  
+    // 커스텀 버튼 클릭시 동작할 로직
+    // customButtonClicked(key) {
+    //     switch (key) {
+    //     case "case1":
+    //         //버튼 1 로직
+    //         break;
+    //     case "case2":
+    //         //버튼 2 로직
+    //         break;
+    //     default:
+    //         console.log(key);
+    //     }
+    // }
 
 }
 
