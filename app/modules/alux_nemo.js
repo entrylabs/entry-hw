@@ -1,6 +1,9 @@
+const {dialog} = require('electron');
+
 function Module() {
     this.soundKeyArray = [30578, 28861, 27241, 25713, 24270, 22908, 21622, 20408, 19263, 18182, 17161, 16198];
     this.ledPixelArray = [0, 0, 0, 0, 0, 0, 0];
+    this.lastfwVersion = 1;
     this.protocol = {
         nemoId: 0x24,
         fwVersion: 0x42,
@@ -13,7 +16,7 @@ function Module() {
         cmd0: 0,
         cmd1: 1,
         size: 2,
-        led7x1: 3,        
+        led7x1: 3,
         led7x2: 4,
         led7x3: 5,
         led7x4: 6,
@@ -117,15 +120,13 @@ function Module() {
                 state: [false, false, false] // 눌려있을 때, 눌렀을 때, 뗐을 때
             }
         ],
-        expansion:  {
+        exPort:  {
             last: 0,
-            curr: 0,
             start: 0,
             state: [0, 0, 0, 0] // 값, 각도, 절대각도, 회전 수
         },
         compass: {
             last: 0,
-            curr: 0,
             start: 0,
             state: [0, 0, 0, 0, 0] // 값, 각도, 절대각도, 회전 수, 방향
         },
@@ -147,8 +148,8 @@ function Module() {
             },
         ]
     };
-    this.basicBuffer = new Buffer(26); // cs 제외 길이
-    this.textBuffer = new Buffer(0);
+    this.basicBuffer = new Buffer.alloc(26); // cs 제외 길이
+    this.textBuffer = new Buffer.alloc(0);
 
     this.lastInitBlockId = 0;
     this.lastOutputBlockId = 0;
@@ -166,7 +167,7 @@ Module.prototype.init = function(handler, config) {
 // requestInitialData 를 사용한 경우 checkInitialData 가 필수입니다.
 // 이 두 함수가 정의되어있어야 로직이 동작합니다. 필요없으면 작성하지 않아도 됩니다.
 Module.prototype.requestInitialData = function() {
-    const packet = new Buffer(this.length.version);
+    const packet = new Buffer.alloc(this.length.version);
     packet[this.sAddr.cmd0] = this.protocol.nemoId;
     packet[this.sAddr.cmd1] = this.protocol.fwVersion;
     return packet;
@@ -177,6 +178,19 @@ Module.prototype.checkInitialData = function(data, config) {
     let isConnected = false;
     if (data.length === this.length.version && data[this.rAddr.cmd0] === this.protocol.fwVersion) {
         this.device.fwVersion = data[this.rAddr.cmd1];
+        console.log("DD ", this.device.fwVersion, );
+        if (this.device.fwVersion !== this.lastfwVersion) {
+            const massage = this.lastfwVersion < this.device.fwVersion
+                    ? `펌웨어 버전이 더 높습니다.\n(The firmware is higher than the latest version.)`
+                    : `'드라이버 설치 2' 버튼을 눌러 펌웨어를 업데이트 해주세요.\n(Please, Click the 'Driver installation 2' button to update the firmware.)`;
+                const version = `\n\n현재(now) : v${this.device.fwVersion}\n최신(latest) : v${this.lastfwVersion}\n`;
+                
+                dialog.showMessageBox({
+                    type: `info`,
+                    title: `펌웨어 버전 확인`,
+                    message: massage + version
+                });
+        }
         isConnected = true;
     }
     return isConnected;
@@ -189,8 +203,7 @@ Module.prototype.requestLocalData = function() {
     const textSize = this.textBuffer.length;
     const packetSize = basicSize + textSize + 1;
     const csIndex = packetSize - 1;    
-    const packet = new Buffer(packetSize);
-
+    const packet = new Buffer.alloc(packetSize);
 
     this.basicBuffer[0] = this.protocol.sCmd0;
     this.basicBuffer[1] = this.protocol.sCmd1;
@@ -209,8 +222,10 @@ Module.prototype.requestLocalData = function() {
         }
     }
 
-    this.basicBuffer = new Buffer(this.length.send);
-    this.textBuffer = new Buffer(0);
+    this.basicBuffer = new Buffer.alloc(this.length.send);
+    // 포트설정에 0 이 들어가도 cs가 일치하므로 잘못된 값을 계속해서 보냄 따라서 이 배열 주소의 설정은 계속해서 유지해야 한다.
+    this.basicBuffer[this.sAddr.portSet] = packet[this.sAddr.portSet];
+    this.textBuffer = new Buffer.alloc(0);
     return packet;
 };
 
@@ -395,7 +410,7 @@ Module.prototype.setDefault = function() {
                 state: [false, false, false] // 눌려있을 때, 눌렀을 때, 뗐을 때
             }
         ],
-        expansion:  {
+        exPort:  {
             last: 0,
             curr: 0,
             start: 0,
@@ -425,8 +440,8 @@ Module.prototype.setDefault = function() {
             },
         ]
     };
-    this.basicBuffer = new Buffer(26); // cs 제외 길이
-    this.textBuffer = new Buffer(0);
+    this.basicBuffer = new Buffer.alloc(26); // cs 제외 길이
+    this.textBuffer = new Buffer.alloc(0);
 };
 
 Module.prototype.parsingAccelA = function(data) {
@@ -457,36 +472,27 @@ Module.prototype.parsingIllumination = function(data) {
     this.device.illumi = data[this.rAddr.illumi];
 }
 
-Module.prototype.parsingExPort = function(data) {    
-    const sen = data[this.rAddr.exPort];    
-    this.device.exPort = sen;
-    this.deviceEx.expansion.curr = sen;
+Module.prototype.parsingExPort = function(data) { 
+    // 0: 값, 1: 각도, 2: 절대각도, 3: 회전 수
+    const sensor = data[this.rAddr.exPort];
+    this.device.exPort = sensor;
 
-    if (this.deviceEx.expansion.curr !== this.deviceEx.expansion.last) {
-        let diff = this.deviceEx.expansion.last - this.deviceEx.expansion.curr;
-
-        // 회전수: 3
-        if (diff > 200) {
-            this.deviceEx.expansion.state[3] += 1;
-        } else if (diff < -200) {           
-            this.deviceEx.expansion.state[3] -= 1;
-        }
-
-        // 값: 0
-        this.deviceEx.expansion.state[0] = (sen - this.deviceEx.expansion.start) + (this.deviceEx.expansion.state[3] * 255);
-        
-        // 각도: 1
-        let angle = (this.deviceEx.expansion.state[0] % 255);
-        if (angle < 0) {
-            angle = 255 + angle;
-        }
-        this.deviceEx.expansion.state[1] = Math.floor(angle * 1.41732);
-
-        // 절대각도: 2    
-        this.deviceEx.expansion.state[2] =  Math.floor(sen * 1.41732);
+    // 회전 수
+    if (sensor < this.deviceEx.exPort.last - 150) {
+        this.deviceEx.exPort.state[3]++;
+    } else if (sensor > this.deviceEx.exPort.last + 150) {
+        this.deviceEx.exPort.state[3]--;
     }
-
-    this.deviceEx.expansion.last = this.deviceEx.expansion.curr;
+    const temp = (sensor - this.deviceEx.exPort.start) + (this.deviceEx.exPort.state[3] * 255);
+    this.deviceEx.exPort.last = sensor;
+    // 값
+    this.deviceEx.exPort.state[0] = temp;    
+    // 각도
+    this.deviceEx.exPort.state[1] = temp > 0
+        ? Math.floor((temp % 255) * 1.41732)
+        : Math.ceil((temp % 255) * 1.41732);
+    // 절대 각도
+    this.deviceEx.exPort.state[2] = Number((360/255) * data[this.rAddr.exPort]).toFixed(0);
 }
 
 Module.prototype.parsingExDigital = function(data) {
@@ -495,9 +501,9 @@ Module.prototype.parsingExDigital = function(data) {
         this.device.exDigital[i - 4] = temp === 1 ? true : false;
     }
     // 확장센서 버튼 상태값
-    this.deviceEx.expansion.state[4] = this.device.exDigital[3];
-    this.deviceEx.expansion.state[5] = this.device.exDigital[2];
-    this.deviceEx.expansion.state[6] = this.device.exDigital[1];
+    this.deviceEx.exPort.state[4] = this.device.exDigital[3];
+    this.deviceEx.exPort.state[5] = this.device.exDigital[2];
+    this.deviceEx.exPort.state[6] = this.device.exDigital[1];
 }
 
 Module.prototype.parsingAnSwitch = function(data) {
@@ -557,46 +563,35 @@ Module.prototype.parsingLedRead = function(data) {
 };
 
 Module.prototype.parsingCompass = function(data) {
-    const sen = data[this.rAddr.compass];    
-    this.device.compass = sen;
-    this.deviceEx.compass.curr = sen;
+    // 0: 값, 1: 각도, 2: 절대각도, 3: 회전 수, 4: 방향
+    const sensor = data[this.rAddr.compass];
 
-    if (this.deviceEx.compass.curr !== this.deviceEx.compass.last) {
-        let diff = this.deviceEx.compass.last - this.deviceEx.compass.curr;
-        
-        // 회전수: 3
-        if (diff > 200) {
-            this.deviceEx.compass.state[3] += 1;
-        } else if (diff < -200) {           
-            this.deviceEx.compass.state[3] -= 1;
-        }
-
-        // 값: 0
-        this.deviceEx.compass.state[0] = (sen - this.deviceEx.compass.start) + (this.deviceEx.compass.state[3] * 255);
-        
-        // 각도: 1
-        let angle = (this.deviceEx.compass.state[0] % 255);
-        if (angle < 0) {
-            angle = 255 + angle;
-        }
-        this.deviceEx.compass.state[1] = Math.floor(angle * 1.41732);
-
-        // 절대각도: 2    
-        this.deviceEx.compass.state[2] =  Math.floor(sen * 1.41732);
-
-        // 방향: 4
-        if (35 <= sen && sen < 99) {
-            this.deviceEx.compass.state[4] = 0; // 동
-        } else if (99 <= sen && sen < 163) {
-            this.deviceEx.compass.state[4] = 2; // 남
-        } else if (163 <= sen && sen < 227) {
-            this.deviceEx.compass.state[4] = 1; // 서
-        } else { // 227-34
-            this.deviceEx.compass.state[4] = 3; // 북
-        }
+    // 회전 수
+    if (sensor < this.deviceEx.compass.last - 150) {
+        this.deviceEx.compass.state[3]++;
+    } else if (sensor > this.deviceEx.compass.last + 150) {
+        this.deviceEx.compass.state[3]--;
     }
-
-    this.deviceEx.compass.last = this.deviceEx.compass.curr;
+    const temp = (sensor - this.deviceEx.compass.start) + (this.deviceEx.compass.state[3] * 255);
+    this.deviceEx.compass.last = sensor;
+    // 값
+    this.deviceEx.compass.state[0] = temp;    
+    // 각도
+    this.deviceEx.compass.state[1] = temp > 0
+        ? Math.floor((temp % 255) * 1.41732)
+        : Math.ceil((temp % 255) * 1.41732);
+    // 절대 각도
+    this.deviceEx.compass.state[2] = Number((360/255) * data[this.rAddr.compass]).toFixed(0);
+    // 방향: 4
+    if (35 <= sensor && sensor < 99) {
+        this.deviceEx.compass.state[4] = 0; // 동
+    } else if (99 <= sensor && sensor < 163) {
+        this.deviceEx.compass.state[4] = 2; // 남
+    } else if (163 <= sensor && sensor < 227) {
+        this.deviceEx.compass.state[4] = 1; // 서
+    } else { // 227-34
+        this.deviceEx.compass.state[4] = 3; // 북
+    }
 };
 
 Module.prototype.parsingTimeCheck = function(data) {
@@ -670,7 +665,7 @@ Module.prototype.addBuzzer = function(note) {
 
 Module.prototype.addText = function(text, time) {
     const size = text.length;
-    this.textBuffer = new Buffer(size + 1);
+    this.textBuffer = new Buffer.alloc(size + 1);
     this.textBuffer[this.sAddr.textSize] = size;
     for (let i = 0; i < size; i++) {
         this.textBuffer[i + 1] = text[i].charCodeAt();
@@ -685,43 +680,55 @@ Module.prototype.addLEDRead = function(index) {
 
 Module.prototype.addSetExpension = function(type) {
     switch (type) {
-        case 1:
-        case 2:
-        case 3:
+        case 1: // 스위치
+        case 2: // 적외선
+        case 3: // 자석
             this.basicBuffer[this.sAddr.portSet] = 0x01;
             break;
-        case 4:
-        case 6:
-            this.basicBuffer[this.sAddr.portSet] = 0x02;
+        case 4: // 초음파
+        case 6: // 조도
+            this.basicBuffer[this.sAddr.portSet] = 0x02; 
             break;
-        case 5:
+        case 5: // 회전
             this.basicBuffer[this.sAddr.portSet] = 0x07;
             break;
-        case 7:
+        case 7: // 소리
             this.basicBuffer[this.sAddr.portSet] = 0x08;
             break;
-        case 8:
+        case 8: // 기울기
             this.basicBuffer[this.sAddr.portSet] = 0x04;
             break;
-        case 9:
+        case 9: // 압력
             this.basicBuffer[this.sAddr.portSet] = 0x05;
             break;
-        case 10:
+        case 10: // 심박
             this.basicBuffer[this.sAddr.portSet] = 0x06;
             break;
     }
 };
 
 Module.prototype.addSetExpensionValue = function(value) {
-    this.deviceEx.expansion.start = this.device.exPort - (value % 255);
-    this.deviceEx.expansion.state[3] = Math.floor(value / 255);
-    this.deviceEx.expansion.last = -1;
+    let count = 0;
+    if (value != 0) {
+        count = Number(value / 255).toFixed(0);
+        value = value % 255;
+    }
+    // 0: 값, 1: 각도, 2: 절대각도, 3: 회전 수, 4: 방향
+    this.deviceEx.exPort.last = this.device.exPort;
+    this.deviceEx.exPort.start = this.device.exPort - value;
+    this.deviceEx.exPort.state[3] = count;
 };
 
-Module.prototype.addSetCompassValue = function(value) {    
-    this.deviceEx.compass.start = this.device.compass - (value % 255);
-    this.deviceEx.compass.state[3] = Math.floor(value / 255);
-    this.deviceEx.compass.last = -1;
+Module.prototype.addSetCompassValue = function(value) {
+    let count = 0;
+    if (value != 0) {
+        count = Number(value / 255).toFixed(0);
+        value = value % 255;
+    }
+    // 0: 값, 1: 각도, 2: 절대각도, 3: 회전 수, 4: 방향
+    this.deviceEx.compass.last = this.device.compass;
+    this.deviceEx.compass.start = this.device.compass - value;
+    this.deviceEx.compass.state[3] = count;
 };
     
 module.exports = new Module();
