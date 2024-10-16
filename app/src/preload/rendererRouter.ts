@@ -45,7 +45,7 @@ class RendererRouter {
     }
 
     closeAboutWindow() {
-        ipcRenderer.sendSync('closeAboutWindow');
+        ipcRenderer.send('closeAboutWindow');
     }
 
     startScan(hardware: IHardwareConfig) {
