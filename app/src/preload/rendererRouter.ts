@@ -106,66 +106,60 @@ class RendererRouter {
         const modal = new Modal.default();
 
         if (appName === 'hardware' && navigator.onLine) {
-            await ipcRenderer
-                .invoke('checkUpdate')
-                .then(({ hasNewVersion, recentVersion }) => {
-                    const lastDontCheckedVersion = localStorage.getItem('lastDontCheckedVersion');
-                    if (
-                        hasNewVersion &&
-                        (!lastDontCheckedVersion || lastDontCheckedVersion < recentVersion)
-                    ) {
-                        modal
-                            .alert(
-                                translate(
-                                    'You can use the latest Entry Hardware version(%1).'
-                                ).replace(/%1/gi, recentVersion),
-                                translate('Alert'),
-                                {
-                                    positiveButtonText: translate('Download'),
-                                    positiveButtonStyle: {
-                                        marginTop: '30px',
-                                        marginBottom: '16px',
-                                        width: '180px',
-                                        backgroundColor: '#4F80FF',
-                                        borderColor: '#4F80FF',
-                                        borderRadius: '7px',
-                                    },
-                                    containerStyle: {
-                                        overflow: 'hidden',
-                                        borderRadius: '7px',
-                                        boxShadow: 'none',
-                                        width: '388px'
-                                    },
-                                    contentStyle: {
-                                        fontSize: '18px',
-                                        color: '#2C313D',
-                                        lineHeight: '24px',
-                                        fontWeight: 'bolder',
-                                    },
-                                    withDontShowAgain: true,
+            await ipcRenderer.invoke('checkUpdate').then(({ hasNewVersion, recentVersion }) => {
+                const lastDontCheckedVersion = localStorage.getItem('lastDontCheckedVersion');
+                if (
+                    hasNewVersion &&
+                    (!lastDontCheckedVersion || lastDontCheckedVersion < recentVersion)
+                ) {
+                    modal
+                        .alert(
+                            translate('You can use the latest Entry Hardware version(%1).').replace(
+                                /%1/gi,
+                                recentVersion
+                            ),
+                            translate('Alert'),
+                            {
+                                positiveButtonText: translate('Download'),
+                                positiveButtonStyle: {
+                                    marginTop: '30px',
+                                    marginBottom: '16px',
+                                    width: '180px',
+                                    backgroundColor: '#4F80FF',
+                                    borderColor: '#4F80FF',
+                                    borderRadius: '7px',
+                                },
+                                containerStyle: {
+                                    overflow: 'hidden',
+                                    borderRadius: '7px',
+                                    boxShadow: 'none',
+                                    width: '388px',
+                                },
+                                contentStyle: {
+                                    fontSize: '18px',
+                                    color: '#2C313D',
+                                    lineHeight: '24px',
+                                    fontWeight: 'bolder',
+                                },
+                                withDontShowAgain: true,
+                            },
+                            {
+                                className: 'hideShadow',
+                            }
+                        )
+                        .one(
+                            'click',
+                            (event: any, { dontShowChecked }: { dontShowChecked: boolean }) => {
+                                if (event === 'ok') {
+                                    shell.openExternal('https://playentry.org/download/hardware');
                                 }
-                                ,{
-                                    className: 'hideShadow',
+                                if (dontShowChecked) {
+                                    localStorage.setItem('lastDontCheckedVersion', recentVersion);
                                 }
-                            )
-                            .one(
-                                'click',
-                                (event: any, { dontShowChecked }: { dontShowChecked: boolean }) => {
-                                    if (event === 'ok') {
-                                        shell.openExternal(
-                                            'https://playentry.org/download/hardware'
-                                        );
-                                    }
-                                    if (dontShowChecked) {
-                                        localStorage.setItem(
-                                            'lastDontCheckedVersion',
-                                            recentVersion
-                                        );
-                                    }
-                                }
-                            );
-                    }
-                });
+                            }
+                        );
+                }
+            });
         }
     }
 
@@ -219,10 +213,10 @@ class RendererRouter {
         }
     }
 
-    canShowCustomButton() : boolean {
+    canShowCustomButton(): boolean {
         return ipcRenderer.sendSync('canShowCustomButton');
     }
-    
+
     customButtonClicked(key: string) {
         ipcRenderer.send('customButtonClicked', key);
     }
