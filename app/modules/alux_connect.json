@@ -5,15 +5,15 @@
         "ko": "프로보커넥트"
     },
     "platform": ["win32"],
-    "icon" : "ProboConnect.png",
-    "module": "ProboConnect.js",
+    "icon" : "alux_connect.png",
+    "module": "alux_connect.js",
     "driver": [{
           "win32-ia32": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.exe",
           "win32-x64": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.exe",
           "translate": "드라이버 설치1"},
         {
-          "win32-ia32": "Easy_Down_Entry/PROBO_Easy_Down_Entry_ver8.38_install.exe",
-          "win32-x64": "Easy_Down_Entry/PROBO_Easy_Down_Entry_ver8.38_install.exe",
+          "win32-ia32": "Easy_Down_Entry/PROBO Easy Down Entry ver8.41.msi",
+          "win32-x64": "Easy_Down_Entry/PROBO Easy Down Entry ver8.41.msi",
           "translate": "드라이버 설치2"}
         ],
     "url": "https://www.probo.kr/",
