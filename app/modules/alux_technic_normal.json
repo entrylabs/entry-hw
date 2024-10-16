@@ -1,0 +1,35 @@
+{
+    "id": "630301",
+    "name": {
+        "en": "ProboTechnic(Normal)",
+        "ko": "프로보테크닉(일반)"
+    },
+    "platform": ["win32"],
+    "icon" : "alux_technic_normal.png",
+    "module": "alux_technic_normal.js",
+    "driver": [
+        {
+            "win32-ia32": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.exe",
+            "win32-x64": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.exe",
+            "translate": "드라이버 설치1"
+        },
+        {
+            "win32-ia32": "Easy_Down_Entry/PROBO Easy Down Entry ver8.41.msi",
+            "win32-x64": "Easy_Down_Entry/PROBO Easy Down Entry ver8.41.msi",
+            "translate": "드라이버 설치2"
+        }
+    ],
+    "url": "https://www.aluxonline.com/",
+    "email": "contact@imssam.me",
+    "reconnect": false,
+    "selectPort": true,
+    "hardware": {
+        "type": "serial",
+        "control": "slave",
+        "duration": 32,
+        "baudRate": 115200 ,
+        "vendor": "wch.cn",
+        "softwareReset": false,
+        "firmwarecheck": false
+    }
+}
