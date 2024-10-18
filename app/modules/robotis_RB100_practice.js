@@ -374,6 +374,9 @@ Module.prototype.requestLocalData = function() {
         if (instruction == INST_WRITE) {
             if (length == 1) {
                 sendBuffer = this.writeBytePacket(200, address, value);
+                if (address == 2100 && value == 1) {
+                    this.robotisBuffer = [];
+                }
             } else if (length == 2) {
                 sendBuffer = this.writeWordPacket(200, address, value);
             } else if (length == 4) {
@@ -566,29 +569,40 @@ Module.prototype.handleLocalData = function(data) { // data: Native Buffer
                             }
                         }
 
+                        const dxlPositionStartAddr =
+                            addrMap[addrMap.length - 1][0] + addrMap[addrMap.length - 1][1];
+
                         // DXL Position
                         for (let i = 0; i < 20; i++) {
-                            const currentId  = rxPacket.data[2 + 83 + (3 * i)];
-                            const currentPos = rxPacket.data[2 + 83 + (3 * i) + 1] + 
-                                               (rxPacket.data[2 + 83 + (3 * i) + 2] << 8);
-                            if (currentId != 0xFF && currentPos != 0xFFFF) {
+                            const currentId =
+                                rxPacket.data[2 + dxlPositionStartAddr + 3 * i];
+                            const currentPos =
+                                rxPacket.data[2 + dxlPositionStartAddr + 3 * i + 1] +
+                                (rxPacket.data[2 + dxlPositionStartAddr + 3 * i + 2] << 8);
+                            if (currentId != 0xff && currentPos != 0xffff) {
                                 this.dxlPositions[currentId] = currentPos;
                             }
                         }
 
+                        const lineCategoryStartAddr = dxlPositionStartAddr + 3 * 20;
+
                         // line category
                         this.dataBuffer[5201] = rxPacket.data[2 + 143];
+
+                        const sensorStartAddr = lineCategoryStartAddr + 1;
                         
                         // 온습도+조도+동작감지센서값
-                        this.pirPir[0]          = rxPacket.data[2 + 144];
-                        this.pirTemperature[0]  = rxPacket.data[2 + 145];
-                        this.pirHumidity[0]     = rxPacket.data[2 + 146];
-                        this.pirBrightness[0]   = rxPacket.data[2 + 147];
+                        this.pirPir[0] = rxPacket.data[2 + sensorStartAddr];
+                        this.pirTemperature[0] = rxPacket.data[2 + sensorStartAddr + 1];
+                        this.pirHumidity[0] = rxPacket.data[2 + sensorStartAddr + 2];
+                        this.pirBrightness[0] = rxPacket.data[2 + sensorStartAddr + 3];
                         
                         // 거리+버튼+조도센서값
-                        this.distanceDistance[0]    = rxPacket.data[2 + 148] + (rxPacket.data[2 + 149] << 8);
-                        this.distanceButton[0]      = rxPacket.data[2 + 150];
-                        this.distanceBrightness[0]  = rxPacket.data[2 + 151];
+                        this.distanceDistance[0] =
+                            rxPacket.data[2 + sensorStartAddr + 4] +
+                            (rxPacket.data[2 + sensorStartAddr + 5] << 8);
+                        this.distanceButton[0] = rxPacket.data[2 + sensorStartAddr + 6];
+                        this.distanceBrightness[0] = rxPacket.data[2 + sensorStartAddr + 7];
                         
                         for (let i = 0; i < addrMap2.length; i++) {
                             switch (addrMap2[i][1]) {
@@ -839,39 +853,40 @@ const addrMap = [
     [69,8,502],
     [77,1,700],
     [78,1,810],
-    [79,1,5015],
-    [80,1,5030],
-    [81,1,5031],
-    [82,1,5040],
+    [79,1,2134],
+    [80,1,5015],
+    [81,1,5030],
+    [82,1,5031],
+    [83,1,5040],
 ];
 
 
 const addrMap2 = [
-    [152,1,4000],
-    [153,2,4003],
-    [155,1,4005],
-    [156,1,4006],
-    [157,2,4009],
-    [159,2,4011],
-    [161,2,4013],
-    [163,2,4015],
-    [165,2,4017],
-    [167,2,4019],
-    [169,2,4021],
-    [171,2,4023],
-    [173,2,4025],
-    [175,2,4027],
-    [177,1,4031],
-    [178,1,4032],
-    [179,1,4033],
-    [180,2,4036],
-    [182,2,4038],
-    [184,2,4040],
-    [186,2,4042],
-    [188,2,4044],
-    [190,2,4046],
-    [192,2,4048],
-    [194,2,4050],
+    [153,1,4000],
+    [154,2,4003],
+    [156,1,4005],
+    [157,1,4006],
+    [158,2,4009],
+    [160,2,4011],
+    [162,2,4013],
+    [164,2,4015],
+    [166,2,4017],
+    [168,2,4019],
+    [170,2,4021],
+    [172,2,4023],
+    [174,2,4025],
+    [176,2,4027],
+    [178,1,4031],
+    [179,1,4032],
+    [180,1,4033],
+    [181,2,4036],
+    [183,2,4038],
+    [185,2,4040],
+    [187,2,4042],
+    [189,2,4044],
+    [191,2,4046],
+    [193,2,4048],
+    [195,2,4050],
 ];
 
 //const rxPacket = Object.assign({}, packet);

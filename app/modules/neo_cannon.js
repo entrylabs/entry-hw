@@ -1,6 +1,7 @@
 function Module() {
-    this.tx_max_len = 14;
+    this.tx_max_len = 68;
     this.tx_data = new Array(this.tx_max_len);
+    this.PIXEL_NUM = 18;
 
     this.sensor_data = {
         vibe: 0,
@@ -16,6 +17,26 @@ function Module() {
         d9: 0,
         d10: 0,
         angle_state: 0,
+        neopixel: [
+            { r: 0, g: 0, b: 0 },
+            { r: 0, g: 0, b: 0 },
+            { r: 0, g: 0, b: 0 },
+            { r: 0, g: 0, b: 0 },
+            { r: 0, g: 0, b: 0 },
+            { r: 0, g: 0, b: 0 },
+            { r: 0, g: 0, b: 0 },
+            { r: 0, g: 0, b: 0 },
+            { r: 0, g: 0, b: 0 },
+            { r: 0, g: 0, b: 0 },
+            { r: 0, g: 0, b: 0 },
+            { r: 0, g: 0, b: 0 },
+            { r: 0, g: 0, b: 0 },
+            { r: 0, g: 0, b: 0 },
+            { r: 0, g: 0, b: 0 },
+            { r: 0, g: 0, b: 0 },
+            { r: 0, g: 0, b: 0 },
+            { r: 0, g: 0, b: 0 },
+        ],
     };
 
     this.sensorValueSize = {
@@ -38,45 +59,47 @@ const NEOCANNON = {
     D9: 'd9',
     D10: 'd10',
     ANGLE_STATE: 'angleState',
+    NEOPIXEL: 'neopixel',
 };
 
-Module.prototype.init = function(handler, config) {};
+Module.prototype.init = function (handler, config) {};
 
-Module.prototype.setSerialPort = function(sp) {
+Module.prototype.setSerialPort = function (sp) {
     this.sp = sp;
 };
 
-Module.prototype.requestInitialData = function() {
+Module.prototype.requestInitialData = function () {
     const txData = this.tx_data;
+    const dataLen = this.tx_max_len;
     txData[0] = 0xff;
-    txData[1] = 0x0e;
+    txData[1] = 0x44;
     txData[2] = 0x01;
     txData[3] = 0x03;
-    for (let i = 4; i < this.tx_max_len - 2; i++) {
+    for (let i = 4; i < dataLen - 2; i++) {
         txData[i] = 0;
     }
-    txData[12] = 0x4;
-    txData[13] = 0xa;
+    txData[dataLen - 2] = 0x4;
+    txData[dataLen - 1] = 0xa;
     return txData;
 };
 
-Module.prototype.checkInitialData = function(data, config) {
+Module.prototype.checkInitialData = function (data, config) {
     return true;
 };
 
-Module.prototype.afterConnect = function(that, cb) {
+Module.prototype.afterConnect = function (that, cb) {
     that.connected = true;
     if (cb) {
         cb('connected');
     }
 };
 
-Module.prototype.validateLocalData = function(data) {
+Module.prototype.validateLocalData = function (data) {
     return true;
 };
 
 /* 엔트리HW -> 엔트리JS */
-Module.prototype.requestRemoteData = function(handler) {
+Module.prototype.requestRemoteData = function (handler) {
     const sensorData = this.sensor_data;
     for (const key in sensorData) {
         handler.write(key, sensorData[key]);
@@ -84,7 +107,7 @@ Module.prototype.requestRemoteData = function(handler) {
 };
 
 /** 엔트리JS -> 엔트리HW */
-Module.prototype.handleRemoteData = function(handler) {
+Module.prototype.handleRemoteData = function (handler) {
     const workerData = this.worker_data;
     let newValue;
 
@@ -136,18 +159,46 @@ Module.prototype.handleRemoteData = function(handler) {
         workerData.angle_state = newValue;
     }
 
+    if (handler.e(NEOCANNON.NEOPIXEL)) {
+        newValue = handler.read(NEOCANNON.NEOPIXEL);
+        if (newValue.data) {
+            const red = newValue.data.red;
+            const green = newValue.data.green;
+            const blue = newValue.data.blue;
+
+            if (newValue.data.num !== undefined) {
+                const num = newValue.data.num;
+                workerData.neopixel[num].r = red;
+                workerData.neopixel[num].g = green;
+                workerData.neopixel[num].b = blue;
+            } else {
+                for (let i = 0; i < this.PIXEL_NUM; i++) {
+                    workerData.neopixel[i].r = red;
+                    workerData.neopixel[i].g = green;
+                    workerData.neopixel[i].b = blue;
+                }
+            }
+        } else {
+            for (let i = 0; i < this.PIXEL_NUM; i++) {
+                workerData.neopixel[i].r = 0;
+                workerData.neopixel[i].g = 0;
+                workerData.neopixel[i].b = 0;
+            }
+        }
+    }
+
     this.worker_data = workerData;
 };
 
 /* 엔트리HW -> 교구 */
-Module.prototype.requestLocalData = function() {
+Module.prototype.requestLocalData = function () {
     const workerData = this.worker_data;
     const txData = this.tx_data;
     let checkSum = 0;
     const dataLen = txData.length;
 
     txData[0] = 0xff;
-    txData[1] = 0x0e;
+    txData[1] = 0x44;
     txData[2] = 0x01;
     txData[3] = 0x03;
     txData[4] = workerData.buz_octave;
@@ -158,7 +209,14 @@ Module.prototype.requestLocalData = function() {
     txData[9] = workerData.d9;
     txData[10] = workerData.d10;
     txData[11] = workerData.angle_state;
-    txData[13] = 0xa;
+
+    for (let i = 0; i < this.PIXEL_NUM; i++) {
+        txData[i * 3 + 12] = workerData.neopixel[i].r;
+        txData[i * 3 + 13] = workerData.neopixel[i].g;
+        txData[i * 3 + 14] = workerData.neopixel[i].b;
+    }
+
+    txData[dataLen - 1] = 0xa;
 
     for (let i = 2; i < dataLen - 2; i++) {
         checkSum += txData[i];
@@ -171,7 +229,7 @@ Module.prototype.requestLocalData = function() {
 };
 
 /* 교구 -> 엔트리HW */
-Module.prototype.handleLocalData = function(data) {
+Module.prototype.handleLocalData = function (data) {
     const datas = this.getDataByBuffer(data);
     const sensorData = this.sensor_data;
 
@@ -199,7 +257,7 @@ Module.prototype.handleLocalData = function(data) {
     this.sensor_data = sensorData;
 };
 
-Module.prototype.getDataByBuffer = function(buffer) {
+Module.prototype.getDataByBuffer = function (buffer) {
     const datas = [];
     let lastIndex = 0;
     buffer.forEach((value, idx) => {
@@ -211,14 +269,14 @@ Module.prototype.getDataByBuffer = function(buffer) {
     return datas;
 };
 
-Module.prototype.disconnect = function(connect) {
+Module.prototype.disconnect = function (connect) {
     connect.close();
     if (this.sp) {
         delete this.sp;
     }
 };
 
-Module.prototype.reset = function() {
+Module.prototype.reset = function () {
     this.lastTime = 0;
     this.lastSendTime = 0;
 };
