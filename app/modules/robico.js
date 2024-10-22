@@ -1,6 +1,6 @@
 const BaseModule = require('./baseModule');
 
-class Ozobot extends BaseModule {
+class Robico extends BaseModule {
 	// 클래스 내부에서 사용될 필드들을 이곳에서 선언합니다.
 	constructor() {
 		super();
@@ -476,4 +476,4 @@ class Ozobot extends BaseModule {
 		}
 	}
 }
-module.exports = new Ozobot();
+module.exports = new Robico();
