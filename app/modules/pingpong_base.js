@@ -1,7 +1,6 @@
 const BaseModule = require('./baseModule');
 const { app } = require('electron');
 const { dialog } = require('electron');
-const { sensor } = require('./whalesbot_eagle_1001');
 
 //1.9.19 이후 여러번 패킷 전송을 막기 위한 변수
 let checkMultiroleAction = false;
