@@ -1,5 +1,3 @@
-const { motor } = require("./roborobo_schoolkit");
-
 function Module() {
     this.tx_d = new Array(28);
     this.rx_d56 = new Array(56);
