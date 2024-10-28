@@ -1,6 +1,6 @@
-const BaseModule = require('./baseModule');
+const PingpongBase = require('./pingpong_base');
 
-class PingpongG1 extends BaseModule {
+class PingpongG1 extends PingpongBase {
     constructor() {
         super();
 
@@ -72,9 +72,23 @@ class PingpongG1 extends BaseModule {
                 0xff, 0xff, 0xff, 0xff, 0x00, 0xc8 /* continuous sampling*/, 0xb8, 0x00, 0x0b, 20,
                 0x01,
             ]);
+        } else if (method === 'dongleReset') {
+            result = Buffer.from([
+                0xDD,
+                0xDD,
+                0xDD,
+                0xDD,
+                0x00,
+                0x00,
+                0xDA,
+                0x00,
+                0x0B,
+                0x00,
+                0xCD,                
+            ]);
         }
         return result;
-    }
+        }
 
     /*
 	sendRemoteRequest() {
@@ -275,27 +289,27 @@ class PingpongG1 extends BaseModule {
     }
 
     // 하드웨어 연결 해제 시 호출됩니다.
-    disconnect(connect) {
-        console.log('P:disconnect: ');
+    // disconnect(connect) {
+    //     console.log('P:disconnect: ');
 
-        //console.log('.. ', this.sp.isOpen);
-        if (this.sp) {
-            // set led
-            //this.sp.write( Buffer.from('ffffffff0000ce000e0200000150', 'hex') );
-            // getSensor disable
-            //this.sp.write( Buffer.from('ffffffff00c8b8000b0001', 'hex') );
+    //     //console.log('.. ', this.sp.isOpen);
+    //     if (this.sp) {
+    //         // set led
+    //         //this.sp.write( Buffer.from('ffffffff0000ce000e0200000150', 'hex') );
+    //         // getSensor disable
+    //         //this.sp.write( Buffer.from('ffffffff00c8b8000b0001', 'hex') );
 
-            this.sp.write(this.makePackets('disconnect'), (err) => {
-                if (this.sp.isOpen) {
-                    console.log('Disconnect');
-                    connect.close();
-                }
-                this.sp = null;
-            });
-        } else {
-            connect.close();
-        }
-    }
+    //         this.sp.write(this.makePackets('disconnect'), (err) => {
+    //             if (this.sp.isOpen) {
+    //                 console.log('Disconnect');
+    //                 connect.close();
+    //             }
+    //             this.sp = null;
+    //         });
+    //     } else {
+    //         connect.close();
+    //     }
+    // }
 
     // 엔트리와의 연결 종료 후 처리 코드입니다.
     reset() {

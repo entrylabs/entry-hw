@@ -14,7 +14,7 @@
     },
     "url": "https://www.aluxonline.com/",
     "firmware": "alux_nemo",
-	"firmwareBaudRate": 115200,
+    "firmwareBaudRate": 115200,
     "email": "contact@imssam.me",
     "reconnect": true,
     "selectPort": true,
