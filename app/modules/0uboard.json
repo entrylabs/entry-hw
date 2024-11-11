@@ -1,0 +1,35 @@
+{
+	"id": "520101",
+	"name": {
+		"en": "0UBOARD",
+		"ko": "0U보드(공유보드)"
+	},
+	"category": "board",
+	"platform": ["win32"],
+	"icon" : "0uboard.png",
+	"module": "0uboard.js",
+	"url": "https://www.pyocoding.co.kr",
+	"email": "pyocoding@gmail.com",
+	"driver": {
+        "win32-ia32": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
+        "win32-x64": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE"
+    },
+	"reconnect" : true,
+	"selectPort": true,
+	"firmware": [{
+        "type": "esp32",
+        "offset": "0x10000",
+        "name": "0uboard",
+		"translate" : "공유보드펌웨어"
+    }],
+	"firmwareBaudRate": 921600,
+	"hardware": {
+		"type": "serial",
+        "control": "slave",
+        "duration": 32,
+        "vendor": ["Arduino", "wch.cn", "FTDI"],
+        "baudRate": 57600,
+        "lostTimer": 5000,
+        "firmwarecheck": false
+	}
+}
