@@ -1,0 +1,22 @@
+{
+    "id": "180301",
+    "name": {
+        "en": "IOT SmartFarm",
+        "ko": "IOT스마트팜"
+    },
+    "category": "robot",
+    "platform": ["win32", "darwin"],
+    "icon": "iotsmartfarm.png",
+    "module": "iotsmartfarm.js",
+    "url": "http://saeon.co.kr/",
+    "email": "saeon@saeon.co.kr",
+    "reconnect": true,
+    "selectPort": true,
+    "hardware": {
+        "type": "serial",
+        "control": "slave",
+        "vendor": "Microsoft",
+        "duration": 100,
+        "baudRate": 115200
+    }
+}
