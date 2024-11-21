@@ -7,32 +7,34 @@
     "platform": ["win32"],
     "icon" : "alux_connect.png",
     "module": "alux_connect.js",
-    "driver": [{
-          "win32-ia32": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.exe",
-          "win32-x64": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.exe",
-          "translate": "드라이버 설치1"},
+    "driver": [
         {
-          "win32-ia32": "Easy_Down_Entry/PROBO Easy Down Entry ver8.41.msi",
-          "win32-x64": "Easy_Down_Entry/PROBO Easy Down Entry ver8.41.msi",
-          "translate": "드라이버 설치2"}
-        ],
+            "win32-ia32": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.exe",
+            "win32-x64": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.exe",
+            "translate": "CH34x 드라이버"
+        },
+        {
+            "win32-ia32": "Easy_Down_Entry/PROBO Easy Down Entry ver8.41.msi",
+            "win32-x64": "Easy_Down_Entry/PROBO Easy Down Entry ver8.41.msi",
+            "translate": "Easy Down Entry 드라이버"
+        }
+    ],
     "url": "https://www.probo.kr/",
-    "email": "tkddnjs10@naver.com",
+    "email": " contact@imssam.me",
     "reconnect": true,
     "selectPort": true,
     "hardware": {
-      "type": "serial",
-      "control": "slave",
-      "duration": 32,
-      "baudRate": 115200 ,
-      "vendor": "Probo",
-      "firmwarecheck": true,
-      "parity" : "none",
-      "dataBits" : 8,
-      "stopBits" : 1,
-      "bufferSize" : 255,
-      "delimiter" : "",
-      "flowControl" : "Connect"
+        "type": "serial",
+        "control": "slave",
+        "duration": 32,
+        "baudRate": 115200,
+        "vendor": "Probo",
+        "firmwarecheck": true,
+        "parity" : "none",
+        "dataBits" : 8,
+        "stopBits" : 1,
+        "bufferSize" : 255,
+        "delimiter" : "",
+        "flowControl" : "Connect"
     }
-
 }
