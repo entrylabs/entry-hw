@@ -1,0 +1,7 @@
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\port_btremote.c:114:13:BTRemoteRxCallBack	40	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\port_btremote.c:163:6:InitBTRemote	8	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\port_btremote.c:178:5:get_bt_remote_control	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\port_btremote.c:194:7:getBtName	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\port_btremote.c:200:5:getbtstatus	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\port_btremote.c:206:5:getBTdata	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\port_btremote.c:212:5:isNewBtData	0	static

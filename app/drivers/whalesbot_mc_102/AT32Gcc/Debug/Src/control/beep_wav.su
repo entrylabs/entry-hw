@@ -1,0 +1,11 @@
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\beep_wav.c:211:6:InitBeepWav	72	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\beep_wav.c:247:6:inFLASH_ReadBuffer	16	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\beep_wav.c:263:6:play_sound_en	128	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\beep_wav.c:344:6:play_sound	120	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\beep_wav.c:433:6:SetSoundVol	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\beep_wav.c:439:6:StopSound	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\beep_wav.c:446:5:getSoundState	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\beep_wav.c:466:6:read_number	32	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\beep_wav.c:521:6:recorder	32	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\beep_wav.c:579:6:play_record	32	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\beep_wav.c:670:5:getBTSoundIndex	0	static

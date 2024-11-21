@@ -1,0 +1,15 @@
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\port_AI_sensor.c:135:13:magnetic_encoder_callback_10ms	16	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\port_AI_sensor.c:17:5:touch_switch_pressed	8	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\port_AI_sensor.c:29:5:get_infrared_distance	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\port_AI_sensor.c:36:5:obstacle_infrared_detected	8	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\port_AI_sensor.c:47:5:get_single_grayscale	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\port_AI_sensor.c:53:5:single_grayscale_detected	8	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\port_AI_sensor.c:76:5:get_ambient_light	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\port_AI_sensor.c:83:5:get_flame	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\port_AI_sensor.c:89:5:magnetic_detected	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\port_AI_sensor.c:95:5:get_sound_volume	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\port_AI_sensor.c:102:5:button_pressed	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\port_AI_sensor.c:108:5:human_infrared_value	8	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\port_AI_sensor.c:117:5:touch_button	8	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\port_AI_sensor.c:168:6:magnetic_encoder_reset	16	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\port_AI_sensor.c:179:5:magnetic_encoder	24	static

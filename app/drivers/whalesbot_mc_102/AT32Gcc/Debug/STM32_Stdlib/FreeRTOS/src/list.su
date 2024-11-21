@@ -1,0 +1,5 @@
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\FreeRTOS\src\list.c:79:6:vListInitialise	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\FreeRTOS\src\list.c:104:6:vListInitialiseItem	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\FreeRTOS\src\list.c:116:6:vListInsertEnd	4	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\FreeRTOS\src\list.c:145:6:vListInsert	8	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\FreeRTOS\src\list.c:212:13:uxListRemove	4	static

@@ -1,0 +1,7 @@
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\port_uart_5gray.c:36:13:Port1_5GrayUartCallBack	8	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\port_uart_5gray.c:82:13:Port2_5GrayUartCallBack	8	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\port_uart_5gray.c:129:5:get_integrated_grayscale	8	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\port_uart_5gray.c:173:5:integrated_grayscale_detected	16	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\port_uart_5gray.c:194:5:Is5GrayInt	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\port_uart_5gray.c:204:5:Is5GrayConnect	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\port_uart_5gray.c:218:6:Reset5GrayConnect	8	static

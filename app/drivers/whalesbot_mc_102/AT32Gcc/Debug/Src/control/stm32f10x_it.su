@@ -1,0 +1,7 @@
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\stm32f10x_it.c:20:6:NMI_Handler	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\stm32f10x_it.c:29:6:HardFault_Handler	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\stm32f10x_it.c:42:6:MemManage_Handler	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\stm32f10x_it.c:55:6:BusFault_Handler	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\stm32f10x_it.c:68:6:UsageFault_Handler	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\stm32f10x_it.c:90:6:DebugMon_Handler	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\stm32f10x_it.c:108:6:SysTick_Handler	0	static

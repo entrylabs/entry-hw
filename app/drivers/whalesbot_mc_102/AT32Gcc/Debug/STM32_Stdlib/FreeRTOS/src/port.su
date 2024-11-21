@@ -1,0 +1,11 @@
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\FreeRTOS\src\port.c:234:13:prvTaskExitError	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\FreeRTOS\src\port.c:268:13:prvPortStartFirstTask	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\FreeRTOS\src\port.c:216:14:pxPortInitialiseStack	4	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\FreeRTOS\src\port.c:248:6:SVC_Handler	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\FreeRTOS\src\port.c:363:6:vPortEndScheduler	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\FreeRTOS\src\port.c:371:6:vPortEnterCritical	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\FreeRTOS\src\port.c:388:6:vPortExitCritical	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\FreeRTOS\src\port.c:399:6:PendSV_Handler	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\FreeRTOS\src\port.c:436:6:xPortSysTickHandler	8	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\FreeRTOS\src\port.c:614:30:vPortSetupTimerInterrupt	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\FreeRTOS\src\port.c:288:12:xPortStartScheduler	8	static

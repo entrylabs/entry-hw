@@ -1,0 +1,14 @@
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\STM32F10x_StdPeriph_Driver\src\stm32f10x_rtc.c:90:6:RTC_ITConfig	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\STM32F10x_StdPeriph_Driver\src\stm32f10x_rtc.c:111:6:RTC_EnterConfigMode	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\STM32F10x_StdPeriph_Driver\src\stm32f10x_rtc.c:122:6:RTC_ExitConfigMode	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\STM32F10x_StdPeriph_Driver\src\stm32f10x_rtc.c:133:10:RTC_GetCounter	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\STM32F10x_StdPeriph_Driver\src\stm32f10x_rtc.c:145:6:RTC_SetCounter	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\STM32F10x_StdPeriph_Driver\src\stm32f10x_rtc.c:160:6:RTC_SetPrescaler	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\STM32F10x_StdPeriph_Driver\src\stm32f10x_rtc.c:178:6:RTC_SetAlarm	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\STM32F10x_StdPeriph_Driver\src\stm32f10x_rtc.c:193:10:RTC_GetDivider	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\STM32F10x_StdPeriph_Driver\src\stm32f10x_rtc.c:207:6:RTC_WaitForLastTask	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\STM32F10x_StdPeriph_Driver\src\stm32f10x_rtc.c:223:6:RTC_WaitForSynchro	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\STM32F10x_StdPeriph_Driver\src\stm32f10x_rtc.c:244:12:RTC_GetFlagStatus	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\STM32F10x_StdPeriph_Driver\src\stm32f10x_rtc.c:273:6:RTC_ClearFlag	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\STM32F10x_StdPeriph_Driver\src\stm32f10x_rtc.c:291:10:RTC_GetITStatus	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\STM32F10x_StdPeriph_Driver\src\stm32f10x_rtc.c:318:6:RTC_ClearITPendingBit	0	static

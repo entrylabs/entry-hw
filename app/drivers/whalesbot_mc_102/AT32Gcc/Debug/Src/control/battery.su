@@ -1,0 +1,8 @@
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\battery.c:76:13:BattCheck_1ms_CallBack	16	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\battery.c:49:5:getBatt_AVG	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\battery.c:55:5:getBatt	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\battery.c:61:5:getBattPercentage	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\battery.c:136:5:SetAutoPowerOff	8	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\battery.c:161:5:getAutoPowerOff	8	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\battery.c:185:6:SetAutoPowerDisable	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\battery.c:192:6:InitBatt	8	static

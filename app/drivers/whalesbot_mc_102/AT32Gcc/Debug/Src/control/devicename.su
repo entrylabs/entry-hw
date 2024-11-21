@@ -1,0 +1,3 @@
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\devicename.c:18:6:InitDeviceName	24	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\devicename.c:69:5:getHARDWARE	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\devicename.c:78:5:getSOFRWARE	0	static

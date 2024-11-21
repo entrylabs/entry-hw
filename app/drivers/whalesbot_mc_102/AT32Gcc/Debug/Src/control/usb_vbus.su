@@ -1,0 +1,3 @@
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\usb_vbus.c:45:5:IsUSBConnect	8	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\usb_vbus.c:73:6:USB2MASS	8	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\usb_vbus.c:97:6:Init_VBUS	24	static

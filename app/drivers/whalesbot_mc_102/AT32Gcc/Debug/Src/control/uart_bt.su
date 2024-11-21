@@ -1,0 +1,6 @@
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\uart_bt.c:16:6:setUartBluetooth_RxHandle	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\uart_bt.c:22:6:setUartBluetooth_TxHandle	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\uart_bt.c:31:6:InitUart_Bluetooth	40	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\uart_bt.c:76:6:UartBluetooth_Sendbyte	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\uart_bt.c:84:6:UartBluetooth_Sendbytes	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\uart_bt.c:98:6:USART2_IRQHandler	8	static

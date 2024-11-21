@@ -1,0 +1,8 @@
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\STM32F10x_StdPeriph_Driver\src\stm32f10x_exti.c:85:6:EXTI_DeInit	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\STM32F10x_StdPeriph_Driver\src\stm32f10x_exti.c:101:6:EXTI_Init	4	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\STM32F10x_StdPeriph_Driver\src\stm32f10x_exti.c:157:6:EXTI_StructInit	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\STM32F10x_StdPeriph_Driver\src\stm32f10x_exti.c:171:6:EXTI_GenerateSWInterrupt	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\STM32F10x_StdPeriph_Driver\src\stm32f10x_exti.c:186:12:EXTI_GetFlagStatus	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\STM32F10x_StdPeriph_Driver\src\stm32f10x_exti.c:209:6:EXTI_ClearFlag	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\STM32F10x_StdPeriph_Driver\src\stm32f10x_exti.c:224:10:EXTI_GetITStatus	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\STM32F10x_StdPeriph_Driver\src\stm32f10x_exti.c:249:6:EXTI_ClearITPendingBit	0	static
