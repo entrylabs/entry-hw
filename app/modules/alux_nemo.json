@@ -1,0 +1,31 @@
+{
+    "id": "630101",
+    "name": {
+        "en": "NEMO",
+        "ko": "네모"
+    },
+    "category": "module",
+    "platform": ["win32", "darwin"],
+    "icon": "alux_nemo.png",
+    "module": "alux_nemo.js",
+    "driver": {
+        "win32-ia32": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.exe",
+        "win32-x64": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.exe"
+    },
+    "url": "https://www.aluxonline.com/",
+    "firmware": "alux_nemo",
+    "firmwareBaudRate": 115200,
+    "email": "contact@imssam.me",
+    "reconnect": true,
+    "selectPort": true,
+    "hardware": {
+        "type": "serial",
+        "control": "slave",
+        "duration": 50,
+        "vendor": "wch.cn",
+        "baudRate": 115200,
+        "lostTimer": 1000,
+        "softwareReset": false,
+        "firmwarecheck": false
+    }
+}
