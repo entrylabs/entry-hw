@@ -1,0 +1,5 @@
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\FreeRTOS\src\heap_4.c:155:7:pvPortMalloc	24	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\FreeRTOS\src\heap_4.c:305:6:vPortFree	8	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\FreeRTOS\src\heap_4.c:353:8:xPortGetFreeHeapSize	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\FreeRTOS\src\heap_4.c:359:8:xPortGetMinimumEverFreeHeapSize	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\FreeRTOS\src\heap_4.c:365:6:vPortInitialiseBlocks	0	static

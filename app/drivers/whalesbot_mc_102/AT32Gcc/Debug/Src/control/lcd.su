@@ -1,0 +1,14 @@
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\lcd.c:24:5:get_LCD_W	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\lcd.c:54:5:get_LCD_H	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\lcd.c:84:5:get_LCD_CharH	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\lcd.c:114:5:get_LCD_CharW	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\lcd.c:144:6:LCD_ClearBuffer	24	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\lcd.c:156:6:LCD_ClearBufferLine	32	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\lcd.c:183:6:LCD_Ram2LCD	8	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\lcd.c:218:6:LCD_DrawStringToBuffer	8	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\lcd.c:247:6:LCD_DrawPicToBuffer	12	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\lcd.c:283:6:Printf	24	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\lcd.c:297:6:show	20	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\lcd.c:344:6:InitLCD	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\lcd.c:375:6:LCD_Disable	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\lcd.c:388:6:ClearLCD	8	static

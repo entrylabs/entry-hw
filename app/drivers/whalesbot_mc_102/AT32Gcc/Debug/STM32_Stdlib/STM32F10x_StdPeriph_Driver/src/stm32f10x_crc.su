@@ -1,0 +1,6 @@
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\STM32F10x_StdPeriph_Driver\src\stm32f10x_crc.c:83:6:CRC_ResetDR	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\STM32F10x_StdPeriph_Driver\src\stm32f10x_crc.c:94:10:CRC_CalcCRC	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\STM32F10x_StdPeriph_Driver\src\stm32f10x_crc.c:107:10:CRC_CalcBlockCRC	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\STM32F10x_StdPeriph_Driver\src\stm32f10x_crc.c:123:10:CRC_GetCRC	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\STM32F10x_StdPeriph_Driver\src\stm32f10x_crc.c:133:6:CRC_SetIDRegister	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\STM32F10x_StdPeriph_Driver\src\stm32f10x_crc.c:143:9:CRC_GetIDRegister	0	static

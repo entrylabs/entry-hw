@@ -1,0 +1,8 @@
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\thread.c:64:13:ThreadRun	8	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\thread.c:10:6:wait	16	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\thread.c:23:6:ThreadResumeAll	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\thread.c:31:6:ThreadSuspendAll	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\thread.c:39:6:ThreadDelete	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\thread.c:55:6:ThreadCallHandle	8	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\thread.c:71:6:ThreadStart	32	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\thread.c:85:6:ThreadStart_Prority	32	static

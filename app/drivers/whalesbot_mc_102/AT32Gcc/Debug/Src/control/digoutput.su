@@ -1,0 +1,4 @@
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\digoutput.c:14:6:InitDo	24	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\digoutput.c:76:6:SetDO	16	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\digoutput.c:154:6:ToggleDO	8	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\digoutput.c:250:6:setDO	40	static

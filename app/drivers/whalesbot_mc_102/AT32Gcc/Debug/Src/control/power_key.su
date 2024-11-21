@@ -1,0 +1,11 @@
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\power_key.c:12:6:InitPowerCtrl	16	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\power_key.c:26:6:PowerCtrl_On	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\power_key.c:32:6:PowerCtrl_Off	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\power_key.c:39:6:PowerOffSytem	8	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\power_key.c:51:6:InitKeys	16	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\power_key.c:97:5:getKey	8	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\power_key.c:157:6:wait_keyup	24	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\power_key.c:167:6:wait_keydown	24	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\power_key.c:177:6:wait_keyclick	24	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\power_key.c:186:6:enterkey_exitprogram	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\power_key.c:194:6:PowerOffCheck_100ms_CallBack	8	static

@@ -1,0 +1,7 @@
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\port_i2c_dot8x8.c:251:6:display_emotion_thread	48	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\port_i2c_dot8x8.c:216:6:display_symbol	24	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\port_i2c_dot8x8.c:224:6:display_custom	32	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\port_i2c_dot8x8.c:230:6:off_LED	32	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\port_i2c_dot8x8.c:236:6:display_bklight	40	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\port_i2c_dot8x8.c:327:6:off_emotion	32	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\port_i2c_dot8x8.c:344:6:display_emotion	56	static

@@ -1,0 +1,16 @@
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\AI_Cam.c:142:13:Zx1.constprop	24	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\AI_Cam.c:57:13:Zx2	24	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\AI_Cam.c:321:6:get_AI_lane_value	56	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\AI_Cam.c:261:6:Init_lane	64	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\AI_Cam.c:360:6:patr_road1	72	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\AI_Cam.c:515:6:patr_turn1	48	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\AI_Cam.c:607:6:patr_time1	64	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\AI_Cam.c:646:6:patr_XL	56	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\AI_Cam.c:680:6:patr_road2	64	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\AI_Cam.c:842:6:patr_turn2	56	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\AI_Cam.c:942:6:patr_time2	48	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\AI_Cam.c:978:6:patr_XX	24	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\AI_Cam.c:1009:5:AI_get	40	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\AI_Cam.c:1034:6:AI_set	64	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\AI_Cam.c:1066:5:get_AI_image	40	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\AI_Cam.c:1075:5:get_AI_voice	0	static

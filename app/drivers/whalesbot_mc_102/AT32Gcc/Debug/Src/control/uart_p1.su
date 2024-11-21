@@ -1,0 +1,6 @@
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\uart_p1.c:16:6:setUartPort1_RxHandle	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\uart_p1.c:22:6:setUartPort1_TxHandle	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\uart_p1.c:31:6:InitUart_Port1	40	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\uart_p1.c:79:6:UartPort1_Sendbyte	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\uart_p1.c:87:6:UartPort1_Sendbytes	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\uart_p1.c:101:6:UART5_IRQHandler	8	static

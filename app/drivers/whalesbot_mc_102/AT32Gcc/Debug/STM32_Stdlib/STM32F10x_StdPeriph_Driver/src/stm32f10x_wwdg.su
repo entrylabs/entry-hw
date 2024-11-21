@@ -1,0 +1,8 @@
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\STM32F10x_StdPeriph_Driver\src\stm32f10x_wwdg.c:102:6:WWDG_DeInit	8	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\STM32F10x_StdPeriph_Driver\src\stm32f10x_wwdg.c:118:6:WWDG_SetPrescaler	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\STM32F10x_StdPeriph_Driver\src\stm32f10x_wwdg.c:137:6:WWDG_SetWindowValue	8	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\STM32F10x_StdPeriph_Driver\src\stm32f10x_wwdg.c:159:6:WWDG_EnableIT	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\STM32F10x_StdPeriph_Driver\src\stm32f10x_wwdg.c:170:6:WWDG_SetCounter	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\STM32F10x_StdPeriph_Driver\src\stm32f10x_wwdg.c:185:6:WWDG_Enable	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\STM32F10x_StdPeriph_Driver\src\stm32f10x_wwdg.c:197:12:WWDG_GetFlagStatus	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\STM32F10x_StdPeriph_Driver\src\stm32f10x_wwdg.c:207:6:WWDG_ClearFlag	0	static

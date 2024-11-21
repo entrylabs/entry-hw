@@ -1,0 +1,6 @@
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\bsp.c:17:11:DummyCall_Nopara	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\bsp.c:23:11:DummyCall	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\bsp.c:31:5:IsPowerOnReset	8	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\bsp.c:49:6:RCC_Enable	8	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\bsp.c:108:6:RCC_Disable	8	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\bsp.c:202:6:bsp_init	8	static

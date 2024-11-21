@@ -1,0 +1,12 @@
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\STM32F10x_StdPeriph_Driver\src\stm32f10x_bkp.c:120:6:BKP_DeInit	8	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\STM32F10x_StdPeriph_Driver\src\stm32f10x_bkp.c:134:6:BKP_TamperPinLevelConfig	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\STM32F10x_StdPeriph_Driver\src\stm32f10x_bkp.c:147:6:BKP_TamperPinCmd	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\STM32F10x_StdPeriph_Driver\src\stm32f10x_bkp.c:160:6:BKP_ITConfig	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\STM32F10x_StdPeriph_Driver\src\stm32f10x_bkp.c:180:6:BKP_RTCOutputConfig	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\STM32F10x_StdPeriph_Driver\src\stm32f10x_bkp.c:201:6:BKP_SetRTCCalibrationValue	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\STM32F10x_StdPeriph_Driver\src\stm32f10x_bkp.c:222:6:BKP_WriteBackupRegister	8	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\STM32F10x_StdPeriph_Driver\src\stm32f10x_bkp.c:241:10:BKP_ReadBackupRegister	8	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\STM32F10x_StdPeriph_Driver\src\stm32f10x_bkp.c:259:12:BKP_GetFlagStatus	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\STM32F10x_StdPeriph_Driver\src\stm32f10x_bkp.c:269:6:BKP_ClearFlag	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\STM32F10x_StdPeriph_Driver\src\stm32f10x_bkp.c:280:10:BKP_GetITStatus	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\STM32F10x_StdPeriph_Driver\src\stm32f10x_bkp.c:290:6:BKP_ClearITPendingBit	0	static

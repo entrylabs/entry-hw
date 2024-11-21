@@ -1,0 +1,15 @@
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\FreeRTOS\src\queue.c:279:12:xQueueGenericReset	16	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\FreeRTOS\src\queue.c:386:16:xQueueGenericCreate	16	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\FreeRTOS\src\queue.c:723:12:xQueueGenericSend	48	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\FreeRTOS\src\queue.c:506:16:xQueueCreateMutex	16	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\FreeRTOS\src\queue.c:921:12:xQueueGenericSendFromISR	40	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\FreeRTOS\src\queue.c:1072:12:xQueueGiveFromISR	16	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\FreeRTOS\src\queue.c:1237:12:xQueueGenericReceive	48	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\FreeRTOS\src\queue.c:1434:12:xQueueReceiveFromISR	24	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\FreeRTOS\src\queue.c:1525:12:xQueuePeekFromISR	16	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\FreeRTOS\src\queue.c:1579:13:uxQueueMessagesWaiting	8	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\FreeRTOS\src\queue.c:1595:13:uxQueueSpacesAvailable	8	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\FreeRTOS\src\queue.c:1613:13:uxQueueMessagesWaitingFromISR	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\FreeRTOS\src\queue.c:1625:6:vQueueDelete	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\FreeRTOS\src\queue.c:1935:12:xQueueIsQueueEmptyFromISR	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\STM32_Stdlib\FreeRTOS\src\queue.c:1974:12:xQueueIsQueueFullFromISR	0	static

@@ -1,0 +1,14 @@
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\spi_lcd.c:362:6:LCDSPI_PutString2Buffer.part.0	88	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\spi_lcd.c:278:13:LCD_WriteData_16Bit	16	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\spi_lcd.c:146:5:SetLCD_Color	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\spi_lcd.c:208:10:RGB888ToRGB565	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\spi_lcd.c:219:10:RGB	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\spi_lcd.c:305:6:SPILcd_Clear	32	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\spi_lcd.c:325:6:Lcd_FillColor	32	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\spi_lcd.c:362:6:LCDSPI_PutString2Buffer	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\spi_lcd.c:402:6:SPILCD_DrawStringToBuffer	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\spi_lcd.c:425:6:SPILCD_DrawPicToBuffer	48	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\spi_lcd.c:482:6:SPILCD_DrawPicToMask	48	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\spi_lcd.c:531:6:InitSPI_LCD	24	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\spi_lcd.c:696:6:LCD_SPI_SetTitleVisable	0	static
+.\AI_Module_GCC\MC_902P\AT32Gcc\Src\control\spi_lcd.c:706:6:LCD_Ram2SPILCD	48	static
