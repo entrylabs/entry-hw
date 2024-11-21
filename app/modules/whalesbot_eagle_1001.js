@@ -5,7 +5,7 @@ class WhalebotsEagle1001 extends BaseModule {
     // Declare the fields to be used inside the class.
     constructor() {
         super();
-        
+
         this.sp = null;
         this.isConnect = false;
 
@@ -38,18 +38,18 @@ class WhalebotsEagle1001 extends BaseModule {
             'Stop': 2,
         }
         this.runCode = [
-            0x77,0x78,0x66,0x1,0x2,0x2,0x3,0x3,0x4,0x4,0x5,0x5, 
-            0x6,0x6,0x7,0x7,0x8,0x8,0x9,0x9,0xa,0xa,0xb,0xb,0xc,0xc, 
+            0x77,0x78,0x66,0x1,0x2,0x2,0x3,0x3,0x4,0x4,0x5,0x5,
+            0x6,0x6,0x7,0x7,0x8,0x8,0x9,0x9,0xa,0xa,0xb,0xb,0xc,0xc,
             0xd,0xd,0xe,0xe,0xf,0xf,0x10,0x10,0x11,0x11,0x12,0x12,0x13,
-            0x13,0x14,0x14,0x15,0x15,0x16,0x16,0x17,0x17,0x18,0x18, 
-            0x19,0x19,0x1a,0x1a,0x1b,0x1b,0x1c,0x1c,0x1d,0x1d,0x1e,0x1e, 
-            0x1f,0x1f,0x20,0x20,0x21,0x21,0x22,0x22,0x23,0x23,0x24,0x24, 
-            0x25,0x25,0x26,0x26,0x27,0x27,0x28,0x28,0x29,0x29,0x2a,0x2a, 
-            0x2b,0x2b,0x2c,0x2c,0x2d,0x2d,0x2e,0x2e,0x2f,0x2f,0x30,0x30, 
-            0x31,0x31,0x32,0x32,0x33,0x33,0x34,0x34,0x35,0x35,0x36,0x36, 
-            0x37,0x37,0x38,0x38,0x39,0x39,0x3a,0x3a,0x3b,0x3b,0x3c,0x3c, 
-            0x3d,0x3d,0x3e,0x3e,0x3f,0x3f,0x40,0x40,0x41,0x41,0x42,0x42, 
-            0x43,0x43,0x44,0x44,0x45,0x45,0x46,0x46,0x47,0x47,0x48,0x48, 
+            0x13,0x14,0x14,0x15,0x15,0x16,0x16,0x17,0x17,0x18,0x18,
+            0x19,0x19,0x1a,0x1a,0x1b,0x1b,0x1c,0x1c,0x1d,0x1d,0x1e,0x1e,
+            0x1f,0x1f,0x20,0x20,0x21,0x21,0x22,0x22,0x23,0x23,0x24,0x24,
+            0x25,0x25,0x26,0x26,0x27,0x27,0x28,0x28,0x29,0x29,0x2a,0x2a,
+            0x2b,0x2b,0x2c,0x2c,0x2d,0x2d,0x2e,0x2e,0x2f,0x2f,0x30,0x30,
+            0x31,0x31,0x32,0x32,0x33,0x33,0x34,0x34,0x35,0x35,0x36,0x36,
+            0x37,0x37,0x38,0x38,0x39,0x39,0x3a,0x3a,0x3b,0x3b,0x3c,0x3c,
+            0x3d,0x3d,0x3e,0x3e,0x3f,0x3f,0x40,0x40,0x41,0x41,0x42,0x42,
+            0x43,0x43,0x44,0x44,0x45,0x45,0x46,0x46,0x47,0x47,0x48,0x48,
             0x49,0x49,0x4a,0x4a,0x4b,0x4b,0x0,0x56
         ];
 
@@ -278,7 +278,7 @@ class WhalebotsEagle1001 extends BaseModule {
     requestLocalData() {
         return null;
     }
-    
+
     // Data processing from hardware
     handleLocalData(data) {
         // console.log("data received: ",data);
@@ -287,7 +287,7 @@ class WhalebotsEagle1001 extends BaseModule {
             this.checkGetState(data)
             return;
         }
-        
+
         this.waitRevData(data);
     }
 
@@ -303,7 +303,7 @@ class WhalebotsEagle1001 extends BaseModule {
     isLockGetState(){
         return this.lock;
     }
-    
+
     connectDrone(){
         this.getStateInterval = setInterval(()=>{
             if(this.countDroneConnectionAttempt == 0 || !this.isLockGetState()){
@@ -313,7 +313,7 @@ class WhalebotsEagle1001 extends BaseModule {
                     if( this.countDroneConnectionAttempt == 4){
                         // console.log("Connection failed");
                         this.countDroneConnectionAttempt = 0 ;
-                        clearInterval(this.getStateInterval);    
+                        clearInterval(this.getStateInterval);
                         return
                     }
                 }
@@ -322,7 +322,7 @@ class WhalebotsEagle1001 extends BaseModule {
                     // console.log("Drone is connected")
                     this.isDroneConnection = true;
                     this.countDroneConnectionAttempt = 0 ;
-                    clearInterval(this.getStateInterval);    
+                    clearInterval(this.getStateInterval);
                 }
             }
         },this.getStateTimeSleep)
@@ -430,8 +430,8 @@ class WhalebotsEagle1001 extends BaseModule {
         {
             for(let i=0;i<=chunkData.length-1;i++)
             {
-                if(chunkData[i] == 0xff 
-                    && chunkData[i+1] == 0x42 
+                if(chunkData[i] == 0xff
+                    && chunkData[i+1] == 0x42
                     && chunkData[i+2] == 0x43
                     && chunkData[i+3] == 0x43
                     && chunkData[i+4] == 0x44
@@ -460,7 +460,7 @@ class WhalebotsEagle1001 extends BaseModule {
             ret[this.BT_INDEX_CMD_SEND] = this.BT_CMD_DOWNLOAD;
             ret[this.BT_INDEX_DATA_SEND] = nowdwpack & 0x000000ff;
             ret[this.BT_INDEX_DATA_SEND + 1] = ((nowdwpack & 0x0000ff00) / 256) | 0;
-        
+
             if (nowdwpack * this.packlen > Picocode.length) {
                 ret[this.BT_INDEX_CMD_SEND] = this.BT_CMD_DOWNLOAD_END;
             }
@@ -499,16 +499,16 @@ class WhalebotsEagle1001 extends BaseModule {
     Errcode2Msg(ErrorCode) {
         return this.errorMessages[ErrorCode] || ""
     }
-        
+
     ErrFly2String(ErrFly) {
         let msg=""
-        const ERR_NONE 		=0		
-        const ERR_LOWBATT 	=this.BIT0	
-        const ERR_CODE		=this.BIT1	
-        const ERR_TEMP		=this.BIT3	
-        const ERR_SENSORS   =this.BIT4	
-        const ERR_LOADER	=this.BIT5	
-        const ERR_ANGLE		=this.BIT6	
+        const ERR_NONE 		=0
+        const ERR_LOWBATT 	=this.BIT0
+        const ERR_CODE		=this.BIT1
+        const ERR_TEMP		=this.BIT3
+        const ERR_SENSORS   =this.BIT4
+        const ERR_LOADER	=this.BIT5
+        const ERR_ANGLE		=this.BIT6
         if (ErrFly == ERR_NONE){
             msg=msg +"NO_Error"
 
@@ -536,25 +536,25 @@ class WhalebotsEagle1001 extends BaseModule {
 
     Sensor2String() {
         let SPLIT_STRING = "------------------------------------\n"
-        let msg =   "STATE_PITCH=    " + (Math.round(this.sensor.Pitch, 3)).toString() + "\n"     
-        msg = msg + "STATE_ROLL=    " + (Math.round(this.sensor.Roll, 3)).toString() + "\n"   
-        msg = msg + "STATE_YAW=    " + (Math.round(this.sensor.Yaw, 3)).toString() + "\n"     
+        let msg =   "STATE_PITCH=    " + (Math.round(this.sensor.Pitch, 3)).toString() + "\n"
+        msg = msg + "STATE_ROLL=    " + (Math.round(this.sensor.Roll, 3)).toString() + "\n"
+        msg = msg + "STATE_YAW=    " + (Math.round(this.sensor.Yaw, 3)).toString() + "\n"
         msg = msg + SPLIT_STRING
-        
-        msg = msg + "STATE_TEMP=    " + (Math.round(this.sensor.SPL06_temp, 3)).toString() + "\n"     
-        
-        msg = msg + "FusedHeight=    " + (Math.round(this.sensor.FusedHeight, 3)).toString() + "\n"   
-        
-        msg = msg + "BATTERY=    " + (Math.round(this.sensor.Battery, 3)).toString() + "\n"           
-        
-        msg = msg + "VER=    " + this.VERSTR() + "\n"                        
+
+        msg = msg + "STATE_TEMP=    " + (Math.round(this.sensor.SPL06_temp, 3)).toString() + "\n"
+
+        msg = msg + "FusedHeight=    " + (Math.round(this.sensor.FusedHeight, 3)).toString() + "\n"
+
+        msg = msg + "BATTERY=    " + (Math.round(this.sensor.Battery, 3)).toString() + "\n"
+
+        msg = msg + "VER=    " + this.VERSTR() + "\n"
         msg = msg + SPLIT_STRING
-        msg = msg + "FLY_ERR=    " + this.ErrFly2String(parseInt(this.sensor.ErrFly)) + "\n"       
-        msg = msg + "LINE_NO=    " + (this.sensor.LineNo) + "\n"                      
-        msg = msg + "ERROR_NO=    " + (this.sensor.LineError) + "\n"                  
-        msg = msg + "ERROR_MSG=    " + this.Errcode2Msg(this.sensor.ErrorCode) + "\n"         
-        
-        msg = msg + "DEBUG1=    " + (Math.round(this.sensor.Debug_0, 6)).toString() + "\n"            
+        msg = msg + "FLY_ERR=    " + this.ErrFly2String(parseInt(this.sensor.ErrFly)) + "\n"
+        msg = msg + "LINE_NO=    " + (this.sensor.LineNo) + "\n"
+        msg = msg + "ERROR_NO=    " + (this.sensor.LineError) + "\n"
+        msg = msg + "ERROR_MSG=    " + this.Errcode2Msg(this.sensor.ErrorCode) + "\n"
+
+        msg = msg + "DEBUG1=    " + (Math.round(this.sensor.Debug_0, 6)).toString() + "\n"
         msg = msg + "DEBUG2=    " + (Math.round(this.sensor.Debug_1, 6)).toString() + "\n"
         msg = msg + "DEBUG3=    " + (Math.round(this.sensor.Debug_2, 6)).toString() + "\n"
         msg = msg + "DEBUG4=    " + (Math.round(this.sensor.Debug_3, 6)).toString() + "\n"
@@ -566,12 +566,12 @@ class WhalebotsEagle1001 extends BaseModule {
     byte2float(offset) {
         let buffer = new ArrayBuffer(4);
         let view = new DataView(buffer);
-    
+
         view.setUint8(3, this.revdata[offset + 0]);
         view.setUint8(2, this.revdata[offset + 1]);
         view.setUint8(1, this.revdata[offset + 2]);
         view.setUint8(0, this.revdata[offset + 3]);
-    
+
         return view.getFloat32(0, false);
     }
 
@@ -588,7 +588,7 @@ class WhalebotsEagle1001 extends BaseModule {
                     }
                 }
             }
-        } 
+        }
 
         if (revdata[this.BT_INDEX_CMD_REV] === this.BT_CMD_DOWNLOAD || revdata[this.BT_INDEX_CMD_REV] === this.BT_CMD_DOWNLOAD_END) {
             let isrevsame = true;
@@ -634,11 +634,11 @@ class WhalebotsEagle1001 extends BaseModule {
             this.sensor.M2 = parseInt(revdata[this.BT_INDEX_DATA_REV + 17 * 4 + 1])
             this.sensor.M3 = parseInt(revdata[this.BT_INDEX_DATA_REV + 17 * 4 + 2])
             this.sensor.M4 = parseInt(revdata[this.BT_INDEX_DATA_REV + 17 * 4 + 3])
-    
+
             this.sensor.state_velocity_x = this.byte2float(this.BT_INDEX_DATA_REV + 18 * 4)
             this.sensor.state_velocity_y = this.byte2float(this.BT_INDEX_DATA_REV + 19 * 4)
             this.sensor.state_velocity_z = this.byte2float(this.BT_INDEX_DATA_REV + 20 * 4)
-    
+
             this.sensor.Debug_0 = this.byte2float(this.BT_INDEX_DATA_REV + 21 * 4)
             this.sensor.Debug_1 = this.byte2float(this.BT_INDEX_DATA_REV + 22 * 4)
             this.sensor.Debug_2 = this.byte2float(this.BT_INDEX_DATA_REV + 23 * 4)
@@ -646,9 +646,9 @@ class WhalebotsEagle1001 extends BaseModule {
             this.sensor.Debug_4 = this.byte2float(this.BT_INDEX_DATA_REV + 25 * 4)
             this.sensor.Debug_5 = this.byte2float(this.BT_INDEX_DATA_REV + 26 * 4)
             this.sensor.FusedHeight = this.byte2float(this.BT_INDEX_DATA_REV + 27 * 4)
-    
+
             this.sensor.VER = parseInt(revdata[this.BT_INDEX_DATA_REV + 28 * 4 + 0])
-            this.sensor.ErrFly = parseInt(revdata[this.BT_INDEX_DATA_REV + 28 * 4 + 1])            
+            this.sensor.ErrFly = parseInt(revdata[this.BT_INDEX_DATA_REV + 28 * 4 + 1])
             let msg = this.Sensor2String();
             // console.log(msg);
         }
@@ -706,7 +706,7 @@ class WhalebotsEagle1001 extends BaseModule {
     }
 
     // processing of data received from the entry
-    handleRemoteData(handler) {
+    async handleRemoteData(handler) {
         const cmd = handler.serverData.cmd;
 
         if (!cmd) {
@@ -728,7 +728,12 @@ class WhalebotsEagle1001 extends BaseModule {
                     this.HandleRun();
                     break;
                 default:
-                    this.downloadCode(cmd);
+                    await this.handleClean();
+                    await this.sleep(3000);
+                    await this.downloadCode(cmd);
+                    await this.sleep(4000);
+                    await this.HandleRun();
+                    await this.sleep(3000);
                     break;
             }
         } catch (error) {
