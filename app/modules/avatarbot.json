@@ -19,12 +19,12 @@
         "protocol": "json"
     },
     "hardware": {
-        "type": "serial",
+        "type": "bluetooth",
         "control": "slave",
-        "duration": 50,
+        "duration": 300,
         "vendor": ["Arduino", "wch.cn", "FTDI"],
-        "baudRate": 921600,
-        "lostTimer": 1000,
+        "baudRate": 1000000,
+        "lostTimer": 2000,
         "firmwarecheck": false
     }
 }
