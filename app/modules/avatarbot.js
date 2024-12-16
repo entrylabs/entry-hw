@@ -58,12 +58,15 @@ function Module() {
 		Osci: 27000000,
 		Freq: 50
 	}
+
 	this.Board_Servo = {
 		Pulse_Min: 150,
 		Pulse_Max: 600,
 		us_Min: 400,
-		us_Max: 2100
+		us_Max: 2100,
+		angle: 90
 	}
+
 	this.Board_LED_Strip = {
 		En:0,
 		sample: 0,
@@ -133,7 +136,9 @@ Module.prototype.init = function(handler, config) {
 		this.remoteDataSet[index+6] = (this.Board_Servo.us_Min>>8)&0xff;	
 		
 		this.remoteDataSet[index+7] = (this.Board_Servo.us_Max)&0xff;	
-		this.remoteDataSet[index+8] = (this.Board_Servo.us_Max>>8)&0xff;	
+		this.remoteDataSet[index+8] = (this.Board_Servo.us_Max>>8)&0xff;
+
+		this.remoteDataSet[index+9] = (this.Board_Servo.angle)&0xff;	
 	}
 	
 	// led 
