@@ -4,6 +4,7 @@
         "en": "AvatarBot",
         "ko": "AvatarBot"
     },
+    "category": "board",
     "platform": ["win32", "darwin"],
     "icon" : "avatarbot.png",
     "module": "avatarbot.js",
