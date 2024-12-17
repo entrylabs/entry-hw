@@ -73,8 +73,8 @@ Module.prototype.handleLocalData = function(data) {
 };
 
 Module.prototype.requestRemoteData = function(handler) {
-    handler.write('A0', (this.sensorData[6] & 0x01)!=0? 1 : 0);      
-    handler.write('A1', !!(this.sensorData[6] & 0x02)!=0? 1 : 0);      
+    handler.write('A0', (this.sensorData[6] & 0x01)==0x01? 1 : 0);      
+    handler.write('A1', (this.sensorData[6] & 0x02)==0x02? 1 : 0);      
     handler.write('A2', this.sensorData[7]);         
     handler.write('A3', this.sensorData[8]);
     handler.write('A4', this.sensorData[9]);
