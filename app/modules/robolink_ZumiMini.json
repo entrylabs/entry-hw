@@ -16,7 +16,7 @@
     "url": "https://www.robolink.co.kr/",
     "email": "asteam@robolink.co.kr",
     "reconnect": true, 
-    "selectPort": true,
+    "selectPort": false,
     "hardware": {
         "type": "serial",
         "control": "master",  
@@ -27,7 +27,7 @@
         "dataBits": 8,
         "stopBits": 1,
         "byteDelimiter": [255, 255],
-        "vendor": "robolink",       
+        "vendor": ["ROBOLINK", "wch.cn"],
         "firmwarecheck": false,
         "bufferSize": 1024,
         "flowControl": "none"
