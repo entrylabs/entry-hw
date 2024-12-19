@@ -58,12 +58,15 @@ function Module() {
 		Osci: 27000000,
 		Freq: 50
 	}
+
 	this.Board_Servo = {
 		Pulse_Min: 150,
 		Pulse_Max: 600,
 		us_Min: 400,
-		us_Max: 2100
+		us_Max: 2100,
+		angle: 90
 	}
+
 	this.Board_LED_Strip = {
 		En:0,
 		sample: 0,
@@ -133,7 +136,9 @@ Module.prototype.init = function(handler, config) {
 		this.remoteDataSet[index+6] = (this.Board_Servo.us_Min>>8)&0xff;	
 		
 		this.remoteDataSet[index+7] = (this.Board_Servo.us_Max)&0xff;	
-		this.remoteDataSet[index+8] = (this.Board_Servo.us_Max>>8)&0xff;	
+		this.remoteDataSet[index+8] = (this.Board_Servo.us_Max>>8)&0xff;
+
+		this.remoteDataSet[index+9] = (this.Board_Servo.angle)&0xff;	
 	}
 	
 	// led 
@@ -203,10 +208,14 @@ slave 모드인 경우 duration 속성 간격으로 지속적으로 기기에 �
 Module.prototype.requestLocalData = function() {
     var queryString = [];
     var data = this.remoteDataSet; // Module 객체의 dataset table read. max length 200
+	var checksum = 0;
     for (var index = 0; index < this.avatarBotDataSet; index++) {
         var query = (data[index])&0xff;
        	queryString.push(query); // 1byte
+		checksum += query;
     }
+	checksum = (checksum)&0xff;
+	queryString.push(checksum); // 1byte
     /*
     for(var i=0; i<(data.length/10); i++)
 	{
@@ -222,13 +231,20 @@ Module.prototype.requestLocalData = function() {
 };
 
 // 하드웨어에서 온 데이터 처리
+/*
 Module.prototype.handleLocalData = function(data) {
 	var self = this;	
 	for (var i = 0; i < data.length; i++) {
         self.dataSet[self.dataSet_index+i] = data[i];
     }
-    
-    
+    console.log('data length ', data.length);
+	for(var j=0; j<21; j++)
+	{
+		let i = j*10; 
+		console.log('data ',i, ': ', self.dataSet[i], self.dataSet[i+1], self.dataSet[i+2], self.dataSet[i+3], self.dataSet[i+4], self.dataSet[i+5],
+			self.dataSet[i+6], self.dataSet[i+7], self.dataSet[i+8], self.dataSet[i+9]);
+	}
+	
     if(self.dataSet[0] === 0x99 && self.dataSet[1] === 0x01 && self.dataSet[2] === 0x01 && self.dataSet[3] === self.avatarBotDataSet) 
     {
  		self.dataSet_index = self.dataSet_index + data.length;
@@ -250,6 +266,57 @@ Module.prototype.handleLocalData = function(data) {
 	
 	
 };
+*/
+Module.prototype.handleLocalData = function(data) {
+	var self = this;
+	// data.length => 211
+	var checksum = 0;
+	var getChecksum = 0;
+	for (var i = 0; i < data.length; i++) {
+		if(self.dataSet.length > i)
+		{
+			self.dataSet[self.dataSet_index+i] = data[i];
+			checksum += data[i];
+		}else{
+			// last buffer
+			getChecksum = data[i];
+		}
+    }
+
+	checksum = (checksum)&0xff;
+	
+	/*
+	console.log('data length ', data.length, ', checksum = ', checksum, ', getChecksum = ', getChecksum);
+	for(var j=0; j<21; j++)
+	{
+		let i = j*10; 
+		console.log('data ',i, ': ', self.dataSet[i], self.dataSet[i+1], self.dataSet[i+2], self.dataSet[i+3], self.dataSet[i+4], self.dataSet[i+5],
+			self.dataSet[i+6], self.dataSet[i+7], self.dataSet[i+8], self.dataSet[i+9]);
+	}
+	*/
+
+    if(self.dataSet[0] === 0x99 && self.dataSet[1] === 0x01 && self.dataSet[2] === 0x01 && self.dataSet[3] === self.avatarBotDataSet && getChecksum == checksum) 
+    {
+ 		self.dataSet_index = self.dataSet_index + (data.length-1);
+    }else{
+		self.dataSet_index = 0;
+        return;
+	}
+	
+    if(self.dataSet_index == self.avatarBotDataSet){
+		self.originParsing(self.dataSet);
+		self.dataSet_index = 0;
+		self.dataSet[0] = 0; // clear
+		self.dataSet[1] = 0; // clear
+		self.dataSet[2] = 0; // clear
+		self.dataSet[3] = 0; // clear
+		// 
+		// console.log('[jhkim] handleLocalData - dataSet_index[11]  = ', self.dataSet[11]); 
+	}
+	
+	
+};
+
 
 /* Original Parsing FF 55 ~ */
 Module.prototype.originParsing = function(data) {

@@ -4,6 +4,7 @@
         "en": "AvatarBot",
         "ko": "AvatarBot"
     },
+    "category": "board",
     "platform": ["win32", "darwin"],
     "icon" : "avatarbot.png",
     "module": "avatarbot.js",
@@ -13,18 +14,17 @@
 	"translate": "Arduino compatible driver"
     },
     "reconnect" : true,
-    "firmware": "http://avatarmecha.ddns.net:5050/sharing/iCuhzvxcu",
     "select_com_port":true,
     "entry": {
         "protocol": "json"
     },
     "hardware": {
-        "type": "serial",
+        "type": "bluetooth",
         "control": "slave",
-        "duration": 500,
+        "duration": 300,
         "vendor": ["Arduino", "wch.cn", "FTDI"],
-        "baudRate": 460800,
-        "lostTimer": 1000,
+        "baudRate": 1000000,
+        "lostTimer": 2000,
         "firmwarecheck": false
     }
 }
