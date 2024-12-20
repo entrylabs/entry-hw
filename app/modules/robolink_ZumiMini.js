@@ -247,11 +247,11 @@ class ZumiMini extends BaseModule {
             this.inputData.pInfo = data[this.INFO];
             this.inputData.pSize = data[this.P_SIZE];
             this.inputData.pStat = data[this.P_STAT]; 
-            this.inputData.irSensor.FL = data[this.IR];
-            this.inputData.irSensor.FR = data[this.IR + 1];           
-            this.inputData.irSensor.BL = data[this.IR + 2];
-            this.inputData.irSensor.BM = data[this.IR + 3];
-            this.inputData.irSensor.BR = data[this.IR + 4];
+            this.inputData.irSensor.FL = data[this.IR]*4;
+            this.inputData.irSensor.FR = data[this.IR + 1]*4;           
+            this.inputData.irSensor.BL = data[this.IR + 2]*4;
+            this.inputData.irSensor.BM = data[this.IR + 3]*4;
+            this.inputData.irSensor.BR = data[this.IR + 4]*4;
             this.inputData.faceDetect.DETECT = data[this.FD];
             this.inputData.faceDetect.CX = data[this.FD + 1];
             this.inputData.faceDetect.CY = data[this.FD + 2];
