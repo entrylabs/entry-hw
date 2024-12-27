@@ -1,13 +1,13 @@
 {
-	"id": "010902",
+	"id": "010E01",
 	"name": {
 		"en": "Orange Board",
 		"ko": "오렌지 보드"
 	},
 	"category": "board",
-	"platform": ["win32"],
+	"platform": ["win32", "darwin"],
 	"icon" : "orange.png",
-	"module": "arduinoExt.js",
+	"module": "orange.js",
 	"url": "http://kocoafab.cc",
 	"email": "contact@kocoa.or.kr",
 	"video": "https://goo.gl/QLfHRA",
@@ -16,15 +16,12 @@
 		"win32-x64": "CDM21226_Setup/CDM21226_Setup.exe"
 	},
     "reconnect" : true,
-	"firmware": "arduino_ext",
-	"entry": {
-		"protocol": "json"
-	},
+	"firmware": "orange",
 	"hardware": {
 		"type": "serial",
 		"control": "slave",
 		"duration": 32,
-		"vendor": "FTDI",
+		"vendor": ["Arduino", "wch.cn", "FTDI"],
 		"baudRate": 115200,
 		"firmwarecheck" : false
 	}
