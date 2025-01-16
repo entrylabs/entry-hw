@@ -9,14 +9,17 @@
     "icon": "robolink_ZumiMini.png",
     "module": "robolink_ZumiMini.js",
     "driver": {
-        "win32-ia32": "CH34x_install_Windows_v3_4/CH34x_install_Windows_v3_4.EXE",
-        "win32-x64": "CH34x_install_Windows_v3_4/CH34x_install_Windows_v3_4.EXE",
+        "win32-ia32": "zumi-mini/CH343SER.EXE",
+        "win32-x64": "zumi-mini/CH343SER.EXE",
         "darwin-x64": "https://entrylabs.github.io/docs/files/drivers/CH34x_Install_MAC_10_9_AND_ABOVE/CH34x_Install_V1.3.pkg"
     },
     "url": "https://www.robolink.co.kr/",
     "email": "asteam@robolink.co.kr",
     "reconnect": true, 
-    "selectPort": false,
+    "selectPort": {
+        "win32": false,
+        "darwin": true
+    },
     "hardware": {
         "type": "serial",
         "control": "master",  
