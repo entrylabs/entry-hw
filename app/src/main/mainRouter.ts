@@ -232,19 +232,19 @@ class MainRouter {
             const { type = 'serial' } = hardware;
             this.scanner = this.scannerManager.getScanner(type);
             debugger;
-            console.log('1');
+            logger.info('1');
             if (this.scanner) {
                 const moduleFilePath = directoryPaths.modules();
-                console.log('2', moduleFilePath);
+                logger.info('2', moduleFilePath);
                 this.hwModule = nativeNodeRequire(
                     path.join(moduleFilePath, config.module)
                 ) as IHardwareModule;
                 this.sendState(HardwareStatement.scan);
-                console.log('3');
+                logger.info('3');
                 this.scanner.stopScan();
-                console.log('4');
+                logger.info('4');
                 const connector = await this.scanner.startScan(this.hwModule, this.config);
-                console.log('5', connector);
+                logger.info('5', connector);
                 if (connector) {
                     logger.info(
                         `[Device Info] ${config.id} | ${
