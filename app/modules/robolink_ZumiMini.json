@@ -1,0 +1,35 @@
+{
+    "id": "4A0501",
+    "name": {
+        "en": "Robolink zumi mini",
+        "ko": "로보링크 주미 미니"
+    },
+    "category": "robot",
+    "platform": ["win32", "darwin"],
+    "icon": "robolink_ZumiMini.png",
+    "module": "robolink_ZumiMini.js",
+    "driver": {
+        "win32-ia32": "CH34x_install_Windows_v3_4/CH34x_install_Windows_v3_4.EXE",
+        "win32-x64": "CH34x_install_Windows_v3_4/CH34x_install_Windows_v3_4.EXE",
+        "darwin-x64": "https://entrylabs.github.io/docs/files/drivers/CH34x_Install_MAC_10_9_AND_ABOVE/CH34x_Install_V1.3.pkg"
+    },
+    "url": "https://www.robolink.co.kr/",
+    "email": "asteam@robolink.co.kr",
+    "reconnect": true, 
+    "selectPort": false,
+    "hardware": {
+        "type": "serial",
+        "control": "master",  
+        "scanType": "data",     
+        "duration": 50,
+        "baudRate": 115200,
+        "parity": "none",
+        "dataBits": 8,
+        "stopBits": 1,
+        "byteDelimiter": [255, 255],
+        "vendor": ["ROBOLINK", "wch.cn"],
+        "firmwarecheck": false,
+        "bufferSize": 1024,
+        "flowControl": "none"
+    }
+}
