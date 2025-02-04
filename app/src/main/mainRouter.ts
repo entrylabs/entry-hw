@@ -231,14 +231,20 @@ class MainRouter {
             const { hardware } = config;
             const { type = 'serial' } = hardware;
             this.scanner = this.scannerManager.getScanner(type);
+            debugger;
+            console.log('1');
             if (this.scanner) {
                 const moduleFilePath = directoryPaths.modules();
+                console.log('2', moduleFilePath);
                 this.hwModule = nativeNodeRequire(
                     path.join(moduleFilePath, config.module)
                 ) as IHardwareModule;
                 this.sendState(HardwareStatement.scan);
+                console.log('3');
                 this.scanner.stopScan();
+                console.log('4');
                 const connector = await this.scanner.startScan(this.hwModule, this.config);
+                console.log('5', connector);
                 if (connector) {
                     logger.info(
                         `[Device Info] ${config.id} | ${
