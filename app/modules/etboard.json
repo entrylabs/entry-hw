@@ -12,9 +12,15 @@
     "win32-x64": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
 	"translate": "Arduino compatible driver"
     },
-    "reconnect" : true,
-    "firmwareBaudRate": 57600,
-    "firmware": "http://et.ketri.re.kr/purchase/",
+    "firmwareBaudRate": 921600,
+	"reconnect" : true,
+	"selectPort": true,
+	"firmware": [{
+        "type": "esp32",
+        "offset": "0x0",
+        "name": "ETboard_firmware_4_entry_by_onefile",
+		"translate" : "ET보드펌웨어"
+    }],
     "entry": {
         "protocol": "json"
     },
