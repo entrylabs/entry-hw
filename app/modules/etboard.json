@@ -1,0 +1,36 @@
+{
+    "id": "2F0101",
+    "name": {
+        "en": "ET-Board(USB)",
+        "ko": "ET-Board(USB)"
+    },
+    "platform": ["win32", "darwin"],
+    "icon" : "etboard.png",
+    "module": "etboard.js",
+    "driver": {
+	"win32-ia32": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
+    "win32-x64": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
+	"translate": "Arduino compatible driver"
+    },
+    "firmwareBaudRate": 921600,
+	"reconnect" : true,
+	"selectPort": true,
+	"firmware": [{
+        "type": "esp32",
+        "offset": "0x0",
+        "name": "ETboard_firmware_4_entry_by_onefile",
+		"translate" : "ET보드펌웨어"
+    }],
+    "entry": {
+        "protocol": "json"
+    },
+    "hardware": {
+        "type": "serial",
+        "control": "slave",
+        "duration": 32,
+        "vendor": ["Arduino", "wch.cn", "FTDI"],
+        "baudRate": 57600,
+        "lostTimer": 1000,
+        "firmwarecheck": false
+    }
+}
