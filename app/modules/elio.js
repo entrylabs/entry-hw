@@ -58,6 +58,11 @@ function Module() {
 		SONIC: 'SONIC',
 		LINE1: 'LINE1',
 		LINE2: 'LINE2',
+		
+		TEMPERATURE: 'TEMPERATURE',
+		HUMIDITY: 'HUMIDITY',
+		WATER:'WATER',
+		
 	},
 	
 	
@@ -121,30 +126,43 @@ Module.prototype.addData = function(data, len)
 				{
 					if (this.verifyCRC())
 					{
-						console.log("CRC ok : "  +this.buffer + "len : "  + this.pos);
 
 						 this.buffer[0] ; //48 (udp)
 						 this.buffer[1];  //2   (status)
 						 
-						 this.StatusData.DC1 = this.buffer[2];
-						 this.StatusData.DC2 = this.buffer[3];
+						 if (this.buffer[1] == 0x02) {
+							//console.log("CRC ok : 0x02 "  +this.buffer + "len : "  + this.pos);
+							 this.StatusData.DC1 = this.buffer[2];
+							 this.StatusData.DC2 = this.buffer[3];
+							 
+							 this.StatusData.SV1 = this.buffer[4];
+							 this.StatusData.SV2 = this.buffer[5];
+							 
+							 this.StatusData.V3 = this.buffer[6];
+							 this.StatusData.V5 = this.buffer[7];
+							 
+							 this.StatusData.IO1 = this.buffer[8];
+							 this.StatusData.IO2 = this.buffer[9];
+							 this.StatusData.IO3 = this.buffer[10];
+							 this.StatusData.IO4 = this.buffer[11];
+							 
+							 
+							 this.StatusData.SONIC = (this.buffer[12]  | this.buffer[13] << 8);
+							 this.StatusData.LINE1 = (this.buffer[14]  | this.buffer[15] << 8) == 0 ? 1 : 0 ;
+							 this.StatusData.LINE2 = (this.buffer[16]  | this.buffer[17] << 8) == 0 ? 1 : 0 ;
+						 }else if (this.buffer[1] == 0xb2) {
+							console.log("CRC ok : "  +this.buffer);
+							 
+
+							 this.StatusData.TEMPERATURE = (this.buffer[2]  | this.buffer[3] << 8);
+							 this.StatusData.HUMIDITY = (this.buffer[4]  | this.buffer[5] << 8); 
+							 this.StatusData.WATER = (this.buffer[6]  | this.buffer[7] << 8);
 						 
-						 this.StatusData.SV1 = this.buffer[4];
-						 this.StatusData.SV2 = this.buffer[5];
-						 
-						 this.StatusData.V3 = this.buffer[6];
-						 this.StatusData.V5 = this.buffer[7];
-						 
-						 this.StatusData.IO1 = this.buffer[8];
-						 this.StatusData.IO2 = this.buffer[9];
-						 this.StatusData.IO3 = this.buffer[10];
-						 this.StatusData.IO4 = this.buffer[11];
-						 
-						 
-						 this.StatusData.SONIC = (this.buffer[12]  | this.buffer[13] << 8);
-						 this.StatusData.LINE1 = (this.buffer[14]  | this.buffer[15] << 8) == 0 ? 1 : 0 ;
-						 this.StatusData.LINE2 = (this.buffer[16]  | this.buffer[17] << 8) == 0 ? 1 : 0 ;
+						 }else  {
+						 	//console.log("CRC other :  "  +this.buffer + "len : "  + this.pos);
 						
+						 }
+							 
 						
 					}
 					else
@@ -336,7 +354,7 @@ ff 55 idx size data a
 */
 Module.prototype.handleLocalData = function(data) {
 
-	console.log(data);
+	//console.log(data);
     this.addData(data, data.length);
 };
 
