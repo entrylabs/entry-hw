@@ -151,7 +151,7 @@ Module.prototype.addData = function(data, len)
 							 this.StatusData.LINE1 = (this.buffer[14]  | this.buffer[15] << 8) == 0 ? 1 : 0 ;
 							 this.StatusData.LINE2 = (this.buffer[16]  | this.buffer[17] << 8) == 0 ? 1 : 0 ;
 						 }else if (this.buffer[1] == 0xb2) {
-							console.log("CRC ok : "  +this.buffer);
+							//console.log("CRC ok : "  +this.buffer);
 							 
 
 							 this.StatusData.TEMPERATURE = (this.buffer[2]  | this.buffer[3] << 8);
