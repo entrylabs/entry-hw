@@ -1,0 +1,26 @@
+{
+    "id": "1D0501",
+    "name": {
+        "en": "RoboDog",
+        "ko": "로보독"
+    },
+    "category": "robot",
+    "platform": ["win32", "darwin"],
+    "icon": "robodog.png",
+    "module": "robodog.js",
+    "url": "http://www.junilab.co.kr",
+    "driver": {
+        "win32-ia32": "JuniLab/dongleSetup.bat",
+        "win32-x64": "JuniLab/dongleSetup.bat"
+    },
+    "reconnect": true,
+    "hardware": {
+        "type": "serial",
+        "control": "slave",
+        "duration": 32,
+        "vendor": "Junilab_Inc",
+        "pnpId": "0226",
+        "baudRate": 19200,
+        "firmwarecheck": false
+    }
+}
