@@ -4,7 +4,7 @@
         "en": "ProboConnect",
         "ko": "프로보커넥트"
     },
-    "platform": ["win32"],
+    "platform": ["win32", "darwin"],
     "icon" : "alux_connect.png",
     "module": "alux_connect.js",
     "driver": [
