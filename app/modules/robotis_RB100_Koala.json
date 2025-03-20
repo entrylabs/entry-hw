@@ -7,7 +7,7 @@
 	"category": "module",
 	"platform": ["win32"],
 	"icon" : "robotis_RB100im_koala.png",
-	"module": "robotis_RB100_practice.js",
+	"module": "robotis_RB100_Koala.js",
 	"url": "http://www.robotis.com",
 	"email": "jason@robotis.com",
 	"reconnect" : true,
