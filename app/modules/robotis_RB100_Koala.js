@@ -140,7 +140,7 @@ Module.prototype.requestInitialData = function() {
     this.servoPrevLength4 = []; // add by kjs 20170627 
     this.servoPrevValue4 = [];  // add by kjs 20170627 
 
-    this.robotisBuffer.push([INST_WRITE, 1010, 2, 0xABC1]); // 아래 20번 모드 진입후 꼭두 얼굴로 변경준비
+    this.robotisBuffer.push([INST_WRITE, 1010, 2, 0xABC2]); // 아래 20번 모드 진입후 알라 얼굴로 변경준비
     this.robotisBuffer.push([INST_WRITE, 21, 2, 20]);
     this.robotisBuffer.push([INST_WRITE, 19, 1, 1]); // bypass 모드 켜기
     this.robotisBuffer.push([INST_WRITE, 20, 1, 0]); // bypass port를 BLE로 설정
