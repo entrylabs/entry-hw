@@ -62,9 +62,7 @@ function Module() {
 		TEMPERATURE: 'TEMPERATURE',
 		HUMIDITY: 'HUMIDITY',
 		WATER:'WATER',
-		
 	},
-	
 	
 	
 	
