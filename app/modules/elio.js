@@ -124,7 +124,6 @@ Module.prototype.addData = function(data, len)
 				{
 					if (this.verifyCRC())
 					{
-
 						 this.buffer[0] ; //48 (udp)
 						 this.buffer[1];  //2   (status)
 						 
@@ -158,9 +157,7 @@ Module.prototype.addData = function(data, len)
 						 
 						 }else  {
 						 	//console.log("CRC other :  "  +this.buffer + "len : "  + this.pos);
-						
 						 }
-							 
 						
 					}
 					else
