@@ -17,6 +17,7 @@ Module.prototype.init = function (handler, config) {
     // 시리얼 통신 버퍼 flush (flush 함수가 있는 경우)
     if (handler && typeof handler.flush === 'function') {
         handler.flush();
+        console.log('Serial buffer flushed in init.');
     }
 };
 
@@ -51,10 +52,6 @@ Module.prototype.handleRemoteData = function (handler) {
 
 Module.prototype.requestLocalData = function () {
     var queryString = [];
-
-    // 만약 readablePorts에 대한 별도 처리가 필요 없다면, 첫 번째 루프는 제거할 수 있습니다.
-    // 또는 필요하다면 그대로 두고, 두 번째 루프에서는 모든 핀을 처리합니다.
-    // 기존 첫 번째 루프를 제거한 예:
     var digitalValue = this.remoteDigitalValue;
     for (var port = 0; port < 14; port++) {
         var value = digitalValue[port];
@@ -68,6 +65,8 @@ Module.prototype.requestLocalData = function () {
             queryString.push(query);
         }
     }
+
+    // console.log('[DEBUG] DC Motor value (pin):', digitalValue);
 
     return queryString;
 };
@@ -124,6 +123,13 @@ Module.prototype.handleLocalData = function (data) {
     // 온습도 센서: 아날로그 채널 2 (온도와 습도 동일값; 필요시 별도 처리)
     Entry.hw.portData.temperature = this.analogValue[2];
     Entry.hw.portData.humidity = this.analogValue[2];
+
+    //--test console--
+    console.log('analogValue:', this.analogValue);
+    //console.log('digitalValue:', this.digitalValue);
+
+    // DC 모터(3번 핀)의 값을 로그로 출력 (디지털 해석 결과)
+    //console.log('[DEBUG] DC Motor digital value received (pin 3):', Entry.hw.portData.digital[3]);
 };
 
 Module.prototype.requestRemoteData = function (handler) {
@@ -146,3 +152,4 @@ Module.prototype.reset = function () {
 };
 
 module.exports = new Module();
+ 
