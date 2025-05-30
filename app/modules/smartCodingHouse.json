@@ -1,0 +1,27 @@
+{
+	"id": "670101",
+	"name": {
+		"en": "Smart Coding House",
+		"ko": "스마트 코딩 하우스"
+	},
+	"category": "board",
+	"platform": ["win32", "darwin"],
+	"icon" : "smartCodingHouse.png",
+	"module": "smartCodingHouse.js",
+	"url": "http://www.sciencetime.co.kr/",
+	"driver": {
+        "win32-ia32": "arduino/dpinst-x86.exe",
+        "win32-x64": "arduino/dpinst-amd64.exe"
+    },
+	"selectPort": true,
+	"reconnect": true,
+	"firmware": "smartCodingHouse",
+	"hardware": {
+		"type": "serial",
+        "control": "slave",
+        "duration": 32,
+        "vendor": "Arduino",
+        "baudRate": 9600		
+	}
+}
+
