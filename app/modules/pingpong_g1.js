@@ -1,12 +1,15 @@
-const BaseModule = require('./baseModule');
+const PingpongBase = require('./pingpong_base');
 
-class pingpong_g1 extends BaseModule {
+class PingpongG1 extends PingpongBase {
     constructor() {
         super();
 
         this.readValue = {};
         this.send_cmd = {};
         this.cmd_seq = 0;
+
+        this.isDraing = false;
+        this.sendBuffer = [];
 
         this.sp = null;
         this.isCubeConnecting = false;
@@ -33,79 +36,59 @@ class pingpong_g1 extends BaseModule {
         console.log('PINGPONG: constructor');
     }
 
-    makePackets(method) {
+    makePackets(method, grpid = 0) {
         //console.log('..make_packet: ' + method);
 
         // CUBE_ID[0:3] / ASSIGNED_ID[4:5] / OPCODE[6] / SIZE[7:8] / OPT[9..11]
         // virtual
 
-        var result = null;
+        let result = null;
         if (method === 'connect') {
-            result = Buffer.from('dddd00000000da000b0000', 'hex');
-            //result = Buffer.from([0xdd,0xdd,0x00,0x00, 0x00,0x00, 0xda, 0x00,0x0b, 0x00, 0x00]);
-            //result[2] = this.groupId;
-        } else if (method === 'disconnect') {
-            result = Buffer.from([
-                0xff,
-                0xff,
-                0xff,
-                0xff,
-                0x00,
-                0x00,
-                0xa8,
-                0x00,
-                0x0a,
-                0x01,
-            ]);
-            //result = Buffer.from('ffffffff0000a8000a01', 'hex');
-        } else if (method === 'checkdongle') {
             result = Buffer.from([
                 0xdd,
                 0xdd,
-                0xdd,
-                0xdd,
+                grpid,
                 0x00,
-                0x01,
+                0x00,
+                0x00,
                 0xda,
                 0x00,
                 0x0b,
                 0x00,
-                0x0d,
+                0x00,
+            ]);
+            //result[2] = this.groupId;
+        } else if (method === 'disconnect') {
+            result = Buffer.from([0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0xa8, 0x00, 0x0a, 0x01]);
+            //result = Buffer.from('ffffffff0000a8000a01', 'hex');
+        } else if (method === 'checkdongle') {
+            result = Buffer.from([
+                0xdd, 0xdd, 0xdd, 0xdd, 0x00, 0x01, 0xda, 0x00, 0x0b, 0x00, 0x0d,
             ]);
         } else if (method === 'setColorLed') {
-            result = Buffer.from([
-                0xff,
-                0xff,
-                0x00,
-                0x07,
-                0x00,
-                0x00,
-                0xce,
-                0x00,
-                0x0e,
-                0x02,
-                0x00,
-                0x00,
-                0x07,
-                0x50,
-            ]);
+            result = Buffer.from('ffff00070000ce000e0200000750', 'hex');
         } else if (method === 'getSensorData') {
             result = Buffer.from([
-                0xff,
-                0xff,
-                0xff,
-                0xff,
-                0x00,
-                0xc8 /* continuous sampling*/,
-                0xb8,
-                0x00,
-                0x0b,
-                10,
+                0xff, 0xff, 0xff, 0xff, 0x00, 0xc8 /* continuous sampling*/, 0xb8, 0x00, 0x0b, 20,
                 0x01,
+            ]);
+        } else if (method === 'dongleReset') {
+            result = Buffer.from([
+                0xDD,
+                0xDD,
+                0xDD,
+                0xDD,
+                0x00,
+                0x00,
+                0xDA,
+                0x00,
+                0x0B,
+                0x00,
+                0xCD,                
             ]);
         }
         return result;
-    }
+        }
 
     /*
 	sendRemoteRequest() {
@@ -151,32 +134,25 @@ class pingpong_g1 extends BaseModule {
     }
 
     // 연결 후 초기에 송신할 데이터가 필요한 경우 사용합니다.
-    requestInitialData(sp) {
+    requestInitialData(sp, payload) {
         //console.log('P:requestInitialData: ');
-        /*
-		if (!this.sp) {
-			this.sp = sp;
-		}
-
-		if (!this.isCubeConnecting) {
-			//var checkDongle = this.makePackets('checkdongle');
-			var checkDongle = this.makePackets('connect');
-			sp.write(checkDongle, ()=> {
-				this.checkPongConnect();
-			});
-			this.isCubeConnecting = true;
-		}
-		return null;
-		*/
-        return this.makePackets('connect');
+        const grpid = payload.match(/[0-7]{1,2}$/g);
+        if (grpid == null) {
+            console.warn('Wrong group id inputted', payload);
+            return null;
+        }
+        const grpno = parseInt(grpid[0], 16);
+        return this.makePackets('connect', grpno);
     }
 
     dbgHexstr(data) {
-        var output = '';
-        data.map(function(item) {
-            var number = item.toString(16);
-            if (number.length < 2) number = '0' + number;
-            output += number + ',';
+        let output = '';
+        data.map((item) => {
+            let number = item.toString(16);
+            if (number.length < 2) {
+                number = `0${number}`;
+            }
+            output += `${number},`;
         });
         return output;
     }
@@ -201,71 +177,55 @@ class pingpong_g1 extends BaseModule {
 
         this.send_cmd = handler.read('COMMAND');
         if (this.send_cmd) {
-            if (this.send_cmd.id > this.cmd_seq) {
-                this.cmd_seq = this.send_cmd.id;
-                var sendBuffer = Buffer.from(this.send_cmd.data);
-                this.sp.write(sendBuffer);
-                //console.log('D:send PACKET: %s ', this.dbgHexstr(sendBuffer));
-            } else if (this.send_cmd.id == -1) {
+            if (this.send_cmd.id == -1) {
                 this.cmd_seq = 0;
                 //console.log('P:handle RD: CLEAR');
+            } else if (this.send_cmd.id != this.cmd_seq) {
+                this.cmd_seq = this.send_cmd.id;
+                this.sendBuffer.push(Buffer.from(this.send_cmd.data));
+                //console.log('D:send PACKET: %s ', this.dbgHexstr(sendBuffer));
             }
         }
     }
 
     // 하드웨어 기기에 전달할 데이터
     requestLocalData() {
-        /*
-		var isSendData = false;
-		var sendBuffer;
-
-		if (this.send_cmd && this.send_cmd.id > this.cmd_seq) {
-			isSendData = true;
-			//console.log('P:request LD: ', this.send_cmd);
-			this.cmd_seq = this.send_cmd.id;
-			sendBuffer = Buffer.from(this.send_cmd.data);
-		}
-
-		if (isSendData) {
-			console.log('P:request LD: ');
-			return sendBuffer;
-		}
-		*/
+        const self = this;
+        if (!this.isDraing && this.sendBuffer.length > 0) {
+            this.isDraing = true;
+            const msg = this.sendBuffer.shift();
+            this.sp.write(msg, () => {
+                if (self.sp) {
+                    self.sp.drain(() => {
+                        self.isDraing = false;
+                    });
+                }
+            });
+        }
 
         return null;
-
-        /*
-		const header = new Buffer([0xff, 0xff, 0xff]);
-		const position = new Buffer([0xff]);
-		const data = new Buffer([0x00, 0xc8, 0xb8, 0x00, 0x0b]);
-		const interval = new Buffer([10]);
-		const tail = new Buffer([0x01]);
-
-        return Buffer.concat([header, position, data, interval, tail]);
-		*/
     }
 
     // 하드웨어에서 온 데이터 처리
     handleLocalData(data) {
-        //console.log('P:handle LocalData:(%d) %s ', data.length, this.dbgHexstr(data));
         if (!this.isConnected) {
         }
 
         if (data.length >= 9) {
-            const packet_size = data.readInt16BE(7);
+            const packetSize = data.readInt16BE(7);
             const opcode = data[6];
 
-            if (data.length === packet_size && opcode === 0xb8) {
-                var sensor = this._sensorData;
+            if (data.length === packetSize && opcode === 0xb8) {
+                const sensor = this._sensorData;
 
                 sensor.MOVE_X = data.readInt8(12);
                 sensor.MOVE_Y = data.readInt8(13);
                 sensor.MOVE_Z = data.readInt8(14);
 
-                var xx = Math.max(Math.min(data.readInt8(15), 90), -90);
-                var yy = Math.max(Math.min(data.readInt8(16), 90), -90);
+                const xx = Math.max(Math.min(data.readInt8(15), 90), -90);
+                let yy = Math.max(Math.min(data.readInt8(16), 90), -90);
                 yy *= -1;
-                var zz = Math.max(Math.min(data.readInt8(17), 90), -90);
+                const zz = Math.max(Math.min(data.readInt8(17), 90), -90);
                 sensor.TILT_X = xx;
                 sensor.TILT_Y = yy;
                 sensor.TILT_Z = zz;
@@ -275,8 +235,8 @@ class pingpong_g1 extends BaseModule {
                 sensor.PROXIMITY = data.readUInt8(18);
 
                 // 기존 FW 70 버전 = data length 19 bytes (ANALOG IN 미지원)
-                if (packet_size > 19) {
-                    sensor.AIN = data.readUInt8(19);
+                if (packetSize > 19) {
+                    sensor.AIN = data.readUInt8(19) * 4;
                 } else {
                     sensor.AIN = 0;
                 }
@@ -298,16 +258,15 @@ class pingpong_g1 extends BaseModule {
 
     // 엔트리로 전달할 데이터
     requestRemoteData(handler) {
-        //console.log('P:request RD: ');
-        var self = this;
-        Object.keys(this.readValue).forEach(function(key) {
+        const self = this;
+        Object.keys(this.readValue).forEach((key) => {
             if (self.readValue[key] !== undefined) {
                 handler.write(key, self.readValue[key]);
             }
         });
 
         //XXX: entryjs의 monitorTemplate 사용하려면 트리상단에 PORT 정보 보내야함
-        Object.keys(this._sensorData).forEach(function(key) {
+        Object.keys(this._sensorData).forEach((key) => {
             if (self._sensorData[key] !== undefined) {
                 //console.log(" --handler.write (%s) = %j ", key, self._sensorData[key]);
                 handler.write(key, self._sensorData[key]);
@@ -320,37 +279,37 @@ class pingpong_g1 extends BaseModule {
 
         setTimeout(() => {
             this.sp.write(this.makePackets('setColorLed'), (err) => {});
-        }, 1000);
+        }, 500);
 
-        setTimeout(() => {
+        setTimeout(() => { //YIM's 모든 센서가 연결된 후에 보내야하는데 여기서 보내지는게 오류...
             this.sp.write(this.makePackets('getSensorData'), (err) => {
                 console.log('done.........');
             });
-        }, 2000);
+        }, 1000);
     }
 
     // 하드웨어 연결 해제 시 호출됩니다.
-    disconnect(connect) {
-        console.log('P:disconnect: ');
+    // disconnect(connect) {
+    //     console.log('P:disconnect: ');
 
-        //console.log('.. ', this.sp.isOpen);
-        if (this.sp) {
-            // set led
-            //this.sp.write( Buffer.from('ffffffff0000ce000e0200000150', 'hex') );
-            // getSensor disable
-            //this.sp.write( Buffer.from('ffffffff00c8b8000b0001', 'hex') );
+    //     //console.log('.. ', this.sp.isOpen);
+    //     if (this.sp) {
+    //         // set led
+    //         //this.sp.write( Buffer.from('ffffffff0000ce000e0200000150', 'hex') );
+    //         // getSensor disable
+    //         //this.sp.write( Buffer.from('ffffffff00c8b8000b0001', 'hex') );
 
-            this.sp.write(this.makePackets('disconnect'), (err) => {
-                if (this.sp.isOpen) {
-                    console.log('Disconnect');
-                    connect.close();
-                }
-                this.sp = null;
-            });
-        } else {
-            connect.close();
-        }
-    }
+    //         this.sp.write(this.makePackets('disconnect'), (err) => {
+    //             if (this.sp.isOpen) {
+    //                 console.log('Disconnect');
+    //                 connect.close();
+    //             }
+    //             this.sp = null;
+    //         });
+    //     } else {
+    //         connect.close();
+    //     }
+    // }
 
     // 엔트리와의 연결 종료 후 처리 코드입니다.
     reset() {
@@ -358,4 +317,4 @@ class pingpong_g1 extends BaseModule {
     }
 }
 
-module.exports = new pingpong_g1();
+module.exports = new PingpongG1();
