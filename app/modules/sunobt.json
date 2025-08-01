@@ -1,0 +1,22 @@
+{
+    "id": "570102",
+    "name": {
+        "en": "Sensor Uno (Bluetooth)",
+        "ko": "센서우노(블루투스)"
+    },
+    "category": "board",
+    "platform": ["win32", "darwin"],
+    "icon": "sunobt.png",
+    "module": "sunobt.js",
+    "url": "https://excitetouch.com",
+    "email": "joonsuk0208@gmail.com",
+    "reconnect": true,
+    "selectPort": true,
+    "hardware": {
+        "type": "bluetooth",
+        "control": "slave",
+        "duration": 48,
+        "vendor": "Microsoft",
+        "baudRate": 57600
+    }
+}
