@@ -187,78 +187,59 @@ Module.prototype.handleRemoteData = function (handler) {
 
     if (setDatas) {
         var setKeys = Object.keys(setDatas);
-        var sendItems = [];
-        var localSeq = 0; // 같은 시간대에는 입력 순서 보장
         setKeys.forEach(function (port) {
             var data = setDatas[port];
-            if (!data) { return; }
+            if (data) {
+                
+                // 네오픽셀 포트 확인 (100~103: COLOR, 200: INIT, 201: BRIGHTNESS, 202: ALL, 203: RANGE, 204: SHIFT, 205: ROTATE)
+                var portNum = parseInt(port, 10);
+                var isNeopixelColorPort = (portNum >= 100 && portNum <= 103);
+                var isNeopixelInitPort = (portNum === 200);
+                var isNeopixelBrightnessPort = (portNum === 201);
+                var isNeopixelAllPort = (portNum === 202);
+                var isNeopixelRangePort = (portNum === 203);
+                var isNeopixelShiftPort = (portNum === 204);
+                var isNeopixelRotatePort = (portNum === 205);
+                var isNeopixelBlinkPort = (portNum === 206);
+                var isNeopixelBlinkStopPort = (portNum === 207);
+                var isNeopixelVirtualPort = isNeopixelColorPort || isNeopixelInitPort || isNeopixelBrightnessPort || isNeopixelAllPort || isNeopixelRangePort || isNeopixelShiftPort || isNeopixelRotatePort || isNeopixelBlinkPort || isNeopixelBlinkStopPort;
+                
+                var shouldSend = false;
+                
+                // NEOPIXEL_INIT는 특별 처리: 깜박이기 작업 중지
+                if (isNeopixelInitPort) {
+                    self.stopNeopixelBlinkTask(-1);
+                }
+                
+                // 시간 기반 중복 체크 (isRecentData에서 네오픽셀은 항상 false 반환)
+                var lastTime = self.digitalPortTimeList[port] || 0;
+                if (lastTime < data.time) {
+                    self.digitalPortTimeList[port] = data.time;
+                    shouldSend = !self.isRecentData(port, data.type, data.data);
+                }
 
-            var portNum = parseInt(port, 10);
-            var isNeopixelColorPort = (portNum >= 100 && portNum <= 103);
-            var isNeopixelInitPort = (portNum === 200);
-            var isNeopixelBrightnessPort = (portNum === 201);
-            var isNeopixelAllPort = (portNum === 202);
-            var isNeopixelRangePort = (portNum === 203);
-            var isNeopixelShiftPort = (portNum === 204);
-            var isNeopixelRotatePort = (portNum === 205);
-            var isNeopixelBlinkPort = (portNum === 206);
-            var isNeopixelBlinkStopPort = (portNum === 207);
-            var isNeopixelVirtualPort = (
-                isNeopixelColorPort || isNeopixelInitPort || isNeopixelBrightnessPort ||
-                isNeopixelAllPort || isNeopixelRangePort || isNeopixelShiftPort ||
-                isNeopixelRotatePort || isNeopixelBlinkPort || isNeopixelBlinkStopPort
-            );
-
-            // INIT는 호스트측 블링크 작업도 중지
-            if (isNeopixelInitPort) {
-                self.stopNeopixelBlinkTask(-1);
+                if (shouldSend) {
+                    // 네오픽셀 COLOR는 isRecentData 내부에서 neopixelLastData에 저장
+                    // INIT과 BRIGHTNESS는 recentCheckData에 저장
+                    if (!isNeopixelColorPort) {
+                        self.recentCheckData[port] = {
+                            type: data.type,
+                            data: data.data,
+                        };
+                    }
+                    
+                    // 네오픽셀 가상 포트를 실제 포트(9)로 변환
+                    var actualPort = isNeopixelVirtualPort ? 9 : port;
+                    
+                    var outputBuffer = self.makeOutputBuffer(data.type, actualPort, data.data);
+                    
+                    buffer = Buffer.concat([
+                        buffer,
+                        outputBuffer,
+                    ]);
+                }
             }
-
-            var shouldSend = false;
-            var lastTime = self.digitalPortTimeList[port] || 0;
-            if (lastTime < data.time) {
-                self.digitalPortTimeList[port] = data.time;
-                shouldSend = !self.isRecentData(port, data.type, data.data);
-            }
-
-            if (!shouldSend) { return; }
-
-            if (!isNeopixelColorPort) {
-                self.recentCheckData[port] = {
-                    type: data.type,
-                    data: data.data,
-                };
-            }
-
-            var actualPort = isNeopixelVirtualPort ? 9 : port;
-
-            // 배치 전송용 아이템 수집 (우선순위 제거, 시간/입력순서만 사용)
-            sendItems.push({
-                port: port,
-                data: data,
-                actualPort: actualPort,
-                time: data.time || 0,
-                type: data.type,
-                seq: localSeq++,
-            });
         });
-
-        if (sendItems.length) {
-            // 시간 → 입력순 정렬 (엄격한 순서 보장)
-            sendItems.sort(function (a, b) {
-                if (a.time !== b.time) return a.time - b.time;
-                return a.seq - b.seq;
-            });
-
-            // 병합 버퍼 생성
-            var mergedSetBuffer = new Buffer([]);
-            sendItems.forEach(function (it) {
-                var out = self.makeOutputBuffer(it.type, it.actualPort, it.data.data);
-                mergedSetBuffer = Buffer.concat([mergedSetBuffer, out]);
-            });
-
-            buffer = Buffer.concat([buffer, mergedSetBuffer]);
-        }
     }
 
     if (buffer.length) {
@@ -734,7 +715,7 @@ Module.prototype.makeOutputBuffer = function (device, port, data) {
             // Payload: side(int8), count(uint8), r, g, b, interval(uint16)
             if ($.isPlainObject(data)) {
                 var side = (typeof data.side === 'number') ? data.side : -1;
-            var sideByte = side < 0 ? 2 : side; // -1(all) => 2 (firmware ALL)
+                var sideByte = side < 0 ? 255 : side; // -1 => 255
                 var count = data.count || 1;
                 var r = data.r || 0;
                 var g = data.g || 0;
@@ -759,7 +740,7 @@ Module.prototype.makeOutputBuffer = function (device, port, data) {
             } else {
                 // minimal packet with defaults
                 buffer = new Buffer(9);
-                buffer[0] = 255; buffer[1] = 85; buffer[2] = 5; buffer[3] = sensorIdx; buffer[4] = this.actionTypes.SET; buffer[5] = device; buffer[6] = 9; buffer[7] = 2; buffer[8] = 10;
+                buffer[0] = 255; buffer[1] = 85; buffer[2] = 5; buffer[3] = sensorIdx; buffer[4] = this.actionTypes.SET; buffer[5] = device; buffer[6] = 9; buffer[7] = 255; buffer[8] = 10;
             }
             break;
         }
@@ -767,7 +748,7 @@ Module.prototype.makeOutputBuffer = function (device, port, data) {
             // Payload: side(int8)
             if ($.isPlainObject(data)) {
                 var side = (typeof data.side === 'number') ? data.side : -1;
-                var sideByte = side < 0 ? 2 : side; // -1(all) => 2 (firmware ALL)
+                var sideByte = side < 0 ? 255 : side; // -1 => 255
                 buffer = new Buffer(9);
                 buffer[0] = 255;
                 buffer[1] = 85;
@@ -779,7 +760,7 @@ Module.prototype.makeOutputBuffer = function (device, port, data) {
                 buffer[7] = sideByte & 0xFF;
                 buffer[8] = 10;
             } else {
-                buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.SET, device, 9, 2, 10]);
+                buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.SET, device, 9, 255, 10]);
             }
             break;
         }
