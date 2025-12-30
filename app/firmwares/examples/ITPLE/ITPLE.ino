@@ -7,12 +7,12 @@
  * Updated : Ander, Mark Yan
  * Date : 01/09/2016
  * Description : Firmware for Makeblock Electronic modules with Scratch.
+ * Refactored with millis() for non-blocking operation.
  * Copyright (C) 2013 - 2016 Maker Works Technology Co., Ltd. All right reserved. 
  **********************************************************************************/
-// 서보 라이브러리
 #include <Servo.h>
+#include <Adafruit_NeoPixel.h>
 
-// 동작 상수
 #define ALIVE 0
 #define DIGITAL 1
 #define ANALOG 2
@@ -22,8 +22,18 @@
 #define PULSEIN 6
 #define ULTRASONIC 7
 #define TIMER 8
+#define NEOPIXEL_INIT 9
+#define NEOPIXEL_COLOR 10
+#define NEOPIXEL_BRIGHTNESS 11
+#define NEOPIXEL_SHIFT 12
+#define NEOPIXEL_ROTATE 13
+// Added for firmware-side blinking
+#define NEOPIXEL_BLINK 14
+#define NEOPIXEL_BLINK_STOP 15
 
-// 상태 상수
+#define NEOPIXEL_PIN 9
+#define NEOPIXEL_COUNT 4
+
 #define GET 1
 #define SET 2
 #define RESET 3
@@ -41,22 +51,20 @@ union{
   short shortVal;
 }valShort;
 
-// 전역변수 선언 시작
-Servo servos[8];  
+Servo servos[8];
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(NEOPIXEL_COUNT, NEOPIXEL_PIN, NEO_GRB + NEO_KHZ800);
+boolean neopixelInitialized = true;
 
-//울트라 소닉 포트
 int trigPin = 13;
 int echoPin = 12;
 
-//포트별 상태
 int analogs[8]={0,0,0,0,0,0,0,0};
-int digitals[14]={0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+int digitals[14]={0,0,0,0,0,0,0,0,0,1,0,0,0,0};
 int servo_pins[8]={0,0,0,0,0,0,0,0};
 
-// 울트라소닉 최종 값
 float lastUltrasonic = 0;
 
-// 버퍼
+// Buffer
 char buffer[52];
 unsigned char prevc=0;
 
@@ -67,15 +75,105 @@ double lastTime = 0.0;
 double currentTime = 0.0;
 
 uint8_t command_index = 0;
+uint32_t neoPixelColors[4] = {0,0,0,0};
 
 boolean isStart = false;
 boolean isUltrasonic = false;
-// 전역변수 선언 종료
+
+// --- 변수 추가: Non-blocking 타이머용 ---
+unsigned long previousSensorTime = 0;
+// sendPinValues() 함수를 실행할 간격 (밀리초)
+// 중요: pulseIn() 등 blocking 함수가 있으므로 간격을 100ms로 늘림
+const unsigned long sensorInterval = 100;
+
+unsigned long previousBlinkUpdateTime = 0;
+// 네오픽셀 깜박이기 업데이트 간격 (명령 밀림 방지를 위해 빈도 제한)
+const unsigned long blinkUpdateInterval = 10; // 10ms마다 체크 (초당 100회)
+// ---
+
+// --- NeoPixel Blink State (millis 기반 비동기 무한 깜박이기) ---
+typedef struct {
+  boolean active;
+  uint8_t r;
+  uint8_t g;
+  uint8_t b;
+  boolean isOn;       // 현재 ON 상태인가
+  unsigned long interval;    // 토글 간격(ms)
+  unsigned long lastMillis;  // 마지막 토글 시각
+  uint8_t startIdx;   // LED 시작 인덱스 (포함)
+  uint8_t endIdx;     // LED 끝 인덱스 (포함)
+} BlinkState;
+
+BlinkState blinkLeft  = { false, 0, 0, 0, false, 500, 0, 2, 3 };
+BlinkState blinkRight = { false, 0, 0, 0, false, 500, 0, 0, 1 };
+
+void blinkApplyRange(BlinkState *s, boolean on) {
+  uint32_t color = on ? strip.Color(s->r, s->g, s->b) : 0;
+  for (uint8_t i = s->startIdx; i <= s->endIdx; i++) {
+    strip.setPixelColor(i, color);
+    neoPixelColors[i] = color;
+  }
+  strip.show();
+}
+
+void startBlink(BlinkState *s, uint8_t r, uint8_t g, uint8_t b, unsigned long intervalMs, unsigned long syncTime = 0) {
+  // 이미 진행 중이면 색/간격만 갱신하고 현재 상태 유지
+  if (s->active) {
+    s->r = r; s->g = g; s->b = b;
+    s->interval = (intervalMs < 50) ? 50 : intervalMs;
+    blinkApplyRange(s, s->isOn);
+    return;
+  }
+
+  // 새로 시작 (즉시 켜기)
+  s->r = r; s->g = g; s->b = b;
+  s->interval = (intervalMs < 50) ? 50 : intervalMs;
+  s->lastMillis = (syncTime > 0) ? syncTime : millis();
+  s->active = true;
+  s->isOn = true;
+  blinkApplyRange(s, true);
+}
+
+void stopBlink(BlinkState *s) {
+  // STOP 명령: 즉시 LED 끄기 및 상태 리셋
+  s->active = false;
+  s->isOn = false;
+  // LED 강제 끄기
+  blinkApplyRange(s, false);
+}
+
+void resetBlinkStates() {
+  // 모든 깜박이기 상태 초기화 (연결 끊김 시 호출)
+  stopBlink(&blinkLeft);
+  stopBlink(&blinkRight);
+}
+
+void updateBlinkStates() {
+  unsigned long now = millis();
+  // Left
+  if (blinkLeft.active && (now - blinkLeft.lastMillis >= blinkLeft.interval)) {
+    blinkLeft.lastMillis = now;
+    blinkLeft.isOn = !blinkLeft.isOn;
+    blinkApplyRange(&blinkLeft, blinkLeft.isOn);
+  }
+  // Right
+  if (blinkRight.active && (now - blinkRight.lastMillis >= blinkRight.interval)) {
+    blinkRight.lastMillis = now;
+    blinkRight.isOn = !blinkRight.isOn;
+    blinkApplyRange(&blinkRight, blinkRight.isOn);
+  }
+}
 
 void setup(){
   Serial.begin(57600);
   initPorts();
-  delay(200);
+  
+  // Initialize NeoPixel before serial communication starts
+  strip.begin();
+  strip.clear();
+  strip.show();
+  
+  delay(200); // 셋업 중의 딜레이는 허용
 }
 
 void initPorts() {
@@ -83,19 +181,45 @@ void initPorts() {
     pinMode(pinNumber, OUTPUT);
     digitalWrite(pinNumber, LOW);
   }
+  // 깜박이기 상태도 초기화
+  resetBlinkStates();
 }
 
+// ===== 수정된 loop() 함수 =====
 void loop(){
-  while (Serial.available()) {
-    if (Serial.available() > 0) {
-      char serialRead = Serial.read();
-      setPinValue(serialRead&0xff);
-    }
-  } 
+  // 1. 시리얼 수신을 최우선 처리 (명령 밀림 방지)
+  // 버퍼가 비워질 때까지 최대한 빠르게 읽고 처리
+  // 한 loop() 사이클에서 여러 명령을 처리할 수 있도록 충분히 반복
+  int processedBytes = 0;
+  while (Serial.available() && processedBytes < 200) {
+    char serialRead = Serial.read();
+    setPinValue(serialRead&0xff);
+    processedBytes++;
+  }
+  
+  // 2. 네오픽셀 깜박이기 상태 업데이트 (빈도 제한)
+  unsigned long currentMillis = millis();
+  if (currentMillis - previousBlinkUpdateTime >= blinkUpdateInterval) {
+    previousBlinkUpdateTime = currentMillis;
+    updateBlinkStates();
+  }
+  
+  // 3. 센서 값 전송을 주기적으로 확인 (Non-blocking)
+  // pulseIn() 등 blocking 함수가 있으므로 간격을 넉넉히 설정
+  if (currentMillis - previousSensorTime >= sensorInterval) {
+    previousSensorTime = currentMillis; // 다음 주기를 위해 시간 갱신
+    sendPinValues();
+  }
+
+  // 기존 delay() 호출 제거
+  /*
   delay(15);
   sendPinValues();
   delay(10);
+  */
 }
+// ===== loop() 함수 수정 끝 =====
+
 
 void setPinValue(unsigned char c) {
   if(c==0x55&&isStart==false){
@@ -123,7 +247,7 @@ void setPinValue(unsigned char c) {
     isStart=false;
   }
     
-  if(isStart&&dataLen==0&&index>3){  
+  if(isStart&&dataLen==0&&index>3){ 
     isStart = false;
     parseData(); 
     index=0;
@@ -152,7 +276,7 @@ void parseData() {
           digitals[echoPin] = 1;
           pinMode(trigPin, OUTPUT);
           pinMode(echoPin, INPUT);
-          delay(50);
+          delay(50); // 핀 모드 변경 시 안정화를 위한 딜레이 (유지)
         } else {
           int trig = readBuffer(6);
           int echo = readBuffer(7);
@@ -161,9 +285,9 @@ void parseData() {
             echoPin = echo;
             digitals[trigPin] = 1;
             digitals[echoPin] = 1;
-            pinMode(trigPin, OUTPUT);            
+            pinMode(trigPin, OUTPUT);          
             pinMode(echoPin, INPUT);
-            delay(50);
+            delay(50); // 핀 모드 변경 시 안정화를 위한 딜레이 (유지)
           }
         }
       } else if(port == trigPin || port == echoPin) {
@@ -175,21 +299,24 @@ void parseData() {
     }
     break;
     case SET:{
-      runModule(device);
+      runModule(device, port);
       callOK();
     }
     break;
     case RESET:{
+      // 연결 끊김 시 모든 상태 초기화
+      resetBlinkStates();
+      // 네오픽셀 끄기
+      strip.clear();
+      strip.show();
       callOK();
     }
     break;
   }
 }
 
-void runModule(int device) {
+void runModule(int device, int pin) {
   //0xff 0x55 0x6 0x0 0x1 0xa 0x9 0x0 0x0 0xa
-  int port = readBuffer(6);
-  int pin = port;
 
   if(pin == trigPin || pin == echoPin) {
     setUltrasonicMode(false);
@@ -233,6 +360,203 @@ void runModule(int device) {
       lastTime = millis()/1000.0; 
     }
     break;
+    case NEOPIXEL_INIT: {
+      setPortWritable(9);
+      if (!neopixelInitialized) {
+        strip.begin();
+        strip.clear();
+        strip.show();
+        for(int i=0;i<4;i++){
+          neoPixelColors[i] = 0;
+        }
+        neopixelInitialized = true;
+      }
+      // 깜박이기 동작이 있었다면 모두 중지
+      stopBlink(&blinkLeft);
+      stopBlink(&blinkRight);
+      break;
+    }
+    case NEOPIXEL_BLINK: {
+      setPortWritable(9);
+      uint8_t side = readBuffer(7);   // 255: 전체, 0: 왼쪽, 1: 오른쪽
+      uint8_t count = readBuffer(8); // 호환성 유지용으로 수신만, 사용하지 않음 (무한 깜박임)
+      uint8_t r = readBuffer(9);
+      uint8_t g = readBuffer(10);
+      uint8_t b = readBuffer(11);
+      unsigned long interval = (unsigned long)readShort(12);
+      if (interval < 50) interval = 50;
+      
+      // side == 255(or legacy 2) => 전체
+      if (side == 2) {
+        unsigned long syncTime = millis(); // 양쪽 동기화를 위한 공통 시각
+        startBlink(&blinkLeft, r, g, b, interval, syncTime);
+        startBlink(&blinkRight, r, g, b, interval, syncTime);
+      } else if (side == 0) {
+        startBlink(&blinkLeft, r, g, b, interval);
+      } else {
+        startBlink(&blinkRight, r, g, b, interval);
+      }
+      break;
+    }
+    case NEOPIXEL_BLINK_STOP: {
+      setPortWritable(9);
+      uint8_t side = readBuffer(7);  // 255: 전체, 0: 왼쪽, 1: 오른쪽
+      if (side == 2) {
+        stopBlink(&blinkLeft);
+        stopBlink(&blinkRight);
+      } else if (side == 0) {
+        stopBlink(&blinkLeft);
+      } else {
+        stopBlink(&blinkRight);
+      }
+      break;
+    }
+    case NEOPIXEL_COLOR: {
+      setPortWritable(9);
+      int num = readBuffer(7);
+      
+      // num이 254이면 범위 LED 설정 (RANGE 명령)
+      if (num == 254) {
+        int start = readBuffer(8);
+        int end = readBuffer(9);
+        int r = readBuffer(10);
+        int g = readBuffer(11);
+        int b = readBuffer(12);
+        
+        if(end > 3) end = 3;
+        if(start < 0) start = 0;
+        strip.fill(strip.Color(r,g,b), start, end-start+1);
+        for(int i=start;i<=end;i++){
+          neoPixelColors[i] = strip.Color(r,g,b);
+        }
+      }
+      // num이 255이면 모든 LED를 같은 색으로 설정 (ALL 명령)
+      else if (num == 255) {
+        int r = readBuffer(8);
+        int g = readBuffer(9);
+        int b = readBuffer(10);
+        
+        strip.fill(strip.Color(r, g, b), 0, 4);
+        for(int i=0;i<4;i++){
+          neoPixelColors[i] = strip.Color(r,g,b);
+        }
+      }
+      // 개별 LED 설정
+      else {
+        int r = readBuffer(8);
+        int g = readBuffer(9);
+        int b = readBuffer(10);
+        
+        strip.setPixelColor(num, strip.Color(r, g, b));
+        neoPixelColors[num] = strip.Color(r,g,b);
+      }
+      strip.show();
+      neopixelInitialized = false;
+      break;
+    }
+    case NEOPIXEL_BRIGHTNESS: {
+      setPortWritable(9);
+      int brightness = readShort(7);
+      if (brightness < 0) brightness = 0;
+      if (brightness > 255) brightness = 255;
+      strip.setBrightness(brightness);
+      strip.show();
+      break;
+    }
+
+    case NEOPIXEL_SHIFT: {
+      setPortWritable(9);
+      int direction = (int8_t)readBuffer(7); // 1: 오른쪽, -1: 왼쪽
+      int steps = readBuffer(8);
+      int isRotate = readBuffer(9); // 0: shift, 1: rotate
+      
+      // steps 범위 체크
+      if (steps < 0) steps = 0;
+      if (steps > NEOPIXEL_COUNT) steps = NEOPIXEL_COUNT;
+      
+      // 현재 LED 색상을 임시 배열에 저장
+      uint32_t tempColors[NEOPIXEL_COUNT];
+      for (int i = 0; i < NEOPIXEL_COUNT; i++) {
+        tempColors[i] = strip.getPixelColor(i);
+      }
+      
+      // 모든 LED 초기화
+      strip.clear();
+      
+      // 1번(idx 0)이 오른쪽 끝, 4번(idx 3)이 왼쪽 끝
+      if (direction > 0) {
+        // 오른쪽으로: 색상이 1번 방향으로 이동 (인덱스 감소)
+        for (int i = 0; i < NEOPIXEL_COUNT; i++) {
+          int newPos = i - steps;
+          if (isRotate == 1) {
+            // 회전: 순환
+            newPos = (newPos + NEOPIXEL_COUNT) % NEOPIXEL_COUNT;
+            strip.setPixelColor(newPos, tempColors[i]);
+          } else {
+            // 이동: 범위 체크
+            if (newPos >= 0) {
+              strip.setPixelColor(newPos, tempColors[i]);
+            }
+          }
+        }
+      } else {
+        // 왼쪽으로: 색상이 4번 방향으로 이동 (인덱스 증가)
+        for (int i = 0; i < NEOPIXEL_COUNT; i++) {
+          int newPos = i + steps;
+          if (isRotate == 1) {
+            // 회전: 순환
+            newPos = newPos % NEOPIXEL_COUNT;
+            strip.setPixelColor(newPos, tempColors[i]);
+          } else {
+            // 이동: 범위 체크
+            if (newPos < NEOPIXEL_COUNT) {
+              strip.setPixelColor(newPos, tempColors[i]);
+            }
+          }
+        }
+      }
+      
+      strip.show();
+      neopixelInitialized = false;
+      break;
+    }
+
+    case NEOPIXEL_ROTATE: {
+      setPortWritable(9);
+      int direction = (int8_t)readBuffer(7);
+      int steps = readBuffer(8);
+      
+      if (steps < 0) steps = 0;
+      if (steps > NEOPIXEL_COUNT) steps %= NEOPIXEL_COUNT;
+      
+      uint32_t tempColors[NEOPIXEL_COUNT];
+      
+      // 1번(idx 0)이 오른쪽 끝, 4번(idx 3)이 왼쪽 끝
+      if (direction > 0) {
+        // 오른쪽으로 회전: 색상이 1번 방향으로 이동 (인덱스 감소)
+        for (int i = 0; i < NEOPIXEL_COUNT; i++) {
+          int newPos = (i - steps + NEOPIXEL_COUNT) % NEOPIXEL_COUNT;
+          tempColors[newPos] = neoPixelColors[i];
+        }
+      } else {
+        // 왼쪽으로 회전: 색상이 4번 방향으로 이동 (인덱스 증가)
+        for (int i = 0; i < NEOPIXEL_COUNT; i++) {
+          int newPos = (i + steps) % NEOPIXEL_COUNT;
+          tempColors[newPos] = neoPixelColors[i];
+        }
+      }
+
+      strip.clear();
+      for (int i = 0; i < NEOPIXEL_COUNT; i++) {
+        neoPixelColors[i] = tempColors[i];
+        strip.setPixelColor(i, neoPixelColors[i]);
+      }
+      strip.show();
+      
+
+      neopixelInitialized = false;
+      break;
+    }
   }
 }
 
@@ -271,6 +595,9 @@ void sendUltrasonic() {
   delayMicroseconds(10);
   digitalWrite(trigPin, LOW);
 
+  //
+  // *** 주의: pulseIn()은 blocking 함수입니다. ***
+  // 최대 30000 마이크로초(30ms) 동안 여기서 대기할 수 있습니다.
   float value = pulseIn(echoPin, HIGH, 30000) / 29.0 / 2.0;
 
   if(value == 0) {
@@ -399,4 +726,3 @@ void callDebug(char c){
   writeSerial(c);
   writeEnd();
 }
-
