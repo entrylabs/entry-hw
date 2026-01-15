@@ -148,6 +148,43 @@ Module.prototype.checkInitialData = function(data, config) {
     return true;
 };
 
+function GetBitMergeResultSigned_12Bit(byH, byL) {
+    var nTempH = byH;
+    var nTempL = byL;
+
+    nTempH = (nTempH << 8) | byL;
+
+    if ((nTempH & 0x8000) == 0x8000)
+    {
+        nTempH = ~(nTempH - 1);
+        nTempH = 0 - (nTempH & 0xFFFF);
+    }
+    else
+    {
+        nTempH &= 0x7FFF;
+    }
+
+    return nTempH = nTempH >> 4;
+}
+
+function GetBitMergeResultSigned_16Bit(byH, byL) {
+    var nTempH = byH;
+    var nTempL = byL;
+
+    nTempH = (nTempH << 8) | byL;
+
+    if ((nTempH & 0x8000) == 0x8000)
+    {
+        nTempH = ~(nTempH - 1);
+        nTempH = 0 - (nTempH & 0xFFFF);
+    }
+    else
+    {
+        nTempH &= 0x7FFF;
+    }
+
+    return nTempH = nTempH;
+}
 
 // 하드웨어 데이터 처리
 Module.prototype.handleLocalData = function(data) { // data: Native Buffer
@@ -193,13 +230,13 @@ Module.prototype.handleLocalData = function(data) { // data: Native Buffer
 
             sensordata.cds = buf[43] * 256 + buf[44]; //cds
 
-            sensordata.accx = buf[25] * 256 + buf[26]; //acc x
-            sensordata.accy = buf[27] * 256 + buf[28]; //acc y
-            sensordata.accz = buf[29] * 256 + buf[30]; //acc z
+            sensordata.accx = GetBitMergeResultSigned_12Bit(buf[25], buf[26]); //acc x
+            sensordata.accy = GetBitMergeResultSigned_12Bit(buf[27], buf[28]); //acc y
+            sensordata.accz = GetBitMergeResultSigned_12Bit(buf[29], buf[30]); //acc z
 
-            sensordata.magx = buf[31] * 256 + buf[32]; //mag x
-            sensordata.magy = buf[33] * 256 + buf[34]; //mag y
-            sensordata.magz = buf[35] * 256 + buf[36]; //mag z
+            sensordata.magx = GetBitMergeResultSigned_16Bit(buf[31], buf[32]); //mag x
+            sensordata.magy = GetBitMergeResultSigned_16Bit(buf[33], buf[34]); //mag y
+            sensordata.magz = GetBitMergeResultSigned_16Bit(buf[35], buf[36]); //mag z
 
             sensordata.stvar = buf[45] * 256 + buf[46]; //steering var
 
@@ -209,9 +246,9 @@ Module.prototype.handleLocalData = function(data) { // data: Native Buffer
 
             sensordata.remote = buf[51]; //remote control
 
-            sensordata.gyrox = buf[37] * 256 + buf[38]; //gyro sensor x
-            sensordata.gyroy = buf[39] * 256 + buf[40]; //gyro sensor y
-            sensordata.gyroz = buf[41] * 256 + buf[42]; //gyro sensor z     
+            sensordata.gyrox = GetBitMergeResultSigned_16Bit(buf[37], buf[38]); //gyro sensor x
+            sensordata.gyroy = GetBitMergeResultSigned_16Bit(buf[39], buf[40]); //gyro sensor y
+            sensordata.gyroz = GetBitMergeResultSigned_16Bit(buf[41], buf[42]); //gyro sensor z     
             
             motordata.cnt = 0;
         }
