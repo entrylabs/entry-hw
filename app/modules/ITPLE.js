@@ -10,18 +10,13 @@ function Module() {
         PULSEIN: 6,
         ULTRASONIC: 7,
         TIMER: 8,
-        NEOPIXELINIT: 9,
-        NEOPIXELCOLOR: 10,
-        DHTINIT: 21,
-        DHTTEMP: 22,
-        DHTHUMI: 23,
-        NOTONE: 24,
-        PMINIT: 31,
-        PMVALUE: 32,
-        LCDINIT: 41,
-        LCD: 42,
-        LCDCLEAR: 43,
-        LCDEMOTICON: 44,
+        NEOPIXEL_INIT: 9,
+        NEOPIXEL_COLOR: 10,
+        NEOPIXEL_BRIGHTNESS: 11,
+        NEOPIXEL_SHIFT: 12,
+        NEOPIXEL_ROTATE: 13,
+        NEOPIXEL_BLINK: 14,
+        NEOPIXEL_BLINK_STOP: 15,
     };
 
     this.actionTypes = {
@@ -36,12 +31,15 @@ function Module() {
     };
 
     this.digitalPortTimeList = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    
+    this.neopixelLastData = {}; // 각 LED의 마지막 색상 저장
+    this.neopixelShiftLastTime = 0; // SHIFT 마지막 실행 시간
+    this.neopixelRotateLastTime = 0; // ROTATE 마지막 실행 시간
+    this.neopixelDuplicateCheckTime = 100; // 중복 체크 유효 시간 (ms)
+    this.neopixelBlinkTasks = {}; // 사이드별 깜박이기 작업 관리
 
     this.sensorData = {
         ULTRASONIC: 0,
-        DHTTEMP: 0,
-        DHTHUMI: 0,
-        PMVALUE: 0,
         DIGITAL: {
             0: 0,
             1: 0,
@@ -74,6 +72,13 @@ function Module() {
     this.lastTime = 0;
     this.lastSendTime = 0;
     this.isDraing = false;
+    
+    // BLINK 명령 throttling을 위한 캐시
+    this.lastBlinkCommand = {
+        left: { time: 0, data: null },
+        right: { time: 0, data: null },
+        all: { time: 0, data: null }
+    };
 }
 
 var sensorIdx = 0;
@@ -132,8 +137,18 @@ Module.prototype.handleRemoteData = function (handler) {
     if (getDatas) {
         var keys = Object.keys(getDatas);
         keys.forEach(function (key) {
-            var isSend = false;
             var dataObj = getDatas[key];
+            var deviceType = parseInt(key); // 문자열 키를 숫자로 변환 (예: "7" -> 7)
+
+            // --- [수정됨] millis() 펌웨어 최적화 ---
+            // DIGITAL(1)과 ANALOG(2)는 펌웨어에서 자동으로 스트리밍되므로 GET 요청 불필요.
+            // ULTRASONIC(7)은 펌웨어에서 센서를 초기화하는 '트리거'로 GET 요청이 필요함.
+            if (deviceType !== self.sensorTypes.ULTRASONIC) {
+                return; // ULTRASONIC 외의 모든 GET 요청은 무시
+            }
+            // --- [수정 끝] ---
+
+            var isSend = false;
             if (typeof dataObj.port === 'string' || typeof dataObj.port === 'number') {
                 var time = self.digitalPortTimeList[dataObj.port];
                 if (dataObj.time > time) {
@@ -154,14 +169,16 @@ Module.prototype.handleRemoteData = function (handler) {
             }
 
             if (isSend) {
-                if (!self.isRecentData(dataObj.port, key, dataObj.data)) {
+                // deviceType을 숫자로 전달
+                if (!self.isRecentData(dataObj.port, deviceType, dataObj.data)) {
                     self.recentCheckData[dataObj.port] = {
-                        type: key,
+                        type: deviceType, // 숫자형 deviceType 저장
                         data: dataObj.data,
                     };
                     buffer = Buffer.concat([
                         buffer,
-                        self.makeSensorReadBuffer(key, dataObj.port, dataObj.data),
+                        // deviceType을 숫자로 전달
+                        self.makeSensorReadBuffer(deviceType, dataObj.port, dataObj.data),
                     ]);
                 }
             }
@@ -173,52 +190,265 @@ Module.prototype.handleRemoteData = function (handler) {
         setKeys.forEach(function (port) {
             var data = setDatas[port];
             if (data) {
-                if (self.digitalPortTimeList[port] < data.time) {
+                
+                // 네오픽셀 포트 확인 (100~103: COLOR, 200: INIT, 201: BRIGHTNESS, 202: ALL, 203: RANGE, 204: SHIFT, 205: ROTATE)
+                var portNum = parseInt(port, 10);
+                var isNeopixelColorPort = (portNum >= 100 && portNum <= 103);
+                var isNeopixelInitPort = (portNum === 200);
+                var isNeopixelBrightnessPort = (portNum === 201);
+                var isNeopixelAllPort = (portNum === 202);
+                var isNeopixelRangePort = (portNum === 203);
+                var isNeopixelShiftPort = (portNum === 204);
+                var isNeopixelRotatePort = (portNum === 205);
+                var isNeopixelBlinkPort = (portNum === 206);
+                var isNeopixelBlinkStopPort = (portNum === 207);
+                var isNeopixelVirtualPort = isNeopixelColorPort || isNeopixelInitPort || isNeopixelBrightnessPort || isNeopixelAllPort || isNeopixelRangePort || isNeopixelShiftPort || isNeopixelRotatePort || isNeopixelBlinkPort || isNeopixelBlinkStopPort;
+                
+                var shouldSend = false;
+                
+                // NEOPIXEL_INIT는 특별 처리: 깜박이기 작업 중지
+                if (isNeopixelInitPort) {
+                    self.stopNeopixelBlinkTask(-1);
+                }
+                
+                // 시간 기반 중복 체크 (isRecentData에서 네오픽셀은 항상 false 반환)
+                var lastTime = self.digitalPortTimeList[port] || 0;
+                if (lastTime < data.time) {
                     self.digitalPortTimeList[port] = data.time;
+                    shouldSend = !self.isRecentData(port, data.type, data.data);
+                }
 
-                    if (!self.isRecentData(port, data.type, data.data)) {
+                if (shouldSend) {
+                    // 네오픽셀 COLOR는 isRecentData 내부에서 neopixelLastData에 저장
+                    // INIT과 BRIGHTNESS는 recentCheckData에 저장
+                    if (!isNeopixelColorPort) {
                         self.recentCheckData[port] = {
                             type: data.type,
                             data: data.data,
                         };
-                        buffer = Buffer.concat([
-                            buffer,
-                            self.makeOutputBuffer(data.type, port, data.data),
-                        ]);
                     }
+                    
+                    // 네오픽셀 가상 포트를 실제 포트(9)로 변환
+                    var actualPort = isNeopixelVirtualPort ? 9 : port;
+                    
+                    var outputBuffer = self.makeOutputBuffer(data.type, actualPort, data.data);
+                    
+                    buffer = Buffer.concat([
+                        buffer,
+                        outputBuffer,
+                    ]);
                 }
             }
         });
     }
 
     if (buffer.length) {
+        // 버퍼 크기 제한: 명령 밀림 방지 (반복 블록에서 빠른 종료를 위해)
+        // 최대 10개까지만 유지 (오래된 명령 제거)
+        if (this.sendBuffers.length > 10) {
+            console.log('[ITPLE] Send buffer overflow, dropping old commands');
+            this.sendBuffers = this.sendBuffers.slice(-5); // 최근 5개만 유지
+        }
         this.sendBuffers.push(buffer);
+    }
+};
+
+// --- NeoPixel Blink Scheduler (Background) ---
+Module.prototype.startNeopixelBlinkTask = function (side, count, r, g, b, interval) {
+    var self = this;
+    // 파라미터 보정
+    if (side !== 0 && side !== 1 && side !== -1) {
+        side = -1; // 기본 전체
+    }
+    // count가 0이면 무한 깜박임 (255로 처리)
+    count = parseInt(count || 1);
+    if (count === 0) {
+        count = 255; // 무한 깜박임을 255로 표현
+    } else {
+        count = Math.max(1, count);
+    }
+    r = Math.min(255, Math.max(0, parseInt(r || 0)));
+    g = Math.min(255, Math.max(0, parseInt(g || 0)));
+    b = Math.min(255, Math.max(0, parseInt(b || 0)));
+    interval = Math.max(100, Number(interval || 500)); // 최소 100ms
+
+    // 전체(-1)인 경우 양쪽을 각각 시작
+    if (side === -1) {
+        this.stopNeopixelBlinkTask(-1);
+        this.startNeopixelBlinkTask(0, count, r, g, b, interval);
+        this.startNeopixelBlinkTask(1, count, r, g, b, interval);
+        return;
+    }
+
+    var key = side === 0 ? 'left' : 'right';
+
+    // 기존 작업이 있다면 중지
+    this.stopNeopixelBlinkTask(side);
+
+    // LED 맵핑: 왼쪽(3,4) -> 인덱스 [2,3], 오른쪽(0,1) -> 인덱스 [0,1]
+    var ledNumbers = side === 0 ? [2, 3] : [0, 1];
+
+    var state = {
+        side: side,
+        key: key,
+        ledNumbers: ledNumbers,
+        count: count,
+        r: r,
+        g: g,
+        b: b,
+        isOn: false,
+        done: false,
+        toggles: 0, // off로 바뀔 때 1회로 카운트
+        timer: null,
+        infinite: (count === 255), // 255는 무한 깜박임
+    };
+
+    // 즉시 1회 켜기
+    this._applyNeopixelColorToList(ledNumbers, r, g, b);
+    state.isOn = true;
+
+    // 주기적 토글
+    state.timer = setInterval(function () {
+        if (state.done) { return; }
+        if (state.isOn) {
+            // 끄기
+            self._applyNeopixelColorToList(ledNumbers, 0, 0, 0);
+            state.isOn = false;
+            state.toggles += 1;
+            // 무한 깜박임이 아닐 때만 카운트 체크
+            if (!state.infinite && state.toggles >= state.count) {
+                // 완료
+                state.done = true;
+                self.stopNeopixelBlinkTask(side);
+            }
+        } else {
+            // 켜기
+            self._applyNeopixelColorToList(ledNumbers, r, g, b);
+            state.isOn = true;
+        }
+    }, interval);
+
+    this.neopixelBlinkTasks[key] = state;
+};
+
+Module.prototype.stopNeopixelBlinkTask = function (side) {
+    if (side === -1) {
+        this.stopNeopixelBlinkTask(0);
+        this.stopNeopixelBlinkTask(1);
+        return;
+    }
+    var key = side === 0 ? 'left' : 'right';
+    var task = this.neopixelBlinkTasks[key];
+    if (task && task.timer) {
+        clearInterval(task.timer);
+    }
+    if (task) {
+        // 종료 시 LED 끄기 보장
+        this._applyNeopixelColorToList(task.ledNumbers, 0, 0, 0);
+    }
+    delete this.neopixelBlinkTasks[key];
+};
+
+Module.prototype._applyNeopixelColorToList = function (ledNumbers, r, g, b) {
+    var self = this;
+    // 연속된 LED 번호인지 확인
+    var sorted = ledNumbers.slice().sort(function(a, b) { return a - b; });
+    var isContiguous = sorted.length > 1 && sorted.every(function(num, idx) {
+        return idx === 0 || num === sorted[idx - 1] + 1;
+    });
+    
+    if (isContiguous && sorted.length > 1) {
+        // 연속된 LED는 RANGE 명령 사용 (단일 버퍼)
+        var buf = self.makeOutputBuffer(self.sensorTypes.NEOPIXEL_COLOR, 9, {
+            num: 254, // RANGE 명령
+            start: sorted[0],
+            end: sorted[sorted.length - 1],
+            r: r,
+            g: g,
+            b: b
+        });
+        self.sendBuffers.push(buf);
+        // 캐시 업데이트
+        sorted.forEach(function(num) {
+            self.neopixelLastData[num.toString()] = { r: r, g: g, b: b, lastCommand: 'color' };
+        });
+    } else {
+        // 불연속 LED는 개별 명령 사용
+        ledNumbers.forEach(function (num) {
+            var buf = self.makeOutputBuffer(self.sensorTypes.NEOPIXEL_COLOR, 9, { num: num, r: r, g: g, b: b });
+            self.sendBuffers.push(buf);
+            // 캐시 업데이트
+            self.neopixelLastData[num.toString()] = { r: r, g: g, b: b, lastCommand: 'color' };
+        });
     }
 };
 
 Module.prototype.isRecentData = function (port, type, data) {
     var that = this;
     var isRecent = false;
-
-    if (
-        type == this.sensorTypes.ULTRASONIC ||
-        type == this.sensorTypes.DHTTEMP ||
-        type == this.sensorTypes.DHTHUMI ||
-        type == this.sensorTypes.PMVALUE
-    ) {
+    var currentTime = new Date().getTime();
+    
+    // BLINK 명령에 대한 특별한 throttling (반복 블록에서 빠른 종료를 위해)
+    if (type == this.sensorTypes.NEOPIXEL_BLINK) {
+        var sideKey = 'all';
+        if (data && data.side !== undefined) {
+            if (data.side === 0) sideKey = 'left';
+            else if (data.side === 1) sideKey = 'right';
+            else sideKey = 'all';
+        }
+        
+        var lastBlink = this.lastBlinkCommand[sideKey];
+        var throttleTime = 50; // 50ms 이내의 중복 명령 무시
+        
+        // 동일한 내용의 BLINK 명령이 짧은 시간 내에 반복되면 무시
+        if (lastBlink.data && (currentTime - lastBlink.time) < throttleTime) {
+            var isSame = lastBlink.data.side === data.side &&
+                         lastBlink.data.count === data.count &&
+                         lastBlink.data.r === data.r &&
+                         lastBlink.data.g === data.g &&
+                         lastBlink.data.b === data.b &&
+                         lastBlink.data.interval === data.interval;
+            if (isSame) {
+                return true; // 중복이므로 전송 안 함
+            }
+        }
+        
+        // 새 명령이므로 캐시 업데이트
+        this.lastBlinkCommand[sideKey] = {
+            time: currentTime,
+            data: JSON.parse(JSON.stringify(data)) // deep copy
+        };
+        return false; // 전송
+    }
+    
+    // BLINK_STOP은 항상 즉시 전송 (빠른 종료를 위해)
+    if (type == this.sensorTypes.NEOPIXEL_BLINK_STOP) {
+        // STOP 명령이 들어오면 BLINK 캐시도 초기화
+        this.lastBlinkCommand = {
+            left: { time: 0, data: null },
+            right: { time: 0, data: null },
+            all: { time: 0, data: null }
+        };
+        return false; // 항상 전송
+    }
+    
+    // 다른 NeoPixel 명령어는 중복 체크 없이 항상 전송
+    if (type == this.sensorTypes.NEOPIXEL_COLOR ||
+        type == this.sensorTypes.NEOPIXEL_INIT ||
+        type == this.sensorTypes.NEOPIXEL_BRIGHTNESS ||
+        type == this.sensorTypes.NEOPIXEL_SHIFT ||
+        type == this.sensorTypes.NEOPIXEL_ROTATE) {
+        return false; // 항상 전송
+    }
+    
+    if (type == this.sensorTypes.ULTRASONIC) {
         var portString = port.toString();
         var isGarbageClear = false;
         Object.keys(this.recentCheckData).forEach(function (key) {
             var recent = that.recentCheckData[key];
             if (key === portString) {
             }
-            if (
-                key !== portString &&
-                (recent.type == that.sensorTypes.ULTRASONIC ||
-                    recent.type == that.sensorTypes.DHTTEMP ||
-                    recent.type == that.sensorTypes.DHTHUMI ||
-                    recent.type == that.sensorTypes.PMVALUE)
-            ) {
+            if (key !== portString && (recent.type == that.sensorTypes.ULTRASONIC)) {
                 delete that.recentCheckData[key];
                 isGarbageClear = true;
             }
@@ -229,7 +459,10 @@ Module.prototype.isRecentData = function (port, type, data) {
         } else {
             isRecent = true;
         }
-    } else if (port in this.recentCheckData && type != this.sensorTypes.TONE) {
+    } else if (
+        port in this.recentCheckData && 
+        type != this.sensorTypes.TONE
+    ) {
         if (this.recentCheckData[port].type === type && this.recentCheckData[port].data === data) {
             isRecent = true;
         }
@@ -243,7 +476,8 @@ Module.prototype.requestLocalData = function () {
 
     if (!this.isDraing && this.sendBuffers.length > 0) {
         this.isDraing = true;
-        this.sp.write(this.sendBuffers.shift(), function () {
+        var bufferToSend = this.sendBuffers.shift();
+        this.sp.write(bufferToSend, function () {
             if (self.sp) {
                 self.sp.drain(function () {
                     self.isDraing = false;
@@ -266,6 +500,7 @@ Module.prototype.handleLocalData = function (data) {
         if (data.length <= 4 || data[0] !== 255 || data[1] !== 85) {
             return;
         }
+        
         var readData = data.subarray(2, data.length);
         var value;
         switch (readData[0]) {
@@ -304,23 +539,12 @@ Module.prototype.handleLocalData = function (data) {
                 self.sensorData.ULTRASONIC = value;
                 break;
             }
-            case self.sensorTypes.DHTTEMP: {
-                self.sensorData.DHTTEMP = value;
-                //console.log(value);
-                break;
-            }
-            case self.sensorTypes.DHTHUMI: {
-                self.sensorData.DHTHUMI = value;
-                console.log(value);
-                break;
-            }
-            case self.sensorTypes.PMVALUE: {
-                self.sensorData.PMVALUE = value;
-                //console.log(value);
-                break;
-            }
             case self.sensorTypes.TIMER: {
                 self.sensorData.TIMER = value;
+                break;
+            }
+            case self.sensorTypes.NEOPIXEL_INIT: {
+                self.sensorData.NEOPIXEL_INIT = value;
                 break;
             }
             default: {
@@ -351,16 +575,7 @@ Module.prototype.makeSensorReadBuffer = function (device, port, data) {
             10,
         ]);
         //console.log(buffer);
-    } else if (device == this.sensorTypes.DHTTEMP) {
-        buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.GET, device, port, 10]);
-        //console.log(buffer);
-    } else if (device == this.sensorTypes.DHTHUMI) {
-        buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port, 10]);
-        console.log(buffer);
-    } else if (device == this.sensorTypes.PMVALUE) {
-        buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.GET, device, port, 10]);
-        //console.log(buffer);
-    } else if (!data) {
+    }else if (!data) {
         buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.GET, device, port, 10]);
     } else {
         value = new Buffer(2);
@@ -404,192 +619,149 @@ Module.prototype.makeOutputBuffer = function (device, port, data) {
             buffer = Buffer.concat([buffer, value, time, dummy]);
             break;
         }
-        case this.sensorTypes.TONE: {
-        }
-        case this.sensorTypes.NOTONE: {
+        case this.sensorTypes.NEOPIXEL_INIT: {
             value.writeInt16LE(data);
-
-            buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.SET, device, port]);
-            buffer = Buffer.concat([buffer, value, dummy]);
-            //console.log(buffer);
-            break;
-        }
-        case this.sensorTypes.NEOPIXELINIT: {
-            value.writeInt16LE(data);
-
-            //console.log(port);
-            //console.log(value);
-
             buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.SET, device, port]);
             buffer = Buffer.concat([buffer, value, dummy]);
             break;
         }
-
-        case this.sensorTypes.NEOPIXELCOLOR: {
-            var num = new Buffer(2);
-            var r = new Buffer(2);
-            var g = new Buffer(2);
-            var b = new Buffer(2);
-
+        case this.sensorTypes.NEOPIXEL_COLOR: {
             if ($.isPlainObject(data)) {
-                num.writeInt16LE(data.num);
-                r.writeInt16LE(data.r);
-                g.writeInt16LE(data.g);
-                b.writeInt16LE(data.b);
+                // 범위 명령 (num === 254)
+                if (data.num === 254) {
+                    buffer = new Buffer(14);
+                    buffer[0] = 255;
+                    buffer[1] = 85;
+                    buffer[2] = 10;
+                    buffer[3] = sensorIdx;
+                    buffer[4] = this.actionTypes.SET;
+                    buffer[5] = device;
+                    buffer[6] = 9; // 실제 Arduino 포트는 9번
+                    buffer[7] = data.num || 0; // 254
+                    buffer[8] = data.start || 0;
+                    buffer[9] = data.end || 0;
+                    buffer[10] = data.r || 0;
+                    buffer[11] = data.g || 0;
+                    buffer[12] = data.b || 0;
+                    buffer[13] = 10;
+                } else {
+                    buffer = new Buffer(12);
+                    buffer[0] = 255;
+                    buffer[1] = 85;
+                    buffer[2] = 8;
+                    buffer[3] = sensorIdx;
+                    buffer[4] = this.actionTypes.SET;
+                    buffer[5] = device;
+                    buffer[6] = 9; // 실제 Arduino 포트는 9번
+                    buffer[7] = data.num || 0;
+                    buffer[8] = data.r || 0;
+                    buffer[9] = data.g || 0;
+                    buffer[10] = data.b || 0;
+                    buffer[11] = 10;
+                }
             } else {
-                num.writeInt16LE(0);
-                r.writeInt16LE(0);
-                g.writeInt16LE(0);
-                b.writeInt16LE(0);
+                buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.SET, device, 9]);
+                buffer = Buffer.concat([buffer, value, dummy]);
             }
-
-            buffer = new Buffer([255, 85, 12, sensorIdx, this.actionTypes.SET, device, port]);
-            buffer = Buffer.concat([buffer, num, r, g, b, dummy]);
-            console.log(buffer);
             break;
         }
-        case this.sensorTypes.DHTINIT: {
-            value.writeInt16LE(data);
-
-            buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.SET, device, port]);
-            buffer = Buffer.concat([buffer, value, dummy]);
-            //console.log(buffer);
-            break;
-        }
-        case this.sensorTypes.PMINIT: {
-            value.writeInt16LE(data);
-
-            buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.SET, device, port]);
-            buffer = Buffer.concat([buffer, value, dummy]);
-            //console.log(buffer);
-            break;
-        }
-
-        case this.sensorTypes.LCDINIT: {
+        case this.sensorTypes.NEOPIXEL_BRIGHTNESS: {
             value.writeInt16LE(data);
             buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.SET, device, port]);
             buffer = Buffer.concat([buffer, value, dummy]);
-            //console.log(buffer);
             break;
         }
-
-        case this.sensorTypes.LCD: {
-            var row = new Buffer(2);
-            var col = new Buffer(2);
-
+        case this.sensorTypes.NEOPIXEL_SHIFT: {
             if ($.isPlainObject(data)) {
-                row.writeInt16LE(data.row);
-                col.writeInt16LE(data.col);
+                buffer = new Buffer(11);
+                buffer[0] = 255;
+                buffer[1] = 85;
+                buffer[2] = 7;
+                buffer[3] = sensorIdx;
+                buffer[4] = this.actionTypes.SET;
+                buffer[5] = device;
+                buffer[6] = 9; // 실제 Arduino 포트는 9번
+                buffer[7] = data.direction || 1; // 1: 오른쪽, -1: 왼쪽
+                buffer[8] = data.steps || 0;
+                buffer[9] = 0; // 0: shift
+                buffer[10] = 10;
             } else {
-                row.writeInt16LE(0);
-                col.writeInt16LE(0);
+                buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.SET, device, 9]);
+                buffer = Buffer.concat([buffer, value, dummy]);
             }
-            var text0 = new Buffer(2);
-            var text1 = new Buffer(2);
-            var text2 = new Buffer(2);
-            var text3 = new Buffer(2);
-            var text4 = new Buffer(2);
-            var text5 = new Buffer(2);
-            var text6 = new Buffer(2);
-            var text7 = new Buffer(2);
-            var text8 = new Buffer(2);
-            var text9 = new Buffer(2);
-            var text10 = new Buffer(2);
-            var text11 = new Buffer(2);
-            var text12 = new Buffer(2);
-            var text13 = new Buffer(2);
-            var text14 = new Buffer(2);
-            var text15 = new Buffer(2);
-            if ($.isPlainObject(data)) {
-                text0.writeInt16LE(data.text0);
-                text1.writeInt16LE(data.text1);
-                text2.writeInt16LE(data.text2);
-                text3.writeInt16LE(data.text3);
-                text4.writeInt16LE(data.text4);
-                text5.writeInt16LE(data.text5);
-                text6.writeInt16LE(data.text6);
-                text7.writeInt16LE(data.text7);
-                text8.writeInt16LE(data.text8);
-                text9.writeInt16LE(data.text9);
-                text10.writeInt16LE(data.text10);
-                text11.writeInt16LE(data.text11);
-                text12.writeInt16LE(data.text12);
-                text13.writeInt16LE(data.text13);
-                text14.writeInt16LE(data.text14);
-                text15.writeInt16LE(data.text15);
-            } else {
-                text0.writeInt16LE(0);
-                text1.writeInt16LE(0);
-                text2.writeInt16LE(0);
-                text3.writeInt16LE(0);
-                text4.writeInt16LE(0);
-                text5.writeInt16LE(0);
-                text6.writeInt16LE(0);
-                text7.writeInt16LE(0);
-                text8.writeInt16LE(0);
-                text9.writeInt16LE(0);
-                text10.writeInt16LE(0);
-                text11.writeInt16LE(0);
-                text12.writeInt16LE(0);
-                text13.writeInt16LE(0);
-                text14.writeInt16LE(0);
-                text15.writeInt16LE(0);
-            }
-
-            buffer = new Buffer([255, 85, 40, sensorIdx, this.actionTypes.SET, device, port]);
-            buffer = Buffer.concat([
-                buffer,
-                row,
-                col,
-                text0,
-                text1,
-                text2,
-                text3,
-                text4,
-                text5,
-                text6,
-                text7,
-                text8,
-                text9,
-                text10,
-                text11,
-                text12,
-                text13,
-                text14,
-                text15,
-                dummy,
-            ]);
-
-            //console.log(buffer);
             break;
         }
-
-        case this.sensorTypes.LCDCLEAR: {
-            value.writeInt16LE(data);
-            buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.SET, device, port]);
-            buffer = Buffer.concat([buffer, value, dummy]);
-            console.log(buffer);
+        case this.sensorTypes.NEOPIXEL_ROTATE: {
+            if ($.isPlainObject(data)) {
+                buffer = new Buffer(11);
+                buffer[0] = 255;
+                buffer[1] = 85;
+                buffer[2] = 7;
+                buffer[3] = sensorIdx;
+                buffer[4] = this.actionTypes.SET;
+                buffer[5] = device;
+                buffer[6] = 9; // 실제 Arduino 포트는 9번
+                buffer[7] = data.direction || 1; // 1: 오른쪽, -1: 왼쪽
+                buffer[8] = data.steps || 0;
+                buffer[9] = 1; // 1: rotate (shift와 구분)
+                buffer[10] = 10;
+            } else {
+                buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.SET, device, 9]);
+                buffer = Buffer.concat([buffer, value, dummy]);
+            }
             break;
         }
-
-        case this.sensorTypes.LCDEMOTICON: {
-            var row = new Buffer(2);
-            var col = new Buffer(2);
-            var emoticon = new Buffer(2);
-
+        case this.sensorTypes.NEOPIXEL_BLINK: {
+            // Payload: side(int8), count(uint8), r, g, b, interval(uint16)
             if ($.isPlainObject(data)) {
-                row.writeInt16LE(data.row);
-                col.writeInt16LE(data.col);
-                emoticon.writeInt16LE(data.emoticon);
+                var side = (typeof data.side === 'number') ? data.side : -1;
+                var sideByte = side < 0 ? 255 : side; // -1 => 255
+                var count = data.count || 1;
+                var r = data.r || 0;
+                var g = data.g || 0;
+                var b = data.b || 0;
+                var interval = Math.max(100, parseInt(data.interval || 500, 10));
+                buffer = new Buffer(15);
+                buffer[0] = 255;
+                buffer[1] = 85;
+                buffer[2] = 11; // 4 (idx,action,device,port) + 7 payload
+                buffer[3] = sensorIdx;
+                buffer[4] = this.actionTypes.SET;
+                buffer[5] = device;
+                buffer[6] = 9; // actual port
+                buffer[7] = sideByte & 0xFF;
+                buffer[8] = count & 0xFF;
+                buffer[9] = r & 0xFF;
+                buffer[10] = g & 0xFF;
+                buffer[11] = b & 0xFF;
+                buffer[12] = interval & 0xFF;
+                buffer[13] = (interval >> 8) & 0xFF;
+                buffer[14] = 10;
             } else {
-                row.writeInt16LE(0);
-                col.writeInt16LE(0);
-                emoticon.writeInt16LE(0);
+                // minimal packet with defaults
+                buffer = new Buffer(9);
+                buffer[0] = 255; buffer[1] = 85; buffer[2] = 5; buffer[3] = sensorIdx; buffer[4] = this.actionTypes.SET; buffer[5] = device; buffer[6] = 9; buffer[7] = 255; buffer[8] = 10;
             }
-
-            buffer = new Buffer([255, 85, 10, sensorIdx, this.actionTypes.SET, device, port]);
-            buffer = Buffer.concat([buffer, row, col, emoticon, dummy]);
-            console.log(buffer);
+            break;
+        }
+        case this.sensorTypes.NEOPIXEL_BLINK_STOP: {
+            // Payload: side(int8)
+            if ($.isPlainObject(data)) {
+                var side = (typeof data.side === 'number') ? data.side : -1;
+                var sideByte = side < 0 ? 255 : side; // -1 => 255
+                buffer = new Buffer(9);
+                buffer[0] = 255;
+                buffer[1] = 85;
+                buffer[2] = 5; // 4 + 1
+                buffer[3] = sensorIdx;
+                buffer[4] = this.actionTypes.SET;
+                buffer[5] = device;
+                buffer[6] = 9; // actual port
+                buffer[7] = sideByte & 0xFF;
+                buffer[8] = 10;
+            } else {
+                buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.SET, device, 9, 255, 10]);
+            }
             break;
         }
     }
@@ -612,17 +784,60 @@ Module.prototype.getDataByBuffer = function (buffer) {
 
 Module.prototype.disconnect = function (connect) {
     var self = this;
-    connect.close();
-    if (self.sp) {
-        delete self.sp;
+    console.log('[ITPLE] disconnect called');
+    // Stop all blink tasks
+    this.stopNeopixelBlinkTask(0);
+    this.stopNeopixelBlinkTask(1);
+    // Send NEOPIXEL_INIT to turn off all LEDs before closing
+    if (this.sp) {
+        console.log('[ITPLE] Sending NEOPIXEL_INIT before disconnect');
+        var initBuffer = this.makeOutputBuffer(this.sensorTypes.NEOPIXEL_INIT, 9, 0);
+        this.sp.write(initBuffer, function() {
+            console.log('[ITPLE] NEOPIXEL_INIT sent, draining...');
+            self.sp.drain(function() {
+                console.log('[ITPLE] Drain complete, closing connection');
+                connect.close();
+                if (self.sp) {
+                    delete self.sp;
+                }
+            });
+        });
+    } else {
+        console.log('[ITPLE] No serial port, closing directly');
+        connect.close();
     }
+    // Reset NeoPixel data on disconnect
+    this.neopixelLastData = {};
 };
 
 Module.prototype.reset = function () {
+    console.log('[ITPLE] reset called, sp exists:', !!this.sp);
+    // Stop all blink tasks on reset
+    this.stopNeopixelBlinkTask(0);
+    this.stopNeopixelBlinkTask(1);
+    // Send NEOPIXEL_INIT to turn off all LEDs
+    if (this.sp) {
+        console.log('[ITPLE] Sending NEOPIXEL_INIT in reset');
+        var initBuffer = this.makeOutputBuffer(this.sensorTypes.NEOPIXEL_INIT, 9, 0);
+        try {
+            this.sp.write(initBuffer, function(err) {
+                if (err) {
+                    console.log('[ITPLE] Error writing INIT in reset:', err);
+                } else {
+                    console.log('[ITPLE] NEOPIXEL_INIT sent in reset');
+                }
+            });
+        } catch (e) {
+            console.log('[ITPLE] Exception in reset write:', e);
+        }
+    }
     this.lastTime = 0;
     this.lastSendTime = 0;
-
     this.sensorData.PULSEIN = {};
+    this.sendBuffers = [];
+    this.recentCheckData = {};
+    this.neopixelLastData = {};
+    this.digitalPortTimeList = {};
 };
 
 module.exports = new Module();
