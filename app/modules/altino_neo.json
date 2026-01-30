@@ -1,0 +1,22 @@
+{
+    "id": "180401",
+    "name": {
+        "en": "Altino Neo",
+        "ko": "알티노 네오"
+    },
+    "category": "robot",
+    "platform": ["win32", "darwin"],
+    "icon": "altino_neo.png",
+    "module": "altino_neo.js",
+    "url": "http://saeon.co.kr/",
+    "email": "saeon@saeon.co.kr",
+    "reconnect": true,
+    "selectPort": true,
+    "hardware": {
+        "type": "bluetooth",
+        "control": "slave",
+        "vendor": "Microsoft",
+        "duration": 100,
+        "baudRate": 115200
+    }
+}
