@@ -28,9 +28,6 @@
         "name": "smartboard_i2c",
         "translate": "i2c 펌웨어"
     }],
-	"entry": {
-		"protocol": "json"
-	},
 	"hardware": {
 		"type": "serial",
 		"control": "slave",

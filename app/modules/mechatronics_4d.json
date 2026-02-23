@@ -17,9 +17,6 @@
     "reconnect" : true,
     "firmwareBaudRate": 57600,
     "firmware": "arduino_nano",
-    "entry": {
-        "protocol": "json"
-    },
     "hardware": {
         "type": "serial",
         "control": "slave",

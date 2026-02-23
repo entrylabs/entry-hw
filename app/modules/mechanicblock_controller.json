@@ -16,9 +16,6 @@
     },
     "reconnect": true,
     "firmware": "arduino_ext",
-    "entry": {
-        "protocol": "json"
-    },
     "hardware": {
         "type": "serial",
         "control": "slave",

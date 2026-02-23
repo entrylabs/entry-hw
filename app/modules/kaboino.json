@@ -1,0 +1,23 @@
+{
+    "id": "560101",
+    "name": {
+        "en": "Kaboino",
+        "ko": "카보이노"
+    },
+    "category": "robot",
+    "platform": ["win32", "darwin"],
+    "icon": "kaboino.png",
+    "module": "kaboino.js",
+    "url": "http://www.kabotel.com/",
+    "email": "sunnytel@naver.com",
+    "reconnect": true,
+    "selectPort": true,
+
+    "hardware": {
+        "type": "bluetooth",
+        "control": "slave",
+        "vendor": "Microsoft",
+        "duration": 32,
+        "baudRate": 38400
+    }
+}

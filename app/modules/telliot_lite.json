@@ -1,0 +1,27 @@
+{
+	"id": "600101",
+	"name": {
+		"en": "GoldenKidsAICar",
+		"ko": "금쪽이 카"
+	},
+	"category": "board",
+	"platform": ["win32", "darwin"],
+	"icon": "telliot_lite.png",
+	"module": "telliot_lite.js",
+	"url": "https://www.iotedcorp.com/",
+	"email": "contact@iotedcorp.com",
+	"reconnect" : false,
+	"entry": {
+		"protocol": "json"
+	},
+	"select_com_port" : true,
+	"hardware": {
+		"type": "bluetooth",
+		"control": "slave",
+		"duration": 1000,
+		"vendor": "Microsoft",
+		"parity": "none",
+		"baudRate": 115200,
+		"firmwarecheck": false
+	}
+}
