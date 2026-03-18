@@ -1,0 +1,32 @@
+{
+    "id": "410301",
+    "name": { "en": "AIROBOTARM", "ko": "AI로봇집게" },
+    "category": "robot",
+    "platform": ["win32", "darwin"],
+    "icon": "aiservo.png",
+    "module": "aiservo.js",
+    "url": "http://neo3ds.com",
+    "selectPort": true,
+    "reconnect": true,
+    "hardware": {
+        "type": "serial",
+        "control": "slave",
+        "duration": 32,
+        "lostTimer": 5000,
+        "vendor": [
+            "Arduino",
+            "CH340",
+            "CP210",
+            "FTDI",
+            "USB",
+            "Serial",
+            "Standard",
+            "Silicon Labs",
+            "Generic",
+            "ATmega328p"
+        ],
+        "baudRate": 115200,
+        "firmwarecheck": false
+    }
+}
+

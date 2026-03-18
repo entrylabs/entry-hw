@@ -127,7 +127,7 @@ class PingpongBase extends BaseModule {
     // 연결 후 초기에 송신할 데이터가 필요한 경우 사용합니다.
     requestInitialData(sp, payload) {
         // console.log('requestInitialData');
-        const grpid = payload.match(/[0-7]{1,2}$/g);
+        const grpid = payload.match(/[0-9]{1,2}$/g);
         if (grpid == null) {
             console.warn('Wrong group id inputted', payload);
             return null;
