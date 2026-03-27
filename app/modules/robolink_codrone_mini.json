@@ -1,0 +1,29 @@
+{
+    "id"  : "4A0201",
+    "name": {
+        "en": "ROBOLINK CODRONE MINI",
+        "ko": "로보링크 코드론 MINI"
+    },
+    "category": "robot",
+    "platform": ["win32", "darwin"],
+    "icon"    : "robolink_codrone_mini.png",
+    "module"  : "robolink_codrone_mini.js",
+    "driver"  : {
+        "win32-ia32": "BYROBOT/petrone_v2_usb_driver_32.exe",
+        "win32-x64" : "BYROBOT/petrone_v2_usb_driver_64.exe"
+    },
+    "url"      : "http://www.robolink.co.kr/web/cate02/product05.php",
+    "email"    : "asteam@robolink.co.kr",
+    "reconnect": true,
+    "hardware" : {
+        "type"    : "serial",
+        "control" : "slave",
+        "scanType": "data",
+        "duration": 20,
+        "vendor"  : {
+            "win32": ["Microsoft", "STMicroelectronics", "wch.cn", "Arduino", "BYROBOT"]
+        },
+        "baudRate"   : 57600,
+        "flowControl": "none"
+    }
+}

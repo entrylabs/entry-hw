@@ -1,0 +1,22 @@
+{
+    "id": "180201",
+    "name": {
+        "en": "Altino Lite",
+        "ko": "알티노 라이트"
+    },
+    "category": "robot",
+    "platform": ["win32", "darwin"],
+    "icon": "altino_lite.png",
+    "module": "altino_lite.js",
+    "url": "http://saeon.co.kr/",
+    "email": "saeon@saeon.co.kr",
+    "reconnect": true,
+    "selectPort": true,
+    "hardware": {
+        "type": "bluetooth",
+        "control": "slave",
+        "vendor": "Microsoft",
+        "duration": 32,
+        "baudRate": 115200
+    }
+}

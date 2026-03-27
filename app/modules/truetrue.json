@@ -17,10 +17,7 @@
         "darwin-x64": "Mac_OSX_VCP_Driver/SiLabsUSBDriverDisk.dmg"
     },
     "reconnect": true,
-    "select_com_port": true,
-    "entry": {
-        "protocol": "json"
-    },
+    "selectPort": true,
     "hardware": {
 		"type": "bluetooth",
 		"control": "slave",

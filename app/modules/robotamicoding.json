@@ -15,9 +15,7 @@
 	},
     "reconnect": true,
     "firmware": "robotami_coding",
-    "entry": {
-        "protocol": "json"
-    },
+    "selectPort" : true,
 	"hardware": {
 		"type": "serial",
         "control": "slave",

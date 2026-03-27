@@ -247,12 +247,12 @@ Module.prototype.handleLocalData = function(data) {
         				});
         				if(dongleData[1] == (sum&0xFF)){
         						deviceType = 2;
-        						sensorData[6] = true;
+        						sensorData[6] = 1;
         						sensorData[15] = dongleData[5];
         						sensorData[7] = dongleData[9];
         						sensorData[8] = dongleData[7];
         						sensorData[9] = dongleData[8];
-        						sensorData[10] = (dongleData[3]&0x03)? false : true;
+        						sensorData[10] = (dongleData[3]&0x03)? 0 : 1;
         						sensorData[16] = dongleData[10];
         						sensorData[17] = dongleData[11];
         						sensorData[18] = dongleData[12];
