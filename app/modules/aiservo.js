@@ -20,9 +20,26 @@ class AiServo extends BaseModule {
         this.isFirstDataReceived = false;
     }
 
-    checkInitialData(data) {
-        return data && data.length > 0;
+    requestInitialData() {
+    return [0xff, 0x55, 0x00, 0x5a, 0x5a, 0x5a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
     }
+
+    
+    checkInitialData(data) {
+    // 로그에 찍힌 깨진 글자 무시하고, 실제 바이트 데이터 값으로 비교합니다.
+    if (data && data.length >= 2) {
+        // 첫 번째 바이트가 255(0xFF), 두 번째가 85(0x55)인지 숫자로 확인
+        const isHeaderMatch = (data[0] === 255 || data[0] === 0xff) && 
+                              (data[1] === 85 || data[1] === 0x55);
+        
+        if (isHeaderMatch) {
+            console.log('AI Robot Arm Connected Successfully!');
+            return true; 
+        }
+    }
+    return false;
+    }
+    
 
     handleLocalData(data) {
         if (data.length >= 7 && data[0] === 0xff && data[1] === 0x55) {
