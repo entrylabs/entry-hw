@@ -6,12 +6,12 @@
     "icon": "aiservo.png",
     "module": "aiservo.js",
     "url": "http://neo3ds.com",
-    "selectPort": true,
+    "selectPort": false,
     "reconnect": true,
     "hardware": {
         "type": "serial",
         "control": "slave",
-        "duration": 32,
+        "duration": 64,
         "lostTimer": 5000,
         "vendor": [
             "Arduino",

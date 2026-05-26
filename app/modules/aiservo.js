@@ -15,13 +15,26 @@ class AiServo extends BaseModule {
             g: 0,
             b: 0,
             buzz: 0,
-            blue_led: 0,
+            blueLed: 0, // blue_led를 blueLed로 변경
         };
         this.isFirstDataReceived = false;
     }
 
+    requestInitialData() {
+        return [0xff, 0x55, 0x00, 0x5a, 0x5a, 0x5a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
+    }
+
     checkInitialData(data) {
-        return data && data.length > 0;
+        if (data && data.length >= 2) {
+            const isHeaderMatch = (data[0] === 255 || data[0] === 0xff) && 
+                              (data[1] === 85 || data[1] === 0x55);
+        
+            if (isHeaderMatch) {
+                console.log('AI Robot Arm Connected Successfully!');
+                return true; 
+            }
+        }
+        return false;
     }
 
     handleLocalData(data) {
@@ -35,11 +48,8 @@ class AiServo extends BaseModule {
     }
 
     handleRemoteData(handler) {
-        // 엔트리 엔진으로부터 온 데이터가 실제 각도 데이터(유효값)인지 확인
-        const s1 = handler.read('SERVO1');
         const mode = handler.read('MODE');
 
-        // 엔트리 블록이 실행 중일 때만 데이터 수신 인정
         if (mode !== undefined && mode > 0) {
             this.isFirstDataReceived = true;
         }
@@ -75,22 +85,23 @@ class AiServo extends BaseModule {
             GREEN: 'g',
             BLUE: 'b',
             BUZZER: 'buzz',
-            BLUE_LED: 'blue_led',
+            BLUE_LED: 'blueLed', // 내부 매핑 값도 blueLed로 수정
         };
         return map[key];
     }
 
     requestLocalData() {
-        let { mode, s1, s2, s3, pIdx, r, g, b, buzz, blue_led } = this.controlValues;
+        // 재할당되지 않는 변수들은 const로, s1, s2, s3는 let으로 선언
+        const { mode, pIdx, r, g, b, buzz, blueLed } = this.controlValues;
+        let { s1, s2, s3 } = this.controlValues;
 
-        // 엔트리 시작 버튼을 누르기 전이나 연결 직후에는 무조건 90도 전송
         if (!this.isFirstDataReceived) {
             s1 = 90;
             s2 = 90;
             s3 = 90;
         }
 
-        return [0xff, 0x55, mode, s1, s2, s3, pIdx, r, g, b, buzz, blue_led];
+        return [0xff, 0x55, mode, s1, s2, s3, pIdx, r, g, b, buzz, blueLed];
     }
 
     requestRemoteData(handler) {
