@@ -15,9 +15,6 @@
 		"win32-x64": "Abilix_Krypton0/CH340-Driver.exe"
 	},
 	"reconnect" : true,
-	"entry": {
-		"protocol": "json"
-	},
 	"hardware": {
 		"type": "serial",
 		"control": "slave",

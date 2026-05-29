@@ -1,0 +1,31 @@
+{
+    "id": "011201",
+    "name": {
+        "en": "CodeWiz",
+        "ko": "코드위즈"
+    },
+    "category": "board",
+    "platform": ["win32", "darwin"],
+    "icon": "codewiz.png",
+    "module": "codeino.js",
+    "url": "http://www.codable.co.kr",
+    "email": "book@kdice.co.kr",
+    "video": "https://goo.gl/cZaYCH",
+    "reconnect": true,
+    "selectPort": true,
+    "firmware": {
+        "type": "esp32",
+        "offset": "0x10000",
+        "name": "codewiz"
+    },
+    "firmwareBaudRate": 921600,
+    "hardware": {
+        "type": "serial",
+        "control": "slave",
+        "duration": 32,
+        "vendor": ["wch.cn", "FTDI"],
+        "baudRate": 921600,
+        "firmwarecheck": false,
+        "advertise": 2000
+    }
+}

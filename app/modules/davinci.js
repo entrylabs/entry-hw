@@ -1,4 +1,4 @@
-const _ = require('lodash');
+const _ = global.$;
 const BaseModule = require('./baseModule');
 
 const FUNCTION_KEYS = {
@@ -81,7 +81,7 @@ class Davinci extends BaseModule {
         if (data[0] == 0xFF && data[1] == 0x01) {
             return true;
         }
-        
+
         return false;
     }
 

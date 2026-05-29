@@ -9,11 +9,7 @@
     "icon": "elio.png",
     "module": "elio.js",
     "url": "https://mobilian.biz/#/app/product/elio",
-    "select_com_port": true,
-	"entry": {
-		"protocol": "json"
-    },
-
+    "selectPort": true,
 	"driver": {
         "win32-ia32": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
         "win32-x64": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE"

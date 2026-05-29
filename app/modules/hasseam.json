@@ -1,0 +1,27 @@
+{
+    "id": "011101",
+    "name": {
+        "en": "Hasseam Board",
+        "ko": "하쌤 보드"
+    },
+    "category": "module",
+    "platform": ["win32", "darwin"],
+    "icon": "hasseam.png",
+    "module": "hasseam.js",
+        "driver": {
+        "win32-ia32": "arduino/dpinst-x86.exe",
+        "win32-x64": "arduino/dpinst-amd64.exe"
+    },
+    "url": "http://www.hanibot.com",
+    "email": "mrtinternational@google.com",
+    "reconnect": true,
+    "firmware": "hasseam",
+    "hardware": {
+        "type": "serial",
+        "control": "slave",
+        "duration": 32,
+        "vendor": ["Arduino", "wch.cn", "FTDI"],
+        "firmwarecheck" : false,
+        "baudRate": 115200
+    }
+}
