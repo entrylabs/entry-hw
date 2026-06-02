@@ -1,0 +1,23 @@
+{
+    "id": "250201",
+    "name": {
+        "en": "FreeLinker2",
+        "ko": "프리링커2"
+    },
+    "platform": [
+        "win32",
+        "darwin"
+    ],
+    "icon": "FreeLinker2.png",
+    "module": "FreeLinker2.js",
+    "url": "http://www.koreadigital.com/kr/main.asp",
+    "email": "gusngood1834@koreadigital.com",
+    "reconnect": true,
+    "hardware": {
+        "type": "serial",
+        "control": "slave",
+        "vendor": "STMicroelectronics",
+        "duration": 32,
+        "baudRate": 921600
+    }
+}

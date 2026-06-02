@@ -1,3 +1,6 @@
+/* eslint-disable brace-style */
+/*jshint esversion: 6 */
+
 'use strict';
 
 
@@ -794,7 +797,7 @@ Module.prototype.tansferForEntry = function(handler)
                 handler.write(key, joystick[key]);
             }
 
-            joystick._updated == false;
+            joystick._updated = false;
             //this.log("Module.prototype.tansferForEntry() / attitude", "");
         }
     }
@@ -809,7 +812,7 @@ Module.prototype.tansferForEntry = function(handler)
                 handler.write(key, button[key]);
             }
 
-            button._updated == false;
+            button._updated = false;
             //this.log("Module.prototype.tansferForEntry() / attitude", "");
         }
     }
@@ -824,7 +827,7 @@ Module.prototype.tansferForEntry = function(handler)
                 handler.write(key, state[key]);
             }
 
-            state._updated == false;
+            state._updated = false;
             //this.log("Module.prototype.tansferForEntry() / state", "");
         }
     }
@@ -839,7 +842,7 @@ Module.prototype.tansferForEntry = function(handler)
                 handler.write(key, attitude[key]);
             }
 
-            attitude._updated == false;
+            attitude._updated = false;
             //this.log("Module.prototype.tansferForEntry() / attitude", "");
         }
     }
@@ -854,7 +857,7 @@ Module.prototype.tansferForEntry = function(handler)
                 handler.write(key, irmeessage[key]);
             }
 
-            irmeessage._updated == false;
+            irmeessage._updated = false;
             //this.log("Module.prototype.tansferForEntry() / irmeessage", "");
         }
     }

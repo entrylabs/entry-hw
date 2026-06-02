@@ -1,0 +1,21 @@
+{
+    "id": "430101",
+    "name": {
+        "ko": "eX-Mars cube",
+        "en": "eX-mars cube"
+    },
+    "category": "robot",
+    "platform": ["win32", "darwin"],
+    "icon": "exmars_cube.png",
+    "module": "exmars_cube.js",
+    "url": "http://www.exmarscube.com",
+    "email": "contact@exmarscube.com",
+    "reconnect": true,
+    "selectPort": true,
+    "hardware": {
+        "type": "serial",
+        "control": "slave",
+        "duration": 20,
+        "baudRate": 115200
+    }
+}
