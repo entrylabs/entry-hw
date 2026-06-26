@@ -713,7 +713,16 @@ Module.prototype.requestLocalData = function() {
 	var motoring = self.motoring;
 	var lineTracer = self.lineTracer;
 	var port = self.port;
-	
+
+	if(self.justConnected) {            // 재연결 후 첫 송신 1회 강제 정지 (무제어 주행 방지)
+		self.justConnected = false;
+		motoring.leftWheel = 0;
+		motoring.rightWheel = 0;
+		motoring.motionType = 0;
+		motoring.motionValue = 0;
+		self.command.serialWritten = false; // 시리얼 early-return을 건너뛰어 첫 패킷을 정지 모터 패킷으로 보낸다 (직전 시리얼 상태 폐기)
+	}
+
 	// serial
 	if(port.serial && self.command.serialWritten && self.packetSent != 3) {
 		self.command.serialWritten = false;
