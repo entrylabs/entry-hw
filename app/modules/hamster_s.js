@@ -1214,4 +1214,9 @@ Module.prototype.reset = function() {
 	this.packetReceived = 0;
 };
 
+Module.prototype.connect = function() {
+	this.reset();            // (재)연결 시작 시 내부 상태 초기화 (직전 연결의 모터속도/이벤트 제거)
+	this.justConnected = true; // 다음 송신 1회를 강제 정지로 보내도록 플래그 설정 (requestLocalData 에서 소비)
+};
+
 module.exports = new Module();
