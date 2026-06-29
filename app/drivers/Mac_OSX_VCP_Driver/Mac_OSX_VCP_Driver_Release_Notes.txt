@@ -1,5 +1,5 @@
-CP210x Macintosh OS X VCP Driver v4 Release Notes
-Copyright (C) 2017 Silicon Laboratories Inc.
+CP210x Macintosh OS VCP Driver v6 Release Notes
+Copyright (C) 2017-2025 Silicon Laboratories Inc.
 
 This release contains the following components:
 
@@ -10,14 +10,19 @@ This release contains the following components:
 Known Issues and Limitations
 ----------------------------
 
-	This release includes the Macintosh OSX driver for 64 bit Intel 
-	Macintosh computers running MacOS X 10.7 or greater.
+	This release includes the Macintosh OS driver for 64 bit 
+	Macintosh computers running MacOS X 10.11 or greater.
+	For MacOS X 10.9 and 10.10, see the folder called "Legacy MacVCP Driver".
 
 Driver Installation
 -------------------
 
 	Mount the DMG file and double click on 
 	Silicon Labs VCP Driver. 
+	On MacOS 10.13 and later, the installation of the driver may be blocked. 
+	To unblock, open the System Preferences Security & Privacy pane and
+	unblock the system extension. See Apple Technical Note TN2459
+	"User-Approved Kernel Extension Loading" for more information.
 
 Uninstalling the Driver
 -----------------------
@@ -27,23 +32,166 @@ Uninstalling the Driver
 
 Release Dates
 -------------
+	CP210x Macintosh OS VCP Driver 6.0.3     - May 23, 2025
+	CP210x Macintosh OS VCP Driver 6.0.2     - October 26, 2021
+	CP210x Macintosh OS VCP Driver 6.0.1     - March 26, 2021
+	CP210x Macintosh OS VCP Driver 6.0       - December 18, 2020
+	CP210x Macintosh OSX VCP Driver 5.3.5    - February 25, 2020
+	CP210x Macintosh OSX VCP Driver 5.3.2    - January 27, 2020
+	CP210x Macintosh OSX VCP Driver 5.3.0    - January 20, 2020
+	CP210x Macintosh OSX VCP Driver 5.2.4    - December 13, 2019
+	CP210x Macintosh OSX VCP Driver 5.2.3    - December 6, 2019
+	CP210x Macintosh OSX VCP Driver 5.2.2    - October 2, 2019
+	CP210x Macintosh OSX VCP Driver 5.2.1    - September 9, 2019
+	CP210x Macintosh OSX VCP Driver 5.2.0    - July 11, 2019
+	CP210x Macintosh OSX VCP Driver 5.1.1    - July 1, 2019
+	CP210x Macintosh OSX VCP Driver 5.1.0    - May 23, 2019
+	CP210x Macintosh OSX VCP Driver 5.0.10   - March 27, 2019
+	CP210x Macintosh OSX VCP Driver 5.0.9    - February 13, 2019
+	CP210x Macintosh OSX VCP Driver 5.0.7    - December 17, 2018
+	CP210x Macintosh OSX VCP Driver 5.0.6    - September 17, 2018
+	CP210x Macintosh OSX VCP Driver 5.0.5    - July 13, 2018
+	CP210x Macintosh OSX VCP Driver 5.0.4    - January 19, 2018
+	CP210x Macintosh OSX VCP Driver 5.0.3    - November 21, 2017
+	CP210x Macintosh OSX VCP Driver 5.0.2    - October 12, 2017
+	CP210x Macintosh OSX VCP Driver 5.0.1    - Aug 25, 2017
+	CP210x Macintosh OSX VCP Driver 5.0      - Aug 3, 2017
+	CP210x Macintosh OSX VCP Driver 4.11.2   - June 16, 2017
+	CP210x Macintosh OSX VCP Driver 4.11.1   - May 26, 2017
+	CP210x Macintosh OSX VCP Driver 4.11.0   - May 2, 2017
+	CP210x Macintosh OSX VCP Driver 4.x.17   - March 23, 2017
+	CP210x Macintosh OSX VCP Driver 4.x.16   - Feb 3, 2017
+	CP210x Macintosh OSX VCP Driver 4.x.15   - December 19, 2016
+	CP210x Macintosh OSX VCP Driver 4.x.14   - November 3, 2016
+	CP210x Macintosh OSX VCP Driver 4.x.13   - August 31, 2016
+	CP210x Macintosh OSX VCP Driver 4.x.12   - June 15, 2016
+	CP210x Macintosh OSX VCP Driver 4.x.11   - May 26, 2016
+	CP210x Macintosh OSX VCP Driver 4.x.10   - April 6, 2016
+	CP210x Macintosh OSX VCP Driver 4.x.9    - March 28, 2016
+	CP210x Macintosh OSX VCP Driver 4.10.8   - March 2, 2016
+	CP210x Macintosh OSX VCP Driver v3.1     - December 6, 2012
 
-	CP210x Macintosh OSX VCP Driver 4.11.0 - May 2, 2017
-	CP210x Macintosh OSX VCP Driver 4.x.17 - March 23, 2017
-	CP210x Macintosh OSX VCP Driver 4.x.16 - Feb 3, 2017
-	CP210x Macintosh OSX VCP Driver 4.x.15 - December 19, 2016
-	CP210x Macintosh OSX VCP Driver 4.x.14 - November 3, 2016
-	CP210x Macintosh OSX VCP Driver 4.x.13 - August 31, 2016
-	CP210x Macintosh OSX VCP Driver 4.x.12 - June 15, 2016
-	CP210x Macintosh OSX VCP Driver 4.x.11 - May 26, 2016
-	CP210x Macintosh OSX VCP Driver 4.x.10 - April 6, 2016
-	CP210x Macintosh OSX VCP Driver 4.x.9 - March 28, 2016
-	CP210x Macintosh OSX VCP Driver 4.10.8 - March 2, 2016
-	CP210x Macintosh OSX VCP Driver v3.1 - December 6, 2012
 
-
-CP210x Macintosh OSX Driver Revision History
+CP210x Macintosh OS Driver Revision History
 --------------------------------------------
+Version 6.0.3
+	Added a feature where the CP210x device sends an XOFF signal to the connected device when macOS goes to sleep.
+	Resolved an issue with driver uninstallation on macOS 13.
+	Fixed an issue where the Mac OSX CP210x v6.0.2 VCP Driver could crash during stress testing.
+	Added VID/PID for UAB DIELEKTRIK.
+	Added VID/PID for Quell Tech Ltd.
+	Added VID/PID for Profoto.
+	Added VID/PID for Cambo Fotografische Industrie BV.
+	Added VID/PID for ZTC WND-7300.
+	Added VID/PID for Integrel Solutions Ltd.
+	Added VID/PID for BRAIN MAGIC.
+	Added VID/PID for ELV Elektronik AG.
+	Added VID/PID for TDK Corporation.
+	Added VID/PID for Regula Forensics.
+	Added VID/PID for ALC Embedded Systems Ltd.
+Version 6.0.2
+	On macOS Big Sur:
+		Fix issue that Xoff state is not remembered when macOS goes to sleep.
+		Fix potential driver installation issue on some machines.
+		Fix driver installation error on macOS Big Sur 11.5.
+		Added VID/PID for Variable, Inc.
+		Added VID/PID for Sony Corporation.
+	On macOS Catalina or older:
+		Support software flow control
+		Fix driver installation error on macOS 10.14.
+		Added VID/PID for Variable, Inc.
+		Added VID/PID for Sony Corporation.
+
+Version 6.0.1
+	On macOS Big Sur: 	
+		Fix issue with CP2105 that it cannot transfer data if Software flow control is enabled.
+		Fix installation error under some conditions.
+	On macOS Catalina or older: 	
+		Add support for Line Break to the driver.
+		Fix RTS doesn't go high if host PC buffer is full.
+		Improve throughput.
+	
+Version 6.0
+	Adds VID/PID for NECYD NLTAIR cp2105
+	Supports macOS Big Sur with implementation of DriverKit extension
+
+Version 5.3.5
+	Adds VID/PID for QIVICON ZigBee Device, eq-3 HmIP USB, and BitronVideo Zigbee
+	Addresses additional flow control bug.
+
+Version 5.3.2
+	Adds a lock to syncrhonize power event handling, state changes, 
+	and driver unload to prevent an error.
+
+Version 5.3.0
+	Corrects an issue with state maintenance for the CTS, DSR, DCD lines.
+
+Version 5.2.4
+	Corrects a compatbility issue with MacOS 10.13 and earlier.
+
+Version 5.2.3
+	Corrects issues with the installer.
+
+Version 5.2.2
+	Adds VID/PID for RF Code.
+	
+Version 5.2.1
+	Fixes a problem with the installer that prevents it from working
+	correctly wiht MacOS 10.15 Catalina.
+
+Version 5.2.0
+	Fixes a bug in the installer that prevented it from working properly
+	on MacOS 10.11 and 10.12
+	Fixes a bug in the driver that could corruption requiring a reboot 
+	if an attempt was made to unload the driver while a device was plugged
+	in and using it
+
+Version 5.1.1
+	The driver now has a new installer intended to reduce user confusion 
+	Added VID/PIDs for ST Link.
+
+Version 5.1.0
+	The driver is now Notarized for support of MacOS 10.14.5 and up. 
+	See Apple Developer documentation about Notarization for more information.
+	Added VID/PIDs for DECAGON DEVICES.
+
+Version 5.0.10
+	Added VID/PID for Sony Corporation.
+
+Version 5.0.9
+	Added VID/PID for TAMRON Co., Ltd.
+
+Version 5.0.7
+	Added VID/PID for GWinstek.
+	
+Version 5.0.6
+	Added Alternative Silicon Labs VID/PID Sets.
+
+Version 5.0.5
+	Added VID/PID for RS DYNAMICS.
+
+Version 5.0.4
+	Added VID/PID for PICARO.
+
+Version 5.0.3
+	Added VID/PID for Lunatico Astronomia.
+
+Version 5.0.2
+	Added VID/PID for Sony Corporation.
+
+Version 5.0.1
+	Bug fixes.
+	
+Version 5.0
+	Adds support for GPIO control.
+	Updated for compatibility with MacOS 10.11 Kernel driver APIs. 
+	This is a significant update to this driver.
+
+Version 4.11.2
+	Added VID/PID for Notch Dock.
+
+Version 4.11.1
+	Added VID/PID for HUSBZB-1: GoControl QuickStick Combo.
 
 Version 4.11.0
 	Fixed an issue that would cause the CP2102N to hang when a user space application disconnects while the device is receiving data.
@@ -171,4 +319,5 @@ Version 1.02
 
 Version 1.00
 	Initial Release
+
 
