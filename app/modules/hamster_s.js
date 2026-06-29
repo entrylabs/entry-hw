@@ -216,18 +216,28 @@ Module.prototype.requestInitialData = function() {
 };
 
 Module.prototype.checkInitialData = function(data, config) {
-	if(data && data.slice(0, 2) == 'FF') {
-		var info = data.split(/[,\n]/);
-		if(info && info.length >= 5) {
-			if(info[2] == '0E' && info[4].length >= 12) {
-				config.id = '020E' + info[3];
-				this.address = info[4].substring(0, 12);
-				return true;
-			} else {
-				return false;
-			}
-		}
+	if(typeof data !== 'string' || data.slice(0, 2) != 'FF') {
+		return;
 	}
+	// 끝의 CR/LF만 제거하고 콤마로만 분리한다. 이름은 사용자가 바꿀 수 있는
+	// 가변 필드라 내부에 CR/LF가 있어도 콤마가 아닌 한 토큰에 그대로 남아 무해하다.
+	// 구조 고정 필드(모델/변형/주소)는 항상 마지막 3개이며, 내부 정규화 없이 그대로 검증한다.
+	// 손상된 필드(예: 0<CR>E)를 '0E'로 보정해 받아주면 안 된다.
+	var info = data.replace(/[\r\n]+$/, '').split(',');
+	if(info.length < 5) {
+		return;
+	}
+	var model = info[info.length - 3];
+	var variant = info[info.length - 2];
+	var address = info[info.length - 1];
+	if(model == '0E' && /^[0-9A-Fa-f]{2}$/.test(variant) && /^[0-9A-Fa-f]{12}$/.test(address)) {
+		// variant/address 는 받은 그대로 저장한다(대소문자 변환 없음). 펌웨어는 대문자 hex 를
+		// 보낸다는 가정이며, this.address 는 송신 패킷 꼬리에 그대로 붙는다.
+		config.id = '020E' + variant;
+		this.address = address;
+		return true;
+	}
+	return false;
 };
 
 Module.prototype.validateLocalData = function(data) {
