@@ -216,18 +216,26 @@ Module.prototype.requestInitialData = function() {
 };
 
 Module.prototype.checkInitialData = function(data, config) {
-	if(data && data.slice(0, 2) == 'FF') {
-		var info = data.split(/[,\n]/);
-		if(info && info.length >= 5) {
-			if(info[2] == '0E' && info[4].length >= 12) {
-				config.id = '020E' + info[3];
-				this.address = info[4].substring(0, 12);
-				return true;
-			} else {
-				return false;
-			}
-		}
+	if(typeof data !== 'string' || data.slice(0, 2) != 'FF') {
+		return;
 	}
+	// 종단 종결자(CR/LF)만 제거하고 콤마로만 분리한다. 이름은 사용자 임의·다국어
+	// 가변 필드라 내부에 CR/LF가 있어도 콤마가 아닌 한 토큰에 그대로 남아 무해하다.
+	// 구조 고정 필드(모델/변형/주소)는 항상 마지막 3개이며, 내부 정규화 없이
+	// 정확히 검증한다 — 손상된 필드(예: 0<CR>E)를 '0E'로 치유해 오수용하면 안 됨.
+	var info = data.replace(/[\r\n]+$/, '').split(',');
+	if(info.length < 5) {
+		return;
+	}
+	var model = info[info.length - 3];
+	var variant = info[info.length - 2];
+	var address = info[info.length - 1];
+	if(model == '0E' && /^[0-9A-Fa-f]{2}$/.test(variant) && /^[0-9A-Fa-f]{12}$/.test(address)) {
+		config.id = '020E' + variant;
+		this.address = address;
+		return true;
+	}
+	return false;
 };
 
 Module.prototype.validateLocalData = function(data) {
