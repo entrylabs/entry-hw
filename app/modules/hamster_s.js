@@ -217,7 +217,7 @@ Module.prototype.requestInitialData = function() {
 
 Module.prototype.checkInitialData = function(data, config) {
 	if(data && data.slice(0, 2) == 'FF') {
-		var info = data.split(/[,\n]+/);
+		var info = data.split(/[,\n]/);
 		if(info && info.length >= 5) {
 			if(info[2] == '0E' && info[4].length >= 12) {
 				config.id = '020E' + info[3];
