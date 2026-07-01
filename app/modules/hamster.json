@@ -20,9 +20,11 @@
         "type": "serial",
         "control": "master",
         "scanType": "data",
-        "vendor": ["Silicon Lab", "IntegriSys S.A.", "Microsoft"],
+        "vendor": ["Silicon Lab", "IntegriSys S.A.", "Microsoft", "Robomation"],
+        "pnpId": "USB\\VID_1915&PID_521A",
         "baudRate": 115200,
         "flowControl": "hardware",
+        "lostTimer": 3000,
         "delimiter": "\r",
         "stream": "string"
     }
