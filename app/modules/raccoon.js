@@ -371,7 +371,12 @@ Module.prototype._copySlot = function(src, dst) {
     if (!src || src.length === undefined) return;
     for (var i = 0; i < 8; ++i) {
         var v = parseInt(src[i]);
-        dst[i] = isNaN(v) ? 0 : v;
+        if (isNaN(v)) v = 0;
+        // 슬롯 선언 범위 -128..255: 범위 밖 슬롯 바이트는 &0xff 마스크가 아니라 CLAMP한다.
+        // 300은 실제 장치처럼 0x2C가 아닌 0xFF로 나가야 한다.
+        if (v < -128) v = -128;
+        else if (v > 255) v = 255;
+        dst[i] = v;
     }
 };
 
