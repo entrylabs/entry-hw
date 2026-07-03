@@ -274,6 +274,10 @@ Module.prototype._trackId = function(devKey, jsonKey, id) {
 Module.prototype.handleLocalData = function(data) {
     var packet = String(data);
     if (packet.length != 53) return; // 잘리거나 손상된 프레임 폐기
+    // 손상 hex 프레임 방어: 손상된 바이트에서 parseInt는 NaN을 반환해 sensory.encoderN -> 기구학을
+    // 조용히 오염시킨다. 이하 모든 parseInt가 숫자가 되도록, 파싱하는 40자 데이터 구간을 검증한다
+    // ([40] 이후 꼬리는 읽지 않음).
+    if (!/^[0-9A-Fa-f]{40}/.test(packet)) return;
     if (parseInt(packet.slice(0, 1), 16) != 1) return;
     var sensory = this.sensory;
     var value;
