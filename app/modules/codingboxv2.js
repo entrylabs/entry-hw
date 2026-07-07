@@ -6,6 +6,7 @@ class CodingBoxV2 extends BaseModule {
         this.serialport = null;
         this.commands = [];
         this.sensorData = {};
+        this.localDataCounter = 0;
     }
 
     handleRemoteData(handler) {
@@ -36,6 +37,13 @@ class CodingBoxV2 extends BaseModule {
     }
 
     requestLocalData() {
+        this.localDataCounter++;
+
+        if (this.localDataCounter >= 3) {
+            this.localDataCounter = 0;
+            return 'localdata;\n';
+        }
+
         if (this.commands.length > 0) {
             return this.commands.shift();
         }
