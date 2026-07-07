@@ -1,0 +1,27 @@
+{
+  "id": "990001",
+  "name": {
+    "en": "CodingBox V2",
+    "ko": "코딩박스 V2"
+  },
+  "category": "board",
+  "platform": ["win32", "darwin"],
+  "icon": "codingboxv2.png",
+  "module": "codingboxv2.js",
+  "url": "",
+  "selectPort": true,
+  "reconnect": true,
+  "driver": {
+    "win32-ia32": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
+    "win32-x64": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE"
+  },
+  "hardware": {
+    "type": "serial",
+    "control": "slave",
+    "delimiter": "\n",
+    "duration": 128,
+    "vendor": "",
+    "baudRate": 115200,
+    "commType": "ascii"
+  }
+}
