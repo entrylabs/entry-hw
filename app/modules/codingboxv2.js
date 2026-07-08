@@ -6,7 +6,8 @@ class CodingBoxV2 extends BaseModule {
         this.serialport = null;
         this.commands = [];
         this.sensorData = {};
-        this.needLocalData = false;
+        this.lastSendTime = 0;
+        this.sendInterval = 200;
     }
 
     handleRemoteData(handler) {
@@ -21,7 +22,6 @@ class CodingBoxV2 extends BaseModule {
 
         if (command === 'reset') {
             this.commands = ['reset;\n'];
-            this.needLocalData = false;
             return;
         }
 
@@ -37,13 +37,20 @@ class CodingBoxV2 extends BaseModule {
     }
 
     requestLocalData() {
-        if (this.needLocalData || this.commands.length === 0) {
-            this.needLocalData = false;
-            return 'localdata;\n';
+        const now = Date.now();
+
+        if (
+            this.commands.length > 0 &&
+            now - this.lastSendTime >= this.sendInterval
+        ) {
+            this.lastSendTime = now;
+
+            const batch = this.commands.splice(0, 5);
+
+            return `batch;${batch.map((x) => x.trim()).join('@@')}\n`;
         }
 
-        this.needLocalData = true;
-        return this.commands.shift();
+        return 'localdata;\n';
     }
 
     handleLocalData(data) {
