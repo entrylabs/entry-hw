@@ -15,6 +15,15 @@
     "win32-ia32": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
     "win32-x64": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE"
   },
+  "firmware":[
+    {
+      "type": "esp32",
+      "offset": "0x10000",
+      "name": "codingboxv2",
+      "translate": "코딩박스 V2 펌웨어"
+    }
+  ],
+  "firmwareBaudRate":921600,
   "hardware": {
     "type": "serial",
     "control": "slave",

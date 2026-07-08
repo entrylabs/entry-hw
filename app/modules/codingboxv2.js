@@ -78,7 +78,13 @@ class CodingBoxV2 extends BaseModule {
     }
 
     checkInitialData(data) {
-        return data.toString().indexOf('localdata;') === 0;
+        const text = data.toString().trim();
+
+        if (text.indexOf('localdata;') === 0) {
+            return true;
+        }
+
+        return undefined;
     }
 
     setSerialPort(serialport) {
