@@ -254,6 +254,10 @@ Module.prototype.handleLocalData = function(data) {
         if (id != this._wheel_state_id && this._wheel_state_id != -1) {
             this._bumpWheelState();
             this._wheel_event = 0;
+            // 장치는 펄스 목표 지점에서 완료 이벤트만 올리고 지정 속도로 계속 주행한다.
+            // 완료 후 바퀴를 0으로 세우는 것은 호스트의 몫이다.
+            this._left_wheel = 0;
+            this._right_wheel = 0;
         }
     }
     this._wheel_state_id = id;
