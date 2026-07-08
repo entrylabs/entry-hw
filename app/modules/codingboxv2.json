@@ -1,8 +1,8 @@
 {
   "id": "990001",
   "name": {
-    "en": "CodingBox V2",
-    "ko": "코딩박스 V2"
+    "en": "PLAYCODING BOX V2.0",
+    "ko": "플레이코딩 박스 V2.0"
   },
   "category": "board",
   "platform": ["win32", "darwin"],
@@ -20,7 +20,7 @@
       "type": "esp32",
       "offset": "0x10000",
       "name": "codingboxv2",
-      "translate": "코딩박스 V2 펌웨어"
+      "translate": "펌웨어 설치"
     }
   ],
   "firmwareBaudRate":921600,
