@@ -11,9 +11,9 @@
     "module": "albertai.js",
     "url": "https://nugu.co.kr/device/nugu_albert",
     "driver": {
-        "win32-ia32": "USB_BLE_Dongle_Driver/USB_BLE_Dongle_Driver_Setup.exe",
-        "win32-x64": "USB_BLE_Dongle_Driver/USB_BLE_Dongle_Driver_Setup.exe",
-        "darwin-x64": "Mac_OSX_VCP_Driver/SiLabsUSBDriverDisk.dmg"
+        "win32-ia32": "ROBOMATION/USB_BLE_Dongle_Driver_Setup.exe",
+        "win32-x64": "ROBOMATION/USB_BLE_Dongle_Driver_Setup.exe",
+        "darwin-x64": "ROBOMATION/Mac_OSX_VCP_Driver/SiLabsUSBDriverDisk.dmg"
     },
     "reconnect": true,
     "hardware": {
