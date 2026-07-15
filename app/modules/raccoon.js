@@ -149,10 +149,13 @@ Module.prototype._init = function() {
     this._json_counters = {};
 
     // entryjs *Id 필드 변경 감지.
-    // _primed=false면 (재)연결 후 첫 handleRemoteData를 발동 없이 기준만 잡는 패스로 만든다:
-    // 상대의 현재 id를 발동 없이 채택. 새 연결에서는 기록 플래그가 모두 false이므로, 0 시드와
-    // 비교하면 재연결 시 nonzero id가 남아있을 때 잘못된 소리/각도/슬롯 명령이 발동된다.
-    this._primed = false;
+    // _primed=true면 priming(기준선 채택) 없이 0 시드에서 바로 첫 명령을 발동한다.
+    // 최초 연결에서는 idle 프레임이 선행하지 않으므로(non-multi는 블록 실행 시점에야 motoring을
+    // sendQueue에 연결) 첫 handleRemoteData가 곧 첫 명령이다. priming을 켜두면 그 첫 명령을
+    // 기준선으로 삼켜 관절 각도가 미기록되고(angle id 미증가) 첫 실행이 멈춘다.
+    // 재연결(웹소켓 재접속으로 reset() 경유)에서만 _primed=false로 두어, 브라우저가 유지한 stale
+    // nonzero id가 잘못 재발동되지 않도록 첫 프레임을 발동 없이 기준만 잡는다. (reset()에서 설정)
+    this._primed = true;
     this._prev_jointAngleId = 0;
     this._prev_noteId = 0;
     this._prev_soundId = 0;
@@ -391,9 +394,10 @@ Module.prototype.handleRemoteData = function(handler) {
         if (handler.e(key)) m[key] = handler.read(key);
     }
 
-    // 발동 없이 기준만 잡는 패스: (재)연결 후 첫 프레임에서는 상대의 현재 id를 기준선으로 채택하고
-    // 아무것도 발동하지 않는다. 새 연결에서는 기록 플래그가 모두 false이다. entryjs가 진짜 새 명령
-    // (id 변경)을 내기 전까지 값은 모듈 기본값을 유지한다.
+    // 재연결 전용 priming 패스: reset() 후 _primed=false일 때만 실행된다(최초 연결은 _init의
+    // _primed=true라 여기 진입하지 않고 0 시드에서 첫 명령이 바로 발동). 재연결 첫 프레임에서는
+    // 브라우저가 유지한 현재 id를 기준선으로 채택하고 아무것도 발동하지 않아 stale id 오발동을 막는다.
+    // entryjs가 진짜 새 명령(id 변경)을 내면 그때 발동한다.
     if (!this._primed) {
         this._primed = true;
         this._prev_jointAngleId = m.jointAngleId;
@@ -520,6 +524,12 @@ Module.prototype.requestLocalData = function() {
 
 Module.prototype.reset = function() {
     this._init();
+    // reset()은 엔트리 워크스페이스 웹소켓이 끊길 때만 호출된다(mainRouter handleServerSocketClosed).
+    // 즉 다음 handleRemoteData는 '재연결'이다. 이때만 priming을 켜(_primed=false) 브라우저가 유지한
+    // stale id의 오발동을 막는다. 최초 연결(모듈 로드)에는 reset()이 안 불리므로 _init의
+    // _primed=true가 유지돼 첫 명령이 정상 발동된다.
+    // (아래 줄은 반드시 this._init() 뒤에 와야 한다. _init이 _primed=true로 재설정하기 때문이다.)
+    this._primed = false;
     var s = this.sensory;
     for (var k in s) {
         if (s[k] instanceof Array) {
