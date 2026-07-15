@@ -333,18 +333,24 @@ Module.prototype.requestInitialData = function() {
 };
 
 Module.prototype.checkInitialData = function(data, config) {
-    if (data && data.slice(0, 2) == 'FF') {
-        const info = data.split(/[,\n]+/);
-        if (info && info.length >= 5) {
-            if (info[2] == '0D' && info[4].length >= 12) {
-                config.id = `020D${info[3]}`;
-                this.address = info[4].substring(0, 12);
-                return true;
-            } else {
-                return false;
-            }
-        }
+    // 이름 필드 가변(콤마/CR/LF) 대응: 끝의 CR/LF만 제거하고 콤마로 분리한 뒤 뒤에서 집는다.
+    // 실물 캡처(FF01,Cheese Stick,0D,05,ADDR) 기준 variant는 hex 2자리, 주소는 hex 12자리, 주소 뒤 필드 없음.
+    if (typeof data !== 'string' || data.slice(0, 2) != 'FF') {
+        return;
     }
+    const info = data.replace(/[\r\n]+$/, '').split(',');
+    if (info.length < 5) {
+        return;
+    }
+    const model = info[info.length - 3];
+    const variant = info[info.length - 2];
+    const address = info[info.length - 1];
+    if (model == '0D' && /^[0-9A-Fa-f]{2}$/.test(variant) && /^[0-9A-Fa-f]{12}$/.test(address)) {
+        config.id = `020D${variant}`;
+        this.address = address;
+        return true;
+    }
+    return false;
 };
 
 Module.prototype.validateLocalData = function(data) {
