@@ -74,17 +74,28 @@ class CodingBoxV2 extends BaseModule {
     }
 
     requestInitialData() {
-        return 'localdata;\n';
+        return 'identify;\n';
     }
 
     checkInitialData(data) {
         const text = data.toString().trim();
+        const prefix = 'identify;';
 
-        if (text.indexOf('localdata;') === 0) {
-            return true;
+        if (!text.startsWith(prefix)) {
+            return undefined;
         }
 
-        return undefined;
+        try {
+            const payload = JSON.parse(text.slice(prefix.length));
+
+            if (payload.device === 'playcodingboxv2') {
+                return true;
+            }
+
+            return undefined;
+        } catch (e) {
+            return undefined;
+        }
     }
 
     setSerialPort(serialport) {
