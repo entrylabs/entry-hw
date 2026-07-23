@@ -197,18 +197,25 @@ Module.prototype.requestInitialData = function() {
 };
 
 Module.prototype.checkInitialData = function(data, config) {
-	if(data.slice(0, 2) == 'FF') {
-		var info = data.split(/[,\n]+/);
-		if(info && info.length >= 5) {
-			if(info[1] == 'UO Albert' && info[2] == '07' && info[4].length >= 12) {
-				config.id = '0207' + info[3];
-				this.address = info[4].substring(0, 12);
-				return true;
-			} else {
-				return false;
-			}
-		}
+	// 이름 필드 가변(콤마/CR/LF) 대응: 끝의 CR/LF만 제거하고 콤마로 분리한 뒤 뒤에서 집는다.
+	// 모델바이트 확인 + 주소 첫 12자 hex 검증을 통과하면 수용한다(기존
+	// length>=12 + substring 유지, 잘못된 주소 연결 방지). 불일치는 return 후 재폴링.
+	if(typeof data !== 'string' || data.slice(0, 2) != 'FF') {
+		return;
 	}
+	var info = data.replace(/[\r\n]+$/, '').split(',');
+	if(info.length < 5) {
+		return;
+	}
+	var model = info[info.length - 3];
+	var variant = info[info.length - 2];
+	var address = info[info.length - 1];
+	if(model == '07' && address.length >= 12 && /^[0-9A-Fa-f]{12}$/.test(address.substring(0, 12))) {
+		config.id = '0207' + variant;
+		this.address = address.substring(0, 12);
+		return true;
+	}
+	return;
 };
 
 Module.prototype.validateLocalData = function(data) {
