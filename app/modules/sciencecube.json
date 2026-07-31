@@ -14,9 +14,6 @@
   "url": "http://www.koreadigital.com/kr/main.asp",
   "email": "gusngood1834@koreadigital.com",
   "reconnect": true,
-  "entry": {
-    "protocol": "json"
-  },
   "hardware": {
     "type": "serial",
     "control": "slave",
