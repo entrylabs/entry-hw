@@ -186,6 +186,24 @@ Module.prototype._round = function(v) {
     return v < 0 ? Math.ceil(v - 0.5) : Math.floor(v + 0.5);
 };
 
+// 장치로 나가는 값을 규격 범위로 포화시킨다. 펄스 배수(CM_TO_PULSE 등)와 프레임 필드
+// 폭이 이 모듈에 있고 entryjs __PULSE_PER_UNIT은 같은 값을 복제해 둔 것이다. 또 이 소켓은
+// 구버전 entryjs, 오프라인 엔트리, 제3자 클라이언트가 보낸 motoring도 그대로 받는다.
+// 유한한데 범위를 넘은 값은 하위 비트만 남아 그럴듯한 다른 명령이 된다(100cm 요청이
+// 32.3cm 이동으로 나간다). 이 함수가 실제로 막는 것은 이 경우다.
+// toHex/toHex2는 건드리지 않는다. id와 이벤트 플래그 합성에도 쓰이므로 거기서 자르면
+// 프레임 자체가 깨진다.
+Module.prototype._sat = function(v, min, max) {
+    var n = parseFloat(v);
+    // NaN은 방향이 없어 포화시킬 곳이 없다. 중립값으로 둔다. 소켓 경로에서는 dataHandler의
+    // read()가 이미 0으로 만들고 toHex의 & 0xff도 0을 내므로 이 분기는 보험이다.
+    if (isNaN(n)) return min <= 0 && max >= 0 ? 0 : min;
+    // 무한대는 이 경로로 오지 못한다. JSON에서 null이 되고 read()가 0으로 만든다.
+    if (n < min) return min;
+    if (n > max) return max;
+    return n;
+};
+
 // ---------------- 연결 ----------------
 
 Module.prototype.requestInitialData = function() {
@@ -420,17 +438,17 @@ Module.prototype.handleRemoteData = function(handler) {
     // 목 각도 (id 변경 시에만 기록)
     if (m.neckAngleId != this._prev_neckAngleId) {
         this._prev_neckAngleId = m.neckAngleId;
-        this._neck_angle = m.neckAngle;
+        this._neck_angle = this._sat(m.neckAngle, -90, 90);
         this._neck_angle_written = true;
     }
 
     // 눈: 매 주기 RGB 직접 설정
-    this._left_red = m.leftEyeRed;
-    this._left_green = m.leftEyeGreen;
-    this._left_blue = m.leftEyeBlue;
-    this._right_red = m.rightEyeRed;
-    this._right_green = m.rightEyeGreen;
-    this._right_blue = m.rightEyeBlue;
+    this._left_red = this._sat(m.leftEyeRed, 0, 255);
+    this._left_green = this._sat(m.leftEyeGreen, 0, 255);
+    this._left_blue = this._sat(m.leftEyeBlue, 0, 255);
+    this._right_red = this._sat(m.rightEyeRed, 0, 255);
+    this._right_green = this._sat(m.rightEyeGreen, 0, 255);
+    this._right_blue = this._sat(m.rightEyeBlue, 0, 255);
     if (m.eyePatternId != this._prev_eyePatternId) {
         this._prev_eyePatternId = m.eyePatternId;
         this._eye_pattern = m.eyePattern;
@@ -438,7 +456,7 @@ Module.prototype.handleRemoteData = function(handler) {
     }
 
     // 부저 직접 설정
-    this._buzzer = m.buzzer;
+    this._buzzer = this._sat(m.buzzer, 0, 6553.5);
     // 음 (id 변경 시)
     if (m.noteId != this._prev_noteId) {
         this._prev_noteId = m.noteId;
@@ -457,8 +475,8 @@ Module.prototype.handleRemoteData = function(handler) {
         var type = m.motionType;
         if (type == 0) {
             // 연속 바퀴 (setWheels/changeWheels/stop)
-            this._left_wheel = m.leftWheel;
-            this._right_wheel = m.rightWheel;
+            this._left_wheel = this._sat(m.leftWheel, -100, 100);
+            this._right_wheel = this._sat(m.rightWheel, -100, 100);
             this._pulse = 0;
             this._pulse_written = true;
         } else {
@@ -477,9 +495,16 @@ Module.prototype.handleRemoteData = function(handler) {
                 this._pulse = 0;
                 this._pulse_written = true;
                 this._sec_motion_active = true;
-                this._sec_motion_end = Date.now() + Math.max(0, value) * 1000;
+                // 유한한 초만 타이머에 쓴다. "abc"처럼 숫자가 아닌 참 값은 JSON과 read()를
+                // 그대로 통과해 end를 NaN으로 만들고, 그러면 Date.now() >= end 가 영원히
+                // 거짓이 된다. 이 타이머가 wheelStateId 증가의 유일한 출처라서
+                // (requestLocalData 주석 참고) 블록이 끝나지 않는다. 무한대는 이 경로로
+                // 오지 못한다. JSON에서 null이 되고 read()가 0으로 만든다.
+                var sec = parseFloat(value);
+                if (!isFinite(sec) || sec < 0) sec = 0;
+                this._sec_motion_end = Date.now() + sec * 1000;
             } else {
-                var pulse = this._motionPulse(type, unit, value);
+                var pulse = this._sat(this._motionPulse(type, unit, value), 0, 65535);
                 if (pulse > 0) {
                     this._left_wheel = vel[0];
                     this._right_wheel = vel[1];
