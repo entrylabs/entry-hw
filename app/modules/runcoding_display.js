@@ -5,6 +5,7 @@ function Module() {
         DIGITAL: 1,
         ANALOG: 2,
         PWM: 3,
+        SERVO_PIN: 4,
         PULSEIN: 6,
         TIMER: 8,
         OLED_ADDR: 23,
@@ -399,6 +400,7 @@ Module.prototype.makeOutputBuffer = function(device, port, data) {
     const dummy = new Buffer([10]);
 
     switch (device) {
+        case this.sensorTypes.SERVO_PIN:
         case this.sensorTypes.DIGITAL:
         case this.sensorTypes.PWM: 
         case this.sensorTypes.OLED_ADDR:
