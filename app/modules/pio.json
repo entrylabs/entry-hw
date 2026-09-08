@@ -1,0 +1,32 @@
+{
+    "id": "022001",
+    "version": "1.0.0",
+    "name": {
+        "en": "Pio",
+        "ko": "삐오"
+    },
+    "category": "robot",
+    "platform": ["win32", "darwin"],
+    "icon": "pio.png",
+    "module": "pio.js",
+    "url": "https://robomation.net/",
+    "email": "info@robomation.co.kr",
+    "driver": {
+        "win32-ia32": "ROBOMATION/USB_BLE_Dongle_Driver_Setup.exe",
+        "win32-x64": "ROBOMATION/USB_BLE_Dongle_Driver_Setup.exe",
+        "darwin-x64": "ROBOMATION/Mac_OSX_VCP_Driver/SiLabsUSBDriverDisk.dmg"
+    },
+    "reconnect": true,
+    "hardware": {
+        "type": "serial",
+        "control": "master",
+        "scanType": "data",
+        "vendor": ["Silicon Lab", "IntegriSys S.A.", "Microsoft", "Robomation"],
+        "pnpId": "USB\\VID_1915&PID_521A",
+        "baudRate": 115200,
+        "flowControl": "hardware",
+        "lostTimer": 3000,
+        "delimiter": "\r",
+        "stream": "string"
+    }
+}
