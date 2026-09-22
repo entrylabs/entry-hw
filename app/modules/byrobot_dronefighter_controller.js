@@ -1,3 +1,6 @@
+/* eslint-disable brace-style */
+/*jshint esversion: 6 */
+
 'use strict';
 
 
@@ -112,7 +115,7 @@ function Module()
     this.timeTransferInterval   = 40;       // 최소 전송 시간 간격
 
     this.countReqeustDevice     = 0;        // 장치에 데이터를 요청한 횟수 카운트 
-};
+}
 
 
 // 초기설정
@@ -831,7 +834,7 @@ Module.prototype.tansferForEntry = function(handler)
                 handler.write(key, joystick[key]);
             }
 
-            joystick._updated == false;
+            joystick._updated = false;
             //this.log("Module.prototype.tansferForEntry() / attitude", "");
         }
     }
@@ -846,7 +849,7 @@ Module.prototype.tansferForEntry = function(handler)
                 handler.write(key, button[key]);
             }
 
-            button._updated == false;
+            button._updated = false;
             //this.log("Module.prototype.tansferForEntry() / attitude", "");
         }
     }
@@ -861,7 +864,7 @@ Module.prototype.tansferForEntry = function(handler)
                 handler.write(key, state[key]);
             }
 
-            state._updated == false;
+            state._updated = false;
             //this.log("Module.prototype.tansferForEntry() / state", "");
         }
     }
@@ -876,7 +879,7 @@ Module.prototype.tansferForEntry = function(handler)
                 handler.write(key, attitude[key]);
             }
 
-            attitude._updated == false;
+            attitude._updated = false;
             //this.log("Module.prototype.tansferForEntry() / attitude", "");
         }
     }
@@ -891,7 +894,7 @@ Module.prototype.tansferForEntry = function(handler)
                 handler.write(key, irmeessage[key]);
             }
 
-            irmeessage._updated == false;
+            irmeessage._updated = false;
             //this.log("Module.prototype.tansferForEntry() / irmeessage", "");
         }
     }

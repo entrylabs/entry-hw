@@ -1,0 +1,31 @@
+{
+  "id": "100401",
+  "name": {
+    "en": "Cube",
+    "ko": "큐브"
+  },
+  "category": "robot",
+  "platform": [ "win32", "darwin" ],
+  "icon": "roborobo_cube.png",
+  "module": "roborobo_cube.js",
+  "driver": {
+    "win32-ia32": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
+    "win32-x64": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
+    "darwin-x64": "https://entrylabs.github.io/docs/files/drivers/CH34x_Install_MAC_10_9_AND_ABOVE/CH34x_Install_V1.3.pkg"
+  },
+  "url": "http://www.roborobo.co.kr",
+  "email": "software@roborobo.co.kr",
+  "reconnect": true,
+  "firmware": "roborobo_cube",
+  "firmwareBaudRate": 115200,
+  "tryFlahserNumber": 3,
+  "selectPort": true,
+  "hardware": {
+    "type": "serial",
+    "control": "slave",
+    "duration": 32,
+    "vendor": [ "wch.cn" ],
+    "firmwarecheck": false,
+    "baudRate": 115200
+  }
+}

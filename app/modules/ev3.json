@@ -9,10 +9,7 @@
 	"icon" : "ev3.png",
 	"module": "ev3.js",
 	"url": "http://www.lego.com/ko-kr/mindstorms/about-ev3",
-	"entry": {
-		"protocol": "json"
-	},
-	"select_com_port" : true,
+	"selectPort" : true,
 	"hardware": {
 		"type": "bluetooth",
 		"control": "slave",

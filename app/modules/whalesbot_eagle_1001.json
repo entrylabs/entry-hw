@@ -1,0 +1,31 @@
+{
+    "id": "620101",
+    "name": {
+        "en": "Whalesbot Eagle 1001",
+        "ko": "웨일스봇 Eagle 1001"
+    },
+    "category": "module",
+    "platform": ["win32", "darwin"],
+    "icon" : "Whalesbot_Eagle_1001.png",
+    "module": "whalesbot_eagle_1001.js",
+    "driver": {
+        "win32-ia32": "Whalesbot_Drone/CH341SER.EXE",
+        "win32-x64": "Whalesbot_Drone/CH341SER.EXE"
+    },
+    "selectPort": true,
+    "reconnect": true,
+    "hardware": {
+        "type": "serial",
+        "control": "slave",
+        "duration": 32,
+        "vendor": "QinHeng Electronics",
+        "pnpId": 7523,
+        "baudRate": 115200,
+        "dataBits": 8,
+        "flowControl": "none",
+        "parity": "none",
+        "stopBits": 1,
+        "bufferSize": 255,
+        "firmwarecheck": false
+    }
+}

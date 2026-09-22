@@ -1,0 +1,16 @@
+{
+    "id": "6A0101",
+    "name": {
+        "en": "TimboRobot",
+        "ko": "팀보로봇"
+    },
+    "module": "timbo.js",
+    "category": "robot",
+    "platform": ["win32", "darwin"],
+    "icon": "timbo.png",
+    "selectPort": true,
+    "hardware": {
+        "type": "serial",
+        "control": "slave"
+    }
+}

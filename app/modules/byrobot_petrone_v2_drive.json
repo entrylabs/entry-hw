@@ -15,15 +15,12 @@
     "url": "http://www.byrobot.co.kr",
     "email": "help@byrobot.co.kr",
     "reconnect" : true,
-    "entry": {
-        "protocol": "json"
-    },
     "hardware": {
         "type": "serial",
         "control": "slave",
         "scanType": "data",
         "duration": 20,
-        "vendor": ["Microsoft", "STMicroelectronics."],
+        "vendor": ["BYROBOT", "Microsoft", "STMicroelectronics"],
         "baudRate": 115200,
         "flowControl": "none"
     }

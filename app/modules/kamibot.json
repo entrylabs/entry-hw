@@ -1,0 +1,30 @@
+{
+    "id": "420101",
+    "name": {
+        "en": "Kamibot",
+        "ko": "카미봇"
+    },
+    "category": "robot",
+    "platform": ["win32"],
+    "icon": "kamibot.png",
+    "module": "kamibot.js",
+    "url": "http://kamibot.com",
+    "driver": {
+        "win32-ia32": "CDM21228_Driver/CDM21228_Setup.exe",
+        "win32-x64": "CDM21228_Driver/CDM21228_Setup.exe"
+    },
+    "reconnect": true,
+    "softwareReset": false,
+    "entry": {
+        "protocol": "json"
+    },
+    "hardware": {
+        "type": "serial",
+        "control": "master",
+        "duration": 32,
+        "vendor": "FTDI",
+        "pnpId":"FTDIBUS\\VID_0403+PID_6001+A7009G5GA\\0000",
+        "baudRate": 57600,
+        "firmwarecheck": false
+    }
+}

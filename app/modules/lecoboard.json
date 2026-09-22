@@ -1,0 +1,27 @@
+{
+  "id": "3C0101", 
+  "name": {
+    "en": "LECOBOARD",
+    "ko": "레코보드"
+  },
+  "category": "board",
+  "platform": [ "win32", "darwin" ],
+  "icon": "lecoboard.png",
+  "module": "lecoboard.js",
+  "driver": {
+    "win32-ia32": "LECOBOARD/VCP_V1.3.1_Setup.exe",
+    "win32-x64": "LECOBOARD/VCP_V1.3.1_Setup_x64.exe"
+  },
+  "reconnect": true,
+  "firmware": "",
+  "selectPort": false,
+  "hardware": {
+    "type": "serial",
+    "control": "slave",
+    "duration": 50,
+    "vendor": [ "LECOBOARD", "STMicroelectronics" ],
+    "parity": "none",
+    "baudRate": 115200,
+    "firmwarecheck": false
+  }
+}

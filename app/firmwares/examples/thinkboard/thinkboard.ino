@@ -16,6 +16,7 @@
       2019/01/14 Add Servo Motor Control SG90/180 support 
 	    2019/01/15 Fixed bug on Servo Motor Setting
       2019/01/19 Final Version
+      2024/02/20 Fixed errors in final version ___  Saycheese...
      
 */
 
@@ -54,6 +55,7 @@
 #define WRT_BT      10
 #define RGBLED      11
 #define MOTOR       12
+#define LASER       13
         
 // Control Command
 #define GET         1
@@ -79,24 +81,25 @@ union
 #define MOTOR_CW        2     // 정방향
 #define MOTOR_CCW       1     // 역방향
 #define MOTOR_STOP      3     // 정지
-int motorSpeed = 127;
+int motorSpeed = 100;
 int motor_dir = 0;
 
 // Temp Sensor
-int dhtpin = 2;
+int dhtPin = 0;
 int dhtmode = 0;
+
 
 // Buzzer State
 int BuzzerState = BUZZER_OFF;
 
 // Servo Motor Objects
 Servo servos[8]; 
-Servo sv;
 int angle; 
+int servo_speed = 0;
 
 // Ultrasonic Sensor
-int trigPin = 6;
-int echoPin = 2;
+int trigPin=0;
+int echoPin=0;
 
 // RGB LED 모듈 
 const int BLED = 13;
@@ -109,7 +112,7 @@ int digitals[14]={0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 int servo_pins[8]={0,0,0,0,0,0,0,0};
 
 // Variables
-float lastUltrasonic = 0;
+float lastUltrasonic[4] = {0, 0, 0, 0};
 
 // 버퍼
 char buffer[52];
@@ -141,7 +144,7 @@ void setup()
   delay(200);
 }
 
-//
+// Port Init
 void initPorts() 
 {
   for (int pinNumber = 0; pinNumber < 14; pinNumber++) 
@@ -153,7 +156,7 @@ void initPorts()
 
 //
 void loop()
-{
+{  
   while (Serial.available()) 
   {
     if (Serial.available() > 0) 
@@ -162,13 +165,12 @@ void loop()
       setPinValue(serialRead&0xff);
     }
   } 
-  
   delay(15);
   sendPinValues();
   delay(10);
 }
 
-//
+// Pin setting & Parse
 void setPinValue(unsigned char c) 
 {
   if(c == 0x55 && isStart == false)
@@ -205,34 +207,34 @@ void setPinValue(unsigned char c)
   }
 }
 
-//
+// Read Buffer
 unsigned char readBuffer(int index)
 {
   return buffer[index]; 
 }
 
-//
+// UltraSonic Setting
 void setUltrasonicMode(boolean mode) 
 {
   isUltrasonic = mode;
-  if(!mode) lastUltrasonic = 0;
+  if(!mode) lastUltrasonic[port] = 0;
 }
 
-//
+// TempHumidity Setting
 void setTempHumidityMode(boolean mode) 
 {
   isTempSensor = mode;
   if(!mode) isTempSensor = 0;
 }
 
-//
+//  Sevor Setting
 void setServoMode(boolean mode) 
 {
   isServoMode = mode;
   if(!mode) isServoMode = 0;
 }
 
-//
+// Data Parsing
 void parseData() 
 {
   isStart = false;
@@ -242,11 +244,12 @@ void parseData()
   port = readBuffer(6);
   mode = readBuffer(7); 
 
-  //
+  /*
   if(device == SERVO)
   {
-    setPortWritable(port);   
-    sv = servos[searchServoPin(port)];
+    port += 2;
+    setPortWritable(port);
+    Servo sv = servos[searchServoPin(port)];
 
     switch(cmdtype)
     {
@@ -257,43 +260,62 @@ void parseData()
       case SET:
               if(mode < 4) sv.attach(port, SERVO_MIN, SERVO_MAX);
               else sv.attach(port);      
-              break;                    
+              break;
     }   
   }
-
-  //             
+*/
   switch(cmdtype)
   {
     case GET:
-        if(device == TEMP) 
+        if(device == TEMP)          // Get TempHunidity Sensor value 
         {
-          setTempHumidityMode(true);                  
-          dhtpin = port;    
-          dhtmode = mode;                          
+          if (!isTempSensor) {
+            setTempHumidityMode(true);
+            dhtPin = port + 2;
+            DHT  dht(dhtPin, DHT11);
+            dht.begin();
+          } else {
+            if (dhtPin != port + 2){
+              dhtPin = port + 2;
+              DHT  dht(dhtPin, DHT11);
+              dht.begin();
+            }
+          }
         }
-        else if(device == SERVO)
+        else if(device == SERVO) // Get Servor Angle  
         {
-          setServoMode(true);   
-          angle = sv.read();   
-        }          
-        else if(device == USONIC) 
+
+          if (!isServoMode){
+             Servo sv = servos[searchServoPin(port+2)];
+             angle = sv.read();
+             delay(15);
+          }
+//          if (mode == 1) {
+//            angle = servo_speed;
+//            break;
+//          }
+//          setPortWritable(port);
+          
+//          setServoMode(true);
+//          angle = sv.read();
+        }
+        else if(device == USONIC)  // Get Ultra Sonic Sensor Value 
         {
           setTempHumidityMode(false);          
-          if(!isUltrasonic) 
+          if(!isUltrasonic)       // Ultra Sonic Sensor init Setting 
           {
             setUltrasonicMode(true);
-            trigPin = readBuffer(6);
-            echoPin = readBuffer(7);
+            trigPin = readBuffer(6) + 6;
+            echoPin = readBuffer(6) + 2;
             digitals[trigPin] = 1;
             digitals[echoPin] = 1;
             pinMode(trigPin, OUTPUT);
             pinMode(echoPin, INPUT);
-            delay(30);
           } 
           else 
           {
-            int trig = readBuffer(6);
-            int echo = readBuffer(7);
+            int trig = readBuffer(6) + 6;
+            int echo = readBuffer(6) + 2;
             if(trig != trigPin || echo != echoPin) 
             {
               digitals[trigPin] = 0;
@@ -304,26 +326,19 @@ void parseData()
               digitals[echoPin] = 1;
               pinMode(trigPin, OUTPUT);            
               pinMode(echoPin, INPUT);
-              delay(30);
             }
           }
         } 
-        else if(port == trigPin || port == echoPin) 
-        {
-          setTempHumidityMode(false);          
-          setUltrasonicMode(false);
-          digitals[port] = 0;
-        } 
-        else 
+        else
         {
           setTempHumidityMode(false);              
           setUltrasonicMode(false);
-          setServoMode(false);          
+          setServoMode(false);    
           digitals[port] = 0;
         }      
         break;
         
-    case SET:               
+    case SET:            // Run Module   
         runModule(device);
         callOK();
         break;
@@ -334,21 +349,102 @@ void parseData()
   }
 }
 
-//
+// SET 
 void runModule(int device) 
 {
   //0xff 0x55 0x6 0x0 0x1 0xa 0x9 0x0 0x0 0xa
   int hz = 0, ms = 0, v = 0;
   if(port == trigPin || port == echoPin) setUltrasonicMode(false);
 
+
   switch(device)
-  {
-    case DIGITAL: 
-            setPortWritable(port);
-            digitalWrite(port, mode);
-            break;
+  { 
+    case DIGITAL :
+    case LASER:               // Digital Ouput Setting
+    {  
+      setPortWritable(port);
+      digitalWrite(port, mode);
+    } 
+    break;   
+    case RGBLED:            // RGBLED Ouput Setting R:11, G:12, B:13
+    {
+    setPortWritable(RLED);   
+    setPortWritable(GLED); 
+    setPortWritable(BLED);                          
+    analogWrite(RLED, readBuffer(7));
+    analogWrite(GLED, readBuffer(8));
+    analogWrite(BLED, readBuffer(9));     
+    }              
+    break;   
+    case MOTOR:            //  DC Motor Setting 
+        {
+          int motorPinA = readBuffer(6) + 2;
+          int motorPinB = readBuffer(6) + 6;
+          int motorPWM;
+          pinMode(motorPinA, OUTPUT);      // CW
+          pinMode(motorPinB, OUTPUT);      // CCW             
+          digitalWrite(motorPinA, HIGH);
+          digitalWrite(motorPinB, HIGH);
+          setPortWritable(motorPinA);
+          setPortWritable(motorPinB);     
+          mode = readBuffer(7);
+          switch(mode)
+          {
+            case 1: motor_dir = readBuffer(8);      // DC 모터 방향 설정하기
+              if(motorPinA != 3){
+                if(motor_dir == MOTOR_CCW)      // 반시계 (역방향) 
+                { 
+                  digitalWrite(motorPinA, LOW);
+                  digitalWrite(motorPinB, HIGH);
+                  analogWrite(motorPinB, motorSpeed);              
+                }
+                else                            // 시계 (정방향)
+                {
+                  digitalWrite(motorPinA, HIGH);
+                  digitalWrite(motorPinB, LOW);
+                  analogWrite(motorPinA, motorSpeed);            
+                }
+              }
+              else  // Port 2의 역방향 설정 금지...
+              {
+                digitalWrite(motorPinA, LOW);
+                digitalWrite(motorPinB, HIGH);
+                analogWrite(motorPinA, motorSpeed);
+              }
+                  
+              break;
+            case 2: motorSpeed = readBuffer(8)*2.5;     // DC 모터 속도 정하기  
+        
+              if(motorSpeed == 0) 
+              {
+                digitalWrite(motorPinA, HIGH);
+                digitalWrite(motorPinB, HIGH);             
+              } //end of if(motorSpeed == 0) 
+              else if(motorPinA != 3){
+                if(motor_dir == MOTOR_CCW) 
+                {
+                  digitalWrite(motorPinA, LOW);
+                  digitalWrite(motorPinB, HIGH);
+                  analogWrite(motorPinB, motorSpeed);                         
+                } else {
+                  digitalWrite(motorPinA, HIGH);
+                  digitalWrite(motorPinB, LOW);
+                  analogWrite(motorPinA, motorSpeed); 
+                } 
+              } else {
+                digitalWrite(motorPinA, HIGH);
+                digitalWrite(motorPinB, LOW);
+                analogWrite(motorPinA, motorSpeed);
+              }  //end of if(motor_dir == MOTOR_CCW)  else   
+              break;
+            case 3: digitalWrite(motorPinA, HIGH);
+                    digitalWrite(motorPinB, HIGH);          
+                    break;                    
+           }  // end of switch(mode)   
+        }
+        break;     
             
-    case BUZZER:  
+    case BUZZER:        // BUZZER Setting
             setPortWritable(BUZ_PORT);
             if((BuzzerState == BUZZER_OFF) && (mode == 1)) 
             {
@@ -362,111 +458,67 @@ void runModule(int device)
             }
             break;
             
-    case TONE:    
+    case TONE:           //  Launch tone menu with buzzer
             setPortWritable(port);
             hz = readShort(7);
             ms = readShort(9);
             if(ms > 0) tone(port, hz, ms);
             else noTone(port);
             break;
-            
-    case SERVO:
-            if(mode == 0) break;
-            dir = readBuffer(8);
-            switch(mode)
+
+    case SERVO:         //  Launch Servo
+          if(mode == 0 ) break;
+          if (port == 1)
+             port = 3;
+          else
+             port = 5;
+          setPortWritable(port);  
+          mode = readBuffer(7);
+          Servo sv = servos[searchServoPin(port)];
+          sv.attach(port); 
+          
+          // thinkboard_digital_set_servo_angle
+          if (mode == 2)  
+              angle = readBuffer(8);
+          
+          //  thinkboard_digital_set_servo_direction
+          else if (mode == 3)  
+          { 
+            int direction = readBuffer(8);
+            angle = sv.read();
+            if (direction == 0)
             {
-              case 1:              
-              case 4: angle = readBuffer(8);
-                      if(angle >= 0 && angle <= 180) 
-                      {
-                        sv.write(angle);  
-                        delay(15);        
-                      }
-                      break;      
-              case 2:                             
-              case 5: angle = sv.read();  
-                      if(dir == 1)       // LEFT(?�계 방향)
-                      {
-                        if(angle <= 0) return;                
-                        sv.write(--angle);  
-                        delay(15);                                                       
-                      }
-                      else              // RIGHT(반시�?방향) 
-                      {
-                        if(angle >= 180) return;
-                        sv.write(++angle);
-                        delay(15);  
-                      }                      
-                      break;    
-              case 3:                                    
-              case 6: sv.write(90);
-                      delay(15);      
-                      break;                   
-            }
-            break;
+              angle = angle + 1;
+              if (angle >  180)  angle = 180;
+            } else {
+              angle = angle - 1;
+              if (angle < 0) angle = 0;
+            } 
+          } 
+
+          // thinkboard_digital_set_servo_stop
+          else if (mode == 4)  
+             angle = 90;  
+
+          // thinkboard_digital_set_servo_360_angle   
+          else if (mode == 5)  
+          { 
+            servo_speed = readBuffer(8);
+            angle = servo_speed;
             
+          // thinkboard_digital_set_servo_360_stop
+          } else if(mode == 6) 
+             angle = 91;  
+          sv.write(angle);
+          delay(15);
+          break;
+
+
     case TIMER:
             lastTime = millis()/1000.0; 
             break;
-            
-    case RGBLED: 
-            setPortWritable(port);   
-            setPortWritable(port+1); 
-            setPortWritable(port+2);                           
-            analogWrite(RLED, readBuffer(7));
-            analogWrite(GLED, readBuffer(8));
-            analogWrite(BLED, readBuffer(9));                   
-            break;   
-
-    case MOTOR:
-            setPortWritable(port);   
-            setPortWritable(port+4);          
-            pinMode(port+4, OUTPUT);      // CW
-            pinMode(port, OUTPUT);        // CCW             
-            digitalWrite(port+4, HIGH);
-            digitalWrite(port, HIGH); 
-                 
-            mode = readBuffer(7);
-            switch(mode)
-            {
-              case 1: motor_dir = readBuffer(8);      // DC 모터 방향 설정하기
-                      if(motor_dir == MOTOR_CCW)      // 반시계 (역방향) 
-                      {
-                        digitalWrite(port+4, LOW);
-                        analogWrite(port, motorSpeed);                         
-                      }
-                      else                            // 시계 (정방향)
-                      {
-                        digitalWrite(port, LOW);
-                        analogWrite(port+4, motorSpeed);   
-                      }
-                      break;
-              case 2: motorSpeed = readBuffer(8);     // DC 모터 속도 정하기  
-                      if(motorSpeed == 0) 
-                      {
-                        digitalWrite(port+4, HIGH);
-                        digitalWrite(port+4, HIGH);                      
-                      }
-                      else 
-                      {
-                        if(motor_dir == MOTOR_CCW) 
-                        {
-                          digitalWrite(port+4, LOW);
-                          analogWrite(port, motorSpeed);                             
-                        }
-                        else 
-                        {
-                          digitalWrite(port, LOW);
-                          analogWrite(port+4, motorSpeed); 
-                        }
-                      }           
-                      break;
-              case 3: digitalWrite(port+4, HIGH);
-                      digitalWrite(port+4, HIGH);          
-                      break;                    
-            }
-            break;               
-  }
+       
+  } 
 }
 
 //
@@ -477,7 +529,7 @@ void callOK()
   writeEnd();
 }
 
-//
+//   Digital Pin value Setting
 void sendPinValues() 
 {  
   int pinNumber = 0;
@@ -533,68 +585,68 @@ void sendPinValues()
      */
 }
 
-//
+// Get Ultra Sonic Sensor Value & Transfer
 void sendUltrasonic() 
 {
+//  trigPin = 9;
+//  echoPin = 5; 
   digitalWrite(trigPin, LOW);
   delayMicroseconds(2);
   digitalWrite(trigPin, HIGH);
   delayMicroseconds(10);
   digitalWrite(trigPin, LOW);
 
-  float value = pulseIn(echoPin, HIGH, 30000) / 29.0 / 2.0;
+  unsigned long duration = pulseIn(echoPin, HIGH);
+  float value = ((float) (340*duration) / 10000) / 2;
 
-  if(value == 0) value = lastUltrasonic;
-  else lastUltrasonic = value;
+  lastUltrasonic[port] = value;
 
   writeHead();
-  sendFloat(value);
-  writeSerial(trigPin);
-  writeSerial(echoPin);
+  for (int i =0 ;i<4;i++){
+    sendFloat(lastUltrasonic[i]);
+  }  
+  writeSerial(port);
   writeSerial(USONIC);
+  writeEnd();
+
+}
+
+// Get TempHumidity Sensor Value & Transfer
+void sendTempHumidity()
+{
+  int humi, temp;
+  DHT dht(dhtPin, DHTTYPE);    
+  delay(30);
+  humi = dht.readHumidity();
+  temp = dht.readTemperature();  
+
+  writeHead();
+
+  sendFloat(temp);
+  sendFloat(humi);
+  sendFloat(temp);
+  sendFloat(humi);
+  sendFloat(temp);
+  sendFloat(humi);
+  sendFloat(temp);
+  sendFloat(humi);
+  writeSerial(port);  
+  writeSerial(dhtmode);
+  writeSerial(TEMP);
   writeEnd();
 }
 
-//
-void sendTempHumidity()
-{
-  int value;
-  DHT dht(dhtpin, DHTTYPE);    
-  delay(30);
-
-  switch(dhtmode)
-  {
-    case _HUMID:
-          value = dht.readHumidity();
-          break;
-    case _TEMP_F:
-          value = dht.readTemperature();  
-          value = value*(9/5)+32;
-          break;
-    case _TEMP_C:
-          value = dht.readTemperature();      
-          break;
-  }
-
-  writeHead();
-  sendFloat(value);
-  writeSerial(dhtpin);    
-  writeSerial(dhtmode);  
-  writeSerial(TEMP);
-  writeEnd();  
-}
-
-//
+// Get Servo angle Transfer
 void sendServoAngle() 
 {
   writeHead();
   sendFloat(angle); 
-  writeSerial(port);  
+  writeSerial(port+2);  
   writeSerial(SERVO);
   writeEnd();
 }
 
-//
+// Get Digital Pin Value & Transfer
 void sendDigitalValue(int pinNumber) 
 {
   pinMode(pinNumber,INPUT);
@@ -605,7 +657,7 @@ void sendDigitalValue(int pinNumber)
   writeEnd();
 }
 
-//
+// Get Anglog Pin Value(Light, Sound, variable resistance ... ) & Transfer
 void sendAnalogValue(int pinNumber) 
 {
   writeHead();
@@ -621,19 +673,19 @@ void writeBuffer(int index,unsigned char c)
   buffer[index] = c;
 }
 
-//
+// transmission data head
 void writeHead()
 {
   writeSerial(0xff);
   writeSerial(0x55);
 }
 
-//
+//  transmission data end
 void writeEnd(){
   Serial.println();
 }
 
-//
+// Charater Transfer
 void writeSerial(unsigned char c)
 {
   Serial.write(c);
@@ -729,5 +781,4 @@ void callDebug(char c)
   writeSerial(c);
   writeEnd();
 }
-
 

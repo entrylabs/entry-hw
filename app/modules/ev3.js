@@ -1,4 +1,4 @@
-const _ = require('lodash');
+const _ = global.$;
 const BaseModule = require('./baseModule');
 
 /**

@@ -1,4 +1,4 @@
-const _ = require('lodash');
+const _ = global.$;
 const BaseModule = require('./baseModule');
 
 const FUNCTION_KEYS = {
@@ -27,13 +27,13 @@ const COMMAND_LIST = {
     FILE_GET: 0x81,
     FILE_SET: 0x82,
     FILE_DEL: 0x83,
-    FILE_FOM: 0x84,        
+    FILE_FOM: 0x84,
 };
 
 class Armz extends BaseModule {
     constructor() {
         super();
-				this.isConnect = false;        
+				this.isConnect = false;
         this.sendIndex = 0;
         this.sendBuffers = [];
         this.executeCount = 0;
@@ -56,16 +56,16 @@ class Armz extends BaseModule {
     setSocket(socket) {
         this.socket = socket;
     }
-    
+
 		//Send init data after connected (request connect)
     requestInitialData(sp) {
         this.isConnect = true;
         if (!this.sp) {
             this.sp = sp;
         }
-        return this.makeData('REQ');    			
+        return this.makeData('REQ');
     }
-    
+
 		// Check data from hardware (for init connection)
     checkInitialData(data, config) {
         return true;
@@ -76,13 +76,13 @@ class Armz extends BaseModule {
         return true;
     }
 
-    // Data to Web Socket(entry) process 
+    // Data to Web Socket(entry) process
     requestRemoteData(handler) {
     }
 
-    // Data from Web Socket(entry) process 
+    // Data from Web Socket(entry) process
     handleRemoteData({ receiveHandler = {} }) {
-//    console.log('handleRemoteData');	
+//    console.log('handleRemoteData');
         const { data: handlerData } = receiveHandler;
         if (_.isEmpty(handlerData)) {
             return;
@@ -103,10 +103,10 @@ class Armz extends BaseModule {
             }
         });
     }
-    
-		// Data to Hardware process 
+
+		// Data to Hardware process
     requestLocalData() {
-        if (this.sendBuffers.length > 0) {        	
+        if (this.sendBuffers.length > 0) {
             const sendData = this.sendBuffers.shift();
             this.sp.write(sendData.data, () => {
                 if (this.sp) {
@@ -120,7 +120,7 @@ class Armz extends BaseModule {
         return;
     }
 
-		// Data from Hardware process 
+		// Data from Hardware process
     handleLocalData(data) {
         const count = data[data.length - 3];
         const blockId = this.executeCheckList[count];
@@ -155,46 +155,46 @@ class Armz extends BaseModule {
     makeData(key, data) {
         let returnData = new Buffer(59);
         let dummy_packet = new Buffer(20);
-				
-				console.log('key : ' + key);	
+
+				console.log('key : ' + key);
 
         switch (key) {
             case 'RUN_PLAY': {
                 const { port, value } = data;
                 var data0 = Number(value);
                 var data1 = data0 >> 8;
-                
+
                 if (port === 'SOUND') {
                 		dummy_packet.fill(Buffer([COMMAND_LIST.SOUND_PLAY,0x03,0x01,data0,data1]),0,5);
-               
+
                 } else if (port === 'ACTION') {
-                		dummy_packet.fill(Buffer([COMMAND_LIST.ACTION_PLAY,0x06,0x01,0,data0,data1,0,0]),0,8);                	
-		
+                		dummy_packet.fill(Buffer([COMMAND_LIST.ACTION_PLAY,0x06,0x01,0,data0,data1,0,0]),0,8);
+
                 }
                 break;
-            }        	
+            }
             case 'RST':
-            		dummy_packet.fill(Buffer([COMMAND_LIST.ACTION_STOP,0x02,0x01,0x00]),0,4);              
+            		dummy_packet.fill(Buffer([COMMAND_LIST.ACTION_STOP,0x02,0x01,0x00]),0,4);
                 break;
             case 'REQ':	{
             		dummy_packet.fill(Buffer([COMMAND_LIST.ACTION_PLAY,0x06,0x01,0x00,0x0f,0x00,0x00,0x00]),0,8);
                 break;
             }
             case 'CON':	{
-      //      		dummy_packet.fill(Buffer([COMMAND_LIST.ACTION_PLAY,0x06,0x01,0x00,0x0d,0x00,0x00,0x00]),0,8);            
-            		dummy_packet.fill(Buffer([COMMAND_LIST.BLE_CON,0x02,0x01,0x01]),0,4);            
-      
+      //      		dummy_packet.fill(Buffer([COMMAND_LIST.ACTION_PLAY,0x06,0x01,0x00,0x0d,0x00,0x00,0x00]),0,8);
+            		dummy_packet.fill(Buffer([COMMAND_LIST.BLE_CON,0x02,0x01,0x01]),0,4);
+
                 break;
             }
             case 'BYE':	{
-            		dummy_packet.fill(Buffer([COMMAND_LIST.SOUND_PLAY,0x03,0x01,0x05,0x00]),0,5);            
+            		dummy_packet.fill(Buffer([COMMAND_LIST.SOUND_PLAY,0x03,0x01,0x05,0x00]),0,5);
                 break;
             }
             default:
                 break;
         }
 
-        const packet = dummy_packet.slice(0, (dummy_packet[1] + 2)); 
+        const packet = dummy_packet.slice(0, (dummy_packet[1] + 2));
         const command = Buffer.concat([
             packet,
             this.makeCheckSum(packet),
@@ -206,7 +206,7 @@ class Armz extends BaseModule {
         const bufferLength = buffer.length;
         var cs = 0;
         for (var i = 0; i < bufferLength; i++) {
-        cs = cs + buffer[i]; 
+        cs = cs + buffer[i];
       	}
         return Buffer([cs, 0x0a]);
     }
@@ -226,7 +226,7 @@ class Armz extends BaseModule {
         if (this.isConnect) {
             this.isConnect = false;
 		        this.sendBuffers = [];
-  
+
             if (this.sp) {
                 this.sp.write(
                     this.makeData('BYE'),		//action stop
@@ -234,14 +234,14 @@ class Armz extends BaseModule {
                         /* nothing to do. disconnect command execute */
                     }
                 );
-            } 
+            }
             this.sp = null;
             connect.close();
-        }    	
+        }
     }
     reset() {
-        this.sp = null; 
+        this.sp = null;
     }
 }
 
-module.exports = new Armz(); 
+module.exports = new Armz();

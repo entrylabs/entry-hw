@@ -15,10 +15,7 @@
 	},
     "reconnect" : false,
 	"softwareReset": true,
-	"entry": {
-		"protocol": "json"
-	},
-	"select_com_port" : true,
+	"selectPort" : true,
 	"hardware": {
 		"type": "bluetooth",
 		"rtscts": true,

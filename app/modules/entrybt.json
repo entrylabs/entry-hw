@@ -11,10 +11,7 @@
     "email": "join@neweducation.co.kr",
     "module": "entrybt.js",
     "reconnect": true,
-    "select_com_port": true,
-    "entry": {
-        "protocol": "json"
-    },
+    "selectPort": true,
     "hardware": {
         "type": "bluetooth",
         "control": "slave",

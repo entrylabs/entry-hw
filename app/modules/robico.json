@@ -1,0 +1,23 @@
+{
+    "id": "240501",
+    "name": {
+        "en": "RoBico",
+        "ko": "로비코"
+    },
+    "category": "robot",
+    "platform": "win32",
+    "icon": "robico.png",
+    "module": "robico.js",
+    "url": "https://robico.info",
+    "reconnect": true,
+    "hardware": {
+        "type": "serial",
+        "control": "master",
+        "bufferSize" : "32",
+        "vendor": "Prolific",
+        "baudRate": 115200,
+        "firmwarecheck": false,
+        "delimiter": "\r\n",
+        "lostTimer": 1000
+    }
+}

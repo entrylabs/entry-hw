@@ -1,4 +1,4 @@
-const _ = require('lodash');
+const _ = global.$;
 const BaseModule = require('./baseModule');
 
 class AsomeBot extends BaseModule {
@@ -97,7 +97,7 @@ class AsomeBot extends BaseModule {
                 }
             });
         }
-    
+
         return null;
     }
 
@@ -118,7 +118,7 @@ class AsomeBot extends BaseModule {
                 if (values.length > 1) this.sendToEntry.distance = values[1];
             }
             if (line.indexOf('#UDP') >= 0) {
-                var values = line.split(" "); 
+                var values = line.split(" ");
                 if (values.length > 1) {
                     this.sendToEntry.udp_id = this.msg_id;
                     this.sendToEntry.udp_msg = values[1];
@@ -142,7 +142,6 @@ class AsomeBot extends BaseModule {
 
     reset() {
         this.sp = null;
-        this.isPlaying.set(0);
         this.sendBuffer = [];
         this.receivedText = "";
     }

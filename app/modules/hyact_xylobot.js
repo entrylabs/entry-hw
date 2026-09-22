@@ -1,4 +1,3 @@
-const _ = require('lodash');
 const BaseModule = require('./baseModule');
 
 class hyact_xylobot extends BaseModule
@@ -108,7 +107,7 @@ class hyact_xylobot extends BaseModule
                 aixs1: null,
                 aixs2: null,
                 aixs3: null,
-            },            
+            },
         };
         this.array = {
             SET_ZERO: 0,
@@ -156,7 +155,7 @@ class hyact_xylobot extends BaseModule
     requestInitialData() {
         var buffer;
 
-        var buffer_1 = this.Xy_Write_OperationMode(this.modes.ENTRY);        
+        var buffer_1 = this.Xy_Write_OperationMode(this.modes.ENTRY);
         var buffer_2 = this.Xy_Write_DeviceAll_TorqueEnable(0, 0, 0);
 
         buffer = Buffer.concat([buffer_1, buffer_2]);
@@ -263,7 +262,7 @@ class hyact_xylobot extends BaseModule
     requestRemoteData(handler) {
         for(var key in this.xylobotDatas)
         {
-            handler.write(key, this.xylobotDatas[key]); 
+            handler.write(key, this.xylobotDatas[key]);
         }
     }
 
@@ -284,12 +283,12 @@ class hyact_xylobot extends BaseModule
         getData[array.SET_TORQUE_TOGGLE] = receiveHandler[array.SET_TORQUE_TOGGLE];
         getData[array.SET_POSITION_SINGLE] = receiveHandler[array.SET_POSITION_SINGLE];
         getData[array.SET_POSITION_MANY] = receiveHandler[array.SET_POSITION_MANY];
-        getData[array.SET_SPEED] = receiveHandler[array.SET_SPEED];            
+        getData[array.SET_SPEED] = receiveHandler[array.SET_SPEED];
         getData[array.SET_TORQUE] = receiveHandler[array.SET_TORQUE];
         getData[array.SET_PLAY_NOTE] = receiveHandler[array.SET_PLAY_NOTE];
         getData[array.SET_MOVE_NOTE] = receiveHandler[array.SET_MOVE_NOTE];
         getData[array.SET_MOVE_DEFAULT] = receiveHandler[array.SET_MOVE_DEFAULT];
-        
+
         if(getData[array.SET_ZERO])
         {
             checkTime = getData[array.SET_ZERO].Time;
@@ -460,9 +459,9 @@ class hyact_xylobot extends BaseModule
         var address = this.address;
 
         if(address != this.array.GET_NOW_AIXS || address != this.array.GET_NOTE_AIXS || address != this.array.SET_ZERO)
-        {            
+        {
             if(lastTime != currentTime && this.sendBuffer[address].length > 0)
-            {               
+            {
                 sendToHardware = this.sendBuffer[address];
                 this.lastTime = currentTime;
 
@@ -478,7 +477,7 @@ class hyact_xylobot extends BaseModule
         if(0 < this.sendCounter && this.sendCounter <= 10)
         {
         	if(this.xylobotDatas.positionC.aixs1 == null
-        		|| this.xylobotDatas.positionC.aixs2 == null 
+        		|| this.xylobotDatas.positionC.aixs2 == null
         		|| this.xylobotDatas.positionC.aixs3 == null)
         	{
         		return this.Xy_Read_PositionC();
@@ -487,16 +486,16 @@ class hyact_xylobot extends BaseModule
         else if(10 < this.sendCounter && this.sendCounter <= 20)
         {
         	if(this.xylobotDatas.positionD.aixs1 == null
-        		|| this.xylobotDatas.positionD.aixs2 == null 
+        		|| this.xylobotDatas.positionD.aixs2 == null
         		|| this.xylobotDatas.positionD.aixs3 == null)
         	{
         		return this.Xy_Read_PositionD();
         	}
-        }        
+        }
         else if(20 < this.sendCounter && this.sendCounter <= 30)
         {
         	if(this.xylobotDatas.positionE.aixs1 == null
-        		|| this.xylobotDatas.positionE.aixs2 == null 
+        		|| this.xylobotDatas.positionE.aixs2 == null
         		|| this.xylobotDatas.positionE.aixs3 == null)
         	{
         		return this.Xy_Read_PositionE();
@@ -505,7 +504,7 @@ class hyact_xylobot extends BaseModule
         else if(30 < this.sendCounter && this.sendCounter <= 40)
         {
         	if(this.xylobotDatas.positionF.aixs1 == null
-        		|| this.xylobotDatas.positionF.aixs2 == null 
+        		|| this.xylobotDatas.positionF.aixs2 == null
         		|| this.xylobotDatas.positionF.aixs3 == null)
         	{
         		return this.Xy_Read_PositionF();
@@ -514,7 +513,7 @@ class hyact_xylobot extends BaseModule
         else if(40 < this.sendCounter && this.sendCounter <= 50)
         {
         	if(this.xylobotDatas.positionG.aixs1 == null
-        		|| this.xylobotDatas.positionG.aixs2 == null 
+        		|| this.xylobotDatas.positionG.aixs2 == null
         		|| this.xylobotDatas.positionG.aixs3 == null)
         	{
         		return this.Xy_Read_PositionG();
@@ -523,7 +522,7 @@ class hyact_xylobot extends BaseModule
         else if(50 < this.sendCounter && this.sendCounter <= 60)
         {
         	if(this.xylobotDatas.positionA.aixs1 == null
-        		|| this.xylobotDatas.positionA.aixs2 == null 
+        		|| this.xylobotDatas.positionA.aixs2 == null
         		|| this.xylobotDatas.positionA.aixs3 == null)
         	{
         		return this.Xy_Read_PositionA();
@@ -532,7 +531,7 @@ class hyact_xylobot extends BaseModule
         else if(60 < this.sendCounter && this.sendCounter <= 70)
         {
         	if(this.xylobotDatas.positionB.aixs1 == null
-        		|| this.xylobotDatas.positionB.aixs2 == null 
+        		|| this.xylobotDatas.positionB.aixs2 == null
         		|| this.xylobotDatas.positionB.aixs3 == null)
         	{
         		return this.Xy_Read_PositionB();
@@ -541,7 +540,7 @@ class hyact_xylobot extends BaseModule
         else if(70 < this.sendCounter && this.sendCounter <= 80)
         {
         	if(this.xylobotDatas.positionHighC.aixs1 == null
-        		|| this.xylobotDatas.positionHighC.aixs2 == null 
+        		|| this.xylobotDatas.positionHighC.aixs2 == null
         		|| this.xylobotDatas.positionHighC.aixs3 == null)
         	{
         		return this.Xy_Read_PositionHighC();
@@ -563,7 +562,7 @@ class hyact_xylobot extends BaseModule
         var self = this;
 
         connect.close();
-        if(self.sp) 
+        if(self.sp)
         {
             delete self.sp;
         }
@@ -579,7 +578,7 @@ class hyact_xylobot extends BaseModule
         for(var i = 0; i < 14; i++)
         {
             this.sendBuffer[i] = [];
-        }        
+        }
     }
 
     Xy_MakePacket(instruction)

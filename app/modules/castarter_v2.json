@@ -1,0 +1,41 @@
+{
+	"id": "4D0101",
+	"name": {
+	  "en": "2nd Coding Array Starter",
+	  "ko": "2세대 코딩어레이 스타터"
+	},
+	"category": "board",
+	"platform": [ "win32", "darwin" ],
+	"icon": "castarter_v2.png",
+	"module": "castarter_v2.js",
+	"url": "https://cafe.naver.com/arduinostory/143087",
+	"email": "we@codingarray.cc",
+	"video": "https://youtu.be/DYTYEcSIFKY",
+	"driver": [
+	  {
+		"win32-ia32": "arduino/dpinst-x86.exe",
+		"win32-x64": "arduino/dpinst-amd64.exe",
+		"translate": "Arduino USB 드라이버"
+	  },
+	  {
+		"win32-ia32": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
+		"win32-x64": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
+		"darwin-x64": "https://entrylabs.github.io/docs/files/drivers/CH34x_Install_MAC_10_9_AND_ABOVE/CH34x_Install_V1.3.pkg",
+		"translate": "USB CH340X 드라이버"
+	  }
+	],
+	"reconnect": true,
+	"selectPort": true,
+	"firmware": "castarter_v2",
+	"firmwareBaudRate": 115200,
+	"firmwareMCUType": " m328p",
+	"hardware": {
+	  "type": "serial",
+	  "control": "slave",
+	  "duration": 32,
+	  "vendor": [ "Arduino", "wch.cn"],
+	  "firmwarecheck": false,
+	  "baudRate": 115200
+	}
+  }
+  

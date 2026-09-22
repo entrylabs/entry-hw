@@ -9,11 +9,8 @@
 	"icon" : "robotis_carCont.png",
 	"module": "robotis_carCont.js",
 	"url": "http://www.robotis.com",
-	"email": "kigate@robotis.com",
-	"entry": {
-		"protocol": "json"
-	},
-	"select_com_port" : true,
+	"email": "jason@robotis.com",
+	"selectPort" : true,
 	"hardware": {
 		"type": "bluetooth",
 		"control": "slave",

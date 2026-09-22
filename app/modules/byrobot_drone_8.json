@@ -1,0 +1,29 @@
+{
+    "id": "0F0701",
+    "name": {
+        "en": "BYROBOT Coding Drone",
+        "ko": "바이로봇 코딩 드론"
+    },
+    "category": "robot",
+    "platform": ["win32", "darwin"],
+    "icon" : "byrobot_drone_8.png",
+    "module": "byrobot_drone_8.js",
+    "driver": {
+        "win32-ia32": "BYROBOT/petrone_v2_usb_driver_32.exe",
+        "win32-x64": "BYROBOT/petrone_v2_usb_driver_64.exe"
+    },
+    "url": "http://dev.byrobot.co.kr/documents/kr/products/coding_drone/",
+    "email": "help@byrobot.co.kr",
+    "reconnect" : true,
+    "hardware": {
+        "type": "serial",
+        "control": "slave",
+        "scanType": "data",
+        "duration": 20,
+        "vendor": {
+            "win32": ["Microsoft", "STMicroelectronics", "wch.cn", "Arduino", "BYROBOT"]
+        },
+        "baudRate": 57600,
+        "flowControl": "none"
+    }
+}

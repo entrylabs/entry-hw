@@ -1,4 +1,3 @@
-const _ = require('lodash');
 const BaseModule = require('./baseModule');
 
 class magkinder extends BaseModule
@@ -15,9 +14,9 @@ class magkinder extends BaseModule
         this.leftWheelSpeed = 0;
         this.rightWheelSpeed = 0;
 
-        this.transmitBuffer = new Array(10);     
+        this.transmitBuffer = new Array(10);
         this.Protocols = {
-            Header: 0xEE,            
+            Header: 0xEE,
             Dummy: 0xFF,
             Check1: 0xE0,
             Check2: 0xFD,
@@ -98,7 +97,7 @@ class magkinder extends BaseModule
             bettery: null,
         };
     }
-    
+
     //최초에 커넥션이 이루어진 후의 초기 설정.
     //handler 는 워크스페이스와 통신하 데이터를 json 화 하는 오브젝트입니다. (datahandler/json 참고)
     //config 은 module.json 오브젝트입니다.
@@ -117,27 +116,27 @@ class magkinder extends BaseModule
 
     setSerialPort(sp) {
         this.sp = sp;
-    }    
-    
+    }
+
     //연결 후 초기에 송신할 데이터가 필요한 경우 사용합니다.
     //requestInitialData 를 사용한 경우 checkInitialData 가 필수입니다.
-    //이 두 함수가 정의되어있어야 로직이 동작합니다. 필요없으면 작성하지 않아도 됩니다.    
+    //이 두 함수가 정의되어있어야 로직이 동작합니다. 필요없으면 작성하지 않아도 됩니다.
     requestInitialData() {
         var buffer = this.MakePacket(this.Index.TransmitSensing, this.Sensing.Auto, this.Sensing.Run, this.Protocols.Dummy, this.Protocols.Dummy);
 
         return buffer;
     }
-    
+
     // 연결 후 초기에 수신받아서 정상연결인지를 확인해야하는 경우 사용합니다.
     checkInitialData(data, config) {
         return true;
     }
-    
+
     // 주기적으로 하드웨어에서 받은 데이터의 검증이 필요한 경우 사용합니다.
     validateLocalData(data) {
         return true;
     }
-    
+
     // 하드웨어에서 온 데이터 처리
     handleLocalData(data) {
         if (data.length == this.Protocols.DataLength)
@@ -163,15 +162,15 @@ class magkinder extends BaseModule
             }
         }
     }
-    
+
     // 엔트리로 전달할 데이터
     requestRemoteData(handler) {
         for(var key in this.sensorData)
         {
-            handler.write(key, this.sensorData[key]); 
+            handler.write(key, this.sensorData[key]);
         }
     }
-    
+
     // 엔트리에서 받은 데이터에 대한 처리
     handleRemoteData(handler) {
         var receivedData = handler.read('TRANSMIT');
@@ -273,7 +272,7 @@ class magkinder extends BaseModule
             this.transmitBuffer[this.Array.Mode] = this.MakePacket(this.Index.TransmitModeSetting, mode, 0, 0, 0);
         }
     }
-    
+
     // 하드웨어로 보낼 데이터 로직
     //slave 모드인 경우 duration 속성 간격으로 지속적으로 기기에 요청을 보냄
     requestLocalData() {
@@ -298,7 +297,7 @@ class magkinder extends BaseModule
         var self = this;
 
         connect.close();
-        if(self.sp) 
+        if(self.sp)
         {
             delete self.sp;
         }
