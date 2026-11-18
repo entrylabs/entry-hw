@@ -5,7 +5,7 @@
         "ko": "코드위즈"
     },
     "category": "board",
-    "platform": ["win32"],
+    "platform": ["win32", "darwin"],
     "icon": "codewiz.png",
     "module": "codewiz.js",
     "url": "https://www.codable.co.kr",
