@@ -1,0 +1,28 @@
+{
+    "id": "410201",
+    "name": {
+        "en": "NeoCannon",
+        "ko": "네오캐논"
+    },
+    "category": "robot",
+    "platform": ["win32", "darwin"],
+    "icon": "neo_cannon.png",
+    "url": "http://www.neo3ds.com",
+    "driver": {
+        "win32-ia32": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
+        "win32-x64": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
+        "darwin-x64": "https://entrylabs.github.io/docs/files/drivers/CH34x_Install_MAC_10_9_AND_ABOVE/CH34x_Install_V1.3.pkg",
+        "translate": "Arduino compatible driver"
+    },
+    "email": "neo3ds@gmail.com",
+    "module": "neo_cannon.js",
+    "reconnect": true,
+    "hardware": {
+        "type": "serial",
+        "control": "slave",
+        "duration": 32,
+        "vendor": "wch.cn",
+        "baudRate": 115200,
+        "byteDelimiter": [13, 10]
+    }
+}

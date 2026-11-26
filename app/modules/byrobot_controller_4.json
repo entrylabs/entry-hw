@@ -1,0 +1,29 @@
+{
+    "id": "0F0901",
+    "name": {
+        "en": "BYROBOT E-DRONE Controller",
+        "ko": "바이로봇 E-DRONE 조종기"
+    },
+    "category": "robot",
+    "platform": ["win32", "darwin"],
+    "icon" : "byrobot_controller_4.png",
+    "module": "byrobot_controller_4.js",
+    "driver": {
+        "win32-ia32": "BYROBOT/petrone_v2_usb_driver_32.exe",
+        "win32-x64": "BYROBOT/petrone_v2_usb_driver_64.exe"
+    },
+    "url": "http://dev.byrobot.co.kr/documents/kr/products/e_drone/",
+    "email": "help@byrobot.co.kr",
+    "reconnect" : true,
+    "hardware": {
+        "type": "serial",
+        "control": "slave",
+        "scanType": "data",
+        "duration": 20,
+        "vendor": {
+            "win32": ["Microsoft", "STMicroelectronics", "wch.cn", "Arduino", "BYROBOT"]
+        },
+        "baudRate": 57600,
+        "flowControl": "none"
+    }
+}

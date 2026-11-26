@@ -203,9 +203,10 @@ function btoa(data) {
     return Buffer.from(data).toString('base64');
 }
 
-function atob(data) {
-    return Buffer.from(data, 'base64').toString();
+function atob(str) {
+    return Buffer.from(str, 'base64').toString('binary');
 }
+  
 
 function unsetConnect( id, port ) {
     var obj = connect_[id];
@@ -306,7 +307,7 @@ Module.prototype.handleJsonMessage = function( object ) {
     obj.c = object.c;
     obj.id = object.s;
 
-    var byteTemp = Buffer.from(object.b, 'base64').toString();
+    var byteTemp = atob(object.b);
     var buffer = this.str2ab(byteTemp);
 
     switch(obj.c) {
@@ -318,7 +319,7 @@ Module.prototype.handleJsonMessage = function( object ) {
             this.offPnp(obj.id);
 
             // type, uuid, category, module, sw
-            var type = new Uint16Array(buffer, 4, 2);
+            var type = (buffer.byteLength === 8)? new Uint16Array(buffer, 4, 2) : new Uint16Array(buffer, 4, 1);
             var arr = this.type2strArr(type);
             obj.uuid = Number("0x" + (type[0]).toString(16) + (new Uint32Array(buffer, 0, 1)[0]).toString(16));
             obj.category = arr[0];
@@ -332,7 +333,7 @@ Module.prototype.handleJsonMessage = function( object ) {
             var view = new DataView(buf);
 
             for(var i=0;i<4;i++) {
-				view.setUint8(3-i, data[i]);
+                view.setUint8(3-i, data[i]);
             }
             
             var propertyValue = Number(view.getFloat32(0).toFixed(0));
@@ -575,7 +576,7 @@ Module.prototype.setTune = function(moduleValue) {
         view[i+4] = volView.getUint8(3-i);
     }
 
-    var b64 = Buffer.from(this.ab2str(buffer)).toString('base64');
+    var b64 = Buffer.from(buffer).toString('base64');
 
     obj.c = 0x04;
     obj.s = setProperty[moduleValue.module];//function ID
@@ -750,3 +751,4 @@ Module.prototype.validateLocalData = function(data) {
 };
 
 module.exports = new Module();
+

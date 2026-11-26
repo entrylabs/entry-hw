@@ -1,6 +1,7 @@
 function Module() {
     this.tx_d = new Array(28);
     this.rx_d56 = new Array(56);
+    this.rx_setting = new Array(31);
     this.rx_dtest = new Array(512);
 
     this.sensordata = {
@@ -47,7 +48,14 @@ function Module() {
         dot5: 0,
         dot6: 0,
         dot7: 0,
-        dot8: 0
+        dot8: 0,
+        command: 10,
+        trim: 0,
+        pgain: 0,
+        igain: 0,
+        dgain: 0,
+        version: 0,
+        cnt: 0
     };
 
     for (var i = 0; i < 56; ++i) {
@@ -72,7 +80,15 @@ var ALTINO = {
     DOT5: 'dot5',
     DOT6: 'dot6',
     DOT7: 'dot7',
-    DOT8: 'dot8'
+    DOT8: 'dot8',
+    COMMAND: 'command',
+    TRIM: 'trim',
+    PGAIN: 'pgain',
+    IGAIN: 'igain',
+    DGAIN: 'dgain',
+    VERSION: 'version',
+    SETTING: 'setting',
+    CNT: 'cnt'
 };
 
 Module.prototype.init = function(handler, config) {
@@ -132,125 +148,134 @@ Module.prototype.checkInitialData = function(data, config) {
     return true;
 };
 
+function GetBitMergeResultSigned_12Bit(byH, byL) {
+    var nTempH = byH;
+    var nTempL = byL;
+
+    nTempH = (nTempH << 8) | byL;
+
+    if ((nTempH & 0x8000) == 0x8000)
+    {
+        nTempH = ~(nTempH - 1);
+        nTempH = 0 - (nTempH & 0xFFFF);
+    }
+    else
+    {
+        nTempH &= 0x7FFF;
+    }
+
+    return nTempH = nTempH >> 4;
+}
+
+function GetBitMergeResultSigned_16Bit(byH, byL) {
+    var nTempH = byH;
+    var nTempL = byL;
+
+    nTempH = (nTempH << 8) | byL;
+
+    if ((nTempH & 0x8000) == 0x8000)
+    {
+        nTempH = ~(nTempH - 1);
+        nTempH = 0 - (nTempH & 0xFFFF);
+    }
+    else
+    {
+        nTempH &= 0x7FFF;
+    }
+
+    return nTempH = nTempH;
+}
 
 // 하드웨어 데이터 처리
 Module.prototype.handleLocalData = function(data) { // data: Native Buffer
 
-
     var buf = this.rx_d56;
+    var settingBuf = this.rx_setting;
     var rx_check_sum = 0;
     var sensordata = this.sensordata;
     var buftest = this.rx_dtest;
+    var motordata = this.motordata;
 
     for (var i = 0; i < data.length; i++) {
         var str = data[i];
-        buftest[i] = parseInt(str, 10);
-        for (var j = 0; j < 55; j++) {
-            buf[j] = buf[j + 1];
+
+        if(motordata.command == 252) {
+            settingBuf[i] = parseInt(str, 10);
         }
-        buf[55] = buftest[i];
-
-        if (buf[0] === 2 && buf[55] === 3 && buf[1] === 56) {
-
-            rx_check_sum = buf[0];
-            rx_check_sum = rx_check_sum + buf[1];
-            rx_check_sum = rx_check_sum + buf[3];
-            rx_check_sum = rx_check_sum + buf[4];
-            rx_check_sum = rx_check_sum + buf[5];
-            rx_check_sum = rx_check_sum + buf[6];
-            rx_check_sum = rx_check_sum + buf[7];
-            rx_check_sum = rx_check_sum + buf[8];
-            rx_check_sum = rx_check_sum + buf[9];
-            rx_check_sum = rx_check_sum + buf[10];
-            rx_check_sum = rx_check_sum + buf[11];
-            rx_check_sum = rx_check_sum + buf[12];
-            rx_check_sum = rx_check_sum + buf[13];
-            rx_check_sum = rx_check_sum + buf[14];
-            rx_check_sum = rx_check_sum + buf[15];
-            rx_check_sum = rx_check_sum + buf[16];
-            rx_check_sum = rx_check_sum + buf[17];
-            rx_check_sum = rx_check_sum + buf[18];
-            rx_check_sum = rx_check_sum + buf[19];
-            rx_check_sum = rx_check_sum + buf[20];
-            rx_check_sum = rx_check_sum + buf[21];
-            rx_check_sum = rx_check_sum + buf[22];
-            rx_check_sum = rx_check_sum + buf[23];
-            rx_check_sum = rx_check_sum + buf[24];
-            rx_check_sum = rx_check_sum + buf[25];
-            rx_check_sum = rx_check_sum + buf[26];
-            rx_check_sum = rx_check_sum + buf[27];
-            rx_check_sum = rx_check_sum + buf[28];
-            rx_check_sum = rx_check_sum + buf[29];
-            rx_check_sum = rx_check_sum + buf[30];
-            rx_check_sum = rx_check_sum + buf[31];
-            rx_check_sum = rx_check_sum + buf[32];
-            rx_check_sum = rx_check_sum + buf[33];
-            rx_check_sum = rx_check_sum + buf[34];
-            rx_check_sum = rx_check_sum + buf[35];
-            rx_check_sum = rx_check_sum + buf[36];
-            rx_check_sum = rx_check_sum + buf[37];
-            rx_check_sum = rx_check_sum + buf[38];
-            rx_check_sum = rx_check_sum + buf[39];
-            rx_check_sum = rx_check_sum + buf[40];
-            rx_check_sum = rx_check_sum + buf[41];
-            rx_check_sum = rx_check_sum + buf[42];
-            rx_check_sum = rx_check_sum + buf[43];
-            rx_check_sum = rx_check_sum + buf[44];
-            rx_check_sum = rx_check_sum + buf[45];
-            rx_check_sum = rx_check_sum + buf[46];
-            rx_check_sum = rx_check_sum + buf[47];
-            rx_check_sum = rx_check_sum + buf[48];
-            rx_check_sum = rx_check_sum + buf[49];
-            rx_check_sum = rx_check_sum + buf[50];
-            rx_check_sum = rx_check_sum + buf[51];
-            rx_check_sum = rx_check_sum + buf[52];
-            rx_check_sum = rx_check_sum + buf[53];
-            rx_check_sum = rx_check_sum + buf[54];
-            rx_check_sum = rx_check_sum + buf[55];
-
-            rx_check_sum = rx_check_sum % 256;
-
-            if (rx_check_sum === buf[2]) {
-
-                sensordata.ir1 = buf[7] * 256 + buf[8]; //ir1
-                sensordata.ir2 = buf[9] * 256 + buf[10]; //ir2
-                sensordata.ir3 = buf[11] * 256 + buf[12]; //ir3
-                sensordata.ir4 = buf[13] * 256 + buf[14]; //ir4
-                sensordata.ir5 = buf[15] * 256 + buf[16]; //ir5
-                sensordata.ir6 = buf[17] * 256 + buf[18]; //ir6
-
-                sensordata.tor1 = buf[19] * 256 + buf[20]; //right torque
-                sensordata.tor2 = buf[21] * 256 + buf[22]; //left torque
-
-                sensordata.tem = buf[49] * 256 + buf[50]; //temperature
-
-                sensordata.cds = buf[43] * 256 + buf[44]; //cds
-
-                sensordata.accx = buf[25] * 256 + buf[26]; //acc x
-                sensordata.accy = buf[27] * 256 + buf[28]; //acc y
-                sensordata.accz = buf[29] * 256 + buf[30]; //acc z
-
-                sensordata.magx = buf[31] * 256 + buf[32]; //mag x
-                sensordata.magy = buf[33] * 256 + buf[34]; //mag y
-                sensordata.magz = buf[35] * 256 + buf[36]; //mag z
-
-                sensordata.stvar = buf[45] * 256 + buf[46]; //steering var
-
-                sensordata.sttor = buf[23] * 256 + buf[24]; //steering torque
-
-                sensordata.bat = buf[47] * 256 + buf[48]; //battery
-
-                sensordata.remote = buf[51]; //remote control
-
-                sensordata.gyrox = buf[37] * 256 + buf[38]; //gyro sensor x
-                sensordata.gyroy = buf[39] * 256 + buf[40]; //gyro sensor y
-                sensordata.gyroz = buf[41] * 256 + buf[42]; //gyro sensor z               
-            }
-
+        else {
+            buf[i] = parseInt(str, 10);
         }
-
     }
 
+    if (buf[0] === 2 && buf[55] === 3 && buf[1] === 56) {
+        for(var i = 0; i < 56; i++) {
+            if(i != 2) rx_check_sum += buf[i];
+        }
+
+        rx_check_sum = rx_check_sum % 256;
+
+        if(rx_check_sum == buf[2]) {
+
+            sensordata.ir1 = buf[7] * 256 + buf[8]; //ir1
+            sensordata.ir2 = buf[9] * 256 + buf[10]; //ir2
+            sensordata.ir3 = buf[11] * 256 + buf[12]; //ir3
+            sensordata.ir4 = buf[13] * 256 + buf[14]; //ir4
+            sensordata.ir5 = buf[15] * 256 + buf[16]; //ir5
+            sensordata.ir6 = buf[17] * 256 + buf[18]; //ir6
+
+            sensordata.tor1 = buf[19] * 256 + buf[20]; //right torque
+            sensordata.tor2 = buf[21] * 256 + buf[22]; //left torque
+
+            sensordata.tem = buf[49] * 256 + buf[50]; //temperature
+
+            sensordata.cds = buf[43] * 256 + buf[44]; //cds
+
+            sensordata.accx = GetBitMergeResultSigned_12Bit(buf[25], buf[26]); //acc x
+            sensordata.accy = GetBitMergeResultSigned_12Bit(buf[27], buf[28]); //acc y
+            sensordata.accz = GetBitMergeResultSigned_12Bit(buf[29], buf[30]); //acc z
+
+            sensordata.magx = GetBitMergeResultSigned_16Bit(buf[31], buf[32]); //mag x
+            sensordata.magy = GetBitMergeResultSigned_16Bit(buf[33], buf[34]); //mag y
+            sensordata.magz = GetBitMergeResultSigned_16Bit(buf[35], buf[36]); //mag z
+
+            sensordata.stvar = buf[45] * 256 + buf[46]; //steering var
+
+            sensordata.sttor = buf[23] * 256 + buf[24]; //steering torque
+
+            sensordata.bat = buf[47] * 256 + buf[48]; //battery
+
+            sensordata.remote = buf[51]; //remote control
+
+            sensordata.gyrox = GetBitMergeResultSigned_16Bit(buf[37], buf[38]); //gyro sensor x
+            sensordata.gyroy = GetBitMergeResultSigned_16Bit(buf[39], buf[40]); //gyro sensor y
+            sensordata.gyroz = GetBitMergeResultSigned_16Bit(buf[41], buf[42]); //gyro sensor z     
+            
+            motordata.cnt = 0;
+        }
+        buf.length = 0;
+
+    }
+    
+    if (settingBuf[0] === 2 && settingBuf[1] === 31) {
+
+        motordata.trim = settingBuf[5];
+        motordata.pgain = settingBuf[6];
+        motordata.igain = settingBuf[7];
+        motordata.dgain = settingBuf[8];
+        motordata.version = settingBuf[26];
+
+        if(motordata.command == 252) {
+            if(motordata.cnt == 0) {
+                this.tx_d.length = 0;
+                motordata.cnt += 1;
+            }
+            else if(motordata.cnt == 1) {
+                this.tx_d.length = 0;
+                motordata.cnt += 1;
+            }
+        }
+        settingBuf.length = 0;
+    }
 };
 
 // Web Socket(엔트리)에 전달할 데이터
@@ -265,6 +290,15 @@ Module.prototype.requestRemoteData = function(handler) {
 Module.prototype.handleRemoteData = function(handler) {
     var motordata = this.motordata;
     var newValue;
+
+    if(handler.e(ALTINO.COMMAND)) {
+
+        newValue = handler.read(ALTINO.COMMAND);
+
+        if (motordata.command != newValue) {
+            motordata.command = newValue;
+        }
+    }
 
     if (handler.e(ALTINO.RIGHT_WHEEL)) {
         
@@ -385,44 +419,100 @@ Module.prototype.handleRemoteData = function(handler) {
 
 };
 
-
 // 하드웨어에 전달할 데이터
 Module.prototype.requestLocalData = function() {
     var motordata = this.motordata;
     var tx_d = this.tx_d;
     var u16_tx_check_sum = 0;
     var u16_tx_cnt;
-    var u16_cnt = 27;
 
-    tx_d[0] = 0x2;
-    tx_d[1] = 28;
+    if(motordata.command == 252) {
+        if(motordata.cnt == 0) {
+            var u16_cnt = 21;
 
-    tx_d[3] = 1;
-    tx_d[4] = 10;
-    tx_d[5] = motordata.steering;
-    tx_d[6] = motordata.rightmode;
-    tx_d[7] = (motordata.rightmotor & 0xFF00) >> 8;
-    tx_d[8] = motordata.rightmotor & 0xFF;
-    tx_d[9] = motordata.leftmode;
-    tx_d[10] = (motordata.leftmotor & 0xFF00) >> 8;
-    tx_d[11] = motordata.leftmotor & 0xFF;
-    tx_d[12] = motordata.ascii;
-    tx_d[13] = motordata.dot1;
-    tx_d[14] = motordata.dot2;
-    tx_d[15] = motordata.dot3;
-    tx_d[16] = motordata.dot4;
-    tx_d[17] = motordata.dot5;
-    tx_d[18] = motordata.dot6;
-    tx_d[19] = motordata.dot7;
-    tx_d[20] = motordata.dot8;
-    tx_d[21] = motordata.led2 | 0x01;
-    tx_d[22] = motordata.note;
-    tx_d[23] = motordata.led;
-    tx_d[24] = 1;
-    tx_d[25] = 0;
-    tx_d[26] = 0;
-    tx_d[27] = 0x3;
+            tx_d[0] = 0x2;
+            tx_d[1] = 22;
 
+            tx_d[3] = 1;
+            tx_d[4] = 252;
+            tx_d[5] = 0;
+            tx_d[6] = 0;
+            tx_d[7] = 0;
+            tx_d[8] = 0;
+            tx_d[9] = 0;
+            tx_d[10] = 0;
+            tx_d[11] = 0;
+            tx_d[12] = 0;
+            tx_d[13] = 0;
+            tx_d[14] = 0;
+            tx_d[15] = 0;
+            tx_d[16] = 0;
+            tx_d[17] = 0;
+            tx_d[18] = 0;
+            tx_d[19] = 0;
+            tx_d[20] = 0;
+            tx_d[21] = 0x3;
+        }
+        else if(motordata.cnt == 1) {
+            var u16_cnt = 21;
+
+            tx_d[0] = 0x2;
+            tx_d[1] = 22;
+
+            tx_d[3] = 1;
+            tx_d[4] = 252;
+            tx_d[5] = 1;
+            tx_d[6] = motordata.trim;
+            tx_d[7] = motordata.pgain;
+            tx_d[8] = motordata.igain;
+            tx_d[9] = motordata.dgain;
+            tx_d[10] = 0;
+            tx_d[11] = 0;
+            tx_d[12] = 0;
+            tx_d[13] = 0;
+            tx_d[14] = 0;
+            tx_d[15] = 0;
+            tx_d[16] = 0;
+            tx_d[17] = motordata.version;
+            tx_d[18] = 0;
+            tx_d[19] = 0;
+            tx_d[20] = 0;
+            tx_d[21] = 0x3;
+        }
+    }
+    else {
+        motordata.cnt = 0;
+        var u16_cnt = 27;
+
+        tx_d[0] = 0x2;
+        tx_d[1] = 28;
+
+        tx_d[3] = 1;
+        tx_d[4] = 10;
+        tx_d[5] = motordata.steering;
+        tx_d[6] = motordata.rightmode;
+        tx_d[7] = (motordata.rightmotor & 0xFF00) >> 8;
+        tx_d[8] = motordata.rightmotor & 0xFF;
+        tx_d[9] = motordata.leftmode;
+        tx_d[10] = (motordata.leftmotor & 0xFF00) >> 8;
+        tx_d[11] = motordata.leftmotor & 0xFF;
+        tx_d[12] = motordata.ascii;
+        tx_d[13] = motordata.dot1;
+        tx_d[14] = motordata.dot2;
+        tx_d[15] = motordata.dot3;
+        tx_d[16] = motordata.dot4;
+        tx_d[17] = motordata.dot5;
+        tx_d[18] = motordata.dot6;
+        tx_d[19] = motordata.dot7;
+        tx_d[20] = motordata.dot8;
+        tx_d[21] = motordata.led2 | 0x01;
+        tx_d[22] = motordata.note;
+        tx_d[23] = motordata.led;
+        tx_d[24] = 1;
+        tx_d[25] = 0;
+        tx_d[26] = 0;
+        tx_d[27] = 0x3;
+    }
 
     u16_tx_check_sum = u16_tx_check_sum + tx_d[1];
     for (u16_tx_cnt = 3; u16_tx_cnt <= u16_cnt; u16_tx_cnt++) {
@@ -432,7 +522,6 @@ Module.prototype.requestLocalData = function() {
 
 
     tx_d[2] = u16_tx_check_sum;
-
     return tx_d;
 };
 

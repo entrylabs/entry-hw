@@ -75,6 +75,12 @@ function Module()
 		{
             '0': 0,
             '1': 0,			
+            '2': 0,
+            '3': 0,			
+            '4': 0,
+            '5': 0,			
+            '6': 0,
+            '7': 0,			                        
 		},
         TIMER: 0,
         SERVO: 
@@ -171,28 +177,48 @@ Module.prototype.handleLocalData = function(data)
 {
     var self = this;
     var datas = this.getDataByBuffer(data);
-	var count = 0;
-	
+  
     datas.forEach(function (data) 
 	{
         if(data.length <= 4 || data[0] !== 255 || data[1] !== 85) return;                
 		var readData = data.subarray(2, data.length);
-		
+
         var type = readData[readData.length - 1];
         var port = readData[readData.length - 2];
 		
-        var value, value2;
+        var value;
+
+        // LEEJC added 2020.3.4
+        let rtemp = new Array();
+        let rhumi = new Array();        
+        
         switch(readData[0]) {
             case self.sensorValueSize.FLOAT: 
-			{
-                value = new Buffer(readData.subarray(1, 5)).readFloatLE();
-                value = Math.round(value * 100) / 100;      
-            
+			{         
+                //
 				if(type === self.sensorTypes.TEMP)  // Add for TEMP Sensor
-                {                  
-                    value2 = new Buffer(readData.subarray(6, 10)).readFloatLE();                   
-                    value2 = Math.round(value2 * 100) / 100;                    
-                }				
+                {          
+                    for(let i = 0; i<4; i++)      
+                    {
+                        rhumi[i] = new Buffer(readData.subarray(1+i*10, 5+i*10)).readFloatLE();      
+                        rhumi[i]  = Math.round(rhumi[i] * 100) / 100;                            
+                        rtemp[i] = new Buffer(readData.subarray(6+i*10, 10+i*10)).readFloatLE();       
+                        rtemp[i] = Math.round(rtemp[i] * 100) / 100;  
+                    }                 
+                }		
+                else if(type === self.sensorTypes.USONIC)  // Add for USONIC Sensor
+                {          
+                    for(let i = 0; i<4; i++)      
+                    {
+                        rtemp[i] = new Buffer(readData.subarray(1+i*5, 5+i*5)).readFloatLE();      
+                        rtemp[i]  = Math.round(rtemp[i] * 100) / 100;                          
+                    }                                   
+                }          
+                else
+                {	                       
+                    value = new Buffer(readData.subarray(1, 5)).readFloatLE();
+                    value = Math.round(value * 100) / 100;      
+                }                                         
                 break;
             }
             case self.sensorValueSize.SHORT: {
@@ -221,18 +247,27 @@ Module.prototype.handleLocalData = function(data)
                 break;
             }
             case self.sensorTypes.TEMP: {
-                self.sensorData.TEMP[0] = value;
-                self.sensorData.TEMP[1] = value2;  
-//             console.log("TEMP[0~1]: %s %s", value, value2);	           
+                self.sensorData.TEMP[0] = rtemp[0];
+                self.sensorData.TEMP[1] = rhumi[0];     
+                self.sensorData.TEMP[2] = rtemp[1];
+                self.sensorData.TEMP[3] = rhumi[1];         
+                self.sensorData.TEMP[4] = rtemp[2];
+                self.sensorData.TEMP[5] = rhumi[2];     
+                self.sensorData.TEMP[6] = rtemp[3];
+                self.sensorData.TEMP[7] = rhumi[3];                              
                 break;
             }			
             case self.sensorTypes.USONIC: {
-                self.sensorData.USONIC[port] = value;		 	
+                self.sensorData.USONIC[0] = rtemp[0];   
+                self.sensorData.USONIC[1] = rtemp[1];
+                self.sensorData.USONIC[2] = rtemp[2];		     
+                self.sensorData.USONIC[3] = rtemp[3];		                 	
                 break;
             }
             case self.sensorTypes.SERVO: {
-                self.sensorData.SERVO[port] = value;
-//                console.log("port: %s value: %s", port, value);	             
+                self.sensorData.SERVO[port] = value;     
+                // LEEJC debug
+//                console.log(value);  
                 break;
             }			
             case self.sensorTypes.TIMER: {
@@ -256,7 +291,7 @@ Module.prototype.requestRemoteData = function(handler)
 {
     var self = this;
     if(!self.sensorData) return;
-	
+
     Object.keys(this.sensorData).forEach(function (key) 
 	{
         if(self.sensorData[key] != undefined) 
@@ -274,18 +309,19 @@ Module.prototype.handleRemoteData = function(handler)
     var setDatas = handler.read('SET') || this.defaultOutput;
     var time = handler.read('TIME');
     var buffer = new Buffer([]);
-				
+        
     if(getDatas) 
 	{			
-        var keys = Object.keys(getDatas);
-			
+        var keys = Object.keys(getDatas);         
+
         keys.forEach(function(key) 
 		{
             var isSend = false;
             var dataObj = getDatas[key];
+            
             if(typeof dataObj.port === 'string' || typeof dataObj.port === 'number') 
 			{
-                var time = self.digitalPortTimeList[dataObj.port];
+                var time = self.digitalPortTimeList[dataObj.port];    
                 if(dataObj.time > time) 
 				{
                     isSend = true;
@@ -308,7 +344,7 @@ Module.prototype.handleRemoteData = function(handler)
                     });
                 }
             }
-
+   
             if(isSend) 
 			{
                 if(!self.isRecentData(dataObj.port, key, dataObj.data)) 
@@ -317,9 +353,9 @@ Module.prototype.handleRemoteData = function(handler)
 					{
                         type: key,
                         data: dataObj.data
-                    }
-                    buffer = Buffer.concat([buffer, self.makeSensorReadBuffer(key, dataObj.port, dataObj.data)]);						
-                }
+                    }                     
+                    buffer = Buffer.concat([buffer, self.makeSensorReadBuffer(key, dataObj.port, dataObj.data)]);	    				
+                }                
             }
         });        
     }
@@ -392,7 +428,7 @@ Module.prototype.isRecentData = function(port, type, data)
 
     // Add for TEMP/USONIC/SERVO
     if ((type === '6')||(type === '7')||(type === '4')) isRecent = false;
-
+    
     return isRecent;
 }
 
@@ -405,8 +441,8 @@ ff 55 len idx action device port  slot  data a
 Module.prototype.makeSensorReadBuffer = function(device, port, data) 
 {
     var buffer;
-    var dummy = new Buffer([10]);
-	
+    var dummy = new Buffer([10]);      
+    
     if(device == this.sensorTypes.USONIC) 
 	{
         buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.GET, device, port, 10]);	
@@ -419,8 +455,8 @@ Module.prototype.makeSensorReadBuffer = function(device, port, data)
     } 
     else if(device == this.sensorTypes.SERVO) 
 	{
-        buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.GET, device, port[0], port[1], 10]);	
-//        console.log("GET: %s %s %s %s %s", sensorIdx, this.actionTypes.GET, device, port[0], port[1]);	        
+        buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.GET, device, port, 10]);	
+//        console.log("GET: %s %s %s %s", sensorIdx, this.actionTypes.GET, device, port);	        
     } 	
 	else if(device == this.sensorTypes.RD_BT) 
 	{
@@ -454,7 +490,7 @@ Module.prototype.makeOutputBuffer = function(device, port, data)
     var dummy = new Buffer([10]);
 		
     switch(device) 
-	{
+	{    
         case this.sensorTypes.MOTOR:
 				buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.SET, device, port, data[0], data[1]]);
                 buffer = Buffer.concat([buffer, dummy]);
@@ -468,10 +504,10 @@ Module.prototype.makeOutputBuffer = function(device, port, data)
 				break;        
 				
 		case this.sensorTypes.DIGITAL:
-				value.writeInt16LE(data);
+                value.writeInt16LE(data);
 				buffer = new Buffer([255, 85, 6, sensorIdx, this.actionTypes.SET, device, port]);
 				buffer = Buffer.concat([buffer, value, dummy]);
-				break;
+                break;
 
 		case this.sensorTypes.BUZZER: 
                 buffer = new Buffer([255, 85, 5, sensorIdx, this.actionTypes.SET, device, port, data]);     

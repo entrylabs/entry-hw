@@ -1,0 +1,27 @@
+{
+    "id": "450101",
+    "name": {
+        "en": "Choco",
+        "ko": "쪼코"
+    },
+    "category": "robot",
+    "platform": ["win32", "darwin"],
+    "icon": "choco.png",
+    "module": "choco.js",
+    "url": "http://jjomulrak.com",
+    "driver": {
+        "win32-ia32": "CDM21228_Driver/CDM21228_Setup.exe",
+        "win32-x64": "CDM21228_Driver/CDM21228_Setup.exe",
+        "darwin-x64": "Mac_OSX_VCP_Driver/SiLabsUSBDriverDisk.dmg"
+    },
+    "reconnect": true,    
+    "hardware": {
+        "type": "serial",
+        "control": "slave",
+        "duration": 16,
+        "vendor": "FTDI",
+        "pnpId":"FTDIBUS\\VID_0403+PID_6015+DM03B974A\\0000",
+        "baudRate": 115200,
+        "byteDelimiter" : [126]
+    }
+}

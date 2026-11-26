@@ -1,0 +1,40 @@
+{
+  "id": "4D0201",
+  "name": {
+    "en": "2nd Coding Array Starter   *328PB Board Only",
+    "ko": "2세대 코딩어레이 스타터   *328PB 보드 전용"
+  },
+  "category": "board",
+  "platform": [ "win32", "darwin" ],
+  "icon": "castarter_v2_pb.png",
+  "module": "castarter_v2_pb.js",
+  "url": "https://github.com/CodingArray/CAUNO-328PB",
+  "email": "we@codingarray.cc",
+  "video": "https://youtu.be/DYTYEcSIFKY",
+  "driver": [
+    {
+      "win32-ia32": "arduino/dpinst-x86.exe",
+      "win32-x64": "arduino/dpinst-amd64.exe",
+      "translate": "Arduino USB 드라이버"
+    },
+    {
+      "win32-ia32": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
+      "win32-x64": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
+      "darwin-x64": "https://entrylabs.github.io/docs/files/drivers/CH34x_Install_MAC_10_9_AND_ABOVE/CH34x_Install_V1.3.pkg",
+      "translate": "USB CH340X 드라이버"
+    }
+  ],
+  "reconnect": true,
+  "selectPort": true,
+  "firmware": "castarter_v2_pb",
+  "firmwareBaudRate": 115200,
+  "firmwareMCUType": " m328pb",
+  "hardware": {
+    "type": "serial",
+    "control": "slave",
+    "duration": 32,
+    "vendor": ["Arduino", "wch.cn"],
+    "firmwarecheck": false,
+    "baudRate": 115200
+  }
+}

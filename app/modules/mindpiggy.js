@@ -1,4 +1,3 @@
-const rendererConsole = require('../src/main/utils/rendererConsole');
 const BaseModule = require('./baseModule');
 
 class Mindpiggy extends BaseModule{
@@ -141,7 +140,6 @@ class Mindpiggy extends BaseModule{
         if(buffer.length)
             this.sendBuffers.push(buffer);
 
-        // rendererConsole.log(this.sendBuffers);
 
     }
 

@@ -1,0 +1,31 @@
+{
+	"id": "470501",
+	"name": {
+		"en": "JIKKO_ANIMALKEYRING",
+		"ko": "직코 애니멀 키링"
+	},
+	"category": "board",
+	"platform": ["win32", "darwin"],
+	"icon": "jikko_animal.png",
+	"module": "jikko_animal.js",
+	"driver": {
+		"win32-ia32": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
+        "win32-x64": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
+        "darwin-x64": "https://entrylabs.github.io/docs/files/drivers/CH34x_Install_MAC_10_9_AND_ABOVE/CH34x_Install_V1.3.pkg"
+	},
+	"url": "http://www.makeitall.co.kr",
+	"email": "makeitall018@naver.com",
+	"reconnect": true,
+	"firmware": "jikko_animal",
+	"selectPort": true,
+	"hardware": {
+		"type": "serial",
+		"control": "slave",
+		"duration": 64,
+		"vendor": ["Arduino", "wch.cn", "FTDI"],
+		"baudRate": 115200,
+		"skipHandshake": true,
+		"firmwarecheck": false,
+		"advertise": 1000
+	}
+}

@@ -14,9 +14,6 @@
         "win32-x64": "LUXROBO/VCP_V1.3.1_Setup_x64.exe"
     },
     "reconnect": true,
-    "entry": {
-        "protocol": "json"
-    },
     "hardware": {
         "type": "serial",
         "control": "slave",

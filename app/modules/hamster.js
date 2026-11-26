@@ -135,24 +135,29 @@ Module.prototype.requestInitialData = function() {
 };
 
 Module.prototype.checkInitialData = function(data, config) {
-	if(data && data.slice(0, 2) == 'FF') {
-		var info = data.split(/[,\n]+/);
-		if(info && info.length >= 5) {
-			if(info[1] == 'Hamster' && info[2] == '04' && info[4].length >= 12) {
-				config.id = '0204' + info[3];
-				this.address = info[4].substring(0, 12);
-				this.isHamsterS = false;
-				return true;
-			} else if(info[2] == '0E' && info[4].length >= 12) {
-				config.id = '0204' + info[3];
-				this.address = info[4].substring(0, 12);
-				this.isHamsterS = true;
-				return true;
-			} else {
-				return false;
-			}
-		}
+	// 이름 필드는 사용자가 바꿀 수 있는 가변값이라 콤마나 CR/LF가 섞이면 앞에서 세는 인덱스가 밀린다.
+	// 끝의 CR/LF만 제거하고 콤마로만 분리한 뒤 고정 구조(모델/변형/주소)를 뒤에서 집는다.
+	// 실물 캡처(FF01,Hamster,04,05,ADDR) 기준 variant는 hex 2자리, 주소는 hex 12자리, 주소 뒤 필드 없음.
+	if(typeof data !== 'string' || data.slice(0, 2) != 'FF') {
+		return;
 	}
+	var info = data.replace(/[\r\n]+$/, '').split(',');
+	if(info.length < 5) {
+		return;
+	}
+	var model = info[info.length - 3];
+	var variant = info[info.length - 2];
+	var address = info[info.length - 1];
+	if(!/^[0-9A-Fa-f]{2}$/.test(variant) || !/^[0-9A-Fa-f]{12}$/.test(address)) {
+		return false;
+	}
+	if(model == '04' || model == '0E') {
+		config.id = '0204' + variant;   // 0E(HamsterS)도 기존과 동일하게 0204 프리픽스 유지
+		this.address = address;
+		this.isHamsterS = (model == '0E');
+		return true;
+	}
+	return false;
 };
 
 Module.prototype.validateLocalData = function(data) {

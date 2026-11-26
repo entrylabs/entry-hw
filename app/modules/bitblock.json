@@ -13,12 +13,9 @@
 		"win32-ia32": "ftdi/dpinst-x86.exe",
 		"win32-x64": "ftdi/dpinst-amd64.exe"
 	},
-	"select_com_port": true,
+	"selectPort": true,
     "reconnect": true,
     "firmware": "arduino_ext",
-    "entry": {
-        "protocol": "json"
-    },
     "hardware": {
         "type": "serial",
         "control": "slave",

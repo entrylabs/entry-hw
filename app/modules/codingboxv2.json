@@ -1,0 +1,36 @@
+{
+  "id": "6F0101",
+  "name": {
+    "en": "PLAYCODING BOX V2.0",
+    "ko": "플레이코딩 박스 V2.0"
+  },
+  "category": "board",
+  "platform": ["win32", "darwin"],
+  "icon": "codingboxv2.png",
+  "module": "codingboxv2.js",
+  "url": "",
+  "selectPort": true,
+  "reconnect": true,
+  "driver": {
+    "win32-ia32": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
+    "win32-x64": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE"
+  },
+  "firmware":[
+    {
+      "type": "esp32",
+      "offset": "0x10000",
+      "name": "codingboxv2",
+      "translate": "펌웨어 설치"
+    }
+  ],
+  "firmwareBaudRate":921600,
+  "hardware": {
+    "type": "serial",
+    "control": "slave",
+    "delimiter": "\n",
+    "duration": 128,
+    "vendor": "",
+    "baudRate": 115200,
+    "commType": "ascii"
+  }
+}

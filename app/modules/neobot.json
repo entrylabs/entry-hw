@@ -1,8 +1,8 @@
 {
 	"id": "050101",
 	"name": {
-		"en": "NEOBOT",
-		"ko": "네오봇"
+		"en": "Neobot(for Cloud PC)",
+		"ko": "네오봇(for Cloud PC)"
 	},
 	"category": "module",
 	"platform": ["win32", "darwin"],
@@ -16,10 +16,7 @@
 		"darwin-x64": "Mac_OSX_VCP_Driver/SiLabsUSBDriverDisk.dmg"
 	},
 	"reconnect" : true,
-	"select_com_port" : true,
-	"entry": {
-		"protocol": "json"
-	},
+	"selectPort" : true,
 	"hardware": {
 		"pnpId" : "PID",
 		"type": "bluetooth",

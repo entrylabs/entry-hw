@@ -17,10 +17,7 @@
     "reconnect" : true,
 	"firmware": "palmkit",
 	"firmwareBaudRate": "",
-	"select_com_port": false,
-	"entry": {
-		"protocol": "json"
-	},
+	"selectPort": false,
 	"hardware": {
 		"type": "serial",
 		"control": "master",

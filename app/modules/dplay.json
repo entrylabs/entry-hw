@@ -15,9 +15,6 @@
 	},
     "reconnect" : true,
     "firmware": "dplay",
-	"entry": {
-		"protocol": "json"
-	},
 	"hardware": {
 		"type": "serial",
 		"control": "slave",

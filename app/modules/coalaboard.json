@@ -1,0 +1,27 @@
+{
+	"id": "030301",
+	"name": {
+		"en": "coalaboard",
+		"ko": "코알라보드"
+	},
+	"category": "module",
+	"platform": ["win32", "darwin"],
+	"icon" : "coalaboard.png",
+	"module": "coalaboard.js",
+	"url": "http://bitbrick.cc/",
+	"email": "info@hellogeeks.kr",
+	"driver": {
+        "win32-ia32": "CP210x_VCP_Windows/CP210xVCPInstaller_x86.exe",
+        "win32-x64": "CP210x_VCP_Windows/CP210xVCPInstaller_x64.exe",
+        "darwin-x64": "Mac_OSX_VCP_Driver/SiLabsUSBDriverDisk.dmg"
+	},
+    "reconnect" : false,
+	"hardware": {
+		"type": "serial",
+		"control": "slave",
+		"duration": 20,
+		"scanType": "data",
+		"vendor": "Silicon Lab",
+		"baudRate": 38400
+	}
+}

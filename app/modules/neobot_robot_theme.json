@@ -12,9 +12,6 @@
 	"email": "neobot@neobot.co.kr",
 	"video": "https://goo.gl/hAXFZT",
 	"reconnect" : true,
-	"entry": {
-		"protocol": "json"
-	},
 	"driver": [
 		{
             "win32-ia32": "NEOBOT/VCP_V1.5.0_Setup_W8_x64_32bits.exe",

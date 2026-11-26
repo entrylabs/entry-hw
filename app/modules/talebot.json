@@ -1,0 +1,29 @@
+{
+    "id": "240401",
+    "name": {
+        "en": "Talebot",
+        "ko": "테일봇"
+    },
+    "category": "robot",
+    "platform": "win32",
+    "icon": "talebot.png",
+    "module": "talebot.js",
+    "url": "http://www.marusysedu.kr",
+    "driver": {
+        "win32-ia32": "TALEBOT/PL2303_Prolific_DriverInstaller_v1190.exe",
+        "win32-x64": "TALEBOT/PL2303_Prolific_DriverInstaller_v1190.exe"
+    },
+    "reconnect": true,
+    "hardware": {
+	"type": "serial",
+	"control": "master",
+	"scanType": "data",
+	"bufferSize" : "32",
+    "vendor": ["Prolific"],
+	"baudRate": 115200,
+	"firmwarecheck": false,
+	"delimiter": "\r\n",
+    "stream": "string",
+	"lostTimer": 1000
+    }
+}

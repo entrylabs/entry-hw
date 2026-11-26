@@ -141,13 +141,6 @@ function Module() {
 		pivotLeft: 0,
 		offset: 0
 	};
-	this.battery = {
-		state: 2,
-		data: new Array(10),
-		sum: 0.0,
-		index: 0,
-		count: 0
-	};
 	this.timerId = undefined;
 }
 
@@ -256,17 +249,24 @@ Module.prototype.requestInitialData = function() {
 Module.prototype.checkInitialData = function(data, config) {
 	var alignment = this.alignment;
 	if(alignment.state == 0) {
-		if(data && data.slice(0, 2) == 'FF') {
-			var info = data.split(/[,\n]+/);
-			if(info && info.length >= 5) {
-				if(info[1] == 'Turtle' && info[2] == '09' && info[4].length >= 12) {
-					config.id = '0209' + info[3];
-					this.address = info[4].substring(0, 12);
-					alignment.state = 1;
-				} else {
-					return false;
-				}
-			}
+		// 이름 필드 가변(콤마/CR/LF) 대응: 끝의 CR/LF만 제거하고 콤마로 분리한 뒤 뒤에서 집는다.
+		// 실물 캡처(FF01,Turtle,09,02,ADDR) 기준 variant는 hex 2자리, 주소는 hex 12자리, 주소 뒤 필드 없음.
+		if(typeof data !== 'string' || data.slice(0, 2) != 'FF') {
+			return;
+		}
+		var info = data.replace(/[\r\n]+$/, '').split(',');
+		if(info.length < 5) {
+			return;
+		}
+		var model = info[info.length - 3];
+		var variant = info[info.length - 2];
+		var address = info[info.length - 1];
+		if(model == '09' && /^[0-9A-Fa-f]{2}$/.test(variant) && /^[0-9A-Fa-f]{12}$/.test(address)) {
+			config.id = '0209' + variant;
+			this.address = address;
+			alignment.state = 1;
+		} else {
+			return false;
 		}
 	} else if(alignment.state == 1) {
 		if(data && data.slice(0, 2) == 'B0') {
@@ -464,22 +464,11 @@ Module.prototype.handleLocalData = function(data) { // data: string
 	// battery
 	str = data.slice(36, 38);
 	value = parseInt(str, 16);
-	value = value / 100.0 + 2;
+	value = (value + 200) / 100.0;
 	// battery state
-	var batt = this.battery;
-	if(batt.count < 10) {
-		++ batt.count;
-	} else {
-		batt.index %= 10;
-		batt.sum -= batt.data[batt.index];
-	}
-	batt.sum += value;
-	batt.data[batt.index] = value;
-	++ batt.index;
-	value = batt.sum / batt.count;
 	var state = 2;
-	if(value < 3.63) state = 0;
-	else if(value < 3.65) state = 1;
+	if(value < 3.65) state = 0;
+	else if(value < 3.75) state = 1;
 	if(state != event.batteryState) {
 		event.batteryState = state;
 		sensory.batteryState = state;
@@ -491,15 +480,15 @@ Module.prototype.handleLocalData = function(data) { // data: string
 	var wheel = this.wheel;
 	if(wheel.event == 1) {
 		if(state == 0) {
-			if(wheel.pulse > 0 && wheel.pulse < 12) {
-				if(++wheel.count > 5) wheel.event = 2;
+			if(wheel.pulse > 0 && wheel.pulse < 20) {
+				if(++wheel.count > 8) wheel.event = 2;
 			}
 		} else {
 			wheel.event = 2;
 		}
 	}
 	if(wheel.event == 2) {
-		if(state != wheel.state || wheel.count > 5) {
+		if(state != wheel.state || wheel.count > 8) {
 			wheel.state = state;
 			sensory.wheelState = state;
 			sensory.wheelStateId = (sensory.wheelStateId % 255) + 1;
@@ -753,7 +742,7 @@ Module.prototype.requestLocalData = function() {
 	if(motion.written) {
 		self.cancelTimeout();
 		motion.type = parseInt(motoring.motionType);
-		if(motion.type < 0 || motion.type > 12) { // MOTION_SWING_RIGHT_TAIL
+		if(motion.type < 0 || motion.type > 12) { // MOTION_CIRCLE_RIGHT_TAIL
 			motion.type = 0;
 		}
 		if(motion.type != 0) {
@@ -802,12 +791,12 @@ Module.prototype.requestLocalData = function() {
 						case 8: // MOTION_PIVOT_RIGHT_TAIL
 							wheel.pulse = Math.round(value * (2 * Turtle.DEG_TO_PULSE + alignment.pivotRight) / 360.0);
 							break;
-						case 9: // MOTION_SWING_LEFT_HEAD
-						case 10: // MOTION_SWING_LEFT_TAIL
+						case 9: // MOTION_CIRCLE_LEFT_HEAD
+						case 10: // MOTION_CIRCLE_LEFT_TAIL
 							wheel.pulse = self.calculatePulse(value, motoring.motionRadius, alignment.spinLeft);
 							break;
-						case 11: // MOTION_SWING_RIGHT_HEAD
-						case 12: // MOTION_SWING_RIGHT_TAIL
+						case 11: // MOTION_CIRCLE_RIGHT_HEAD
+						case 12: // MOTION_CIRCLE_RIGHT_TAIL
 							wheel.pulse = self.calculatePulse(value, motoring.motionRadius, alignment.spinRight);
 							break;
 						default:
@@ -862,19 +851,19 @@ Module.prototype.requestLocalData = function() {
 			leftWheel = -speed;
 			rightWheel = 0;
 			break;
-		case 9: // MOTION_SWING_LEFT_HEAD
+		case 9: // MOTION_CIRCLE_LEFT_HEAD
 			leftWheel = self.calculateSpeed(speed, motoring.motionRadius);
 			rightWheel = speed;
 			break;
-		case 10: // MOTION_SWING_LEFT_TAIL
+		case 10: // MOTION_CIRCLE_LEFT_TAIL
 			leftWheel = -self.calculateSpeed(speed, motoring.motionRadius);
 			rightWheel = -speed;
 			break;
-		case 11: // MOTION_SWING_RIGHT_HEAD
+		case 11: // MOTION_CIRCLE_RIGHT_HEAD
 			leftWheel = speed;
 			rightWheel = self.calculateSpeed(speed, motoring.motionRadius);
 			break;
-		case 12: // MOTION_SWING_RIGHT_TAIL
+		case 12: // MOTION_CIRCLE_RIGHT_TAIL
 			leftWheel = -speed;
 			rightWheel = -self.calculateSpeed(speed, motoring.motionRadius);
 			break;
@@ -1070,12 +1059,6 @@ Module.prototype.reset = function() {
 	event.colorNumber = -1;
 	event.colorPattern = -1;
 	event.pulseCount = 0;
-	
-	var batt = this.battery;
-	batt.state = 2;
-	batt.sum = 0.0;
-	batt.index = 0;
-	batt.count = 0;
 };
 
 module.exports = new Module();

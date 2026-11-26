@@ -1,0 +1,34 @@
+{
+    "id": "540101",
+    "name": {
+        "en": "Dalgona.Edu Plus",
+        "ko": "달고나.에듀 Plus"
+    },
+    "category": "board",
+    "platform": ["win32", "darwin"],
+    "icon": "dalgona.png",
+    "module": "dalgona.js",
+    "url": "https://dalgonaedu.co.kr/",
+    "email": "who@nugunaplay.co.kr",
+ "driver": [{
+  "win32-ia32": "ftdi/dpinst-x86.exe",
+  "win32-x64": "ftdi/dpinst-amd64.exe",
+  "translate" : "FTDI Driver"
+ },
+ {
+  "win32-ia32": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
+  "win32-x64": "CH34x_Install_Windows_v3_4/CH34x_Install_Windows_v3_4.EXE",
+  "translate" : "CH340 Driver"
+ }],
+    "selectPort": true,
+    "reconnect": true,
+    "firmware": "dalgona",
+    "hardware": {
+        "type": "serial",
+        "control": "slave",
+        "duration": 32,
+        "vendor": ["Arduino", "wch.cn", "FTDI"],
+        "baudRate": 115200,
+        "firmwarecheck": false
+    }
+}
